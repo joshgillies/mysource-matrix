@@ -10,13 +10,11 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.14 2013/04/30 03:18:08 ewang Exp $
  */
 
 /**
- * Script to replace the non-utf8 smart quotes chars by their regular counterpart chars and
- * if string is still invalid after replacement, perform charset conversion on string
- * and then regenerates the content files (bodycopy, metadata and design) of the affected assets
+ * Script to perform charset conversion on the table fields values (tables and fields defined in script)
+ * It also regenerates the content files (bodycopy, metadata and design) of asset associated with the db record
  *
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
@@ -27,37 +25,37 @@
 
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
-    trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 $SYSTEM_ROOT = getCLIArg('system');
 if (!$SYSTEM_ROOT) {
-    echo "ERROR: You need to supply the path to the System Root\n";
-    print_usage();
-    exit(1);
+	echo "ERROR: You need to supply the path to the System Root\n";
+	print_usage();
+	exit(1);
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
-    echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
-    print_usage();
-    exit(1);
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	print_usage();
+	exit(1);
 }
 
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 $SYS_OLD_ENCODING = getCLIArg('old');
 if (!$SYS_OLD_ENCODING || !isValidCharset($SYS_OLD_ENCODING)) {
-    echo  "\nERROR: The charset you specified '$SYS_OLD_ENCODING', as system's old encoding is not valid charset type.\n\n";
-    print_usage();
-    exit(1);
+	echo  "\nERROR: The charset you specified '$SYS_OLD_ENCODING', as system's old encoding is not valid charset type.\n\n";
+	print_usage();
+	exit(1);
 }
 define('SYS_OLD_ENCODING',$SYS_OLD_ENCODING);
 
 $SYS_NEW_ENCODING = getCLIArg('new');
 if (!isValidCharset($SYS_NEW_ENCODING)) {
-    echo  "\nERROR: The charset you specified '".$SYS_NEW_ENCODING."', as system's new encoding is not valid charset type.\n\n";
-    print_usage();
-    exit(1);
+	echo  "\nERROR: The charset you specified '".$SYS_NEW_ENCODING."', as system's new encoding is not valid charset type.\n\n";
+	print_usage();
+	exit(1);
 }
 
 if (!empty($SYS_NEW_ENCODING)) {
@@ -78,54 +76,85 @@ $root_node_id = ($root_node_id) ? $root_node_id : 1;
 
 $reportOnly = getCLIArg('report');
 
+// Whether to include rollback tables in the db
+$include_rollback = !getCLIArg('ignore-rollback');
+
 // Make sure iconv is available.
 if (function_exists('iconv') == FALSE) {
-    echo "This script requires the php iconv module which isn't available.\n";
-    echo "Install that module and try again.\n";
-    exit(1);
+	echo "This script requires the php iconv module which isn't available.\n";
+	echo "Install that module and try again.\n";
+	exit(1);
 }
 
-// Tables where the values are to fixed
+// Tables where the values are to be looked into
 //
 // Array(
-//		<db table> => Array(
-//					"assetid" 	=> <fieldname containing the assetid>,
-//					"contextid" => <fieldname containing the record's contextid>,
-//					"value" 	=> <fieldname containing the record's value>,
-//					"key" 		=> [<third field as part of the record's primary key>],
-//				),
-//		)
+//		Array(
+//			"table"			=> Table that needs checking/fixing
+//			"values" 		=> Array of field names whose values needs checking/fixing
+//			"asset_assoc"	=> TRUE if the table record is assoicated with an asset ("does the table has 'assetid' field?")
+//		),
+//	)
+//
+// NOTE 1: 	The script does not checks rollback tables
+// NOTE 2: 	If the value field holds serialised value then script must handle that field accourdingly.
+//			Currently "custom_val" field of "ast_attr_val" table of attribute type "serialsed" and
+//			"data" field of "trig" are only ones that are treated as serialsed values by this script.
+// NOTE 3:	There are two entries for 'internal_msg' table below because one targets the messages that are assoicated with an asset, 
+// 			while other targets non-asset specific messages (message that has empty assetid field, like internal message sent by user or trigger action).
+//
 $tables = Array(
-    'sq_ast_attr_val'       => Array(
-        'assetid' 		=> 'assetid',
-        'contextid'		=> 'contextid',
-        'value'			=> 'custom_val',
-        'key'			=> 'attrid',
-    ),
-    'sq_ast_mdata_val'      => Array(
-        'assetid' 		=> 'assetid',
-        'contextid'		=> 'contextid',
-        'value'			=> 'value',
-        'key'			=> 'fieldid',
-    ),
-    'sq_ast_mdata_dflt_val' => Array(
-        'assetid'		=> 'assetid',
-        'contextid'		=> 'contextid',
-        'value'			=> 'default_val',
-        'key'			=> '',
-    ),
-    'sq_ast_attr_uniq_val'  => Array(
-        'assetid'		=> 'assetid',
-        'contextid'		=> 'contextid',
-        'value'			=> 'custom_val',
-        'key'			=> 'owning_attrid',
-    ),
-);
+			Array(
+				'table'			=> 'ast',
+				'values'		=> Array('name', 'short_name'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'ast_attr_val',
+				'values'		=> Array('custom_val'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'ast_mdata_val',
+				'values'		=> Array('value'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'ast_mdata_dflt_val',
+				'values'		=> Array('default_val'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'ast_attr_uniq_val',
+				'values'		=> Array('custom_val'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'internal_msg',
+				'values'		=> Array('subject', 'body'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'internal_msg',
+				'values'		=> Array('subject', 'body'),
+				'asset_assoc'	=> FALSE,
+			),
+			Array(
+				'table'			=> 'trig',
+				'values'		=> Array('name', 'data', 'description', 'category'),
+				'asset_assoc'	=> FALSE,
+			),
+			Array(
+				'table'			=> 'thes_term',
+				'values'		=> Array('term'),
+				'asset_assoc'	=> FALSE,
+			),
+	);
 
 if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
-    echo  "\nERROR: The old encoding ('" . SYS_OLD_ENCODING . "') is the same as the current/new character set.\n\n";
-    print_usage();
-    exit(1);
+	echo  "\nERROR: The old encoding ('" . SYS_OLD_ENCODING . "') is the same as the current/new character set.\n\n";
+	print_usage();
+	exit(1);
 }
 
 // Oracle requires that the encoding be set when you connect to the database.
@@ -135,51 +164,50 @@ if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
 //
 $conf = require $SYSTEM_ROOT.'/data/private/conf/db.inc';
 if ($conf['db']['type'] === 'oci') {
-    if (isset($conf['db']['encoding']) === FALSE) {
-        echo "Using an oracle database, you must also set the encoding during the database connection.";
-        if (SYS_NEW_ENCODING === 'utf-8') {
-       echo "\nIt should be set to 'AL32UTF8', but currently it's not set.";
-        } else {
-       echo "\nIt should be set to match '".SYS_NEW_ENCODING."', but currently it's not set.";
-        }
-        echo "\nContinue [y/N] ? ";
-        $response = trim(fgets(STDIN, 1024));
-        if (strtolower($response) != 'y') {
-            echo "\nAborting\n";
-            exit();
-        }
-    } else {
-        $dbEncoding = $conf['db']['encoding'];
-        if (SYS_NEW_ENCODING === 'utf-8' && strtolower($dbEncoding) != 'al32utf8') {
-            echo "You are converting the character set to utf-8 but have the database connection";
-            echo "\nencoding currently set to '".$dbEncoding."'";
-            echo "\nContinue [y/N] ? ";
-            $response = trim(fgets(STDIN, 1024));
-            if (strtolower($response) != 'y') {
-                echo "\nAborting\n";
-                exit();
-            }
-        }
-    }
+	if (isset($conf['db']['encoding']) === FALSE) {
+		echo "Using an oracle database, you must also set the encoding during the database connection.";
+		if (SYS_NEW_ENCODING === 'utf-8') {
+			echo "\nIt should be set to 'AL32UTF8', but currently it's not set.";
+		} else {
+			echo "\nIt should be set to match '".SYS_NEW_ENCODING."', but currently it's not set.";
+		}
+		echo "\nContinue [y/N] ? ";
+		$response = trim(fgets(STDIN, 1024));
+		if (strtolower($response) != 'y') {
+			echo "\nAborting\n";
+			exit();
+		}
+	} else {
+		$dbEncoding = $conf['db']['encoding'];
+		if (SYS_NEW_ENCODING === 'utf-8' && strtolower($dbEncoding) != 'al32utf8') {
+			echo "You are converting the character set to utf-8 but have the database connection";
+			echo "\nencoding currently set to '".$dbEncoding."'";
+			echo "\nContinue [y/N] ? ";
+			$response = trim(fgets(STDIN, 1024));
+			if (strtolower($response) != 'y') {
+				echo "\nAborting\n";
+				exit();
+			}
+		}
+	}
 }
 
 if ($root_node_id == 1) {
-    echo "\nWARNING: You are running this script on the whole system.\nThis is fine, but it may take a long time\n";
+	echo "\nWARNING: You are running this script on the whole system.\nThis is fine, but it may take a long time\n";
 }
- 
+
 define('SCRIPT_LOG_FILE', $SYSTEM_ROOT.'/data/private/logs/'.basename(__FILE__).'.log');
 
 if (!$reportOnly) {
-    echo "\nIMPORTANT: This script will replace all the smart quote chars by their regular counterpart chars. And if value string is still\n";
-    echo "invalid in the current system's charset then it performs charset conversion on string from older to current encoding\n";
-    echo "YOU MUST BACKUP YOUR SYSTEM BEFORE RUNNING THIS SCRIPT\n";
-    echo "Are you sure you want to proceed (Y/N)? \n";
+	echo "\nIMPORTANT: This script will perform the charset conversion on the database from the older to the current encoding\n";
+	echo "YOU MUST BACKUP YOUR SYSTEM BEFORE RUNNING THIS SCRIPT\n";
+	echo "Are you sure you want to proceed (Y/N)? \n";
 
-    $yes_no = rtrim(fgets(STDIN, 4094));
-    if (strtolower($yes_no) != 'y') {
-        echo "\nScript aborted. \n";
-        exit;
-    }
+	$yes_no = rtrim(fgets(STDIN, 4094));
+	if (strtolower($yes_no) != 'y') {
+		echo "\nScript aborted. \n";
+	exit;
+	}
 }
 
 // File to communicate between the child and parent process
@@ -190,15 +218,48 @@ define('BATCH_SIZE', '100');
  // No turning back now. Start char fixing.
 $start_time = microtime(TRUE);
 
+// Whether to check rollback tables
+$rollback_summary = NULL;
+if ($include_rollback) {
+
+	$pid = fork();
+	if (!$pid) {
+
+		// NOTE: This seemingly ridiculousness allows us to workaround Oracle, forking and CLOBs
+		// if a query is executed that returns more than 1 LOB before a fork occurs,
+		// the Oracle DB connection will be lost inside the fork
+		require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+		// Fix the rollback tables
+		$summary = fix_db($root_node_id, $tables, TRUE);
+
+		// Unlike regular tables, for rollback table entries we dont need to obtain affected assetids 
+		// list to regenerate the relevant files in the filesystem
+		unset($summary['affected_assetids']);
+		file_put_contents(SYNC_FILE, serialize($summary));
+
+		exit();
+
+	}//end child process
+
+	if (!is_file(SYNC_FILE)) {
+		echo "Expected sync file containing the affected rollback entries not found. Only rollback tables were updated\n";
+		exit(1);
+	}
+	$rollback_summary = unserialize(file_get_contents(SYNC_FILE));
+	unlink(SYNC_FILE);
+}
+
 $pid = fork();
 if (!$pid) {
 
-    // NOTE: This seemingly ridiculousness allows us to workaround Oracle, forking and CLOBs
-    // if a query is executed that returns more than 1 LOB before a fork occurs,
-    // the Oracle DB connection will be lost inside the fork
+	// NOTE: This seemingly ridiculousness allows us to workaround Oracle, forking and CLOBs
+	// if a query is executed that returns more than 1 LOB before a fork occurs,
+	// the Oracle DB connection will be lost inside the fork
 	require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-	$summary = fix_db($root_node_id, $tables);
+	// Fix regular tables
+	$summary = fix_db($root_node_id, $tables, FALSE);
 
 	// Get the list of assetids for which we need to regenerate  the filesystem content
 	// to reflect the changes made in the db
@@ -207,7 +268,14 @@ if (!$pid) {
 	// Also get the context ids
 	$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 
-	file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $summary, 'contextids' => $contextids)));
+	// Database update summary for both regular and rollback tables
+	unset($summary['affected_assetids']);
+	$db_summary = Array(
+					'regular' => $summary,
+					'rollback' => $rollback_summary,
+				);
+
+	file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $db_summary, 'contextids' => $contextids)));
 
 	exit();
 
@@ -219,21 +287,36 @@ if (!is_file(SYNC_FILE)) {
 }
 
 $summary = unserialize(file_get_contents(SYNC_FILE));
+unlink(SYNC_FILE);
 
-// Fix the filesystem content to reflect the changes made in the db
-if ($reportOnly == FALSE) {
+echo "\n";
+if (!$reportOnly) {
+	// Fix the filesystem content to reflect the changes made in the db
 	regenerate_filesystem_content($summary['affected_assetids'], $summary['contextids']);
 
-	echo "Number of db records replaced successfully: ".$summary['db_summary']['records_fixed_count']."\n";
-	echo "Total errors recorded: ".$summary['db_summary']['error_count']."\n";
+	echo "Number of db records replaced successfully: ".$summary['db_summary']['regular']['records_fixed_count']."\n";
+	echo "Number of db records failed upating: ".$summary['db_summary']['regular']['error_count']."\n";
+	echo "Total warnings recorded: ".$summary['db_summary']['regular']['warning_count']."\n";
+	if ($include_rollback) {
+		echo "Number of rollback db records replaced successfully: ".$summary['db_summary']['rollback']['records_fixed_count']."\n";
+		echo "Number of rollback db records failed upating: ".$summary['db_summary']['rollback']['error_count']."\n";
+		echo "Total rollback warnings recorded: ".$summary['db_summary']['rollback']['warning_count']."\n";
+	}
 } else {
-	echo "Number of db records that need replacing: ".$summary['db_summary']['records_fixed_count']."\n";
+	echo "Number of db records that need replacing: ".$summary['db_summary']['regular']['records_fixed_count']."\n";
+	if ($include_rollback) {
+		echo "Number of rollback db records that need replacing: ".$summary['db_summary']['rollback']['records_fixed_count']."\n";
+	}
 }
 
 echo "Total time taken to run the script: ".round(microtime(TRUE)-$start_time, 2)." second(s)\n";
 
-if ($summary['db_summary']['error_count'] > 0)	{
-	echo "\nPlease check ".SCRIPT_LOG_FILE." file for errors\n\n";
+$total_error_count = $summary['db_summary']['regular']['error_count']+$summary['db_summary']['regular']['warning_count'];
+if ($include_rollback) {
+	$total_error_count += $summary['db_summary']['rollback']['error_count']+$summary['db_summary']['rollback']['warning_count'];
+}
+if ($total_error_count > 0)	{
+	echo "\nPlease check ".SCRIPT_LOG_FILE." file for warnings/errors\n\n";
 }
 echo "\n";
 
@@ -245,219 +328,317 @@ exit();
 /**
  * Fixes the char encoding in the given tables in the database
  *
- * @param int 	$root_node		Assetid of rootnode, all childern of rootnode will be processed for char replacement
- * @param array	$tables			DB tables and colunms info
+ * @param int		$root_node		Assetid of rootnode, all childern of rootnode will be processed for char replacement
+ * @param array		$tables			DB tables and colunms info
+ * @param boolean	$rollback		If TRUE process rollback tables, else process regular tables
  *
  * @return void
  */
-function fix_db($root_node, $tables)
+function fix_db($root_node, $tables, $rollback)
 {
-    global $reportOnly;
+	global $reportOnly;
+
+	$tables_info = get_tables_info();
 
 	// Get the list of attrids of the type 'serialise'
 	$sql = "SELECT attrid FROM sq_ast_attr where type='serialise'";
 	$serialise_attrids = array_keys(MatrixDAL::executeSqlGrouped($sql));
 
-    $target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
-    array_unshift($target_assetids, $root_node);
+	$target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
+	// Since we include the root node, target assetids will always contain atleast one asset id
+	array_unshift($target_assetids, $root_node);
 
-    if (empty($target_assetids)) {
-        echo "\n\nAsset #${root_node} not found or no assets found underneath\n";
-        return;
-    }
-    echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
+	echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
 
-    $errors                = Array();
-    $records_fixed_count   = 0;
-    $invalid_asset_records = Array();
+	$errors_count = 0;
+	$warnings_count = 0;
+	$records_fixed_count = 0;
+	$invalid_asset_records = Array();
 
 	// Assets that will require filesystem content regeneration
 	$affected_assetids = Array();
 
-    $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
+	// Go through 50 assets at a time. Applicable to asset specific tables only
     $chunks = array_chunk($target_assetids, 50);
 
-    // Go through 50 assets at a time.
-    $count = 0;
-    foreach ($chunks as $assetids) {
-        foreach($tables as $table => $fields) {
-            $sql  = 'SELECT '.trim(implode(',',$fields),',').' FROM '.$table;
-            $sql .= ' WHERE assetid IN (\''.implode('\',\'', $assetids).'\')';
+	// Counter to count the number of records accessed/processed
+	$count = 0;
+	foreach($tables as $table_data) {
 
-            $results = MatrixDAL::executeSqlAssoc($sql);
+		$table = isset($table_data['table']) ? $table_data['table'] : '';
+		if (empty($table)) {
+			continue;
+		}
 
-            foreach($results as $record) {
-                $count++;
-                if ($count % 100 == 0) {
-                    echo '.';
-                }
+		$key_fields = isset($tables_info[$table]['primary_key']) ? $tables_info[$table]['primary_key'] : '';
+		if (empty($key_fields)) {
+			echo "\n".'Ignoring table "'.$table.'". Table info for this table not found'." \n";
+			continue;
+		}
+		$value_fields = isset($table_data['values']) ? $table_data['values'] : '';
+		if (empty($value_fields)) {
+			// Nothing to check
+			continue;
+		}
 
-                $value     = isset($record[$fields['value']])     ? $record[$fields['value']]     : NULL;
-                $assetid   = isset($record[$fields['assetid']])   ? $record[$fields['assetid']]   : NULL;
-                $key       = isset($record[$fields['key']])       ? $record[$fields['key']]       : NULL;
-                $contextid = isset($record[$fields['contextid']]) ? $record[$fields['contextid']] : NULL;
+		if ($rollback) {
+			// Make sure table has rollback trigggers enabled, otherwise it will have rollback table
+			if (isset($tables_info[$table]['rollback']) && $tables_info[$table]['rollback']) {
+				// Add rollback table primary key field to the table's keys
+				$key_fields[] = 'sq_eff_from';
+			} else {
+				// This table does not has corresponding rollback table
+				continue;
+			}
+		}
 
-                if (is_null($value) || is_null($assetid) || is_null($contextid) || ($fields['key'] && is_null($key))) {
-                    continue;
-                }
+		// Prepend table prefix
+		$table = !$rollback ? 'sq_'.$table : 'sq_rb_'.$table;
 
-                if (empty($value)) {
-                    continue;
-                }
+		$asste_specific_table = $table_data['asset_assoc'];
+		$select_fields = array_merge($value_fields, $key_fields);
+		if ($asste_specific_table && !in_array('assetid', $select_fields)) {
+			$select_fields[] = 'assetid';
+		}
 
-                // If it's the same in the new and old encodings, that's good.
-                $checked = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
+		echo "\nChecking ".$table." .";
 
-                if ($value === $checked) {
-                    continue;
-                }
+		// For non-asset specific table, this loop will break at end of the very first iteration
+		foreach ($chunks as $assetids) {
+			$sql  = 'SELECT '.implode(',', $select_fields).' FROM '.$table;
+			// For non-asset specific table, "where" condition not is required. We get the whole table in a single go
+			if ($asste_specific_table) {
+				$sql .= ' WHERE assetid IN (\''.implode('\',\'', $assetids).'\')';
+			} else if ($table == 'sq_internal_msg') {
+				// Special case for non-asset specific records for 'interal_msg' table
+				// Internal message has 'assetid' field but messages not associated with the asset will have empty assetid
+				$sql .= " WHERE assetid = '' OR assetid IS NULL";
+			}
 
-                $update_required = FALSE;
-                $invalid_asset_records[] = array(
-                    'asset' => $assetid,
-                    'table' => $table,
-                    'value' => $value,
-                );
+			$results = MatrixDAL::executeSqlAssoc($sql);
+			foreach($results as $record) {
+				$count++;
+				if ($count % 100 == 0) {
+					echo '.';
+				}
 
-				// Check if the value is now valid
-                if (!isValidValue($value)) {
-                    // String might also contains the char(s) from older encoding which is/are not valid for current one
-                    // See if we can convert these without igonoring or interprating any chars
-					if ($table == 'sq_ast_attr_val' && in_array($key, $serialise_attrids)) {
-						// Need to handle serialised data differently
-						$us_value = @unserialize($value);
-						if (is_array($us_value)) {
-							array_walk_recursive($us_value, 'fix_char');
-							$converted_value = serialize($us_value);
-						} else if (is_string($us_value)) {
-							$us_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $us_value);
-							$converted_value = serialize($us_value);
+				// Asset ID associated with this record
+				$assetid = $asste_specific_table ? $record['assetid'] : 'n/a';
+
+				// Key field data
+				$key_values = Array();
+				foreach($key_fields as $key_field) {
+					$temp_key_v = array_get_index($record, $key_field, NULL);
+					if (is_null($temp_key_v)) {
+						// Primary key field must be there
+						continue 2;
+					}
+					$key_values[$key_field] = $temp_key_v;
+				}//end foreach
+
+				// Original value field data.
+				// This is the one we need to check/fix
+				$org_values = Array();
+				foreach($value_fields as $value_field) {
+					$org_values[$value_field] = array_get_index($record, $value_field, '');
+				}//end foreach
+
+
+				// If it's the same in the new and old encodings, that's good.
+				foreach($org_values as $value_field => $value) {
+					$checked = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
+					if ($value === $checked) {
+						// This field does not requires conversion/checking
+						unset($org_values[$value_field]);
+					}
+				}//end foreach
+
+				if (empty($org_values)) {
+					// No field values to convert/check
+					continue;
+				}
+
+				// Being here means this record contains invalid chars
+				$invalid_asset_records[] = array(
+											'asset'  => $assetid,
+											'table'  => $table,
+											'keys'   => $key_values,
+											'values' => $org_values,
+										);
+
+				$converted_values = Array();
+				foreach($org_values as $value_field => $value) {
+					// If not valid, convert the values without igonoring or interprating any chars
+					if (!isValidValue($value)) {
+
+						// Serialised fields needs to be handled here
+						$serialised_value = FALSE;
+						if ($table == 'sq_ast_attr_val' && $value_field == 'custom_val' && in_array($record['attrid'], $serialise_attrids)) {
+							$serialised_value = TRUE;
+						}
+						if ($table == 'sq_trig' && $value_field == 'data') {
+							$serialised_value = TRUE;
+						}
+
+						if ($serialised_value) {
+							$us_value = @unserialize($value);
+							if ($us_value === FALSE && serialize(FALSE) !== $value) {
+								// This has invalid serialsed value, but fix it anyway
+								$converted_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
+
+								// Put this error notice in the script log file
+								$warnings_count++;
+								$msg = 'Serialsed data field "'.$value_field.'" in the table "'.$table.'" (';
+								foreach($key_values as $field_name => $value) {
+									$msg .= $field_name.'='.$value.'; ';
+								}
+								$msg = rtrim($msg, '; ').') does not contain unserialisable data. '.($reportOnly ? 'Data can still be converted.' : 'Data will be converted anyway.');
+								log_error_msg($msg);
+
+							} else if (is_array($us_value)) {
+								array_walk_recursive($us_value, 'fix_char');
+								$converted_value = serialize($us_value);
+							} else if (is_scalar($us_value)) {
+								$us_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $us_value);
+								$converted_value = serialize($us_value);
+							} else {
+								$converted_value = $value;
+							}
 						} else {
-							$converted_value = $value;
+							$converted_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
+						}
+
+						// If the converted value is valid in current encoding then its good to go
+						// otherwise we'll just not use this value
+						if ($converted_value != $value && isValidValue($converted_value)) {
+							$value = $converted_value;
+							$converted_values[$value_field] = $value;
 						}
 					} else {
-                    	$converted_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
+						// if it's a valid encoded value, but was convertable before with iconv using old encoding
+						// it might be only because value is already properly encoded with new encoding.  so use md_detect to double check
+						$encoding = mb_detect_encoding($value);
+						if(strtolower($encoding) === strtolower(SYS_NEW_ENCODING)) {
+							unset($org_values[$value_field]);
+						}
 					}
+				}//end foreach
 
-                    // If the converted value is valid in current encoding then its good to go
-                    // otherwise we'll just not use this value
-                    if ($converted_value != $value && isValidValue($converted_value)) {
-                        $value = $converted_value;
-                        $update_required = TRUE;
-                    }
-                }
-               else {
-	// if it's a valid encoded value, but was convertable before with iconv using old encoding
-	// it might be only because value is already properly encoded with new encoding.  so use md_detect to double check
-	$encoding = mb_detect_encoding($value);
-	if($encoding === SYS_NEW_ENCODING) {
-		 array_pop($invalid_asset_records);
-		continue;
-	}
-              }
+				if (empty($org_values)) {
+					// All good
+					array_pop($invalid_asset_records);
+					continue;
+				}
 
-                if ($update_required) {
-                    if (!$reportOnly) {
-                        $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-                        try {
-                            $sql = "UPDATE
-                                $table
-                                SET
-                                ".$fields['value']."=:value
-                                WHERE
-                                ".$fields['assetid']."=:assetid".
-                                " AND ".$fields['contextid']."=:contextid".
-                                (!is_null($key) ? " AND ".$fields['key']."=:key" : "");
+				// If the successfully converted fields count is same as the invalid fields count, we can proceed with the update
+				$update_required = count($org_values) == count($converted_values);
 
+				if ($update_required) {
+					if (!$reportOnly) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-                            $update_sql = MatrixDAL::preparePdoQuery($sql);
+						// Generate update sql
+						$bind_vars = Array();
+						$set_sql = Array();
+						foreach($converted_values as $field_name => $value) {
+							$set_sql[] = $field_name.'=:'.$field_name.'_v';
+							$bind_vars[$field_name.'_v'] = $value;
+						}
+						$where_sql = Array();
+						foreach($key_values as $field_name => $value) {
+							$where_sql[] = $field_name.'=:'.$field_name.'_k';
+							$bind_vars[$field_name.'_k'] = $value;
+						}
 
-                            MatrixDAL::bindValueToPdo($update_sql, 'value', $value);
-                            MatrixDAL::bindValueToPdo($update_sql, 'assetid', $assetid);
-                            MatrixDAL::bindValueToPdo($update_sql, 'contextid', $contextid);
-                            if (!is_null($key)) MatrixDAL::bindValueToPdo($update_sql, 'key', $key);
+						try {
+							$sql = 'UPDATE '.$table.'
+									SET '.implode(', ', $set_sql).'
+									WHERE '.implode(' AND ', $where_sql);
 
-                            $execute = MatrixDAL::executePdoAssoc($update_sql);
-                            if (count($execute) > 1) {
-                                $sql = str_replace(':assetid', $assetid, $sql);
-                                $sql = str_replace(':contextid', $contextid, $sql);
-                                $sql = str_replace(':contextid', $contextid, $sql);
-                                $sql = !is_null($key) ? str_replace(':key', $key, $sql) : $sql;
+							$update_sql = MatrixDAL::preparePdoQuery($sql);
+							foreach($bind_vars as $var_name => $var_value) {
+								MatrixDAL::bindValueToPdo($update_sql, $var_name, $var_value);
+							}
 
-                                $errors[] = array(
-                                    'asset' => $assetid,
-                                    'table' => $table,
-                                );
+							// Execute the update query
+							$execute = MatrixDAL::executePdoAssoc($update_sql);
 
-                                $msg = "Executing query \"$sql\" will affect ".count($execute)." (more than 1) records! Ignoring this sql.";
-                                log_error_msg($msg);
+							if (count($execute) > 1) {
+								foreach($bind_vars as $var_name => $var_value) {
+									$sql = str_replace(':'.$var_name, "'".$var_value."'", $sql);
+								}
+								$errors_count++;
 
-                                $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$msg = 'Executing query "'.$sql.'" will affect '.count($execute).' records, instead of expected single record! Ignoring this sql.';
+								log_error_msg($msg);
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
-                                continue;
-                            }
+							} else {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-                            $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-                            $records_fixed_count++;
-							$affected_assetids[$table][] = $assetid;
+								$records_fixed_count++;
+								$affected_assetids[$table][] = $assetid;
+							}
+						} catch (Exception $e) {
+							$errors_count++;
+							$msg = "Unexpected error occured while updating database: ".$e->getMessage();
+							log_error_msg($msg);
 
-                        } catch (Exception $e) {
-                            $errors[] = array(
-								'asset' => $assetid,
-								'table' => $table,
-							);
-                            $msg = "Unexpected error occured while updating database: ".$e->getMessage();
-                            log_error_msg($msg);
-
-                            $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-                        }
-                    } else {
-                        $records_fixed_count++;
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						}
+					} else {
+						$records_fixed_count++;
 						// For reporting purpose only
 						$affected_assetids[$table][] = $assetid;
-                    }
-                } else {
-                    // This record contained invalid value. Either the invalid char(s) in it was/were not in the replacement array
-                    // or trying to carryout charset conversion (without losing any data) still resulted into invalid value
-                    // Hence replacement was not carried out.
-                    $errors[] = array(
-                                 'asset' => $assetid,
-                                 'table' => $table,
-                                 'value' => $value,
-                                );
+					}
+				} else {
+					// Trying to carryout charset conversion for this invalid value still resulted into invalid value
+					// Hence record was not updated for this value conversion
+					$errors_count++;
 
-                    $msg = "Asset with ".$fields['assetid']."=#$assetid, ".
-                        (!is_null($key) ? $fields['key']."=#$key, and " : "and ").
-                        $fields['contextid']."=#$contextid in table $table ".
-                        "contains invalid char(s), which were not replaced because ".
-                        "either those invalid chars were not defined in the replacement array or the charset conversion was not successful".
-                        "\nPotentially invalid characters include: ".listProblematicCharacters($value);
-                    log_error_msg($msg);
-                }
+					$msg = 'Entry in the table "'.$table.'": '."\n";
+						foreach($key_values as $field_name => $field_value) {
+							$msg .= $field_name.'="'.$field_value.'"; ';
+						}
+                    $msg .= "\n". 'contains invalid char(s), which were not replaced because the charset conversion was not successful'.
+					$msg .= "\n".'Potentially invalid characters include:'.listProblematicCharacters($org_values);
+					log_error_msg($msg);
+				}
+			}//end foreach records
 
-            }//end foreach
-        }//end foreach
-    }
+			if (!$asste_specific_table) {
+				// We have processed all the entries for this non-asset specific table
+				break;
+			}
 
-    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}//end foreach assetids chunk
+	}//end foreach tables
 
-    unset($target_assetids);
+	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-    echo "\n";
+	unset($target_assetids);
+	unset($chunks);
 
-    $invalid_count = sizeof(array_keys($invalid_asset_records));
-    echo "Number of db records with invalid char(s): ".$invalid_count."\n";
-    if ($invalid_count > 0) {
-        foreach ($invalid_asset_records as $k => $details) {
-            echo "\tAsset: ".$details['asset']." in table ".$details['table'];
-            echo "\tPossibly problematic characters: ".listProblematicCharacters($details['value'])."\n";
-        }
-        echo "\n";
-    }
+	echo "\n";
+	$invalid_count = sizeof(array_keys($invalid_asset_records));
+	echo "Number of db records with invalid char(s): ".$invalid_count."\n";
+	if ($invalid_count > 0) {
+	foreach ($invalid_asset_records as $k => $details) {
+		echo "\n\tAsset #".$details['asset']." in table ".$details['table'];
+			echo "\n\t".'Entry: ';
+			foreach($details['keys'] as $field_name => $field_value) {
+				echo $field_name.'="'.$field_value.'"; ';
+			}
+			echo "\n\tPossibly problematic characters: ".listProblematicCharacters($details['values'])."\n";
+	}
+	echo "\n";
+}
 
 	return Array(
-			'error_count' => sizeof(array_keys($errors)),
+			'warning_count' => $warnings_count,
+			'error_count' => $errors_count,
 			'records_fixed_count' => $records_fixed_count,
 			'affected_assetids' => $affected_assetids,
 		);
@@ -605,6 +786,7 @@ function regenerate_filesystem_content($assets_data, $contextids)
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
+				$processed_design_assetids = Array();
 				foreach($contextids as $contextid) {
 					$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
 
@@ -621,6 +803,11 @@ function regenerate_filesystem_content($assets_data, $contextids)
 							// Do not trigger "update asset" event when regenerating metadata
 							$mm->regenerateMetadata($assetid, NULL, FALSE);
 						} else {
+							// Design parse file are not contextable, so just go for once for design parse file generation
+							if (isset($processed_design_assetids[$assetid])) {
+								continue;
+							}
+
 							// If we're not a design for some reason, continue
 							if (!($asset instanceof Design)) continue;
 							$design_edit_fns = $asset->getEditFns();
@@ -629,6 +816,10 @@ function regenerate_filesystem_content($assets_data, $contextids)
 							$parse_file = $asset->data_path.'/parse.txt';
 							if (is_file($parse_file)) {
 								$parse_file_content = file_get_contents($parse_file);
+								if (isValidValue($parse_file_content)) {
+									// If file content is already valid, we are done here
+									continue;
+								}
 								$converted_content = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $parse_file_content);
 								if (isValidValue($converted_content)) {
 									if (!file_put_contents($parse_file, $converted_content)) {
@@ -648,6 +839,9 @@ function regenerate_filesystem_content($assets_data, $contextids)
 								@$customisation->updateFromParent($asset);
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($customisation);
 							}
+
+							// Mark that we have processed the affected design's the parse file
+							$processed_design_assetids[$asset->id] = 1;
 						}
 
 						$asset = $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
@@ -682,8 +876,8 @@ function regenerate_filesystem_content($assets_data, $contextids)
  */
 function isValidValue($value, $charset=SYS_NEW_ENCODING)
 {
-    $result = ($value == @iconv($charset, $charset."//IGNORE", $value));
-    return $result;
+	$result = ($value == @iconv($charset, $charset."//IGNORE", $value));
+	return $result;
 }
 
 
@@ -697,7 +891,7 @@ function isValidValue($value, $charset=SYS_NEW_ENCODING)
  */
 function isValidCharset($charset)
 {
-    return 'test' == @iconv($charset, $charset, 'test');
+	return 'test' == @iconv($charset, $charset, 'test');
 }
 
 
@@ -707,8 +901,8 @@ function isValidCharset($charset)
  */
 function log_error_msg($msg)
 {
-    $msg = date('j-m-y h-i-s').": ".$msg."\n";
-    file_put_contents(SCRIPT_LOG_FILE, $msg, FILE_APPEND);
+	$msg = date('j-m-y h-i-s').": ".$msg."\n";
+	file_put_contents(SCRIPT_LOG_FILE, $msg, FILE_APPEND);
 }
 
 
@@ -720,22 +914,22 @@ function log_error_msg($msg)
 */
 function fork()
 {
-    $child_pid = pcntl_fork();
+	$child_pid = pcntl_fork();
 
-    switch ($child_pid) {
-        case -1:
-            trigger_error("Forking failed!");
-            return null;
-        break;
-        case 0: // child process
-            return $child_pid;
-        break;
-        default : // parent process
-            $status = null;
-            pcntl_waitpid(-1, $status);
-            return $child_pid;
-        break;
-    }
+	switch ($child_pid) {
+		case -1:
+			trigger_error("Forking failed!");
+			return null;
+		break;
+		case 0: // child process
+			return $child_pid;
+		break;
+		default : // parent process
+			$status = null;
+			pcntl_waitpid(-1, $status);
+			return $child_pid;
+		break;
+	}
 }//end fork()
 
 
@@ -763,18 +957,19 @@ function getCLIArg($arg)
  */
 function print_usage()
 {
-    echo "\nThis script replaces all the non-utf8 smart quotes chars by their respective regular couterpart chars.";
-    echo "\nIf string is still invalid in current charset encoding aftet the replacement then script will perform chaset";
-    echo "\nconversion on string from previous charset to the current one.\n\n";
+	echo "\nThis script performs the charset conversion on the database from the older to the current encoding.";
+	echo "\nIt also regenerates the content files (bodycopy, metadata and design) of asset associated with the db record.\n\n";
 
-    echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--report]\n\n";
-    echo "\t<SYSTEM_ROOT> : The root directory of Matrix system.\n";
-    echo "\t<OLD_CHARSET> : Previous charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
-    echo "\t<NEW_CHARSET> : New charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
-    echo "\t<ROOT_NODE>   : Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
-    echo "\t<--report>    : Issue a report only instead of also trying to convert the assets.\n";
+	echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--ignore-rollback] [--report]\n\n";
+	echo "\t<SYSTEM_ROOT>		: The root directory of Matrix system.\n";
+	echo "\t<OLD_CHARSET>		: Previous charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
+	echo "\t<NEW_CHARSET>		: New charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
+	echo "\t<ROOT_NODE>			: Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
+	echo "\t<ROOT_NODE>			: Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
+	echo "\t[--report]			: Issue a report only instead of also trying to convert the data.\n";
+	echo "\t[--ignore-rollback]	: Do not include rollback tables.\n";
 
-    echo "\nWARNING: IT IS STRONGLY RECOMMENDED THAT YOU BACKUP YOUR SYSTEM BEFORE RUNNING THIS SCRIPT\n\n";
+	echo "\nWARNING: IT IS STRONGLY RECOMMENDED THAT YOU BACKUP YOUR SYSTEM BEFORE RUNNING THIS SCRIPT\n\n";
 
 }//end print_usage()
 
@@ -812,23 +1007,63 @@ function htmlallentities($str)
 /**
  * Report potentially problematic characters.
  *
- * @param string $value A string containing problematic characters.
+ * @param array $values An array values with atleast one entry containing problematic chars
  *
  * @return string
  */
-function listProblematicCharacters($value)
+function listProblematicCharacters($values)
 {
-    $entified = htmlallentities($value);
-    preg_match_all('/&#([0-9]+);/', $entified, $matches);
-    $codes     = array_unique($matches[1]);
-    $probChars = '';
-    foreach ($codes as $code) {
-		$probChars .= html_entity_decode('&#'.$code.';', ENT_COMPAT, 'utf-8').' ('.$code.'), ';
-    }
+	$str = '';
+	foreach($values as $field_name => $value) {
+		$entified = htmlallentities($value);
+		preg_match_all('/&#([0-9]+);/', $entified, $matches);
+		$codes     = array_unique($matches[1]);
+		$probChars = '';
+		foreach ($codes as $code) {
+			$probChars .= html_entity_decode('&#'.$code.';', ENT_COMPAT, 'utf-8').' ('.$code.'), ';
+		}
 
-    return preg_replace('/,\s*$/', '', $probChars);
+		$str .= "\n\t".$field_name.": ". preg_replace('/,\s*$/', '', $probChars);
+	}
+
+	return $str;
 
 }//end listProblematicCharacters()
+
+
+/**
+* Returns the all the db tables info
+*
+* @return array
+* @access public
+*/
+
+function get_tables_info()
+{
+	require_once SQ_LIB_PATH.'/db_install/db_install.inc';
+	$packages_installed = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+
+	if (empty($packages_installed)) {
+		return Array();
+	}
+
+	$table_info = Array();
+	foreach ($packages_installed as $package_array) {
+		if ($package_array['code_name'] == '__core__') {
+			$table_file = SQ_CORE_PACKAGE_PATH.'/tables.xml';
+		} else {
+			$table_file = SQ_PACKAGES_PATH.'/'.$package_array['code_name'].'/tables.xml';
+		}
+
+		if (file_exists($table_file)) {
+			$table_data = parse_tables_xml($table_file);
+			$table_info += $table_data['tables'];
+		}
+	}
+
+	return $table_info;
+
+}//end get_tables_info()
 
 
 ?>
