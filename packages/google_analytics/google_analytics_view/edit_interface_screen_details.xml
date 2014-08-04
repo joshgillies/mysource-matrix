@@ -15,4 +15,23 @@
 */
 -->
 
-<contents />
+<contents>
+    <section name="Connector and View" write_access="write:menu">
+        <field>
+            <display_name>Select Connector</display_name>
+            <note></note>
+            <function_call>
+                <paint_function   name="paintSelectConnector" />
+                <process_function name="processSelectConnector" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Select View</display_name>
+            <note></note>
+            <function_call>
+                <paint_function   name="paintSelectView" />
+                <process_function name="processSelectView" />
+            </function_call>
+        </field>
+    </section>
+</contents>

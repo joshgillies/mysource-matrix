@@ -59,7 +59,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		$this->static_screens = Array();
 		$this->static_screens['details']['name'] = translate('Details');
 		$this->static_screens['details']['force_unlock'] = FALSE;
-		$this->static_screens['details']['lock_type'] = 'none';
+		$this->static_screens['details']['lock_type'] = 'menu';
 
 	}//end constructor
 
@@ -3023,6 +3023,194 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	}//end paintContentMostViewedReportReturningUsers()
 
+
+	/**
+	 * Paints an interface for selecting a Google Analytics connector.
+	 *
+	 * @param Google_Analytics_View $asset   Asset to display
+	 * @param Backend_Outputter     $o       Relevant backend outputter
+	 * @param string                $prefix  Prefix for form elements
+	 *
+	 * @return boolean
+	 */
+	public function paintSelectConnector(Google_Analytics_View $asset, Backend_Outputter $o, $prefix)
+	{
+	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'google_analytics_connector', TRUE, NULL, 'minor');
+
+	    $wa = $asset->writeAccess('links');
+
+	    if ($wa === FALSE) {
+	        if (empty($connector_link) === TRUE) {
+	            echo translate('No connector set up yet');
+	        } else {
+	            echo get_asset_tag_line($connector_link['majorid']);
+	        }
+
+	        return FALSE;
+	    } else {
+	        $assetid = 0;
+	        if (empty($connector_link) === FALSE) {
+	            $assetid = $connector_link['majorid'];
+	        }
+
+	        asset_finder(
+                $prefix.'_connector',
+                $assetid,
+                Array(
+                    'google_analytics_connector' => 'I'
+                )
+            );
+        }
+
+        return $wa;
+
+	}//end paintSelectView()
+
+
+	/**
+	 * Processes the Google Analytics connector interface.
+	 *
+	 * Changing the connection will clear out the available data.
+	 *
+	 * @param Google_Analytics_View $asset   Asset to display
+	 * @param Backend_Outputter     $o       Relevant backend outputter
+	 * @param string                $prefix  Prefix for form elements
+	 *
+	 * @return boolean
+	 */
+	public function processSelectConnector(Google_Analytics_View $asset, Backend_Outputter $o, $prefix)
+	{
+	    $wa = $asset->writeAccess('links');
+
+	    if ($wa === TRUE) {
+            $connector_post    = array_get_index($_POST, $prefix.'_connector', Array());
+            $connector_assetid = array_get_index($connector_post, 'assetid');
+
+            if (empty($connector_assetid) === FALSE) {
+                $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'google_analytics_connector', TRUE, NULL, 'minor');
+                if (empty($connector_link) === FALSE) {
+                    if ($connector_link['majorid'] !== $connector_assetid) {
+                        $GLOBALS['SQ_SYSTEM']->am->moveLink($connector_link['linkid'], $connector_assetid, SQ_LINK_NOTICE, -1);
+                    }
+                } else {
+                    $connector = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_assetid);
+                    $GLOBALS['SQ_SYSTEM']->am->createAssetLink($connector, $asset, SQ_LINK_NOTICE);
+                }//end if (connector link exists)
+            }//end if (connector ID posted)
+        }//end if (write access)
+
+        return $wa;
+
+	}//end processSelectConnector()
+
+
+	/**
+	 * Paints a list of views and a method to create a view.
+	 *
+	 * @param Google_Analytics_View $asset  The asset being painted.
+	 * @param Backend_Outputter     $o      The relevant outputter.
+	 * @param string                $prefix The prefix for form elements.
+	 *
+	 * @return boolean
+	 */
+	public function paintSelectView(Google_Analytics_View $asset, Backend_Outputter $o, $prefix)
+	{
+	    $wa = $asset->writeAccess('attributes');
+
+	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'google_analytics_connector', TRUE, NULL, 'minor');
+	    if (empty($connector_link) === TRUE) {
+	        echo translate('You need to connect this view to a Google Analytics Connector before you can select a view.');
+			return FALSE;
+		}
+
+	    $connector_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_link['majorid']);
+	    $current_viewid  = $asset->attr('viewid');
+
+		$access_token = $connector_asset->attr('global_access_token');
+		if (empty($connector_link) === TRUE) {
+	        echo translate('You need to authorise the account before you can see the available views.');
+			return FALSE;
+		}
+
+		$properties   = $connector_asset->getProperties();
+		$views        = $connector_asset->getViews();
+
+		if ($wa === FALSE) {
+		    if (array_key_exists($current_viewid, $views) === TRUE) {
+		        echo sprintf(translate('%1$s [ga:%2$s]', '%1$s', '%2$s'), $views[$current_viewid]['name'], $current_viewid);
+		    } else {
+		        echo sprintf(translate('Unknown or inaccessible view [ga:%s]', '%s'), $current_viewid);
+		    }
+		} else {
+            echo '<table class="sq-backend-table">';
+            echo '<col width="5%" />';
+            echo '<col width="50%" />';
+            echo '<col width="45%" />';
+
+            echo '<thead>';
+            echo '<tr>';
+            echo '<th></th>';
+
+            echo '<th>'.translate('View Name').'</th>';
+            echo '<th>'.translate('Property ID').'</th>';
+            echo '</tr>';
+            echo '</thead><tbody>';
+
+            foreach ($views as $view) {
+                $propertyid = $view['sq:propertyId'];
+                echo '<tr>';
+                echo '<td>';
+                $selected = FALSE;
+                if ($current_viewid === $view['id']) {
+                    $selected = TRUE;
+                }
+
+                radio_button($prefix.'_select_view', $view['id'], $selected);
+                echo '</td>';
+
+                echo '<td><strong>'.$view['name'].'</strong></td>';
+                echo '<td>'.$properties[$propertyid]['name'].' ('.$propertyid.')</td>';
+                echo '</tr>';
+            }//end foreach
+
+            echo '</tbody></table>';
+        }//end if (write access)
+
+		return $wa;
+
+	}//end paintViewList()
+
+
+	/**
+	 * Processes a list of views and a method to create a view.
+	 *
+	 * @param Google_Analytics_View $asset  The asset being painted.
+	 * @param Backend_Outputter     $o      The relevant outputter.
+	 * @param string                $prefix The prefix for form elements.
+	 *
+	 * @return boolean
+	 */
+	public function processSelectView(Google_Analytics_View $asset, Backend_Outputter $o, $prefix)
+	{
+		$wa     = $asset->writeAccess('attributes');
+		$viewid = array_get_index($_POST, $prefix.'_select_view');
+
+		if (($viewid !== NULL) && ($wa === TRUE)) {
+		    $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		    $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		    $GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes');
+		    $asset->setAttrValue('viewid', $viewid);
+		    $asset->saveAttributes();
+		    $GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
+
+		    $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
+
+		return $wa;
+
+	}//end processSelectView()
 
 
 }//end class

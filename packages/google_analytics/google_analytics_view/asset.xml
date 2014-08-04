@@ -23,8 +23,8 @@
 	<type_code>google_analytics_view</type_code>
 	<version>0.1</version>
 	<name>Google Analytics View</name>
-	<description>Shadow asset representing the reports of a single View (previously known as "Profile") underneath a Google Analytics Bridge.</description>
-	<instantiable>no</instantiable>
+	<description>Asset representing the reports of a single View (previously known as "Profile") underneath a Google Analytics Bridge.</description>
+	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>page</parent_type>
 	<requirements />

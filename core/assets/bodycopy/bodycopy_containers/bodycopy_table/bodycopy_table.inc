@@ -39,12 +39,6 @@ class Bodycopy_Table extends Bodycopy_Container
 	public $deprecated = TRUE;
 
 
-	/**
-	* Marking the asset deprecated since so that we can
-	* use it when warning the users on backend
-	*/
-	public $deprecated_since = '5.1';
-
 
 	/**
 	* Marking the asset deprecated since so that we can
