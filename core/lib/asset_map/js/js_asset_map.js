@@ -2932,6 +2932,7 @@ var JS_Asset_Map = new function() {
 
 		// Work out the last page, but if we have shadow assets, just make it behave
 		// like the "next page" button.
+		offset = Number(offset);
 		var lastPageStart = (offset + options.assetsPerPage);
 		if (Number(totalAssets) !== -1) {
 			lastPageStart = Math.floor((totalAssets - 1) / options.assetsPerPage) * options.assetsPerPage;
@@ -3609,9 +3610,11 @@ var JS_Asset_Map = new function() {
 				if (response.asset) {
 					for (var i = 0; i < response.asset.length; i++) {
 						var thisAsset = response.asset[i];
-						var sortOrder = savedSortOrders.shift();
+						var sortOrder = Number(savedSortOrders.shift());
 						if (thisAsset._attributes.real_order) {
 						    sortOrder = Number(Math.floor(thisAsset._attributes.real_order / options.assetsPerPage) * options.assetsPerPage);
+						} else {
+						    sortOrder = Number(Math.floor(sortOrder / options.assetsPerPage) * options.assetsPerPage);
 						}
 	
 						var container = _createChildContainer(thisAsset._attributes.assetid);

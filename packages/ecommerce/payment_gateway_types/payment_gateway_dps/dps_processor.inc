@@ -436,6 +436,8 @@ class Dps_Processor
 				 'SSL_VERIFYPEER' => 1,//Needs to be included if no *.crt is available to verify SSL certificates
 				 'SSL_VERIFYHOST' => 2,
 				 'SSLVERSION'     => 3,
+				 'TIMEOUT'			=> 30,
+				 'CONNECTTIMEOUT'	=> 10,
 				);
 
 		$details = fetch_url(self::$_URL, $options);

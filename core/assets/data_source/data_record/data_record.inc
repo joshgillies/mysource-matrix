@@ -109,9 +109,9 @@ class Data_Record extends Asset
 	*/
 	public function _getAllowedLinks()
 	{
-		$links = parent::_getAllowedLinks();
-		$links[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
-
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_standard');
+		$page = new Page_Standard();
+		$links = $page->_getAllowedLinks();
 		return $links;
 
 	}//end _getAllowedLinks()

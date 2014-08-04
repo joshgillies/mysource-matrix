@@ -738,6 +738,11 @@ class Messaging_Service extends MySource_Object
 				}
 			} else {
 				$from_email = $from;
+				// if the from name is specified, we should respect the format, e.g My Name <myemail@squiz.com>
+				if(preg_match('/(.*) <([^ ]*)>/', $from_email, $matches) && isset($matches[1]) && isset($matches[2])) {
+					$from_email = $matches[2];
+					$from_string = $matches[1].' <'.$from_email.'>';
+				}
 			}
 			if (empty($from_email)) {
 				$from_email = SQ_CONF_DEFAULT_EMAIL;
