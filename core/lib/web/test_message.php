@@ -34,7 +34,6 @@ if (isset($_GET['interrogate']) && $_GET['interrogate'] == 1) {
 	$valid_request = TRUE;
 }
 
-$LOCK_FILE = dirname(__FILE__) . '/.test_message.lock';
 // not a valid request? exit!
 if (!$valid_request) {
 	header('HTTP/1.0 200 OK');
@@ -42,18 +41,6 @@ if (!$valid_request) {
 	exit;
 }
 
-if (is_file($LOCK_FILE)) {
-	# if the file was last modified < 55 secs ago, then show a 500 error.
-	# we want to limit it to 1 request every minute
-	# (55 secs used so we have a little leeway in case a request comes in slightly early)
-	$one_min_ago = time() - 55;
-	if (filemtime($LOCK_FILE) > $one_min_ago) {
-		header('HTTP/1.0 500 Internal Server Error');
-		exit;
-	}
-}
-
-touch($LOCK_FILE);
 
 /**
  * Check for legacy use first.
@@ -62,7 +49,7 @@ if (!empty($_GET['checkdb']) || !empty($_GET['checkreplication'])) {
 
 	$return_code = '200';
 
-	require_once '../../core/include/init.inc';
+	require_once dirname(__FILE__).'/../../../core/include/init.inc';
 	require SQ_SYSTEM_ROOT . '/data/private/conf/db.inc';
 
 	if (isset($_GET['checkdb']) && $_GET['checkdb'] == 1) {
@@ -236,7 +223,7 @@ $output = '';
 
 $return_code = '200';
 
-require_once dirname(__FILE__).'/../../core/include/init.inc';
+require_once dirname(__FILE__).'/../../../core/include/init.inc';
 
 require SQ_SYSTEM_ROOT . '/data/private/conf/db.inc';
 

@@ -2027,12 +2027,13 @@ class Form extends Asset implements Bridge
 		$form_action = $this->getFormAction();
 
 		$header = '';
+		$extra_attribute = $this->attr('form_extra_attribute');
 		if ($this->attr('use_client_side')) {
 			$on_submit = 'onsubmit="return beforeSubmit_'.$form_prefix.'(this);"';
-			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.'>';
+			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.' '.$extra_attribute.' >';
 			$header .= $this->getClientSideFunction();
 		} else {
-			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post">';
+			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$extra_attribute.' >';
 		}
 
 		$current_submission = $this->getSubmissionAsset();
@@ -2133,39 +2134,7 @@ class Form extends Asset implements Bridge
 				}
 
 				if ($page_number == 0) {
-					// Printing unattached questions (if any)
-					$bodycopy = $this->getBodycopy('Unattached Questions Format');
-
-					// check to see if the unattached bodycopy exists and has any content
-					if ($this->attr('use_bodycopy_unattached') && $bodycopy && !$bodycopy->isEmpty()) {
-						$keyword_list = $bodycopy->getKeywords();
-
-						if (!empty($keyword_list)) {
-							foreach ($keyword_list as $keyword) {
-								// Question and section-related keywords are found here
-								$replacement = $this->getDisplayKeywordReplacement($keyword);
-
-								if (is_null($replacement)) {
-									// If not picked up by first function, this will pick up
-									// replacements placed in separate functions - CAPTCHA,
-									// errors, for instance
-									$replacement = $this->getKeywordReplacement($keyword);
-								}
-
-								if (!is_null($replacement)) {
-									// We have something from one of the above
-									$replacements[$keyword] = $replacement;
-								}
-							}
-						}
-
-						$bodycopy->setKeywordReplacements($replacements);
-						$bodycopy->printBody();
-
-					} else {
-						// Grab the default "unattached questions" content file (at the moment)
-						require_once $this->data_path.'/content_file_questions.php';
-					}
+					$this->printUnattachedQuestion();
 				} else {
 					// Printing a section - sections are zero based after they were
 					// re-based by array_values
@@ -2176,14 +2145,85 @@ class Form extends Asset implements Bridge
 					}
 				}
 			} else {
-				$this->printPageContentsBodycopy();
+				$this->printUnattachedQuestion();
+				$sections = $this->getSections();
+				foreach ($sections as $section) {
+					$section->printBody($this);
+				}
 			}
 		}
 
 		$contents = ob_get_clean();
 		return $contents;
 
-	}//end printPage()
+	}//end getPageContents()
+
+
+	/**
+	* Print the questions for single page form.
+	*
+	* @return string
+	* @access public
+	*/
+	public function getSinglePageContent()
+	{
+			ob_start();
+			if ($this->attr('use_confirmation_page') && ($this->getCurrentPageNumber() == $this->getTotalPages())) {
+				echo $this->getConfirmationPageContents();
+			} else {
+				$this->printUnattachedQuestion();
+				$sections = $this->getSections();
+				foreach ($sections as $section) {
+					$section->printBody($this);
+				}
+			}
+			$contents = ob_get_clean();
+			return $contents;
+	}//end getSinglePageContent()
+
+	/**
+	* Print the unattached questions either using custom bodycopy or default format
+	*
+	* @return null
+	* @access public
+	*/
+	public function printUnattachedQuestion()
+	{
+		// Printing unattached questions (if any)
+		$bodycopy = $this->getBodycopy('Unattached Questions Format');
+
+					// check to see if the unattached bodycopy exists and has any content
+		if ($this->attr('use_bodycopy_unattached') && $bodycopy && !$bodycopy->isEmpty()) {
+			$keyword_list = $bodycopy->getKeywords();
+
+			if (!empty($keyword_list)) {
+				foreach ($keyword_list as $keyword) {
+								// Question and section-related keywords are found here
+					$replacement = $this->getDisplayKeywordReplacement($keyword);
+
+					if (is_null($replacement)) {
+									// If not picked up by first function, this will pick up
+									// replacements placed in separate functions - CAPTCHA,
+									// errors, for instance
+						$replacement = $this->getKeywordReplacement($keyword);
+					}
+
+					if (!is_null($replacement)) {
+									// We have something from one of the above
+						$replacements[$keyword] = $replacement;
+					}
+				}
+			}
+
+			$bodycopy->setKeywordReplacements($replacements);
+			$bodycopy->printBody();
+
+		} else {
+			// Grab the default "unattached questions" content file (at the moment)
+			$this->includeContentFile('Questions');
+		}
+	}//end printUnattachedQuestion()
+
 
 
 	/**
@@ -4240,6 +4280,10 @@ class Form extends Asset implements Bridge
 
 		}
 
+		// get conditions keywords from page custom form
+		$keywords = $this->getAvailableConditionKeywords();
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
 	}//end onRequestKeywords()
 
 
@@ -4637,7 +4681,7 @@ class Form extends Asset implements Bridge
 
 				case 'contents' :
 					ob_start();
-						include_once($section_asset->data_path.'/content_file.php');
+						$section_asset->printBody($this);
 					$replacement = ob_get_clean();
 				break;
 
@@ -4854,13 +4898,7 @@ class Form extends Asset implements Bridge
 	*/
 	function getFormContentsKeywordReplacement()
 	{
-		ob_start();
-			if ($this->attr('use_confirmation_page') && ($this->getCurrentPageNumber() == $this->getTotalPages())) {
-				echo $this->getConfirmationPageContents();
-			} else {
-				$this->includeContentFile('Standard');
-			}
-		return ob_get_clean();
+		return $this->getSinglePageContent();
 
 	}//end getFormContentsKeywordReplacement()
 
@@ -6008,6 +6046,23 @@ class Form extends Asset implements Bridge
 
 	}//end _passedMinimumTimeThreshold()
 
+
+	/**
+	*
+	* Get available keywords based on condition set on the asset
+	*
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableConditionKeywords()
+	{
+		// get conditions keywords from page custom form
+		$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'page_custom_form', FALSE, NULL, 'minor');
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+		$keywords = $parent_asset->getAvailableConditionKeywords();
+		return $keywords;
+	}
 
 }//end class
 ?>

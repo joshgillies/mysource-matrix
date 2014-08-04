@@ -24,7 +24,7 @@
 	<version>0.1</version>
 	<name>Bodycopy Table</name>
 	<description>BodyCopy Table Object, create rows and cells to format content</description>
-	<instantiable>yes</instantiable>
+	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>bodycopy_container</parent_type>
 	<requirements>

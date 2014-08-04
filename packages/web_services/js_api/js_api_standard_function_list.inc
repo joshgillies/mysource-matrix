@@ -404,6 +404,9 @@ function getMetadata(asset_id, dataCallback)
 * This will set a metadata value
 *
 * @param string		asset_id		Id of the asset we are getting info for
+* @param string		field_id		Id of the metadata field we want to set for an asset
+* @param string		$field_val		Value that needs to be set for metadata field 
+*									(Using 'SQ_METADATA_USE_DEFAULT' will set it to default)
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
@@ -427,6 +430,7 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 *
 * @param string		asset_id		Id of asset to set metadata for
 * @param array 		field_info		Field Ids and their values
+*									(Using 'SQ_METADATA_USE_DEFAULT' for value will set it to default)
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
@@ -2233,6 +2237,209 @@ function editMetadataSchema(assetid, schemaid, set, granted, cascades, dataCallb
 
 			<?php
 		}//end if(edit_metadata_schema)
+
+
+		if ($js_api_asset->attr('create_form_question')) {
+			?>
+/*
+* creates question(s) of a type on the passed formid or the form section id
+*
+* @param string		assetid			the asset of the form or form section to 
+*									add the question asset
+* @param string		type_code		the type of question to be added (default: Text)
+* @param int		units			number of question to add of a certain type (default:1)
+*
+* @return array
+* @access public
+*/
+function createQuestion(assetid, type_code, units, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	type_code = isset(type_code) && (type_code.toString().toLowerCase() != 'null' && type_code.toString() != '') ? type_code : 'text';
+	units = isset(units) && (units.toString().toLowerCase() != 'null' && units.toString() != '') ? units : 1;
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+				+ '&type=createQuestion&id=' + assetid
+				+ '&type_code=' + type_code
+				+ '&units=' + units;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end createQuestion()
+
+			<?php
+		}//end if(create_form_question)
+
+
+		if ($js_api_asset->attr('update_form_question')) {
+			?>
+/*
+* updates a question of the passed formid or the form section id
+*
+* @param string		assetid			the asset of the form or form section to 
+*									update the question on
+* @param string		question_id		the asset id of the question to update
+* @param json		field_info		The object containing data that needs to be updated
+*									here you can use attribute name as the key and it's
+*									corresponding value (user needs to make sure they are passing correct datatype)
+*
+* @return array
+* @access public
+*/
+function updateQuestion(assetid, question_id, field_info, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+				+ '&type=updateQuestion&id=' + assetid
+				+ '&question_id=' + question_id;
+
+	for (field_name in field_info) {
+		if (Object.prototype.toString.call(field_info[field_name]) === '[object Array]') {
+			url = url + '&' + field_name + '=' + field_info[field_name].join('\\,');
+		} else {
+			url = url + '&' + field_name + '=' + field_info[field_name];
+		}
+	}
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end updateQuestion()
+
+			<?php
+		}//end if(update_form_question)
+
+
+		if ($js_api_asset->attr('remove_form_question')) {
+			?>
+/*
+* removes a question of the passed formid or the form section id
+*
+* @param string		assetid			the asset of the form or form section to 
+*									remove the question off
+* @param string		question_id		the asset id of the question to remove
+*
+*
+* @return array
+* @access public
+*/
+function removeQuestion(assetid, question_id, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+				+ '&type=removeQuestion&id=' + assetid
+				+ '&question_id=' + question_id;
+
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end removeQuestion()
+
+			<?php
+		}//end if(remove_form_question)
+
+
+		if ($js_api_asset->attr('update_question_order')) {
+			?>
+/*
+* updates the question order on the passed formid or the form section id
+*
+* @param string		assetid			the asset of the form or form section to update
+* @param array		sort_order		new order of the questions
+*
+*
+* @return array
+* @access public
+*/
+function updateQuestionOrder(assetid, sort_order, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+				+ '&type=updateQuestionOrder&id=' + assetid
+				+ '&sort_order=' + sort_order.join('\\,');
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end updateQuestionOrder()
+
+			<?php
+		}//end if(update_question_order)
+
+		
+		if ($js_api_asset->attr('get_ga_statistics')) {
+			?>
+
+		/**
+		* Makes a statistics request.
+		*
+		* Required:
+		* - either duration or start_date is required but not both
+		* - dimensions are required even if empty; no more than 7 allowed
+	    * - metrics are required and must be between 1 and 10 of them
+		*
+		* Defaults:
+		* - request.end_date defaults to today's date if omitted
+		* - sort_by and filter are empty if omitted
+		* - force defaults to false
+		*
+		* Notes:
+		* - duration is ISO 8601 period format, eg. "P14D" for 14 days, "P2M"
+		*   for 2 months. Sets start date to "take end_date, subtract duration,
+		*   add one day".
+		* - Setting start date, on the other hand, is inclusive.
+		* - metrics also can be set to 'SQ_SITE_METRICS' or 'SQ_PAGE_METRICS'
+		*   for a set of standard site or page metrics.
+		* - sort_by array are 
+		* - filters are ANDed together. Filters can also be specified as an array
+		*   of subfilters which are ORed together first.
+		*
+		* @param {String} assetid                       The ID of the asset
+		* @param {Object} request                       Request info.
+		* @param {String} request.end_date              The end date.
+		* @param {String} request.start_date            The start date.
+		* @param {String} request.duration              The period duration.
+		* @param {Array.String} request.dimensions      Dimensions to retrieve.
+		* @param {String|Array.String} request.metrics  Metrics to retrieve.
+		* @param {Array.String} request.sort_by         Sort order of results.
+		* @param {Array.(String|Array.String)} request.filter  Filters.
+		* @param {Function} dataCallback                Custom callback function.
+		*/
+		getGoogleAnalyticsStatistics: function(assetid, request, dataCallback)
+		{
+			// Create blank function
+            var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+        
+            var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+                        + '&type=getGoogleAnalyticsStatistics&id=' + assetid;
+        
+            for (field_name in request) {
+                if (Object.prototype.toString.call(request[field_name]) === '[object Array]') {
+                    url = url + '&' + field_name + '=' + request[field_name].join('\\,');
+                } else {
+                    url = url + '&' + field_name + '=' + request[field_name];
+                }
+            }
+
+            // Make our request
+            makeRequest(url, true, dataCallback);
+
+		},// end getGoogleAnalyticsStatistics
+
+
+			<?php
+		}//end if(get_statistics)
+		
 
 	}//end paintJSFunctions()
 

@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Questions (not attached to a section)">
+	<section name="Questions (not attached to a section)" limbo_access="1">
 		<field write_access="write:menu">
 			<function_call>
 				<paint_function   name="paintQuestionLinks"   />
@@ -30,7 +30,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Sections">
+	<section name="Sections" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintSectionLinks"   />
@@ -44,7 +44,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Formatting">
+	<section name="Formatting" limbo_access="1">
 	    	<field>
 			<function_call>
 				<paint_function   name="paintUseAccessibleFormat"   />
@@ -75,8 +75,11 @@
 		<field attribute="note_size">
 			<text width="4" height="1" />
 		</field>
+		<field attribute="form_extra_attribute">
+			<text width="80" height="4" />
+		</field>
 	</section>
-	<section name="Validation">
+	<section name="Validation" limbo_access="1">
 		<field attribute="use_client_side">
 			<boolean true_text="on" false_text="off" />
 		</field>
@@ -84,7 +87,7 @@
 			<wysiwyg height="40" />
 		</field>
 	</section>
-	<section name="Submissions Limit">
+	<section name="Submissions Limit" limbo_access="1">
 		<field write_access="write:menu">
 			<function_call>
 				<paint_function   name="paintSubmissionLimit"   />
@@ -95,7 +98,12 @@
 			<text width="100" />
 		</field>
 	</section>
-	<section name="CAPTCHA">
+	<section name="Submission Access" write_access="admin:attributes" limbo_access="1">
+		<field attribute="restricted_submission_access">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="CAPTCHA" limbo_access="1">
 		<field attribute="require_captcha">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -178,7 +186,7 @@
 			<text width="50" height="1" />
 		</field>	
 	</section>
-	<section name="Multiple Page Form Options">
+	<section name="Multiple Page Form Options" limbo_access="1">
 		<field attribute="multi_page">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -207,7 +215,7 @@
 			<text width="30" height="1" />
 		</field>
 	</section>
-	<section name="Public User Incomplete Submission">
+	<section name="Public User Incomplete Submission" limbo_access="1">
 		<field attribute="public_incomplete_submission">
 			<boolean true_text="yes" false_text="no"/>
 		</field>
@@ -230,7 +238,7 @@
 			<text width="60" height="1" />
 		</field>
 	</section>
-	<section name="Simple Formatting">
+	<section name="Simple Formatting" limbo_access="1">
 		<field attribute="form_width">
 			<html_width />
 		</field>
@@ -247,7 +255,7 @@
 			<text width="30" height="1" />
 		</field>
 	</section>
-	<section name="Complex Formatting">
+	<section name="Complex Formatting" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function	name="paintComplexFormatting" />
@@ -255,7 +263,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Mollom Spam Check" write_access="write:attributes">
+	<section name="Mollom Spam Check" write_access="write:attributes" limbo_access="1">
 		<field attribute="use_mollom">
 			<boolean true_text="yes" false_text="no"/>
 		</field>		
@@ -281,17 +289,17 @@
 			<text width="50" />
 		</field>
 	</section>
-	<section name="Security Enhancement">
+	<section name="Security Enhancement" limbo_access="1">
 		<field attribute="disable_keyword_replacements">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
-	<section name="Advanced Settings" write_access="write:attributes">
+	<section name="Advanced Settings" write_access="write:attributes" limbo_access="1">
 		<field attribute="submit_to_page_url">
 			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
 		</field>
 	</section>
-	<section name="Google reCAPTCHA" write_access="write:attributes">
+	<section name="Google reCAPTCHA" write_access="write:attributes" limbo_access="1">
 		<field attribute="use_recaptcha">
 			<boolean true_text="yes" false_text="no"/>
 		</field>		
@@ -302,7 +310,7 @@
 			<text width="50" />
 		</field>
 	</section>
-	<section name="Spam Prevention: Honeypot Question" write_access="write:attributes">
+	<section name="Spam Prevention: Honeypot Question" write_access="write:attributes" limbo_access="1">
 		<field attribute="honeypot_name">
 			<text width="20" />
 		</field>
@@ -316,7 +324,7 @@
 			<text width="50" />
 		</field>
 	</section>
-	<section name="Spam Prevention: Submission Time Threshold" write_access="write:attributes">
+	<section name="Spam Prevention: Submission Time Threshold" write_access="write:attributes" limbo_access="1">
 		<field attribute="time_requirement">
 			<text width="10" />
 		</field>

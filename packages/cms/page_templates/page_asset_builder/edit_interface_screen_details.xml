@@ -66,6 +66,9 @@
 				<process_function name="processCreateFormCustomisation" />
 			</function_call>
 		</field>
+		<field attribute="password_autocomplete">
+			<boolean true_text="Enable" false_text="Disable" />
+		</field>
 	</section>
 	<section name="CAPTCHA" write_access="write:attributes">
 		<field attribute="require_captcha">

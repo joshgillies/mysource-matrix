@@ -68,6 +68,14 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>		
 	</section>
+	<section name="Cache Options" write_access="admin:attributes">
+		<field attribute="cache_status">
+			<boolean true_text="on" false_text="off" />
+		</field>
+		<field attribute="cache_expiry">
+			<int width="5" />
+		</field>
+	</section>
 	<section name="LDAP Not Available" write_access="admin:attributes" show_if="ldapNotAvailable">
 		<field>
 			<function_call>

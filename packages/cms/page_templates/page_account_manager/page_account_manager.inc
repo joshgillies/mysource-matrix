@@ -629,7 +629,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						$errors .= '<li>'.$text.'</li>';
 					}//end foreach
 				}//end if
-				$this->_replacements['form_errors'] = $errors;
+				$this->_replacements['form_errors'] = '<ul>'.$errors.'</ul>';
 			}
 
 			return TRUE;
@@ -678,7 +678,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$res['create_login']['content'] = translate('cms_account_manager_created_please_log_in')."\n%login_form%";
 
 		$res['logged_in']['name'] = translate('logged_in');
-		$res['logged_in']['content'] = '<p>%edit_details_lock_error%%edit_details_success%</p>'."\n".
+		$res['logged_in']['content'] = '<p>%edit_details_lock_error%%edit_details_success%%form_errors%</p>'."\n".
 										'%edit_details_invite%%edit_details_form%';
 
 		return $res;
@@ -1202,6 +1202,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords['edit_details_form']			= translate('cms_account_manager_keyword_edit_details_form');
 		$keywords['edit_details_success']		= translate('cms_account_manager_keyword_edit_details_success');
 		$keywords['edit_details_lock_error']	= translate('cms_account_manager_keyword_edit_details_lock_error');
+		$keywords['form_errors']				= translate('cms_account_manager_keyword_form_errors');
 
 		$keywords['logout_form']				= translate('cms_asset_builder_keyword_logout_form');
 

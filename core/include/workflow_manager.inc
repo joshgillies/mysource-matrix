@@ -53,6 +53,9 @@ class Workflow_Manager extends MySource_Object
 	var $_valid_cond_logic = Array('>=' => 'At least', 'all' => 'All');
 
 
+
+
+
 	/**
 	* Constructor
 	*
@@ -1420,6 +1423,13 @@ class Workflow_Manager extends MySource_Object
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 
 		if (empty($running_schemas)) {
+
+			// evaluate dynamic step condtion keyword on the dependant parent asset only
+			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid);
+			$top_parent = array_pop($dependant_parents);
+			if(empty($top_parent)) $top_parent = $assetid;
+
+
 			// we dont actually have any running workflows, so lets pretend we do
 			$schemas = $this->getSchemas($assetid, TRUE);
 			$streamids = Array();
@@ -1457,7 +1467,7 @@ class Workflow_Manager extends MySource_Object
 
 			foreach ($schemas as $schemaid) {
 				foreach ($streamids[$schemaid] as $streamid => &$stream_name) {
-					$schema_workflows[$schemaid][$streamid] = $this->generateWorkflowArray($assetid, $streamid);
+					$schema_workflows[$schemaid][$streamid] = $this->generateWorkflowArray($assetid, $streamid, $top_parent);
 				}
 				$running_schemas[] = $schemaid;
 			}
@@ -1474,6 +1484,8 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 
 			foreach ($schema_workflows[$schemaid] as $streamid => &$workflow) {
+;
+
 				// already finished the workflow?
 				if ($workflow['complete']) continue;
 
@@ -1489,7 +1501,6 @@ class Workflow_Manager extends MySource_Object
 				if (!$workflow['complete']) return FALSE;
 			}
 		}
-
 		return TRUE;
 
 	}//end testPublish()
@@ -1621,7 +1632,7 @@ class Workflow_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function generateWorkflowArray($assetid, $streamid)
+	function generateWorkflowArray($assetid, $streamid, $top_parent)
 	{
 		$assetid  = (int) $assetid;
 		$streamid = (int) $streamid;
@@ -1652,7 +1663,7 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$edit_fns = $stream->getEditFns();
-		return $edit_fns->generateWorkflowArray($stream);
+		return $edit_fns->generateWorkflowArray($stream, $top_parent);
 
 	}//end generateWorkflowArray()
 
@@ -1675,6 +1686,12 @@ class Workflow_Manager extends MySource_Object
 			trigger_localised_error('SYS0179', E_USER_WARNING, $assetid);
 			return FALSE;
 		}
+
+		// evaluate dynamic step condtion keyword on the dependant parent asset only
+		$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid);
+		$top_parent = array_pop($dependant_parents);
+		if(empty($top_parent)) $top_parent = $assetid;
+
 
 		$schemas = $this->getSchemas($assetid, TRUE, FALSE);
 
@@ -1699,7 +1716,7 @@ class Workflow_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			// Grab the workflow array from the appropriate stream, and then
 			// make that our workflow for this
-			$workflow = $this->generateWorkflowArray($assetid, $streams[$schemaid]);
+			$workflow = $this->generateWorkflowArray($assetid, $streams[$schemaid], $top_parent);
 			$workflow['schema_name'] = $workflow_names[$schemaid]['name'];
 
 			$stream_names = $this->getStreams($schemaid);
@@ -1934,7 +1951,6 @@ class Workflow_Manager extends MySource_Object
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 		if (empty($running_schemas)) return Array();
 		$schema_workflows = $this->getSchemaWorkflows($assetid);
-
 		$steps = Array();
 		foreach ($schema_workflows as $schemaid => $workflow) {
 			if (!in_array($schemaid, $running_schemas)) continue;
@@ -2890,6 +2906,97 @@ class Workflow_Manager extends MySource_Object
 		}//end foreach
 
 	}//end setCurrentUserAsLastStarted()
+
+
+	/**
+	* Apply Stream Selection Rules and only return the streams that matches the rules.
+	*
+	* @param string	$schemaid	The schema to get streams from
+	* @param string	$assetid	The asset to evaluate against
+	*
+	* @return array
+	*/
+	public function getValidStreams($schemaid, $assetid)
+	{
+		$streams = $this->getStreams($schemaid);
+		$valid_streamids = Array();
+		foreach ($streams as $streamid => $details) {
+			$result = $this->evaluateStreamSelectionRules($streamid, $assetid);
+			if($result) {
+				$valid_streamids[] = $streamid;
+			}
+
+		}
+
+		// if there is no valid streams, we have to use plan B
+		if(empty($valid_streamids)) {
+			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$stream_selection_rules_no_match = $schema->attr('stream_selection_rules_no_match');
+			if($stream_selection_rules_no_match == 'allow_default_stream') {
+				// just return default stream
+				$valid_streamids = Array($this->getDefaultStream($schemaid));
+			}
+			else {
+				// allow all streams
+				$valid_streamids = array_keys($streams);
+			}
+		}
+
+		return $valid_streamids;
+	}//end getValidStreams()
+
+
+	/**
+	* Evaluate rules of a stream and determine if it should be made available
+	*
+	* @param string	$streamid	The stream to evaluate
+	* @param string	$assetid	The asset to evaluate against
+	*
+	* @return string
+	*/
+	public function evaluateStreamSelectionRules($streamid, $assetid)
+	{
+		$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid, '', TRUE);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+
+		if(empty($stream) || empty($asset)) return FALSE;
+
+		$rules = is_array($stream->attr('stream_selection_rules')) ? $stream->attr('stream_selection_rules') : unserialize($stream->attr('stream_selection_rules'));
+		$logic = $stream->attr('rules_logic');
+		if(empty($rules)) return TRUE;
+
+		foreach ($rules as $details) {
+			$keyword_replacement = $details['keyword'];
+			//replace global keywords
+			replace_global_keywords($keyword_replacement);
+	
+			//replace asset keywords
+			$keywords = retrieve_keywords_replacements($keyword_replacement);
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			}
+			replace_keywords($keyword_replacement, $replacements);
+			// prevent null byte attack
+			$pattern = str_replace("\0", '', $details['pattern']);
+
+			if(preg_match('/'.$pattern.'/i', $keyword_replacement)) {
+				if($logic === 'any') return TRUE;
+			}
+			else {
+				if($logic === 'all') return FALSE;
+			}
+		}
+		// if all rules must match, and we got here it means all rules passes.
+		if($logic === 'all') {
+			return TRUE;
+		}
+		else {
+			// this means none of rules match
+			return FALSE;
+		}
+
+	}//end evaluateStreamSelectionRules()
 
 
 }//end class

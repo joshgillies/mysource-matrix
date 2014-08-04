@@ -75,10 +75,14 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 	{
 		// Curretly linked files
 		$file_assetids = $asset->getLinkedFiles();
-		$file_asset_type = $asset->getFileAssetType();
+		$file_asset_types = $asset->getFileAssetTypes();
+		$type_codes = Array();
+		foreach($file_asset_types as $file_asset_type) {
+			$type_codes[$file_asset_type] = 'D';
+		}
 
 		if ($asset->writeAccess('links')) {
-			multiple_asset_finder($prefix.'_linked_files', $file_assetids, Array($file_asset_type => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'), TRUE);
+			multiple_asset_finder($prefix.'_linked_files', $file_assetids, $type_codes, 'sq_sidenav', FALSE, 'null', Array('clear'), TRUE);
 		} else {
 			?><ul><?php
 			foreach ($file_assetids as $assetid) {
@@ -107,7 +111,7 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 		if (!isset($_POST[$prefix.'_linked_files']) || (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version'])) {
 			return FALSE;
 		}
-		$file_asset_type = $asset->getFileAssetType();
+		$file_asset_types = $asset->getFileAssetTypes();
 
 		$new_linked_files = $_POST[$prefix.'_linked_files'];
 		foreach ($new_linked_files as $new_linked_file) {
@@ -115,7 +119,7 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 		}
 
 		// Get existing linked files
-		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, $file_asset_type, TRUE, 'major', 'linked_folder');
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, $file_asset_types, FALSE, 'major', 'linked_folder');
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -144,7 +148,15 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 			if ($node['assetid'] != 0) {
 				$new_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				// Check the asset type
-				if ($new_file instanceof $file_asset_type) {
+				$valid_asset_type = FALSE;
+				foreach($file_asset_types as $file_type) {
+					if ($new_file instanceof $file_type) {
+						$valid_asset_type = TRUE;
+						break;
+					}
+				}
+
+				if ($valid_asset_type) {
 					if (!$asset->createLink($new_file, SQ_LINK_NOTICE, 'linked_folder')) {
 						$ok = FALSE;
 						trigger_error('Unable to link the File #'.$new_file->id.' to the File Folder');

@@ -2297,6 +2297,12 @@ class Asset_Map
 				return;
 			}
 
+			// trying to clone deprecated asset type. Won't allow it
+			if ($asset->deprecated) {
+				$this->_error('CORE0326', (ucwords(str_replace('_', ' ', $asset->type()))), '5.1');
+				return;
+			}
+
 			// instead to putting the assets direstly in the array let the index be of the sort order
 			// This will help us squashing bug #5940 Cloning multiple assets sorts them backwards under parent
 			$assets_with_sort_order[$link['sort_order']][$asset->id] = Array(

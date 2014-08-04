@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>__core__</package>
 	<type_code>trigger</type_code>
-	<version>0.4</version>
+	<version>0.5</version>
 	<name>Trigger</name>
 	<description>Trigger</description>
 	<instantiable>yes</instantiable>

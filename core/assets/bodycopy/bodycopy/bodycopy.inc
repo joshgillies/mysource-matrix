@@ -343,6 +343,19 @@ class Bodycopy extends Asset
 	{
 		// get all the containers linked to this bodycopy
 		$containers =& $this->getContainers();
+
+		// if we are limiting the containers to print
+		$containers_to_print = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT', NULL);
+		$containers_main_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT_MAIN_ASSET', NULL);
+		$frontend_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+		// make sure we are only limiting containers in "current" page, not in the nested assets
+		if(isset($frontend_asset) && ($frontend_asset->id == $containers_main_asset) && !empty($containers_to_print) && is_array($containers_to_print)) {
+	       foreach (array_keys($containers) as $i) {
+    	           $container =& $containers[$i];
+        	       if(!in_array($container->id, $containers_to_print)) 
+            	           unset($containers[$i]);
+            }
+		}
 		
 		// if conditional display of div is enabled
 		if(isset($GLOBALS['SQ_CONDITION']['conditional_div'])) {
@@ -354,6 +367,9 @@ class Bodycopy extends Asset
 			}
 		    }
 		}
+		// if conditional keyword is used
+		if (isset($GLOBALS['SQ_CONDITION']['conditional_keywords'])) 
+			$this->keyword_replacements = array_merge ($this->keyword_replacements, $GLOBALS['SQ_CONDITION']['conditional_keywords']);
 
 		// paint each container
 		foreach (array_keys($containers) as $i) {
