@@ -336,12 +336,18 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 */
 function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 {
+	$is_bundle = $owner->type() === 'workflow_bundle';
+
 	if (!empty($statii)) {
 		$statii = array_reverse($statii, TRUE);
 		$statii[0] = '';
 		$statii = array_reverse($statii, TRUE);
-		combo_box($prefix.'_change_status', $statii, FALSE, $default_status, 0, 'onchange="checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')"');
-
+		if($is_bundle) {
+			combo_box($prefix.'_change_status', $statii, FALSE, $default_status);
+		}
+		else {
+			combo_box($prefix.'_change_status', $statii, FALSE, $default_status, 0, 'onchange="checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')"');
+		}
 		// Test whether we have a status that may need the stream
 		$has_pending_status = FALSE;
 		$has_approved_status = FALSE;
@@ -490,7 +496,12 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			<?php
 		}
 		echo '&nbsp;';
-		check_box($prefix.'_change_status_all_children', 1, FALSE, 'checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')');
+		if($is_bundle) {
+			check_box($prefix.'_change_status_all_children');
+		}
+		else {
+			check_box($prefix.'_change_status_all_children', 1, FALSE, 'checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')');
+		}
 		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
 
 		?>

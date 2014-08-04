@@ -1144,8 +1144,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 						case 'note':
 							// notice that only the last "note" will be used if multiple are supplied
+							$field = (string)$field;
 							if (!empty($field)) {
-								$section_note = (string)$field;
+								$section_note = $field;
 							}
 						break;
 
