@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Time Periods">
+	<section name="Time Periods" limbo_access="1">
 		<field attribute="submission_warning_time">
 			<duration biggest_units="days" smallest_units="minutes" />
 		</field>
@@ -24,7 +24,7 @@
 			<duration biggest_units="days" smallest_units="minutes" />
 		</field>
 	</section>
-	<section name="Reminder Email">
+	<section name="Reminder Email" limbo_access="1">
 		<field attribute="warning_email_format">
 			<email_format with_asset_finder="1" />
 		</field>

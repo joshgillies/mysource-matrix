@@ -1,32 +1,5 @@
 SQUIZ MATRIX CHANGELOG
 
-VERSION 5.0.4.3
-
-Bug Fixes
-=================================== 
-
-Fixed Bug #5693: Account Manager's Customise the Editing Layout Form issues.
-Fixed Bug #5720: The charset conversion script does not look into trigger, asset and internal message tables.
-Fixed Bug #5751: Using Static Cache File option in CSS Design File with a customisation breaks the back-end after commit.
-Fixed Bug #5754: Nested REST Resource asset content not showing in the output.
-
-
-VERSION 5.0.4.2
-
-Bug Fixes
-=================================== 
-
-Fixed Bug #5686: After submitting, an Asset Builder Metadata Fields should be populated if they were on submit.
-Fixed Bug #5690: The pre tag needs to have a "white-space: pre-wrap;" css property in admin.
-Fixed Bug #5692: Unable to create child asset under Data Record Asset.
-Fixed Bug #5696: Workflow From Email Address should allow From Name to be specified with format 'fromname <fromemail@test.com>'.
-Fixed Bug #5698: Asset id links "./?a=xxx" getting cached in Custom Form Section bodycopy.
-Fixed Bug #5705: Setting a form to multi-page without sections throws an error.
-Fixed Bug #5706: Multi-text metadata field throwing undefined variable "is_default" PHP notice.
-Fixed Bug #5717: test_message.php should destroy session immediately after execution so it won't leave useless sessions on the server.
-Fixed Bug #5742: Character Set Encoding shouldn't be configurable in interface.
-
-
 VERSION 5.0.2.0
 
 Bug Fixes

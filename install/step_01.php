@@ -91,8 +91,4 @@ echo "\n";
 echo "Remember to give your system's Apache user write access to\n";
 echo "the cache and data directories of your Matrix install.\n";
 
-echo "\n";
-echo "Step 1 completed successfully.\n";
-echo "\n";
-
 ?>

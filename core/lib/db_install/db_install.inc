@@ -792,8 +792,6 @@ function grant_secondary_user_perms($verbose=TRUE)
 * @param string		$package	the package name
 * @param boolean	$verbose	TRUE if we should display messages
 *
-* @throws Exception Throws an exception if there is a problem with the xml file.
-* @throws Exception Throws an exception if there is a problem with running the sql required.
 * @return void
 * @access public
 */

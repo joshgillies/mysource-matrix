@@ -331,6 +331,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 					}
 					parent.innerHTML = (parent.innerHTML.replace(new RegExp("MYOPENSPAN", "g"), '<span class="'+value+'">').replace(new RegExp("MYCLOSESPAN", "g"), '</span>'));
 				}
+
 			} else {
 
 				///////// NON IE /////////

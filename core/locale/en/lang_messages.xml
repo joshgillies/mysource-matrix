@@ -512,6 +512,11 @@ The status of the bundle "%bundle_name%" is now "%new_status%"</body>
 		<subject>Proxy Authentication Config Updated</subject>
 		<body>Value (not shown here) for %setting% has been changed</body>
 	</message>
+	<message type="config.system_maintenance_config">
+		<subject>System Maintenance Mode Config Updated</subject>
+		<body>%setting% changed from %old_value% to %new_value%</body>
+	</message>
+
 	<message type="prefs.system">
 		<subject>Global Preferences Updated</subject>
 		<body>%type_code% preference variable %setting% changed from %old_value% to %new_value%</body>
@@ -547,5 +552,9 @@ Please rectify the above issue (by removing the links) so the asset can be trash
 This asset is currently at a status of "%asset_status%". It cannot be trashed until the asset is "Placed Under Construction" or "Archived".
 
 Please rectify the above issue (by changing the status of the asset) so it can be trashed as soon as possible, or consult the user who marked the asset for safe trashing.</body>
+	</message>
+	<message type="internal.message">
+		<subject>%subject%</subject>
+		<body>%body%</body>
 	</message>
 </messages>

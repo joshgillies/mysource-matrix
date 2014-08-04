@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>oauth2</package>
 	<type_code>oauth_account_manager</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Oauth Account Manager</name>
 	<description>Oauth 2.0 Account Manager</description>
 	<instantiable>yes</instantiable>

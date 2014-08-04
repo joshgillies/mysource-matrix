@@ -118,6 +118,44 @@
 				<paint_function   name="paintParseMetadata"   />
 			</function_call>
 		</field>
+	</section>	
+	<section name="Asset Creation Settings">
+		<field>
+			<display_name>Matrix User to Create</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddCreateType"   />
+				<process_function name="processAddCreateType" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Metadata Schemas to Apply</display_name>
+			<note>These metadata schemas will be applied to created assets.  Values for these schemas' fields may be supplied by the user when creating the asset.  By default, the complete interface for these schemas, exactly as it would appear in the administration interface, will be printed above the default create form for each asset type.  It is recommended that the create form be customised (see below) so that the individual fields can be laid out appropriately within the form using &#37;metadata-F_(fieldid)&#37; keywords.</note>
+			<function_call>
+				<paint_function   name="paintSchemasToApply" />
+				<process_function name="processSchemasToApply" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Populate User Attributes" write_access="write:menu">
+		<field>
+		    <display_name>Attributes To Populate on Creation</display_name>
+			<function_call>
+				<paint_function   name="paintPrefillFields"   />
+				<process_function name="processPrefillFields" />
+			</function_call>
+		</field>
+		<note>Populate user attributes with predefined values on creation/linking of user asset. Global keywords are supported. For example, to prefill with a SAML attribute "first_name", use keyword %globals_session_saml_attributes_first_name% in the value. If the SAML attribute is stored as array structure, you can use numeric index to access specific array element. e.g %globals_session_saml_attributes_first_name_0%. Keyword %globals_session_saml_attributes% will print all attributes in JSON format string.</note>
+	</section>
+	<section name="Sync User Attributes" write_access="write:menu">
+		<field>
+	    	<display_name>Attributes To Sync on Login</display_name>
+			<function_call>
+				<paint_function   name="paintSyncFields"   />
+				<process_function name="processSyncFields" />
+			</function_call>
+		</field>
+		<note>Similar to the Populate User Attributes function except that it happens every time the user logs into Matrix.</note>
 	</section>
 	<section name="Return Location">
 		<field attribute="redirect_url">
@@ -152,24 +190,11 @@
 			<display_name>Redirect After Link Created</display_name>
 			<note></note>
 		</field>
-	</section>
-	<section name="Asset Creation Settings">
-		<field>
-			<display_name>Matrix User to Create</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintAddCreateType"   />
-				<process_function name="processAddCreateType" />
-			</function_call>
+		<field attribute="redirect_delay">
+			<display_name>Redirect Delay</display_name>
+			<note>Specify number of seconds to delay for redirect to happen. Javascript code will be used to execute delayed redirect.</note>
 		</field>
-		<field>
-			<display_name>Metadata Schemas to Apply</display_name>
-			<note>These metadata schemas will be applied to created assets.  Values for these schemas' fields may be supplied by the user when creating the asset.  By default, the complete interface for these schemas, exactly as it would appear in the administration interface, will be printed above the default create form for each asset type.  It is recommended that the create form be customised (see below) so that the individual fields can be laid out appropriately within the form using &#37;metadata-F_(fieldid)&#37; keywords.</note>
-			<function_call>
-				<paint_function   name="paintSchemasToApply" />
-				<process_function name="processSchemasToApply" />
-			</function_call>
-		</field>
+
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="allow_public_user">

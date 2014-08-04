@@ -324,11 +324,10 @@ class Config extends MySource_Object
 						'messaging_service_config'		=> 'messaging_service_configuration',
 						'proxy_authentication_config'	=> 'proxy_configuration',
 						'context_config'				=> 'context_configuration',
+						'system_maintenance_config'		=> 'system_maintenance_configuration',
 					 );
 
-		if ($o->_persistant_get_vars['config_screen'] = $map_array[$o->_persistant_get_vars['config_screen']]) {
-			$config_screen = $o->_persistant_get_vars['config_screen'];
-		}
+		$config_screen = $map_array[strtolower(get_class($this))];
 
 		$lock = $this->getLockInfo();
 		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
