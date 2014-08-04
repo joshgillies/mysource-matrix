@@ -1,6 +1,23 @@
 SQUIZ MATRIX CHANGELOG
 
 
+VERSION 4.18.9
+
+Bug Fixes
+=================================== 
+
+Fixed Bug #5667: When an asset without workflow and incomplete metadata is place into Safe Edit, Status Switcher offers an impossible status. 
+Fixed Bug #5686: After submitting, an Asset Builder Metadata Fields should be populated if they were on submit.
+Fixed Bug #5690: The pre tag needs to have a "white-space: pre-wrap;" css property in admin.
+Fixed Bug #5692: Unable to create child asset under Data Record Asset.
+Fixed Bug #5693: Account Manager's Customise the Editing Layout Form issues. 
+Fixed Bug #5696: Workflow From Email Address should allow From Name to be specified with format 'fromname <fromemail@test.com>'.
+Fixed Bug #5698: Asset id links "./?a=xxx" getting cached in Custom Form Section bodycopy.
+Fixed Bug #5705: Setting a form to multi-page without sections throws an error.
+Fixed Bug #5706: Multi-text metadata field throwing undefined variable "is_default" PHP notice.
+Fixed Bug #5717: test_message.php should destroy session immediately after execution so it won't leave useless sessions on the server.
+
+
 VERSION 4.18.7
 
 Bug Fixes
