@@ -1302,6 +1302,8 @@ class Metadata_Manager extends MySource_Object
 				replace_keywords($tag_values, $replacements);
 				echo '/* 3 */', "\n";
 				echo "\n\n";
+				echo '/* Apply modifiers to metadata_field_* keywords */'."\n";
+				echo '$modifier_applied_replacements = Array();'."\n";
 			}
 
 
@@ -1356,8 +1358,17 @@ class Metadata_Manager extends MySource_Object
 								$part_keyword = parse_keyword($full_keyword, $modifiers);
 								if ($part_keyword != $full_keyword && isset($field_replacements[$part_keyword])) {
 									$keyword_value = $field_replacements[$part_keyword];
-									apply_keyword_modifiers($keyword_value, $modifiers, Array('assetid' => $assetid));
-									$field_replacements[$full_keyword] = $keyword_value;
+
+									// If the metadata field value referred by another metadata field has keyword(s), we cannot apply modifiers at this level 
+									$mv_keywords = extract_keywords($keyword_value);
+									if (!empty($mv_keywords)) {
+										// Apply the modifiers dynamically when loading the metadata file
+										echo '$modifier_applied_replacements[\''.addcslashes($full_keyword, '\'').'\'] = Array(\'replacement\' => \''.addcslashes($keyword_value, '\'').'\', \'modifiers\' => '.var_export($modifiers, TRUE).");\n";
+										$field_replacements[$full_keyword] = '%_'.$full_keyword.'%';
+									} else {
+										apply_keyword_modifiers($keyword_value, $modifiers, Array('assetid' => $assetid));
+										$field_replacements[$full_keyword] = $keyword_value;
+									}
 								}
 							}
 						}//end foreach
@@ -1367,7 +1378,6 @@ class Metadata_Manager extends MySource_Object
 						// to move to replaced_list
 						$pre_replacement = $field_list[$n];
 						replace_keywords($field_list[$n], $field_replacements);
-
 						// if keywords were replaced...
 						if ($pre_replacement != $field_list[$n]) {
 							// mirror value changes back to the original
@@ -1380,6 +1390,14 @@ class Metadata_Manager extends MySource_Object
 				}//end foreach ($metadata_values)
 			} while ($fields_modified);
 	
+			echo 'if (!empty($modifier_applied_replacements)) {'."\n\t".
+					'foreach($modifier_applied_replacements as $key => $val) {'."\n\t\t".
+						'replace_keywords($val[\'replacement\'], $metadata_replacements);'."\n\t\t".
+						'apply_keyword_modifiers($val[\'replacement\'], $val[\'modifiers\']);'."\n\t\t".
+						'$metadata_replacements[\'_\'.$key] = $val[\'replacement\'];'."\n\t".
+					'}'."\n".
+				'}'."\n\n";
+
 			// print the values, to be referenced by the meta tags later
 			echo '$metadata_values = Array('."\n";
 			foreach ($tag_values as $n => $v) {

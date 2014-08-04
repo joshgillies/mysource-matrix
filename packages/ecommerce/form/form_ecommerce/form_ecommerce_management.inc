@@ -289,6 +289,22 @@ class Form_Ecommerce_Management extends Asset_Management
 		}
 
 
+		if (version_compare($current_version, '0.4', '<')) {
+			pre_echo('Upgrading Ecom Form to v0.4. Moving order log file to log manager.');
+			$new_file = SQ_LOG_PATH.'/form_ecommerce_order.log';
+			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_ecommerce', FALSE);
+			foreach ($assetid_list as $assetid) {
+				$ecom = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$old_file = $ecom->data_path.'/order.log';
+				if(is_readable($old_file)) {
+					shell_exec('cat '.escapeshellarg($old_file).' >> '.escapeshellarg($new_file));
+					unlink($old_file);
+				}
+			}
+			pre_echo(count($assetid_list).' Ecom Forms updated');
+		}
+
+
 		return $res;
 
 	}//end _upgrade()

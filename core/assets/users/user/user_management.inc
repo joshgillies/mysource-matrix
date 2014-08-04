@@ -85,6 +85,18 @@ class User_Management extends Asset_Management
 											'type'		=> 'serialise',
 											'default'	=> Array(),
 										   ),
+		    			'login_date'	=> Array(
+											'added'		=> '0.2',
+											'type'		=> 'datetime',
+											'default'	=> '---------- --:--:--',
+											'is_admin'	=> 0,
+										   ),
+		    			'login_ip'	=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+											'is_admin'	=> 0,
+										   ),
 		    			'disallow_password_login'	=> Array(
 										'added'		=> '0.3',
 										'type'		=> 'boolean',

@@ -33,8 +33,8 @@
 			</function_call>
 		</field>
 		<field>
-			<display_name></display_name>
-			<note></note>
+			<display_name>Automatically add remaps?</display_name>
+			<note>When set, this option will add remaps for Web Paths that have been changed above.</note>
 			<function_call>
 				<paint_function         name="paintAutomaticRemapSetting" />
 				<process_function       name="processAutomaticRemapSetting" />
