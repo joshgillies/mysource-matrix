@@ -845,7 +845,7 @@ class MySource extends MySource_Object
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
 				// however not send if user have just logged out (see bug #3766)
-				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && basename($_SERVER['PHP_SELF']) != SQ_CONF_NOPROXYCACHE_SUFFIX &&
+				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX &&
 						 SQ_CONF_SEND_CACHEABLE_HEADER &&
 						 $asset->canSendCacheableHeader() &&
 						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE &&
@@ -1087,9 +1087,6 @@ class MySource extends MySource_Object
 			}
 			replace_keywords($content, $additional_replacements);
 		}
-
-		// Strip out the Matrix comments
-		$this->stripMatrixComments($content);
 
 	}//end replaceKeyword()
 
@@ -1597,7 +1594,7 @@ class MySource extends MySource_Object
 						// check that the user exists AND that it can login
 						// (ie. it is not yet live, or has been locked)
 						if (!is_null($user) && $user->canLogin()) {
-							return $this->loginUser($user, '', TRUE);
+							return $this->loginUser($user);
 						}
 					}
 
@@ -1681,25 +1678,12 @@ class MySource extends MySource_Object
 					if ($for_real) {
 						$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 					}
-
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
 
 					// Flag to know that logout request is made
 					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used
 					$_REQUEST['just_logged_out'] = 1;
-
-					// Strip any SQ_ACTION from the URL and redirect. 
-					// but don't redirect if it is a failed login attemp, still need to diplay the error message
-					if(!isset($failure_reason)) {
-						$new_get = $_GET;
-						unset($new_get['SQ_ACTION']);
-						$current_url = current_url(TRUE, FALSE);
-						if (count($new_get) > 0) {
-							$current_url .= '?'.make_raw_post_data($new_get);
-						}
-						do_redirect($current_url);
-					}
 				}
 			break;
 			case 'real_logout' :
@@ -1715,15 +1699,6 @@ class MySource extends MySource_Object
 				}
 				$this->loginPublicUser();
 				$this->generateLoginKey(TRUE);
-
-				// Strip any SQ_ACTION from the URL and redirect.
-				$new_get = $_GET;
-				unset($new_get['SQ_ACTION']);
-				$current_url = current_url(TRUE, FALSE);
-				if (count($new_get) > 0) {
-					$current_url .= '?'.make_raw_post_data($new_get);
-				}
-				do_redirect($current_url);
 
 			break;
 			case 'login_as' :
@@ -2054,7 +2029,7 @@ class MySource extends MySource_Object
 							if (isset($invoking_user_nav_history)) {
 								$_SESSION['sq_nav_history'] = $invoking_user_nav_history;
 							}
-							return $this->loginUser($secondary_user, '', TRUE);
+							return $this->loginUser($secondary_user);
 						} else {
 							/*
 							* Ok to be perfectly clear, we're NOT allowed to log in as the Root User, and
@@ -2077,7 +2052,7 @@ class MySource extends MySource_Object
 								}
 
 								// Ok all is good - login as the user we are after
-								return $this->loginUser($secondary_user, $old_user->name, TRUE);
+								return $this->loginUser($secondary_user, $old_user->name);
 							} else {
 								$failure_reason = translate('user_switching_access_denied');
 								$user_status = NULL;
@@ -2169,7 +2144,6 @@ class MySource extends MySource_Object
 			$system = $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
 			$user = $system->authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
-			// we can not do redirect for http authed user, or it would be infinate loop
 			if (!is_null($user)) return $this->loginUser($user);
 		}
 
@@ -2189,12 +2163,11 @@ class MySource extends MySource_Object
 	*
 	* @param User	$user						The user object to log in
 	* @param string	$invoking_user_full_name	The name of the user who has invoked the login (only used from the "Login As..." function)
-	* @param bool	$redirect					If we should do a redirect after login to remove the SQ_ACTION URL param
 	*
 	* @return void
 	* @access public
 	*/
-	public function loginUser(User $user, $invoking_user_full_name = '', $redirect=FALSE)
+	public function loginUser(User $user, $invoking_user_full_name = '')
 	{
 		if (is_null($user)) return FALSE;
 
@@ -2245,18 +2218,6 @@ class MySource extends MySource_Object
 		$_SESSION['user_last_access'] = time();
 		$_SESSION['user_last_authentication'] = time();
 
-
-		// set user last login date for real user asset
-		if(strpos($user->id, ':') === FALSE ) {
-			$this->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			$user->setAttrValue('login_date', date("Y-m-d H:i:s"));
-			if (isset($_SERVER['REMOTE_ADDR'])) {
-				$user->setAttrValue('login_ip', filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP));
-			}
-			$user->saveAttributes();
-			$this->restoreRunLevel();
-		}
-
 		// Do pass any event data since we can get it from $_SESSION
 		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
@@ -2273,17 +2234,6 @@ class MySource extends MySource_Object
 			do_redirect($current_url);
 		}
 
-		// Strip any SQ_ACTION from the URL and redirect.
-		if($redirect) {
-			$new_get = $_GET;
-			unset($new_get['SQ_ACTION']);
-			$current_url = current_url(TRUE, FALSE);
-			if (count($new_get) > 0) {
-				$current_url .= '?'.make_raw_post_data($new_get);
-			}
-			do_redirect($current_url);
-		}
-	
 		return TRUE;
 
 	}//end loginUser()
@@ -3924,10 +3874,36 @@ class MySource extends MySource_Object
 		}
 
 		?>
-		<div class="sq-backend-warning-wrapper">
-			<table class="sq-backend-table sq-backend-warning-table">
+		<div class="sq-rollback-warning-wrapper">
+			<style>
+			.sq-rollback-warning-table {
+				border: 1px solid #e0d3a2 !important;
+			}
+			.sq-rollback-warning-table th{
+				border-bottom: 1px solid #e0d3a2 !important;
+				background:	#fff1bb;
+				color: #000;
+				text-shadow: none;
+			}
+			.sq-rollback-warning-table .sq-rollback-header{
+				background:	#fff1bb url(<?php echo sq_web_path('lib').'/web/images/warning.png'; ?>) no-repeat 5px 6px !important;
+				padding-left: 35px;
+				border-right: none;
+			}
+			.sq-rollback-warning-table td{
+				background:#fff1bb !important;
+			}
+			.sq-rollback-warning-table img{
+				vertical-align: top;
+			}
+			.sq-rollback-warning {
+				color: #000;
+				font-size: 11px;
+			}
+			</style>
+			<table class="sq-backend-table sq-rollback-warning-table">
 				<tr>
-					<th class="sq-backend-warning-header">
+					<th class="sq-rollback-header">
 						<?php echo translate('in_rollback_mode'); ?>
 					</th>
 					<th style="text-align:right;">
@@ -3938,7 +3914,6 @@ class MySource extends MySource_Object
 							?>
 						</a>
 					</th>
-				</tr>
 				<tr>
 					<td colspan="2" class="sq-rollback-warning"><?php echo $warning_message; ?>
 					</td>
@@ -3948,7 +3923,6 @@ class MySource extends MySource_Object
 		<?php
 
 	}//end printRollbackWarning()
-
 
 
 	/**
@@ -4687,79 +4661,5 @@ class MySource extends MySource_Object
 	}//end _registerAssetAsVisited()
 
 
-	/**
-	* Prints a warning box to let the user know that system is in maintenance mode. No changes will be saved.
-	*
-	* @return void
-	* @access public
-	*/
-	function printMaintenanceWarning()
-	{
-
-		?>
-		<div class="sq-backend-warning-wrapper">
-			<table class="sq-backend-table sq-backend-warning-table">
-				<tr>
-					<th class="sq-backend-warning-header">
-						<?php echo SQ_MAINTENANCE_MODE == '2' ? translate('maintenance_mode_enabled') : translate('maintenance_mode_notify'); ?>
-					</th>
-				</tr>	
-				<tr>
-					<td colspan="2" ><?php echo SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE; ?>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<?php
-
-	}//end printMaintenanceWarning()
-
-
-	/**
-	* Strip out Matrix comments in the content
-	*
-	* @param string @$content	The output content
-	* @access private
-	*/
-	public function stripMatrixComments(&$content)
-	{
-		if (SQ_CONFIG_STRIP_MATRIX_COMMENTS) {
-			// Strip out <!--@@ ... @@--> and /*@@ ... @@*/ style comment from the content
-			$content = preg_replace('/<!\-\-@@.*?@@\-\->/ms', '', $content);
-			$content = preg_replace('/\/\*@@.*?@@\*\//ms', '', $content);
-		}
-
-	}//end stripMatrixComments()
-
-
-	/**
-	* Prints a
-	*
-	* @return void
-	* @access public
-	*/
-	function printDeprecatedWarning($asset)
-	{
-
-		?>
-		<div class="sq-backend-warning-wrapper">
-			<table class="sq-backend-table sq-backend-warning-table">
-				<tr>
-					<th class="sq-backend-warning-header">
-						<?php echo translate('asset_deprecated_header'); ?>
-					</th>
-				</tr>	
-				<tr>
-					<td colspan="2" ><?php echo translate('asset_deprecated_note', ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<?php
-
-	}//end printDeprecatedWarning()
-
-
 }//end class
-
 ?>

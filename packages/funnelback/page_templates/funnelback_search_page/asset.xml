@@ -23,7 +23,7 @@
 	<version>0.2</version>
 	<name>Funnelback Search Page</name>
 	<description>Funnelback Search Page asset; provides a front-end interface to search a Funnelback server</description>
-	<instantiable>no</instantiable>
+	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>listing_engine</parent_type>
 	<requirements>

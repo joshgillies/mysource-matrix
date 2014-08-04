@@ -58,12 +58,6 @@
 		<field attribute="use_enhanced_js">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field show_if="isUsingStandard">
-			<function_call>
-				<paint_function   name="paintWarning"  />
-				<process_function name="processWarning"/>
-			</function_call>
-		</field>
 		<field attribute="batch_requests">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -233,35 +227,6 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="sync_context">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-    <section name="Google Analytics" write_access="write:attributes">
-        <field>
-			<function_call>
-				<paint_function   name="paintSetAll"  />
-			</function_call>
-        </field>
-		<field attribute="get_ga_statistics">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-    <section name="Form Questions" write_access="write:attributes">
-        <field>
-			<function_call>
-				<paint_function   name="paintSetAll"  />
-			</function_call>
-        </field>
-		<field attribute="create_form_question">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="update_form_question">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="remove_form_question">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="update_question_order">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

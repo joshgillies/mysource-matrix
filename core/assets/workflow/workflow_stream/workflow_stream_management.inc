@@ -40,31 +40,12 @@ class Workflow_Stream_Management extends Asset_Management
 		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
-						'name'							=> Array(
-															'type'			=> 'text',
-															'added'			=> '0.1',
-															'default'		=> '',
-															'description'	=> 'Name of the workflow stream',
-														   ),
-						'stream_selection_rules'			=> Array(
-															'added'			=> '0.1',
-															'type'			=> 'serialise',
-															'default'		=> Array(),
-															'description'	=> 'Rules to determine if this stream should be made available for selection',
-														   ),
-						'rules_logic'		=>Array(
-															'added'			=> '0.2',
-															'type'			=> 'selection',
-															'default'		=> 'all',
-															'parameters'	=> Array(
-																				'multiple'		=> FALSE,
-																				'allow_empty'	=> FALSE,
-																				'options'		=> Array(
-																									'all'	=> 'All Rules Must Match',
-																									'any'	=> 'Any Rule Matches',
-																								   ),
-																			   ),
-														   ),
+						'name'	=> Array(
+									'type'			=> 'text',
+									'added'			=> '0.1',
+									'default'		=> '',
+									'description'	=> 'Name of the workflow stream',
+								   ),
 					  );
 
 	}//end constructor

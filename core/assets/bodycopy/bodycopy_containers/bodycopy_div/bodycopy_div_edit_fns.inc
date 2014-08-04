@@ -322,10 +322,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// require library functions needed for drawing the bodycopy divs
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 
-		if ($content_type->deprecated === TRUE) {
-			$GLOBALS['SQ_SYSTEM']->printDeprecatedWarning($content_type);
-		}
-
+		
 		// Work out the conditions we have available for this container,
 		// and whether we have conditional display active.
 		$all_conditions            = Array();

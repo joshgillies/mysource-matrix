@@ -173,20 +173,9 @@ var Matrix_Viper = new function() {
 		    
 		});// End foreach
 	    });// End new Viper
-
-		if (typeof PluginsEnabled != "undefined") {
-			// disable/hide the plugins that aren't set to be active
-			viper.getPluginManager().setPlugins(PluginsEnabled);
-
-			// Get the toolbar plugin and apply it to the container
-			if(settings.toolbarContainer.length >=1) {
-			    var toolbar = viper.getPluginManager().getPlugin('ViperToolbarPlugin');
-			    toolbar.setParentElement(settings.toolbarContainer.children().get(0));
-			}
-		}
-
+	    
 	    // allow external script to call it
-		this.viper = viper;
+	    this.viper = viper;
 	}
 
     };

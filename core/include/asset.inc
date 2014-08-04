@@ -185,21 +185,6 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Weather the asset is deprecated or not.
-	* this will be used in asset_map.inc:_cloneAsset() to see if the asset type
-	* can be created (cloned) on the system
-	*/
-	public $deprecated = FALSE;
-
-
-	/**
-	* Marking the asset deprecated since so that we can
-	* use it when warning the users on backend
-	*/
-	public $deprecated_since = '';
-	
-	
-	/**
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
@@ -4391,12 +4376,10 @@ class Asset extends MySource_Object
 	/**
 	* Returns the editable content of this asset
 	*
-	* @param boolean $empty_content If TRUE, empty content will be returned
-	*
 	* @return string
 	* @access public
 	*/
-	public function getContent($empty_content=TRUE)
+	public function getContent()
 	{
 		return '';
 
@@ -4872,51 +4855,7 @@ class Asset extends MySource_Object
 	*/
 	public function printFrontend()
 	{
-		// SQ_ASSET_CONTENT is a special URL param to print asset content without design
-		if(isset($_GET['SQ_ASSET_CONTENTS']) || isset($_GET['SQ_ASSET_CONTENTS_RAW'])) {
-
-			// if container id is specified, only print those containers specified
-			$container_id = isset($_GET['SQ_ASSET_CONTENTS']) ? $_GET['SQ_ASSET_CONTENTS'] : $_GET['SQ_ASSET_CONTENTS_RAW'];
-			if(!empty($container_id)) {
-				$container_id_array = explode(',', trim($container_id));
-				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CONTAINER_TO_PRINT', $container_id_array);
-				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CONTAINER_TO_PRINT_MAIN_ASSET', $this->id);
-			}
-
-			if(isset($_GET['SQ_ASSET_CONTENTS_RAW'])) {
-				$this->printBody();
-			}
-			else {
-				$layout_id = FALSE;
-				$this_url = preg_replace('/https?:\/\//', '', $this->getURL());
-				if(isset($_GET['SQ_PAINT_LAYOUT'])) {
-					$layout_id = $_GET['SQ_PAINT_LAYOUT'];
-					$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id, '', true);
-					if(!method_exists($layout, 'paint')) {
-						$layout_id = FALSE;
-					}
-				}
-				else if (isset($_GET['SQ_PAINT_LAYOUT_NAME'])) {
-					$layout_name = $_GET['SQ_PAINT_LAYOUT_NAME'];
-					if (strpos($layout_name, 'paint_layout::user::') === FALSE && strpos($layout_name, 'paint_layout::system::frontend') === FALSE) {
-						$layout_name = 'paint_layout::user::'.$layout_name;
-					}
-					$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $layout_name);
-				}
-				else {
-					$this_paint_layout = $this->getCurrentPaintLayoutName();
-					$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $this_paint_layout);
-				}
-				if (!$layout_id) {
-					$this->printBodyWithPaintLayout();
-				} else {
-					$this->printBodyWithPaintLayout($layout_id);
-				}
-			}
-		}
-		else {
-			$this->printFrontendAsset($this);
-		}
+		$this->printFrontendAsset($this);
 
 	}//end printFrontend()
 
@@ -4997,20 +4936,7 @@ class Asset extends MySource_Object
 			$design->paint($asset);
 		} else {
 			// we can't find a design, oh well let's just print out our body
-			if($this->inMaintenanceMode()) {
-				if(SQ_MAINTENANCE_MODE == '1') {
-					echo SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
-					$asset->printBody();
-				}
-				else {
-					echo SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE;
-					header('HTTP/1.1 503 Service Unavailable');
-					header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
-				}
-			}
-			else {
-				$asset->printBody();
-			}	
+			$asset->printBody();
 		}
 
 		if (!is_null($original_asset)) {
@@ -5194,21 +5120,8 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('SQ_PAINT_LAYOUT_ID');
 			}
 		} else {
-			// we can't find a design, oh well let's just print out our body
-			if($this->inMaintenanceMode()) {
-				if(SQ_MAINTENANCE_MODE == '1') {
-					echo SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
-					$this->printBody();
-				}
-				else {
-					echo SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE;
-					header('HTTP/1.1 503 Service Unavailable');
-					header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
-				}
-			}
-			else {
-				$this->printBody();
-			}	
+			// we can't find a layout, oh well let's just print out our body
+			$this->printBody();
 		}
 
 	}//end printBodyWithPaintLayout()
@@ -5530,7 +5443,7 @@ class Asset extends MySource_Object
 
 			// do not run hipo if any of the paths start with __ or is reserved by Matrix
 			foreach ($paths as $orig_path) {
-				if (preg_match('/^__/', $orig_path) || $orig_path == SQ_CONF_BACKEND_SUFFIX || $orig_path == SQ_CONF_LIMBO_SUFFIX || $orig_path == SQ_CONF_NOCACHE_SUFFIX || $orig_path == SQ_CONF_NOPROXYCACHE_SUFFIX) {
+				if (preg_match('/^__/', $orig_path) || $orig_path == SQ_CONF_BACKEND_SUFFIX || $orig_path == SQ_CONF_LIMBO_SUFFIX || $orig_path == SQ_CONF_NOCACHE_SUFFIX) {
 					return FALSE;
 				}
 			}
@@ -7099,203 +7012,6 @@ class Asset extends MySource_Object
 	}//end evaluateConditions
 	
 	
-
-	/**
-	*
-	* Extract condition keywords from containers of asset and set those conditions into the condition attribute of asset
-	*
-	* @param bool	$current_asset_only	just get current asset's conditions
-	* 
-	* @return array
-	* @access public
-	*/
-	function extractConditionsFromBodycopy($bodycopy_array=Array())
-	{
-		$available_conditions = array_keys($this->getAvailableConditions());			
-		$conditions = Array();
-		$conditional_div = Array();
-		$conditional_keywords = Array();
-
-		if(empty($bodycopy_array) || empty($available_conditions)) return TRUE;
-		$containers = Array();
-		foreach($bodycopy_array as $bodycopy_id) {
-			$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_id);
-			$containers = array_merge($containers, $bodycopy->getContainers());
-		}
-		if(empty($containers)) return TRUE;
-
-		foreach ($containers as $container) {
-		    $attrs = $container->attr('attributes');
-		    // get div conditions
-		    if(isset($attrs['conditions']) && !empty($attrs['conditions'])) {
-			$condition_data = $attrs['conditions'];	
-			// get conditions settings for each container and add it to the page's attribute
-			if(isset($condition_data['condition_rules_status']) && isset($condition_data['conditions']) && !empty($condition_data['conditions']) && $condition_data['condition_rules_status'] === 'enable') {
-			    if(isset($condition_data['conditions'][0]['conditions']) && !empty($condition_data['conditions'][0]['conditions'])) {
-				$conditional_div['div_'.$container->id]['logical_op_groups'] = $condition_data['logical_op_groups'];
-				$conditional_div['div_'.$container->id]['conditions'] = $condition_data['conditions'];
-			    }
-			}
-		    }
-		    
-		    // get condition keywords condtions
-		   if(!empty($available_conditions)) {
-			ob_start();
-				$edit = $container->getEditFns();
-				$edit->paint($container, FALSE, TRUE);
-				$content = ob_get_contents();
-			ob_end_clean();
-
-			$required_keywords = retrieve_keywords_replacements($content);
-			foreach($required_keywords as $keyword) {
-			    if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts)) {
-				if(count($condition_parts) ===3 && in_array($condition_parts[2], $available_conditions)) {
-				    $conditional_keywords[] = $condition_parts[2];
-				}
-			    }
-			    if(in_array($keyword, $available_conditions)) {
-				$conditional_keywords[] = $keyword;
-			    }
-			}
-		   }    
-		}
-
-		if(!empty($conditional_div)) {
-		    $conditions['conditional_div'] = $conditional_div;
-		}
-		if(!empty($conditional_keywords)) {
-		    $conditions['conditional_keywords'] = array_unique($conditional_keywords);
-		}
-
-		// now count  the used conditions and record them
-		$used_conditions = Array();
-		foreach ($conditional_div as $div) {
-		    if(isset($div['conditions'])) {
-			foreach ($div['conditions'] as $data) {
-			    if(isset ($data['conditions'])) {
-				$used_conditions = array_merge($used_conditions, $data['conditions']);
-			    }
-			}
-		    }
-		}
-		$used_conditions = array_merge($used_conditions, $conditional_keywords);
-		$used_conditions = array_unique($used_conditions);
-		$conditions['used_conditions'] = $used_conditions;
-		
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$this->setAttrValue('conditions', $conditions);
-		$this->saveAttributes(TRUE);
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-		return TRUE;
-
-	}//end extractConditionsFromBodycopy
-
-
-	/**
-	*
-	* Get available keywords based on condition set on the asset
-	*
-	*
-	* @return array
-	* @access public
-	*/
-	function getAvailableConditionKeywords()
-	{
-		$keywords = Array();
-		$available_conditions = array_keys($this->getAvailableConditions());
-		if(!empty($available_conditions)) {
-		    foreach ($available_conditions as $condition_name) {
-				$keywords[$condition_name] = ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['begin_'.$condition_name] = 'Begin '.ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['else_'.$condition_name] = 'Else '.ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['end_'.$condition_name] = 'End '.ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['begin_'.$condition_name.'% %else_'.$condition_name.'% %end_'.$condition_name] = 'Full Structure For '.ucwords(str_replace('_', ' ', $condition_name));
-		    }
-		}
-		return $keywords;
-	}
-
-	
-	/**
-	*
-	* Is this asset in maintenance mode?
-	*
-	*
-	* @return bool
-	* @access public
-	*/
-	public function inMaintenanceMode()
-	{
-		require_once SQ_DATA_PATH.'/private/conf/maintenance.inc';
-		if(!SQ_MAINTENANCE_MODE) return FALSE;
-
-		
-		// check if current asset type is covered by maintenance mode
-		$current_type = $this->type();
-		$types = Array();
-		$covered = FALSE;
-		foreach (explode('|', SQ_MAINTENANCE_ASSET_TYPE) as $type) {
-			if(empty($type)) continue;
-			$type_array = explode(':', $type);
-			$types[$type_array[0]] = $type_array[1];
-		}
-		foreach ($types as $type => $inherit) {
-			if($type === $current_type) {
-				$covered = TRUE;
-				break;
-			}
-			if($inherit) {
-				$decendents = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type);
-				if(in_array($current_type, $decendents)) {
-					$covered = TRUE;
-					break;
-				}
-			}
-		}
-		if(!$covered) return FALSE;
-
-		// check if current asset is in root node list
-		$covered = FALSE;
-		$root_nodes = Array();
-		$root_nodes_cascade = Array();
-		foreach (explode('|', SQ_MAINTENANCE_ROOT_NODE) as $node) {
-			if(empty($node)) continue;
-			$details = explode(':', $node);
-			$cascade = isset($details[1]) && $details[1] == 1 ? 1 : 0;
-			if($cascade) {
-				$root_nodes_cascade[] = $details[0];
-			}
-			else {
-				$root_nodes[] = $details[0];
-			}
-		}
-		$exclude_root_nodes = Array();
-		$exclude_root_nodes_cascade = Array();
-		foreach (explode('|', SQ_MAINTENANCE_EXCLUDE_ROOT_NODE) as $node) {
-			if(empty($node)) continue;
-			$details = explode(':', $node);
-			$cascade = isset($details[1]) && $details[1] == 1 ? 1 : 0;
-			if($cascade) {
-				$exclude_root_nodes_cascade[] = $details[0];
-			}
-			else {
-				$exclude_root_nodes[] = $details[0];
-			}
-		}
-
-
-		if(!empty($root_nodes) || !empty($root_nodes_cascade)) {
-			$isUnder = in_array($this->id, $root_nodes) || $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($this->id, $root_nodes_cascade);
-			$isExcluded = in_array($this->id, $exclude_root_nodes) || $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($this->id, $exclude_root_nodes_cascade);
-			if($isUnder && !$isExcluded) $covered = TRUE;
-		}
-		if(!$covered) return FALSE;
-
-
-
-	    return TRUE;
-	}//end inMaintenanceMode
 	
 }//end class
 

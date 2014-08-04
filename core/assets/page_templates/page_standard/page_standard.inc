@@ -240,7 +240,8 @@ class Page_Standard extends Page
 				foreach ($keywords as $word) {
 					$replacements[$word] = $this->getKeywordReplacement($word);
 				}
-
+				if (isset($GLOBALS['SQ_CONDITION']['conditional_keywords'])) 
+				    $replacements = array_merge ($replacements, $GLOBALS['SQ_CONDITION']['conditional_keywords']);
 				$bodycopy->setKeywordReplacements($replacements);
 
 				$bodycopy->printBody();
@@ -467,11 +468,78 @@ class Page_Standard extends Page
 	function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
-				
+		
+		$available_conditions = array_keys($this->getAvailableConditions());			
+		$conditions = Array();
+		$conditional_div = Array();
+		$conditional_keywords = Array();
+		
 		$bodycopy = $this->getBodycopy();
 		if(empty($bodycopy)) return TRUE;
 		
-		return ($this->extractConditionsFromBodycopy(Array($bodycopy->id)));
+		$containers =& $bodycopy->getContainers();
+		foreach ($containers as $container) {
+		    $attrs = $container->attr('attributes');
+		    // get div conditions
+		    if(isset($attrs['conditions']) && !empty($attrs['conditions'])) {
+			$condition_data = $attrs['conditions'];	
+			// get conditions settings for each container and add it to the page's attribute
+			if(isset($condition_data['condition_rules_status']) && isset($condition_data['conditions']) && !empty($condition_data['conditions']) && $condition_data['condition_rules_status'] === 'enable') {
+			    if(isset($condition_data['conditions'][0]['conditions']) && !empty($condition_data['conditions'][0]['conditions'])) {
+				$conditional_div['div_'.$container->id]['logical_op_groups'] = $condition_data['logical_op_groups'];
+				$conditional_div['div_'.$container->id]['conditions'] = $condition_data['conditions'];
+			    }
+			}
+		    }
+		    
+		    // get condition keywords condtions
+		   if(!empty($available_conditions)) {
+			ob_start();
+				$edit = $container->getEditFns();
+				$edit->paint($container, FALSE, TRUE);
+				$content = ob_get_contents();
+			ob_end_clean();
+			$required_keywords = retrieve_keywords_replacements($content);
+			foreach($required_keywords as $keyword) {
+			    if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts)) {
+				if(count($condition_parts) ===3 && in_array($condition_parts[2], $available_conditions)) {
+				    $conditional_keywords[] = $condition_parts[2];
+				}
+			    }
+			    if(in_array($keyword, $available_conditions)) {
+				$conditional_keywords[] = $keyword;
+			    }
+			}
+		   }    
+		}
+		
+		if(!empty($conditional_div)) {
+		    $conditions['conditional_div'] = $conditional_div;
+		}
+		if(!empty($conditional_keywords)) {
+		    $conditions['conditional_keywords'] = array_unique($conditional_keywords);
+		}
+
+		// now count  the used conditions and record them
+		$used_conditions = Array();
+		foreach ($conditional_div as $div) {
+		    if(isset($div['conditions'])) {
+			foreach ($div['conditions'] as $data) {
+			    if(isset ($data['conditions'])) {
+				$used_conditions = array_merge($used_conditions, $data['conditions']);
+			    }
+			}
+		    }
+		}
+		$used_conditions = array_merge($used_conditions, $conditional_keywords);
+		$used_conditions = array_unique($used_conditions);
+		$conditions['used_conditions'] = $used_conditions;
+		
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$this->setAttrValue('conditions', $conditions);
+		$this->saveAttributes(TRUE);
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		return TRUE;
 	}//end _updated()
 	
 
@@ -494,7 +562,17 @@ class Page_Standard extends Page
 		// add common asset keywords to standard page
 		parent::onRequestKeywords($broadcaster, $vars);  
 		
-		$keywords = $this->getAvailableConditionKeywords();
+		$keywords = Array();
+		$available_conditions = array_keys($this->getAvailableConditions());
+		if(!empty($available_conditions)) {
+		    foreach ($available_conditions as $condition_name) {
+				$keywords[$condition_name] = ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name] = 'Begin '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['else_'.$condition_name] = 'Else '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['end_'.$condition_name] = 'End '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name.'% %else_'.$condition_name.'% %end_'.$condition_name] = 'Full Structure For '.ucwords(str_replace('_', ' ', $condition_name));
+		    }
+		}
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()

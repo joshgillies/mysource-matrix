@@ -38,21 +38,6 @@ class Funnelback_Search_Log_Report extends Report
 
 
 	/**
-	* Weather the asset is deprecated or not.
-	* this will be used in asset_map.inc:_cloneAsset() to see if the asset type
-	* can be created (cloned) on the system
-	*/
-	public $deprecated = TRUE;
-
-
-	/**
-	* Marking the asset deprecated since so that we can
-	* use it when warning the users on backend
-	*/
-	public $deprecated_since = '5.1';
-
-
-	/**
 	* Constructor
 	*
 	* @param int    $assetid    the asset id to be loaded

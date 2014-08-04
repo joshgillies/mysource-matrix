@@ -206,10 +206,6 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	function processImportAsset(&$step_data, $prefix, $freestyle=FALSE)
 	{
 		
-		// should we allow immediate virus scan on files?
-		if(isset($this->_running_vars['allow_virus_scan']) && !$this->_running_vars['allow_virus_scan'])
-			$GLOBALS['SQ_SKIP_VIRUS_SCAN'] = TRUE;
-
 		$import_actions = $this->_running_vars['import_actions'];
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');

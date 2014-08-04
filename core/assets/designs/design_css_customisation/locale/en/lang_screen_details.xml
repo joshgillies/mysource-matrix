@@ -21,9 +21,6 @@
 			<display_name>Id Name</display_name>
 			<note />
 		</field>
-		<field attribute="file_reference_method">
-			<display_name>File Reference Method</display_name>
-		</field>
 	</section>
 	<section name="Design Areas">
 		<field format="new_line">

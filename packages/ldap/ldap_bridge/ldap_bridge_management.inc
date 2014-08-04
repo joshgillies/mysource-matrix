@@ -146,19 +146,6 @@ class LDAP_Bridge_Management extends Asset_Management
 													'parameters'    => Array( 'allow_empty' => FALSE,),
 													'description'	=> 'Can now exclude the current asset from the results.',
 												   ),
-						'cache_status'			=> Array (
-													'added'			=> '0.5',
-													'type'			=> 'boolean',
-													'default'		=> FALSE,
-													'parameters'    => Array( 'allow_empty' => FALSE,),
-													'description'	=> 'Whether to cache the LDAP results',
-												   ),
-						'cache_expiry'			=> Array (
-													'added'			=> '0.5',
-													'type'			=> 'int',
-													'default'		=> '86400',
-													'description'	=> 'Cache expiry period in seconds',
-												   ),
 					  );
 
 	}//end constructor

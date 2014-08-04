@@ -83,21 +83,6 @@ class Form_Question_Type_Numeric_Management extends Asset_Management
 															'allow_empty'	=> false,
 														   ),
 									   ),
-						'text_type'	=> Array (
-										'added'			=> '0.3',
-										'type'			=> 'selection',
-										'default'		=> 'text',
-										'description'	=> 'Text to set for the "type" attribute to the input html tag',
-										'parameters'	=> Array (
-															'multiple'		=> FALSE,
-															'allow_empty'	=> FALSE,
-															'allow_other'	=> FALSE,
-															'options'		=> Array(
-																				'number'	=> 'Number',
-																				'text'		=> 'Text',
-																			   ),
-														   ),
-									   ),
 					  );
 	}//end constructor
 

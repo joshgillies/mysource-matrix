@@ -24,7 +24,7 @@
     <version>0.1</version>
     <name>Weather Company Feed</name>
     <description>Provides ability to read a subscription-based XML feed provided by The Weather Company.</description>
-    <instantiable>no</instantiable>
+    <instantiable>yes</instantiable>
     <allowed_access>backend_user</allowed_access>
     <parent_type>data_source_xml</parent_type>
     <requirements>

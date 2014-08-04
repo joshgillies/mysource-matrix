@@ -202,29 +202,33 @@ class Data_Source_Ldap extends Data_Source
 			$sort_by = trim($this->attr('sort_by'));
 			
 			$required_attributes = $this->parseStringValues($this->attr('attributes').','.$this->attr('binary_attributes'));
-			$binary_attributes = $this->parseStringValues($this->attr('binary_attributes'));
-			$search_result = $ldap->searchEntries($base_dn, $search_filter, empty($sort_by) ? NULL : $sort_by, TRUE, TRUE, $required_attributes, $binary_attributes);
-
-			if (!empty($search_result)) {					
-				unset($search_result['count']);
-				foreach($search_result as $data) {							
-					unset($data['count']);
-					$ds_record = Array();
-					foreach($data as $ldap_key => $ldap_val) {								
-						if (!is_int($ldap_key)) {
-							if (is_array($ldap_val)) {
-								unset($ldap_val['count']);										
-								$ds_record[$ldap_key] = implode(";", $ldap_val);
-							} else {
-								$ds_record[$ldap_key] = $ldap_val;
-							}
-						}//end if
+			
+			$search_result = $ldap->search($base_dn, $search_filter, empty($sort_by) ? NULL : $sort_by, TRUE, TRUE, $required_attributes);
+			
+			if (!empty($search_result)) {
+				$entries = $ldap->getEntries($search_result, $this->parseStringValues($this->attr('binary_attributes')));
+				
+				if (!empty($entries)) {					
+					unset($entries['count']);
+					foreach($entries as $data) {							
+						unset($data['count']);
+						$ds_record = Array();
+						foreach($data as $ldap_key => $ldap_val) {								
+							if (!is_int($ldap_key)) {
+								if (is_array($ldap_val)) {
+									unset($ldap_val['count']);										
+									$ds_record[$ldap_key] = implode(";", $ldap_val);
+								} else {
+									$ds_record[$ldap_key] = $ldap_val;
+								}
+							}//end if
+						}//end foreach
+						
+						$result[] = $ds_record;
+						
 					}//end foreach
-						
-					$result[] = $ds_record;
-						
-				}//end foreach
-			}//end if					
+				}//end if					
+			}//end if
 		}//end if
 	
 		if (!is_null($ldap)) {

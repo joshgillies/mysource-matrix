@@ -177,25 +177,7 @@ class SAML_Account_Manager_Management extends Asset_Management
 												'allow_empty'   => FALSE,
 										    ),
 									    );
-		$this->vars['redirect_delay']				= Array(
-										'added'		=> '0.1',
-										'type'		=> 'float',
-										'default'		=> 0,
-										'parameters'    => Array(
-												'allow_empty'   => FALSE,
-										    ),
-									    );
-
-		$this->vars['prefilled_fields']				= Array(
-										'added'		=> '0.1',
-										'type'		=> 'serialise',
-										'default'	=> Array(),
-									 );
-		$this->vars['synced_fields']				= Array(
-										'added'		=> '0.1',
-										'type'		=> 'serialise',
-										'default'	=> Array(),
-									 );		
+				
 
 	}//end constructor
 

@@ -24,7 +24,7 @@
 	<version>0.1</version>
 	<name>IPB Bridge</name>
 	<description>Provides a bridge between the MySource system and Invision Power Board users</description>
-	<instantiable>no</instantiable>
+	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />

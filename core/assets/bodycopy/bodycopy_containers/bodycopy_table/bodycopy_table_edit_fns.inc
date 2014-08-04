@@ -329,10 +329,6 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$bgimage = '';
 		$dir_attribute = '';
 
-		if ($asset->deprecated === TRUE) {
-			$GLOBALS['SQ_SYSTEM']->printDeprecatedWarning($asset);
-		}
-
 		if (!empty($table_attributes)) {
 			for (reset($table_attributes); $name = key($table_attributes); next($table_attributes)) {
 				$val = $table_attributes[$name];

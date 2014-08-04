@@ -152,7 +152,8 @@ generate_lang_char_map();
 
 generate_import_tools_manager_config();
 
-disable_missing_packages();
+uninstall_asset_types();
+uninstall_packages();
 
 install_core($package_list);
 $deferred = install_packages($package_list);

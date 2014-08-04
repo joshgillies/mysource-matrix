@@ -686,7 +686,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_links[$k]['minorid']);
 
 			// output an include BUT we want to make what's printed relative to SQ_DATA_PATH
-			$output .= '<'.'?php $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$section->id.'\')->printBody($form_asset); ?'.'>';
+			$output .= '<'.'?php include_once($GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$section->id.'\')->data_path.\'/content_file.php\'); ?'.'>';
 		}
 
 		return $output;

@@ -14,9 +14,6 @@
 *
 */
 
-define('SQ_EMAIL_FORMAT_SEND_TO_EMAIL', 0);
-define('SQ_EMAIL_FORMAT_SEND_TO_MATRIX_INBOX', 1);
-define('SQ_EMAIL_FORMAT_SEND_TO_BOTH', 2);
 
 require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
@@ -55,7 +52,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$this->_edit_params['show_to'] = TRUE;
 		$this->_edit_params['show_inc_attachments'] = FALSE;
 		$this->_edit_params['show_asset_to_send'] = FALSE;
-		$this->_edit_params['show_send_mail_to_type'] = FALSE;
 
 	}//end constructor
 
@@ -141,23 +137,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/email_format.js"></script>
 		<table border="0" class="sq-backend-table sq-email-format-wrapper">
 		<?php
-		if ($this->_edit_params['show_send_mail_to_type']) {
-		?>
-			<tr>
-				<th><?php echo 'Send Mail To'; ?></th>
-				<td>
-					<?php
-						$options = Array(
-									SQ_EMAIL_FORMAT_SEND_TO_EMAIL => "User's email",
-									SQ_EMAIL_FORMAT_SEND_TO_MATRIX_INBOX => "User's Matrix inbox",
-									SQ_EMAIL_FORMAT_SEND_TO_BOTH => "Both",
-								);
-						$selected_value = array_get_index($current_value, 'send_mail_to_type', SQ_EMAIL_FORMAT_SEND_TO_EMAIL);
-						combo_box($prefix.'_send_mail_to_type', $options, FALSE,  $selected_value, 0, ($read_only ? ' disabled' : ''));
-					?>
-				</td>
-			</tr>
-		<?php }
 		if ($this->_edit_params['show_to']) {
 			?>
 			<tr>
@@ -406,7 +385,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$value['asset_to_send'] = (isset($_REQUEST[$prefix.'_asset_to_send']['assetid'])) ? $_REQUEST[$prefix.'_asset_to_send']['assetid'] : '0';
 		$value['design_to_apply'] = (isset($_REQUEST[$prefix.'_design_to_apply']['assetid'])) ? $_REQUEST[$prefix.'_design_to_apply']['assetid'] : '0';
 		$value['layout_to_apply'] = (isset($_REQUEST[$prefix.'_layout_to_apply']['assetid'])) ? $_REQUEST[$prefix.'_layout_to_apply']['assetid'] : '0';
-		$value['send_mail_to_type'] = (isset($_REQUEST[$prefix.'_send_mail_to_type'])) ? $_REQUEST[$prefix.'_send_mail_to_type'] : SQ_EMAIL_FORMAT_SEND_TO_EMAIL;
+
 		// from address is not specified, print a warning message
 		if (isset($value['to']) && !empty($value['to']) && empty($value['from'])) {
 			trigger_localised_error('CORE0251', E_USER_WARNING, $this->name);
@@ -500,9 +479,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$current_value = @unserialize($this->value);
 
-		// Internal message recepient userids
-		$to_assetids = Array();
-
 		// replace keywords in all our values
 		$assetid_emails = Array();
 		if (isset($current_value['to_assetids']) && !empty($current_value['to_assetids'])) {
@@ -518,16 +494,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					foreach ($users as $user_id => $type_code) {
 					    // make sure shadow ldap user group isn't returned
 					    if(isset($type_code[0]['type_code'])) {
-							$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
-							$assetid_emails[] = $user->attr('email');
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
-
-							$to_assetids[] = $user_id;
+						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
+						$assetid_emails[] = $user->attr('email');
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 					    }
 					}
 				} else {
 					$assetid_emails[] = $addressee->attr('email');
-					$to_assetids[] = $addressee->id;
 				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($addressee);
 			}
@@ -614,129 +587,104 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		}
 
-		// Inbox type to send the message to
-		$send_mail_to_type = array_get_index($current_value, 'send_mail_to_type', SQ_EMAIL_FORMAT_SEND_TO_EMAIL);
+		$to = array_unique(array_merge($to, $assetid_emails, $cs_emails));
 
-		// If message needs to be sent to email
-		if ($send_mail_to_type == SQ_EMAIL_FORMAT_SEND_TO_EMAIL || $send_mail_to_type == SQ_EMAIL_FORMAT_SEND_TO_BOTH) {
+		// if no 'From:' address (possibly because of empty keyword replacement)
+		// send from the system's default email address
+		if (trim($from) == '') $from = SQ_CONF_DEFAULT_EMAIL;
 
-			$to = array_unique(array_merge($to, $assetid_emails, $cs_emails));
+		// can't come up with a From: email address - bail for this email
+		if (empty($from)) {
+			trigger_localised_error('SYS0315', E_USER_WARNING);
+			return;
+		}
 
-			// if no 'From:' address (possibly because of empty keyword replacement)
-			// send from the system's default email address
-			if (trim($from) == '') $from = SQ_CONF_DEFAULT_EMAIL;
+		require_once 'Mail.php';
+		require_once 'Mail/mime.php';
 
-			// can't come up with a From: email address - bail for this email
-			if (empty($from)) {
-				trigger_localised_error('SYS0315', E_USER_WARNING);
-				return;
+		// new line is \n
+		$crlf = "\n";
+		$mime = new Mail_mime($crlf);
+
+		$from_addr = preg_replace('|.*\<(.*)\>|', '\\1', $from);
+
+		$tmp_mail = new Mail();
+		$mail = $tmp_mail->factory('mail', "-f$from_addr");
+
+		$hdrs = Array(
+					'From'		=> $from,
+					'Subject'	=> $subject,
+				);
+
+		$reply_to = trim($reply_to);
+		if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
+
+		foreach ($to as $to_email) {
+
+			$to_email = trim($to_email);
+
+			$to_addr = preg_replace('|.*\<(.*)\>|', '\\1', $to_email);
+
+			if (empty($to_email) || !valid_email($to_addr)) {
+				continue;
 			}
 
-			require_once 'Mail.php';
-			require_once 'Mail/mime.php';
+			// Unset the $mime->_parts (which holds all the attachments for the email)
+			// This was not done before, causing an incremental attachment of files
+			// for multiple recipients (please see Bug #2897)
+			if (count($mime->_parts) > 0) unset($mime->_parts);
 
-			// new line is \n
-			$crlf = "\n";
-			$mime = new Mail_mime($crlf);
-
-			$from_addr = preg_replace('|.*\<(.*)\>|', '\\1', $from);
-
-			$tmp_mail = new Mail();
-			$mail = $tmp_mail->factory('mail', "-f$from_addr");
-
-			$hdrs = Array(
-						'From'		=> $from,
-						'Subject'	=> $subject,
-					);
-
-			$reply_to = trim($reply_to);
-			if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
-
-			foreach ($to as $to_email) {
-
-				$to_email = trim($to_email);
-
-				$to_addr = preg_replace('|.*\<(.*)\>|', '\\1', $to_email);
-
-				if (empty($to_email) || !valid_email($to_addr)) {
-					continue;
+			foreach ($attachments as $file_path) {
+				if (file_exists($file_path)) {
+					$mime_type = file_mime_type($file_path);
+					@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning (Non-static method PEAR::isError should not be called statically)
 				}
+			}
 
-				// Unset the $mime->_parts (which holds all the attachments for the email)
-				// This was not done before, causing an incremental attachment of files
-				// for multiple recipients (please see Bug #2897)
-				if (count($mime->_parts) > 0) unset($mime->_parts);
-
-				foreach ($attachments as $file_path) {
-					if (file_exists($file_path)) {
-						$mime_type = file_mime_type($file_path);
-						@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning (Non-static method PEAR::isError should not be called statically)
-					}
+			// ADditional attachments.
+			foreach ($additional_attachments as $file_path) {
+				if (file_exists($file_path) && (strpos(realpath($file_path), SQ_DATA_PATH) === 0)) {
+					$mime_type = file_mime_type($file_path);
+					@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning
 				}
+			}
 
-				// Additional attachments.
-				foreach ($additional_attachments as $file_path) {
-					if (file_exists($file_path) && (strpos(realpath($file_path), SQ_DATA_PATH) === 0)) {
-						$mime_type = file_mime_type($file_path);
-						@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning
-					}
+			// if it's email verification keyword replace it with a token
+			$keywords = retrieve_keywords_replacements($text_body);
+			$keywords += retrieve_keywords_replacements($html_body);
+			if(!empty($keywords)) {
+			    foreach ($keywords as $keyword) {
+				if($keyword === 'email_verification_token') {
+				    // generate a random token
+                    include_once SQ_FUDGE_PATH.'/general/security.inc';
+				    $token = md5(uniqid(security_rand(), TRUE));
+				    $_SESSION['SQ_VERIFY_EMAIL_RAW'] = $to_email;
+				    $_SESSION['SQ_VERIFY_EMAIL_TOKEN'] = $token;
+				    $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = '';
+				    $replacements = Array($keyword => $token);
+				   $text_body = replace_keywords($text_body, $replacements);
+				   $html_body = replace_keywords($html_body, $replacements);
 				}
+			    }
+			}
 
-				// if it's email verification keyword replace it with a token
-				$keywords = retrieve_keywords_replacements($text_body);
-				$keywords += retrieve_keywords_replacements($html_body);
-				if(!empty($keywords)) {
-				    foreach ($keywords as $keyword) {
-						if($keyword === 'email_verification_token') {
-					    	// generate a random token
-	                	    include_once SQ_FUDGE_PATH.'/general/security.inc';
-					    	$token = md5(uniqid(security_rand(), TRUE));
-						    $_SESSION['SQ_VERIFY_EMAIL_RAW'] = $to_email;
-						    $_SESSION['SQ_VERIFY_EMAIL_TOKEN'] = $token;
-						    $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = '';
-						    $replacements = Array($keyword => $token);
-						   $text_body = replace_keywords($text_body, $replacements);
-						   $html_body = replace_keywords($html_body, $replacements);
-						}
-			    	}
-				}
+			$mime->setTXTBody($text_body);
+			$mime->setHTMLBody($html_body);
 
-				$mime->setTXTBody($text_body);
-				$mime->setHTMLBody($html_body);
+			// get() must be called before headers()
+			// set up the charsets, use matrix preferences
+			$params = Array(
+						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+					  );
+			$body = $mime->get($params);
 
-				// get() must be called before headers()
-				// set up the charsets, use matrix preferences
-				$params = Array(
-							'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
-							'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
-							'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
-						  );
-				$body = $mime->get($params);
+			$hdrs = $mime->headers($hdrs);
 
-				$hdrs = $mime->headers($hdrs);
+			$msg = $mail->send($to_email, $hdrs, $body);
 
-				$msg = $mail->send($to_email, $hdrs, $body);
-
-			}//end foreach
-
-		}//end if send type = "email"
-
-		// If message needs to be sent to Matrix inbox
-		if (!empty($to_assetids) && ($send_mail_to_type == SQ_EMAIL_FORMAT_SEND_TO_MATRIX_INBOX || $send_mail_to_type == SQ_EMAIL_FORMAT_SEND_TO_BOTH)) {
-
-			$to_assetids = array_unique($to_assetids);
-			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-
-			$replacements = Array(
-								'subject' => $subject,
-								'body' => $text_body ? $text_body : $html_body,
-							);
-			$msg = $ms->newMessage($to_assetids, 'internal.message', $replacements);
-			// Asset triggering the send mail process
-			$msg->parameters['assetid'] = array_get_index($current_value, 'triggering_assetid', '');
-			// Send the message to the user's Matrix inbox
-			$msg->send(TRUE);
-		}//end if send type = "Matrix inbox"
+		}//end foreach
 
 	}//end sendMail()
 

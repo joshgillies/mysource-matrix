@@ -740,20 +740,13 @@ function prependInheritSelector(elt)
 	while ((checkbox.tagName != 'INPUT') || (checkbox.type.toUpperCase() != 'CHECKBOX')) {
 		checkbox = checkbox.previousSibling;
 	}
-	var currentKey = checkbox.id.match(/asset_type_chooser_inherit_check_box_(\d+)/);
-	var newKey = parseInt(currentKey[1]) + 1;
-	var newID = 'asset_type_chooser_inherit_check_box_' + newKey;
 	newHiddenField = hiddenField.cloneNode(true);
 	newHiddenField.value = '0';
 	newCheckbox = checkbox.cloneNode(true);
 	newCheckbox.checked = 0;
-	newCheckbox.id = newID;
-	newCheckbox.name = newID;
-
 	//newText = document.createTextNode('inherit');
 	newLabel = document.createElement('label');
 	newLabel.innerHTML = 'inherit &nbsp;';
-	newLabel.htmlFor = newID;
 	elt.parentNode.insertBefore(newHiddenField, elt);
 	elt.parentNode.insertBefore(newCheckbox, elt);
 	elt.parentNode.insertBefore(newLabel, elt);

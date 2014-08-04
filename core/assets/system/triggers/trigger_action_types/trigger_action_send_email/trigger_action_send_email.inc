@@ -58,18 +58,12 @@ class Trigger_Action_Send_Email extends Trigger_Action
 
 		$assetid = $state['asset']->id;
 
-		$email_format_value = $settings['email_format_value'];
-
-		// Asset id triggering this action
-		$unserialised = unserialize($email_format_value);
-		$unserialised['triggering_assetid'] = $assetid;
-		$email_format_value = serialize($unserialised);
-
 		// Fill in possibly missing settings (from upgrades)
 		$settings['groups']              = array_get_index($settings, 'groups', Array());
 		$settings['roles']               = array_get_index($settings, 'roles', Array());
 		$settings['email_recipient_map'] = array_get_index($settings, 'email_recipient_map', Array());
 
+		$email_format_value = $settings['email_format_value'];
 		if ($settings['to_owner'] && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($state['asset']->type(), 'user')) {
 			// add owners id
 			$unserialised = unserialize($email_format_value);
@@ -249,8 +243,6 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$atr_email_format->setEditParam('with_asset_finder', TRUE);
 		// set attr value for show_asset_to_send to true so that we have an option to send as asset in email instead
 		$atr_email_format->setEditParam('show_asset_to_send', TRUE);
-		// Option to whether send message to email, user'inbox or both
-		$atr_email_format->setEditParam('show_send_mail_to_type', TRUE);
 
 		$parameter_map_value = array_get_index($settings, 'email_recipient_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);

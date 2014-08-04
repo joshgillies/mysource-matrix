@@ -21,7 +21,7 @@
 	<package>ecommerce</package>
 	<type_code>payment_gateway_dps</type_code>
 	<version>0.1</version>
-	<name>Payment Express Payment Gateway</name>
+	<name>DPS Payment Gateway</name>
 	<description>Payment Gateway for Direct Payment Solution payment system</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>

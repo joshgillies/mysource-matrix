@@ -140,8 +140,8 @@ class File_Folder extends File
 	{
 		$file_assetids = Array();
 
-		$file_types = $this->getFileAssetTypes();
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, $file_types, FALSE, 'major', 'linked_folder');
+		$file_type = $this->getFileAssetType();
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, $file_type, TRUE, 'major', 'linked_folder');
 		foreach($links as $link) {
 			if (!empty($link['minorid'])) {
 				$file_assetids[] = $link['minorid'];
@@ -197,16 +197,18 @@ class File_Folder extends File
 		}
 		$merged_file_path = $merged_file_info['path'];
 
-		$source_contents = Array();
+		$source_files = Array();
 		foreach($linked_file_assetids as $linked_file_assetid) {
 			$linked_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($linked_file_assetid);
-			$source_content = $linked_file->getContent(FALSE);
-			if (!empty($source_content)) {
-				$source_contents[] = $source_content;
+			$file_info = $linked_file->getExistingFile();
+			if (empty($file_info['path'])) {
+				trigger_error('File path not found for the asset #'.$linked_file_assetid, E_USER_WARNING);
+				continue;
 			}
+			$source_files[] = $file_info['path'];
 		}
 
-		if (empty($source_contents)) {
+		if (empty($source_files)) {
 			// Nothing to merge
 			return TRUE;
 		}
@@ -215,8 +217,9 @@ class File_Folder extends File
 		$minify = $this->attr('compiler_type') != 'none';
 		require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/jsmin.php';
 		$output = '';
-		foreach ($source_contents as $source_content) {
-			$output .= $minify ? JSMin::minify($source_content) : $source_content."\n";
+		foreach ($source_files as $source_file) {
+			$file_content = file_get_contents($source_file) ;
+			$output .= $minify ? JSMin::minify($file_content) : $file_content."\n";
 		}
 
 		// Write into the merged file
@@ -321,20 +324,20 @@ class File_Folder extends File
 	{
 		return '';
 
-	}//end getFileExtension()
+	}//end minifyFiles()
 
 
 	/**
-	* Get the file asset types that this folder supports
+	* Get the file asset type that this folder supports
 	*
 	* @return string
 	* @access public
 	*/
-	public function getFileAssetTypes()
+	public function getFileAssetType()
 	{
-		return Array();
+		return '';
 
-	}//end getFileAssetTypes()
+	}//end minifyFiles()
 
 
 	/**
@@ -346,18 +349,19 @@ class File_Folder extends File
 	*/
 	public function _getAllowedLinks()
 	{
-		$asset_types = $this->getFileAssetTypes();
-
-		$link_types = Array();
-		foreach($asset_types as $asset_type) {
-			$link_types[$asset_type] = Array('card' => 'M', 'exclusive' => FALSE);
-		}
+		$asset_type = $this->getFileAssetType();
 
 		return Array(
-					SQ_LINK_TYPE_1	=> $link_types,
-					SQ_LINK_TYPE_2	=> $link_types,
-					SQ_LINK_TYPE_3	=> Array(),
-					SQ_LINK_NOTICE	=> $link_types,
+				SQ_LINK_TYPE_1	=> Array(
+									$asset_type	=> Array('card'	=> 'M', 'exclusive'	=> FALSE),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									$asset_type	=> Array('card'	=> 'M', 'exclusive'	=> FALSE),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(
+									$asset_type	=> Array('card'	=> 'M', 'exclusive'	=> FALSE),
+								   ),
 			   );
 
 	}//end _getAllowedLinks()

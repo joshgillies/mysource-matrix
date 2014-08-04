@@ -79,10 +79,6 @@ class Tool_Import_File extends Tool
 				check_box($type_code.'_index_file', '1');
 				$o->note(translate('file_index_file_note'));
 			$o->closeField();
-			$o->openField(translate('allow_virus_scan'));
-				combo_box($type_code.'_allow_virus_scan', Array(1 => 'Yes', 0 => 'No'));
-				$o->note(translate('allow_virus_scan_note'));
-			$o->closeField();
 		$o->closeSection();
 
 	}//end paintTool()
@@ -102,7 +98,6 @@ class Tool_Import_File extends Tool
 		$importr = 0;
 		$importp = 0;
 		$recursive = FALSE;
-		$allow_virus_scan = TRUE;
 
 		if (isset($_REQUEST[$type_code.'_importing_root_assetid']['assetid'])) {
 			$importr = $_REQUEST[$type_code.'_importing_root_assetid']['assetid'];
@@ -110,10 +105,6 @@ class Tool_Import_File extends Tool
 
 		if (isset($_REQUEST[$type_code.'_importing_parent_assetid']['assetid'])) {
 			$importp = $_REQUEST[$type_code.'_importing_parent_assetid']['assetid'];
-		}
-
-		if (isset($_REQUEST[$type_code.'_allow_virus_scan'])) {
-			$allow_virus_scan = $_REQUEST[$type_code.'_allow_virus_scan'];
 		}
 
 		$recursive = (array_get_index($_REQUEST, $type_code.'_recursive', FALSE)) ? TRUE : FALSE;
@@ -135,7 +126,6 @@ class Tool_Import_File extends Tool
 						'parent_assetid'	=> $importp,
 						'recursive'			=> $recursive,
 						'index_file'        => $index_file,
-						'allow_virus_scan'	=> $allow_virus_scan,
 					);
 
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();

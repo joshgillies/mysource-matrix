@@ -24,7 +24,7 @@
 	<version>0.1</version>
 	<name>Multiple Page</name>
 	<description>Multiple Page, Contains many child pages all controlled by it</description>
-	<instantiable>no</instantiable>
+	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>page</parent_type>
 	<requirements>

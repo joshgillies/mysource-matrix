@@ -24,6 +24,6 @@
     <string source="remap_manager_never_delete_remap_default_question">Never Delete added remaps?</string>
     <string source="remap_manager_never_delete_remap_default_note">This option defines the default setting for the "Never Delete" field of each added remap.</string>
 	<string source="purge_all_remaps">Purge All Remaps</string>
-	<string source="purge_all_remaps_note">This will delete ALL the remaps having "Never Delete" option set to "No". The URL filters below will be ignored when purging these remaps.</string>	
-	<string source="confirm_purge_all_remaps" js="1">This will delete ALL the remaps having "Never Delete" option set to "No". Any URL filters applied will be ignored when purging these remaps. Are you sure?</string>
+	<string source="purge_all_remaps_note">This will delete all the remaps having "Never Delete" option set to "No".</string>	
+	<string source="confirm_purge_all_remaps" js="1">Are you sure you want to delete all the remaps having "Never Delete" option set to "No"?</string>
 </strings>

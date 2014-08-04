@@ -16,7 +16,6 @@
 
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
-require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 
 
 /**
@@ -581,18 +580,6 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<div class="sq-backend-triggers-component-block-wrapper">
 			<div class="sq-backend-triggers-component-block">
-			<script>
-				function <?php echo $prefix; ?>_toggle_other_assets_option(option, other_assets_block)
-				{
-					if (option.checked) {
-						other_assets_block.style.display = 'block';
-					} else {
-						other_assets_block.style.display = 'none';
-					}
-
-				}//end "other assets option" toggle function
-			</script>
-
 			<?php
 			$action_prefix = $prefix.'[actions]';
 			$action_order_prefix = $prefix.'[action_order]';
@@ -605,13 +592,11 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				$delete_prefix             = $this_prefix.'[delete]';
 				$ignore_permissions_prefix = $this_prefix.'[ignore_permissions]';
 				$not_required_prefix       = $this_prefix.'[not_required]';
-				$other_assets_prefix       = $this_prefix.'[other_assets]';
 
 				$type = $action['type'];
 				$data = $action['data'];
 				$not_required = array_get_index($action, 'not_required', FALSE);
 				$ignore_permissions = array_get_index($action, 'ignore_permissions', FALSE);
-				$other_assets = array_get_index($action, 'other_assets', FALSE);
 
 				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access, $asset, $i);
 				$type_name = $tm->_getComponentName($type);
@@ -650,125 +635,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 						check_box($not_required_prefix, 1, $not_required, NULL, $extras);
 						label(translate('not_required'), $not_required_prefix);
-
-						$other_assets_option_id = str_replace('[', '_', str_replace(']', '_', $other_assets_prefix));
-						$action_other_assets = array_get_index($other_assets, 'enabled', FALSE);
-						check_box($other_assets_prefix.'[enabled]', 1, $action_other_assets, NULL, $extras.' onclick="'.$prefix.'_toggle_other_assets_option(this, '.$other_assets_option_id.')"');
-						label(translate('trigger_action_other_assets'), $other_assets_prefix.'[enabled]');
-
-						// "Action on Other Assets" interface
 						?>
-						<span id="<?php echo $other_assets_option_id; ?>" style="display:<?php echo $action_other_assets ? 'block' : 'none'; ?>">
-							<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_other_assets_title'); ?></p>
-							<p><?php echo translate('trigger_action_other_assets_note'); ?></p>
-							<table class="sq-backend-table">
-								<tr>
-									<th width="20%"><?php echo translate('trigger_action_include_current_asset'); ?></th>
-									<td><?php
-										check_box($other_assets_prefix.'[current_asset]', 1, array_get_index($other_assets, 'current_asset', FALSE), NULL, $extras);
-										label(translate('trigger_action_include_current_asset_note'), $other_assets_prefix.'[current_asset]');
-									?>
-									</td>
-								</tr>
-								<tr>
-									<th><?php echo translate('trigger_action_include_linked_parents'); ?></th>
-									<td class="bold-labels" style="vertical-align: bottom;">
-										<p style="margin-bottom: 0"><?php
-											$link_types = get_link_type_names();
-											echo translate('trigger_action_include_linked_parents_include_parents_note');
-											label(translate('trigger_action_link_type'), $other_assets_prefix.'[parent_link_types]');
-											combo_box($other_assets_prefix.'[parent_link_types]', $link_types, TRUE, array_get_index($other_assets, 'parent_link_types', Array()), 4, $extras);
-											echo translate('trigger_action_and');
-											label(translate('trigger_action_link_value'), $other_assets_prefix.'[parent_link_value]');
-											text_box($other_assets_prefix.'[parent_link_value]', array_get_index($other_assets, 'parent_link_value', ''), 15, '', FALSE, $extras);
-										?></p>
-										<div class="sq-backend-note"><?php
-											echo translate('trigger_action_include_linked_parents_note');
-										?></div>
-									</td>
-								</tr>
-								<tr>
-									<th><?php echo translate('trigger_action_assets'); ?></th>
-									<td><?php
-										$selected_assets = array_get_index($other_assets, 'assets', Array());
-										if ($write_access) {
-											multiple_asset_finder($other_assets_prefix.'[assets]', $selected_assets);
-										} else {
-											if (empty($selected_assets)) {
-												echo '&nbsp; &nbsp;'.translate('no_asset_selected');
-											} else {
-												echo '<ul class="sq-root-node-selections-wrapper">';
-													foreach($selected_assets as $selected_assetid) {
-														echo '<li>'.get_asset_tag_line($selected_assetid).'</li>';
-													}//end foreach
-												echo '</ul>';
-											}
-										}
-									?>
-									</td>
-								</tr>
-								<tr>
-									<th><?php echo translate('trigger_action_dynamic_parameters'); ?></th>
-									<td><?php
-										$pm_prefix = str_replace(array('[',']'), '_', $other_assets_prefix).'_dynamic_source';
-										hidden_field($other_assets_prefix.'[pm_prefix]', $pm_prefix);
-										$parameter_map_value = array_get_index($other_assets, 'dynamic_source', serialize(Array()));
-										$attr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
-											$attr_parameter_map->setParameter('assetids', translate('trigger_action_dynamic_parameters_assets'));
-										echo $attr_parameter_map->paint($pm_prefix, !$write_access);
-									?></td>
-								</tr>
-								<tr>
-									<th><?php echo translate('trigger_action_asset_level'); ?></th>
-									<td><?php
-										$level_options = Array(
-															'single'        => translate('selected_asset'),
-															'dependants'    => translate('selected_asset_and_dependants'),
-															'children'      => translate('selected_asset_and_children'),
-									                       );
-										echo combo_box($other_assets_prefix.'[asset_level]', $level_options, FALSE, array_get_index($other_assets, 'asset_level', ''), 0, $extras);
-										echo '<div class="sq-backend-note">'.translate('trigger_action_asset_level_note').'</div>';
-									?>
-									</td>
-								</tr>
-								<tr>
-									<th><?php echo translate('trigger_action_asset_types'); ?></th>
-									<td><?php
-										$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-										foreach ($asset_types as $type_code) {
-											$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
-											if ($info['allowed_access'] != 'system' && $info['instantiable']) {
-												$asset_types_options[$type_code] = $info['name'];
-											}
-										}
-								        $asset_types_options[''] = '-- '.translate('trigger_action_all_asset_types').' --';
-										asort($asset_types_options);
-
-										$selected_types = array_get_index($other_assets, 'asset_types', Array());
-										if (empty($selected_types)) {
-											$selected_types = Array('');
-										}
-										if ($write_access) {
-											combo_box($other_assets_prefix.'[asset_types]', $asset_types_options, TRUE, $selected_types, 8);
-										} else {
-											if (!empty($selected_types[0])) {
-												echo '<ul class="sq-root-node-selections-wrapper">';
-												foreach ($selected_types as $type_code) {
-													echo '<li>';
-				                                    echo get_asset_type_icon($type_code);
-                			                    	echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
-                                    				echo '</li>';
-                                				}//end foreach
-			                                	echo '</ul>';
-				                            } else {
-                			                echo '&nbsp; &nbsp;'.translate('trigger_action_all_asset_types');
-                            				}
-										}
-									?>
-									</td>
-								</tr>
-							</table>
-						</span>
 					</div>
 					<div class="sq-backend-triggers-component-body">
 						<input type="hidden" name="<?php echo $type_prefix; ?>" value="<?php echo $type; ?>" />
@@ -897,39 +764,11 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				eval('$error = '.$type.'::processInterface($settings, $data);');
 			}
 
-			// Process selected assets
-			if (isset($component['other_assets']['enabled'])) {
-				if (isset($component['other_assets']) && !empty($component['other_assets']['assets'])) {
-					$selected_assets = Array();
-					foreach($component['other_assets']['assets'] as $asset_info) {
-						if (!empty($asset_info['assetid'])) {
-							$selected_assets[] = $asset_info['assetid'];
-						}
-					}//end foreach
-					$component['other_assets']['assets'] = $selected_assets;
-				}//end if
-
-				// Process parameter map for "Action On Other Assets" dynamic source
-				if (isset($component['other_assets']) && !empty($component['other_assets']['pm_prefix'])) {
-					$attr_parameter_map = new Asset_Attribute_Parameter_Map();
-					$attr_parameter_map->process($component['other_assets']['pm_prefix']);
-					$component['other_assets']['dynamic_source'] = $attr_parameter_map->value;
-				}
-
-				// Process asset types for "Action On Other Assets" option
-				if (isset($component['other_assets']) && empty($component['other_assets']['asset_types'][0])) {
-					$component['other_assets']['asset_types'] = Array();
-				}
-			} else {
-				unset($component['other_assets']);
-			}
-
 			$processed_components[] = Array(
 										'type'					=> $type,
 										'data'					=> $settings,
 										'not_required'			=> isset($component['not_required']),
 										'ignore_permissions'	=> isset($component['ignore_permissions']),
-										'other_assets'			=> array_get_index($component, 'other_assets', FALSE),
 									  );
 
 			if (FALSE !== $error) {

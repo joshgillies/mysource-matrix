@@ -175,7 +175,12 @@ class Limbo_Outputter extends Backend_Outputter
 		}
 
 		// JS includes, including some defaults
-		$this->addJsInclude(sq_web_path('lib').'/js/matrix.min.js');
+		$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
 
 		list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
 

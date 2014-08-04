@@ -47,14 +47,13 @@
 * or
 * php scripts/import/import_files.php  . folders_to_import 66 1 [--sort]
 * or
-* php scripts/import/import_files.php  . folders_to_import [--sort] [--skip-virus-check]
+* php scripts/import/import_files.php  . folders_to_import [--sort]
 *
 * first argument matrix root folder
 * second argument folder to import
 * third argument matrix asset id where you want to import the folders and files
 * fourth argument is equals to 1 allow unrestricted access will be set to be true
 * fifth argument, if set to --sort the files be alphanumerically sorted before importing
-* sixth argument, if global Virus Checker is enabled, immediate scan of created file will slow down the import process. You can disable this immediate check using this argument.
 *
 * @author Greg Sherwood <greg@squiz.net>
 * @version $Revision: 1.16 $
@@ -106,12 +105,6 @@ if (isset($_SERVER['argv'][5]) && $_SERVER['argv'][5] == '--sort') {
 	echo "ERROR: Fifth argument passed can only be '--sort'";
 	exit();
 }
-
-
-// should we skip virus check?
-$skip_virus_check = getCLIArg('skip-virus-check');
-if($skip_virus_check) $GLOBALS['SQ_SKIP_VIRUS_SCAN'] = TRUE;
-
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -301,26 +294,5 @@ foreach ($import_dirs as $import_dir) {
 }//end foreach
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-
-
-
-/**
- * Get CLI Argument
- * Check to see if the argument is set, if it has a value, return the value
- * otherwise return true if set, or false if not
- *
- * @params $arg string argument
- *
- * @return string/boolean
- * @author Matthew Spurrier
- */
-function getCLIArg($arg)
-{
-	return (count($match = array_values(preg_grep("/--" . $arg . "(\=(.*)|)/i",$_SERVER['argv']))) > 0 === TRUE) ? ((preg_match('/--(.*)=(.*)/',$match[0],$reg)) ? $reg[2] : true) : false;
-
-}//end getCLIArg()
-
-
 
 ?>

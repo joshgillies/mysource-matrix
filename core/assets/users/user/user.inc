@@ -1180,61 +1180,7 @@ class User extends Asset
 
 		return (!empty($current_values));
 	}//end _uniqueAttributeExists()
-
-
-
-	/**
-	* Get the user inbox messages
-	*
-	* NOTE: Used by %globals_user_message_*% keyword
-	*
-	* @return array
-	* @access public
-	*/
-	public function getMessages($type, $messages_size=NULL)
-	{
-		// Try local cache first
-		$cache_key = $type.'_'.$messages_size;
-		if (isset($this->_tmp['user_messages']) && isset($this->_tmp['user_messages'][$cache_key])) {
-			return $this->_tmp['user_messages'][$cache_key];
-		}
-
-		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		switch ($type) {
-			case 'inbox':
-				$messages = $ms->getInternalMessages($this->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ), $messages_size);
-			break;
-			case 'sent':
-				$messages = $ms->getInternalMessages($this->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ), $messages_size, 'inbox.sent');
-			break;
-			case 'trash':
-				$messages = $ms->getInternalMessages($this->id, Array(SQ_MSG_DELETED), $messages_size);
-			break;
-			default:
-				$messages = Array();
-			break;
-		}//end switch
-
-		$this->_tmp['user_messages'][$cache_key] = $messages;
-
-		return $messages;
-
-	}//end getMessages()
-
-
-	/**
-	* Clear the internal message data in the local cache
-	* See: $this->getMessages()
-	*
-	* @return void
-	* @access public
-	*/
-	function clearUserMessageLocalCache()
-	{
-		unset($this->_tmp['user_messages']);
-	}
-
-
+	
 }//end class
 
 ?>

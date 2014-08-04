@@ -206,8 +206,7 @@ class Data_Source_Soap extends Data_Source
 				serialize($this->getSoapRequestMessage()).
 				$this->attr('root_tag').
 				$this->attr('selected_tags').
-				$this->attr('data_delimiter').
-				$this->attr('wsdl_caching')
+				$this->attr('data_delimiter')
 			);
 
 	}//end _getSoapRequestHash()
@@ -271,7 +270,6 @@ class Data_Source_Soap extends Data_Source
 			// Make SOAP call
 			$soap_function = $this->attr('request_fn');
 			try {
-				$time_start = microtime(true);
 				$soap_client = $this->getSoapClient();
 				if (is_object($soap_client)) {
 					eval('$response = $soap_client->$soap_function('.$eval_string.');');
@@ -280,7 +278,6 @@ class Data_Source_Soap extends Data_Source
 				}
 			} catch (Exception $e) {
 				// Save the last request
-				$time_request = (microtime(true)-$time_start);
 				$data = Array();
 				$data['request'] = is_object($soap_client) ? $soap_client->__getLastRequest() : '';
 				$data['response'] = Array(
@@ -290,12 +287,7 @@ class Data_Source_Soap extends Data_Source
 								);
 				// Save the response/request data in the data dir
 				$this->saveLastRequestResponse($data);
-				if((int)$this->attr('request_timeout') !== 0 && ((int)$this->attr('request_timeout') < $time_request)) {
-					// time out
-					trigger_error('SOAP Request timed out');
-				} else {
-					trigger_error($e->getMessage());
-				}
+				trigger_error($e->getMessage());
 				return Array();
 			}
 		}
@@ -390,7 +382,6 @@ class Data_Source_Soap extends Data_Source
 				$settings = $this->attr('auth_details');
 				$settings['wsdl'] = $wsdl;
 				$settings['auth_type'] = $this->attr('auth_type');
-				$settings['cache_wsdl'] = constant($this->attr('wsdl_caching'));
 				
 				if ($this->attr('local_cert')) {
 					$settings['local_cert'] = $this->attr('local_cert');
@@ -404,14 +395,10 @@ class Data_Source_Soap extends Data_Source
 				if ($this->attr('service_address')) {
 					$settings['service_address'] = $this->attr('service_address');
 				}
-				if ((int)$this->attr('request_timeout') !== 0) {
-					$settings['connection_timeout'] = (int)$this->attr('request_timeout');
-				}
-
 				$settings['run_test'] = 1;
 				$soap_options = SOAP_Common::_getSoapOptions($settings);
 				$client  = SOAP_Common::getSoapClient($settings, $soap_options);
-
+				
 				$this->_soap_client = $client;
 
 			}//end if
@@ -419,7 +406,7 @@ class Data_Source_Soap extends Data_Source
 
 		return $this->_soap_client;
 
-	}//end getSoapClient()
+	}//end  getSoapClient()
 
 
 	/**

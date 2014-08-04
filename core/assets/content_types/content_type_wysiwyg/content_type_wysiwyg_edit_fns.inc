@@ -271,23 +271,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			    
 			    $o->enableViperEditor();
 
-				// check to see what plugins are enabled/disabled for the Viper Editor
-				$viper_plugins = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_VIPER_PLUGINS'));
-
-				// if all the plugins are enabled then we need not worry about anything
-				if (in_array('all', $viper_plugins) !== TRUE) {
-					$string_for_js = "['".implode("', '", $viper_plugins)."']";
-					?>
-						<script type="text/javascript"><!--
-							//<![CDATA[
-								// this function need only be executed after the whole DOM is loaded
-								// which would enable our Viper editor to load and be ready for us
-								var PluginsEnabled = <?php echo $string_for_js; ?>;
-							//]]> -->
-						</script>
-					<?php
-				}
-
 			    // Use a hidden input to pass the Viper edited content to Matrix backend form
 			    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 			    ?>

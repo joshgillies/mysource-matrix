@@ -155,50 +155,6 @@ class Trigger_Management extends Asset_Management
 			}
 		}//end if version 0.4
 
-		if (version_compare($current_version, '0.5', '<')) {
-			pre_echo('UPGRADING TRIGGER ASSETS - FROM VERSION '.$current_version);
-			$trigger_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trigger_manager');
-			$children = $trigger_manager->getTriggerList();
-			foreach ($children as $trigger_data) {
-				$trigger = $trigger_manager->getAsset($trigger_data['id']);
-				$actions = $trigger->attr('actions');
-				foreach ($actions as $index => $action) {
-					// Move asset selection options to the generic trigger action's "Action on Other Assets" setting
-					if (isset($action['type']) && ($action['type'] == 'trigger_action_purge_squid_cache' || $action['type'] == 'trigger_action_clear_cache' || $action['type'] == 'trigger_action_set_cache_expiry')) {
-						$asset_level_index = $action['type'] == 'trigger_action_purge_squid_cache' ? 'cascade' : 'level';
-						$data = array_get_index($action, 'data', Array());
-						$other_assets = array_get_index($action, 'other_assets', Array());
-	
-						if (isset($data['use_current_asset'])) {
-							$other_assets['current_asset'] = 1;
-							unset($data['use_current_asset']);
-						}
-						if (isset($data['selected_assets']) && is_array($data['selected_assets'])) {
-							$other_assets['assets'] = $data['selected_assets'];
-							unset($data['selected_assets']);
-						}
-						if (isset($data[$asset_level_index])) {
-							$other_assets['asset_level'] = $data[$asset_level_index];
-							unset($data[$asset_level_index]);
-						}
-						if (isset($data['asset_types']) && is_array($data['asset_types'])) {
-							$other_assets['asset_types'] = $data['asset_types'];
-							unset($data['asset_types']);
-						}
-						if (!empty($other_assets)) {
-							$other_assets['enabled'] = 1;
-						}
-
-						$action['data'] = $data;
-						$action['other_assets'] = $other_assets;
-						$actions[$index] = $action;
-					}//end if
-				}//end foreach
-				$trigger->setAttrValue('actions', $actions);
-				$trigger->saveAttributes();
-			}
-		}//end if version 0.5
-
 		return TRUE;
 
 	}//end _upgrade()

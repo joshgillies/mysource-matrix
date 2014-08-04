@@ -54,16 +54,16 @@ class Js_File_Folder extends File_Folder
 
 
 	/**
-	* Get the file asset types that this folder supports
+	* Get the file asset type that this folder supports
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function getFileAssetTypes()
+	public function getFileAssetType()
 	{
-		return Array('js_file');
+		return 'js_file';
 
-	}//end getFileAssetTypes()
+	}//end getFileAssetType()
 
 
 	/**

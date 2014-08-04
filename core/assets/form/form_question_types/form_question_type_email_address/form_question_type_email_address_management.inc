@@ -66,21 +66,6 @@ class Form_Question_Type_Email_Address_Management extends Asset_Management
 										'type'		=> 'text',
 										'default'	=> '',
 									   ),
-						'text_type'	=> Array (
-										'added'			=> '0.3',
-										'type'			=> 'selection',
-										'default'		=> 'text',
-										'description'	=> 'Text to set for the "type" attribute to the input html tag',
-										'parameters'	=> Array (
-															'multiple'		=> FALSE,
-															'allow_empty'	=> FALSE,
-															'allow_other'	=> FALSE,
-															'options'		=> Array(
-																				'email'	=> 'Email',
-																				'text'	=> 'Text',
-																			   ),
-														   ),
-									   ),
 					  );
 
 	}//end constructor

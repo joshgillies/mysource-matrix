@@ -653,10 +653,9 @@ class Form_Ecommerce extends Form_Email
 		}
 
 		$bodycopy->setKeywordReplacements($replacements);
-		$extra_attribute = $this->attr('form_extra_attribute');
 
 		// all the output is here
-		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.' '.$extra_attribute.' >';
+		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
 		echo $javascript;
 		echo hidden_field('SQ_FORM_'.$this->id.'_PAGE', 1);; 
 		$bodycopy->printBody();
@@ -2599,23 +2598,23 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _getLogFileName()
 	{
-		return 'form_ecommerce_order';
+		return 'order.log';
 
 	}//end _getLogFileName()
 
 
-    /**
-    * Get the path to log file
-    * @param string $string string to log
-    *
-    * @return string
-    * @access private
-    */
-    function _getLogFilePath()
-    {
-            return SQ_LOG_PATH.'/'.$this->_getLogFileName().'.log';
-    }//end _getLogFilePath()
+	/**
+	* Get the path to log file
+	* @param string	$string	string to log
+	*
+	* @return string
+	* @access private
+	*/
+	function _getLogFilePath()
+	{
+		return $this->data_path.'/'.$this->_getLogFileName();
 
+	}//end _getLogFilePath()
 
 
 	/**
@@ -2628,8 +2627,22 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _log($string='')
 	{
-		log_write($string, $this->_getLogFileName(), E_USER_NOTICE, FALSE);
+		$file = $this->_getLogFilePath();
+		if (!$file_pointer = fopen($file, 'a')) return FALSE;
+
+		$sucess = fputs($file_pointer, $string);
+		fclose($file_pointer);
+		if ($sucess === FALSE) {
+			trigger_error('Unable to write '.$file, E_USER_WARNING);
+			return FALSE;
+		}
+
+		$om = umask(0000);
+		chmod($file, 0664);
+		umask($om);
+
 		return TRUE;
+
 	}//end _log()
 
 

@@ -76,9 +76,6 @@
         <field attribute="xslt_file">
             <assetid type_codes="xsl_file:D" />
         </field>
-		<field attribute="xslt_file_replace_keywords" write_access="write:attributes">
-			<boolean true_text="yes" false_text="no" />
-		</field>
 	</section>
 	
 </contents>

@@ -69,14 +69,6 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Sync User Attributes" write_access="write:menu">
-		<field>
-			<function_call>
-				<paint_function   name="paintSyncFields"   />
-				<process_function name="processSyncFields" />
-			</function_call>
-		</field>
-	</section>				
 	<section name="Return Location" write_access="write:attributes" limbo_access="1">
 		<field attribute="redirect_url">
 			<text width="80" height="1" />

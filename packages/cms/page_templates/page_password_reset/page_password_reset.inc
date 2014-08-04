@@ -746,10 +746,9 @@ class Page_Password_Reset extends Page
 	*/
 	function getPasswordInputKeywordReplacement()
 	{
-		$auto_complete = $this->attr('password_autocomplete') ? 'on' : 'off';
 		ob_start();
-			password_box('password[]', '', '', '', 'autocomplete="'.$auto_complete.'"');
-			password_box('password[]', '', '', '', $auto_complete);
+			password_box('password[]');
+			password_box('password[]');
 		return ob_get_clean();
 
 	}//end getPasswordInputKeywordReplacement()
@@ -763,9 +762,8 @@ class Page_Password_Reset extends Page
 	*/
 	function getPasswordNewKeywordReplacement()
 	{
-		$auto_complete = $this->attr('password_autocomplete') ? 'on' : 'off';
 		ob_start();
-			password_box('password[]', '', '', '', 'autocomplete="'.$auto_complete.'"');
+			password_box('password[]');
 		return ob_get_clean();
 
 	}//end getPasswordNewKeywordReplacement()
@@ -779,9 +777,8 @@ class Page_Password_Reset extends Page
 	*/
 	function getPasswordConfirmationKeywordReplacement()
 	{
-		$auto_complete = $this->attr('password_autocomplete') ? 'on' : 'off';
 		ob_start();
-			password_box('password[]', '', '', '', 'autocomplete="'.$auto_complete.'"');
+			password_box('password[]');
 		return ob_get_clean();
 
 	}//end getPasswordConfirmationKeywordReplacement()

@@ -38,21 +38,13 @@ class Page_Custom_Form_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['name'] = Array(
+		$this->vars = Array(
+						'name'	=> Array (
 									'added'		=> '0.0.1',
 									'type'		=> 'text',
 									'default'	=> '',
+								   ),
 					  );
-
-		$this->vars['available_conditions'] =    Array(					'added'		=> '0.1',
-										'type'		=> 'serialise',
-										'default'	=> Array(),
-					);
-		$this->vars['conditions'] =    Array(						'added'		=> '0.1',
-										'type'		=> 'serialise',
-										'default'	=> Array(),
-										'is_contextable'    => TRUE,    
-					);
 
 	}//end constructor
 

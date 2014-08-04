@@ -28,7 +28,7 @@
 				<paint_function   name="paintURLs"   />
 			</function_call>
 		</field>
-		<field read_access="write:lookups">
+		<field>
 			<function_call>
 				<paint_function		name="paintAutomaticRemapSetting" />
 			</function_call>

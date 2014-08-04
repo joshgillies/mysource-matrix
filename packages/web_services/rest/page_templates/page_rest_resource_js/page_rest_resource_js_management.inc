@@ -37,11 +37,6 @@ class Page_REST_Resource_JS_Management extends Asset_Management
 	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
-		
-		require_once SQ_PACKAGES_PATH.'/web_services/rest/lib/rest_common.inc';
-		$supported_js_engines = Rest_Common::$supported_js_engines;
-		$default_js_engine = Rest_Common::$default_js_engine;
-
 		$this->vars = Array(
 						'http_request'			=> Array(
 													'added'			=> '0.1',
@@ -73,9 +68,12 @@ class Page_REST_Resource_JS_Management extends Asset_Management
 						'js_engine'			=> Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'selection',
-													'default'		=> $default_js_engine,
+													'default'		=> 'spidermonkey',
 													'parameters'	=> Array(
-														'options'		=> $supported_js_engines,
+														'options'		=> Array(
+																			'spidermonkey'	=> 'SpiderMonkey',
+																			'v8'	=> 'V8',
+																	),	
 														'multiple'		=> FALSE,
 														'allow_empty'	=> FALSE,	
 															),

@@ -71,23 +71,7 @@ class Design_Management extends Asset_Management
 												'type'			=> 'boolean',
 												'default'		=> TRUE,
 												'parameters'	=> Array('allow_empty' => FALSE),
-										  ),
-                        'file_reference_method'	=> Array(
-                                                'added'         => '0.5',
-                                                'type'          => 'selection',
-                                                'default'       => 'absolute',
-                                                'parameters'    => Array(
-                                                                    'options'       => Array(
-                                                                                        'absolute'			=> 'Absolute Path',
-                                                                                        'scheme_relative'	=> 'Scheme Relative Path',
-                                                                                        'domain_relative'  	=> 'Domain Relative Path',
-                                                                                       ),
-                                                                    'multiple'      => FALSE,
-                                                                    'allow_empty'   => FALSE,
-                                                                   ),
-												'description'	=> 'The reference method when printing the file asset url in the output',
-											),
-
+										  )
 					  );
 
 	}//end constructor

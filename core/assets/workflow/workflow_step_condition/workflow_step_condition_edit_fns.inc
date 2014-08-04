@@ -67,16 +67,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		if (!$cond_logic_num) $cond_logic_num = '';
 
 		$userid = $asset->attr('userid');
-		$dynamic_userid = $asset->attr('dynamic_userid');
+
 		?>
-		<td class="sq-backend-table-cell"><?php 
-		if(!empty($dynamic_userid)) {
-			echo $dynamic_userid;
-		}
-		else {
-			echo get_asset_tag_line($userid); 
-		}
-		?></td>
+		<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid); ?></td>
 		<td class="sq-backend-table-cell">
 			<?php
 			$notify = $asset->attr('notify');
@@ -98,20 +91,17 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 			?>
 		</td>
 		<?php
-			if(empty($dynamic_userid)) {
-				$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
-				if (empty($user_info)) {
-					echo '<td>&nbsp;</td>';
-					return TRUE;
-				}
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
+			if (empty($user_info)) {
+				echo '<td>&nbsp;</td>';
+				return TRUE;
 			}
 		?>
 		<td class="sq-backend-table-cell">
 			<?php
-			$user = '';
-			if(empty($dynamic_userid))
-				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			if (!$write_access) {
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (($user instanceof User)) {
 					echo '&nbsp;';
 				} else {
@@ -219,12 +209,11 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param Asset	$asset				the asset we are generating the array for
 	* @param array	&$workflow_array	the workflow array that we will modify
-	* @param int	$top_parent	the dependant top parent of current asset
 	*
 	* @return array
 	* @access public
 	*/
-	function generateWorkflowArray(Asset $asset, &$workflow_array, $top_parent='')
+	function generateWorkflowArray(Asset $asset, &$workflow_array)
 	{
 		// work out the logic expression
 		$logic = $asset->attr('logic');
@@ -238,30 +227,6 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$publisher = $asset->attr('userid');
-		$dynamic_userid = trim($asset->attr('dynamic_userid'));
-		if(empty($publisher) && !empty($dynamic_userid)) {
-			$assetid = $top_parent;
-			if(!empty($assetid)) {
-				$workflow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				//replace global keywords
-				replace_global_keywords($dynamic_userid);
-	
-				//replace asset keywords
-				$keywords = retrieve_keywords_replacements($dynamic_userid);
-				$replacements = Array();
-				foreach ($keywords as $keyword) {
-					$replacements[$keyword] = $workflow_asset->getKeywordReplacement($keyword);
-				}
-				replace_keywords($dynamic_userid, $replacements);
-
-				if(assert_valid_assetid($dynamic_userid, '', TRUE, FALSE)) {
-					$publisher = $dynamic_userid;
-				}
-			}
-		}
-
-		if(empty($publisher)) return TRUE;
-
 		$workflow_array[$publisher] = Array('logic' => $logic, 'published_by' => Array());
 
 		// commenting

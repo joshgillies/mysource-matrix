@@ -82,11 +82,6 @@ function regenerate_configs()
 	$pa_cfg = new Proxy_Authentication_Config();
 	if (!$pa_cfg->save(Array(), FALSE)) return FALSE;
 
-	// Re-generate the System Maintenance Config
-	require_once SQ_INCLUDE_PATH.'/system_maintenance_config.inc';
-	$pa_cfg = new System_Maintenance_Config();
-	if (!$pa_cfg->save(Array(), FALSE)) return FALSE;
-
 	// Re-generate the Context Config to ma.... yeah, yeah, you know the deal by now =)
 	// But this is a special case - saving to a DB table rather than a config file
 	// So need to make sure the table exists before saving to it
@@ -104,102 +99,6 @@ function regenerate_configs()
 	return TRUE;
 
 }//end regenerate_configs()
-
-/**
- * Check if deleting an asset type will affect other asset types
- * that aren't also being deleted.
- *
- * This would break a lot of things, so if this finds any errors, the
- * asset type(s) shouldn't be deleted.
- *
- * @param array $check_types The asset types to check.
- *
- * @return array Returns an array of errors found (if any).
- *               An empty array means no errors.
- */
-function check_child_asset_types($check_types)
-{
-	$errors = array();
-
-	// For the missing types, make sure that deleting them will not break any other types of assets.
-	foreach ($check_types as $asset_type) {
-		$child_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($asset_type, FALSE);
-		if (empty($child_types)) {
-			continue;
-		}
-
-		// If we're also deleting the child types, that's ok.
-		$deleting = array_intersect($child_types, $check_types);
-
-		// Something is left over? Uhoh!
-		$not_deleting = array_diff($child_types, $deleting);
-
-		if (!empty($not_deleting)) {
-			$msg = "Deleting ${asset_type} will break assets of type(s):\n    ".implode(', ', $not_deleting);
-			$errors[] = $msg;
-		}
-	}
-
-	return $errors;
-}
-
-/**
- * Clean up asset types (and inherited types) from the database.
- * This assumes you've already run the types being deleted through check_child_asset_types
- * to make sure you're not going to break lots of things.
- *
- * @param array $asset_types The asset types to delete from the database.
- *                           This only deletes the types, *not* their attributes
- *                           or values.
- *                           This is in case a package goes missing (by accident, or on purpose)
- *                           putting it back will make the old assets still work.
- *
- * @return void
- */
-function cleanup_asset_types($asset_types)
-{
-	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	$db = MatrixDAL::getDb();
-
-	// now actually delete the types
-	foreach ($asset_types as $asset_type) {
-		// delete the types
-		try {
-			$sql = 'DELETE FROM sq_ast_typ WHERE type_code = :type_code';
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
-			MatrixDAL::execPdoQuery($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to delete type code '.$asset_type.' due to the following database error:'.$e->getMessage());
-		}//end try catch
-
-
-		// remove the inherited types
-		try {
-			$sql = 'DELETE FROM sq_ast_typ_inhd
-				WHERE type_code = :type_code
-				OR inhd_type_code = :inhd_type_code';
-
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
-			MatrixDAL::bindValueToPdo($query, 'inhd_type_code', $asset_type);
-			MatrixDAL::execPdoQuery($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to delete inherited type code '.$asset_type.' due to the following database error:'.$e->getMessage());
-		}//end try catch
-	}
-
-	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-	$msg_reps = Array(
-		'type_code_list'	=> implode("\n", $asset_types),
-	);
-	$message = $ms->newMessage(Array(), 'install.asset_type.uninstall', $msg_reps);
-	$message->send();
-}
 
 
 /**
@@ -252,17 +151,83 @@ function uninstall_asset_types()
 	// Asset types are deleted when no package manager thinks they have the asset type.
 	// They think they have the asset type when the asset.xml says so
 	if (!empty($asset_types)) {
-		$errors = check_child_asset_types($asset_types);
+		$errors = FALSE;
+
+		// check those asset types that are still going to be there after uninstall
+		// to see whether it depended on something that is being deleted... if it is then
+		// we have massive problems and should bail
+		foreach (array_diff($all_asset_types,$asset_types) as $asset_type) {
+			$asc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset_type, FALSE, TRUE);
+			$deleted_parents = array_intersect($asset_types, $asc);
+
+			// are our parents going to be binned?
+			if (count($deleted_parents) > 0) {
+				trigger_error('One or more of the parents for the asset type \''.$asset_type.'\' no longer exists in the system. The system may be broken until you restore the necessary files of the parent asset type to their proper location.'."\n".'\''.$asset_type.'\' depends on: '.implode(', ', $deleted_parents), E_USER_WARNING);
+				$errors = TRUE;
+			}
+		}
 
 		// failed dependency tests => bail
-		if (!empty($errors)) {
-			$msg = implode("\n", $errors)."\n";
-			$msg .= "\nAsset hierarchy would be corrupted, uninstall not committed.";
-			trigger_error($msg, E_USER_WARNING);
+		if ($errors) {
+			trigger_error('Asset hierarchy would be corrupted, uninstall not committed', E_USER_WARNING);
 			exit(1);
 		}
 
-		cleanup_asset_types($asset_types);
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = MatrixDAL::getDb();
+
+		// now actually delete the types
+		foreach ($asset_types as $asset_type) {
+			// delete the types
+			try {
+				$sql = 'DELETE FROM sq_ast_typ WHERE type_code = :type_code';
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
+				MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete type code '.$asset_type.' due to the following database error:'.$e->getMessage());
+			}//end try catch
+
+
+			// remove the inherited types
+			try {
+				$sql = 'DELETE FROM sq_ast_typ_inhd
+						WHERE type_code = :type_code
+						  OR inhd_type_code = :inhd_type_code';
+
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
+				MatrixDAL::bindValueToPdo($query, 'inhd_type_code', $asset_type);
+				MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete inherited type code '.$asset_type.' due to the following database error:'.$e->getMessage());
+			}//end try catch
+
+			// remove the attributes
+			try {
+				$sql = 'DELETE FROM sq_ast_attr WHERE type_code = :type_code';
+
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
+				MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete attribute with type code '.$asset_type.' due to the following database error:'.$e->getMessage());
+			}//end try catch
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// report if we did uninstall some asset types
+		if (!empty($asset_types)) {
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$msg_reps = Array(
+							'type_code_list'	=> implode("\n", $asset_types),
+						);
+			$message = $ms->newMessage(Array(), 'install.asset_type.uninstall', $msg_reps);
+			$message->send();
+		}
 
 	}//end if asset types not empty
 
@@ -289,6 +254,7 @@ function uninstall_packages()
 	if (!empty($packages_installed)) {
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($packages_installed as $package_array) {
 			$package = $package_array['code_name'];
@@ -301,8 +267,32 @@ function uninstall_packages()
 			$exists = file_exists(SQ_SYSTEM_ROOT.'/'.$dir.'/package_manager_'.$package.'.inc');
 
 			if (!$exists) {
-				uninstall_package($package);
-			}
+				// folder or the package manager does not exist, safe to delete
+				$sql = 'DELETE FROM sq_pkg WHERE code_name = :package_name';
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'package_name', $package);
+				MatrixDAL::execPdoQuery($query);
+
+				// remove its asset map file from the data directory
+				if (file_exists(SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml')) {
+					if (!unlink(SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml')) {
+						trigger_error('Could not delete the asset map file for "'.$package.'"', E_USER_WARNING);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						exit(1);
+					}
+				} else {
+					trigger_error('Package file does not exist, it must have been deleted before', E_USER_NOTICE);
+				}
+
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$message_body = 'Uninstalled '.$package;
+				$msg_reps = Array(
+								'package'	=> $package,
+							);
+				$message = $ms->newMessage(Array(), 'install.package.uninstall', $msg_reps);
+				$message->send();
+
+			}//end if exists
 
 		}//end foreach installed package
 
@@ -314,196 +304,6 @@ function uninstall_packages()
 	return TRUE;
 
 }//end uninstall_packages()
-
-
-/**
- * Uninstall a particular package from the database and clean up it's asset map files.
- * You must connect to the db (and start a transaction) outside this function.
- *
- * @param string $package The package to delete.
- * @param boolean $cleanDb Whether to clean the database or not.
- *                         Setting to false will clean up the asset map info, and send
- *                         a message saying it was disabled, but leave it in the database
- *                         so running step3 will still report it as missing.
- * @return void
- */
-function uninstall_package($package, $cleanDb=TRUE)
-{
-	if ($cleanDb) {
-		// folder or the package manager does not exist, safe to delete
-		$sql = 'DELETE FROM sq_pkg WHERE code_name = :package_name';
-		$query = MatrixDAL::preparePdoQuery($sql);
-		MatrixDAL::bindValueToPdo($query, 'package_name', $package);
-		MatrixDAL::execPdoQuery($query);
-	}
-
-	$pkg_xml = SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml';
-	// remove its asset map file from the data directory
-	if (file_exists($pkg_xml)) {
-		if (!unlink($pkg_xml)) {
-			trigger_error('Could not delete the asset map file for "'.$package.'"', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			exit(1);
-		}
-	}
-
-	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-	$message_body = 'Uninstalled '.$package;
-	$msg_reps = Array(
-					'package'	=> $package,
-				);
-	$message = $ms->newMessage(Array(), 'install.package.uninstall', $msg_reps);
-	$message->send();
-}//end uninstall_package()
-
-
-/**
- * Find missing packages.
- * These are ones that exist in the database, but not on the filesystem.
- *
- * @return array Returns an array of missing packages, with the name (description) and the
- *               code_name.
- */
-function find_missing_packages()
-{
-	$missing_packages = array();
-	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-	foreach ($packages as $k => $package) {
-		// The core always exists.
-		if ($package['code_name'] == '__core__') {
-			continue;
-		}
-		$package_dir = SQ_PACKAGES_PATH.'/'.$package['code_name'];
-		$package_name = $package['name'];
-		$package_code = $package['code_name'];
-		if (!is_dir($package_dir)) {
-			$missing_packages[$package_name] = $package_code;
-			continue;
-		}
-
-		$package_path = $package_dir.'/package_manager_'.$package['code_name'].'.inc';
-		if (!file_exists($package_path)) {
-			$missing_packages[$package_name] = $package_code;
-			continue;
-		}
-	}
-
-	return $missing_packages;
-}//end find_missing_packages()
-
-
-/**
- * Find missing asset types.
- * Finds types that exist in the database, but are no longer available on the filesystem.
- * Used when reporting missing packages to also show which types will be unavailable.
- *
- * @return array Returns an array of ungrouped type codes (just listing all missing type codes),
- *               and an array of grouped codes (grouped by package name).
- */
-function find_missing_types()
-{
-	// Because some packages are missing, check what asset types this will affect.
-	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
-	$missing_types = array();
-	$missing_type_codes = array();
-	foreach ($asset_types as $type_info) {
-		$type_name = $type_info['name'];
-		$type_code = $type_info['type_code'];
-
-		$dir = $type_info['dir'];
-		if (is_dir(SQ_SYSTEM_ROOT.'/'.$dir)) {
-			continue;
-		}
-
-		// There's nothing to say for certainty that a particular type is part of a particular package,
-		// so just look at the directory and make an assumption.
-		// The first part is 'packages/', the 2nd is the package name.
-		$pkg_info  = explode('/', $dir);
-		$pkg_group = $pkg_info[1];
-
-		if (!isset($missing_types[$pkg_group])) {
-			$missing_types[$pkg_group] = array();
-		}
-
-		$missing_types[$pkg_group][$type_name] = $type_code;
-		$missing_type_codes[] = $type_code;
-	}
-
-	$results = array(
-		'grouped'   => $missing_types,
-		'ungrouped' => $missing_type_codes,
-	);
-
-	return $results;
-
-}//end find_missing_types()
-
-
-/**
- * Disable missing packages.
- * Looks for packages that are found in the db but not on the filesystem.
- * If any are found, it will report them as missing (along with the affected type codes),
- * and clean up the affected type codes from the database.
- * This leaves attributes alone so if the package becomes available again,
- * any existing attributes and assets will work again.
- *
- * @return void
- */
-function disable_missing_packages()
-{
-	$missing_packages = find_missing_packages();
-	if (empty($missing_packages)) {
-		// Even though there's nothing missing, clear the cache in case we're
-		// adding a new package and asset types to the system.
-		@unlink(SQ_DATA_PATH.'/private/db/asset_types.inc');
-		return;
-	}
-
-	$missing_type_info  = find_missing_types();
-	$missing_types      = $missing_type_info['grouped'];
-	$missing_type_codes = $missing_type_info['ungrouped'];
-
-	$msg = "The following packages are missing and will affect the following asset types:\n";
-	asort($missing_packages);
-	foreach ($missing_packages as $package_name => $package_code) {
-		$msg .= $package_name." (".$package_code.")\n";
-		if (!isset($missing_types[$package_code])) {
-			$msg .= "    - (unknown - already cleaned up)\n";
-			continue;
-		}
-
-		$missing_package_types = $missing_types[$package_code];
-		asort($missing_package_types);
-		foreach ($missing_package_types as $type_name => $type_code) {
-			$msg .= "    - ".$type_name." (".$type_code.")\n";
-		}
-	}
-
-	$errors = check_child_asset_types($missing_type_codes);
-	if (!empty($errors)) {
-		$msg = implode("\n", $errors)."\n";
-		$msg .= "\nAsset hierarchy would be corrupted, uninstall not committed.";
-		trigger_error($msg, E_USER_WARNING);
-		exit(1);
-	}
-
-	trigger_error($msg, E_USER_WARNING);
-
-	// Don't uninstall the missing packages, leave them as-is
-	// so step_3 can keep reporting them as missing.
-	foreach ($missing_packages as $package_name => $package_code) {
-		uninstall_package($package_code, FALSE);
-	}
-	
-
-	// Clean up the missing type codes though.
-	// If the package becomes available again, they will be re-installed.
-	cleanup_asset_types($missing_type_codes);
-
-	// clear the type cache
-	@unlink(SQ_DATA_PATH.'/private/db/asset_types.inc');
-
-}//end disable_missing_packages()
 
 
 /**
@@ -802,9 +602,6 @@ function generate_global_preferences()
 	// we need to install any event listeners here, now that we have installed all the asset types.
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
-	// Get a list of missing packages, so their preferences can be skipped.
-	$missing_packages = find_missing_packages();
-
 	$preferences = Array();
 	if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
 		include SQ_DATA_PATH.'/private/conf/preferences.inc';
@@ -816,10 +613,6 @@ function generate_global_preferences()
 			require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
 			$class = 'package_manager_core';
 		} else {
-			if (in_array($package['code_name'], $missing_packages)) {
-				continue;
-			}
-
 			require_once SQ_PACKAGES_PATH.'/'.$package['code_name'].'/package_manager_'.$package['code_name'].'.inc';
 			$class = 'package_manager_'.$package['code_name'];
 		}
@@ -918,16 +711,7 @@ function generate_lang_char_map()
 function cache_asset_types()
 {
 	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
-
-	$missing_type_info  = find_missing_types();
-	$missing_type_codes = $missing_type_info['ungrouped'];
-
 	foreach ($asset_types as $type_code => $details) {
-		if (in_array($type_code, $missing_type_codes)) {
-			unset($asset_types[$type_code]);
-			continue;
-		}
-
 		$asset_types[$type_code]['ancestor_types'] = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, FALSE, TRUE);
 	}
 	$output = '<'.'?php'."\n".' $asset_types = ';
@@ -1073,9 +857,6 @@ function minify_css_files()
 	SQ_SYSTEM_ROOT.'/fudge/var_serialise/var_serialise.js',
 	SQ_SYSTEM_ROOT.'/core/lib/js/general.js',
 	SQ_SYSTEM_ROOT.'/core/lib/js/debug.js',
-	SQ_SYSTEM_ROOT.'/core/lib/js/edit.js',
-	SQ_SYSTEM_ROOT.'/core/lib/js/tooltip.js',
-	SQ_SYSTEM_ROOT.'/core/lib/js/translation.js',
 	SQ_SYSTEM_ROOT.'/core/lib/js/layer_handler.js',
 	SQ_SYSTEM_ROOT.'/core/lib/html_form/html_form.js',
 	SQ_SYSTEM_ROOT.'/core/lib/js/detect.js',
@@ -1117,7 +898,7 @@ function format_deferred_packages($packages)
 	foreach ($packages as $package => $types) {
 		$out .= "\n".$package.":\n";
 		foreach ($types as $type) {
-			$out .= "    ".$type."\n";
+			$out .= "\t".$type."\n";
 		}
 	}
 

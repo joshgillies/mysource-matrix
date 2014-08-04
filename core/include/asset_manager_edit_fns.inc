@@ -153,13 +153,6 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				$o->addFormActionGetVar('assetid', $asset->id);
 				$o->addHiddenField('backend_assetid', $asset->id);
 
-				// if the asset is marked as deprecated then show the necessary warning
-				if ($asset->deprecated === TRUE) {
-					$o->openRaw();
-					$GLOBALS['SQ_SYSTEM']->printDeprecatedWarning($asset);
-					$o->closeRaw();
-				}
-
 				// if the form has been submitted then, process it
 				$link = Array();
 				if (!empty($_POST['process_form']) && !empty($_POST['am_form_submitted'])) {

@@ -56,14 +56,6 @@ class Page_Password_Reset_Management extends Asset_Management
 													'parameters'    => Array( 'allow_empty' => FALSE,),
 													'description'	=> 'Whether to check if user opens the reset link in same session of request',
 												   );
-		$this->vars['password_autocomplete']	= Array(
-													'added'			=> '0.1',
-													'type'			=> 'boolean',
-													'default'		=> FALSE,
-													'parameters'	=> Array(
-																		'allow_empty'	=> FALSE,
-																	   ),
-												  );
 											  
 
 	}//end constructor

@@ -19,5 +19,4 @@
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
 	<screen code_name="contents" display_name="Edit Contents" icon="create" />
 	<screen code_name="log" display_name="Submission Logs" icon="web" force_unlock="0" default='1' />
-	<screen code_name="conditions"    display_name="Conditions"         icon="web"   force_unlock="0" />
 </screens>

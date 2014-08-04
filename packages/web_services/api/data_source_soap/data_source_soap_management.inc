@@ -152,28 +152,6 @@ class Data_Source_Soap_Management extends Asset_Management
 												'default'	=> Array(),
 												'description' 	=> 'SOAP authentication details',
 											   ),
-						'wsdl_caching'		=> Array(
-												'added'			=> '0.2',
-												'type'			=> 'selection',
-												'default'		=> 'WSDL_CACHE_BOTH',
-												'parameters'    => Array(
-																		'multiple'      => FALSE,
-																		'allow_empty'   => FALSE,
-																		'options'       => Array(
-																							'WSDL_CACHE_BOTH'	=> 'Cache to both disk and memory',
-																							'WSDL_CACHE_DISK'	=> 'Cache to disk',
-																							'WSDL_CACHE_MEMORY'	=> 'Cache to memory',
-																							'WSDL_CACHE_NONE'	=> 'Never cache',
-																						   ),
-																	),
-												'description' 	=> 'Caching option for WSDL',
-											   ),
-						'request_timeout'	=> Array(
-												'added'			=> '0.2',
-												'type'			=> 'int',
-												'default'		=> 0,
-												'description' 	=> 'Seconds before the SOAP request should timeout',
-											   ),
 					  );
 
 	}//end constructor

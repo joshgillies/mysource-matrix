@@ -38,10 +38,6 @@
 			<display_name>Default Value</display_name>
 			<note></note>
 		</field>
-		<field attribute="text_type">
-			<display_name>Input Type</display_name>
-			<note>The value for the &lt;b&gt;type&lt;/b&gt; attribute in the input field. Modern browsers provide specific interfaces to suit each input type. Older browsers will fall back to a basic text field.</note>
-		</field>
 		<field attribute="width">
 			<display_name>Width</display_name>
 			<note>Width of the field (in characters)</note>

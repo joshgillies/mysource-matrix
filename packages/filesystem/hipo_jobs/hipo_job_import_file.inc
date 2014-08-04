@@ -253,10 +253,6 @@ class HIPO_Job_Import_File extends HIPO_Job
 	*/
 	function processImport(&$step_data, $prefix, $freestyle=FALSE)
 	{
-		// should we allow immediate virus scan on files?
-		if(isset($this->_running_vars['allow_virus_scan']) && !$this->_running_vars['allow_virus_scan'])
-			$GLOBALS['SQ_SKIP_VIRUS_SCAN'] = TRUE;
-
 		// process dependant hipo_job_import_file if necessary
 		if (!empty($this->_running_vars['dependant_hipo_job'])) {
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();

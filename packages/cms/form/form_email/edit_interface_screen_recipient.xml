@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Keyword Replacements" limbo_access="1">
+	<section name="Keyword Replacements">
 		<field>
 			<function_call>
 				<paint_function   name="paintKeywordReplacementText"   />
@@ -24,12 +24,12 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Recipient Email Options" limbo_access="1">
+	<section name="Recipient Email Options">
 		<field attribute="recipient_emails_format">
 			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
 	</section>
-	<section name="Receipt Email Options" limbo_access="1">
+	<section name="Receipt Email Options">
 		<field>
 			<function_call>
 				<paint_function   name="paintReceiptField"   />
@@ -40,7 +40,7 @@
 			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
 	</section>
-	<section name="Send To A Friend Email Options" limbo_access="1">
+	<section name="Send To A Friend Email Options">
 		<field>
 			<function_call>
 				<paint_function   name="paintSTAFField"   />

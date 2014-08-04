@@ -53,14 +53,6 @@
 			<display_name>Mute Exceptions</display_name>
 			<note>Whether to ignore the SOAP exceptions when making the SOAP request</note>
 		</field>
-		<field attribute="wsdl_caching">
-			<display_name>Cache WSDL</display_name>
-			<note>Whether to Cache the SOAP Service and optionally configure where to Cache it</note>
-		</field>
-		<field attribute="request_timeout">
-			<display_name>Request Timeout</display_name>
-			<note>How long to wait for a response, in seconds, before returning an error. If left to 0 (zero) the default PHP setting will be used.</note>
-		</field>
 	</section>
 	<section name="SOAP Request Configuration" write_access="write:attributes">
 	    	<field>

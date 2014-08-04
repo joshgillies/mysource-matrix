@@ -515,14 +515,6 @@ class Page_Asset_Builder_Management extends Asset_Management
 															'default'	=> '',
 															'description' => 'Error message when time requirement check fails',
 														);
-		$this->vars['password_autocomplete']		  = Array(
-															'added'			=> '0.9',
-															'type'			=> 'boolean',
-															'default'		=> FALSE,
-															'parameters'	=> Array(
-																				'allow_empty'	=> FALSE,
-																			   ),
-														  );
 
 	}//end constructor
 

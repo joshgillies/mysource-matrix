@@ -218,10 +218,6 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			$this->_running_vars['link_type'] = SQ_LINK_TYPE_1;
 		}
 
-		if (!isset($this->_running_vars['allow_virus_scan'])) {
-			$this->_running_vars['allow_virus_scan'] = TRUE;
-		}
-
 		return parent::prepare();
 
 	}//end prepare()
@@ -283,9 +279,6 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	*/
 	function importServerFiles(&$step_data, $prefix)
 	{
-		if(isset($this->_running_vars['allow_virus_scan']) && !$this->_running_vars['allow_virus_scan'])
-			$GLOBALS['SQ_SKIP_VIRUS_SCAN'] = TRUE;
-
 		if (!empty($this->_running_vars['server_todo_counts'])) {
 
 			$todo = array_shift($this->_running_vars['server_todo_counts']);
@@ -414,9 +407,6 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	*/
 	function importLocalFiles(&$step_data, $prefix)
 	{
-		if(isset($this->_running_vars['allow_virus_scan']) && !$this->_running_vars['allow_virus_scan'])
-			$GLOBALS['SQ_SKIP_VIRUS_SCAN'] = TRUE;
-
 		if (!empty($this->_running_vars['local_todo_counts'])) {
 
 			$todo = array_shift($this->_running_vars['local_todo_counts']);

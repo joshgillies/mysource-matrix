@@ -164,14 +164,10 @@ class Internal_Message extends MySource_Object
 	/**
 	* Sends an internal message
 	*
-	* @param boolean $user_inbox_only	If TRUE, sends internal message to User's Matrix inbox only
-	*									This will bypass the Message Service logs config settings
-	*									
-	*
 	* @return boolean
 	* @access public
 	*/
-	function send($user_inbox_only=FALSE)
+	function send()
 	{
 		// make sure we have the required fields
 		assert_not_empty(trim($this->type), 'Could not send internal message without a type set');
@@ -247,7 +243,7 @@ class Internal_Message extends MySource_Object
 		  //////////////////////////////
 		 // LOG MESSAGES TO LOG FILE //
 		//////////////////////////////
-		if ($log_to_file && !$user_inbox_only) {
+		if ($log_to_file) {
 			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
 
 			$log_line = '['.$this->type.' - '.$param_string.'] ('.
@@ -321,7 +317,7 @@ class Internal_Message extends MySource_Object
 		  ///////////////////////////
 		 // SEND MESSAGE TO USERS //
 		///////////////////////////
-		if ($send_mail || (0 === strpos($this->type, 'inbox')) || $user_inbox_only) {
+		if ($send_mail || (0 === strpos($this->type, 'inbox'))) {
 
 			require_once 'Mail.php';
 			require_once 'Mail/mime.php';
@@ -400,7 +396,7 @@ class Internal_Message extends MySource_Object
 
 					// prepare the message content
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-					if (is_null($user)  || !($user instanceof User) || (!$user_inbox_only && !$user->canAccessBackend()) || !$user->canLogin()) continue;
+					if (is_null($user)  || !($user instanceof User) || !$user->canAccessBackend() || !$user->canLogin()) continue;
 					$user_locale = $user->attr('locale');
 					if (empty($user_locale)) {
 						$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
@@ -444,7 +440,7 @@ class Internal_Message extends MySource_Object
 						throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());
 					}
 
-					if ($send_mail && !$user_inbox_only) {
+					if ($send_mail) {
 						// send an email as well
 						$to_email = trim($user->attr('email'));
 						//reload the $body again, since it might be different from internal message.
@@ -473,11 +469,6 @@ class Internal_Message extends MySource_Object
 		}//end if sending message via email
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		// Clear internal message cache for the current user
-		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
-			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();
-		}
 
 		return true;
 
@@ -719,11 +710,6 @@ class Internal_Message extends MySource_Object
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
-		// Clear the current user's local cache for internal message
-		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
-			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();
-		}
 
 		return TRUE;
 
@@ -750,11 +736,6 @@ class Internal_Message extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
-		// Clear the current user's local cache for internal message
-		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
-			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();
-		}
 
 		return true;
 

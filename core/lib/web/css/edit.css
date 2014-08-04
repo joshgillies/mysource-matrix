@@ -557,11 +557,6 @@ label {
 	margin: 					0 2px 0 0;
 }
 
-.bold-labels label{
-	font-weight:				bold;
-}
-
-
 /* Default disabled styles */
 select[disabled="disabled"],
 select[disabled] {
@@ -1248,9 +1243,7 @@ table.sq-backend-table {
 .sq-backend-table tr {
 	background-color: 			#fafafa;
 }
-.sq-backend-table tr:hover {
-	    background-color: #fff;
-}
+
 /*.sq-backend-table tr:nth-child(even) {
 	background-color: 			#f9f9f9;
 }*/
@@ -2128,13 +2121,8 @@ TRIGGER EDITING STYLES
 	background: 				#f7f7f7;
 }
 
-.sq-backend-triggers-component-global-options > label {
+.sq-backend-triggers-component-global-options label{
 	margin-right:				20px;
-}
-
-.sq-backend-triggers-component-global-options .sq-backend-section-subheading{
-	margin: 					6px 0 0 0;
-	padding: 					0;
 }
 
 .sq-backend-triggers-component-body {
@@ -2144,8 +2132,7 @@ TRIGGER EDITING STYLES
 	border-top: 				none;
 }
 
-.sq-backend-triggers-component-body .sq-backend-table,
-.sq-backend-triggers-component-global-options .sq-backend-table {
+.sq-backend-triggers-component-body .sq-backend-table {
 	margin-bottom: 				0;
 }
 .sq-backend-triggers-component-body .sq-backend-table.with-bottom-margin {
@@ -3389,35 +3376,4 @@ LIMBO OUTPUTTER (SIMPLE EDIT MODE)
 	vertical-align:				top;
 	white-space:				nowrap;
 	padding:					0px 10px 0px 0px;
-}
-
-
-/*
-####################################################################################################################
-MAINTENANCE WARNING
-####################################################################################################################
-*/
-.sq-backend-warning-table {
-	border: 1px solid #e0d3a2 !important;
-}
-.sq-backend-warning-table th{
-	border-bottom: 1px solid #e0d3a2 !important;
-	background:	#fff1bb;
-	color: #000;
-	text-shadow: none;
-}
-.sq-backend-warning-table .sq-backend-warning-header{
-	background:	#fff1bb url(../images/warning.png) no-repeat 5px 6px !important;
-	padding-left: 35px;
-	border-right: none;
-}
-.sq-backend-warning-table td{
-	background:#fff1bb !important;
-}
-.sq-backend-warning-table img{
-	vertical-align: top;
-}
-.sq-backend-warning-table {
-	color: #000;
-	font-size: 12px;
 }

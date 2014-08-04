@@ -24,7 +24,7 @@
 	<version>0.1</version>
 	<name>Snippet Content Type</name>
 	<description>Setup preference for a list of snippets selectable from a dropdown for inclusion in bodycopy content</description>
-	<instantiable>no</instantiable>
+	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>content_type</parent_type>
 	<requirements>

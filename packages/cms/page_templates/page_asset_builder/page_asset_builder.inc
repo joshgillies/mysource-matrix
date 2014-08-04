@@ -2088,9 +2088,8 @@ class Page_Asset_Builder extends Page
 	*/
 	function getLoginFormPasswordKeywordReplacement()
 	{
-		$auto_complete = $this->attr('password_autocomplete') ? 'on' : 'off';
 		ob_start();
-			echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password" autocomplete="'.$auto_complete.'"');
+			echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password"');
 			$output = ob_get_contents();
 		ob_end_clean();
 

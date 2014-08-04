@@ -269,14 +269,7 @@ class Content_Type extends Asset
 				unset($content_types['content_type_markdown']);
 			}
 		}
-
-		foreach ($content_types as $index => $content_type) {
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($index);
-			$new_content_type = new $index();
-			if ($new_content_type->deprecated === TRUE) {
-				unset($content_types[$index]);
-			}
-		}
+		
 		return $content_types;
 		
 	}//end getAvailableContentTypes()

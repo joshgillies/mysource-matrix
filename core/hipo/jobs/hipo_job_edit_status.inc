@@ -425,13 +425,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					// If we are moving into a "pending approval" state and we have been sent
 					// a workflow stream name, then set that as the stream to use before changing status
 					if ((($current_status & (SQ_SC_STATUS_CAN_APPROVE | SQ_STATUS_LIVE)) > 0) && (($new_status & SQ_SC_STATUS_PENDING) > 0)) {
-						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 						if (array_get_index($this->_running_vars, 'workflow_stream') !== NULL) {
+							$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 							$wfm->setStartingStream($assetid, $this->_running_vars['workflow_stream']);
-						}
-
-						if (array_get_index($this->_running_vars, 'workflow_editor_comment') !== NULL) {
-							$wfm->setEditorCommentOnApplyForApproval($assetid, $this->_running_vars['workflow_editor_comment']);
 						}
 					}
 					if (empty($dependants) || !empty($this->_running_vars['process_dependants'])) {

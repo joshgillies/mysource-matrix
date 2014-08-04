@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Create a New Rule" limbo_access="1">
+	<section name="Create a New Rule">
 		<field>
 			<function_call>
 				<paint_function   name="paintAddSelectiveEmailRule"   />
@@ -24,7 +24,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Current Selective Email Rules" limbo_access="1">
+	<section name="Current Selective Email Rules">
 		<field>
 			<function_call>
 				<paint_function   name="paintCurrentSelectiveEmails"   />
@@ -32,13 +32,13 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Active Rule" limbo_access="1">
+	<section name="Active Rule">
 		<function_call>
 			<paint_function   name="paintRuleParts"   />
 			<process_function name="processRuleParts" />
 		</function_call>
 	</section>
-	<section name="Email Options for Active Rule" limbo_access="1">
+	<section name="Email Options for Active Rule">
 		<field>
 			<function_call>
 				<paint_function   name="paintActiveSend"   />
@@ -46,7 +46,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Add New Rule Part" limbo_access="1">
+	<section name="Add New Rule Part">
 		<field>
 			<function_call>
 				<paint_function   name="paintActiveQuestion"   />

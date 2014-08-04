@@ -54,7 +54,7 @@ class Workflow_Schema_Management extends Asset_Management
 																			   ),
 															'description'	=> 'If enabled, will send the Notify on Live message to the initiator of the workflow process.',
 														   ),
-	    				'notify_starter_after_approval'	=> Array (
+		    				'notify_starter_after_approval'		=> Array (
 															'added'			=> '0.1',
 															'type'			=> 'boolean',
 															'default'		=> FALSE,
@@ -63,7 +63,7 @@ class Workflow_Schema_Management extends Asset_Management
 																			   ),
 															'description'	=> 'If enabled, will send the Notify on Live message to the initiator of the workflow process.',
 														   ),
-		    		  'notify_approvers_after_approval' => Array (
+		    				'notify_approvers_after_approval'		=> Array (
 															'added'			=> '0.1',
 															'type'			=> 'boolean',
 															'default'		=> TRUE,
@@ -95,47 +95,6 @@ class Workflow_Schema_Management extends Asset_Management
 															'type'			=> 'email',
 															'default'		=> '',
 															'description'	=> 'Customise the "Reply-To" email address for our workflow emails',
-														   ),
-						'schema_restrictions'			=> Array(
-															'added'			=> '0.2',
-															'type'			=> 'serialise',
-															'default'		=> Array(),
-															'description'	=> 'Asset restriction on which the schema can be set',
-														   ),
-		   				'allow_comment_on_request'		=> Array (
-															'added'			=> '0.2',
-															'type'			=> 'boolean',
-															'default'		=> FALSE,
-															'parameters'	=> Array(
-																				'allow_empty'	=> FALSE,
-																			   ),
-															'description'	=> 'If enabled, editors wil be allowed to send the approval request while initiating the workflow process.',
-														   ),
-		   				'who_can_choose_stream'		=>Array(
-															'added'			=> '0.2',
-															'type'			=> 'selection',
-															'default'		=> 'admin_write',
-															'parameters'	=> Array(
-																				'multiple'		=> FALSE,
-																				'allow_empty'	=> FALSE,
-																				'options'		=> Array(
-																									'admin_write'	=> 'Admin Or Write Access User',
-																									'admin_only'	=> 'Admin Access User Only',
-																								   ),
-																			   ),
-														   ),
-		   				'stream_selection_rules_no_match'		=>Array(
-															'added'			=> '0.2',
-															'type'			=> 'selection',
-															'default'		=> 'allow_default_stream',
-															'parameters'	=> Array(
-																				'multiple'		=> FALSE,
-																				'allow_empty'	=> FALSE,
-																				'options'		=> Array(
-																									'allow_default_stream'	=> 'Use Default Stream',
-																									'allow_all_streams'	=> 'Allow All Streams',
-																								   ),
-																			   ),
 														   ),
 					  );
 

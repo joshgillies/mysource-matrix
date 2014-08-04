@@ -33,9 +33,6 @@
 		<field attribute="default">
 			<text width="30" height="1" />
 		</field>
-		<field attribute="text_type">
-			<selection style="list" />
-		</field>
 		<field attribute="width">
 			<text width="5" height="1" />
 		</field>

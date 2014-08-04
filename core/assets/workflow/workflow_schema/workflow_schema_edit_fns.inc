@@ -77,34 +77,13 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			}
 		}
 
-
 		$streams_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($streamids);
-
-		$selection_rules_strings = Array();
-		foreach($streams_info as $streamid => $details) {
-			$string = '';
-			$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid);
-			$rules = is_array($stream->attr('stream_selection_rules')) ? $stream->attr('stream_selection_rules') : unserialize($stream->attr('stream_selection_rules'));
-			if(empty($rules)) continue;
-			$logic = $stream->attr('rules_logic');
-			$string .= $logic === 'all' ? translate('match_all_rules_description') : translate('match_any_rule_description');
-			$string .= '<ul>';
-			foreach ($rules as $rule) {
-				$string .= '<li>';
-				$string .= translate('stream_selection_rule_description', $rule['keyword'], $rule['pattern']);
-				$string .= '</li>';
-			}
-			$string .= '</ul>';
-			$selection_rules_strings[$streamid] = $string;
-		}
-
 
 		?>
 			<table class="sq-backend-table">
 			<thead>
 				<colgroup>
 					<col width="70" />
-					<col />
 					<col />
 					<col />
 					<?php
@@ -117,10 +96,9 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					<th><p><?php echo translate('edit_question'); ?></p></th>
 					<th><?php echo translate('stream_name'); ?></th>
 					<th><?php echo translate('workflow_summary'); ?></th>
-					<th><?php echo translate('selection_rules'); ?></th>
 					<?php
 					if ($write_access === TRUE) {
-						?><th style="text-align:center"><b><?php echo translate('delete_question'); ?></b></th><?php
+						?><th align="center"><b><?php echo translate('delete_question'); ?></b></th><?php
 					}
 					?>
 				</tr>
@@ -185,19 +163,12 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 							$userid = $userids[$condition['minorid']];
 							$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid);
 							if (empty($user_name)) {
-								$dynamic_userids = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('dynamic_userid', 'workflow_step_condition', Array($condition['minorid']));
-								$dynamic_userid = $dynamic_userids[$condition['minorid']];
-								if(empty($dynamic_userid)) {
-									trigger_localised_error('SYS0348', E_USER_NOTICE, $userid, $condition['minorid']);
-									continue;
-								}
-								$condition_name = $dynamic_userid;
+								trigger_localised_error('SYS0348', E_USER_NOTICE, $userid, $condition['minorid']);
+								continue;
 							}
-							else {
-								$condition_name = $user_name[$userid]['name'].' (Id: #'.$userid.')';
-							}
+							$condition_name = $user_name[$userid]['name'].' (Id: #'.$userid.')';
 
-							if (!empty($user_name) && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($user_name[$userid]['type_code'], 'user_group') === TRUE) {
+							if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($user_name[$userid]['type_code'], 'user_group') === TRUE) {
 								$logic = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('logic', 'workflow_step_condition', Array($condition['minorid']));
 								$logic_num = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('logic_num', 'workflow_step_condition', Array($condition['minorid']));
 								if ($logic[$condition['minorid']] === 'all') {
@@ -213,7 +184,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 
 						echo '</td>';
 
-						echo '<td'.$border_style.'><div>';
+						echo '<td'.$border_style.'><div style="text-align: right">';
 						$expiry = (int)$step_asset->attr('expiry_time');
 						$expiry_text = easy_time_total($expiry);
 
@@ -243,9 +214,9 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					$class_style .= ' alt';
 				}
 				if ($alt_stream_num === 0) {
-					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('default_stream'); ?></td></tr><?php
+					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('default_stream'); ?></td></tr><?php
 				} else if ($alt_stream_num === 1) {
-					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
+					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
 				}
 			?>
 				<tr class="<?php echo $class_style ?>">
@@ -254,13 +225,12 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					} ?></td>
 					<td><p><strong><?php echo $stream_info['name'] ?></strong></p></td>
 					<td><?php echo $workflow_summary; ?></td>
-					<td><?php if(isset($selection_rules_strings[$streamid])) echo ($selection_rules_strings[$streamid]);?></td>
 					<?php
 					if ($write_access === TRUE) {
 						if ($alt_stream_num === 0) {
-							?><td style="text-align:center" class="sq-backend-table-header"></td><?php
+							?><td align="center" class="sq-backend-table-header"></td><?php
 						} else {
-							?><td style="text-align:center" class="sq-backend-table-header"><?php echo check_box($prefix.'_delete_stream[]', $streamid, FALSE); ?></td><?php
+							?><td align="center" class="sq-backend-table-header"><?php echo check_box($prefix.'_delete_stream[]', $streamid, FALSE); ?></td><?php
 						}
 					}
 					?>
@@ -271,16 +241,16 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			}
 
 			if (count($streams_info) <= 1) {
-				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
-				?><tr class="sq-table-row"><td></td><td colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('workflow_stream_no_alternate_'.($write_access ? 'locked' : 'unlocked')); ?></td></tr><?php
+				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
+				?><tr class="sq-table-row"><td></td><td colspan="<?php echo 2 + ($write_access ? 1 : 0) ?>"><?php echo translate('workflow_stream_no_alternate_'.($write_access ? 'locked' : 'unlocked')); ?></td></tr><?php
 			}
 
 			if ($write_access === TRUE) {
-				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="5">Add New Workflow Stream</td></tr><?php
+				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="4">Add New Workflow Stream</td></tr><?php
 			?>
 				<tr>
 					<td></td>
-					<td colspan="4"><?php
+					<td colspan="3"><?php
 						check_box($prefix.'_new_stream', '1', FALSE, 'document.getElementById("'.$prefix.'_new_stream_name").disabled = !this.checked; if (this.checked == true) { document.getElementById("'.$prefix.'_new_stream_name").focus() };');
 						label(translate('create_new_stream_called'), $prefix.'_new_stream');
 						text_box($prefix.'_new_stream_name', '', 30, 0, FALSE, ' disabled="disabled"');
@@ -484,173 +454,6 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 
 
 	/**
-	* Paint the interface for adding restrictions
-	*
-	* @param Workflow_Schema	$asset	the asset to which we belong
-	* @param Backend_Outputter	$o		the Backend Outputter object
-	* @param string				$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function paintWorkflowRestrictions(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-
-		$o->openField(translate('current_restrict'));
-			$restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
-			if (!empty($restrictions)) {
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-						<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('inherit').'?'; ?></td>
-						<?php
-						if ($write_access) {
-						?>
-						<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('remove').'?'; ?></td>
-						<?php
-						}
-						?>
-					</tr>
-					<?php
-					foreach ($restrictions as $asset_type => $inheritance) {
-						?>
-						<tr>
-							<td class="sq-backend-table-cell">
-								<?php 
-									get_asset_type_icon($asset_type);
-									echo ucfirst(str_replace('_', ' ', $asset_type));
-								?>
-							</td>
-							<td style="text-align:center" class="sq-backend-table-cell">
-								<?php
-								if ($write_access) {
-									check_box($prefix.'_asset_type_inherit['.$asset_type.']', '1', $inheritance);
-								} else {
-									echo '<img src="'.sq_web_path('lib').'/web/images/'.($inheritance ? 'tick' : 'cross').'.gif" width=" 15" height="15" />';
-								}
-								?>
-							</td>
-							<?php
-							if ($write_access) {
-							?>
-							<td style="text-align:center" class="sq-backend-table-cell">
-								<?php check_box($prefix.'_remove_asset_type['.$asset_type.']'); ?>
-							</td>
-							<?php
-							}
-							?>
-						</tr>
-						<?php
-					}//end foreach()
-				?>
-				</table>
-
-				<?php
-			} else {
-				echo '<em>'.translate('no_restriction').'</em>';
-			}
-		$o->closeField();
-
-		if ($write_access) {
-			// New Restrictions
-			$o->openField(translate('new_restriction'));
-				asset_type_chooser($prefix.'_add_restriction', TRUE, Array(), NULL, FALSE, TRUE);
-			$o->closeField();
-		}
-
-	}//end paintSteps()
-
-
-	/**
-	* Processes the interface for adding wrestrictions
-	*
-	* @param Workflow_Schema	$asset	the asset to which we belong
-	* @param Backend_Outputter	$o		the Backend Outputter object
-	* @param string				$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function processWorkflowRestrictions(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
-	{
-		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return FALSE;
-
-		$prefix = $asset->getPrefix();
-		$updated = FALSE;
-
-		// handle restrictions
-		// delete
-		$current_restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
-		$changes_made = FALSE;
-		if (isset($_POST[$prefix.'_remove_asset_type'])) {
-			foreach($_POST[$prefix.'_remove_asset_type'] as $remove_type => $ahfortheheckofit) {
-				if (array_key_exists($remove_type, $current_restrictions)) {
-					unset($current_restrictions[$remove_type]);
-					$changes_made = TRUE;
-				}
-			}
-
-			// If something to save, save it, dammit!
-			if ($changes_made) {
-				$asset->setAttrValue('schema_restrictions', serialize($current_restrictions));
-				$asset->saveAttributes();
-			}
-		}
-
-		// inherit type setting
-		$current_restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
-		$changes_made = FALSE;
-		$inherit_enabled = isset($_POST[$prefix.'_asset_type_inherit']) ? $_POST[$prefix.'_asset_type_inherit'] : Array();
-		foreach($current_restrictions as $asset_type => $inheritance) {
-			if (isset($inherit_enabled[$asset_type])) {
-				$current_restrictions[$asset_type] = 1;
-			} else {
-				$current_restrictions[$asset_type] = 0;
-			}
-			if ($inheritance != array_get_index($inherit_enabled, $asset_type, 0)) {
-				$changes_made = TRUE;
-			}
-
-		}//end foreach
-
-		if ($changes_made) {
-			$asset->setAttrValue('schema_restrictions', serialize($current_restrictions));
-			$asset->saveAttributes();
-		}
-
-		// add
-		$current_restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
-		$changes_made = FALSE;
-		if (isset($_POST[$prefix.'_add_restriction']) && (isset($_POST[$prefix.'_add_restriction']['type_code']))) {
-			foreach($_POST[$prefix.'_add_restriction']['type_code'] as $field => $type_code) {
-				if (!empty($type_code)) {
-					$inheritance = $_POST[$prefix.'_add_restriction']['inherit'][$field];
-					if (!isset($current_restrictions[$type_code])) {
-						$current_restrictions[$type_code] = $inheritance;
-						$changes_made = TRUE;
-					} else if ($current_restrictions[$type_code] !== $inheritance) {
-						$current_restrictions[$type_code] = $inheritance;
-						$changes_made = TRUE;
-					}
-				}
-			}
-
-			// If something to save, save it, dammit!
-			if ($changes_made) {
-				$asset->setAttrValue('schema_restrictions', serialize($current_restrictions));
-				$asset->saveAttributes();
-			}
-		}
-
-		return TRUE;
-
-	}//end processSteps()
-
-
-	/**
 	* Generate an array representing the workflow structure for the schema at this point in time
 	*
 	* The generated array is a snap shot of the schema at a point in time that can get written
@@ -661,7 +464,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	public function generateWorkflowArray(Asset $asset, $top_parent='')
+	public function generateWorkflowArray(Asset $asset)
 	{
 		$workflow_array['steps']        = Array();
 		$workflow_array['current_step'] = Array('1');
@@ -677,7 +480,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
 			$workflow_array['steps'][$i] = Array();
-			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i], $top_parent)) {
+			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i])) {
 				return FALSE;
 			}
 			if ($i == 1) {
@@ -957,55 +760,6 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		return $res;
 
 	}//end _getTreeTops()
-
-
-
-	/**
-	* Paint the interface for stream rules setup
-	*
-	* @param Workflow_Schema	$asset	the asset to which we belong
-	* @param Backend_Outputter	$o		the Backend Outputter object
-	* @param string				$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function paintStreamSelectionRules(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
-	{
-		if (!$asset->writeAccess('links')) return FALSE;
-
-		$selected_stream = $this->getCurrentStream($prefix);
-		if ($selected_stream === NULL) return FALSE;
-
-		$edit_fns = $selected_stream->getEditFns();
-		return $edit_fns->paintStreamSelectionRules($selected_stream, $o, $prefix);
-
-	}//end paintStreamSelectionRules()
-
-
-	/**
-	* Paint the interface for stream rules setup
-	*
-	* @param Workflow_Schema	$asset	the asset to which we belong
-	* @param Backend_Outputter	$o		the Backend Outputter object
-	* @param string				$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function processStreamSelectionRules(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
-	{
-		if (!$asset->writeAccess('links')) return FALSE;
-
-		$selected_stream = $this->getPriorStream($prefix);
-		if ($selected_stream === NULL) return FALSE;
-
-		$edit_fns = $selected_stream->getEditFns();
-		return $edit_fns->processStreamSelectionRules($selected_stream, $o, $prefix);
-
-	}//end processStreamSelectionRules()
-
-
 
 
 }//end class

@@ -23,7 +23,7 @@
 	<version>0.1</version>
 	<name>UTransact Payment Gateway</name>
 	<description>Payment Gateway for Direct Payment Solution payment system</description>
-	<instantiable>no</instantiable>
+	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>payment_gateway</parent_type>
 	<requirements>

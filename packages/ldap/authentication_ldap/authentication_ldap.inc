@@ -331,9 +331,12 @@ class Authentication_LDAP extends Authentication
 			array_values($attrs),
 			Array('objectclass')
 		);
-		$result = $ldap->searchEntries($auth_base_dn, $filter, NULL, TRUE, TRUE, $required_attrs);
+		$result = $ldap->search($auth_base_dn, $filter, NULL, TRUE, TRUE, $required_attrs);
 
-		return $result;
+		if (!$result) return $null;
+		$entry = $ldap->getEntries($result);
+
+		return $entry;
 
 	}//end _getLdapEntries()
 

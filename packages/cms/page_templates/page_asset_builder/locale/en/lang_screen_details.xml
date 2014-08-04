@@ -81,10 +81,6 @@
 				<process_function name="processCreateFormCustomisation" />
 			</function_call>
 		</field>
-		<field attribute="password_autocomplete">
-			<display_name>Auto Complete Password</display_name>
-				<note>If set to 'Disable', the login forms will allow, browsers which support the attribute, to populate the password field on login screen.</note>
-		</field>
 	</section>
 	<section name="CAPTCHA" write_access="write:attributes">
 		<field attribute="require_captcha">
