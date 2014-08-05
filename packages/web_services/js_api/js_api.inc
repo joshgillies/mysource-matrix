@@ -1291,24 +1291,33 @@ class JS_Api extends Page
 	private function _setMetadata($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		if ($write_access) {
-			if (isset($args['field_info']) || (isset($args['field_id']) && isset($args['field_val']))) {
+			if (isset($args['field_info']) || isset($args['field_id'])) {
 				require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
 				$field_ids = Array();
 				$field_vals = Array();
 
 				if(isset($args['field_info'])) {
 					foreach($args['field_info'] as $key => $value){
-					$field_ids[] = $key;
-					$field_vals[] = $value;
+						$field_ids[] = $key;
+						$field_vals[] = $value;
+					}
+				} else {
+					$field_ids = explode('\\,', $args['field_id']);
+					if (!is_null($args['field_val'])) {
+						$field_vals = explode('\\,', $args['field_val']);
+					} else {
+						foreach ($field_ids as $index => $fields) {
+							$field_vals[$index] = NULL;
+						}
 					}
 				}
-				else {
-					$field_ids = explode('\\,', $args['field_id']);
-					$field_vals = explode('\\,', $args['field_val']);
-				}
 
-				foreach($field_vals as $index =>  $fieldVal) {
-					$field_vals[$index] = Metadata_Field::encodeValueString($fieldVal, Array());
+				foreach($field_vals as $index => $fieldVal) {
+					if ($field_vals[$index] === '__NULL_VALUE__') {
+						$field_vals[$index] = NULL;
+					} else if (!is_null($field_vals[$index])) {
+						$field_vals[$index] = Metadata_Field::encodeValueString($fieldVal, Array());
+					}
 				}
 
 				$result = $this->setAssetMetadata($asset->id, $field_ids, $field_vals);
@@ -4221,7 +4230,7 @@ class JS_Api extends Page
 				if (!$regen_all_contexts && (!$field->attr('is_contextable') || $field instanceof Metadata_Field_Select)) {
 					$regen_all_contexts = TRUE;
 				}
-
+log_dump(var_export($new_value[$i],1));
 				$field_name		= $field->attr('name');
 				$metadata_info	= Array (
 									$fieldid[$i]	=> Array (

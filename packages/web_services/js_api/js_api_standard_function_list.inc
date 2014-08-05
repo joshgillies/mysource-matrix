@@ -406,7 +406,6 @@ function getMetadata(asset_id, dataCallback)
 * @param string		asset_id		Id of the asset we are getting info for
 * @param string		field_id		Id of the metadata field we want to set for an asset
 * @param string		$field_val		Value that needs to be set for metadata field 
-*									(Using 'SQ_METADATA_USE_DEFAULT' will set it to default)
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
@@ -430,7 +429,6 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 *
 * @param string		asset_id		Id of asset to set metadata for
 * @param array 		field_info		Field Ids and their values
-*									(Using 'SQ_METADATA_USE_DEFAULT' for value will set it to default)
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
