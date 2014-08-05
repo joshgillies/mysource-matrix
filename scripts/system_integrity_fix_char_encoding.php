@@ -698,8 +698,10 @@ function get_affected_assetids($data)
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				foreach($assetids as $mfield_assetid) {
 					// Get all the asset that has this schema applied
-					$schemaid = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($mfield_assetid, 'metadata_schema'));
-					$affected_assetids['metadata_file'] = array_merge($affected_assetids['metadata_file'], $mm->getSchemaAssetids());
+					$schemaids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($mfield_assetid, 'metadata_schema'));
+					foreach($schemaids as $schemaid) {
+						$affected_assetids['metadata_file'] = array_merge($affected_assetids['metadata_file'], array_keys($mm->getSchemaAssets($schemaid)));
+					}
 					echo ".";
 				}//end foreach
 			break;
