@@ -129,7 +129,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 				<col width="20%" />
 				<col width="80%" />
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_validation'); ?></th>
+					<th><?php label(translate('form_action_call_rest_resource_validation'), $prefix.'[validation_enabled]'); ?></th>
 					<td><?php
 						$validation_enabled = isset($settings['validation_enabled']) && $settings['validation_enabled'] ? TRUE : FALSE;
 						check_box($prefix.'[validation_enabled]', 1, $validation_enabled);
@@ -139,14 +139,16 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 				<tr>
 					<th><?php echo translate('form_action_call_rest_resource_details'); ?></th>
 					<td><?php
+						echo '<span id="'.$prefix.'_validation_scope">';
 						combo_box($prefix.'[validation_scope]', $options['scope'], false, array_get_index($settings, 'validation_scope', 0));
+						echo '</span>';
 						combo_box($prefix.'[validation_target]', $options['targets'], false, array_get_index($settings, 'validation_target', 0), 0, 'onClick="toggleKeywordsReplacementInput()"');
 						combo_box($prefix.'[validation_operator]', $options['operators'], false, array_get_index($settings, 'validation_operator', 0));
 						text_box($prefix.'[validation_value]', array_get_index($settings, 'validation_value', ''), 40);
 						?>
 					</td>
 				</tr>
-				<tr id="validation_kw_replacement">
+				<tr id="<?php echo $prefix; ?>_validation_kw_replacement">
 					<th><?php echo "Keyword Replacement"; ?></th>
 					<td><?php text_box($prefix.'[validation_kw_replacement]', array_get_index($settings, 'validation_kw_replacement', ''), 80); ?></td>
 				</tr>
@@ -157,10 +159,12 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 						function toggleKeywordsReplacementInput()
 						{
 							if (document.getElementById('<?php echo $prefix; ?>[validation_target]').value == 2) {
-								document.getElementById('validation_kw_replacement').style.display = "table-row";
+								document.getElementById('<?php echo $prefix; ?>_validation_kw_replacement').style.display = "table-row";
+								document.getElementById('<?php echo $prefix; ?>_validation_scope').style.display = "none";
 								document.getElementById('<?php echo $prefix; ?>[validation_scope]').disabled = true;
 							} else {
-								document.getElementById('validation_kw_replacement').style.display = "none";
+								document.getElementById('<?php echo $prefix; ?>_validation_kw_replacement').style.display = "none";
+								document.getElementById('<?php echo $prefix; ?>_validation_scope').style.display = "table-row";
 								document.getElementById('<?php echo $prefix; ?>[validation_scope]').disabled = false;
 							}
 						}
@@ -253,6 +257,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 		} else {
 			$req_settings = unserialize($settings['http_request']);
 		}
+		$warning_class = self::isValid($form, $settings) ? '' : 'sq-backend-warning';
 
 		?><table class="no-borders">
 			<colgroup>
@@ -268,7 +273,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 					if (!empty($req_settings['method'])) {
 						echo $req_settings['method'];
 					} else {
-						?><span class="sq-backend-warning">No method specified.</span><?php
+						?><span class="<?php echo $warning_class; ?>"><?php echo translate('form_action_call_rest_resource_no_method'); ?></span><?php
 					}
 					?></p></td>
 				</tr>
@@ -280,7 +285,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 							echo ellipsisize($url, 512).'<br />';
 						}
 					} else {
-						?><span class="sq-backend-warning">No URLs specified.</span><?php
+						?><span class="<?php echo $warning_class; ?>"><?php echo translate('form_action_call_rest_resource_no_urls'); ?></span><?php
 					}
 				?></p></td></tr>
 			</tbody>
@@ -302,7 +307,6 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 
 		// Set up http request object
 		$http_request = new Asset_Attribute_HTTP_Request(0, $req_settings);
-
 		$current_value = @unserialize($http_request->value);
 
 		// Get list of replacements
@@ -374,6 +378,12 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 
 			// Process JS if required
 			if (!empty($js)) {
+
+				// Add keywords in the js code to the keyword replacements list
+				if ($settings['js_replace_keywords']) {
+					self::_addFormKeywordReplacements($form, $js, $replacements);
+				}//end if
+
 				// Append the JSON object "_REST" in the beginning of the JS code
 				$js = Rest_Common::createJsonStringFromRestResponse($res).$js;
 
@@ -385,10 +395,10 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 				$GLOBALS['SQ_SYSTEM']->pm->startTimer($form, 'processJavascript');
 				$ret = Rest_Common::processJavascript($js, $settings['js_engine']);
 				$GLOBALS['SQ_SYSTEM']->pm->stopTimer($form, 'processJavascript');
-				if (!empty($ret['output'])) {
-					$_SESSION[SQ_SESSION_SANDBOX_INDEX][$settings['js_session_var']] =  $ret['output'];
-				} else {
+				if (!empty($ret['error_message'])) {
 					trigger_localised_error('REST0001', E_USER_WARNING, $form->id, $ret['error_message']);
+				} else {
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX][$settings['js_session_var']] =  $ret['output'];
 				}
 			} else {
 				// Store the response in the session as an array
@@ -398,17 +408,16 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 
 		// if the validation is enabled, validate the response according to the rule specified
 		if (isset($settings['validation_enabled']) && $settings['validation_enabled']) {
-			$failed_URLs = self::_validate($settings, $res['responses']);
+			$failed_URLs = self::_validate($settings, $res['responses'], $replacements, $form);
 
 			// if the validation failed, set an appropriate error message to be printed on the frontend
-			if (!empty($failed_URLs)){
+			if (!empty($failed_URLs)) {
 				// use custom error text if it's set, otherwise use a default error message
 				$error_text = array_get_index($settings, 'validation_error_text', '');
 				$failed_URLs_text = implode(', ', $failed_URLs);
 				if (!strlen(trim($error_text))) {
 					$error_text = translate('form_action_call_rest_resource_false', $failed_URLs_text);
 				}
-				trigger_error('Call REST Resource Submission Action: Validation failed. (Id: #'.$form->id.', URLs: '.$failed_URLs_text.')', E_USER_WARNING);
 				$form->submission_errors[] = $error_text;
 
 				return FALSE;
@@ -434,14 +443,48 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 			$req_settings = unserialize($settings['http_request']);
 		}
 
-		// if either no method or urls are set, won't be able to send the request...
-		if (empty($req_settings['method'])) return FALSE;
-		if (empty($req_settings['urls'])) return FALSE;
+		// Valid if we have "method" and "url" to make http request
+		if (!empty($req_settings['method']) && !empty($req_settings['urls'])) {
+			// Need to have both "method" and "url" to make http request
+			return TRUE;
+		}
 
-
-		return TRUE;
+		// Valid if we have any js code and session var name set
+		return !empty($settings['js_session_var']) && !self::_emptyJsCode($settings);
 
 	}//end isValid
+
+
+	/**
+	* Return TRUE if JS code is empty
+	*
+	* @param array $settings
+	*
+	* @return boolean
+	* @access private
+	*/
+	private static function _emptyJsCode($settings)
+	{
+		$js = isset($settings['js_code']) ? $settings['js_code'] : '';
+		if (empty($js)) {
+			$js_file_ids = $settings['js_include_files'];
+			foreach($js_file_ids as $js_file_id) {
+				$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($js_file_id);
+				$existing = $file->getExistingFile();
+				if (!empty($existing)) {
+					$js = file_get_contents($existing['path']);
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($file);
+				if (!empty($js)) {
+					// Just need to know if there is any js code
+					break;
+				}
+			}
+		}//end if
+
+		return empty($js);
+
+	}//end emptyJsCode()
 
 
 	/**
@@ -479,11 +522,13 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 	*
 	* @param array	$settings	form submission action settings including the validation rule
 	* @param array	$responses	responses from REST Calls
+	* @param array	$replacements	Form specific keyword replacements
+	* @param object $form			The form asset
 	*
 	* @access protected
 	* @return array
 	*/
-	protected function _validate($settings, $responses) {
+	protected function _validate($settings, $responses, $replacements, $form) {
 		// if validation is not enabled, nothing needs to be validated
 		if (isset($settings['validation_enabled']) && !$settings['validation_enabled']) return TRUE;
 
@@ -492,7 +537,12 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 		$target   = array_get_index($settings, 'validation_target', 0);
 		$operator = array_get_index($settings, 'validation_operator', 0);
 		$value    = array_get_index($settings, 'validation_value', '');
-	log_dump($settings);
+
+		if (empty($responses) && $target == '2') {
+			// If we are checking keyword string, we dont need http response
+			// Create an empty response structure for such scnerio
+			$responses = Array(Array('info' => Array('url' => '')));
+		}
 		// response validation
 		// loop through the responses back from the REST call to a web service and
 		// validate the part of a response specified by this rule
@@ -508,6 +558,8 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 					break;
 				case 2: // Specific string with keyword(s)
 					$target_value = array_get_index($settings, 'validation_kw_replacement', '');
+					self::_addFormKeywordReplacements($form, $target_value, $replacements);
+					replace_keywords($target_value, $replacements);
 					replace_global_keywords($target_value);
 					log_dump($target_value);
 					break;
@@ -561,6 +613,36 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 
 		return $failed_URLs;
 	}
+
+
+	/**
+	* Extract the keywords and get the form specific keyword replacements
+	*
+	* @param object $form			The form asset
+	* @param string $text			Keywords to extract from
+	* @param array  &$replcements	Already evaluted keyword replacements
+	*								The new keywords evaluted will be appended to this array
+	*
+	* @return void
+	* @access private
+	*/
+	private static function _addFormKeywordReplacements($form, $text, &$replacements)
+	{
+
+		$keywords = retrieve_keywords_replacements($text);
+		if (!empty($keywords)) {
+			foreach($keywords as $keyword) {
+				if (!isset($replacements[$keyword])) {
+					$replacement = $form->_getThankYouKeywordReplacement($keyword);
+					if ($replacement == '%'.$keyword.'%' && strpos($keyword, 'globals_') !== 0) {
+						$replacement = '';
+					}
+					$replacements[$keyword] = $replacement;
+				}//end if
+			}//end foreach
+		}//end if
+
+	}//end _addFormKeywordReplacements()
 
 
 }//end class
