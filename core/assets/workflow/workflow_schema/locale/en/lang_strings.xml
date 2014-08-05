@@ -1,0 +1,28 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.2 2009/07/10 01:21:42 wszymanski Exp $
+*
+* Core Localised Strings File for Asset:
+*	Metadata Section (metadata_section)
+*/
+-->
+
+<strings>
+	<string source="section_description">Section Description</string>
+	<string source="current_restrict">Current Restrictions</string>
+	<string source="no_restriction">No Restrictions</string>
+	<string source="restricted_to">This section is restricted to the following asset types:</string>
+	<string source="remove_restrictions_for_current">Remove ALL restrictions for the current section</string>
+	<string source="asset_type">Asset Type</string>
+	<string source="new_restriction">New Restriction</string>
+</strings>
