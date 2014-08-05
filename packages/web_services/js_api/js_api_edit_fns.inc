@@ -392,11 +392,11 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo translate('standard_mode_deperacted'); ?>
+						<?php echo translate('standard_mode_deprecated'); ?>
 					</th>
 				</tr>	
 				<tr>
-					<td colspan="2" ><?php echo translate('standard_mode_deperacted_note'); ?>
+					<td colspan="2" ><?php echo translate('standard_mode_deprecated_note'); ?>
 					</td>
 				</tr>
 			</table>
