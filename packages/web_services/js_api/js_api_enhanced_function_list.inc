@@ -756,7 +756,7 @@ class Js_Api_Enhanced_Function_List
 		*      asset_id:		string/int	Id of the asset we are setting metadata for
 		*      field_id:		string/int	The asset id of the metadata field
 		*      field_val:		string		The value to set for the metadata field
-		*									(Using 'SQ_METADATA_USE_DEFAULT' will set it to default)
+		*									(Using <i>null</i> will set it to default)
 		*      dataCallback:	function	Custom callback function
 		* }
 		*/
@@ -799,7 +799,7 @@ class Js_Api_Enhanced_Function_List
 		* { 
 		*      asset_id:		string/int	Id of the asset we are setting attributes for
 		*      field_info:		json		Metadata field id and their respective values to be changed to
-		*									(Using 'SQ_METADATA_USE_DEFAULT' for value will set it to default)
+		*									(Using <i>null</i> for value will set it to default)
 		*      dataCallback:	function	Custom callback function
 		* }
 		*/
@@ -830,6 +830,12 @@ class Js_Api_Enhanced_Function_List
 			for (var field_id in options.field_info) {
 				if (options.field_info.hasOwnProperty(field_id)){
 					field_ids.push(field_id);
+					// because JS join() will convert the null string to empty string
+					// further down below we will need to provide a hack around this
+					// to let the PHP side know about the value being passed as null here
+					if (options.field_info[field_id] === null) {
+						options.field_info[field_id] = '__NULL_VALUE__';
+					}
 					field_vals.push(this._cleanUrlParam(options.field_info[field_id]));
 				}// end if
 			}// end of
