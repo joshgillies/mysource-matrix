@@ -72,8 +72,13 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($state['asset']->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
 
 		// if there has been no change, then there is nothing to do
+		// but the trigger hasn't really failed so fake the success
+		// and return the data that we would normally send back later
 		if (!empty($link) && $link['minorid'] == $selected_asset_id) {
-			return FALSE;
+			return Array(
+					'assetid'		=> $state['asset']->id,
+					'index_page'	=> $settings['index_page'],
+				   );
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -82,7 +87,7 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 
 		// if there is a current link, we need to delete it
 		if (!empty($link)) {
-			$success = (bool) $asset->deleteLink($link['linkid']);
+			$success = (bool) $state['asset']->deleteLink($link['linkid']);
 		}
 
 		if ($success && !empty($selected_asset_id)) {
