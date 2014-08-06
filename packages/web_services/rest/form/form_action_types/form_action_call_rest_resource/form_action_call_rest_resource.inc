@@ -133,7 +133,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 					<td><?php
 						$validation_enabled = isset($settings['validation_enabled']) && $settings['validation_enabled'] ? TRUE : FALSE;
 						check_box($prefix.'[validation_enabled]', 1, $validation_enabled);
-						label(translate('form_action_call_rest_resource_validation'), $prefix.'[validation_enabled]');
+						label(translate('form_action_call_rest_resource_validation_label'), $prefix.'[validation_enabled]');
 						?>
 					</td>
 				</tr>
