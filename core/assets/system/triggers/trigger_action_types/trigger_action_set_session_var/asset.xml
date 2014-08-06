@@ -21,7 +21,7 @@
 	<package>__core__</package>
 	<type_code>trigger_action_set_session_var</type_code>
 	<version>0.1</version>
-	<name>Set Session Var Trigger Action</name>
+	<name>Set Session Var</name>
 	<description>Trigger Action to set a session variable</description>
 	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
