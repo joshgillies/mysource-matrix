@@ -3402,7 +3402,7 @@ class MySource extends MySource_Object
 			} else {
 				// If user can access backend, it's safe
 				$user = $GLOBALS['SQ_SYSTEM']->user;
-				if ($user->canAccessBackend() === TRUE) {
+				if (!is_null($user) && $user->canAccessBackend() === TRUE) {
 					$filter_enabled = FALSE;
 				}
 			}//end if
