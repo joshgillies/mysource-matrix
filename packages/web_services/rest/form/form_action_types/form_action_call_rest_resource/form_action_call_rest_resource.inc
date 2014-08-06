@@ -129,10 +129,11 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 				<col width="20%" />
 				<col width="80%" />
 				<tr>
-					<th><?php label(translate('form_action_call_rest_resource_validation'), $prefix.'[validation_enabled]'); ?></th>
+					<th><?php echo translate('form_action_call_rest_resource_validation'); ?></th>
 					<td><?php
 						$validation_enabled = isset($settings['validation_enabled']) && $settings['validation_enabled'] ? TRUE : FALSE;
 						check_box($prefix.'[validation_enabled]', 1, $validation_enabled);
+						label(translate('form_action_call_rest_resource_validation'), $prefix.'[validation_enabled]');
 						?>
 					</td>
 				</tr>
@@ -164,7 +165,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 								document.getElementById('<?php echo $prefix; ?>[validation_scope]').disabled = true;
 							} else {
 								document.getElementById('<?php echo $prefix; ?>_validation_kw_replacement').style.display = "none";
-								document.getElementById('<?php echo $prefix; ?>_validation_scope').style.display = "table-row";
+								document.getElementById('<?php echo $prefix; ?>_validation_scope').style.display = "inline";
 								document.getElementById('<?php echo $prefix; ?>[validation_scope]').disabled = false;
 							}
 						}
