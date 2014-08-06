@@ -20,6 +20,7 @@
 	<string source="form_action_call_rest_resource_http_request">HTTP Request</string>
 	<string source="form_action_call_rest_resource_details">Validation Rule</string>
 	<string source="form_action_call_rest_resource_validation">Enable Validation</string>
+	<string source="form_action_call_rest_resource_validation_label">Enable the validation rules below when this action is fired</string>
 	<string source="form_action_call_rest_resource_custom_error_text">Custom Error Text</string>
 	<string source="form_action_call_rest_resource_all">All</string>
 	<string source="form_action_call_rest_resource_one">One of</string>
