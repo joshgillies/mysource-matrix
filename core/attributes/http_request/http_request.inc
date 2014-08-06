@@ -155,6 +155,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo htmlspecialchars($current_value['enable_http_10'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_enable_http_10', 1, $current_value['enable_http_10']);
+							label(translate('http_request_enable_http_10_label'), $prefix.'_enable_http_10');
 						}
 					?>
 				</td>
@@ -170,6 +171,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 									echo htmlspecialchars($current_value['cache_post_requests'] ? 'Yes' : 'No');
 								} else {
 									check_box($prefix.'_cache_post_requests', 1, $current_value['cache_post_requests']);
+									label(translate('http_request_cache_post_requests_label'), $prefix.'_cache_post_requests');
 								}
 							?>
 						</td>
@@ -208,6 +210,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo htmlspecialchars($current_value['follow_redirect'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_follow_redirect', 1, $current_value['follow_redirect']);
+							label(translate('http_request_follow_redirect_label'), $prefix.'_follow_redirect');
 						}
 					?>
 				</td>
@@ -220,6 +223,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo htmlspecialchars($current_value['enable_compression'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_enable_compression', 1, $current_value['enable_compression']);
+							label(translate('http_request_enable_compression_label'), $prefix.'_enable_compression');
 						}
 					?>
 				</td>
@@ -232,6 +236,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo htmlspecialchars($current_value['disable_ssl_verify'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_disable_ssl_verify', 1, $current_value['disable_ssl_verify']);
+							label(translate('http_request_disable_ssl_verify_label'), $prefix.'_disable_ssl_verify');
 						}
 					?>
 				</td>
@@ -414,6 +419,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo $current_value['convert_to_utf8'] ? 'Yes' : 'No';
 						} else {
 							check_box($prefix.'_convert_to_utf8', 1, $current_value['convert_to_utf8']);
+							label(translate('http_request_convert_to_utf8_label'), $prefix.'_convert_to_utf8');
 						}
 					?>
 				</td>
@@ -444,6 +450,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo $current_value['append_get_vars'] ? 'Yes' : 'No';
 						} else {
 							check_box($prefix.'_append_get_vars', 1, $current_value['append_get_vars']);
+							label(translate('http_request_append_get_vars_label'), $prefix.'_append_get_vars');
 						}
 					?>
 				</td>
@@ -456,6 +463,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo $current_value['forward_user_keys'] ? 'Yes' : 'No';
 						} else {
 							check_box($prefix.'_forward_user_keys', 1, $current_value['forward_user_keys']);
+							label(translate('http_request_forward_user_keys_label'), $prefix.'_forward_user_keys');
 						}
 					?>
 				</td>
@@ -468,6 +476,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo translate('no');
 						} else {
 							check_box($prefix.'_run_test', 1, 0);
+							label(translate('http_request_run_test_label'), $prefix.'_run_test');
 
 							// Run the test?
 							if (isset($_REQUEST[$prefix.'_run_test']) && $_REQUEST[$prefix.'_run_test'] == 1) {

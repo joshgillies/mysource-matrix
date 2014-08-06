@@ -3039,16 +3039,16 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<!-- http_request and oauth attribute strings -->
 	<string source="http_request_urls">URL(s)</string>
 	<string source="http_request_method">Method</string>
-	<string source="http_request_enable_http_10">Use HTTP 1.0</string>
+	<string source="hble_compressionttp_request_enable_http_10">Use HTTP 1.0</string>
 	<string source="http_request_timeout">Timeout (seconds)</string>
 	<string source="http_request_follow_redirect">Follow Redirects</string>
-	<string source="http_request_disable_ssl_verify">Disable SSL certificate verification</string>
+	<string source="http_request_disable_ssl_verify">Disable SSL Verification</string>
 	<string source="http_request_enable_compression">Enable HTTP Compression</string>
 	<string source="http_request_ssl_cert">SSL certificate filepath</string>
 	<string source="http_request_ssl_key">SSL key filepath</string>
 	<string source="http_request_ca_file">SSL CA filepath</string>
 	<string source="http_request_cache_options">Cache Options</string>
-	<string source="http_request_cache_post_requests">Cache Post Requests (use with caution)</string>
+	<string source="http_request_cache_post_requests">Cache Post Requests</string>
 	<string source="http_request_default_cache_expiry">Default Cache Expiry (seconds)</string>
 	<string source="http_request_authentication_type">Authentication Type</string>
 	<string source="http_request_request_body">Request Body</string>
@@ -3056,8 +3056,19 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="http_request_convert_to_utf8">Convert to UTF-8</string>
 	<string source="http_request_document_encoding">Document Encoding</string>
 	<string source="http_request_run_test">Run Test</string>
-	<string source="http_request_append_get_vars">Append query string to the request URL</string>
+	<string source="http_request_append_get_vars">Append Query String</string>
 	<string source="http_request_forward_user_keys">Forward user information</string>
+	<string source="http_request_enable_http_10_label">Use HTTP 1.0 for the HTTP request instead of the default HTTP 1.1</string>
+	<string source="http_request_cache_post_requests_label">Cache POST requests made by the REST Resource (use with caution)</string>
+	<string source="http_request_follow_redirect_label">Follow any URL redirection set by the selected URL(s)</string>
+
+	<string source="http_request_disable_ssl_verify_label">Disable SSL certificate verification on HTTP requests</string>
+	<string source="http_request_enable_compression_label">Enable decoding of the response</string>
+	<string source="http_request_convert_to_utf8_label">Convert the response content of the request to UTF-8 character encoding</string>
+	<string source="http_request_run_test_label">Run a test of the HTTP request when this screen is committed</string>
+	<string source="http_request_append_get_vars_label">Append query strings from the frontend URL to the URL of the HTTP request</string>
+	<string source="http_request_forward_user_keys_label">Forward user IP address and other information to the HTTP request</string>
+
 	<string source="oauth_asset">OAuth Asset</string>
 	<string source="oauth_consumer_secret">Consumer Secret</string>
 	<string source="oauth_consumer_key">Consumer Key</string>
