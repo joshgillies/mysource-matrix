@@ -1114,12 +1114,12 @@ class Ecommerce_Cart_Processor
 				$format_replacements['item_price_incl_tax'] = sprintf($price_format, $product_quantity);
 			} else {
 				$format_replacements['item_quantity_added'] = $product_quantity;
-				$format_replacements['item_price_incl_tax'] = sprintf($price_format, $cost);
+				$format_replacements['item_price_incl_tax'] = sprintf($price_format, $cost + $tax_cost);
 			}
 
 			$format_replacements['item_tax'] = sprintf($price_format, $tax_cost);
 
-			$format_replacements['total_item_price'] = sprintf($price_format, $cost * $product_quantity);
+			$format_replacements['total_item_price'] = sprintf($price_format, ($cost + $tax_cost) * $product_quantity);
 			$format_replacements['total_item_tax'] = sprintf($price_format, $tax_cost * $product_quantity);
 
 			$format_bodycopy->setKeywordReplacements($format_replacements);
