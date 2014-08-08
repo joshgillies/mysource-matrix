@@ -884,6 +884,9 @@ class TRIM_Common
 			// Replace the invalid chars from the filename by '_'
 			$file_name = preg_replace('@['.preg_quote('\/:*?"<>|').']+@', '_', $file_name);
 			$file_name .= '.'.strtolower($object_list['FileType']);
+			if(strlen($file_name) > 100 ) {
+				$file_name = substr($file_name, 0, 100) . '...';
+			}
 
 			$file_path 		= $final_file_path.'/'.$file_name;
 			if (file_exists($file_path)) {
