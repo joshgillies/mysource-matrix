@@ -271,6 +271,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			    
 			    $o->enableViperEditor();
 
+			    // Clean the HTML before passing to the Matrix backend form
+			    $o->addOnSubmit('Matrix_Viper.viper.cleanDOM(document.getElementById("'.$prefix.'_contents_div_viper"));');
 			    // Use a hidden input to pass the Viper edited content to Matrix backend form
 			    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 			    ?>
