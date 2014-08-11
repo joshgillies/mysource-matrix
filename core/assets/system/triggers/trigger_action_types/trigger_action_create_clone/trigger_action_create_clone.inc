@@ -148,7 +148,9 @@ class Trigger_Action_Create_Clone extends Trigger_Action
                         'roles',
                       );
 
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$clone = $am->cloneAsset($minor, $link, $clone_map, $components);
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		if (is_null($clone)) {
 			trigger_localised_error('CORE0138', E_USER_WARNING);
