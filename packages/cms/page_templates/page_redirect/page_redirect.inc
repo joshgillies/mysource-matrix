@@ -169,13 +169,14 @@ class Page_Redirect extends Page
 	*/
 	function printFrontend()
 	{
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
-
+		
 		// check that the user has read access to the site
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', translate('cannot_access_asset', $this->name));
 			return;
 		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
 		if (SQ_IN_LIMBO) {
 			// if we are in LIMBO then do not redirect
