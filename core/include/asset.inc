@@ -4960,7 +4960,7 @@ class Asset extends MySource_Object
 			try {
 				$bind_vars	= Array (
 								'assetid'	=> $this->id,
-								'url'		=> strip_url(current_url(FALSE)),
+								'url'		=> strip_url(current_url(FALSE, TRUE)),
 							  );
 				$result = MatrixDAL::executeAll('core', 'getValidProtocols', $bind_vars);
 				if (isset($result[0])) {

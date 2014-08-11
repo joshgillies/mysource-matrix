@@ -868,8 +868,8 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE, $strip_ext
 		$url = (($inc_protocol) ? current_protocol().'://' : '').$host.$uri;
 
 		// if we are in the backend remove the suffix
-		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN)) {
-			$url = preg_replace('/('.SQ_CONF_BACKEND_SUFFIX.'|'.SQ_CONF_LIMBO_SUFFIX.'|'.SQ_CONF_LOGIN_SUFFIX.')\/?$/', '', $url);
+		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN || SQ_IN_PERFORMANCE)) {
+			$url = preg_replace('/\/('.SQ_CONF_BACKEND_SUFFIX.'|'.SQ_CONF_LIMBO_SUFFIX.'|'.SQ_CONF_LOGIN_SUFFIX.'|'.SQ_CONF_PERFORMANCE_SUFFIX.')\/?$/', '', $url);
 		}
 
 		if($strip_extra_suffix) {
@@ -879,7 +879,6 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE, $strip_ext
 
 			$regex = '/\/(';
 			$regex .= SQ_CONF_RECACHE_SUFFIX.'|';
-			$regex .= SQ_CONF_PERFORMANCE_SUFFIX.'|';
 			$regex .= SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'|';
 			$regex .= SQ_CONF_PERFORMANCE_RESULT_SUFFIX;
 			$regex .= ')\/?$/';
