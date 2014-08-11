@@ -251,7 +251,9 @@ class Trigger_Action_Update_Link extends Trigger_Action
 		$settings['link_type'] = (int)$settings['link_type'];
 		
 		$settings['type_code'] = array_get_index($request_data, 'type_code', '');
-		if (empty($settings['type_code'])) return 'You must specify an Asset Type';
+
+		// if we have linkid then we won't need the type_code
+		if (empty($settings['linkid']) && empty($settings['type_code'])) return 'You must specify an Asset Type';
 		
 		$settings['value'] = array_get_index($request_data, 'value', NULL);
 		$settings['value'] = trim($settings['value']);
