@@ -241,24 +241,26 @@ class File extends Asset
 	*/
 	public function cloneComponents(Asset $clone, Array $components, $override=FALSE)
 	{
-		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+		if ($clone instanceof File) {
+			$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
 
-		// create some information so we know where to clone the file from
-		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
+			// create some information so we know where to clone the file from
+			$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
 		
-		$o = NULL;
-		if(isset($GLOBALS['SQ_SYSTEM']->backend->out)) $o = $GLOBALS['SQ_SYSTEM']->backend->out;
+			$o = NULL;
+			if(isset($GLOBALS['SQ_SYSTEM']->backend->out)) $o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		
-		$edit_fns = $clone->getEditFns();
-		// fix for bug 3625:
-		// we make sure to tell the processFileChooser function that we are cloning and not creating new asset
-		if (!$edit_fns->processFileUpload($clone, $o, $clone->getPrefix(), $temp_info,TRUE, TRUE)) {
+			$edit_fns = $clone->getEditFns();
+			// fix for bug 3625:
+			// we make sure to tell the processFileChooser function that we are cloning and not creating new asset
+			if (!$edit_fns->processFileUpload($clone, $o, $clone->getPrefix(), $temp_info,TRUE, TRUE)) {
+				$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
+				trigger_localised_error('CORE0010', E_USER_WARNING, $this->name, $this->id);
+				return FALSE;
+			}
+
 			$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
-			trigger_localised_error('CORE0010', E_USER_WARNING, $this->name, $this->id);
-			return FALSE;
 		}
-
-		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		return parent::cloneComponents($clone, $components, $override);
 
