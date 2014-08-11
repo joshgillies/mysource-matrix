@@ -85,6 +85,8 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 						$keyword_options[$keyword] = $keyword;
 					}
 
+					ksort($keyword_options);
+
 					$i = 0;
 					if (!empty($allowed_keywords)) {
 
