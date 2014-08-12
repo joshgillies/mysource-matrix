@@ -273,6 +273,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 				// check to see what plugins are enabled/disabled for the Viper Editor
 				$viper_plugins = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_VIPER_PLUGINS'));
+				
+				if (in_array('MatrixLinkPlugin', $viper_plugins)) $viper_plugins[] = 'ViperLinkPlugin';
 
 				// if all the plugins are enabled then we need not worry about anything
 				if (in_array('all', $viper_plugins) !== TRUE) {
