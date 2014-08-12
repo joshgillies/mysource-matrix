@@ -335,6 +335,11 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	{
 		$write_access = $asset->adminAccess('preferences');
 
+		// Disable OPCache so that we can get the updated preferences files
+		if (!empty($_POST['process_form']) && ini_get('opcache.enable')) {
+			ini_set('opcache.enable', '0');
+		}
+
 		$pref_file_path = $asset->data_path.'/.preferences.inc';
 		if (is_file($pref_file_path)) {
 			include $pref_file_path;
