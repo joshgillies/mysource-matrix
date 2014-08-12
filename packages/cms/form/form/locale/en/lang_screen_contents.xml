@@ -97,6 +97,10 @@
 			<display_name>Note Text Size</display_name>
 			<note>Question notes (if any) will be displayed at this size.</note>
 		</field>
+		<field attribute="form_extra_attribute">
+			<display_name>Form Extra Attribute</display_name>
+			<note>Adding extra attributes to the Form HTML Tag.e.g autocomplete="off".</note>
+		</field>
 	</section>
 	<section name="Validation">
 		<field attribute="use_client_side">
@@ -120,6 +124,12 @@
 		<field attribute="submission_limit_reached_text">
 			<display_name>Error Text</display_name>
 			<note>This text will be used by Matrix to show error when the submission limit has been reached while the form was still being filled in by user.</note>
+		</field>
+	</section>
+	<section name="Submission Access" write_access="admin:attributes" limbo_access="1">
+		<field attribute="restricted_submission_access">
+			<display_name>Restrict Submission Access</display_name>
+			<note>If set to "Yes", Form Submission assets created by this form will only be accessible by users with admin permissions. Read and Write permission settings will be ignored and users with those permissions will not be able to view or edit the Form Submission assets.</note>
 		</field>
 	</section>
 	<section name="CAPTCHA">

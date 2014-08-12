@@ -420,7 +420,7 @@ function make_valid_web_paths($paths, $fallback_path='')
 		}
 
 		// get rid of paths that are the same as the backend suffix
-		if ($path == SQ_CONF_BACKEND_SUFFIX || $path == SQ_CONF_LIMBO_SUFFIX || $path == SQ_CONF_LOGIN_SUFFIX || $path == SQ_CONF_NOCACHE_SUFFIX) {
+		if ($path == SQ_CONF_BACKEND_SUFFIX || $path == SQ_CONF_LIMBO_SUFFIX || $path == SQ_CONF_LOGIN_SUFFIX || $path == SQ_CONF_NOCACHE_SUFFIX || $path == SQ_CONF_NOPROXYCACHE_SUFFIX) {
 			trigger_localised_error('SYS0114', E_USER_WARNING, $path);
 			continue;
 		}

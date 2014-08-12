@@ -53,6 +53,9 @@ class Workflow_Manager extends MySource_Object
 	var $_valid_cond_logic = Array('>=' => 'At least', 'all' => 'All');
 
 
+
+
+
 	/**
 	* Constructor
 	*
@@ -260,6 +263,31 @@ class Workflow_Manager extends MySource_Object
 		if (!$asset->adminAccess('workflow')) {
 			trigger_localised_error('SYS0117', E_USER_WARNING, $asset->name);
 			return FALSE;
+		}
+
+		// check if the schema is restricted to certain assets
+		$restrictions = is_array($schema->attr('schema_restrictions')) ? $schema->attr('schema_restrictions') : unserialize($schema->attr('schema_restrictions'));
+
+		$asset_found = FALSE;
+		if (!empty($restrictions)) {
+			$asset_dependant_parents = array_merge(Array($assetid), $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid));
+			foreach ($asset_dependant_parents as $parent_assetid) {
+				$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+				foreach ($restrictions as $type_code_restricted => $inherit_it) {
+					if ($inherit_it && !$asset_found) {
+						$asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo(Array($parent_assetid));
+						foreach($asset_type_with_parents[$parent_assetid] as $index => $asset_type) {
+							if (array_key_exists($asset_type[0], $restrictions) && !$asset_found) {
+								$asset_found = TRUE;
+							}
+						}
+					} else if (array_key_exists($parent_asset->type(), $restrictions)){
+						$asset_found = TRUE;
+					}
+				}
+			}
+			// if the asset we are dealing with isn't allowed to work on the schema, bail out
+			if (!$asset_found) return FALSE;
 		}
 
 		// check for any running schemas - because if the asset is in workflow we cant do anything
@@ -1420,6 +1448,13 @@ class Workflow_Manager extends MySource_Object
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 
 		if (empty($running_schemas)) {
+
+			// evaluate dynamic step condtion keyword on the dependant parent asset only
+			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid);
+			$top_parent = array_pop($dependant_parents);
+			if(empty($top_parent)) $top_parent = $assetid;
+
+
 			// we dont actually have any running workflows, so lets pretend we do
 			$schemas = $this->getSchemas($assetid, TRUE);
 			$streamids = Array();
@@ -1457,7 +1492,7 @@ class Workflow_Manager extends MySource_Object
 
 			foreach ($schemas as $schemaid) {
 				foreach ($streamids[$schemaid] as $streamid => &$stream_name) {
-					$schema_workflows[$schemaid][$streamid] = $this->generateWorkflowArray($assetid, $streamid);
+					$schema_workflows[$schemaid][$streamid] = $this->generateWorkflowArray($assetid, $streamid, $top_parent);
 				}
 				$running_schemas[] = $schemaid;
 			}
@@ -1474,6 +1509,8 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 
 			foreach ($schema_workflows[$schemaid] as $streamid => &$workflow) {
+;
+
 				// already finished the workflow?
 				if ($workflow['complete']) continue;
 
@@ -1489,7 +1526,6 @@ class Workflow_Manager extends MySource_Object
 				if (!$workflow['complete']) return FALSE;
 			}
 		}
-
 		return TRUE;
 
 	}//end testPublish()
@@ -1621,7 +1657,7 @@ class Workflow_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function generateWorkflowArray($assetid, $streamid)
+	function generateWorkflowArray($assetid, $streamid, $top_parent)
 	{
 		$assetid  = (int) $assetid;
 		$streamid = (int) $streamid;
@@ -1652,7 +1688,7 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$edit_fns = $stream->getEditFns();
-		return $edit_fns->generateWorkflowArray($stream);
+		return $edit_fns->generateWorkflowArray($stream, $top_parent);
 
 	}//end generateWorkflowArray()
 
@@ -1676,6 +1712,12 @@ class Workflow_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// evaluate dynamic step condtion keyword on the dependant parent asset only
+		$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid);
+		$top_parent = array_pop($dependant_parents);
+		if(empty($top_parent)) $top_parent = $assetid;
+
+
 		$schemas = $this->getSchemas($assetid, TRUE, FALSE);
 
 		if (empty($schemas)) return FALSE;
@@ -1683,6 +1725,8 @@ class Workflow_Manager extends MySource_Object
 			$stream_name = $this->getStartingStream($assetid);
 			$this->setStartingStream($assetid, NULL);
 		}
+
+		$log_message = $this->getEditorCommentOnApplyForApproval($assetid);
 
 		if ($stream_name === NULL) {
 			$streams = $this->getDefaultStream($schemas);
@@ -1699,7 +1743,7 @@ class Workflow_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			// Grab the workflow array from the appropriate stream, and then
 			// make that our workflow for this
-			$workflow = $this->generateWorkflowArray($assetid, $streams[$schemaid]);
+			$workflow = $this->generateWorkflowArray($assetid, $streams[$schemaid], $top_parent);
 			$workflow['schema_name'] = $workflow_names[$schemaid]['name'];
 
 			$stream_names = $this->getStreams($schemaid);
@@ -1813,7 +1857,6 @@ class Workflow_Manager extends MySource_Object
 					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
-
 					$msg_reps = Array(
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1829,7 +1872,7 @@ class Workflow_Manager extends MySource_Object
 									'stream'				=> $schema_workflow['stream_name'],
 									'asset_url'				=> $asset->getDependantParentsURL(),
 									'asset_version'			=> $asset->version,
-									'log_message'			=> '',
+									'log_message'			=> is_null($log_message) ? '' : $log_message,
 								);
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1888,6 +1931,20 @@ class Workflow_Manager extends MySource_Object
 
 				$msg->parameters['assetid'] = $asset->id;
 				$ms->enqueueMessage($msg);
+
+				// has a message been entered?
+				// process any messages that may have been submitted
+				if (!empty($log_message)) {
+					$msg_reps = Array(
+									'message'	=> $log_message,
+								);
+					$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
+					$message->parameters['assetid'] = $assetid;
+					$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+					$message->send();
+				}
+
+
 			}//end foreach
 		}//end if
 
@@ -1934,7 +1991,6 @@ class Workflow_Manager extends MySource_Object
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 		if (empty($running_schemas)) return Array();
 		$schema_workflows = $this->getSchemaWorkflows($assetid);
-
 		$steps = Array();
 		foreach ($schema_workflows as $schemaid => $workflow) {
 			if (!in_array($schemaid, $running_schemas)) continue;
@@ -2823,6 +2879,28 @@ class Workflow_Manager extends MySource_Object
 	}//end getStartingStream()
 
 
+	public function setEditorCommentOnApplyForApproval($assetid, $editor_comment)
+	{
+		$this->_tmp['editor_comment_on_request'][$assetid] = $editor_comment;
+
+	}//end setEditorCommentOnApplyForApproval()
+
+
+	/**
+	* Return a set starting stream name
+	*
+	* @param string	$schemaid	The asset to get the starting stream name for
+	*
+	* @return string
+	*/
+	public function getEditorCommentOnApplyForApproval($assetid)
+	{
+		$editor_comment = array_get_index($this->_tmp, 'editor_comment_on_request', Array());
+		return array_get_index($editor_comment, $assetid, NULL);
+
+	}//end getEditorCommentOnApplyForApproval()
+
+
 	/**
 	* Add keyword values for the given $asset to the $replacements array
 	* by extracting any extra keywords found in the $subject and $body.
@@ -2890,6 +2968,97 @@ class Workflow_Manager extends MySource_Object
 		}//end foreach
 
 	}//end setCurrentUserAsLastStarted()
+
+
+	/**
+	* Apply Stream Selection Rules and only return the streams that matches the rules.
+	*
+	* @param string	$schemaid	The schema to get streams from
+	* @param string	$assetid	The asset to evaluate against
+	*
+	* @return array
+	*/
+	public function getValidStreams($schemaid, $assetid)
+	{
+		$streams = $this->getStreams($schemaid);
+		$valid_streamids = Array();
+		foreach ($streams as $streamid => $details) {
+			$result = $this->evaluateStreamSelectionRules($streamid, $assetid);
+			if($result) {
+				$valid_streamids[] = $streamid;
+			}
+
+		}
+
+		// if there is no valid streams, we have to use plan B
+		if(empty($valid_streamids)) {
+			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$stream_selection_rules_no_match = $schema->attr('stream_selection_rules_no_match');
+			if($stream_selection_rules_no_match == 'allow_default_stream') {
+				// just return default stream
+				$valid_streamids = Array($this->getDefaultStream($schemaid));
+			}
+			else {
+				// allow all streams
+				$valid_streamids = array_keys($streams);
+			}
+		}
+
+		return $valid_streamids;
+	}//end getValidStreams()
+
+
+	/**
+	* Evaluate rules of a stream and determine if it should be made available
+	*
+	* @param string	$streamid	The stream to evaluate
+	* @param string	$assetid	The asset to evaluate against
+	*
+	* @return string
+	*/
+	public function evaluateStreamSelectionRules($streamid, $assetid)
+	{
+		$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid, '', TRUE);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+
+		if(empty($stream) || empty($asset)) return FALSE;
+
+		$rules = is_array($stream->attr('stream_selection_rules')) ? $stream->attr('stream_selection_rules') : unserialize($stream->attr('stream_selection_rules'));
+		$logic = $stream->attr('rules_logic');
+		if(empty($rules)) return TRUE;
+
+		foreach ($rules as $details) {
+			$keyword_replacement = $details['keyword'];
+			//replace global keywords
+			replace_global_keywords($keyword_replacement);
+	
+			//replace asset keywords
+			$keywords = retrieve_keywords_replacements($keyword_replacement);
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			}
+			replace_keywords($keyword_replacement, $replacements);
+			// prevent null byte attack
+			$pattern = str_replace("\0", '', $details['pattern']);
+
+			if(preg_match('/'.$pattern.'/i', $keyword_replacement)) {
+				if($logic === 'any') return TRUE;
+			}
+			else {
+				if($logic === 'all') return FALSE;
+			}
+		}
+		// if all rules must match, and we got here it means all rules passes.
+		if($logic === 'all') {
+			return TRUE;
+		}
+		else {
+			// this means none of rules match
+			return FALSE;
+		}
+
+	}//end evaluateStreamSelectionRules()
 
 
 }//end class

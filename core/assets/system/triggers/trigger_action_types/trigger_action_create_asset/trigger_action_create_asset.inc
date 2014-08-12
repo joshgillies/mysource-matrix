@@ -195,8 +195,9 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 
 			ob_start();
 				if ($write_access) {
+					echo '<br /><br />';
 					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
-					echo '<br />';
+					echo '<br /><br /> <b> OR&nbsp;&nbsp;</b>';
 					check_box($prefix.'[parentid]', 'current_asset', $parent_broadcasted);
 					label(translate('trigger_create_under_broadcaster'), $prefix.'[parentid]');
 				} else {

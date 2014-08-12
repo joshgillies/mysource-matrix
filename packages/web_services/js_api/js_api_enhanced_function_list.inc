@@ -176,21 +176,20 @@ class Js_Api_Enhanced_Function_List
 			function data(params)
 			{
 				// Automatically append 'key' to every request
-				var dataArr = ['key=' + self.key];
+				var dataArr = {};
 
-				for (var i = 0, l = params.length; i<l; i+=1) {
-					dataArr.push(params[i][0] + '=' + params[i][1]);
+				for (var i = 0, l = params.length; i < l; i+=1) {
+					dataArr[params[i][0]] = params[i][1];
 				}// end for
-				return dataArr.join("&");
+				return JSON.stringify(dataArr);
 
 			}// end data
 
 			// Set some defaults for the HTTP Request
 			options = self._options(['params'],{
 						url:                '<?php echo $api_url; ?>',
-						query:              null,
 						method:             'POST',
-						contentType:        'application/x-www-form-urlencoded',
+						contentType:        'application/json',
 						params:             [],
 						async:              true,
 						onSuccess:          function(){},
@@ -217,10 +216,10 @@ class Js_Api_Enhanced_Function_List
 			};// end onreadstatechange
 
 			http.setRequestHeader("Content-type", options.contentType);
-
+			http.setRequestHeader("Authorization", 'Matrix-JSAPI key="' + self.key + '"');
 
 			// Send the request
-			http.send(encodeURI(data(options.params)));
+			http.send(data(options.params));
 
 		},// end _ajax
 
@@ -304,10 +303,10 @@ class Js_Api_Enhanced_Function_List
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
 
 			// Package up the required function calls into string to POST
-			var postData = JSON.stringify(options.functions);
+			//var postData = JSON.stringify(options.functions);
 
 			this._doPost(fnName,[
-				['functions', this._cleanUrlParam(postData)]
+				['functions', options.functions]
 			],options);
 
 		},// end batchRequest
@@ -757,6 +756,7 @@ class Js_Api_Enhanced_Function_List
 		*      asset_id:		string/int	Id of the asset we are setting metadata for
 		*      field_id:		string/int	The asset id of the metadata field
 		*      field_val:		string		The value to set for the metadata field
+		*									(Using <i>null</i> will set it to default)
 		*      dataCallback:	function	Custom callback function
 		* }
 		*/
@@ -799,6 +799,7 @@ class Js_Api_Enhanced_Function_List
 		* { 
 		*      asset_id:		string/int	Id of the asset we are setting attributes for
 		*      field_info:		json		Metadata field id and their respective values to be changed to
+		*									(Using <i>null</i> for value will set it to default)
 		*      dataCallback:	function	Custom callback function
 		* }
 		*/
@@ -829,6 +830,12 @@ class Js_Api_Enhanced_Function_List
 			for (var field_id in options.field_info) {
 				if (options.field_info.hasOwnProperty(field_id)){
 					field_ids.push(field_id);
+					// because JS join() will convert the null string to empty string
+					// further down below we will need to provide a hack around this
+					// to let the PHP side know about the value being passed as null here
+					if (options.field_info[field_id] === null) {
+						options.field_info[field_id] = '__NULL_VALUE__';
+					}
 					field_vals.push(this._cleanUrlParam(options.field_info[field_id]));
 				}// end if
 			}// end of
@@ -2768,6 +2775,323 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}//end if(edit_metadata_schema)
+
+
+		if ($js_api_asset->attr('create_form_question')) {
+			?>
+
+		/**
+		*
+		* creates question(s) of a type on the passed formid or the form section id
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid:			string/int		the asset of the form or form section to
+		*										add the question asset
+		*      type_code:		string			the type of question to be added (default: Text)
+		*      units:			int				number of question to add of a certain type (default:1)
+		*      dataCallback:	function		Custom callback function
+		* }
+		*/
+		createQuestion: function(options)
+		{
+			var fnName = 'createQuestion';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						type_code:		'text',
+						units:			1,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid']
+				};
+			}// end if
+
+			if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid],
+					['type_code', options.type_code],
+					['units', options.units]
+			],options);
+
+		},// end createQuestion
+
+
+			<?php
+		}//end if(create_form_question)
+
+
+		if ($js_api_asset->attr('update_form_question')) {
+			?>
+
+		/**
+		*
+		* updates a question of the passed formid or the form section id
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid:			string/int		the asset of the form or form section to update
+		*      question_id:		string			the asset id of the question to update
+		*      field_info:		json			The object containing data that needs to be updated
+		*										here you can use attribute name as the key and it's
+		*										corresponding value (user needs to make sure they are passing correct datatype)
+		*      dataCallback:	function		Custom callback function
+		* }
+		*/
+		updateQuestion: function(options)
+		{
+			var fnName = 'updateQuestion';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						question_id:	'',
+						field_info:		{},
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid', 'question_id', 'field_info']
+				};
+			}// end if
+
+			if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			var question_data = '';
+			for (field_name in field_info) {
+				if (Object.prototype.toString.call(field_info[field_name]) === '[object Array]') {
+					question_data = question_data + '&' + field_name + '=' + field_info[field_name].join('\\,');
+				} else {
+					question_data = question_data + '&' + field_name + '=' + field_info[field_name];
+				}
+			}
+
+			this._doPost(fnName,[
+					['id', options.assetid],
+					['question_id', options.question_id + question_data]
+			],options);
+
+		},// end updateQuestion
+
+
+			<?php
+		}//end if(update_form_question)
+
+
+		if ($js_api_asset->attr('remove_form_question')) {
+			?>
+
+		/**
+		*
+		* removes a question of the passed formid or the form section id
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid:			string/int		the asset of the form or form section to
+		*										remove a question off
+		*      question_id:		string			question that needs to be removed
+		*      dataCallback:	function		Custom callback function
+		* }
+		*/
+		removeQuestion: function(options)
+		{
+			var fnName = 'removeQuestion';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						question_id:	'',
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid', 'question_id']
+				};
+			}// end if
+
+			if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid],
+					['question_id', options.question_id],
+			],options);
+
+		},// end removeQuestion
+
+
+			<?php
+		}//end if(remove_form_question)
+
+
+		if ($js_api_asset->attr('update_question_order')) {
+			?>
+
+		/**
+		*
+		* updates the question order on the passed formid or the form section id
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid:			string/int		the asset of the form or form section to update
+		*      sort_order:		array			new order of the questions
+		*      dataCallback:	function		Custom callback function
+		* }
+		*/
+		updateQuestionOrder: function(options)
+		{
+			var fnName = 'updateQuestionOrder';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						sort_order:		[],
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid', 'sort_order']
+				};
+			}// end if
+
+			if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid],
+					['sort_order', options.sort_order.join('\\,')],
+			],options);
+
+		},// end updateQuestionOrder
+
+
+			<?php
+		}//end if(update_question_order)
+		
+		
+		if ($js_api_asset->attr('get_ga_statistics')) {
+			?>
+
+		/**
+		* Makes a statistics request.
+		*
+		* Required:
+		* - either duration or start_date is required but not both
+		* - dimensions are required even if empty; no more than 7 allowed
+	    * - metrics are required and must be between 1 and 10 of them
+		*
+		* Defaults:
+		* - request.end_date defaults to today's date if omitted
+		* - sort_by and filter are empty if omitted
+		* - force defaults to false
+		*
+		* Notes:
+		* - duration is ISO 8601 period format, eg. "P14D" for 14 days, "P2M"
+		*   for 2 months. Sets start date to "take end_date, subtract duration,
+		*   add one day".
+		* - Setting start date, on the other hand, is inclusive.
+		* - metrics also can be set to 'SQ_SITE_METRICS' or 'SQ_PAGE_METRICS'
+		*   for a set of standard site or page metrics.
+		* - sort_by array are 
+		* - filters are ANDed together. Filters can also be specified as an array
+		*   of subfilters which are ORed together first.
+		*
+		* @param {Object} options                       Request info.
+		* @param {String} options.assetid               The ID of the asset
+		* @param {String} options.end_date              The end date.
+		* @param {String} options.start_date            The start date.
+		* @param {String} options.duration              The period duration.
+		* @param {Array.String} options.dimensions      Dimensions to retrieve.
+		* @param {String|Array.String} options.metrics  Metrics to retrieve.
+		* @param {Array.String} options.sort_by         Sort order of results.
+		* @param {Array.(String|Array.String)} options.filter  Filters.
+		* @param {Function} options.dataCallback        Custom callback function.
+		*/
+		getGoogleAnalyticsStatistics: function(options)
+		{
+			var fnName = 'getGoogleAnalyticsStatistics';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						dimensions:     null,
+						metrics:        null,
+						duration:       null,
+						start_date:     null,
+						end_date:       null,
+						sort_by:        null,
+						filter:         null,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid', 'metrics']
+				};
+			}// end if
+
+			if (options.id !== null && typeof(options.id) !== "undefined") {
+				options.assetid = options.id;
+			} else if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid],
+					['dimensions', options.dimensions],
+					['metrics', options.metrics],
+					['duration', options.duration],
+					['start_date', options.start_date],
+					['end_date', options.end_date],
+					['sort_by', options.sort_by],
+					['filter', options.filter]
+			],options);
+
+		},// end getGoogleAnalyticsStatistics
+
+
+			<?php
+		}//end if(get_statistics)
+
 
 		?>
 

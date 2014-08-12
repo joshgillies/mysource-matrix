@@ -211,11 +211,6 @@ function _getFileInfoFromRealFile($file_versioning, $real_file)
 		return FUDGE_FV_ERROR;
 	}
 
-	if (realpath($file_versioning->_dir) != realpath($ffv['dir'])) {
-		trigger_localised_error('FVER0008', E_USER_WARNING);
-		return FUDGE_FV_ERROR;
-	}
-	
 	return $ffv;
 
 }//end _getFileInfoFromRealFile()

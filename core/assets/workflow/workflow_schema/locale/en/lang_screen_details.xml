@@ -21,6 +21,10 @@
 			<display_name>Schema Name</display_name>
 			<note />
 		</field>
+		<field attribute="allow_comment_on_request">
+			<display_name>Allow Comments When Requesting Approval?</display_name>
+			<note>If enabled, editors will be allowed to add a comment while initiating the workflow process.</note>
+		</field>
 		<field attribute="notify_starter_on_live">
 			<display_name>Notify Starter When Live?</display_name>
 			<note>If enabled, will send the Notify on Live message to the initiator of the workflow process.</note>
@@ -41,6 +45,23 @@
 			<display_name>Email to Reply-To</display_name>
 			<note>If this option is set, workflow emails will use this email address as their Reply-To address rather than the email address of the user triggering the workflow changes.</note>
 		</field>
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintWorkflowRestrictions"   />
+				<process_function name="processWorkflowRestrictions" />
+			</function_call>
+		</field>
+		<field attribute="who_can_choose_stream">
+			<display_name>Who Can Choose Workflow Stream?</display_name>
+			<note>Allow user with either admin or write access to choose workflow stream when applying workflow or only allow user with admin access to do so?</note>
+		</field>
+		<field attribute="stream_selection_rules_no_match">
+			<display_name>Stream Selection Rules No Match</display_name>
+			<note>Specify the behaviour when no stream can be automaticlaly selected from the Stream Selection Rules.</note>
+		</field>
+
 	</section>
 	<section name="Workflow Streams">
 		<field>
@@ -51,6 +72,17 @@
 				<process_function name="processWorkflowStreams" />
 			</function_call>
 		</field>
+	</section>
+	<section name="Stream Selection Rules">
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAutomaticStreamSelection"   />
+				<process_function name="processAutomaticStreamSelection" />
+			</function_call>
+		</field>
+		<note>If rules are configured and evaluated to true based on the rule logic, this stream will be available for user selection. If rules are evaluated to false, this stream will not be available.</note>
 	</section>
 	<section name="Workflow Stream Summary">
 		<field>

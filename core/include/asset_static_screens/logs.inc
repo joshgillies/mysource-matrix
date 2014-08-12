@@ -210,6 +210,15 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	if (!empty($selected_types)) {
 		$selected_base_url = replace_query_string_vars(Array($_combo_box_name.'[]' => NULL, $owner->type().'_'.$owner->id.'_start_at' => NULL,));
 		$selected_base_url .= '&'.$_combo_box_name.'[]='.implode('&'.$_combo_box_name.'[]=', $selected_types);
+
+		foreach(Array('date_fromvalue', 'date_tovalue') as $date_var) {
+			$date_prefix = $prefix.'_'.$date_var;
+			if (isset($_REQUEST[$date_prefix]) && is_array($_REQUEST[$date_prefix])) {
+				foreach($_REQUEST[$date_prefix] as $date_component => $value) {
+					$selected_base_url .= '&'.$date_prefix.'['.$date_component.']='.$value;
+				}//end forach
+			}//end if
+		}//end foreach
 	}
 
 	// if non of the logs are selected or if the dates

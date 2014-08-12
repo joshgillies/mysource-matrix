@@ -868,18 +868,18 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE, $strip_ext
 		$url = (($inc_protocol) ? current_protocol().'://' : '').$host.$uri;
 
 		// if we are in the backend remove the suffix
-		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN)) {
-			$url = preg_replace('/('.SQ_CONF_BACKEND_SUFFIX.'|'.SQ_CONF_LIMBO_SUFFIX.'|'.SQ_CONF_LOGIN_SUFFIX.')\/?$/', '', $url);
+		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN || SQ_IN_PERFORMANCE)) {
+			$url = preg_replace('/\/('.SQ_CONF_BACKEND_SUFFIX.'|'.SQ_CONF_LIMBO_SUFFIX.'|'.SQ_CONF_LOGIN_SUFFIX.'|'.SQ_CONF_PERFORMANCE_SUFFIX.')\/?$/', '', $url);
 		}
 
 		if($strip_extra_suffix) {
 			// NOTE: We shouldn't strip off '/' at the end of url
 			// otherwise it will create issues when generating relative herf
 			$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
+			$url = preg_replace('/'.SQ_CONF_NOPROXYCACHE_SUFFIX.'\/?$/', '', $url);
 
 			$regex = '/\/(';
 			$regex .= SQ_CONF_RECACHE_SUFFIX.'|';
-			$regex .= SQ_CONF_PERFORMANCE_SUFFIX.'|';
 			$regex .= SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'|';
 			$regex .= SQ_CONF_PERFORMANCE_RESULT_SUFFIX;
 			$regex .= ')\/?$/';
@@ -919,6 +919,7 @@ function clean_url($url)
 				SQ_CONF_LIMBO_SUFFIX,
 				SQ_CONF_BACKEND_SUFFIX,
 				SQ_CONF_NOCACHE_SUFFIX,
+				SQ_CONF_NOPROXYCACHE_SUFFIX,				
 				SQ_CONF_RECACHE_SUFFIX,
 				SQ_CONF_PERFORMANCE_SUFFIX,
 			);
@@ -2045,6 +2046,8 @@ function get_available_global_keywords()
 					'globals_page_referrer'	=> 'Global Keywords - Page Referrer',
 					'globals_site_referrer'	=> 'Global Keywords - Site Referrer',
 					'globals_marketo_lead'	=> 'Global Keywords - Marketo Lead Data',
+					'globals_system_maintenance_'	=> 'Global Keywords - System Maintenance Mode keywords',
+
 				);
 
 	return $ret;
@@ -2085,10 +2088,21 @@ function replace_global_keywords(&$text)
 					} else if ($keyword == 'globals_get') {
 						$replacements[$full_keyword] = clean_keyword_value($_GET);
 					} else if (0 === strpos($keyword, 'globals_user_')) {
-						$user_keyword = 'asset_'.substr($keyword, 13);
-						$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
-						if ((string)$user_replacement != "%$user_keyword%") {
-							$replacements[$full_keyword] = $user_replacement;
+						$user_keyword = substr($keyword, 13);
+						if (strpos($user_keyword, 'messages_') !== FALSE) {
+							// User message keywords
+							$user_keyword_parts = explode('_', $user_keyword);
+							$message_type = array_get_index($user_keyword_parts, 1, NULL);
+							$messages_size = array_get_index($user_keyword_parts, 2, NULL);
+							if ($message_type) {
+								$replacements[$full_keyword] = $GLOBALS['SQ_SYSTEM']->user->getMessages($message_type, $messages_size);
+							}
+						} else {
+							$user_keyword = 'asset_'.$user_keyword;
+							$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
+							if ((string)$user_replacement != "%$user_keyword%") {
+								$replacements[$full_keyword] = $user_replacement;
+							}
 						}
 					}
 					if (0 === strpos($keyword, 'globals_get_')) {
@@ -2508,6 +2522,36 @@ function replace_global_keywords(&$text)
 					   	}
 					}
 
+					// system maintenance mode keywords
+					if (0 === strpos($keyword, 'globals_system_maintenance_')) {
+						require_once (SQ_DATA_PATH.'/private/conf/maintenance.inc');
+						$sub_keyword = substr($keyword, 27);
+						if($sub_keyword === 'mode') {
+							switch (SQ_MAINTENANCE_MODE) {
+								case '0':
+									$replacements[$full_keyword] = 'disabled';
+									break;
+								case '1':
+									$replacements[$full_keyword] = 'notify';
+									break;
+								case '2':
+									$replacements[$full_keyword] = 'enabled';
+									break;
+							}
+						}
+						else if(SQ_MAINTENANCE_MODE) {
+							if($sub_keyword === 'message_backend') {
+								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE;
+							}
+							else if($sub_keyword === 'message_frontend') {
+								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE : SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
+							}
+							if (SQ_MAINTENANCE_MODE == '2') {
+								header('HTTP/1.1 503 Service Unavailable');
+								header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+							}
+						}
+					}
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword

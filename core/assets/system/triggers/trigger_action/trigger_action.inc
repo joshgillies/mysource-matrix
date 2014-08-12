@@ -130,6 +130,22 @@ class Trigger_Action extends Asset
 		return Array();
 
 	}//end getLocks()
+	
+	
+	/**
+	* If TRUE, the Trigger Manager will call this action just once instead of for each target assets
+	* In which case it is the trigger action responsibility to action all the target assets in a single go
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function actionAssetsAtOnce()
+	{
+		// By default the Trigger Manager trigger will run trigger action
+		// one by one on each target assets		
+		return FALSE;
+
+	}//end actionAssetsAtOnce()
 
 
 }//end class

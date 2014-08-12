@@ -440,7 +440,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		// First three chars of "log_format" spells the extension
 		$extension = substr($this->attr('logs_format'), 0, 3);
 		$job_name = trim(preg_replace('|[^a-z0-9\-_]+|', '_', strtolower($this->displayName())), '_');		
-		$file_name = SQ_TEMP_PATH.'/submissions_log_'.$job_name.'('.date('Y-m-d H:i', $from_ts).' to '.date('Y-m-d H:i', $till_ts).').'.$extension;
+		$file_name = SQ_TEMP_PATH.'/submissions_log_'.$job_name.'('.date('Y-m-d H_i', $from_ts).' to '.date('Y-m-d H_i', $till_ts).').'.$extension;
 		file_put_contents($file_name, $output);
 
 		return Array(

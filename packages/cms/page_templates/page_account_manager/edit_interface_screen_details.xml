@@ -91,6 +91,9 @@
 				<process_function name="processLoggedInFormCustomisation" />
 			</function_call>
 		</field>
+		<field attribute="password_autocomplete">
+			<boolean true_text="Enable" false_text="Disable" />
+		</field>
 	</section>
 	<section name="CAPTCHA" write_access="write:attributes">
 		<field attribute="require_captcha">
@@ -164,6 +167,62 @@
 		</field>
 		<field attribute="captcha_include_numbers">
 			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Mollom Spam Check" write_access="write:attributes">
+		<field attribute="use_mollom">
+			<boolean true_text="yes" false_text="no"/>
+		</field>		
+		<field>
+			<function_call>
+				<paint_function   name="paintMollomAttributeToCheck" />
+				<process_function name="processMollomAttributeToCheck" />
+			</function_call>
+		</field>		
+		<field attribute="mollom_unsure_submission_text">
+			<text width="50" />
+		</field>
+		<field attribute="mollom_spam_submission_text">
+			<text width="50" />
+		</field>
+		<field attribute="mollom_captcha_incorrect_text">
+			<text width="50" />
+		</field>		
+		<field attribute="mollom_captcha_regen_link_text">
+			<text width="50" />
+		</field>
+	</section>
+	<section name="Google reCAPTCHA" write_access="write:attributes">
+		<field attribute="use_recaptcha">
+			<boolean true_text="yes" false_text="no"/>
+		</field>
+		<field attribute="recaptcha_theme">
+			<selection style="list" />
+		</field>
+		<field attribute="recaptcha_error_message">
+			<text width="50" />
+		</field>
+	</section>
+	<section name="Spam Prevention: Honeypot Question" write_access="write:attributes">
+		<field attribute="honeypot_name">
+			<text width="20" />
+		</field>
+		<field attribute="honeypot_id">
+			<text width="20" />
+		</field>
+		<field attribute="honeypot_class">
+			<text width="20" />
+		</field>
+		<field attribute="honeypot_error_message">
+			<text width="50" />
+		</field>
+	</section>
+	<section name="Spam Prevention: Submission Time Threshold" write_access="write:attributes">
+		<field attribute="time_requirement">
+			<text width="10" />
+		</field>
+		<field attribute="time_requirement_error_message">
+			<text width="50" />
 		</field>
 	</section>
 </contents>

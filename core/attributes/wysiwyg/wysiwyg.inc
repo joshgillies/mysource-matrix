@@ -331,7 +331,9 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		    
 		if(!is_null($o) && $o->isViperAvailable()) {
 			    
-		    $o->enableViperEditor();	    
+		    $o->enableViperEditor();
+		    // Clean the HTML before passing to the Matrix backend form
+		    $o->addOnSubmit('Matrix_Viper.viper.cleanDOM(document.getElementById("'.$prefix.'_contents_div_viper"));');
 		    // Use a hidden input to pass the Viper edited content to Matrix backend form
 		    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 		    ?>

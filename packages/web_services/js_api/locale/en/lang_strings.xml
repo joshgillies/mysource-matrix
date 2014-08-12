@@ -20,4 +20,6 @@
 <string source="js_api_no_asset_types_selected">No asset types have been selected</string>
 <string source="js_api_no_root_nodes_selected">No root nodes have been selected</string>
 <string source="js_api_api_key_lock">Locks must be aquired to see the api key</string>
+<string source="standard_mode_deprecated_note">"Standard Mode" for JS API Asset has been deprecated since Matrix version 5.1. This won't be available for use in future MINOR Matrix releases. It is strongly recommended that you replace this by using Enhanced JS API in your Matrix system.</string>
+<string source="standard_mode_deprecated">Standard Mode Deprecated</string>
 </strings>

@@ -241,24 +241,26 @@ class File extends Asset
 	*/
 	public function cloneComponents(Asset $clone, Array $components, $override=FALSE)
 	{
-		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+		if ($clone instanceof File) {
+			$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
 
-		// create some information so we know where to clone the file from
-		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
+			// create some information so we know where to clone the file from
+			$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
 		
-		$o = NULL;
-		if(isset($GLOBALS['SQ_SYSTEM']->backend->out)) $o = $GLOBALS['SQ_SYSTEM']->backend->out;
+			$o = NULL;
+			if(isset($GLOBALS['SQ_SYSTEM']->backend->out)) $o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		
-		$edit_fns = $clone->getEditFns();
-		// fix for bug 3625:
-		// we make sure to tell the processFileChooser function that we are cloning and not creating new asset
-		if (!$edit_fns->processFileUpload($clone, $o, $clone->getPrefix(), $temp_info,TRUE, TRUE)) {
+			$edit_fns = $clone->getEditFns();
+			// fix for bug 3625:
+			// we make sure to tell the processFileChooser function that we are cloning and not creating new asset
+			if (!$edit_fns->processFileUpload($clone, $o, $clone->getPrefix(), $temp_info,TRUE, TRUE)) {
+				$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
+				trigger_localised_error('CORE0010', E_USER_WARNING, $this->name, $this->id);
+				return FALSE;
+			}
+
 			$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
-			trigger_localised_error('CORE0010', E_USER_WARNING, $this->name, $this->id);
-			return FALSE;
 		}
-
-		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		return parent::cloneComponents($clone, $components, $override);
 
@@ -661,6 +663,13 @@ class File extends Asset
 				}
 
 				if ($fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
+					if (SQ_CONFIG_STRIP_MATRIX_COMMENTS && $this->isFileContentEditable()) {
+						// Stip Matrix comments in the unrestricted file in the public directory
+						$file_content = file_get_contents($this->data_path_public.'/'.$filename);
+						$GLOBALS['SQ_SYSTEM']->stripMatrixComments($file_content);
+						file_put_contents($this->data_path_public.'/'.$filename, $file_content);
+						unset($file_content);
+					}
 					$changed = TRUE;
 				} else {
 					trigger_localised_error('CORE0032', E_USER_WARNING);
@@ -749,6 +758,13 @@ class File extends Asset
 			}
 
 			if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
+				if (SQ_CONFIG_STRIP_MATRIX_COMMENTS && $this->isFileContentEditable()) {
+					// Stip Matrix comments in the unrestricted file in the public directory
+					$file_content = file_get_contents($this->data_path_public.'/'.$existing['filename']);
+					$GLOBALS['SQ_SYSTEM']->stripMatrixComments($file_content);
+					file_put_contents($this->data_path_public.'/'.$existing['filename'], $file_content);
+					unset($file_content);
+				}
 				return TRUE;
 			} else {
 				trigger_localised_error('CORE0032', E_USER_WARNING);
@@ -770,7 +786,17 @@ class File extends Asset
 	*/
 	public function usePublicPath()
 	{
-		return ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING));
+		$restricted_on_static = FALSE;
+		$existing = $this->getExistingFile();
+
+		if (SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL !== '' && !empty($existing['filename'])) {
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			$extension = get_file_type($existing['filename']);
+			$restricted_file_extensions = explode(',', SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL);
+			$restricted_on_static = in_array($extension, $restricted_file_extensions)  ? TRUE : FALSE;
+		}
+
+		return ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$restricted_on_static);
 
 	}//end usePublicPath()
 
@@ -1353,7 +1379,7 @@ class File extends Asset
 			$using_ie6_8 = isset ($_SERVER['HTTP_USER_AGENT']) ? preg_match('/(MSIE\s[0-8]+\.)/', $_SERVER['HTTP_USER_AGENT']) : FALSE;
 
 			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && basename($_SERVER['PHP_SELF']) != SQ_CONF_NOPROXYCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
 
 				$browser_cache_expiry = $cm->getBrowserCacheExpiry($this->type(), $this->id);
 				$acc_cache_expiry = $cm->getAcceleratorCacheExpiry($this->type(), $this->id);
@@ -1400,8 +1426,15 @@ class File extends Asset
 			header('Content-Disposition: '.$disposition.'; filename="'.$existing['filename'].'";');
 			header('Content-Length: '.$existing['size']);
 			ob_end_flush();
-
-			readfile($existing['path']);
+			
+			// Remove Matrix comments from the files that can be edited via Matrix backend editor
+			if (SQ_CONFIG_STRIP_MATRIX_COMMENTS && $this->isFileContentEditable()) {
+				$file_content = file_get_contents($existing['path']);
+				$GLOBALS['SQ_SYSTEM']->stripMatrixComments($file_content);
+				echo $file_content;
+			} else {
+				readfile($existing['path']);
+			}
 
 		}//end if
 
@@ -1646,6 +1679,22 @@ class File extends Asset
 	*/
 	public function scanFile($path='')
 	{
+
+		// no need to scan a cloned file, it's safe
+		if(isset($GLOBALS['SQ_CLONE_COMPONENTS']) && $GLOBALS['SQ_CLONE_COMPONENTS'] === TRUE) {
+			return TRUE;
+		}
+
+		// do not scan file if it's in intensive import process
+		if(isset($GLOBALS['SQ_SKIP_VIRUS_SCAN']) && $GLOBALS['SQ_SKIP_VIRUS_SCAN'] === TRUE) {
+			return TRUE;
+		}
+
+		// only scan file if global virus checked is enabled
+		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+		if(!SQ_TOOL_VIRUS_CHECKER_ENABLED) return TRUE;
+
+
 		// Default to not scanned
 		$status = TRUE;
 		// Load the virus checker
@@ -1771,6 +1820,47 @@ class File extends Asset
 
 	}//end getOriginalURL()
 
+
+	/**
+	* Returns TRUE if the file asset has "Edit File" screen
+	* i.e. if file can be edited via Matrix backend (e.g. Text, JS, CSS, XML file assets)
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isFileContentEditable()
+	{
+		$edit_fns = $this->getEditFns();
+
+		return !isset($edit_fns->static_screens['edit_file']);
+
+	}//end isFileContentEditable()
+
+
+	/**
+	* Returns the editable content of this asset
+	*
+	* NOTE: We don't want to return the editable contnet for most of the cases
+	* For example, we dont want Search Manager to index the content for css/js/xsl file assets
+	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
+	* @return string
+	* @access public
+	*/
+	public function getContent($empty_content=TRUE)
+	{
+		if ($empty_content) {
+			return '';
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$file = $this->data_path.'/'.$this->name;
+		$content = file_to_string($file);
+
+		return $content;
+
+	}//end getContent()
 
 }//end class
 

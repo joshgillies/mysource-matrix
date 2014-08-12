@@ -137,7 +137,12 @@ class Xml_File extends File
 			$xml = new DOMDocument();
 			$xml->loadXML($this->getContent());
 			$xsl = new DOMDocument();
-			$xsl->loadXML($xsl_file->getContent());
+
+			$xsl_content = $xsl_file->getContent();
+			if ($this->attr('xslt_file_replace_keywords')) {
+				replace_global_keywords($xsl_content);
+			}
+			$xsl->loadXML($xsl_content);
 
 			$parser = new XSLTProcessor();
 			$parser->importStylesheet($xsl);

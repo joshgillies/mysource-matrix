@@ -356,5 +356,75 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 
 	}//end processAssetTypes()
 
+
+	/**
+	* Print the warning if Standard Mode is used
+	*
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isUsingStandard(&$asset)
+	{
+		return !$asset->attr('use_enhanced_js');
+
+	}//end processAssetTypes()
+
+
+	/**
+	* Paint the interface for displaying Standard Mode warning
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintWarning(&$asset, &$o, $prefix)
+	{
+		?>
+		<div class="sq-backend-warning-wrapper">
+			<table class="sq-backend-table sq-backend-warning-table">
+				<tr>
+					<th class="sq-backend-warning-header">
+						<?php echo translate('standard_mode_deprecated'); ?>
+					</th>
+				</tr>	
+				<tr>
+					<td colspan="2" ><?php echo translate('standard_mode_deprecated_note'); ?>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<?php
+
+		return TRUE;
+	
+	}//end paintWarning()
+
+
+	/**
+	* Processes the interface for displaying Standard Mode warning
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processWarning(&$asset, &$o, $prefix)
+	{
+		return TRUE;
+
+	}//end processWarning()
+
+
 }//end class
+
 ?>

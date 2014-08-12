@@ -116,6 +116,18 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$o->closeField();
 		}//end if
 
+
+		if ($write_access) {
+			$o->openField(translate('new_condition_question'));
+				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
+			$o->closeField();
+		}
+		if ($write_access) {
+			$o->openField(translate('new_dynamic_condition_question'));
+				text_box($prefix.'_new_dynamic_condition', '', 80);
+				$o->note(translate('new_dynamic_condition_question_note'));
+			$o->closeField();
+		}
 		$o->openField(translate('require_comment_from_unlisted_users'));
 			$require_comment_attr = $asset->getAttribute('require_comment_from_unlisted_users');
 			$xml = simplexml_load_string('<boolean true_text="yes" false_text="no" />');
@@ -124,11 +136,6 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$o->note(translate('require_comment_from_unlisted_users_explanation'));
 		$o->closeField();
 
-		if ($write_access) {
-			$o->openField(translate('new_condition_question'));
-				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
-			$o->closeField();
-		}
 		$o->openField(translate('expiry_time'));
 			$comparator_attr = $asset->getAttribute('expiry_time');
 			$comparator_attr->paint($prefix.'_expiry_time', !$write_access);
@@ -324,6 +331,14 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$new_cond->setAttrValue('userid', $_POST[$prefix.'_new_condition']['assetid']);
 			if ($new_cond->create($step_link)) $updated = TRUE;
 		}
+		// create a new dynamic condition?
+		else if (isset($_POST[$prefix.'_new_dynamic_condition']) && !empty($_POST[$prefix.'_new_dynamic_condition'])) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workflow_step_condition');
+			$new_cond = new Workflow_Step_Condition();
+			$step_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 1);
+			$new_cond->setAttrValue('dynamic_userid', $_POST[$prefix.'_new_dynamic_condition']);
+			if ($new_cond->create($step_link)) $updated = TRUE;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -341,11 +356,12 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	*
 	* @param Asset	$asset				the asset we are generating the array for
 	* @param array	&$workflow_array	the workflow array that we will modify
+	* @param int	$top_parent	the dependant top parent of current asset
 	*
 	* @return array
 	* @access public
 	*/
-	function generateWorkflowArray(Asset $asset, Array &$workflow_array)
+	function generateWorkflowArray(Asset $asset, Array &$workflow_array, $top_parent='')
 	{
 		$workflow_array = Array();
 		$workflow_array['conditions']							= Array();
@@ -385,7 +401,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($condition)) continue;
 			$edit_fns = $condition->getEditFns();
-			if (!$edit_fns->generateWorkflowArray($condition, $workflow_array['conditions'])) {
+			if (!$edit_fns->generateWorkflowArray($condition, $workflow_array['conditions'], $top_parent)) {
 				return FALSE;
 			}
 
@@ -399,7 +415,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			if (is_null($step)) continue;
 			$workflow_array['escalation_steps'][$i] = Array();
 			$edit_fns = $step->getEditFns();
-			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['escalation_steps'][$i])) {
+			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['escalation_steps'][$i], $top_parent)) {
 				return FALSE;
 			}
 			$i++;

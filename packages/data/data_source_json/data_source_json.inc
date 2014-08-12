@@ -459,6 +459,7 @@ class Data_Source_Json extends Data_Source
 			$asset->printBody();
 			$asset_contents = ob_get_contents();
 			ob_end_clean();
+
 		}
 
 		return $asset_contents;

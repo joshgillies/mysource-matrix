@@ -726,19 +726,13 @@ class Asset_Edit_Fns extends MySource_Object
 		$write_access = $asset->writeAccess('lookups');
 
 		if ($write_access) {
-			$o->closeField();
+            $rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+            $remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
 
-			$o->openField(translate('web_paths_auto_add_remaps'));
-				$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-				$remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
-
-				// paint checkbox
-				check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
-				label(translate('web_paths_auto_add_remaps_label'), $prefix.'_remap_upon_webpath_change');
-
-				$o->note(translate('web_paths_auto_add_remaps_note'));
-			$o->closeField();
-		}
+            // paint checkbox
+            check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
+            label(translate('web_paths_auto_add_remaps_label'), $prefix.'_remap_upon_webpath_change');
+        }
 		
 		return $write_access;
 

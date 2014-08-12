@@ -66,6 +66,9 @@
 		<field attribute="note_size">
 			<text width="4" height="1" />
 		</field>
+		<field attribute="form_extra_attribute">
+			<text width="30" height="1" />
+		</field>
 	</section>
 	<section name="Validation">
 		<field attribute="use_client_side">

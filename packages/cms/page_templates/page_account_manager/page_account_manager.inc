@@ -629,7 +629,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						$errors .= '<li>'.$text.'</li>';
 					}//end foreach
 				}//end if
-				$this->_replacements['form_errors'] = $errors;
+				$this->_replacements['form_errors'] = '<ul>'.$errors.'</ul>';
 			}
 
 			return TRUE;
@@ -678,7 +678,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$res['create_login']['content'] = translate('cms_account_manager_created_please_log_in')."\n%login_form%";
 
 		$res['logged_in']['name'] = translate('logged_in');
-		$res['logged_in']['content'] = '<p>%edit_details_lock_error%%edit_details_success%</p>'."\n".
+		$res['logged_in']['content'] = '<p>%edit_details_lock_error%%edit_details_success%%form_errors%</p>'."\n".
 										'%edit_details_invite%%edit_details_form%';
 
 		return $res;
@@ -1202,10 +1202,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords['edit_details_form']			= translate('cms_account_manager_keyword_edit_details_form');
 		$keywords['edit_details_success']		= translate('cms_account_manager_keyword_edit_details_success');
 		$keywords['edit_details_lock_error']	= translate('cms_account_manager_keyword_edit_details_lock_error');
+		$keywords['form_errors']				= translate('cms_account_manager_keyword_form_errors');
 
 		$keywords['logout_form']				= translate('cms_asset_builder_keyword_logout_form');
 
-		// Exclude CAPTCHA keywords from the "Logged In" form. Presume if the user has logged in, that they are not an artificial intelligence
+		// Exclude CAPTCHA keywords and other SPAM prevention functionality keywords from the "Logged In" form. 
+		// Presume if the user has logged in, that they are not an artificial intelligence
 		if ($this->attr('require_captcha')) {
 			unset($keywords['form_captcha']);
 			unset($keywords['form_captcha_image']);
@@ -1213,6 +1215,18 @@ class Page_Account_Manager extends Page_Asset_Builder
 			unset($keywords['form_captcha_link']);
 		}
 
+		if ($this->attr('use_mollom')) {
+			unset($keywords['asset_builder_mollom_captcha']);
+			unset($keywords['asset_builder_mollom_captcha_image']);
+			unset($keywords['asset_builder_mollom_captcha_audio']);
+			unset($keywords['asset_builder_mollom_captcha_field']);
+			unset($keywords['asset_builder_mollom_captcha_regen_link']);
+		}
+		if ($this->attr('use_recaptcha')) {
+			unset($keywords['form_recaptcha']);
+		}
+		unset($keywords['form_honeypot_field']);
+		
 		return $keywords;
 
 	}//end _getLoggedInKeywords()
@@ -1251,13 +1265,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords['resend_validation_error']	= translate('cms_account_manager_keyword_resend_validation_error');
 		$keywords['resend_validation_form'] 	= translate('cms_account_manager_keyword_resend_validation_form');
 		$keywords['resend_validation_success'] 	= translate('cms_account_manager_keyword_resend_validation_success');
-
-		if ($this->attr('require_captcha')) {
-			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
-			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
-			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
-			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
-		}
 
 		return $keywords;
 

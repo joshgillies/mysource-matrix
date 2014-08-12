@@ -1369,25 +1369,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			foreach ($root->asset as $asset_node) {
 				$persistent_values = Array();
-				$parent_ast_info = $this->_getAssetReportInfo((int) $asset_node->attributes()->assetid);
 				// Have to initialise the headers
 				$attribute_list = Array('assetid', 'name', 'short_name', 'type_code', 'status');
 				if ($top_headers) {
 					$headers = $attribute_list;
 				}
 
-				foreach ($attribute_list as $attr) {
-					// the xml data might not be the data we want to export
-					if (isset($parent_ast_info[$attr])) {
-						$value = array_get_index($parent_ast_info, $attr);
-						if ($attr == 'status') {
-							// use the numerical representation of assets status
-							$value = array_get_index($parent_ast_info, 'status_code');
-						}
-					}
-					// Need to setup the persistent values for each of the nodes (like source asset, type etc)
-					$persistent_values[] = $value;
-				}
 				$top_headers = FALSE;
 
 				foreach ($asset_node->link as $link) {
@@ -1448,6 +1435,24 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					}//end switch
 
 					if ($display_link) {
+						// We need this info only if we are displaying the link and only once for current asset in the outer loop
+						if (empty($persistent_values)) {
+							$parent_ast_info = $this->_getAssetReportInfo((int) $asset_node->attributes()->assetid);
+							foreach ($attribute_list as $attr) {
+								$value = '';
+								// the xml data might not be the data we want to export
+								if (isset($parent_ast_info[$attr])) {
+									$value = array_get_index($parent_ast_info, $attr);
+									if ($attr == 'status') {
+										// use the numerical representation of assets status
+										$value = array_get_index($parent_ast_info, 'status_code');
+									}
+								}//end if
+								// Need to setup the persistent values for each of the nodes (like source asset, type etc)
+								$persistent_values[] = $value;
+							}//end foreach
+						}//end if
+
 						$row = $persistent_values;
 						if ($empty_headers) $headers[] = 'type';
 						$row[] = $type;
