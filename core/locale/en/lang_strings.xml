@@ -3246,7 +3246,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="add_attribute">Add Attribute</string>
 
 	<!-- workflow schema -->
-	<string source="no_automatic_workflow_stream_rules">There is no rule set.</string>
+	<string source="no_automatic_workflow_stream_rules">There are no rules set.</string>
 	<string source="current_rules">Current Rules</string>
 	<string source="new_rule">New Rule</string>
 	<string source="rules_logic">Rules Logic</string>
@@ -3256,6 +3256,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="match_all_rules_description">Match on ALL rules:</string>
 	<string source="match_any_rule_description">Match on ANY rule:</string>
 	<string source="stream_selection_rule_description">%1$s matches "%2$s"</string>
+	<string source="workflow_stream_rules_note_keyword">An asset based keyword or global keyword to use as the value for matching with the pattern value below. Keyword modifiers are also supported.</string>
+	<string source="workflow_stream_rules_note_pattern">A value to use for checking a match with the keyword value above. If there is a match, the rule will be evaluated as true. Regular Expression is supported. Keywords are not supported.</string>
 
 	<string source="new_dynamic_condition_question">New Dynamic Condition?</string>
 	<string source="new_dynamic_condition_question_note">Specify a Matrix keyword to be dynamically evaluated as the condition asset ID. This keyword will be only evaluated against the dependant parent asset. Global keywords and keyword modifier are supported. e.g %%asset_metadata_value^empty:12%%</string>

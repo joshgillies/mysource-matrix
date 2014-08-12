@@ -470,7 +470,7 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 						<td>
 							<?php
 							if ($wa) {
-								text_box($prefix.'_current['.$id.'][keyword]', array_get_index($info,'keyword',''));
+								text_box($prefix.'_current['.$id.'][keyword]', array_get_index($info,'keyword',''), '', '', FALSE, 'style="width:95%"');
 							} else {
 								echo array_get_index($info, 'name', '');
 							}
@@ -479,7 +479,7 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 						<td>
 							<?php
 							if ($wa) {
-								text_box($prefix.'_current['.$id.'][pattern]', array_get_index($info,'pattern',''));
+								text_box($prefix.'_current['.$id.'][pattern]', array_get_index($info,'pattern',''), '', '', FALSE, 'style="width:95%"');
 							} else {
 								echo array_get_index($info, 'pattern', '');
 							}
@@ -503,20 +503,20 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 				</table>
 				<?php
 			} else {
-				echo translate('no_automatic_workflow_stream_rules');
+				echo ('<i>'.translate('no_automatic_workflow_stream_rules').'</i>');
 			}
 		$o->closeField();
 		if ($wa) {
 			$o->openField(translate('new_rule'));
 				?>
-				<table class="sq-backend-table" style="width: 60ex">
+				<table class="sq-backend-table">
 					<tr>
 						<th style="width: 20ex"><?php echo translate('keyword'); ?></th>
-						<td><?php text_box($prefix.'_new[keyword]', ''); ?></td>
+						<td><?php text_box($prefix.'_new[keyword]', '', '', '', FALSE, 'style="width:95%"'); ?><div class="sq-backend-smallprint"><?php echo translate('workflow_stream_rules_note_keyword'); ?></div></td>
 					</tr>
 					<tr>
 						<th><?php echo translate('pattern'); ?></th>
-						<td><?php text_box($prefix.'_new[pattern]', ''); ?></td>
+						<td><?php text_box($prefix.'_new[pattern]', '', '', '', FALSE, 'style="width:95%"'); ?><div class="sq-backend-smallprint"><?php echo translate('workflow_stream_rules_note_pattern'); ?></div></td>
 					</tr>
 				</table>
 				<?php
