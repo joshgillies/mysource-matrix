@@ -753,6 +753,11 @@ class Metadata_Manager extends MySource_Object
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
+		// Disable OPCache so that we can get the updated metadata file
+		if (!empty($_POST['process_form']) && ini_get('opcache.enable')) {
+			ini_set('opcache.enable', '0');
+		}
+
 		// include the file but must not display anything
 		ob_start();
 			include $metadata_filename;

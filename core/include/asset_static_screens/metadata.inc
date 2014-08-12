@@ -60,6 +60,11 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 		$print_cascade_values_option = $layout_options['show_cascade_metadata_field'];
 	}
 
+	// Disable OPCache so that we get the updated metadata file
+	if (!empty($_POST['process_form']) && ini_get('opcache.enable')) {
+		ini_set('opcache.enable', '0');
+	}
+
 	foreach ($root->section as $section) {
 		// do this if keywords are set
 		if (is_null($keywords)) {
