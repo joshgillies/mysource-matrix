@@ -4565,6 +4565,7 @@ class Form extends Asset implements Bridge
 			$assetid = str_replace('_', ':', $assetid);
 
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if(empty($question_asset)) return '';
 			$isFieldset = $question_asset->useFieldset();
 			$type = str_replace('_', '-', str_replace('form_question_type_', '', $question_asset->type()));
 			$is_error = isset($this->question_errors[$question_asset->id]);
