@@ -453,7 +453,7 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th style="width: 60ex"><?php echo translate('keyword'); ?></th>
+						<th><?php echo translate('keyword'); ?></th>
 						<th><?php echo translate('pattern') ?></th>
 					<?php
 					if ($wa) {
@@ -511,7 +511,7 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th style="width: 20ex"><?php echo translate('keyword'); ?></th>
+						<th><?php echo translate('keyword'); ?></th>
 						<td><?php text_box($prefix.'_new[keyword]', '', '', '', FALSE, 'style="width:95%"'); ?><div class="sq-backend-smallprint"><?php echo translate('workflow_stream_rules_note_keyword'); ?></div></td>
 					</tr>
 					<tr>
