@@ -503,7 +503,7 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 				</table>
 				<?php
 			} else {
-				echo ('<i>'.translate('no_automatic_workflow_stream_rules').'</i>');
+				echo ('<em>'.translate('no_automatic_workflow_stream_rules').'</em>');
 			}
 		$o->closeField();
 		if ($wa) {
