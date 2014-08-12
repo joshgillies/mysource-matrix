@@ -564,7 +564,8 @@ function security_regenerate_session_id($delete_old=FALSE)
 function security_send_reset_cookies($path, $host)
 {
     $hostPts = array();
-    $expiry  = substr(date('r', (time() - 42200)), 0, -6).' GMT';
+    // 1st Jan 1970
+    $expiry  = 'Thu, 01 Jan 1970 00:00:00 GMT';
     if ($host !== NULL || ip2long($host) === FALSE) {
         // We are looking at a qualified domain, so break it down to cycle
         // through each iteration of subdomains.
@@ -575,7 +576,7 @@ function security_send_reset_cookies($path, $host)
         $path = '/';
     }
 
-    header('Set-Cookie: SQ_SYSTEM_SESSION='.session_id().'; Expires='.$expiry.'; path='.$path, FALSE);
+    header('Set-Cookie: SQ_SYSTEM_SESSION=destroy; Expires='.$expiry.'; path='.$path, FALSE);
     if (empty($hostPts) === FALSE) {
         // Unfortunately, since IE and Chrome are lame browsers,
         // a DOS attack cookie could happen on qualified TLD domains.
@@ -583,7 +584,7 @@ function security_send_reset_cookies($path, $host)
         $hostLn = count($hostPts);
         while ($hostLn >= 2) {
             $hostname = implode('.', $hostPts);
-            header('Set-Cookie: SQ_SYSTEM_SESSION='.session_id().'; expires='.$expiry.'; domain='.$hostname.'; path='.$path, FALSE);
+            header('Set-Cookie: SQ_SYSTEM_SESSION=destroy; expires='.$expiry.'; domain='.$hostname.'; path='.$path, FALSE);
 
             array_shift($hostPts);
             $hostLn = count($hostPts);
