@@ -124,7 +124,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 		if ($write_access) {
 			$o->openField(translate('new_dynamic_condition_question'));
-				text_box($prefix.'_new_dynamic_condition', '', 40);
+				text_box($prefix.'_new_dynamic_condition', '', 80);
 				$o->note(translate('new_dynamic_condition_question_note'));
 			$o->closeField();
 		}
