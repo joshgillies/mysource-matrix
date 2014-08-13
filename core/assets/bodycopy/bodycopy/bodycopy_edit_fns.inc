@@ -72,7 +72,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$designid = $am->getValueFromURL($url, 'design::%frontend%', TRUE);
 
 			if ($designid) {
-				$design = $am->getAsset($designid);
+				$design = $am->getAsset($designid, '', TRUE);
+				if(empty($design)) return;
 				$stylesheets = $design->getStylesheets();
 
 				// save the ids of all the css files into a global var so the wysiwyg style
