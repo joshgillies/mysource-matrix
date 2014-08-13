@@ -514,7 +514,7 @@ class LDAP_Bridge extends Asset implements Bridge
 							if ($attr['gm'] == 'member') {
 								$user = $this->getAsset($this->id.':'.$member, '', FALSE, TRUE);
 								// Get the memeber's uid
-								$user_uid = !is_null($user) && !empty($user->vars[$attr['uid']]) ? $user->vars[$attr['uid']] : '';
+								$user_uid = !is_null($user) && !empty($user->vars[$attr['uid']]) ? $user->vars[$attr['uid']]['value'] : '';
 							} else {
 								// Otherwise if its stored as "memberUid" then we have the uid
 								$user_uid = $member;
@@ -1021,7 +1021,7 @@ class LDAP_Bridge extends Asset implements Bridge
 							// If members are stored as "memeber" then it represnts member's dn
 							if ($attrs['gm'] == 'member') {
 								$user = $this->getAsset($this->id.':'.$member, '', FALSE, TRUE);
-								$user_uid = !is_null($user) && !empty($user->vars[$attrs['uid']]) ? $user->vars[$attrs['uid']] : '';
+								$user_uid = !is_null($user) && !empty($user->vars[$attrs['uid']]) ? $user->vars[$attrs['uid']]['value'] : '';
 							} else {
 								// Otherwise if its stored as "memberUid" then we have the uid
 								$user_uid = $member;
