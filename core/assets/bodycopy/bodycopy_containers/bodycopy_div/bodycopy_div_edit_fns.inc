@@ -130,12 +130,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				$designid = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'design::%frontend%', TRUE);
 	
 				if ($designid) {
-					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($designid);
-					$classes_list = $design->attr('div_classes');
-					if (!empty($classes_list)) {
-						//$vars = explode("\n", $classes_list);
-						foreach ($classes_list as $key => $value) {
-							$classes[$key] = $value;
+					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', TRUE);
+					if(!empty($design)) {
+						$classes_list = $design->attr('div_classes');
+						if (!empty($classes_list)) {
+							foreach ($classes_list as $key => $value) {
+								$classes[$key] = $value;
+							}
 						}
 					}
 				}

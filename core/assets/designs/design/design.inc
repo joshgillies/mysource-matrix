@@ -1276,5 +1276,46 @@ echo '/*
 	}//end _setupVarReferences()
 
 
+
+	/**
+	* Delete this asset from the trash
+	*
+	* Remove all look up DB entries
+	*
+	* @param boolean	$release_lock	should we realease the lock after deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function delete($release_lock=TRUE, $check_locked=TRUE)
+	{
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+
+		// Delete the look up values
+		$sql = 'DELETE FROM sq_ast_lookup_value WHERE value = :assetid';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
+		MatrixDAL::execPdoQuery($query);
+		
+
+		if (!parent::delete($release_lock, $check_locked)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+
+		return TRUE;
+
+	}//end delete()
+
+
+
 }//end class
 ?>

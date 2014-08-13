@@ -5093,7 +5093,14 @@ class Asset extends MySource_Object
 			}
 		}
 
-		if ($layout_id) {
+		if(empty($layout_id)) {
+			$layout = NULL;
+		}
+		else {
+			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id, '', TRUE);
+		}
+
+		if (!empty($layout)) {
 			$replacement = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID');
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
 			// we have found the design to use... we might need to fool the system
@@ -5107,7 +5114,6 @@ class Asset extends MySource_Object
 				$switched_frontend = TRUE;
 			}
 
-			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
 			$layout->paint($this);
 
 			if ($switched_frontend) {
