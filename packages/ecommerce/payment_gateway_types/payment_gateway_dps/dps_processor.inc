@@ -442,10 +442,19 @@ class Dps_Processor
 
 		$details = fetch_url(self::$_URL, $options);
 
-		$this->_parse_xml($details['response']);
+		$xml = new DOMDocument();
+		// use DOMDocument::loadXML() to see if there is any entity  reference loop
+		// which may exhaust us of the memory limit, if not then continue as normal
+		if ($xml->loadXML($details['response'], LIBXML_NOENT)) {
+			$this->_parse_xml($details['response']);
 
-		//log the transaction response
-		$this->_logResponse();
+			//log the transaction response
+			$this->_logResponse();
+		} else {
+			// DOMDocument::loadXML should already have registered the warning for us
+			// now all we need to do is return FALSE
+			return FALSE;
+		}
 		
 	}//end _sendRequest()
 	

@@ -230,7 +230,15 @@ class RSS_Feed_Reader
 	public function parse()
 	{
 		$fp = $this->fp;
-		if (!$fp) {
+
+		$metadata = stream_get_meta_data($fp);
+
+		$xml = new DOMDocument();
+		// use DOMDocument::load() to see if there is any entity  reference loop
+		// which may exhaust us of the memory limit, if not then continue as normal
+		if (isset($metadata['uri']) && !$xml->load($metadata['uri'], LIBXML_NOENT)) {
+			return FALSE;
+		} else if (!$fp) {
 			trigger_error('Invalid file pointer', E_USER_WARNING);
 			return 'Invalid file pointer';
 		} else {
