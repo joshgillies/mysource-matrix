@@ -725,7 +725,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							}
 
 							if (empty($direct)) {
-								echo '<p><em>'.translate('no_metadata_schemas').'</em></p>';
+								echo '<p><em>'.translate('no_workflow_schemas').'</em></p>';
 							} else {
 								foreach ($direct as $granted => $schema_list) {
 								?>
