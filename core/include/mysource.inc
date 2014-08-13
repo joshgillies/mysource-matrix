@@ -1553,7 +1553,7 @@ class MySource extends MySource_Object
 				// we will only be giving them an incorrect login key error
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
 					if (SQ_IN_LOGIN) {
-						$current_url = current_url(TRUE,TRUE);
+						$current_url = current_url(TRUE,FALSE, FALSE);
 						do_redirect($current_url);
 					}
 					return;
@@ -1694,7 +1694,7 @@ class MySource extends MySource_Object
 					if(!isset($failure_reason)) {
 						$new_get = $_GET;
 						unset($new_get['SQ_ACTION']);
-						$current_url = current_url(TRUE, FALSE);
+						$current_url = current_url(TRUE, FALSE, FALSE);
 						if (count($new_get) > 0) {
 							$current_url .= '?'.make_raw_post_data($new_get);
 						}
@@ -1719,7 +1719,7 @@ class MySource extends MySource_Object
 				// Strip any SQ_ACTION from the URL and redirect.
 				$new_get = $_GET;
 				unset($new_get['SQ_ACTION']);
-				$current_url = current_url(TRUE, FALSE);
+				$current_url = current_url(TRUE, FALSE, FALSE);
 				if (count($new_get) > 0) {
 					$current_url .= '?'.make_raw_post_data($new_get);
 				}
@@ -2269,7 +2269,7 @@ class MySource extends MySource_Object
 		}
 
 		if (SQ_IN_LOGIN) {
-			$current_url = current_url(TRUE, TRUE);
+			$current_url = current_url(TRUE, FALSE, FALSE);
 			do_redirect($current_url);
 		}
 
@@ -2277,7 +2277,7 @@ class MySource extends MySource_Object
 		if($redirect) {
 			$new_get = $_GET;
 			unset($new_get['SQ_ACTION']);
-			$current_url = current_url(TRUE, FALSE);
+			$current_url = current_url(TRUE, FALSE, FALSE);
 			if (count($new_get) > 0) {
 				$current_url .= '?'.make_raw_post_data($new_get);
 			}
