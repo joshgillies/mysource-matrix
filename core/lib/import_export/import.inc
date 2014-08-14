@@ -41,12 +41,17 @@ function get_import_actions($import_file)
 		trigger_error('Import file "'.$import_file.'" does not exist', E_USER_ERROR);
 	}
 
+	// use DOMDocument::load() to see if there is any entity  reference loop
+	// which may exhaust us of the memory limit, if not then continue as normal
+	$xml = new DOMDocument();
 	// bug fix #5410 "Import Assets from XML Tool" running out of memory
 	// if we are on command line then dont worry about memory exhaustion
 	// issue do the whole XML file altogether if the request is coming from
 	// the web interface as mentioned on the bug report then execute the
 	// code block in else statment
-	if ((php_sapi_name() == 'cli')) {
+	if (!$xml->load($import_file, LIBXML_NOENT)) {
+		exit();
+	} else if ((php_sapi_name() == 'cli')) {
 		$index				= Array();
 		$xml_import_vals	= Array();
 		$import_actions		= Array();

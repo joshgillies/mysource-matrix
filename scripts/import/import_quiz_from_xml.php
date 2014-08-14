@@ -92,14 +92,24 @@ $import_link = Array('asset' => &$root_node, 'link_type' => SQ_LINK_TYPE_1);
 # restore error reporting
 error_reporting(E_ALL);
 
-# Creates XML Parser
-$p	= xml_parser_create();
-xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
-xml_parser_set_option($p, XML_OPTION_SKIP_WHITE, 1);
+$dom = new DOMDocument();
+// use DOMDocument::load() to see if there is any entity  reference loop
+// which may exhaust us of the memory limit, if not then continue as normal
+if ($dom->load($import_file, LIBXML_NOENT)) {
+	# Creates XML Parser
+	$p	= xml_parser_create();
+	xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
+	xml_parser_set_option($p, XML_OPTION_SKIP_WHITE, 1);
 
-# Reads in file and parses for precessing. 
-$xml_file = file_get_contents($import_file);
-xml_parse_into_struct($p, $xml_file, $xml_import_vals, $index);
+	# Reads in file and parses for precessing. 
+	$xml_file = file_get_contents($import_file);
+	xml_parse_into_struct($p, $xml_file, $xml_import_vals, $index);
+} else {
+	// don't worry about error message here
+	// load() will raise a  PHP warning  if
+	// there  was  something  wrong    here
+	exit();
+}
 
 # print an error if one occured
 if ($error_code = xml_get_error_code($p)) {

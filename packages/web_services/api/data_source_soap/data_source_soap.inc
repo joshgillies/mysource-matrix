@@ -253,11 +253,16 @@ class Data_Source_Soap extends Data_Source
 
 			$params = Array();
 			foreach($soap_messages as $soap_message) {
-				$xml_object = @simplexml_load_string($soap_message, 'SimpleXMLElement', LIBXML_NOCDATA);
-				if ($xml_object === FALSE) {
-					continue;
+				// use DOMDocument::loadXML() to see if there is any entity  reference loop
+				// which may exhaust us of the memory limit, if not then continue as normal
+				$dom = new DOMDocument();
+				if ($dom->loadXML($soap_message, LIBXML_NOENT)) {
+					$xml_object = simplexml_import_dom($dom);
+					if ($xml_object === FALSE) {
+						continue;
+					}
+					$params[] = SOAP_Common::toArray($xml_object);
 				}
-				$params[] = SOAP_Common::toArray($xml_object);
 			}//end foreach
 
 			// Construct the eval string for SOAP function paramters
@@ -316,7 +321,10 @@ class Data_Source_Soap extends Data_Source
 		$data['response']['response_xml'] = $response_xml;
 		$this->saveLastRequestResponse($data);
 
-		if (empty($response_xml) || !@simplexml_load_string($response_xml)) {
+		// use DOMDocument::loadXML() to see if there is any entity  reference loop
+		// which may exhaust us of the memory limit, if not then continue as normal
+		$dom = new DOMDocument();
+		if (empty($response_xml) || (!$dom->loadXML($response_xml, LIBXML_NOENT) && !@simplexml_import_dom($dom))) {
 			trigger_error("Expected xml content not found in the SOAP response");
 			return Array();
 		}

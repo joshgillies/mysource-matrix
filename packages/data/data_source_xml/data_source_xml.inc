@@ -39,7 +39,7 @@ class Data_Source_Xml extends Data_Source
 	*/
 	protected $_tree_level = 0;
 
-	
+
 	/**
 	* XML tree level where the record(s) is/are to be picked lies
 	*
@@ -49,7 +49,7 @@ class Data_Source_Xml extends Data_Source
 
 
 	/**
-	* Flag set when relevent tag is encountered and unset when current xml recordset is done parsing with 
+	* Flag set when relevent tag is encountered and unset when current xml recordset is done parsing with
 	*
 	* @var boolean
 	*/
@@ -103,8 +103,8 @@ class Data_Source_Xml extends Data_Source
 	* @var int
 	*/
 	protected $_record_set_index = 0;
-	
-	
+
+
 	/**
 	* Flag set when we are in a relevent tag
 	* Set to false once the parser's character handler function is called for the tag
@@ -116,7 +116,7 @@ class Data_Source_Xml extends Data_Source
 
 	/**
 	* Array to store info about if the element nests other non-text elements
-	* 
+	*
 	*/
 	protected $_complex_elements = Array();
 
@@ -178,7 +178,7 @@ class Data_Source_Xml extends Data_Source
 		return $links;
 
 	}//end _getAllowedLinks()
-	
+
 
 	/**
 	* Returns an array of the result of XML parsing either from cache or by parsing the file again
@@ -225,12 +225,12 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function getItems()
 	{
-		// Initialise the data source variables for the XML parsing so that 
+		// Initialise the data source variables for the XML parsing so that
 		// they does not confict with the previous XML parsing
 		$this->initialiseVars();
 
 		$result = $this->parseXML();
-		
+
 		return $result;
 
 	}//end getItems()
@@ -338,9 +338,9 @@ class Data_Source_Xml extends Data_Source
 
 					$pattern = '|(<'.$required_tag_quoted.')([\s]*[^>]*)></'.$required_tag_quoted.'>|i';
 					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
-			
+
 					$content = preg_replace($pattern, $replace, $content);
-			
+
 				}
 			}
 
@@ -374,7 +374,7 @@ class Data_Source_Xml extends Data_Source
 	function _checkRootTag($name)
 	{
 		$root_tag = $this->attr('root_tag');
-		
+
 		if (!$this->_inside_root_tag) {
 			if (empty($root_tag)) {
 				$this->_inside_root_tag = TRUE;
@@ -408,10 +408,10 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function startElement($parser, $name, $attributes=FALSE)
-	{	
+	{
 		// Increment the XML tree level tracker one level up
-		$this->_tree_level++; 
-		
+		$this->_tree_level++;
+
 		// Count the number of non-text elements the parsed element nests
 		foreach($this->_complex_elements as $element => $val) {
 			if ($this->_complex_elements[$element] >= 0) $this->_complex_elements[$element]++;
@@ -434,7 +434,7 @@ class Data_Source_Xml extends Data_Source
 
 						// Set record tree level to where required elemets are
 						$this->_record_tree_level = $this->_tree_level;
-						
+
 						// As far as required tags are concerned current record is non empty for sure
 						$this->_non_empty_record = TRUE;
 
@@ -447,11 +447,11 @@ class Data_Source_Xml extends Data_Source
 				}
 
 				// If the current tree level is less than tree level where records are then we are finished with the current record
-				// Or even if the current tree level is on same level where the relevent record is, 
+				// Or even if the current tree level is on same level where the relevent record is,
 				// if the current element complex then it will have to goto new record
 				if ($this->_non_empty_record && ($this->_tree_level < $this->_record_tree_level || ($this->_tree_level == $this->_record_tree_level && $this->_complex_elements[$this->_current_tag_name] == -1))) {
 					$this->_record_set_index++;
-					
+
 					// Don't know if required tags are going to be there in next recordset
 					$this->_non_empty_record = FALSE;
 				}
@@ -472,20 +472,20 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function characterData($parser, $data)
-	{	
+	{
 		if ($this->_inside_relevant_tag) {
 			if (!isset($this->_result[$this->_record_set_index][$this->_current_tag_name])) {
 				$this->_result[$this->_record_set_index][$this->_current_tag_name] = $data;
-			} 
-			// If value for this tag is already set even when it is new tag then it means there are multiple tags with same name in the record 
+			}
+			// If value for this tag is already set even when it is new tag then it means there are multiple tags with same name in the record
 			// Merge the values using the given delimiter
 			else if ($this->_new_tag) {
 				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $this->attr('data_delimiter') . $data;
-			} 
+			}
 			// Being here implies that this function handler has been called more than once for data in the same tag.
 			// Merge the data to get the whole thing.
 			// See bug #4113 - When parser encounters special content in data like &amp;, &apos;, etc., it stops scanning and calls the data handler,
-			// and then calls the handler again for the remaining data in the tag.	
+			// and then calls the handler again for the remaining data in the tag.
 			else {
 				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $data;
 			}
@@ -522,15 +522,15 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function endElement($parser, $name)
-	{	
+	{
 		// check that we are outside of the root tag
 		$this->_checkRootTag($name);
-		
+
 		// If the element nests 1 or more non-text elements then it is complex
 		// -1 means complex and -2 means otherwise
 		if ($this->_complex_elements[$name] >= 0) {
 			$this->_complex_elements[$name] = $this->_complex_elements[$name] > 0 ? -1 : -2;
-		
+
 		}
 		// Move the XML tree level tracker one level down on the closing of the element
 		$this->_tree_level--;
@@ -612,7 +612,7 @@ class Data_Source_Xml extends Data_Source
 	function getURLString()
 	{
 		return isset($this->_tmp['url_string']) ? $this->_tmp['url_string'] : '';
-	
+
 	}//end getURLString()
 
 
@@ -655,7 +655,7 @@ class Data_Source_Xml extends Data_Source
 		$cdata_tags = unserialize(html_entity_decode($this->attr('cdata_tags')));
 		if (empty($cdata_tags)) return $content;
 		$cdata_tags = array_unique($cdata_tags);
-		
+
 		foreach($cdata_tags as $cdata_tag) {
 			if (!$cdata_tag) continue;
 			$cdata_tag = preg_quote($cdata_tag);
@@ -664,34 +664,34 @@ class Data_Source_Xml extends Data_Source
 			$replacement = "$1<![CDATA[$3]]>$4";
 			$content = preg_replace($replace_pattern, $replacement, $content);
 		}
-		
+
 		return $content;
 	}
 
-	
+
 	/**
 	* Prints out the Frontend for this asset
 	*
 	* @return void
 	* @access public
-	*/	
+	*/
 	public function printFrontend()
-	{	
+	{
 		$xsl_file = NULL;
 		$xsl_file_id = $this->attr('xslt_file');
 
 		if ($xsl_file_id) {
 			$xsl_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_file_id);
-			
+
 			if (!is_null($xsl_file) && class_exists('XSLTProcessor')) {
-				Asset::printFrontend();					
-			}			
+				Asset::printFrontend();
+			}
 		}//end if
 
 
 	}//end printFrontend()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -699,30 +699,38 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	public function printBody()
-	{	
+	{
 		// Find the XSL Stylesheet
 		$xsl_file_id = $this->attr('xslt_file');
 		$feed_url = $this->_getFeedURL();
-		
+
 		if (!empty($feed_url) && $xsl_file_id) {
 			$xsl_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_file_id);
-			
+
 			if (!is_null($xsl_file)) {
 				// Do transformation
 				$xml = new DOMDocument();
-				$xml->loadXML($this->getXMLContent());
-				$xsl = new DOMDocument();
-				$xsl->loadXML($xsl_file->getContent());
+				// use DOMDocument::loadXML() to see if there is any entity  reference loop
+				// which may exhaust us of the memory limit, if not then continue as normal
+				if ($xml->loadXML($this->getXMLContent(), LIBXML_NOENT)) {
+					$xsl = new DOMDocument();
 
-				$parser = new XSLTProcessor();
-				$parser->importStylesheet($xsl);
+					$xsl_content = $xsl_file->getContent();
+					if ($this->attr('xslt_file_replace_keywords')) {
+						replace_global_keywords($xsl_content);
+					}
+					$xsl->loadXML($xsl_content);
 
-				$content = $parser->transformToXML($xml);
-				echo $content;
+					$parser = new XSLTProcessor();
+					$parser->importStylesheet($xsl);
+
+					$content = $parser->transformToXML($xml);
+					echo $content;
+				}
 			}
 		}//end if
 
-	}//end printBody()	
+	}//end printBody()
 
 }//end class
 
