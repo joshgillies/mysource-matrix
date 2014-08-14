@@ -369,7 +369,16 @@ class SOAP_Common
 			if(isset($settings[$settings['action'].'parameters'.$i])) {
 
 				$soap_message = $settings[$settings['action'].'parameters'.$i];
-				$object = @simplexml_load_string($soap_message);
+				$dom = new DOMDocument();
+				// use DOMDocument::loadXML() to see if there is any entity  reference loop
+				// which may exhaust us of the memory limit, if not then continue as normal
+				if ($dom->loadXML($soap_message, LIBXML_NOENT)) {
+					$object = @simplexml_import_dom($dom);
+				} else {
+					// don't worry about any warning, if we are here then PHP has already raised the warning for us
+					return;
+				}
+
 				if (is_null($form)) {
 					// Convert XML to array, replace file content keywords, xml is not friendly for binary data
 					$object = self::toArray($object);

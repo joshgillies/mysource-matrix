@@ -884,7 +884,13 @@ class Data_Source_Soap extends Data_Source
 	private function _xml_to_array(&$val, $key)
 	{
 		if (is_string($val)) {
-			$xml_obj = @simplexml_load_string($val);
+			$dom = new DOMDocument();
+			// use DOMDocument::loadXML() to see if there is any entity  reference loop
+			// which may exhaust us of the memory limit, if not then continue as normal
+			if ($dom->loadXML($val, LIBXML_NOENT)) {
+				$xml_obj = @simplexml_import_dom($dom);
+			}
+
 			if ($xml_obj) {
 				$val = json_decode(json_encode($xml_obj), TRUE);
 			}
