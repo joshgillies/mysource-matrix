@@ -65,7 +65,15 @@ class Report_Incomplete_Metadata extends Report implements Bridge
 			if (!is_file($report_path)) return Array();
 
 			try {
-				$root = simplexml_load_string(file_get_contents($report_path), 'SimpleXMLElement', LIBXML_NOCDATA);
+				$dom = new DOMDocument();
+				// use DOMDocument::loadXML() to see if there is any entity  reference loop
+				// which may exhaust us of the memory limit, if not then continue as normal
+				if ($dom->loadXML(file_get_contents($report_path), LIBXML_NOENT)) {
+					$root = simplexml_import_dom($dom);
+				} else {
+					// don't worry about any warning, if we are here then PHP has already raised the warning for us
+					return;
+				}
 			} catch (Exception $e) {
 				return Array();
 			}
@@ -143,7 +151,15 @@ class Report_Incomplete_Metadata extends Report implements Bridge
 			if (!is_file($report_path)) return Array();
 
 			try {
-				$root = simplexml_load_string(file_get_contents($report_path), 'SimpleXMLElement', LIBXML_NOCDATA);
+				$dom = new DOMDocument();
+				// use DOMDocument::loadXML() to see if there is any entity  reference loop
+				// which may exhaust us of the memory limit, if not then continue as normal
+				if ($dom->loadXML(file_get_contents($report_path), LIBXML_NOENT)) {
+					$root = simplexml_import_dom($dom);
+				} else {
+					// don't worry about any warning, if we are here then PHP has already raised the warning for us
+					return;
+				}
 			} catch (Exception $e) {
 				return Array();
 			}
