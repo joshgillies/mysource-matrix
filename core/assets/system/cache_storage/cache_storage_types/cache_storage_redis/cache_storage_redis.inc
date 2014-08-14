@@ -152,18 +152,36 @@ class Cache_Storage_Redis extends Cache_Storage
 			$multi = $this->_redis->multi();
 			if ($multi === FALSE) {
 				log_write('Redis Error: Failed entering transaction', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
 				return FALSE;
 			}
 			$ret = $this->_redis->sadd(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key);
 			if ($ret === FALSE) {
-				log_write('Redis Error: Failed writing to Redis, is this a slave?', 'error', E_USER_NOTICE);
+				log_write('Redis Error: Failed writing asset index to Redis, is this a slave?', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
 				return FALSE;	
 			}
-			$ret = $this->_redis->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
-					->setex($mcache_key, $expiry_length, $data)
-					->exec();
+			$ret = $this->_redis->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key);
+			if ($ret === FALSE) {
+				log_write('Redis Error: Failed writing url index to Redis, is this a slave?', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
+				return FALSE;	
+			}
+			$ret = $this->_redis->setex($mcache_key, $expiry_length, $data);
+			if ($ret === FALSE) {
+				log_write('Redis Error: Failed writing cache data to Redis, is this a slave?', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
+				return FALSE;	
+			}
+			$ret = $this->_redis->exec();
+			if ($ret === FALSE) {
+				log_write('Redis Error: Failed executing write transaction to Redis, is this a slave?', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
+				return FALSE;	
+			}
 		} catch(RedisException $e) {
 			log_write('Redis Write Error: '.$e->getMessage(), 'error', E_USER_NOTICE);
+			$this->_redis->discard();
 			return FALSE;
 		}
 		//return result of setting cache entry
@@ -200,13 +218,31 @@ class Cache_Storage_Redis extends Cache_Storage
 			$multi = $this->_redis->multi();
 			if ($multi === FALSE) {
 				log_write('Redis Error: Failed entering transaction', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
 				return FALSE;
 			}
-			$exists = $this->_redis->sismember(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
-						 ->sismember(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
-						 ->exec();
+			$exists = $this->_redis->sismember(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key);
+			if ($exists === FALSE) {
+				log_write('Redis Error: Failed getting asset index', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
+				return FALSE;
+			}
+			$exists = $this->_redis->sismember(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key);
+			if ($exists === FALSE) {
+				log_write('Redis Error: Failed getting url index', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
+				return FALSE;
+			}
+			$exists = $this->_redis->exec();
+			if ($exists === FALSE) {
+				log_write('Redis Error: Failed execute read transaction', 'error', E_USER_NOTICE);
+				$this->_redis->discard();
+				return FALSE;
+			}
+
 		} catch(RedisException $e) {
 			log_write('Redis Read Error: '.$e->getMessage(), 'error', E_USER_NOTICE);
+			$this->_redis->discard();
 			return FALSE;
 		}
 		if (!$exists[0] || !$exists[1]) {
