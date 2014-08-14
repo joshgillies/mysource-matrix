@@ -18,5 +18,6 @@
 
 <strings>
 	<string source="trigger_create_asset_required_attrs_warning">&lt;strong&gt;Note:&lt;/strong&gt; If the selected asset type has any required attributes, values for those attributes must be supplied here or the asset will not be created.</string>
-	<string source="trigger_new_asset_basic">Create a new asset of type %1$s linked under %2$s using a %3$s link.</string>
+	<string source="trigger_new_asset_basic">Create a new asset of type %1$s using a %2$s link.</string>
+	<string source="create_asset_under">Create Asset Under</string>
 </strings>
