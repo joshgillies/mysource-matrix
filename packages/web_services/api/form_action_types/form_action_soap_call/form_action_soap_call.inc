@@ -592,7 +592,15 @@ class Form_Action_SOAP_Call extends Form_Action
 			if(isset($settings[$settings['action'].'parameters'.$i])) {
 
 				$soap_message = SOAP_Form_Based_Common::getKeywordReplacementsFromForm($settings[$settings['action'].'parameters'.$i], $form);
-				$object = @simplexml_load_string($soap_message, 'SimpleXMLElement', LIBXML_NOCDATA);
+				$dom = new DOMDocument();
+				// use DOMDocument::loadXML() to see if there is any entity  reference loop
+				// which may exhaust us of the memory limit, if not then continue as normal
+				if ($dom->loadXML($soap_message, LIBXML_NOENT)) {
+					$object = @simplexml_import_dom($dom);
+				} else {
+					// don't worry about any warning, if we are here then PHP has already raised the warning for us
+					return;
+				}
 
 				if($object === FALSE) {
 					// Just string argument, replace file content keywords
@@ -637,7 +645,15 @@ class Form_Action_SOAP_Call extends Form_Action
 			$data = NULL;
 			// Create the SOAP call return object from last SOAP request
 			if (preg_match('|<([^:]+:)?Body>(.*)</([^:]+:)?Body>|msi', $soap_response, $match)) {
-				$data = simplexml_load_string($match[2]);
+				$dom = new DOMDocument();
+				// use DOMDocument::loadXML() to see if there is any entity  reference loop
+				// which may exhaust us of the memory limit, if not then continue as normal
+				if ($dom->loadXML($match[2], LIBXML_NOENT)) {
+					$data = simplexml_import_dom($dom);
+				} else {
+					// don't worry about any warning, if we are here then PHP has already raised the warning for us
+					return;
+				}
             }
 		}
 
