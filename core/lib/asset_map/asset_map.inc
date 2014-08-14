@@ -13,7 +13,6 @@
 * $Id: asset_map.inc,v 1.328 2013/10/15 03:50:32 ewang Exp $
 *
 */
-require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 
 /**
 * Asset Map
