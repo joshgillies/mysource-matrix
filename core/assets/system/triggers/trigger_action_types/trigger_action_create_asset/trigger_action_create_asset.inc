@@ -198,7 +198,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 					echo '<br />';
 					check_box($prefix.'[parentid]', 'current_asset', $parent_broadcasted);
 					label(translate('trigger_create_under_broadcaster'), $prefix.'[parentid]');
-					echo '<br /><b> OR </b><br />';
+					echo '<b>&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;&nbsp;&nbsp;</b>';
 					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
 				} else {
 					$parent = NULL;
@@ -308,8 +308,8 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			// now patch together the output
 			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_3).
 						'<br /><br />'.
-						'<b>'.translate('create_asset_under').'</b>'.$basic_part_2.
-						'<br /><br /><b>'.translate('triggers_advanced_user_options').'</b><br />'.
+						'<b>'.translate('create_asset_under').'</b><br />'.$basic_part_2.
+						'<br /><br /><b>'.translate('triggers_advanced_user_options').'</b><br /><br />'.
 						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
 						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
 						'<span>'.translate('trigger_create_asset_required_attrs_warning').'</span>';
