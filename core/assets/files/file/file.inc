@@ -1422,15 +1422,25 @@ class File extends Asset
 			    $disposition = 'attachment';
 			}
 
-			header('Content-Type: '.$type);
-			header('Content-Disposition: '.$disposition.'; filename="'.$existing['filename'].'";');
-			header('Content-Length: '.$existing['size']);
-			ob_end_flush();
-			
 			// Remove Matrix comments from the files that can be edited via Matrix backend editor
+			$file_content = FALSE;
 			if (SQ_CONFIG_STRIP_MATRIX_COMMENTS && $this->isFileContentEditable()) {
 				$file_content = file_get_contents($existing['path']);
 				$GLOBALS['SQ_SYSTEM']->stripMatrixComments($file_content);
+
+				// Get the updated the content length
+				$content_length = ini_get('mbstring.func_overload') ? mb_strlen($file_content , '8bit') : strlen($file_content);
+			} else {
+				$content_length = $existing['size'];
+			}
+
+			header('Content-Type: '.$type);
+			header('Content-Disposition: '.$disposition.'; filename="'.$existing['filename'].'";');
+			header('Content-Length: '.$content_length);
+
+			ob_end_flush();
+
+			if ($file_content !== FALSE) {
 				echo $file_content;
 			} else {
 				readfile($existing['path']);
