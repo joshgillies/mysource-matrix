@@ -5843,7 +5843,7 @@ class Form extends Asset implements Bridge
 					} else if (substr($keyword, 0, 11) === 'user_asset_') {
 						// Get the 'asset_*' keyword from the created user
 						$sub_keyword = substr($keyword, 11);
-						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($created_userid);
+						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($submission_asset->created_userid);
 						if(empty($user)) continue;
 						$replacement = $user->getKeywordReplacement('asset_'.$sub_keyword);
 					} else if (substr($keyword, 0, 17) === 'submission_asset_') {
