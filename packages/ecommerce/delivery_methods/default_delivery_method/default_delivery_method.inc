@@ -13,7 +13,6 @@
 
 require_once SQ_PACKAGES_PATH.'/ecommerce/delivery_methods/ecommerce_delivery_method/ecommerce_delivery_method.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 
