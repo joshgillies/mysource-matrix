@@ -137,6 +137,12 @@ if($LINKED_ONLY) {
 
 	}
 }
+// add root node itself in if possible
+$root_node_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($ROOT_ASSETID);
+if($root_node_user instanceof User) {
+	$user_assetids[$ROOT_ASSETID]=Array();
+}
+
 echo 'Found '.count($user_assetids).' User asset(s) underneath asset ID #'.$ROOT_ASSETID."\n";
 
 echo 'Are you sure you want to '.($DISALLOW_SETTING ? 'enable' : 'disable').' Disallow Password Login setting on these assets (Y/N)?';
@@ -248,7 +254,7 @@ function short_usage()
 		$php_name = 'php';
 	}
 	
-	echo 'Usage: '.$php_name.' '.$_SERVER['argv'][0].' <system_root> <root_assetid> <setting>'."\n";
+	echo 'Usage: '.$php_name.' '.$_SERVER['argv'][0].' <system_root> <root_assetid> <setting> <linked_user_only>'."\n";
 	echo 'Try "'.$php_name.' '.$_SERVER['argv'][0].' --help" for more information.'."\n";
 	return;
 
