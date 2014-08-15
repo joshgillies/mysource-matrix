@@ -496,7 +496,7 @@ function log_dump($var=NULL)
 	if (is_null($var)) {
 		$var = '---------- Debugging ----------';
 	}
-	error_log("\n".$count++.': '.get_calling_func().": \n".print_r($var, 1));
+	error_log("\n".$count++.': '.get_calling_func().": \n".print_r($var, 1), 0, SQ_LOG_PATH.'/'.SQ_CONF_LOG_FILE_ERROR.SQ_CONF_LOG_EXTENSION);
 
 }//end log_dump()
 
