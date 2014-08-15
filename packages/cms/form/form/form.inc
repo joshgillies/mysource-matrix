@@ -1993,7 +1993,7 @@ class Form extends Asset implements Bridge
 				}
 				echo $this->getFormFooter();
 			} else {
-				$ok = $this->completeSubmission();
+				$ok = $this->_preFinishForm() && $this->completeSubmission();
 				if ($ok) {
 					// On-submit actions went through okay, so we can finish
 					// the form
@@ -3649,6 +3649,20 @@ class Form extends Asset implements Bridge
 		unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 
 	}//end finishForm()
+
+
+	/**
+	* Actions to carry out before finishing the form submission
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected function _preFinishForm()
+	{
+		return TRUE;
+
+	}//end _preFinishForm()
+
 
 
 //--        SUBMISSIONS        --//
