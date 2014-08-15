@@ -342,6 +342,24 @@ class Form_Email extends Form
 	}//end deleteQuestion()
 
 
+	/**
+	* Actions to carry out before finishing the form submission
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected function _preFinishForm()
+	{
+		// Perform submission actions that are to be executed before finishing the form
+		if (!$this->performSubmissionActions(TRUE)) {
+			return FALSE;
+		}
+
+		return parent::_preFinishForm();
+
+	}//end _preFinishForm()
+
+
 //--        POST-SUBMISSION ACTIONS        --//
 
 
@@ -353,32 +371,12 @@ class Form_Email extends Form
 	*/
 	function finishForm()
 	{
-		// Perform submission actions which need to be executed before finish form
-		if (!$this->performSubmissionActions(TRUE)) {
-			// We had problems, print last page again
-			// Print the current page or the Confirmation Page if we're confirming things
-			$current_page = $this->getCurrentPageNumber();
-			$total_pages = $this->getTotalPages();
-
-			echo $this->getFormHeader();
-
-			if (($current_page == $total_pages) && $this->attr('use_confirmation_page')) {
-				echo $this->getConfirmationPageContents();
-			} else {
-				$this->printPageContentsBodycopy();
-			}
-
-			echo $this->getFormFooter();
-
-			return FALSE;
-		}
-
 		parent::finishForm();
 		$this->mailRecipients();
 		$this->mailReceipt();
 		$this->sendToFriends();
 
-		// Perform other submission actions that are active
+		// Perform submission actions that are to be executed after finishing the form
 		$this->performSubmissionActions();
 
 		// Perform selective actions
