@@ -2899,17 +2899,24 @@ function recursive_content_filter(&$item)
 */
 function file_mime_type($filename)
 {
-	$mime_type = '';
+	$mime_type = FALSE;
 
 	if (class_exists('finfo')) {
 		$finfo = new finfo(FILEINFO_MIME);
 		$mime_info = explode(';', $finfo->file($filename));
 		$mime_type = $mime_info[0];
+		if (strpos($mime_type, 'corrupt: Cannot read summary info') !== FALSE) {
+			// finfo() could not parse the file
+			$mime_type = FALSE;
+		}
 
 	} else if (function_exists('mime_content_type')) {
 		$mime_type = mime_content_type($filename);
+	}
 
-	} else {
+	// If above methods failed, get the mime type from our standard list
+	if ($mime_type === FALSE) {
+		$mine_type = '';
 		$ext_pos = strrpos($filename, '.');
 		if ($ext_pos !== FALSE) {
 			require SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';

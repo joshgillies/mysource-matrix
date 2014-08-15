@@ -195,6 +195,7 @@ $standards_lists_mime_types = Array(
 									'tr5'		=> 'application/octet-stream',
 									'htc'		=> 'text/x-component',
 									'rdp'		=> 'application/rdp',
+									'msg'		=> 'application/vnd.ms-outlook',
 									);
 
 ?>
