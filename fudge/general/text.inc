@@ -102,11 +102,13 @@ function _replace_keywords_recursive(&$text, &$replacements)
 function parse_keyword($keyword, &$modifiers = NULL)
 {
 	$modifiers = Array();
-	$parts = explode('^', $keyword);
+	// this regexp means we only grab the ^ modifier symbol that is not surrounded by { }, which is a special syntax to mark the target keyword for replace keyword modifier. Replace keyword modifier would handle its sub modifyers internally, we shouldn't grab it here.
+	$parts = preg_split('/(?!{[^{}]*)\^(?![^{}]*})/', $keyword);
 	$keyword = array_shift($parts);
 
 	foreach ($parts as &$p) {
-		$args = preg_split('/:{1}/', $p, -1);
+		// it means grab the : only if not surrounded by { }
+		$args = preg_split('/(?!{[^{}]*):{1}(?![^{}]*})/', $p, -1);
 		$modifier = array_shift($args);
 		if (!empty($modifier)) {
 			array_push($modifiers, Array('modifier' => $modifier, 'args' => $args));
@@ -286,7 +288,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		
 		for ($i = 1; $i < count($modifier['args']); $i++){
 			$value = $modifier['args'][$i];
-			preg_match_all('/\{([a-zA-Z_]{2,}[a-zA-Z_\-0-9\.:]+)\}/', $value, $matches, PREG_PATTERN_ORDER);
+			preg_match_all('/\{([a-zA-Z_]{2,}[a-zA-Z_\-0-9\.:\^]+)\}/', $value, $matches, PREG_PATTERN_ORDER);
 			$keywords = array_unique($matches[1]);
 
 			$replacements = Array();
