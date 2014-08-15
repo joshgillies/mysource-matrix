@@ -471,14 +471,22 @@ class Page_Password_Reset extends Page
 			$keywords = $bodycopy->getKeywords();
 
 			foreach ($keywords as $whole_keyword) {
+
 				$keyword = parse_keyword($whole_keyword, $modifiers);
 
-				if (!in_array($keyword, array_keys($new_replacements))) {
+				if(strpos($keyword, 'globals_') === 0) {
+					$global_replacement = '%'.$keyword.'%';
+					replace_global_keywords($global_replacement);
+					$replacements[$whole_keyword] = $global_replacement;
+				}
+				else if (!in_array($keyword, array_keys($new_replacements))) {
 					$replacements[$whole_keyword] = $this->getKeywordReplacement($keyword);
 				} else {
 					$replacements[$whole_keyword] = $new_replacements[$keyword];
 				}
+
 				apply_keyword_modifiers($replacements[$whole_keyword], $modifiers, Array('assetid' => $this->id));
+
 			}//end foreach
 
 			$bodycopy->setKeywordReplacements($replacements);
