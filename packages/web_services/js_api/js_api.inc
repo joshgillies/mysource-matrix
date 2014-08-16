@@ -230,16 +230,16 @@ class JS_Api extends Page
            $sent_as_json = TRUE;
            $this->_tmp['sent_as_json'] = TRUE;
         }
-        
-        $api_key        = '';        
+
+        $api_key        = '';
         $auth_string    = '';
-         
+
         if (function_exists('apache_request_headers') === TRUE) {
             $apache_headers = apache_request_headers();
         } else {
             $apache_headers = FALSE;
         }
-        
+
         if ($apache_headers !== FALSE) {
             // Apache SAPI, or FastCGI from PHP5.4+
             $auth_string = array_get_index($apache_headers, 'Authorization', '');
@@ -247,18 +247,18 @@ class JS_Api extends Page
             // Old method of getting from FastCGI.
             $auth_string = array_get_index($_SERVER, 'HTTP_AUTHORIZATION', '');
         }
-        
+
         if ($auth_string !== '') {
             $found = preg_match('/^Matrix-JSAPI key=(\d+|"\d+")$/', $auth_string, $matches);
             if ($found > 0) {
                 $api_key = trim($matches[1], '"');
             }
         }//end if
-        
+
         if (($api_key === '') && (array_key_exists('key', $_REQUEST) === TRUE)) {
             $api_key = array_get_index($_REQUEST, 'key', '');
         }
-		
+
 		if ((boolean) $this->attr('use_enhanced_js') === FALSE) {
 		    $request_data = $_POST;
 		} else {
@@ -279,7 +279,7 @@ class JS_Api extends Page
 		        $request_data = $_POST;
 		    }
 		}
-        
+
 		// Should we print our JS file, or send back some JSON?
 		if (($api_key === '') && !isset($request_data['id']) && !isset($request_data['type'])) {
 		    if (!$this->readAccess()) {
@@ -299,7 +299,7 @@ class JS_Api extends Page
             }
 			return;
 		}
-		
+
 		// If we are returning data, still check for read access.
 		if (!$this->readAccess()) {
             $this->returnError('You do not have permissions to access this asset', 'authError');
@@ -345,12 +345,12 @@ class JS_Api extends Page
 				restore_error_handler();
 				return;
 			}
-			
+
 			$functions_info = $request_data['functions'];
 			if ($sent_as_json === FALSE) {
 			    $functions_info = json_decode($functions_info, TRUE);
 			}
-			
+
 			foreach ($functions_info as $index => $info) {
 				$function_calls[$index] = $info['function'];
 			}
@@ -461,7 +461,7 @@ class JS_Api extends Page
 				// format there is $results_0_*$ type else it might be raw input that we use
 				if ($track_func === 0) {
 					$id = $args['id'];
-				} else {				    				
+				} else {
 					// okie so we arent the first called function in batched request
 					// and we are to use the assetid from the previous function exec
 					// but no we look into any of the argument where the  $result_*$
@@ -471,7 +471,7 @@ class JS_Api extends Page
 							if(!isset($matches[0])) continue;
 							$keyword = $matches[0];
 							$instructions = preg_split('/(?<!\\\\)\\_/', trim($keyword, '$%'));
-							
+
 							foreach ($instructions as &$instruction) {
 							    // Replace escaped underscores, and backslashes
 							    $instruction = str_replace('\\_', '_', $instruction);
@@ -506,7 +506,7 @@ class JS_Api extends Page
 			if ($this->attr($this->_attribute_mapping[$type])) {
 				$asset = NULL;
 				$error = NULL;
-				
+
 				if ($this->_permission_mapping[$type] != Array('no_check')) {
 					// Check to see if we supplied with valid assetid
 					if ((preg_match('/^[0-9]*:/i', $id) != FALSE) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
@@ -539,7 +539,7 @@ class JS_Api extends Page
 						}
 					}//end if
 				}//end if
-				
+
 				if ($error !== NULL) {
 					$results[$track_func]['error'] = $error;
 					$results[$track_func]['errorCode'] = 'permissionError';
@@ -646,7 +646,7 @@ class JS_Api extends Page
 				if (is_null($asset)) {
 				    $this->returnError($id.' is not a valid URL', 'assetNotFound');
 				}
-				
+
 				return $asset;
 			} else {
 				$this->returnError($id.' is not a valid URL', 'badRequest');
@@ -887,7 +887,7 @@ class JS_Api extends Page
 
 		foreach ($links as $elements) {
 			if (count($elements) != count($links['parents'])) {
-				$data['error'] = 'Please provide correct number of link elements';				
+				$data['error'] = 'Please provide correct number of link elements';
 				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
@@ -1953,7 +1953,7 @@ class JS_Api extends Page
 			$data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($asset->id, $levels);
 
 			if (empty($data)) {
-			    $data['error'] = 'Asset #'.$asset->id.' has no children';			    
+			    $data['error'] = 'Asset #'.$asset->id.' has no children';
 			    $data['errorCode'] = 'notFound';
 			}
 		} else {
@@ -2041,7 +2041,7 @@ class JS_Api extends Page
 				$data = $response;
 			}
 		} else {
-			$data['error'] = 'You do not have permissions to access this change status for this asset';			
+			$data['error'] = 'You do not have permissions to access this change status for this asset';
             $data['errorCode'] = 'permissionError';
 		}//end else
 
@@ -2677,7 +2677,7 @@ class JS_Api extends Page
 
 				$all_errors	= Array();
 				$cloned_assets = Array();
-				
+
 				for ($i = 0; $i < $clone_num; $i++) {
 					// Need to reset the running vars again as it is passed by reference to the hipo job
 					$running_vars_copy	= $running_vars;
@@ -2694,7 +2694,7 @@ class JS_Api extends Page
 					$data['assetid']      = (string) $asset->id;
 					$data['newParent']    = (string) $new_parent;
 					$data['clonedAssets'] = Array();
-					
+
 					$clone_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($cloned_assets);
 					foreach ($cloned_assets as $clone_assetid) {
 					    $link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($new_parent, $clone_assetid, $link_type);
@@ -3051,7 +3051,7 @@ class JS_Api extends Page
 
 						if ($schemas) {
 							$data['success'] = 'Metadata Schema #'.$schemaid.' successfully '.($granted ? 'applied' : 'denied').' to Asset #'.$asset->id;
-							
+
 							if ($granted) {
 							    $data['appliedSchemaid'] = $schemaid;
 							} else {
@@ -3317,7 +3317,7 @@ class JS_Api extends Page
 
 
 	/**
-	* Updates the order of form on Form or Form Section 
+	* Updates the order of form on Form or Form Section
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the Form or Form Section Asset
@@ -3702,7 +3702,7 @@ class JS_Api extends Page
 				if (!is_null($result)) {
 				    $this->returnError('Unable to Update Lookups on the Asset #'.$asset_id_to_move.' and its Childrens', 'updateLookupsFailed');
 				}
-				
+
 				return Array (
 						'link_id'	=> $new_link_id,
 					   );
@@ -4140,7 +4140,7 @@ class JS_Api extends Page
 			if (count($attr_name) != count($attr_val) ) {
 			    $this->returnError('Please provide Attributes and corresponding values correctly', 'badRequest');
 			}
-			
+
 			// Shortcuts
 			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -4208,7 +4208,7 @@ class JS_Api extends Page
 			if (count($fieldid) != count($new_value) ) {
 			    $this->returnError('Please provide Metadata fieldids and corresponding values correctly', 'badRequest');
 			}
-			
+
 			$s_result = TRUE;
 			$g_result = TRUE;
 
@@ -4437,7 +4437,7 @@ class JS_Api extends Page
 					$asset->setAttrValue($name, $value);
 				}//end if
 			}//end foreach
-			
+
 			// for batch request we still have to look for the 'attributes' url param, because it won't be auto set in array
 			if(isset($attribute_values['attributes'])) {
 				$all_attributes = explode('&', $attribute_values['attributes']);
@@ -4814,8 +4814,8 @@ class JS_Api extends Page
 		return $return_array;
 
 	}//end getMetadataSchema()
-	
-	
+
+
 	/**
 	 * Get a statistics request from a Google Analytics view.
 	 *
@@ -4863,23 +4863,21 @@ class JS_Api extends Page
 	public function _getGoogleAnalyticsStatistics($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
-	    
+
         if (array_key_exists('id', $args) === FALSE) {
             $args['id'] = array_get_index($args, 'assetid', NULL);
         };
-        
+
 	    // We have to get our own asset ID.
 	    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($args['id']);
 	    if (($asset instanceof Google_Analytics_View) === FALSE) {
-	        $this->returnError(translate('The passed asset is not a Google Analytics View'), 'typeCodeError');
-	        return;
+	        return $this->buildError(translate('The passed asset is not a Google Analytics View'), 'typeCodeError');
 	    }
-	    
+
 	    if ($asset->readAccess() === FALSE) {
-	        $this->returnError(translate('You do not have permissions to access this asset'), 'permissionError');
-	        return;
+	        return $this->buildError(translate('You do not have permissions to access this asset'), 'permissionError');
 	    }
-	    
+
 	    if ($args['end_date'] === NULL) {
 	        // We can omit the end date; it will revert to "today".
 	        $args['end_date'] = date('Y-m-d');
@@ -4896,38 +4894,33 @@ class JS_Api extends Page
             $args['end_date']->add(new DateInterval($period));
             $args['end_date'] = $args['end_date']->format('Y-m-d');
         }
-	    
+
 	    if (($args['start_date'] !== NULL) && ($args['duration'] !== NULL)) {
 	        // Both start_date and duration exist - huh?
-	        $this->returnError(translate('Statistics request contains both a start_date and duration, you cannot use both'), 'badRequest');
-	        return;
+	        return $this->buildError(translate('Statistics request contains both a start_date and duration, you cannot use both'), 'badRequest');
 	    } else if ($args['duration'] !== NULL) {
 	        // If we get a duration, pass it in as a date interval. Duration
 	        // will be in ISO 8601 period format (eg. "P1M" = 1 month).
 	        $start_date = new DateTime($args['end_date']);
 	        $duration   = new DateInterval($args['duration']);
-	        
+
 	        $start_date->sub($duration);
 	        $start_date->add(new DateInterval('P1D'));
 	        $args['start_date'] = $start_date->format('Y-m-d');
 	    } else if (array_key_exists('start_date', $args) === FALSE) {
-	        $this->returnError(translate('Statistics request is missing a start_date or a duration'), 'badRequest');
-	        return;
+	        return $this->buildError(translate('Statistics request is missing a start_date or a duration'), 'badRequest');
 	    }
-	    
+
 	    if (strtotime($args['start_date']) > strtotime($args['end_date'])) {
-	        $this->returnError(translate('Start date [%s] must not be after the end date [%s]', $args['start_date'], $args['end_date']), 'badRequest');
-	        return;
+	        return $this->buildError(translate('Start date [%s] must not be after the end date [%s]', $args['start_date'], $args['end_date']), 'badRequest');
 	    }
-	    
+
 	    if (array_key_exists('dimensions', $args) === FALSE) {
-	        $this->returnError(translate('Statistics request is missing dimensions'), 'badRequest');
-	        return;
+	        return $this->buildError(translate('Statistics request is missing dimensions'), 'badRequest');
 	    } else if (array_key_exists('metrics', $args) === FALSE) {
-	        $this->returnError(translate('Statistics request is missing metrics'), 'badRequest');
-	        return;
+	        return $this->buildError(translate('Statistics request is missing metrics'), 'badRequest');
 	    }
-	    
+
 	    // If we are sent a string, explode it. But allow special site and page
 	    // metrics combinations to be specified by a constant string.
 	    if ($args['metrics'] === 'SQ_SITE_METRICS') {
@@ -4937,25 +4930,22 @@ class JS_Api extends Page
 	    } else if (is_array($args['metrics']) === FALSE) {
 	        $args['metrics'] = explode(',', $args['metrics']);
 	    }
-	    
+
 	    if (is_array($args['dimensions']) === FALSE) {
 	        $args['dimensions'] = explode(',', $args['dimensions']);
 	    }
 	    if ((array_key_exists('sort_by', $args) === FALSE) && (is_array($args['sort_by']) === FALSE)) {
 	        $args['sort_by'] = explode(',', $args['sort_by']);
 	    }
-	    
+
 	    if (count($args['dimensions']) > 7) {
-	        $this->returnError(translate('Statistics request cannot exceed seven (7) dimensions'), 'badRequest');
-	        return;
+	        return $this->buildError(translate('Statistics request cannot exceed seven (7) dimensions'), 'badRequest');
 	    } else if (count($args['metrics']) < 1) {
-	        $this->returnError(translate('Statistics request requires at least one (1) metric'), 'badRequest');
-	        return;
+	        return $this->buildError(translate('Statistics request requires at least one (1) metric'), 'badRequest');
 	    } else if (count($args['metrics']) > 10) {
-	        $this->returnError(translate('Statistics request cannot exceed ten (10) metrics'), 'badRequest');
-	        return;
+	        return $this->buildError(translate('Statistics request cannot exceed ten (10) metrics'), 'badRequest');
 	    }
-	    
+
 	    $result = $asset->generateReport(
 	        $args['dimensions'],
 	        $args['metrics'],
@@ -4966,13 +4956,46 @@ class JS_Api extends Page
 	    );
 
 	    if ($result['errors'] !== NULL) {
-	        $this->returnError(translate('Failed to get analytics data'), 'analyticsError', $result['errors']);
-	        return;
+	        return $this->buildError(translate('Failed to get analytics data'), 'analyticsError', $result['errors']);
 	    } else {
 	        return $result;
 	    }
-	    
+
 	}//end _getGoogleAnalyticsStatistics()
+
+
+	/**
+	* Returns an error in JSON format
+	*
+	* @param string	 $error	  The error to send back as JSON
+	* @param string  $code    A short code that will not be translated
+	* @param string  $detail  Additional details to be provided
+	*
+	* @access public
+	*/
+	function buildError($error, $code=NULL, $detail=NULL)
+	{
+		// Sanitise the error message
+		$error = htmlspecialchars($error);
+
+		// Set our error
+		trigger_error($error, E_USER_WARNING);
+
+		// Send error as JSON so they are not confused why the function quit
+		$data['error'] = $error;
+		if ($code !== NULL) {
+		    $data['errorCode'] = $code;
+		}
+
+		if ($detail !== NULL) {
+		    $data['errorDetail'] = $detail;
+		}
+
+		// if we are batching  request then  don't send the error to console yet, wait
+		// wait for all the remaining request to execute and provide feedback together
+		return $data;
+
+	}//end buildError()
 
 
 	/**
@@ -4986,21 +5009,7 @@ class JS_Api extends Page
 	*/
 	function returnError($error, $code=NULL, $detail=NULL)
 	{
-		// Sanitise the error message
-		$error = htmlspecialchars($error);
-
-		// Set our error
-		trigger_error($error, E_USER_WARNING);
-
-		// Send error as JSON so they are not confused why the function quit
-		$data['error'] = $error;
-		if ($code !== NULL) {
-		    $data['errorCode'] = $code;
-		}
-		
-		if ($detail !== NULL) {
-		    $data['errorDetail'] = $detail;
-		}
+	    $data = $this->buildError($error, $code, $detail);
 
 		// if we are batching  request then  don't send the error to console yet, wait
 		// wait for all the remaining request to execute and provide feedback together
