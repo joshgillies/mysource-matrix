@@ -231,7 +231,7 @@ class RSS_Feed_Reader
 	{
 		$fp = $this->fp;
 
-		$metadata = stream_get_meta_data($fp);
+		if (is_resource($fp)) $metadata = stream_get_meta_data($fp);
 
 		$xml = new DOMDocument();
 		// use DOMDocument::load() to see if there is any entity  reference loop
