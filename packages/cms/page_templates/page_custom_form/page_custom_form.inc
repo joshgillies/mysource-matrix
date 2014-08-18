@@ -288,33 +288,5 @@ class Page_Custom_Form extends Page
 	}//end _updated()
 
 
-	/**
-	* Return TRUE if the link is deletable, otherwise return error message
-	*
-	* @param int    $linkid the link id of the link to remove
-	*
-	* @return boolean|string
-	* @access public
-	*/
-	public function isDeletableLink($linkid)
-	{
-		if ($GLOBALS['SQ_PURGING_TRASH']) {
-			return TRUE;
-		}
-
-		// Any exclusive type link to this asset cannot be deleted
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-
-		if (array_get_index($link, 'is_exclusive', FALSE)) {
-			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
-			$minor_type_code = isset($link['minor_type_code']) ? ucwords(str_replace('_', ' ', $link['minor_type_code'])) : translate('unknown_asset_type');
-			return translate('core_cannot_delete_exclusive_link', $major_type_code, $minor_type_code);
-		}
-
-		return TRUE;
-
-	}//end isDeletableLink()
-
-
 }//end class
 ?>
