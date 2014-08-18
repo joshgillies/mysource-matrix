@@ -874,8 +874,9 @@ class Data_Source_Soap extends Data_Source
 			$dom = new DOMDocument();
 			// use DOMDocument::loadXML() to see if there is any entity  reference loop
 			// which may exhaust us of the memory limit, if not then continue as normal
-			if ($dom->loadXML($val, LIBXML_NOENT)) {
-				$xml_obj = @simplexml_import_dom($dom);
+			$xml_obj = NULL;
+			if (@$dom->loadXML($val, LIBXML_NOENT)) {
+				$xml_obj = simplexml_import_dom($dom);
 			}
 
 			if ($xml_obj) {
