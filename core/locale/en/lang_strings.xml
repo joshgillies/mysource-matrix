@@ -1138,7 +1138,6 @@
 	<string source="core_keyword_list_empty">The keyword list is empty.</string>
 	<string source="cannot_load_cache_of_non_asset">Cannot load cache of non asset object</string>
 	<string source="cannot_save_cache_of_non_asset">Cannot save cache of non asset object</string>
-	<string source="core_cannot_delete_exclusive_link">Cannot delete exclusive link between %1$s and %2$s </string>
 
 	<string source="condition_configuration_instructions">Setting the &lt;strong&gt;Force No Cache&lt;/strong&gt; value to "Yes" on a Condition, will force any page that uses that Condition to always get served with a "no-cache" Cache-Control header.</string>
 	<!--
