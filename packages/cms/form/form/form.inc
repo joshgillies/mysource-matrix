@@ -6024,35 +6024,5 @@ class Form extends Asset implements Bridge
 	}//end _passedMinimumTimeThreshold()
 
 
-	/**
-	* Return TRUE if the link is deletable, otherwise return error message
-	*
-	* @param int    $linkid the link id of the link to remove
-	*
-	* @return boolean|string
-	* @access public
-	*/
-	public function isDeletableLink($linkid)
-	{
-		if ($GLOBALS['SQ_PURGING_TRASH']) {
-			return TRUE;
-		}
-
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-		$link_value = array_get_index($link, 'value', '');
-		$is_exclusive = array_get_index($link, 'is_exclusive', FALSE);
-
-		// Don't allow deletion of submission folders and bodycopy folder
-		if ($is_exclusive && ($link_value == 'bodycopies_folder' || $link_value == 'submissions_folder' || $link_value == 'incomplete_submissions')) {
-			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
-
-			return translate('core_cannot_delete_exclusive_link', $major_type_code, ucwords(str_replace('_', ' ', $link_value)));
-		}
-
-		return TRUE;
-
-	}//end isDeletableLink()
-
-
 }//end class
 ?>
