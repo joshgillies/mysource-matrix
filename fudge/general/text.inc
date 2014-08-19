@@ -364,6 +364,9 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 	case "escapehtml":
 		return htmlspecialchars($text, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 
+	case "unescapehtml":
+		return htmlspecialchars_decode($text, ENT_QUOTES);
+
 	case "striphtml":
 		$allowable_tags = array_get_index($modifier['args'], 0, '');
 
