@@ -403,7 +403,20 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			if ($required_keyword == 'asset_contents') {
 				if (!isset($ret['asset_contents'])) {
 					ob_start();
-						$contexted_asset->printBody();
+						if($contexted_asset->inMaintenanceMode()) {
+							if(SQ_MAINTENANCE_MODE == '1') {
+								echo SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
+								$contexted_asset->printBody();
+							}
+							else {
+								echo SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE;
+								header('HTTP/1.1 503 Service Unavailable');
+								header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+							}
+						}
+						else {
+							$contexted_asset->printBody();
+						}	
 						$ret['asset_contents'] = ob_get_contents();
 					ob_end_clean();
 				}
@@ -431,7 +444,20 @@ class Paint_Layout_Bodycopy extends Bodycopy
 							ob_end_clean();
 						} else {
 							ob_start();
-							$contexted_asset->printBody();
+							if($contexted_asset->inMaintenanceMode()) {
+								if(SQ_MAINTENANCE_MODE == '1') {
+									echo SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
+									$contexted_asset->printBody();
+								}
+								else {
+									echo SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE;
+									header('HTTP/1.1 503 Service Unavailable');
+									header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+								}
+							}
+							else {
+								$contexted_asset->printBody();
+							}	
 							$ret[$required_keyword] = ob_get_contents();
 							ob_end_clean();
 						}
