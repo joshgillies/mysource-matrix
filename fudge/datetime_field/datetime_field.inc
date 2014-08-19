@@ -829,10 +829,6 @@ class DateTime_Field
 			$format = $print_format;
 		}
 
-		// We need to strip certain elements out of the format if we don't have enough
-		// information about our datetime.
-		// A mapping of which format elements are dependant on which time elements.
-		$dep=Array('h' => 'aABcgGhHrU', 'd' => 'cdDIjlOrSUwWzZ', 'm' => 'cDFIlmMnOrtUwWzZ', 'y' => 'cDlLrtUwWYyz', 'i' => 'cirU', 's' => 'crsU');
 		$es = '';
 		foreach ($v = $this->strToUnitsArray($this->value) as $u => $n) {
 			if ($n < 0) {
@@ -841,7 +837,7 @@ class DateTime_Field
 				} else {
 					$$u = 0;
 				}
-				$es .= $dep[$u];
+				if ($u == 'y' || $u == 'Y') $es .= $u;
 			} else {
 				$$u = $n;
 			}
@@ -859,14 +855,6 @@ class DateTime_Field
 			$y      = 1980;
 			$format = str_replace('Y', '||||', $format);
 			$format = str_replace('y', '~~', $format);
-		}
-		if ($es) {
-			$regexp = "/[\\s]*[^a-zA-Z\\s]*[$es][^a-zA-Z\\|\{4\}\\~\{2\}\\s]*[\\s]*/";
-			$format = preg_replace($regexp, ' ', $format);
-			if ($real_y) {
-				$format = str_replace('||||', $real_y, $format);
-				$format = str_replace('~~', $real_y%100, $format);
-			}
 		}
 
 		// Circa
