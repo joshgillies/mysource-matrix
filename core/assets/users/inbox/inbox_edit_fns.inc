@@ -243,7 +243,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<?php hidden_field($prefix.'_messages['.$data['msgid'].']', '1'); ?>
 					</td>
 					<td class="sq-backend-table-cell" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
-						&nbsp;<?php echo $data['subject'];?>
+						&nbsp;<?php echo htmlspecialchars($data['subject'], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET); ?>
 					</td>
 					<td class="sq-backend-table-cell" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
@@ -504,7 +504,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<?php hidden_field($prefix.'_messages['.$data['msgid'].']', '1'); ?>
 					</td>
 					<td class="sq-backend-table-cell" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
-						&nbsp;<?php echo $data['subject'];?>
+						&nbsp;<?php echo htmlspecialchars($data['subject'], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET); ?>
 					</td>
 					<td class="sq-backend-table-cell" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
@@ -716,7 +716,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<?php hidden_field($prefix.'_messages['.$data['msgid'].']', '1'); ?>
 					</td>
 					<td class="sq-backend-table-cell" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
-						&nbsp;<?php echo $data['subject'];?>
+						&nbsp;<?php echo htmlspecialchars($data['subject'], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET); ?>
 					</td>
 					<td class="sq-backend-table-cell" onclick="showBody('<?php echo $data['msgid'];?>', this);" style="cursor: pointer;white-space: nowrap;">
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>

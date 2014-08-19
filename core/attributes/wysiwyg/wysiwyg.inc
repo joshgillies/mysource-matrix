@@ -338,7 +338,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 		    ?>
 		  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>"><?php echo $this->value;?></div>
-		  <input  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" value=""/>
+		  <textarea id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input"></textarea>
 		  <?php
 		}
 		else {
