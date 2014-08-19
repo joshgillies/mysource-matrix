@@ -1553,7 +1553,7 @@ class MySource extends MySource_Object
 				// we will only be giving them an incorrect login key error
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
 					if (SQ_IN_LOGIN) {
-						$current_url = current_url(TRUE,FALSE, FALSE);
+						$current_url = current_url(TRUE,TRUE, FALSE);
 						do_redirect($current_url);
 					}
 					return;
@@ -2269,7 +2269,7 @@ class MySource extends MySource_Object
 		}
 
 		if (SQ_IN_LOGIN) {
-			$current_url = current_url(TRUE, FALSE, FALSE);
+			$current_url = current_url(TRUE, TRUE, FALSE);
 			do_redirect($current_url);
 		}
 
