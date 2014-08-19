@@ -217,13 +217,20 @@ class Page_Asset_Builder extends Page
 	*/
 	function isDeletableLink($linkid)
 	{
+		if ($GLOBALS['SQ_PURGING_TRASH']) {
+			return TRUE;
+		}
 
 		// the only reason why we would object to this link being deleted is if it is a bodycopy linked to us
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '1');
+		$minor_type_code = array_get_index($link, 'minor_type_code', '');
+		$is_exclusive = array_get_index($link, 'is_exclusive', FALSE);
+		$value = array_get_index($link, 'value', '');
 
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		if ($minor_type_code == 'bodycopy' && $is_exclusive) {
+			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
+			
+			return translate('core_cannot_delete_exclusive_link', $major_type_code, ucwords(str_replace('_', ' ', $value)).' Bodycopy');
 		}
 
 		return parent::isDeletableLink($linkid);
