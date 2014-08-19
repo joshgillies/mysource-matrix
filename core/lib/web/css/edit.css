@@ -2960,6 +2960,7 @@ img.sq-tag-line.sq-icon {
 .sq-tag-line.sq-info-asset-name {
 	font-weight: 				bold;
 	padding-left:				4px;
+	word-break:					break-all; 
 }
 
 /* EMAIL OPTIONS CONFIGURATION SCREEN */
