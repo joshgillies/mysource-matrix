@@ -1066,7 +1066,7 @@ class MySource extends MySource_Object
 		if ($this->getGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', TRUE)) {
 	    	// Replace any global keywords first
 			replace_global_keywords($content);
-		
+
 			// Perform any additional replacements
 			$keywords = retrieve_keywords_replacements($content, '', TRUE);
 			foreach ($keywords as $word) {
@@ -1608,7 +1608,7 @@ class MySource extends MySource_Object
 						} else if ($login_username === 'root') {
 							$display_message = $failure_reason = translate('root_user_disabled');
 						} else if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
-							$failure_reason = translate('user_status_not_live');									
+							$failure_reason = translate('user_status_not_live');
 						} else {
 							$failure_reason = translate('user_asset_in_trash');
 						}
@@ -1689,7 +1689,7 @@ class MySource extends MySource_Object
 					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used
 					$_REQUEST['just_logged_out'] = 1;
 
-					// Strip any SQ_ACTION from the URL and redirect. 
+					// Strip any SQ_ACTION from the URL and redirect.
 					// but don't redirect if it is a failed login attemp, still need to diplay the error message
 					if(!isset($failure_reason)) {
 						$new_get = $_GET;
@@ -2283,7 +2283,7 @@ class MySource extends MySource_Object
 			}
 			do_redirect($current_url);
 		}
-	
+
 		return TRUE;
 
 	}//end loginUser()
@@ -2475,7 +2475,7 @@ class MySource extends MySource_Object
 	* Update the session cookie with the appropriate expiry time given the kind of user we are
 	*
 	* Note: this function must be called before any other cookies are set or it will clear their set-cookie headers
-	* 
+	*
 	* @param boolean	$force_send	force send cookie header to clear previous set-cookie headers
 	*
 	* @return void
@@ -3932,9 +3932,9 @@ class MySource extends MySource_Object
 					</th>
 					<th style="text-align:right;">
 						<a href="#" onclick="window.top.location='<?php echo $exit_url; ?>'; return false;" >
-							<?php 
+							<?php
 								echo translate('exit_rollback_mode').' ';
-								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('exit_rollback_view'), NULL); 
+								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('exit_rollback_view'), NULL);
 							?>
 						</a>
 					</th>
@@ -4419,7 +4419,7 @@ class MySource extends MySource_Object
 		$y = (in_array($font, $default_fonts)) ? (0 + $vpad) : (round($height - ($size / 2), 0) - $vpad);
 
 		// invalid image dimensions
-		if(empty($width) || empty($height)) 
+		if(empty($width) || empty($height))
 			exit();
 
 		// Create the image
@@ -4698,12 +4698,12 @@ class MySource extends MySource_Object
 
 		?>
 		<div class="sq-backend-warning-wrapper">
-			<table class="sq-backend-table sq-backend-warning-table">
+			<table class="sq-backend-table sq-backend-warning-table <?php echo SQ_MAINTENANCE_MODE == '2' ? 'sq-maintenance-enabled' : 'sq-maintenance-notify'; ?>">
 				<tr>
 					<th class="sq-backend-warning-header">
 						<?php echo SQ_MAINTENANCE_MODE == '2' ? translate('maintenance_mode_enabled') : translate('maintenance_mode_notify'); ?>
 					</th>
-				</tr>	
+				</tr>
 				<tr>
 					<td colspan="2" ><?php echo SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE; ?>
 					</td>
@@ -4748,7 +4748,7 @@ class MySource extends MySource_Object
 					<th class="sq-backend-warning-header">
 						<?php echo translate('asset_deprecated_header'); ?>
 					</th>
-				</tr>	
+				</tr>
 				<tr>
 					<td colspan="2" ><?php echo translate('asset_deprecated_note', ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
 					</td>
