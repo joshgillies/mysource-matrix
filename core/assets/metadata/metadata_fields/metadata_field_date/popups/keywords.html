@@ -72,6 +72,11 @@
 																<td class="sq-backend-table-cell">000 through 999</td>
 															</tr>
 															<tr>
+																<td class="sq-backend-table-cell">c</td>
+																<td class="sq-backend-table-cell">ISO 8601 date (added in PHP 5)</td>
+																<td class="sq-backend-table-cell">2004-02-12T15:19:21+00:00</td>
+															</tr>
+															<tr>
 																<td class="sq-backend-table-cell">d</td>
 																<td class="sq-backend-table-cell">Day of the month, 2 digits with leading zeros</td>
 																<td class="sq-backend-table-cell">01 to 31</td>
@@ -80,6 +85,11 @@
 																<td class="sq-backend-table-cell">D</td>
 																<td class="sq-backend-table-cell">A textual representation of a day, three letters</td>
 																<td class="sq-backend-table-cell">Mon through Sun</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">e</td>
+																<td class="sq-backend-table-cell">Timezone identifier (added in PHP 5.1.0)</td>
+																<td class="sq-backend-table-cell">UTC, GMT, Sydney/Australia</td>
 															</tr>
 															<tr>
 																<td class="sq-backend-table-cell">F</td>
@@ -147,9 +157,19 @@
 																<td class="sq-backend-table-cell">1 through 12</td>
 															</tr>
 															<tr>
+																<td class="sq-backend-table-cell">o</td>
+																<td class="sq-backend-table-cell">ISO-8601 year number. This has the same value as Y, except that if the ISO week number (W) belongs to the previous or next year, that year is used instead. (added in PHP 5.1.0)</td>
+																<td class="sq-backend-table-cell">2009 or 2014</td>
+															</tr>
+															<tr>
 																<td class="sq-backend-table-cell">O</td>
 																<td class="sq-backend-table-cell">Difference to Greenwich time (GMT) in hours</td>
 																<td class="sq-backend-table-cell">Example: +0200</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">P</td>
+																<td class="sq-backend-table-cell">Difference to Greenwich time (GMT) with colon between hours and minutes (added in PHP 5.1.3)</td>
+																<td class="sq-backend-table-cell">+10:00</td>
 															</tr>
 															<tr>
 																<td class="sq-backend-table-cell">r</td>
@@ -175,6 +195,11 @@
 																<td class="sq-backend-table-cell">T</td>
 																<td class="sq-backend-table-cell">Timezone setting of this machine</td>
 																<td class="sq-backend-table-cell">EST, MDT ...</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">u</td>
+																<td class="sq-backend-table-cell">Microseconds (added in PHP 5.2.2). Note that date() will always generate 000000 since it takes an integer parameter, whereas DateTime::format() does support microseconds.</td>
+																<td class="sq-backend-table-cell">654321</td>
 															</tr>
 															<tr>
 																<td class="sq-backend-table-cell">U</td>
