@@ -1232,7 +1232,61 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processUseAccessibleFormat()
-	
-	
+
+
+	/**
+	* Prints "no access to submissions" message
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNoAccessToSubmissions(&$asset, &$o, $prefix)
+	{
+		echo '<em>'.translate('cms_form_no_access_to_submissions').'</em>';
+
+	}//end paintNoAccessToSubmissions()
+
+
+	/**
+	* Returns TRUE if the current user has restricted access to the Form's submissions
+	*
+	* @param Object $asset
+	* @param String $prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function restrictedSubmissionAccess($asset, $prefix)
+	{
+		if ($asset->attr('restricted_submission_access')) {
+			// If access to submission is restricted then user must have admin read access
+			return $asset->adminAccess();
+		}
+
+		return TRUE;
+
+	}//end restrictedSubmissionAccess()
+
+
+	/**
+	* Returns TRUE if the current user does NOT restricted access to the Form's submissions
+	*
+	* @param Object $asset
+	* @param String $prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function notRestrictedSubmissionAccess($asset, $prefix)
+	{
+		return !$this->restrictedSubmissionAccess($asset, $prefix);
+
+	}//end restrictedSubmissionAccess()
+
+
 }//end class
 ?>

@@ -22,7 +22,7 @@
 			<note></note>
 		</field>
 	</section>
-	<section name="Export" write_access="write:attributes">
+	<section name="Export" write_access="write:attributes" show_if="restrictedSubmissionAccess">
 		<field keyword="download_date_range">
 			<display_name>Date Range</display_name>
 			<function_call>
@@ -43,7 +43,14 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Submissions">
+	<section name="Export" show_if="notRestrictedSubmissionAccess">
+		<field>
+			<function_call>
+				<paint_function name="paintNoAccessToSubmissions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Submissions" show_if="restrictedSubmissionAccess">
 		<field keyword="submission_date_range">
 			<display_name>Date Range</display_name>
 			<function_call>
@@ -64,5 +71,12 @@
 			</function_call>
 		</field>
 		<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit. <![CDATA[<strong>Only completed submissions will be listed here.</strong>]]></note>
+	</section>
+	<section name="Submissions" show_if="notRestrictedSubmissionAccess">
+		<field>
+			<function_call>
+				<paint_function name="paintNoAccessToSubmissions" />
+			</function_call>
+		</field>
 	</section>
 </contents>
