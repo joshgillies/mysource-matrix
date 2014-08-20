@@ -109,5 +109,6 @@
 <string source="cms_form_honeypot_field">Honeypot Question</string>
 
 <string source="cms_form_required_field_note">Required field note</string>
+<string source="cms_form_no_access_to_submissions">This form has the "Restrict Submission Access" setting enabled, which means only users with admin permissions can access the form submission details.</string>
 
 </strings>
