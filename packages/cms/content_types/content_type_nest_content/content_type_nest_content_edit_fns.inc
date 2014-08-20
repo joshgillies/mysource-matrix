@@ -333,7 +333,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				switch ($asset->attr('paint_with')) {
 					case 'raw':
 						// Raw - just paint it
-						$nested_asset->printBody();
+						$nested_asset->printAssetBody();
 					break;
 
 					case 'default':
@@ -501,7 +501,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				switch ($asset->attr('paint_with')) {
 					case 'raw':
 						?>
-						$nested_asset->printBody();
+						$nested_asset->printAssetBody();
 						<?php
 					break;
 
