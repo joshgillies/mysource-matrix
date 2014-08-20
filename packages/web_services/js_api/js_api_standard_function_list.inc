@@ -54,7 +54,7 @@ class Js_Api_Standard_Function_List
 *
 * @version $Revision: 0.1
 */
-function createRequest() 
+function createRequest()
 {
 	var request;
 	try {
@@ -236,7 +236,7 @@ function dumpObj(obj, parent) {
 *
 * @version $Revision: 0.1
 */
-function getGeneral(asset_id, get_attributes, dataCallback) 
+function getGeneral(asset_id, get_attributes, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -318,7 +318,7 @@ function getAttributes(asset_id, dataCallback)
 *
 * @version $Revision: 0.1
 */
-function setAttribute(asset_id, attr_name, attr_val, dataCallback) 
+function setAttribute(asset_id, attr_name, attr_val, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -341,7 +341,7 @@ function setAttribute(asset_id, attr_name, attr_val, dataCallback)
 *
 * @version $Revision: 0.1
 */
-function setMultipleAttributes(asset_id, field_info, dataCallback) 
+function setMultipleAttributes(asset_id, field_info, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -381,7 +381,7 @@ function setMultipleAttributes(asset_id, field_info, dataCallback)
 *
 * @version $Revision: 0.1
 */
-function getMetadata(asset_id, dataCallback) 
+function getMetadata(asset_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -405,12 +405,12 @@ function getMetadata(asset_id, dataCallback)
 *
 * @param string		asset_id		Id of the asset we are getting info for
 * @param string		field_id		Id of the metadata field we want to set for an asset
-* @param string		$field_val		Value that needs to be set for metadata field 
+* @param string		$field_val		Value that needs to be set for metadata field
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
 */
-function setMetadata(asset_id, field_id, field_val, dataCallback) 
+function setMetadata(asset_id, field_id, field_val, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -732,7 +732,7 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 	if (!isset(attributes)) attributes = '';
 
 	// Build our string
-	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=createAsset' + 
+	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=createAsset' +
 				'&id=' + parent_id +
 				'&type_code=' + type_code +
 				'&asset_name=' + asset_name.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") +
@@ -761,7 +761,7 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 * @param	string		link_value		value of link to create to the parent for this new asset('' by default)
 * @param	function 	dataCallback	Custom callback function
 *
-* 
+*
 */
 function createFileAsset(parentID, type_code, friendly_name, link_type, link_value, dataCallback)
 {
@@ -961,7 +961,7 @@ function createLink(parent_id, child_id, link_type, link_value, sort_order, is_d
 	if (!isset(is_exclusive)) is_exclusive = '';
 
 	// Build our string
-	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=createLink' + 
+	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=createLink' +
 				'&id=' + child_id +
 				'&parent_id=' + parent_id +
 				'&link_type=' + link_type +
@@ -1066,7 +1066,7 @@ function removeMultipleLinks(link_info, dataCallback)
 	}
 
 	// Build our string
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=removeMultipleLinks&parent_id=' + parentid.substring(0, parentid.length-2) + 
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=removeMultipleLinks&parent_id=' + parentid.substring(0, parentid.length-2) +
 				'&child_id=' + childid.substring(0, childid.length-2) +
 				'&link_type=' + link_type.substring(0, link_type.length-2) +
 				'&link_value=' + link_value.substring(0, link_value.length-2)
@@ -1113,7 +1113,7 @@ function moveLink(old_parent_id, child_id, old_link_type, old_link_value, new_pa
 	new_position      = (isset(new_position) && new_position != '') ? new_position : '0';
 
 	// Build our string
-	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=moveLink' + 
+	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=moveLink' +
 				'&id=' + child_id +
 				'&old_parent_id=' + old_parent_id  +
 				'&old_link_type=' + old_link_type  +
@@ -1167,7 +1167,7 @@ function updateLink(parent_id, child_id, existing_link_type, existing_link_value
 	locked    = isset(locked) ? locked : '';
 
 	// Build our string
-	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=updateLink' + 
+	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=updateLink' +
 				'&id=' 					+ child_id +
 				'&parent_id=' 			+ parent_id +
 				'&existing_link_type='	+ existing_link_type +
@@ -1271,7 +1271,7 @@ function updateMultipleLinks(link_info, dataCallback)
 	}
 
 	// Build our string
-	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=updateMultipleLinks' + 
+	var url =	'<?php echo $api_url; ?>' + '?key=' + api_key + '&type=updateMultipleLinks' +
 				'&parent_id=' + parentid.substring(0, parentid.length-2) +
 				'&child_id=' + childid.substring(0, childid.length-2) +
 				'&existing_link_type=' + existing_link_type.substring(0, existing_link_type.length-2) +
@@ -1532,7 +1532,7 @@ function getWorkflowSchema(asset_id, granted, running, dataCallback)
 	var granted = isset(granted) && ( granted.toString().toLowerCase() != 'null' && granted != '' ) ? granted : '';
 	var running = isset(running) && ( running.toString().toLowerCase() != 'null' && running != '' ) ? running : 0;
 
-	// we cannot pass TRUE or FALSE as string so lets do our conversion 
+	// we cannot pass TRUE or FALSE as string so lets do our conversion
 	// but try conversion only if its a string still
 	if (typeof(granted) == 'string') {
 		if (granted.toLowerCase() == 'false') {
@@ -1651,7 +1651,7 @@ function importAssetsFromXML(assetID, filePath, dataCallback)
 * @return array
 * @access public
 */
-function getRoles(assetid, roleid, userid, include_assetid, include_globals, expand_groups, inc_dependants, include_parents, type_codes, strict_type_code,  dataCallback) 
+function getRoles(assetid, roleid, userid, include_assetid, include_globals, expand_groups, inc_dependants, include_parents, type_codes, strict_type_code,  dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -2099,7 +2099,7 @@ function setContext(context_id, dataCallback)
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
 	var url = '<?php echo $api_url; ?>' + '?key=' + api_key +
-			  '&type=setContext' + 
+			  '&type=setContext' +
 			  '&context_id=' + context_id;
 
 	// Make our request
@@ -2242,7 +2242,7 @@ function editMetadataSchema(assetid, schemaid, set, granted, cascades, dataCallb
 /*
 * creates question(s) of a type on the passed formid or the form section id
 *
-* @param string		assetid			the asset of the form or form section to 
+* @param string		assetid			the asset of the form or form section to
 *									add the question asset
 * @param string		type_code		the type of question to be added (default: Text)
 * @param int		units			number of question to add of a certain type (default:1)
@@ -2277,7 +2277,7 @@ function createQuestion(assetid, type_code, units, dataCallback)
 /*
 * updates a question of the passed formid or the form section id
 *
-* @param string		assetid			the asset of the form or form section to 
+* @param string		assetid			the asset of the form or form section to
 *									update the question on
 * @param string		question_id		the asset id of the question to update
 * @param json		field_info		The object containing data that needs to be updated
@@ -2318,7 +2318,7 @@ function updateQuestion(assetid, question_id, field_info, dataCallback)
 /*
 * removes a question of the passed formid or the form section id
 *
-* @param string		assetid			the asset of the form or form section to 
+* @param string		assetid			the asset of the form or form section to
 *									remove the question off
 * @param string		question_id		the asset id of the question to remove
 *
@@ -2374,7 +2374,7 @@ function updateQuestionOrder(assetid, sort_order, dataCallback)
 			<?php
 		}//end if(update_question_order)
 
-		
+
 		if ($js_api_asset->attr('get_ga_statistics')) {
 			?>
 
@@ -2398,7 +2398,7 @@ function updateQuestionOrder(assetid, sort_order, dataCallback)
 		* - Setting start date, on the other hand, is inclusive.
 		* - metrics also can be set to 'SQ_SITE_METRICS' or 'SQ_PAGE_METRICS'
 		*   for a set of standard site or page metrics.
-		* - sort_by array are 
+		* - sort_by array are
 		* - filters are ANDed together. Filters can also be specified as an array
 		*   of subfilters which are ORed together first.
 		*
@@ -2417,10 +2417,10 @@ function updateQuestionOrder(assetid, sort_order, dataCallback)
 		{
 			// Create blank function
             var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-        
+
             var url = '<?php echo $api_url; ?>' + '?key=' + api_key
                         + '&type=getGoogleAnalyticsStatistics&id=' + assetid;
-        
+
             for (field_name in request) {
                 if (Object.prototype.toString.call(request[field_name]) === '[object Array]') {
                     url = url + '&' + field_name + '=' + request[field_name].join('\\,');
@@ -2437,7 +2437,36 @@ function updateQuestionOrder(assetid, sort_order, dataCallback)
 
 			<?php
 		}//end if(get_statistics)
-		
+
+
+		if ($js_api_asset->attr('get_system_information')) {
+			?>
+/*
+* updates the question order on the passed formid or the form section id
+*
+* @param string		assetid			the asset of the form or form section to update
+* @param array		sort_order		new order of the questions
+*
+*
+* @return array
+* @access public
+*/
+function getSystemInformation(assetid, sort_order, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+				+ '&type=getSystemInformation';
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end updateQuestionOrder()
+
+			<?php
+		}//end if(update_question_order)
+
 
 	}//end paintJSFunctions()
 
