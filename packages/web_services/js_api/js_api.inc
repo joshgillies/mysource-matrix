@@ -91,6 +91,7 @@ class JS_Api extends Page
 									'removeQuestion'				=> 'remove_form_question',
 									'updateQuestionOrder'			=> 'update_question_order',
 									'getGoogleAnalyticsStatistics'  => 'get_ga_statistics',
+									'getSystemInformation'          => 'get_system_information',
 								  );
 
 	/*
@@ -151,6 +152,7 @@ class JS_Api extends Page
 									'getAllContexts'				=> Array('no_check'),
 									'setContext'					=> Array('no_check'),
 									'restoreContext'				=> Array('no_check'),
+									'getSystemInformation'			=> Array('no_check'),
 								   );
 
 
@@ -4962,6 +4964,39 @@ class JS_Api extends Page
 	    }
 
 	}//end _getGoogleAnalyticsStatistics()
+
+
+	/**
+	* Get common system information and preferences for the user
+	*
+	* @return array
+	* @access public
+	*/
+	function _getSystemInformation()
+	{
+	    $user   = $GLOBALS['SQ_SYSTEM']->user;
+		$retval = Array();
+
+		// User preferences
+		$retval['preferences'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs();
+
+		// Maintenance mode.
+		require_once SQ_DATA_PATH.'/private/conf/maintenance.inc';
+		$maint_mode = Array(
+		    'enabled' => (((string) SQ_MAINTENANCE_MODE) === '2'),
+		    'notify'  => (((string) SQ_MAINTENANCE_MODE) === '1'),
+		);
+
+		if (((string) SQ_MAINTENANCE_MODE) === '2') {
+		    $maint_mode['message'] = SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE;
+		} else if (((string) SQ_MAINTENANCE_MODE) === '1') {
+		    $maint_mode['message'] = SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE;
+		}
+		$retval['maintenance'] = $maint_mode;
+
+		return $retval;
+
+	}//end _getSystemInformation()
 
 
 	/**

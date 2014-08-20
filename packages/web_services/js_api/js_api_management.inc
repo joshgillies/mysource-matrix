@@ -484,6 +484,14 @@ class JS_Api_Management extends Asset_Management
 																			'allow_empty'=> FALSE,
 																		   ),
 														),
+						'get_system_information'  	=> Array(
+														'added'			=> '0.8',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'=> FALSE,
+																		   ),
+														),
 					  );
 
 	}//end constructor
@@ -678,11 +686,11 @@ class JS_Api_Management extends Asset_Management
 			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
 
 		}//end if - upgrade to version 0.6
-		
+
 
 		if (version_compare($current_version, '0.7', '<')) {
 
-			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.7');
+			pre_echo('STARTING JS API UPGRADE - FROM VERSION '.$current_version.' TO 0.7');
 				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 
@@ -705,9 +713,39 @@ class JS_Api_Management extends Asset_Management
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
 				}
-			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.7');
+			pre_echo('UPGRADE JS API COMPLETE - FROM VERSION '.$current_version.' TO 0.7');
 
-		}//end if - upgrade to version 0.6
+		}//end if - upgrade to version 0.7
+
+
+		if (version_compare($current_version, '0.8', '<')) {
+
+			pre_echo('STARTING JS API UPGRADE - FROM VERSION '.$current_version.' TO 0.8');
+				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
+
+				pre_echo('Upgrading '.count($children).' assets...');
+				foreach ($children as $assetid => $type) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->getAssetType());
+					if (is_null($asset)) continue;
+
+					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
+						trigger_localised_error('CMS0025', E_USER_WARNING, '0.8', $asset->name, $asset->id);
+						return FALSE;
+					}
+
+					$asset->setAttrValue('get_system_information', FALSE);
+
+					if (!$asset->saveAttributes()) {
+						trigger_localised_error('CMS0026', E_USER_WARNING, '0.8');
+						return FALSE;
+					}
+
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
+				}
+			pre_echo('UPGRADE JS API COMPLETE - FROM VERSION '.$current_version.' TO 0.8');
+
+		}//end if - upgrade to version 0.8
 
 		return TRUE;
 
