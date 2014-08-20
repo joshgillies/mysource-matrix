@@ -2275,7 +2275,7 @@ function replace_global_keywords(&$text)
 
 											ob_start();
 												// get the pront end of the asset but dont worry abt any errors here
-												$asset->printBody();
+												$asset->printAssetBody();
 												$content = ob_get_contents();
 											ob_end_clean();
 											$replacements[$full_keyword] = $content;
@@ -2351,7 +2351,7 @@ function replace_global_keywords(&$text)
 									if (!is_null($snippet_asset)) {
 										// printBody will handle the permission
 										ob_start();
-											$snippet_asset->printBody();
+											$snippet_asset->printAssetBody();
 											$replacement = ob_get_contents();
 										ob_end_clean();
 										$GLOBALS['SQ_SYSTEM']->am->forgetAsset($snippet_asset);
