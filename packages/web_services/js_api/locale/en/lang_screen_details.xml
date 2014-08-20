@@ -311,6 +311,19 @@
             <note />
         </field>
     </section>
+    <section name="System Information" write_access="write:attributes">
+        <field>
+            <display_name>Set All To</display_name>
+            <note />
+            <function_call>
+                <paint_function   name="paintSetAll"  />
+            </function_call>
+        </field>
+        <field attribute="get_system_information">
+            <display_name>Get System Information</display_name>
+            <note />
+        </field>
+    </section>
     <section name="Form Questions" write_access="write:attributes">
         <field>
             <display_name>Set All To</display_name>

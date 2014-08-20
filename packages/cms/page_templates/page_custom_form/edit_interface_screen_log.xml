@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Export" limbo_access="1">
+	<section name="Export" limbo_access="1" show_if="restrictedSubmissionAccess">
 		<field keyword="download_date_range">
 			<function_call>
 				<paint_function   name="paintDownloadDateRange"   />
@@ -41,7 +41,14 @@
 			</function_call>
 		</field>
 	</section>	
-	<section name="Submissions" limbo_access="0">
+	<section name="Export" show_if="notRestrictedSubmissionAccess">
+		<field>
+			<function_call>
+				<paint_function name="paintNoAccessToSubmissions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Submissions" limbo_access="0" show_if="restrictedSubmissionAccess">
 		<field keyword="submission_date_range">
 			<function_call>
 				<paint_function   name="paintSubmissionDateRange"   />
@@ -56,6 +63,13 @@
 			<function_call>
 				<paint_function   name="paintSubmissionList"   />
 				<process_function   name="processSubmissionList"   />
+			</function_call>
+		</field>
+	</section>
+	<section name="Submissions" show_if="notRestrictedSubmissionAccess">
+		<field>
+			<function_call>
+				<paint_function name="paintNoAccessToSubmissions" />
 			</function_call>
 		</field>
 	</section>

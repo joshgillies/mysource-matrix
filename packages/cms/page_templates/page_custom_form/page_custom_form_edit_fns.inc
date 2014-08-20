@@ -280,8 +280,63 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
 	
 	}//end processSendSubmissionsEmail()
-	
-	
+
+
+	/**
+	* Prints "no access to submissions" message
+	*
+	* @param object &$asset the asset whose interface we are painting
+	* @param object &$o     the outputter class
+	* @param string $prefix prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNoAccessToSubmissions(&$asset, &$o, $prefix)
+	{
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+	}//end paintNoAccessToSubmissions()
+
+
+	/**
+	* Returns TRUE if the current user has restricted access to the Form's submissions
+	*
+	* @param Object $asset
+	* @param String $prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function restrictedSubmissionAccess($asset, $prefix)
+    {
+		require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
+		$o = new Backend_Outputter();
+
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+    }//end restrictedSubmissionAccess()
+
+
+	/**
+	* Returns TRUE if the current user does NOT has restricted access to the Form's submissions
+	*
+	* @param Object $asset
+	* @param String $prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function notRestrictedSubmissionAccess($asset, $prefix)
+    {
+		require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
+		$o = new Backend_Outputter();
+
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+    }//end restrictedSubmissionAccess()
+
+
 	/**
 	* Delegate painting or processing to the child form's edit function
 	*
