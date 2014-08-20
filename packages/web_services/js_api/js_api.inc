@@ -4981,14 +4981,15 @@ class JS_Api extends Page
 		$retval['preferences'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs();
 
 		// Maintenance mode.
+		require_once SQ_DATA_PATH.'/private/conf/maintenance.inc';
 		$maint_mode = Array(
-		    'enabled' => ((string) SQ_MAINTENANCE_MODE === '2'),
-		    'notify'  => ((string) SQ_MAINTENANCE_MODE === '1'),
+		    'enabled' => (((string) SQ_MAINTENANCE_MODE) === '2'),
+		    'notify'  => (((string) SQ_MAINTENANCE_MODE) === '1'),
 		);
 
-		if ((string) SQ_MAINTENANCE_MODE === '2') {
+		if (((string) SQ_MAINTENANCE_MODE) === '2') {
 		    $maint_mode['message'] = SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE;
-		} else if ((string) SQ_MAINTENANCE_MODE === '1') {
+		} else if (((string) SQ_MAINTENANCE_MODE) === '1') {
 		    $maint_mode['message'] = SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE;
 		}
 		$retval['maintenance'] = $maint_mode;
