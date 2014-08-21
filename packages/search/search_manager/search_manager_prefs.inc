@@ -41,7 +41,7 @@ class Search_Manager_Prefs extends Prefs
 						'SQ_SEARCH_BACKEND_RESULT_LIMIT'	=> Array(
 																'name'			=> 'sch_pref_backend_result_limit',
 																'description'	=> 'The maximum number of results displayed in backend search (0 = no limit)',
-																'default'		=> 0,
+																'default'		=> 100,
 																'protected'		=> FALSE,
 															   ),
 					 );

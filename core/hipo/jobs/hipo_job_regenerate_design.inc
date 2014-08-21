@@ -82,7 +82,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	public static function getConfigVars()
 	{
 		return Array(
-				'SQ_HIPO_REGENERATE_DESIGN_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+				'SQ_HIPO_REGENERATE_DESIGN_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 20),
 			   );
 
 	}//end getConfigVars()

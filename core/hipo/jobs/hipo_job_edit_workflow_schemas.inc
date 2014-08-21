@@ -78,7 +78,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	public static function getConfigVars()
 	{
 		return Array(
-				'SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+				'SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 20),
 			   );
 
 	}//end getConfigVars()

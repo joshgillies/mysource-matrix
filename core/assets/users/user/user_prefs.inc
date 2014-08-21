@@ -68,7 +68,7 @@ class User_Prefs extends Prefs
 						'SQ_USER_LIMBO_HIDE_FRAMES'	=> Array(
 														'name'			=> 'user_prefs_limbo_hide_frames',
 														'description'	=> 'This preference determines whether or not the default frames are painted in Simple Edit',
-														'default'		=> FALSE,
+														'default'		=> TRUE,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_ATTRIBUTE_IMAGE'		=> Array(

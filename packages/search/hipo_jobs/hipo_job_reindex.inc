@@ -83,7 +83,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	public static function getConfigVars()
 	{
 		return Array(
-				'SQ_HIPO_REINDEX_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 5),
+				'SQ_HIPO_REINDEX_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 20),
 			   );
 
 	}//end getConfigVars()
