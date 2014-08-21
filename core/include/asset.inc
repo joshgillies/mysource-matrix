@@ -7102,8 +7102,7 @@ class Asset extends MySource_Object
 		}
 
 	}//end evaluateConditions
-	
-	
+
 
 	/**
 	*
@@ -7218,8 +7217,10 @@ class Asset extends MySource_Object
 				$keywords['begin_'.$condition_name.'% %else_'.$condition_name.'% %end_'.$condition_name] = 'Full Structure For '.ucwords(str_replace('_', ' ', $condition_name));
 			}
 		}
+
 		return $keywords;
-	}
+
+	}// getAvailableConditionKeywords()
 
 
 	/**
