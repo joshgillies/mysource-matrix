@@ -503,7 +503,7 @@ class Bodycopy_Container extends Asset
 				foreach ($keyword_replacements as $keyword => $replacement) {
 					if (strpos($keyword, 'globals_') !== FALSE && preg_match($pattern, $keyword)) {
 						$global_keyword_in_cond_replacement = '%'.preg_replace($pattern, '', $keyword).'%';
-						replace_global_keywords(&$global_keyword_in_cond_replacement);
+						replace_global_keywords($global_keyword_in_cond_replacement);
 						$keyword_replacements[preg_replace($pattern, '', $keyword)] = $global_keyword_in_cond_replacement;
 					}
 				}
