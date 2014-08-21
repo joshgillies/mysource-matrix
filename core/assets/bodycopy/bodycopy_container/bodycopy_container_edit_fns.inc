@@ -398,13 +398,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$result = string_to_file($output, $asset->data_path.'/'.$file_name);
 		
 		// check php syntax error if there is conditional keywords and php code in it
-		if($condition_keywords_used && !isset($asset->_tmp['syntax_checked'])) {
+		if ($condition_keywords_used && !isset($asset->_tmp['syntax_checked'])) {
 		    // don't waste time double checking it
 		    $asset->_tmp['syntax_checked'] = TRUE;
 		    $syntax_check = shell_exec('php -l '.escapeshellarg($asset->data_path.'/'.$file_name));
 		    if(strpos($syntax_check, 'Errors parsing') === 0) {
-			trigger_error('The content of asset #'.$asset->id.' is broken by misused conditional keywords. Make sure begin, else and end keywords are used in correct logical order.', E_USER_WARNING);
-			return FALSE;
+				trigger_error('The content of asset #'.$asset->id.' is broken by misused conditional keywords. Make sure begin, else and end keywords are used in correct logical order.', E_USER_WARNING);
+				return FALSE;
 		    }
 		}
 		
