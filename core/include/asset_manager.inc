@@ -4461,15 +4461,17 @@ class Asset_Manager extends MySource_Object
 	*										)
 	* </pre>
 	* @param boolean	$include_dependants	a boolean
+	* @param array		&$tree_data			Existing tree data, potentially from the cache
+	* @param boolean	$ignore_permissions Ignore permission on the assets
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array(), $include_dependants=TRUE)
+	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array(), $include_dependants=TRUE, &$tree_data=Array(), $ignore_permission=FALSE)
 	{
-		$tree_data = Array();
 		if (!is_array($majorids)) $majorids = Array($majorids);
 		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants);
+
 		return $tree_data;
 
 	}//end getAssetTree()
@@ -4497,11 +4499,12 @@ class Asset_Manager extends MySource_Object
 	*										)
 	* </pre>
 	* @param boolean	$include_dependants	Whether to include dependants
+	* @param boolean	$ignore_permissions Ignore permission on the assets
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants)
+	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants, $ignore_permissions=FALSE)
 	{
 		// Stuff that is only needed once per design file
 		$db = MatrixDAL::getDb();
@@ -4533,19 +4536,61 @@ class Asset_Manager extends MySource_Object
 
 		static $USERIDS_COND = NULL;
 
+		$bind_vars = Array();
 		if (is_null($USERIDS_COND)) {
-			if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin() || $ignore_permissions) {
 				$USERIDS_COND = '';
 			} else {
 				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
 				$userids = $current_user->getUserGroups();
 				$this->forgetAsset($current_user);
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$userids[] = $this->getSystemAssetid('public_user');
+				$public_userid = $this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = MatrixDAL::quote((string)$userids[$i]);
 				}
-				$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
+				$userids_str = implode(',', $userids);
+
+				$quoted_public_userid = MatrixDAL::quote($public_userid);
+				$quoted_read_perm = MatrixDAL::quote(SQ_PERMISSION_READ);
+
+				$USERIDS_COND = 'AND (
+					-- RHS (sq_vw_ast_role r) exists
+					EXISTS (
+						SELECT r.assetid FROM sq_vw_ast_role r
+						WHERE p.userid = r.roleid AND p.assetid = r.assetid
+						AND (
+							p.userid IN ('.$userids_str.')
+							OR r.userid IN ('.$userids_str.')
+						) AND (
+							(
+							 	p.permission = '.$quoted_read_perm.' 
+								AND (
+									p.userid <> '.$quoted_public_userid.'
+									OR r.userid <> '.$quoted_public_userid.'
+									OR (p.userid = '.$quoted_public_userid.' AND p.granted = \'1\')
+									OR (r.userid = '.$quoted_public_userid.' AND p.granted = \'1\')
+								)
+							)
+							OR (p.permission > '.$quoted_read_perm.' AND p.granted = \'1\')
+						)
+					) OR (
+						-- RHS does not exist
+						p.userid IN ( '.$userids_str.' ) 
+						AND (
+							(
+								p.permission = '.$quoted_read_perm.' 
+								AND (
+									p.userid <> '.$quoted_public_userid.'
+									OR (p.userid = '.$quoted_public_userid.' AND p.granted = \'1\')
+								)
+							) OR (
+								p.permission > '.$quoted_read_perm.' AND p.granted = \'1\'
+							)
+						)
+					)
+				)';
 			}
 
 			if (!empty($USERIDS_COND)) {
@@ -4554,7 +4599,6 @@ class Asset_Manager extends MySource_Object
 					HAVING MIN(p.granted) = \'1\'';
 			}
 		}
-
 
 		$include_types_str = '';
 		if (isset($include_type_list['type_code'])) {
@@ -4581,13 +4625,13 @@ class Asset_Manager extends MySource_Object
 		}
 
 
-		$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
+		$sql = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 				   FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON a.assetid = l.minorid
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path pt ON a.assetid = pt.assetid ';
 		if (!empty($USERIDS_COND)) {
 			$sql   .= '
-				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid ';
+				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid ';
 		}
 
 		$majorids_array = explode(',', $majorids_str);
@@ -4596,8 +4640,6 @@ class Asset_Manager extends MySource_Object
 		foreach (array_chunk($majorids_array, 999) as $chunk) {
 			$in_clause[] = ' (l.majorid IN ('.implode(', ', $chunk).'))';
 		}
-
-
 		$where = ' ('.implode(' OR ',$in_clause).')  AND ('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type).' > 0) ';
 
 		if (!empty($exclude_list)) {
@@ -4651,13 +4693,13 @@ class Asset_Manager extends MySource_Object
 				$tree_data[$row['majorid']] = Array();
 			}
 			$tree_data[$row['majorid']][$row['assetid']] = $row;
-
 		}
 
 		if (!empty($assetids) && ($levels > 1 || is_null($levels))) {
 			$levels--;
 			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list_before_quote, $link_type, $include_type_list, $include_dependants);
 		}
+
 		return TRUE;
 
 	}//end _getAssetTree()
