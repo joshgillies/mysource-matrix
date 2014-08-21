@@ -757,7 +757,7 @@ class Page_Password_Reset extends Page
 		$auto_complete = $this->attr('password_autocomplete') ? 'on' : 'off';
 		ob_start();
 			password_box('password[]', '', '', '', 'autocomplete="'.$auto_complete.'"');
-			password_box('password[]', '', '', '', $auto_complete);
+			password_box('password[]', '', '', '', 'autocomplete="'.$auto_complete.'"');
 		return ob_get_clean();
 
 	}//end getPasswordInputKeywordReplacement()
