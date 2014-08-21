@@ -75,7 +75,6 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintChooseTypeCode(&$asset, &$o, $prefix)
 	{
 		$type_codes = $asset->attr('type_codes');
-		bam($type_codes);
 		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 
 		foreach ($asset_types as $type_code) {
