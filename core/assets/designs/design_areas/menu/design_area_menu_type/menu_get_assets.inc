@@ -35,7 +35,7 @@ function menu_get_assets($id_name, $majorids, $ignore_permissions = FALSE)
 	$tree_data =& $GLOBALS['MENU_DATA'][$id_name]; // need ref
 
 	$assetids = Array();
-	$GLOBALS['SQ_SYSTEM']->am->getAssetTree($majorids, 1, Array(), SQ_SC_LINK_FRONTEND_NAV, Array(), TRUE, $tree_data);
+	$GLOBALS['SQ_SYSTEM']->am->getAssetTree($majorids, 1, Array(), SQ_SC_LINK_FRONTEND_NAV, Array(), TRUE, $tree_data, $ignore_permissions);
 	if (!empty($tree_data)) {
 		foreach($tree_data as $row) {
 			if (!empty($row) && is_array($row)) {

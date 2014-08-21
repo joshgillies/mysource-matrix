@@ -4462,11 +4462,12 @@ class Asset_Manager extends MySource_Object
 	* </pre>
 	* @param boolean	$include_dependants	a boolean
 	* @param array		&$tree_data			Existing tree data, potentially from the cache
+	* @param boolean	$ignore_permissions Ignore permission on the assets
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array(), $include_dependants=TRUE, &$tree_data=Array())
+	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array(), $include_dependants=TRUE, &$tree_data=Array(), $ignore_permission=FALSE)
 	{
 		if (!is_array($majorids)) $majorids = Array($majorids);
 		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants);
@@ -4498,11 +4499,12 @@ class Asset_Manager extends MySource_Object
 	*										)
 	* </pre>
 	* @param boolean	$include_dependants	Whether to include dependants
+	* @param boolean	$ignore_permissions Ignore permission on the assets
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants)
+	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants, $ignore_permissions=FALSE)
 	{
 		// Stuff that is only needed once per design file
 		$db = MatrixDAL::getDb();
@@ -4536,7 +4538,7 @@ class Asset_Manager extends MySource_Object
 
 		$bind_vars = Array();
 		if (is_null($USERIDS_COND)) {
-			if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin() || $ignore_permissions) {
 				$USERIDS_COND = '';
 			} else {
 				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
