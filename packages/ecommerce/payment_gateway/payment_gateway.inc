@@ -154,6 +154,21 @@ class Payment_Gateway extends Page
 	}//end setPendingOrderMerchantReference()
 
 
+
+	/**
+	* Determine whether this asset should send cacheable header
+	*
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function canSendCacheableHeader()
+	{
+		return FALSE;
+	}//end canSendCacheableHeader()
+	
+
+	
 }//end class
 
 ?>

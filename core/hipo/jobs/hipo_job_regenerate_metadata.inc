@@ -81,7 +81,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	*/
 	public static function getConfigVars()
 	{
-		return Array('SQ_HIPO_REGENERATE_METADATA_THRESHOLD' => Array('editable' => 1, 'default' => 1));
+		return Array('SQ_HIPO_REGENERATE_METADATA_THRESHOLD' => Array('editable' => 1, 'default' => 20));
 
 	}//end getConfigVars()
 

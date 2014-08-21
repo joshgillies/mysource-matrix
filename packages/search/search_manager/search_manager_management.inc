@@ -41,7 +41,7 @@ class Search_Manager_Management extends Asset_Management
 						'indexing'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> FALSE,
+												'default'		=> TRUE,
 												'description'	=> 'Turns indexing on or off',
 												'parameters'	=> Array(
 																	'allow_empty'	=> FALSE,

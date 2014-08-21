@@ -85,7 +85,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	public static function getConfigVars()
 	{
 		return Array(
-				'SQ_HIPO_PURGE_TRASH_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+				'SQ_HIPO_PURGE_TRASH_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 20),
 			   );
 
 	}//end getConfigVars()

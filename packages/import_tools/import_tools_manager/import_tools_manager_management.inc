@@ -42,7 +42,7 @@ class Import_Tools_Manager_Management extends Asset_Management
 						'import_dir'			=> Array(
 													'added'		=> '0.1',
 													'type'		=> 'text',
-													'default'	=> '',
+													'default'	=> 'data/bulk_import_tool',
 												   ),
 						'valid_file_types'		=> Array(
 													'added'		=> '0.1',
@@ -100,7 +100,7 @@ class Import_Tools_Manager_Management extends Asset_Management
 						'bulk_file_import_dir'	=> Array(
 													'added'		=> '0.1',
 													'type'		=> 'text',
-													'default'	=> '',
+													'default'	=> 'data/bulk_import_tool',
 												   ),
 						'cms_file_export_dir'	=> Array(
 													'added'		=> '0.2',

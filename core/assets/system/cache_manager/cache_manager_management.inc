@@ -46,7 +46,7 @@ class Cache_Manager_Management extends Asset_Management
 						'enabled'				=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> FALSE,
+													'default'		=> TRUE,
 													'description'	=> 'Turns caching on or off',
 													'parameters'	=> Array('allow_empty'	=> FALSE),
 												   ),
@@ -84,7 +84,7 @@ class Cache_Manager_Management extends Asset_Management
 						'type_codes'			=> Array(
 													'added'		=> '0.1',
 													'type'		=> 'serialise',
-													'default'	=> Array(),
+													'default'	=> Array("page_custom_form" => Array ( "enabled" => "0", "send_cacheable_header" => "0") , "page_custom_form_ecommerce" => Array ( "enabled" => "0", "send_cacheable_header" => "0") ,"page_asset_builder" => Array ( "enabled" => "0", "send_cacheable_header" => "0"), "page_account_manager" => Array ( "enabled" => "0", "send_cacheable_header" => "0"), "page_password_reset" => Array ( "enabled" => "0", "send_cacheable_header" => "0"), "ecommerce_checkout" => Array ( "enabled" => "0", "send_cacheable_header" => "0"), "ecommerce_cart" => Array ( "enabled" => "0", "send_cacheable_header" => "0"), "page_link_manager" => Array ( "enabled" => "0", "send_cacheable_header" => "0"), "page_online_quiz" => Array ( "enabled" => "0", "send_cacheable_header" => "0"), "page_poll" => Array ( "enabled" => "0", "send_cacheable_header" => "0"), "page_user_group_manager" => Array ( "enabled" => "0", "send_cacheable_header" => "0")),
 												   ),
 						'non_cachable_urls'		=> Array(
 													'added'		=> '0.1',
@@ -94,14 +94,14 @@ class Cache_Manager_Management extends Asset_Management
 						'browser_cache_expiry'	=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
-													'default'		=> '',
+													'default'		=> '1800',
 													'allow_negative'	=> FALSE,
 													'allow_empty'		=> TRUE,
 										   ),
 						'accelerator_cache_expiry'	=> Array(
 													'added'			=> '0.4',
 													'type'			=> 'int',
-													'default'		=> '',
+													'default'		=> '86400',
 													'allow_negative'	=> FALSE,
 													'allow_empty'		=> TRUE,
 										   ),
