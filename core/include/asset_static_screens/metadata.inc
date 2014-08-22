@@ -157,7 +157,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 						}
 
 						// construct example keywords link
-						$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keywords.php?assetid='.$owner->id.'&amp;all=0" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('click_here').'</a>';
+						$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keywords.php?assetid='.$owner->id.'&amp;all=0" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('metadata_keywords_list_link_text').'</a>';
 						echo '<p>'.translate('metadata_keyword_replacements_usage', $replacements_link).'.</p>';
 
 						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);

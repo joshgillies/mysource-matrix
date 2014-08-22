@@ -768,11 +768,13 @@
 	<string source="no_associated_urls">There are no URLs associated with this Asset</string>
 	<string source="available_urls">Available URLs</string>
 	<string source="no_associated_remaps">There are no remaps associated with this Asset</string>
-	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page. For a complete list of available keyword replacements %s</string>
+	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page. %s</string>
+	<string source="metadata_keywords_list_link_text">View all available keyword replacements</string>
 	<string source="metadata_indexed_keywords">Since search indexing is enabled, you can generate a list of keywords from the index using %s</string>
 	<string source="metadata_explain_use_default">Deselect the <![CDATA[<b>Use Default</b>]]> checkbox to enter a value for a field.  To revert the field to the default value, select the <![CDATA[<b>Use Default</b>]]> checkbox.</string>
 	<string source="metadata_explain_cascade_value">Select the <![CDATA[<b>Cascade value</b>]]> checkbox to cascade the value for a field to this asset's children for which this Metadata Schema is applied.</string>
-	<string source="metadata_date_object_keys">%s to see the formatting keywords that can be used in this field. Note that you cannot use a tilde (~) to separate date fields.</string>
+	<string source="metadata_date_object_keys">%s Note that you cannot use a tilde (~) to separate date fields.</string>
+	<string source="metadata_date_object_keys_list_link_text">View all the formatting keywords that can be used in this field</string>
 	<string source="creation_date">Creation date</string>
 	<string source="last_updated_date">Last updated date</string>
 	<string source="last_published_date">Last published date</string>

@@ -57,7 +57,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$attr = $asset->getAttribute('format');
 		$attr->paint($prefix.'_format', !$asset->writeAccess('attributes'));
 		ob_start();
-			?><a href="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/popups/keywords.html" onClick="var win = window.open(this.href, 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
+			?><a href="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/popups/keywords.html" onClick="var win = window.open(this.href, 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;"><?php echo translate('metadata_date_object_keys_list_link_text'); ?></a>.<?php
 			$replacements_link = ob_get_contents();
 		ob_end_clean();
 
