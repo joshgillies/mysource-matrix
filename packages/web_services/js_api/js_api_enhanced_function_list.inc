@@ -2888,7 +2888,8 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 					['id', options.assetid],
-					['question_id', options.question_id + question_data]
+					['question_id', options.question_id],
+					['question_data', question_data]
 			],options);
 
 		},// end updateQuestion
