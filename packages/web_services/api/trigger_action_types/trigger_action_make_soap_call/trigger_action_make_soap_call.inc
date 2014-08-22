@@ -220,7 +220,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					<td>
 					<?php
 						$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
-						combo_box($prefix.'[auth_type]', $auth_types, FALSE, $selected_auth_type);
+						combo_box($prefix.'[auth_type]', $auth_types, FALSE, $selected_auth_type, 0, $write_access ? '' : 'disabled');
 					?></td>
 				</tr>
 				<?php
@@ -244,11 +244,11 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				</tr>
 				<tr>
 					<th><?php echo translate('service_address'); ?></th>
-					<td><?php combo_box($prefix.'[service_address]', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></td>
+					<td><?php combo_box($prefix.'[service_address]', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address, 0, $write_access ? '' : 'disabled'); ?></td>
 				</tr>
 				<tr>
 					<th>Cache WSDL</th>
-					<td><?php combo_box($prefix.'[cache_wsdl]', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type); ?></td>
+					<td><?php combo_box($prefix.'[cache_wsdl]', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type, 0, $write_access ? '' : 'disabled'); ?></td>
 				</tr>
 				<tr>
 					<th><?php echo translate('local_cert'); ?></th>

@@ -4470,7 +4470,7 @@ class Asset_Manager extends MySource_Object
 	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array(), $include_dependants=TRUE, &$tree_data=Array(), $ignore_permission=FALSE)
 	{
 		if (!is_array($majorids)) $majorids = Array($majorids);
-		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants);
+		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants, $ignore_permission);
 
 		return $tree_data;
 
