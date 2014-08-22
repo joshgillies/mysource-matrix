@@ -1047,7 +1047,7 @@ class SOAP_Common
 				if ($write_access) {
 					password_box($password_field_name, array_get_index($settings, 'password', ''), 35);
 				} else {
-					echo array_get_index($settings, 'password', '');
+					echo translate('password_not_shown');
 				}
 				$o->closeField();
 
@@ -1058,11 +1058,25 @@ class SOAP_Common
 			?>
 				<tr>
 					<th><?php echo $username_label; ?></th>
-					<td><?php text_box($login_field_name, array_get_index($settings, 'login', ''), 35); ?></td>
+					<td><?php
+						if ($write_access) {
+							text_box($login_field_name, array_get_index($settings, 'login', ''), 35); 
+						} else {
+							echo array_get_index($settings, 'login', '');
+						}
+					?>
+					</td>
 				</tr>
 				<tr>
 					<th><?php echo $password_label; ?></th>
-					<td><?php password_box($password_field_name, array_get_index($settings, 'password', ''), 35); ?></td>
+					<td><?php
+						if ($write_access) {
+							password_box($password_field_name, array_get_index($settings, 'password', ''), 35);
+						} else {
+							echo translate('password_not_shown');
+						}
+					?>
+					</td>
 				</tr>
 				<tr>
 					<td colspan="2"><?php echo translate($auth_note_locale_string); ?>.</td>
