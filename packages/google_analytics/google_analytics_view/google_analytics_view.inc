@@ -120,7 +120,8 @@ class Google_Analytics_View extends Page
         }
 
         // Recalculate the period.
-        $period = new DateTime($start_date)->diff(new DateTime($end_date), TRUE);
+        $start_obj = new DateTime($start_date);
+        $period    = $start_obj->diff(new DateTime($end_date), TRUE);
 
         // Query definitions.
         $common_query_parts = Array(
