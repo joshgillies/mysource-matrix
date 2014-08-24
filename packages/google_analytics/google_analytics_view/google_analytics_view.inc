@@ -119,6 +119,9 @@ class Google_Analytics_View extends Page
             $end_date   = $end_date->format('Y-m-d');
         }
 
+        // Recalculate the period.
+        $period = DateTime::diff(new DateTime($start_date), new DateTime($end_date), TRUE);
+
         // Query definitions.
         $common_query_parts = Array(
             'ids'         => 'ga:'.$this->attr('viewid'),
@@ -225,8 +228,13 @@ class Google_Analytics_View extends Page
                         'errors' => $raw_response['errors'],
                       );
         } else {
-            $result = array_get_index($response, 'rows', Array());
-            foreach ($result as &$row) {
+            $result = Array(
+                'start-date' => $start_date,
+                'end-date'   => $end_date,
+                'period'     => ($period->days + 1),
+                'rows'       => array_get_index($response, 'rows', Array()),
+            );
+            foreach ($result['rows'] as &$row) {
                 $row = array_combine(array_merge($params['dimensions'], $params['metrics']), $row);
 
                 // Turn metrics into numbers
