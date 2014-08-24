@@ -78,7 +78,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	public static function getConfigVars()
 	{
 		return Array(
-				'SQ_HIPO_EDIT_STATUS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+				'SQ_HIPO_EDIT_STATUS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 20),
 			   );
 
 	}//end getConfigVars()

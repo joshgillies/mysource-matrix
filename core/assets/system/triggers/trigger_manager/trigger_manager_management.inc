@@ -43,7 +43,7 @@ class Trigger_Manager_Management extends Asset_Management
 						'enabled'	=> Array(
 										'added'			=> '0.1',
 										'type'			=> 'boolean',
-										'default'		=> FALSE,
+										'default'		=> TRUE,
 										'parameters'	=> Array(
 															'allow_empty'	=> FALSE,
 														   ),

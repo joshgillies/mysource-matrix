@@ -86,7 +86,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	public static function getConfigVars()
 	{
 		return Array(
-				'SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+				'SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 20),
 			   );
 
 	}//end getConfigVars()

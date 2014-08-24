@@ -367,7 +367,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							if ($write_access) {
 								echo '<br />';
 								check_box($prefix.'_revert['.$type_code.']['.$var_name.']');
-								echo ' <b>'.translate('revert_to_global_preferences').'</b>';
+								echo ' <label for="'.$prefix.'_revert['.$type_code.']['.$var_name.']">'.translate('revert_to_global_preferences').'</label>';
 							}
 							echo '</p>';
 							$prefs->paintBackend($o, $write_access, $var_name);
@@ -376,7 +376,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							if ($write_access) {
 								echo '<br />';
 								check_box($prefix.'_customise['.$type_code.']['.$var_name.']');
-								echo ' <b>'.translate('customise_this_preference').'</b>';
+								echo ' <label for="'.$prefix.'_customise['.$type_code.']['.$var_name.']">'.translate('customise_this_preference').'</label>';
 							}
 							echo '</p>';
 						}

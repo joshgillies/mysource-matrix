@@ -3229,12 +3229,24 @@ class JS_Api extends Page
 
 				$am->acquireLock($form_asset->id, 'attributes');
 				$success = TRUE;
-				foreach ($am->getAssetTypeAttributes($question_asset->type()) as $name => $type) {
-					if (isset($args[$name])) {
-						if (strpos($args[$name], '\,') !== FALSE) $args[$name] = explode('\\,', $args[$name]);
-						if ($type['type'] == 'serialise' && is_array($args[$name])) $args[$name] = serialize($args[$name]);
 
-						$success = $question_asset->setAttrValue($name, $args[$name]);
+				$attr_to_set = ltrim($args['question_data'], '&');
+				$attr_to_set = explode('&', $attr_to_set);
+
+				foreach ($attr_to_set as $index => $value) {
+					$attr_compoents = explode('=', $value);
+					$attr_to_set[$attr_compoents[0]] = $attr_compoents[1];
+					unset($attr_to_set[$index]);
+				}
+
+				if (!empty($attr_to_set)) {
+					foreach ($am->getAssetTypeAttributes($question_asset->type()) as $name => $type) {
+						if (isset($attr_to_set[$name])) {
+							if (strpos($attr_to_set[$name], '\,') !== FALSE) $attr_to_set[$name] = explode('\\,', $attr_to_set[$name]);
+							if ($type['type'] == 'serialise' && is_array($attr_to_set[$name])) $attr_to_set[$name] = serialize($attr_to_set[$name]);
+
+							$success = $question_asset->setAttrValue($name, $attr_to_set[$name]);
+						}
 					}
 				}
 				$success = $question_asset->saveAttributes();

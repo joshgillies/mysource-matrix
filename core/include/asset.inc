@@ -197,8 +197,8 @@ class Asset extends MySource_Object
 	* use it when warning the users on backend
 	*/
 	public $deprecated_since = '';
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -1146,7 +1146,7 @@ class Asset extends MySource_Object
 				trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
-			
+
 			$this->data_path = $data_path;
 			$this->data_path_public = $data_path_public;
 
@@ -1316,9 +1316,9 @@ class Asset extends MySource_Object
 			if($key === 'data_path' || $key === 'data_path_public') continue;
 			$this->$key = $value;
 		}
-		
+
 		// refresh data path to use live path
-		
+
 
 		// also keep the data in asset to notify other parts of matrix
 		// that we are reverting back to system version
@@ -5103,7 +5103,7 @@ class Asset extends MySource_Object
 			}
 			else {
 				$this->printBody();
-			}	
+			}
 	}//end printAssetBody()
 
 
@@ -5215,7 +5215,7 @@ class Asset extends MySource_Object
 			}
 		} else {
 			// we can't find a design, oh well let's just print out our body
-			$this->printAssetBody();	
+			$this->printAssetBody();
 		}
 
 	}//end printBodyWithPaintLayout()
@@ -6838,51 +6838,53 @@ class Asset extends MySource_Object
 
 	}//end getDependantParentURL()
 
-	
+
 	/**
 	*
 	* Get available conditions of the asset its parent site
 	*
 	* @param bool	$current_asset_only	just get current asset's conditions
-	* 
+	*
 	* @return array
 	* @access public
 	*/
 	function getAvailableConditions($current_asset_only=FALSE)
 	{
-	    if(!isset($this->vars['available_conditions'])) return Array();
-	    
-	    if(isset($this->_tmp['available_conditions'])) return $this->_tmp['available_conditions'];
-		
-	    $conditions = $this->attr('available_conditions');
+		if(!isset($this->vars['available_conditions'])) return Array();
 
-	    $conditions_to_return = Array();
-	    if(!empty($conditions)) {
-		foreach (array_keys($conditions) as $condition_name) {
-		    $condition_new_name = $condition_name.':'.$this->id;
-		    $conditions_to_return[$condition_new_name] = $conditions[$condition_name];
-		}
-	    }
+		if(isset($this->_tmp['available_conditions'])) return $this->_tmp['available_conditions'];
 
-	    if(!$current_asset_only) {
-		$sites = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', true);
-		foreach ($sites as $assetid => $type_code) {
-		    $site = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		    $conditions = $site->attr('available_conditions');
-		    if(!empty($conditions)) {
+		$conditions = $this->attr('available_conditions');
+
+		$conditions_to_return = Array();
+		if(!empty($conditions)) {
 			foreach (array_keys($conditions) as $condition_name) {
-			    $condition_new_name = $condition_name.':'.$site->id;
-			    $conditions_to_return[$condition_new_name] = $conditions[$condition_name];
+				$condition_new_name = $condition_name.':'.$this->id;
+				$conditions_to_return[$condition_new_name] = $conditions[$condition_name];
 			}
-		    }    
 		}
-	    }
-	    
-	    $this->_tmp['available_conditions'] = $conditions_to_return;
-	    return $conditions_to_return;
+
+		if(!$current_asset_only) {
+			$sites = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', true);
+			foreach ($sites as $assetid => $type_code) {
+				$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$conditions = $site->attr('available_conditions');
+				if(!empty($conditions)) {
+					foreach (array_keys($conditions) as $condition_name) {
+						$condition_new_name = $condition_name.':'.$site->id;
+						$conditions_to_return[$condition_new_name] = $conditions[$condition_name];
+					}
+				}
+			}
+		}
+
+		$this->_tmp['available_conditions'] = $conditions_to_return;
+
+		return $conditions_to_return;
+
 	}//end getAvailableConditions
-	
-	
+
+
 	/**
 	*
 	* Get all the conditions set for the asset
@@ -6893,17 +6895,19 @@ class Asset extends MySource_Object
 	*/
 	function getConditions()
 	{
-	     if(!isset($this->vars['conditions'])) return Array();
-	    $conditions = $this->attr('conditions');
-	    return $conditions;
+		if(!isset($this->vars['conditions'])) return Array();
+		$conditions = $this->attr('conditions');
+
+		return $conditions;
+
 	}//end getConditions
-	
-	
+
+
 	/**
 	* Evaluate set conditions for this asset.  Save tlhe results in $GLOBALS['SQ_CONDITION']
-	* 
+	*
 	* e.g
-	*  
+	*
 	* set conditions:
 	*    "conditional_div" => array (
 	*	1290 => array (
@@ -6912,10 +6916,10 @@ class Asset extends MySource_Object
 	*		0 => array (
 	*		    "logical_op" => "all_match",
 	*		    "conditions" => array (
-	*			0 => "In_user_group_1193" 
-	*		    ) 
-	*		) 
-	*	    ) 
+	*			0 => "In_user_group_1193"
+	*		    )
+	*		)
+	*	    )
 	*	),
 	*   ),
 	*
@@ -6930,182 +6934,175 @@ class Asset extends MySource_Object
 	*    ),
 	*    "conditional_keywords" => array (
 	*	"browser_is_firefox_1194" => 1,
-	*   ) 
-	* 
+	*   )
+	*
 	*
 	* @return null
 	* @access public
 	*/
 	public function evaluateConditions()
 	{
-	    // get preset conditions
-	    $conditions = $this->getConditions();
+		// get preset conditions
+		$conditions = $this->getConditions();
 
-	    if(!empty($conditions)) {
-		
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('condition');
-		
-		// re-use results to avoid redundant eval
-		$eval_results = Array();
-		
-		// if there is conditions forecd to be true
-		$force_true_condition = Array();
-		$force_false_condition = Array();
-		if(isset($_GET['SQ_CONDITION']) && !empty($_GET['SQ_CONDITION']) && is_array($_GET['SQ_CONDITION']) && $this->writeAccess()) {
-		    foreach ($_GET['SQ_CONDITION'] as $condition_name => $value) {
-			if($value == 1) {
-			    $force_true_condition[] = $condition_name;
-			}
-			else if ($value == 0) {
-			    $force_false_condition[] = $condition_name;
-			}
-		    }
-		}
-		
-		// send no-cache header
-		$send_no_cache_header = FALSE;
+		if(!empty($conditions)) {
 
-		// eval conditional div first
-		if(isset($conditions['conditional_div'])) {
-		    foreach ($conditions['conditional_div'] as $divid => $data) {
-			    $op_group = $data['logical_op_groups'];
-			    $div_ret = FALSE;
-			    $div_sum_ret = TRUE;
-			    // evaluate condition groups
-			    foreach ($data['conditions'] as  $group) {
-				if(isset($group['conditions'])) {
-				    $op = $group['logical_op'];
-				    $group_ret = FALSE;
-				    $sum_ret = TRUE;
-				    // evaluate conditions in groups
-				    foreach ($group['conditions'] as $condition) {
-					$condition_name_parts = explode(':', $condition);
-					$assetid = array_pop($condition_name_parts);
-					try {
-					    $result = $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid);
-					} catch (Exception $exception) {
-					    log_dump($exception->getMessage());
-					    continue;
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('condition');
+
+			// re-use results to avoid redundant eval
+			$eval_results = Array();
+
+			// if there is conditions forecd to be true
+			$force_true_condition = Array();
+			$force_false_condition = Array();
+
+			if(isset($_GET['SQ_CONDITION']) && !empty($_GET['SQ_CONDITION']) && is_array($_GET['SQ_CONDITION']) && $this->writeAccess()) {
+				foreach ($_GET['SQ_CONDITION'] as $condition_name => $value) {
+					if($value == 1) {
+						$force_true_condition[] = $condition_name;
+					} else if ($value == 0) {
+						$force_false_condition[] = $condition_name;
 					}
-					if($result) {
-					    // the condtion name should have an owner id appended
-					    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					    $conditions_info = $asset->getAvailableConditions(TRUE);
-
-					    if(isset($conditions_info[$condition])) {
-						// evaluate it
-						if(in_array($condition, $force_true_condition)) {
-						    $ret = TRUE;
-						}
-						else if (in_array($condition, $force_false_condition)) {
-						    $ret = FALSE;
-						}
-						else {
-						    $ret = Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
-						}
-
-						// cache eval results for condition keywords later
-						$eval_results[$condition] = $ret;
-
-						// send no-cache header is required
-						if($conditions_info[$condition]['force_no_cache']) {
-						    $send_no_cache_header = TRUE;
-						}
-
-						// adds up the results to evaluate the group result
-						$sum_ret = $sum_ret && $ret;
-						if($op === 'one_match' && $ret) {
-						    // if one match, any true will be true for all
-						    $group_ret = TRUE;
-						    break;
-						}
-						else if ($op === 'all_match' && !$ret) {
-						    // if all match, any false will be false for all
-						    $group_ret = FALSE;
-						    break;
-						}
-					    }
-					}
-				    }
-
-				    // if all match and all conditions are true, then the group is true, otherwise just use default value
-				    if($op === 'all_match' && $sum_ret) $group_ret = TRUE;
-
-				    // sum up results of groups
-				    $div_sum_ret = $div_sum_ret && $group_ret;
-				    if($op_group === 'one_match' && $group_ret) {
-					// if one match is required, any group is true would be true for all
-					$div_ret = TRUE;
-					break;
-				    }
-				    else if ($op_group === 'all_match' && !$group_ret) {
-					// if all match is required, any group is false would be false for all
-					$div_ret = FALSE;
-					break;
-				    }
 				}
-			    }
-			    // if all match and all of groups is true, then final result is true, otherwise, default to false
-			    if($op_group === 'all_match' && $div_sum_ret) $div_ret = TRUE;
-			    
-			    // save eval results in global var so bodycopy can use this results
-			    $GLOBALS['SQ_CONDITION']['conditional_div'][$divid] = $div_ret;
-		       }
-		}
-
-		// eval conditional keywords in the content
-		if(isset($conditions['conditional_keywords'])) {
-		    foreach ($conditions['conditional_keywords'] as $condition) {
-			// if the condition is already evaled previously, save the effort
-			if(isset($eval_results[$condition])) {
-			    $GLOBALS['SQ_CONDITION']['conditional_keywords'][$condition] = $eval_results[$condition];
 			}
-			else {
-			     // eval the condition
-			    $condition_name_parts = explode(':', $condition);
-			    $assetid = array_pop($condition_name_parts);
-			    try {
-				$result = $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid);
-			    } catch (Exception $exception) {
-				log_dump($exception->getMessage());
-				continue;
-			    }
-			    if($result) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$conditions_info = $asset->getAvailableConditions(TRUE);
-				if(isset($conditions_info[$condition])) {
-				    // evaluate it
-				    if(in_array($condition, $force_true_condition)) {
-					$ret = TRUE;
-				    }
-				    else if (in_array($condition, $force_false_condition)) {
-					$ret = FALSE;
-				    }
-				    else {
-					$ret = Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
-				    }
-				    $GLOBALS['SQ_CONDITION']['conditional_keywords'][$condition] = $ret;
-				    
-				    // if it forces no cache header to be sent, then send no-cache header
-				    if($conditions_info[$condition]['force_no_cache']) {
-					$send_no_cache_header = TRUE;
-				    }
+
+			// send no-cache header
+			$send_no_cache_header = FALSE;
+
+			// eval conditional div first
+			if(isset($conditions['conditional_div'])) {
+				foreach ($conditions['conditional_div'] as $divid => $data) {
+					$op_group = $data['logical_op_groups'];
+				 	$div_ret = FALSE;
+					$div_sum_ret = TRUE;
+					// evaluate condition groups
+				 	foreach ($data['conditions'] as  $group) {
+						if(isset($group['conditions'])) {
+							$op = $group['logical_op'];
+							$group_ret = FALSE;
+							$sum_ret = TRUE;
+							// evaluate conditions in groups
+							foreach ($group['conditions'] as $condition) {
+								$condition_name_parts = explode(':', $condition);
+								$assetid = array_pop($condition_name_parts);
+								try {
+									$result = $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid);
+								} catch (Exception $exception) {
+									log_dump($exception->getMessage());
+									continue;
+								}
+								if ($result) {
+									// the condtion name should have an owner id appended
+									$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+									$conditions_info = $asset->getAvailableConditions(TRUE);
+
+									if (isset($conditions_info[$condition])) {
+										// evaluate it
+										if (in_array($condition, $force_true_condition)) {
+											$ret = TRUE;
+										} else if (in_array($condition, $force_false_condition)) {
+											$ret = FALSE;
+										} else {
+											$ret = Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
+										}
+
+										// cache eval results for condition keywords later
+										$eval_results[$condition] = $ret;
+
+										// send no-cache header is required
+										if($conditions_info[$condition]['force_no_cache']) {
+											$send_no_cache_header = TRUE;
+										}
+
+										// adds up the results to evaluate the group result
+										$sum_ret = $sum_ret && $ret;
+										if ($op === 'one_match' && $ret) {
+											// if one match, any true will be true for all
+											$group_ret = TRUE;
+											break;
+										} else if ($op === 'all_match' && !$ret) {
+											// if all match, any false will be false for all
+											$group_ret = FALSE;
+											break;
+										}
+									}
+								}
+							}
+
+							// if all match and all conditions are true, then the group is true, otherwise just use default value
+				 			if ($op === 'all_match' && $sum_ret) $group_ret = TRUE;
+
+							// sum up results of groups
+							$div_sum_ret = $div_sum_ret && $group_ret;
+							if($op_group === 'one_match' && $group_ret) {
+								// if one match is required, any group is true would be true for all
+								$div_ret = TRUE;
+								break;
+							} else if ($op_group === 'all_match' && !$group_ret) {
+								// if all match is required, any group is false would be false for all
+								$div_ret = FALSE;
+								break;
+							}
+						}
+					}
+					// if all match and all of groups is true, then final result is true, otherwise, default to false
+					if ($op_group === 'all_match' && $div_sum_ret) $div_ret = TRUE;
+
+					// save eval results in global var so bodycopy can use this results
+					$GLOBALS['SQ_CONDITION']['conditional_div'][$divid] = $div_ret;
 				}
-			    }			    
-			}    
-		    }
+			}
+
+			// eval conditional keywords in the content
+			if (isset($conditions['conditional_keywords'])) {
+				foreach ($conditions['conditional_keywords'] as $condition) {
+					// if the condition is already evaled previously, save the effort
+					if(isset($eval_results[$condition])) {
+						$GLOBALS['SQ_CONDITION']['conditional_keywords'][$condition] = $eval_results[$condition];
+					} else {
+						// eval the condition
+						$condition_name_parts = explode(':', $condition);
+						$assetid = array_pop($condition_name_parts);
+						try {
+							$result = $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid);
+						} catch (Exception $exception) {
+							log_dump($exception->getMessage());
+							continue;
+						}
+						if ($result) {
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							$conditions_info = $asset->getAvailableConditions(TRUE);
+							if (isset($conditions_info[$condition])) {
+								// evaluate it
+								if(in_array($condition, $force_true_condition)) {
+									$ret = TRUE;
+								} else if (in_array($condition, $force_false_condition)) {
+									$ret = FALSE;
+								} else {
+									$ret = Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
+								}
+								$GLOBALS['SQ_CONDITION']['conditional_keywords'][$condition] = $ret;
+
+								// if it forces no cache header to be sent, then send no-cache header
+								if ($conditions_info[$condition]['force_no_cache']) {
+									$send_no_cache_header = TRUE;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// send no cache header if required
+			if($send_no_cache_header) {
+				header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+				header('Pragma: no-cache');
+				header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
+			}
 		}
-		// send no cache header if required
-		if($send_no_cache_header) {
-		    header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-		    header('Pragma: no-cache');
-		    header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
-		}
-	    }
 
 	}//end evaluateConditions
-	
-	
+
 
 	/**
 	*
@@ -7123,67 +7120,67 @@ class Asset extends MySource_Object
 		$conditional_div = Array();
 		$conditional_keywords = Array();
 
-		if(empty($bodycopy_array) || empty($available_conditions)) return TRUE;
+		if (empty($bodycopy_array) || empty($available_conditions)) return TRUE;
 		$containers = Array();
 		foreach($bodycopy_array as $bodycopy_id) {
 			$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_id);
 			$containers = array_merge($containers, $bodycopy->getContainers());
 		}
-		if(empty($containers)) return TRUE;
+		if (empty($containers)) return TRUE;
 
 		foreach ($containers as $container) {
-		    $attrs = $container->attr('attributes');
-		    // get div conditions
-		    if(isset($attrs['conditions']) && !empty($attrs['conditions'])) {
-			$condition_data = $attrs['conditions'];	
-			// get conditions settings for each container and add it to the page's attribute
-			if(isset($condition_data['condition_rules_status']) && isset($condition_data['conditions']) && !empty($condition_data['conditions']) && $condition_data['condition_rules_status'] === 'enable') {
-			    if(isset($condition_data['conditions'][0]['conditions']) && !empty($condition_data['conditions'][0]['conditions'])) {
-				$conditional_div['div_'.$container->id]['logical_op_groups'] = $condition_data['logical_op_groups'];
-				$conditional_div['div_'.$container->id]['conditions'] = $condition_data['conditions'];
-			    }
-			}
-		    }
-		    
-		    // get condition keywords condtions
-		   if(!empty($available_conditions)) {
-			ob_start();
-				$edit = $container->getEditFns();
-				$edit->paint($container, FALSE, TRUE);
-				$content = ob_get_contents();
-			ob_end_clean();
-
-			$required_keywords = retrieve_keywords_replacements($content);
-			foreach($required_keywords as $keyword) {
-			    if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts)) {
-				if(count($condition_parts) ===3 && in_array($condition_parts[2], $available_conditions)) {
-				    $conditional_keywords[] = $condition_parts[2];
+			$attrs = $container->attr('attributes');
+		 	// get div conditions
+			if (isset($attrs['conditions']) && !empty($attrs['conditions'])) {
+				$condition_data = $attrs['conditions'];	
+				// get conditions settings for each container and add it to the page's attribute
+				if (isset($condition_data['condition_rules_status']) && isset($condition_data['conditions']) && !empty($condition_data['conditions']) && $condition_data['condition_rules_status'] === 'enable') {
+			 		if (isset($condition_data['conditions'][0]['conditions']) && !empty($condition_data['conditions'][0]['conditions'])) {
+						$conditional_div['div_'.$container->id]['logical_op_groups'] = $condition_data['logical_op_groups'];
+						$conditional_div['div_'.$container->id]['conditions'] = $condition_data['conditions'];
+					}
 				}
-			    }
-			    if(in_array($keyword, $available_conditions)) {
-				$conditional_keywords[] = $keyword;
-			    }
 			}
-		   }    
+
+			// get condition keywords condtions
+			if (!empty($available_conditions)) {
+				ob_start();
+					$edit = $container->getEditFns();
+					$edit->paint($container, FALSE, TRUE);
+					$content = ob_get_contents();
+				ob_end_clean();
+
+				$required_keywords = retrieve_keywords_replacements($content);
+				foreach ($required_keywords as $keyword) {
+					if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts)) {
+						if (count($condition_parts) ===3 && in_array($condition_parts[2], $available_conditions)) {
+							$conditional_keywords[] = $condition_parts[2];
+						}
+					}
+					if (in_array($keyword, $available_conditions)) {
+						$conditional_keywords[] = $keyword;
+					}
+				}
+			}
 		}
 
-		if(!empty($conditional_div)) {
-		    $conditions['conditional_div'] = $conditional_div;
+		if (!empty($conditional_div)) {
+			$conditions['conditional_div'] = $conditional_div;
 		}
-		if(!empty($conditional_keywords)) {
-		    $conditions['conditional_keywords'] = array_unique($conditional_keywords);
+		if (!empty($conditional_keywords)) {
+			$conditions['conditional_keywords'] = array_unique($conditional_keywords);
 		}
 
 		// now count  the used conditions and record them
 		$used_conditions = Array();
 		foreach ($conditional_div as $div) {
-		    if(isset($div['conditions'])) {
-			foreach ($div['conditions'] as $data) {
-			    if(isset ($data['conditions'])) {
-				$used_conditions = array_merge($used_conditions, $data['conditions']);
-			    }
+			if (isset($div['conditions'])) {
+				foreach ($div['conditions'] as $data) {
+					if (isset ($data['conditions'])) {
+						$used_conditions = array_merge($used_conditions, $data['conditions']);
+					}
+				}
 			}
-		    }
 		}
 		$used_conditions = array_merge($used_conditions, $conditional_keywords);
 		$used_conditions = array_unique($used_conditions);
@@ -7212,18 +7209,20 @@ class Asset extends MySource_Object
 		$keywords = Array();
 		$available_conditions = array_keys($this->getAvailableConditions());
 		if(!empty($available_conditions)) {
-		    foreach ($available_conditions as $condition_name) {
+			foreach ($available_conditions as $condition_name) {
 				$keywords[$condition_name] = ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['begin_'.$condition_name] = 'Begin '.ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['else_'.$condition_name] = 'Else '.ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['end_'.$condition_name] = 'End '.ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['begin_'.$condition_name.'% %else_'.$condition_name.'% %end_'.$condition_name] = 'Full Structure For '.ucwords(str_replace('_', ' ', $condition_name));
-		    }
+			}
 		}
-		return $keywords;
-	}
 
-	
+		return $keywords;
+
+	}// getAvailableConditionKeywords()
+
+
 	/**
 	*
 	* Is this asset in maintenance mode?
@@ -7237,7 +7236,7 @@ class Asset extends MySource_Object
 		require_once SQ_DATA_PATH.'/private/conf/maintenance.inc';
 		if(!SQ_MAINTENANCE_MODE) return FALSE;
 
-		
+
 		// check if current asset type is covered by maintenance mode
 		$current_type = $this->type();
 		$types = Array();
@@ -7248,32 +7247,31 @@ class Asset extends MySource_Object
 			$types[$type_array[0]] = $type_array[1];
 		}
 		foreach ($types as $type => $inherit) {
-			if($type === $current_type) {
+			if ($type === $current_type) {
 				$covered = TRUE;
 				break;
 			}
-			if($inherit) {
+			if ($inherit) {
 				$decendents = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type);
-				if(in_array($current_type, $decendents)) {
+				if (in_array($current_type, $decendents)) {
 					$covered = TRUE;
 					break;
 				}
 			}
 		}
-		if(!$covered) return FALSE;
+		if (!$covered) return FALSE;
 
 		// check if current asset is in root node list
 		$covered = FALSE;
 		$root_nodes = Array();
 		$root_nodes_cascade = Array();
 		foreach (explode('|', SQ_MAINTENANCE_ROOT_NODE) as $node) {
-			if(empty($node)) continue;
+			if (empty($node)) continue;
 			$details = explode(':', $node);
 			$cascade = isset($details[1]) && $details[1] == 1 ? 1 : 0;
-			if($cascade) {
+			if ($cascade) {
 				$root_nodes_cascade[] = $details[0];
-			}
-			else {
+			} else {
 				$root_nodes[] = $details[0];
 			}
 		}
@@ -7285,8 +7283,7 @@ class Asset extends MySource_Object
 			$cascade = isset($details[1]) && $details[1] == 1 ? 1 : 0;
 			if($cascade) {
 				$exclude_root_nodes_cascade[] = $details[0];
-			}
-			else {
+			} else {
 				$exclude_root_nodes[] = $details[0];
 			}
 		}
@@ -7299,11 +7296,11 @@ class Asset extends MySource_Object
 		}
 		if(!$covered) return FALSE;
 
+		return TRUE;
 
-
-	    return TRUE;
 	}//end inMaintenanceMode
-	
+
+
 }//end class
 
 ?>

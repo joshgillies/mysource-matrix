@@ -84,7 +84,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	public static function getConfigVars()
 	{
 		return Array(
-				'SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 5),
+				'SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 20),
 			   );
 
 	}//end getConfigVars()

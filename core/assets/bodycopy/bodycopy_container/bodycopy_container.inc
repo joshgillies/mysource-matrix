@@ -492,6 +492,22 @@ class Bodycopy_Container extends Asset
 				trigger_localised_error('CORE0009', E_USER_WARNING, $this->name);
 			} else {
 
+				// because we won't wait until mysource.inc to kick in to replace our global
+				// keywords and because the conditions keywords will be evaluated  based  on
+				// what we currently have on our keyword_replacements array, we will need to
+				// make sure the globals  keyword if   any in the conditions  are  evaluated
+				// before we try to include the content file further down Fixes bug RM #5774
+				// Conditional  keywords  within  asset  listing    type  formats  evaluates 
+				// globals_asset_metadata_X when empty as true
+				$pattern = '(begin_|end_|else_)';
+				foreach ($keyword_replacements as $keyword => $replacement) {
+					if (strpos($keyword, 'globals_') !== FALSE && preg_match($pattern, $keyword)) {
+						$global_keyword_in_cond_replacement = '%'.preg_replace($pattern, '', $keyword).'%';
+						replace_global_keywords($global_keyword_in_cond_replacement);
+						$keyword_replacements[preg_replace($pattern, '', $keyword)] = $global_keyword_in_cond_replacement;
+					}
+				}
+
 				// Include the nested content file dynamically if the content is getting included in the upper level content file 
 				if ($generating) {
 					$content_type = $this->getContentType();
