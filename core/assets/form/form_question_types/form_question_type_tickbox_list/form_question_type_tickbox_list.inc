@@ -56,7 +56,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		return $links;
+		return Array();
 
 	}//end _getAllowedLinks()
 
@@ -97,8 +97,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 		$name  = 'q'.$this->id;
 		$safe_name = str_replace(':', '_', $name);
-		
-		
+
+
 		$defaults = $this->getValue();
 		if (!is_array($defaults)) $defaults = Array($defaults);
 		$html = '<ul>';
@@ -352,8 +352,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	}//end getHtmlLabel()
 
 
-	
-	
+
+
 	/**
 	* Populates
 	*
@@ -367,8 +367,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		return TRUE;
 
 	}//end populate()
-	
-	
+
+
 	/**
 	* Use fieldset tag to group question content?
 	*
@@ -379,7 +379,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		return TRUE;
 	}//end useFieldset()
-	
+
 
 }//end class
 ?>

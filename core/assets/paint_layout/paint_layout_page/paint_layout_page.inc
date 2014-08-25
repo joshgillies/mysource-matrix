@@ -266,7 +266,8 @@ class Paint_Layout_Page extends Page_Standard
 				$keywords = $bodycopy->getKeywords();
 				$replacements = $this->_getKeywordReplacements($keywords, $asset);
 				$bodycopy->setKeywordReplacements($replacements);
-				$bodycopy->printBody();
+				// no need to limit containers to print
+				$bodycopy->printBody(FALSE, FALSE);
 			}
 		}
 

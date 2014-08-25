@@ -335,26 +335,29 @@ class Bodycopy extends Asset
 	*
 	* @param boolean $generating	Whether the PHP content generated for content file needs to executed at the run time
 	*								Applicable to Nested Content Type asset only
+	* @param boolean $limit_containers	Whether limit containers to print
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function printBody($generating=FALSE)
+	public function printBody($generating=FALSE, $limit_containers=TRUE)
 	{
 		// get all the containers linked to this bodycopy
 		$containers =& $this->getContainers();
 
 		// if we are limiting the containers to print
-		$containers_to_print = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT', NULL);
-		$containers_main_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT_MAIN_ASSET', NULL);
-		$frontend_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
-		// make sure we are only limiting containers in "current" page, not in the nested assets
-		if(isset($frontend_asset) && ($frontend_asset->id == $containers_main_asset) && !empty($containers_to_print) && is_array($containers_to_print)) {
-	       foreach (array_keys($containers) as $i) {
-    	           $container =& $containers[$i];
-        	       if(!in_array($container->id, $containers_to_print)) 
-            	           unset($containers[$i]);
-            }
+		if($limit_containers) {
+			$containers_to_print = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT', NULL);
+			$containers_main_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT_MAIN_ASSET', NULL);
+			$frontend_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+			// make sure we are only limiting containers in "current" page, not in the nested assets
+			if(isset($frontend_asset) && ($frontend_asset->id == $containers_main_asset) && !empty($containers_to_print) && is_array($containers_to_print)) {
+		       foreach (array_keys($containers) as $i) {
+	    	           $container =& $containers[$i];
+	        	       if(!in_array($container->id, $containers_to_print)) 
+	            	           unset($containers[$i]);
+	            }
+			}
 		}
 		
 		// if conditional display of div is enabled
