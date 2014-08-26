@@ -54,13 +54,6 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 		parent::__construct();
 
-		// enable just the details
-		// disable lock section
-		$this->static_screens = Array();
-		$this->static_screens['details']['name'] = translate('Details');
-		$this->static_screens['details']['force_unlock'] = FALSE;
-		$this->static_screens['details']['lock_type'] = 'menu';
-
 	}//end constructor
 
 
