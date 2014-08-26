@@ -3161,7 +3161,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 radio_button($prefix.'_select_view', $view['id'], $selected);
                 echo '</td>';
 
-                echo '<td><strong>'.$view['name'].'</strong></td>';
+                echo '<td><label for="'.$prefix.'_select_view_'.$view['id'].'"><strong>'.$view['name'].'</strong></label></td>';
                 echo '<td>'.$properties[$propertyid]['name'].' ('.$propertyid.')</td>';
                 echo '</tr>';
             }//end foreach

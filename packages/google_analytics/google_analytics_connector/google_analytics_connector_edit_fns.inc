@@ -102,7 +102,7 @@ class Google_Analytics_Connector_Edit_Fns extends OAuth2_Token_Edit_Fns
 				echo '</td>';
 			}
 
-			echo '<td><strong>'.$view['name'].'</strong></td>';
+			echo '<td><label for="'.$prefix.'_create_view_'.$view['id'].'"><strong>'.$view['name'].'</strong></label></td>';
 			echo '<td>'.$properties[$propertyid]['name'].' ('.$propertyid.')</td>';
 			echo '</tr>';
 		}//end foreach
