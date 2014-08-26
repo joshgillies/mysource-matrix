@@ -16,6 +16,16 @@
 -->
 
 <contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
     <section name="Connector and View" write_access="write:menu">
         <field>
             <display_name>Select Connector</display_name>
