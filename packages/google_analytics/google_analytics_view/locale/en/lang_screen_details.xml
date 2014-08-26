@@ -18,11 +18,11 @@
 <contents>
 	<section name="Details">
 		<field attribute="name">
-			<display_name>Page Name</display_name>
+			<display_name>View Name</display_name>
 			<note />
 		</field>
 		<field attribute="short_name">
-			<display_name>Page Short Name</display_name>
+			<display_name>View Short Name</display_name>
 			<note />
 		</field>
 	</section>
