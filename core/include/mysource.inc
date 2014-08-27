@@ -3866,7 +3866,9 @@ class MySource extends MySource_Object
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$then = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, TRUE).' ago)';
+		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, TRUE);
+		$time_string .= (strpos($time_string, 'ago') !== FALSE) ? ')' : ' ago)';
+
 		$warning_message = translate('rollback_mode_warning_message', $time_string);
 		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
 		if (!empty($_GET['assetid'])) {
