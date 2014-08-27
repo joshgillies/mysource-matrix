@@ -210,7 +210,7 @@ class Deja_Vu extends MySource_Object
         switch ($type) {
         case 'asset':
             $obj = $this->_get($cache_key);
-            if (!$obj) {
+            if (!$obj || is_string($obj)) {
                 $asset_cache_key = $this->_getAssetCacheKey($assetid);
                 $cache_update_info = explode(',', $this->_get($asset_cache_key));
                 $update_ts = array_get_index($cache_update_info, 0, '0');
@@ -249,6 +249,8 @@ class Deja_Vu extends MySource_Object
             $data = $this->_get($cache_key);
 
             if (!$data) {
+                return NULL;
+            } else if ($data instanceof __PHP_Incomplete_Class) {
                 return NULL;
             } else {
                 return $data;
@@ -603,6 +605,8 @@ class Deja_Vu extends MySource_Object
             break;
 
             case 'redis':
+                // don't return an object if redis is down
+                if (!is_object($this->_redis)) return NULL;
                 $val = $this->_redis->get($item);
                 // This is probably too big, but because of potentially long class names,
                 // it's set this long to make the next match a bit more specific.
@@ -632,6 +636,8 @@ class Deja_Vu extends MySource_Object
             break;
 
             case 'redis':
+                // don't return an object if redis is down
+                if (!is_object($this->_redis)) return;
                 if (is_array($val) || is_object($val)) {
                     $val = serialize($val);
                 }
