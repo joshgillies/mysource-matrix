@@ -16,6 +16,14 @@
 -->
 
 <contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+		<field attribute="short_name">
+			<text width="25" height="1" />
+		</field>
+	</section>
     <section name="Connector and View" write_access="write:menu">
         <field>
             <display_name>Select Connector</display_name>

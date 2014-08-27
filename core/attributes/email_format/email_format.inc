@@ -733,7 +733,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 								'subject' => $subject,
 								'body' => $text_body ? $text_body : $html_body,
 							);
-			$msg = $ms->newMessage($to_assetids, 'internal.message', $replacements);
+
+			// if no 'From:' address (possibly because of empty keyword replacement)
+			// send from the system's default email address
+			if (trim($from) == '') $from = SQ_CONF_DEFAULT_EMAIL;
+
+			$msg = $ms->newMessage($to_assetids, 'internal.message', $replacements, $from);
 			// Asset triggering the send mail process
 			$msg->parameters['assetid'] = array_get_index($current_value, 'triggering_assetid', '');
 			// Send the message to the user's Matrix inbox
