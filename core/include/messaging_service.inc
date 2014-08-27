@@ -15,7 +15,9 @@
 */
 
 
+require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_DATA_PATH.'/private/conf/messaging_service.inc';
+require_once SQ_DATA_PATH.'/private/conf/main.inc';
 require_once 'Mail.php';
 require_once 'Mail/mime.php';
 
@@ -379,13 +381,13 @@ class Messaging_Service extends MySource_Object
 	* @return object
 	* @access public
 	*/
-	function newMessage($to=Array(), $type='', $reps=Array())
+	function newMessage($to=Array(), $type='', $reps=Array(), $from=NULL)
 	{
 		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
 
 		$new_message = new Internal_Message();
 		$new_message->sent			= ts_iso8601(time());
-		$new_message->from			= $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$new_message->from			= !is_null($from) ? $from : $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$new_message->to			= $to;
 		$new_message->type			= $type;
 		$new_message->replacements	= $reps;
@@ -586,7 +588,13 @@ class Messaging_Service extends MySource_Object
 				}
 
 				// if we couldnt find the name of the user, set a default
-				if (empty($result[$i]['from_name'])) {
+				if (empty($result[$i]['from_name']) && valid_email($result[$i]['userfrom'])) {
+					if ($result[$i]['userfrom'] === SQ_CONF_DEFAULT_EMAIL) {
+						$result[$i]['from_name'] = SQ_CONF_SYSTEM_NAME.' <'.$result[$i]['userfrom'].'>';
+					} else {
+						$result[$i]['from_name'] = $result[$i]['userfrom'];
+					}
+				} else if (empty($result[$i]['from_name'])) {
 					$result[$i]['from_name'] = 'Unknown User';
 				}
 
