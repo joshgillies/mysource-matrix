@@ -437,6 +437,11 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			}//end if
 		}
 
+		if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !headers_sent()) {
+			// Without this header disabled, Chrome will not output the iframe's source in the editor
+			header('X-XSS-Protection: 0');
+		}
+
 		return $asset->setAttrValue('html', $html);
 
 	}//end processBackend()
