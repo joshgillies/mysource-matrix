@@ -272,15 +272,7 @@ class Page_Standard extends Page
 		
 		// Look for a layout for the details screen
 		$layout_pattern = 'layout::'.$this->type().'::details';
-		$lookup_values = $this->getLookupValues(TRUE, $layout_pattern);
-		$details_layout = '';
-		foreach ($lookup_values as $values) {
-			foreach ($values as $look_key => $look_value) {
-				if (isset($look_value['value'])) {
-					$details_layout = $look_value['value'];
-				}
-			}
-		}
+		$details_layout = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(current_url(FALSE, TRUE), $layout_pattern, TRUE);
 
 		if (!empty($details_layout) && ($details_layout > 0)) {
 			parent::initLimbo();

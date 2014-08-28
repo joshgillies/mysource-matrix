@@ -661,15 +661,8 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($paint_layout) {
 			// Find a layout based on root node
 			$layout_pattern = 'layout::'.$owner->type().'::'.$active_screen;
-			$lookup_values = $owner->getLookupValues(TRUE, $layout_pattern);
-			$layoutid = '';
-			foreach ($lookup_values as $values) {
-				foreach ($values as $look_key => $look_value) {
-					if (isset($look_value['value'])) {
-						$layoutid = $look_value['value'];
-					}
-				}
-			}
+			$layoutid = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(current_url(FALSE, TRUE), $layout_pattern, TRUE);
+
 			$layout = NULL;
 			if ((!empty($layoutid)) && ($layoutid > 0)) {
 				$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layoutid);

@@ -391,7 +391,7 @@ function splitdsn(\$input_dsn, \$prefix='DB_')
 	echo 'export ' . \$var.';';
 
 	\$var = \$prefix . 'PASSWORD';
-	echo \$var . '=\"' . addslashes(\$input_dsn['password']) . '\";';
+	echo \$var . '=\'' . addslashes(\$input_dsn['password']) . '\';';
 	echo 'export ' . \$var.';';
 }
 
@@ -454,7 +454,7 @@ function parsedsn(\$input_dsn, \$prefix='DB_')
 
 	echo \$prefix . 'TYPE=\"'.\$dsn['phptype'].'\";
 	echo \$prefix . 'USERNAME=\"'.\$dsn['username'].'\";
-	echo \$prefix . 'PASSWORD=\"'.\$dsn['password'].'\";
+	echo \$prefix . 'PASSWORD=\''.\$dsn['password'].'\';
 	echo \$prefix . 'HOST=\"'.\$dsn['hostspec'].'\";
 	echo \$prefix . 'PORT=\"'.\$dsn['port'].'\";
 	echo \$prefix . 'DBNAME=\"'.\$dsn['database'].'\";
