@@ -2566,7 +2566,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="http_header_cookie_http_only_field_name">HTTP only for cookie</string>
 	<string source="http_header_cookie_http_only_note">Enable to set 'HttpOnly' option for the cookies. When a cookie is HttpOnly the web browser should not allow client side scripts such as JavaScript to have access to the cookie. This can help mitigate the effects of cross site scripting attacks.&lt;i&gt;&lt;b&gt; (Available only for PHP Version greater than 5.2.0)&lt;/i&gt;&lt;/b&gt;</string>
 	<string source="http_header_cookie_secure_option_field_name">Enable 'Secure' Cookie option</string>
-	<string source="http_header_cookie_secure_option_note">Specifies whether or not the cookie should only be transmitted over a secure HTTPS connection. Yes (true) indicates that the cookie will only be set if a secure connection exists.</string>
+	<string source="http_header_cookie_secure_option_note">Specifies whether or not to transmit the secure cookie flag when a connection is made over HTTPS. Enabling this will cause browsers to not share the session cookie between HTTP and HTTPS.</string>
 
 	<!-- Roles configuration strings -->
 	<string source="roles_configuration_section_name">Roles Configuration</string>
