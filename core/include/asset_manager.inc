@@ -8117,7 +8117,8 @@ class Asset_Manager extends MySource_Object
 		if (is_null($url)) $url = current_url(FALSE, TRUE);
 
 		// remove any trailing slashes and double slashes
-		$url = strip_url($url);
+		$url     = strip_url($url);
+		$our_url = $url;
 
 		if (!is_null($protocol) && $protocol != 'https') {
 			$protocol = 'http';
@@ -8128,7 +8129,7 @@ class Asset_Manager extends MySource_Object
 		$non_standard_url = FALSE;
 		// get the root(site) url for this url
 		$root_url = $this->getRootURL($url);
-		if (empty($root_url)) {
+		if ((strpos($url, '__data') !== FALSE) || (empty($root_url))) {
 			$found = FALSE;
 			$non_standard_url = TRUE;
 			// We want to check if this is an asset (file) with a publicly served url
@@ -8286,7 +8287,20 @@ class Asset_Manager extends MySource_Object
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
 			trigger_localised_error('SYS0246', E_USER_WARNING, $fancy_url);
 			return Array();
-
+		} else if ($non_standard_url === TRUE) {
+		    // If we had a non-standard URL, we had the link up to our parent,
+		    // but not the link between the parent and us. Add this.
+		    $link = $this->getLinkByAsset($fancy_asset->id, $parent->id, SQ_SC_LINK_SIGNIFICANT);
+            $result[] = Array(
+                            'url'			=> $our_url,
+                            'assetid'		=> $fancy_asset->id,
+                            'name'			=> $fancy_asset->name,
+                            'short_name'	=> $fancy_asset->short_name,
+                            'type_code'		=> $fancy_asset->type(),
+                            'status'		=> $fancy_asset->status,
+                            'link_type'		=> $link['link_type'],
+                            'protocol'		=> current_protocol(),
+                        );
 		} else {
 			// if there is only one entry then this is the site root, so for completeness
 			// we will manually add in the index page to the index
@@ -10305,7 +10319,7 @@ class Asset_Manager extends MySource_Object
 		}
 		// Validate the root node assetids
 		$rootids = array_keys($this->getAssetInfo($rootids));
-		
+
 		$containers = Array();
 		foreach($rootids as $rootid) {
 			$containers += $this->getChildren($rootid, 'bodycopy_container', FALSE);
