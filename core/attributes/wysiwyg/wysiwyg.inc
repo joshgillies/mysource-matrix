@@ -382,6 +382,11 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$this->_edit_params['tidy_status'] = isset($wysiwyg->_loaded_plugins['html_tidy']->htmltidy_status) ? $wysiwyg->_loaded_plugins['html_tidy']->htmltidy_status : 'wait';
 		$this->_edit_params['tidy_errors'] = isset($wysiwyg->_loaded_plugins['html_tidy']->htmltidy_errors) ? $wysiwyg->_loaded_plugins['html_tidy']->htmltidy_errors : '';
 
+		if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !headers_sent()) {
+			// Without this header disabled, Chrome will not output the iframe's source in the editor
+			header('X-XSS-Protection: 0');
+		}
+
 	}//end process()
 
 
