@@ -8183,7 +8183,7 @@ class Asset_Manager extends MySource_Object
 				}//end if
 				return Array();
 			}
-			$lineages = $this->getLinkLineages($fancy_asset->id);
+			$lineages = $this->getLinkLineages($fancy_asset->id, 0, NULL, 'name', TRUE);
 
 			// Determine which site we are in, and find one of our lineages that lies in that site
 			$all_sites = $this->getParents($fancy_asset->id, 'site');
