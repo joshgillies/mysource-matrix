@@ -235,7 +235,12 @@ class Data_Source_Record_Set extends Asset
 					$replacement = parent::getKeywordReplacement($keyword);
 				break;
 			}
+		}
+		else {
+					// we still have to ask parent to replace those unfamilier keyword
+					$replacement = parent::getKeywordReplacement($keyword);
 		} 
+ 
 		
 		if (count($modifiers) > 0) {
 			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
