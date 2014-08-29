@@ -426,7 +426,6 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			if (($current_status != $new_status) || ($current_status & SQ_SC_STATUS_PENDING)) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!is_null($asset)) {
-					$this->_running_vars['current_assetid'] = $asset->id;
 					// if an asset has dependants, we don't want to run _updated() on it until
 					// after we have processed them. _updated is run after the execution of the
 					// sub-sub-hipo thingy has completed
