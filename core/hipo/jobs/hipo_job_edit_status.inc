@@ -281,6 +281,15 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				unset($this->_running_vars['dependant_hipo_job']);
 			}
 		}
+	
+		// Refresh the asset map to reflect the asset status changes when using the HIPO server
+		if (SQ_HIPO_USE_SERVER && !empty($this->_running_vars['assetid'])) {
+			$o->addOnLoad('
+					if (top.frames.sq_sidenav != null && top.frames.sq_sidenav.reload_assets) {
+							top.frames.sq_sidenav.reload_assets("'.$this->_running_vars['assetid'].'");
+					}
+				');
+		}
 
 	}//end paint()
 
@@ -417,6 +426,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			if (($current_status != $new_status) || ($current_status & SQ_SC_STATUS_PENDING)) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!is_null($asset)) {
+					$this->_running_vars['current_assetid'] = $asset->id;
 					// if an asset has dependants, we don't want to run _updated() on it until
 					// after we have processed them. _updated is run after the execution of the
 					// sub-sub-hipo thingy has completed
