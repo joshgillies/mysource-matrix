@@ -159,10 +159,12 @@ class Page_Multiple_Page extends Page
 	/**
 	* Returns the raw content of this asset
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	function getContent($empty_content=TRUE)
 	{
 		$contents = translate('cms_page_multiple_page_get_content_msg');
 		return $contents;

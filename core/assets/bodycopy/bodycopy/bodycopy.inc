@@ -473,10 +473,12 @@ class Bodycopy extends Asset
 	/**
 	* Returns the raw content of this bodycopy
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	public function getContent()
+	public function getContent($empty_content=TRUE)
 	{
 		return $this->getRawBodycopyContent();
 

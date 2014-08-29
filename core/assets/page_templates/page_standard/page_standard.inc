@@ -300,10 +300,12 @@ class Page_Standard extends Page
 	/**
 	* Returns the raw content of this asset
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	public function getContent()
+	public function getContent($empty_content=TRUE)
 	{
 		$bodycopy = $this->getBodycopy();
 		if (is_null($bodycopy)) return '';

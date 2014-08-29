@@ -202,10 +202,12 @@ class Page_Multiple_Page_Page extends Bodycopy
 	/**
 	* As printBody() is overridden, this basically acts as that function
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	function getContent($empty_content=TRUE)
 	{
 		ob_start();
 			parent::printBody();
