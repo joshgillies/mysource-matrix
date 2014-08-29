@@ -182,25 +182,28 @@ class Data_Source_Json extends Data_Source
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		// Get source string (to be used as cache key)
 		$source = $this->_getSource();
+		// include GET var in the cache key
+		$additional_cache_key = serialize($_GET);
+		$cache_key = $source.$additional_cache_key;
 
 		if (!empty($source)) {
 
 			// Check the local cache
-			if (!isset($this->_tmp[$source])) {
+			if (!isset($this->_tmp[$cache_key])) {
 
 				// Try from the system cache
-				$result = parent::getResultSet($source);
+				$result = parent::getResultSet($cache_key);
 
 				if ($result !== FALSE) {
-					$this->_tmp[$source] = $result;
+					$this->_tmp[$cache_key] = $result;
 				} else {
-					$this->_tmp[$source] = $this->getItems();
-					parent::setResultSet($this->_tmp[$source], $source);
+					$this->_tmp[$cache_key] = $this->getItems();
+					parent::setResultSet($this->_tmp[$cache_key], $cache_key);
 				}
 			}
 		}
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
-		return (!empty($source)) ? $this->_tmp[$source] : Array();
+		return (!empty($source)) ? $this->_tmp[$cache_key] : Array();
 
 	}//end getResultSet()
 
