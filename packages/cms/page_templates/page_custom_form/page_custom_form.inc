@@ -156,10 +156,12 @@ class Page_Custom_Form extends Page
 	/**
 	* Returns the editable content of this asset
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	function getContent($empty_content=TRUE)
 	{
 		// Editable content of all the Custom Form's bodycopies
 		$content = '';

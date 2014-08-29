@@ -130,10 +130,12 @@ class Content_Type extends Asset
 	/**
 	* Returns the editable content of this asset
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	public function getContent()
+	public function getContent($empty_content=TRUE)
 	{
 		return trim($this->attr('html'));
 

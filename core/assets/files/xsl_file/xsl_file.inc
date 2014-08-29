@@ -52,10 +52,12 @@ class Xsl_File extends File
 	/**
 	* Returns the editable content of this asset
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	function getContent($empty_content=TRUE)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$parse_file = $this->data_path.'/'.$this->name;

@@ -102,10 +102,12 @@ class Content_Type_Nest_Content extends Content_Type
 	/**
 	* Returns the editable content of this asset
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	function getContent($empty_content=TRUE)
 	{
 		return '';
 

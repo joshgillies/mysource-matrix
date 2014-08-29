@@ -57,10 +57,12 @@ class PDF_File extends File
 	/**
 	* Returns the raw content of this pdf file
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	function getContent($empty_content=TRUE)
 	{
 		$file_info = $this->getExistingFile();
 		if (empty($file_info)) return '';
