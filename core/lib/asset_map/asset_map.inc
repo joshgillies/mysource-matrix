@@ -844,6 +844,14 @@ class Asset_Map
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
+		
+			// These parameter are expected by asset map	
+			if (!isset($attrs['linkid'])) {
+				$attrs['linkid'] = '';
+			}
+			if (!isset($attrs['link_type'])) {
+				$attrs['link_type'] = SQ_LINK_TYPE_1;
+			}
 
 			$attrs['assetid'] = urlencode($attrs['assetid']);
 
