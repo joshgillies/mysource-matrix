@@ -26,16 +26,15 @@ error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-$report_only = (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2]!='y') ? FALSE : TRUE;
 
 if (empty($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
-	exit();
+    echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+    exit();
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
-	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
-	exit();
+    echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+    exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -55,23 +54,29 @@ $assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren(1, 'content_type_n
 $count = 0;
 foreach($assetids as $assetid) {
 
-	$temp_parent_array = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid, '' , TRUE, FALSE);
-	if(!isset($temp_parent_array[0])) continue;
+    $temp_parent_array = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid, 'bodycopy_div' , TRUE, TRUE);
+    if(!isset($temp_parent_array[0])) continue;
     $bodycopy_div_id = $temp_parent_array[0];
     $bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_div_id);
     if(empty($bodycopy_div)) continue;
 
-    echo "#".$bodycopy_div_id." updated\n";
-		// Keyword in the content file contains non-safe keywords, so regenerate the content file		
-    if (!$report_only) {
-    	$bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-    	$bodycopy_div_edit_fns = $bodycopy_div->getEditFns();
-    	$bodycopy_div_edit_fns->generateContentFile($bodycopy_div);
-    	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy_div);
-    }		
-    $count++;	
+        // Keyword in the content file contains non-safe keywords, so regenerate the content file       
+    $bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_div_id);
+    $bodycopy_div_edit_fns = $bodycopy_div->getEditFns();
+    
+    $all_context = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+    foreach ($all_context as $context_id => $info) {
+        $GLOBALS['SQ_SYSTEM']->changeContext($context_id);
+        $bodycopy_div_edit_fns->generateContentFile($bodycopy_div);
+        $GLOBALS['SQ_SYSTEM']->restoreContext();
+    }
 
-	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy_div->id, TRUE);
+    $GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy_div);
+
+        echo "#".$bodycopy_div_id." updated\n";
+    $count++;   
+
+    $GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy_div->id, TRUE);
 }//end foreach
 
 
