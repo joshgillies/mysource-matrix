@@ -110,7 +110,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 				// clear all system cache
 				return parent::getCodeName().'delete_all';
 			} else {
-				return parent::getCodeName().$this->_running_vars['assetid'];
+				return parent::getCodeName().md5(serialize($this->_running_vars['assetid']));
 			}
 		}
 

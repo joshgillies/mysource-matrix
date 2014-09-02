@@ -318,15 +318,22 @@ class Cache_Storage_Default extends Cache_Storage
 
 			// break up the assets into chunks of 1000 so that oracle does not complain
 			// $in_clauses = Array();
-			$result = Array();
+			$paths = Array();
 			foreach (array_chunk($assetids, 999) as $chunk) {
 				$bind_vars = Array('assetids' => &$chunk);
-				$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'getCacheFilePathsByAsset', $bind_vars));
-				$result = array_unique($result);
+				$result = MatrixDAL::executeAll('cache_manager', 'getCacheFilePathsByAsset', $bind_vars);
+				if (!empty($result)) {
+					foreach($result as $row) {
+						if (isset($row['path']) && !isset($paths[$row['path']])) {
+							$paths[$row['path']] = Array('path' => $row['path']);
+						}
+					}//end foreach
+				}//end if
 			}
 
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return $result;
+
+			return array_values($paths);
 		}
 
 	}//end getFilePaths()
