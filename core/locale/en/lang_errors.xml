@@ -1833,6 +1833,8 @@ Full Node Contents :
 	<!-- password rule -->
 	<error code="CORE0321">You cannot choose a password that has previously been used on this account.</error>
 
+	<!-- Miscellaneous -->
+	<error code="CORE0322">Could not parse design file. Design Area "%s" is not installed in the system.</error>
 
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
