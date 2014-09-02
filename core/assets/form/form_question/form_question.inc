@@ -234,6 +234,11 @@ class Form_Question extends Asset
 		$questions = $form->attr('questions');
 		$questions[$this->_questionid]['attributes'] = $saved_vars_ser;
 
+		// For Simple Form, update the form question's 'name' property
+		if (isset($questions[$this->_questionid]['name']) && isset($saved_vars_ser['name'])) {
+			$questions[$this->_questionid]['name'] = $saved_vars_ser['name'];
+		}
+
 		$form->setAttrValue('questions', $questions);
 
 		if (!$form->saveAttributes()) {
