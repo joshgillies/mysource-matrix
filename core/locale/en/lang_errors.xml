@@ -1843,6 +1843,9 @@ Full Node Contents :
 	<!-- Deprecation Warning-->
     <error code="CORE0326">Asset of type "%1$s" have been deprecated since Matrix version %2$s and cannot be cloned.</error>
 
+	<!-- Miscellaneous -->
+	<error code="CORE0327">Could not parse design file. Design Area "%s" is not installed in the system.</error>
+
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:91: -->
