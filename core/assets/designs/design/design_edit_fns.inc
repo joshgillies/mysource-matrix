@@ -988,7 +988,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($id_names as $id_name => $design_area) {
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->installed($design_area)) {
-				trigger_localised_error('CORE0322', E_USER_WARNING, $design_area);
+				trigger_localised_error('CORE0327', E_USER_WARNING, $design_area);
 				return FALSE;
 			}
 
