@@ -355,12 +355,13 @@ class Metadata_Field_Select extends Metadata_Field
 				$sql .= $where;
 
 				// Now build the default values query (and sub-query).
-				$sub_sql = 'SELECT fieldid, contextid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val WHERE assetid = :host_assetid_1 ';
-				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'ast_mdata_val');
+				$sub_sql = 'SELECT fieldid, contextid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val ';
+				$sub_where = 'WHERE assetid = :host_assetid_1 ';
+				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
 
 				$union_sql = 'SELECT default_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_dflt_val';
 				$union_where = '%tuple_keyword%(assetid, contextid) NOT IN ('.$sub_sql.$sub_where.') AND assetid = :fieldid_1 AND contextid = :contextid_1';
-				$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'ast_mdata_dflt_val');
+				$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where);
 
 				// Oracle uses '(field, field)' for tuples, PgSQL uses 'ROW(field, field)'.
 				if (MatrixDAL::getDbType() === 'oci') {
