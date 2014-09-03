@@ -81,7 +81,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $end_date->format('Y-m-d')
 	    );
 
-	    $report = array_get_index($report, 0, Array());
+	    $report = array_get_index($report['rows'], 0, Array());
 
 	    $visTypeRawReport = $asset->generateReport(
 	        Array('ga:userType'),
@@ -90,7 +90,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $end_date->format('Y-m-d')
 	    );
 
-	    foreach ($visTypeRawReport as $row) {
+	    foreach ($visTypeRawReport['rows'] as $row) {
 	        if ($row['ga:userType'] === 'New Visitor') {
 	            $visTypeReport['new'] = $row;
 	        } if ($row['ga:userType'] === 'Returning Visitor') {
@@ -497,7 +497,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $city_report    = Array();
 
 	    $i = 0;
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:country'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -711,7 +711,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
-	    foreach ($report as $rowid => &$row) {
+	    foreach ($report['rows'] as $rowid => &$row) {
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:city'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -764,7 +764,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            <th><?php echo translate('Session Duration') ?></td>
 	        </tr><?php
 	        $rank = 0;
-	        foreach ($report as $row) {
+	        foreach ($report['rows'] as $row) {
 	            $rank++;
             ?><tr>
                 <th><?php echo $rank.'. '.$row['ga:city']; ?></th>
@@ -839,7 +839,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 	    $version_report = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'desktop') {
 	            continue;
 	        }
@@ -1040,7 +1040,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 	    $version_report = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'tablet') {
 	            continue;
 	        }
@@ -1239,7 +1239,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 	    $version_report = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'mobile') {
 	            continue;
 	        }
@@ -1439,7 +1439,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 	    $version_report = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'tablet') {
 	            continue;
 	        }
@@ -1658,7 +1658,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 	    $version_report = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'mobile') {
 	            continue;
 	        }
@@ -1874,7 +1874,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 	    $version_report = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'desktop') {
 	            continue;
 	        }
@@ -2071,7 +2071,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 	    $version_report = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'tablet') {
 	            continue;
 	        }
@@ -2269,7 +2269,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 	    $version_report = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'mobile') {
 	            continue;
 	        }
@@ -2692,7 +2692,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $crop_sessions  = 0;
 	    $report         = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] === 'mobile') {
 	            continue;
 	        }
@@ -2811,7 +2811,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $crop_sessions  = 0;
 	    $report         = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'mobile') {
 	            continue;
 	        }
@@ -2930,7 +2930,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $crop_sessions  = 0;
 	    $report         = Array();
 
-	    foreach ($raw_report as $rowid => &$row) {
+	    foreach ($raw_report['rows'] as $rowid => &$row) {
 	        if ($row['ga:sessionCount'] === '1') {
 	            continue;
 	        }
