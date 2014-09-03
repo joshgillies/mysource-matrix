@@ -214,6 +214,23 @@ class SAML_Service_Provider extends sspmod_saml_Auth_Source_SP
 		$ar->setId($id);
 
 		SimpleSAML_Logger::debug('Sending SAML 2 AuthnRequest to ' . var_export($idpMetadata->getString('entityid'), TRUE));
+
+
+		/* Select appropriate SSO endpoint */
+		if ($ar->getProtocolBinding() === SAML2_Const::BINDING_HOK_SSO) {
+			$dst = $idpMetadata->getDefaultEndpoint('SingleSignOnService', array(
+				SAML2_Const::BINDING_HOK_SSO)
+			);
+		} else {
+			$dst = $idpMetadata->getDefaultEndpoint('SingleSignOnService', array(
+				SAML2_Const::BINDING_HTTP_REDIRECT,
+				SAML2_Const::BINDING_HTTP_POST)
+			);
+		}
+		$ar->setDestination($dst['Location']);
+
+
+
 		if ($this->metadata->getValue('ProtocolBinding') === 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST') {
 			    $b = new SAML2_HTTPPost();
 		    } else {
@@ -255,6 +272,7 @@ class SAML_Service_Provider extends sspmod_saml_Auth_Source_SP
 		$lr->setNameId($nameId);
 		$lr->setSessionIndex($sessionIndex);
 		$lr->setRelayState($id);
+		$lr->setDestination($endpoint['Location']);
 		
 
 		$encryptNameId = $idpMetadata->getBoolean('nameid.encryption', NULL);

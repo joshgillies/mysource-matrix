@@ -441,6 +441,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$asset->_tmp['update_customisations'] = TRUE;
 				$asset->_tmp['generate_design'] = TRUE;
 				$changes = $this->parseAndProcessFile($asset);
+				if (!$changes) {
+					return FALSE;
+				}
 
 				// add a new version to the repository
 				$file_status = $fv->upToDate($parse_file);
@@ -990,6 +993,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// now let's check to see if any existing design areas exists
 		// and check if they are the same type as the one in the contents
 		foreach ($id_names as $id_name => $design_area) {
+
+			if (!$GLOBALS['SQ_SYSTEM']->am->installed($design_area)) {
+				trigger_localised_error('CORE0327', E_USER_WARNING, $design_area);
+				return FALSE;
+			}
 
 			$da = $asset->getDesignArea($id_name);
 
