@@ -573,6 +573,7 @@ class Package_Manager extends MySource_Object
 
 			$allowed_links = $as->_getAllowedLinks();
 			unset($allowed_links[SQ_LINK_NOTICE]);
+			unset($allowed_links[SQ_LINK_TYPE_3]);
 			foreach ($allowed_links as $link_type => $type_links) {
 			    foreach (array_keys($type_links) as $asset_type) {
 			        if (((bool) array_get_index($type_links[$asset_type], 'dependant', FALSE)) === TRUE) {
