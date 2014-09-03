@@ -631,7 +631,19 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			// if no 'From:' address (possibly because of empty keyword replacement)
 			// send from the system's default email address
-			if (trim($from) == '') $from = SQ_CONF_DEFAULT_EMAIL;
+			$from_assetid = NULL;
+
+			if (trim($from) == '') {
+				$from = SQ_CONF_DEFAULT_EMAIL;
+			} else if (!valid_email($from) && assert_valid_assetid($from, '', TRUE, FALSE)) {
+				// looks like we are passed an assetid and not a valid email address
+				// lets try and grab the email address off the user asset
+				$user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($from);
+				if ($user_asset instanceof User) {
+					$from_assetid = $from;
+					$from = $user_asset->attr('email');
+				}
+			}
 
 			// can't come up with a From: email address - bail for this email
 			if (empty($from)) {
@@ -658,6 +670,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			$reply_to = trim($reply_to);
 			if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
+
+			// restore the assetid for $from
+			if (!is_null($from_assetid)) $from = $from_assetid; 
 
 			foreach ($to as $to_email) {
 
@@ -702,8 +717,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 						    $_SESSION['SQ_VERIFY_EMAIL_TOKEN'] = $token;
 						    $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = '';
 						    $replacements = Array($keyword => $token);
-						   $text_body = replace_keywords($text_body, $replacements);
-						   $html_body = replace_keywords($html_body, $replacements);
+							$text_body = replace_keywords($text_body, $replacements);
+							$html_body = replace_keywords($html_body, $replacements);
 						}
 			    	}
 				}
