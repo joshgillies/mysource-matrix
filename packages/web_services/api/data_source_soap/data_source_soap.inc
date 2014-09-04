@@ -893,7 +893,20 @@ class Data_Source_Soap extends Data_Source
 			}
 
 			if ($xml_obj) {
-				$val = json_decode(json_encode($xml_obj), TRUE);
+				// Convert the SimpleXMLElement object to JSON encoded string
+				$xml_str = json_encode($xml_obj);
+
+				// The attributes in the XML will be grouped into the @attributes
+				// properties in the JSON encoded string. When we convert it to
+				// array and then back to XML later, the @attributes properties
+				// will become <@attributes> elements. The character @ is not allowed
+				// in XML element names and will cause SimpleXML to throw invalid
+				// XML error. So we replace @attributes with __attributes__ here.
+				// We assume that __attributes__ is not used in the response XML.
+				$xml_str = str_replace('"@attributes"', '"__attributes__"', $xml_str);
+
+				// Convert the JSON encoded string to array
+				$val = json_decode($xml_str, TRUE);
 			}
 		}
 
