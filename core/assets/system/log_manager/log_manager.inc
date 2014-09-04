@@ -645,7 +645,7 @@ class Log_Manager extends Asset
 
 		// if a direct connection is requested, pass the control
 		// to the direct Communicator, otherwise take normal course of action
-		if ($direct) {
+		if ($direct && $this->readAccess()) {
 			$this->_directCommunicator();
 			exit; // need this since Matrix tries to print extras after this section is done
 		} else {
