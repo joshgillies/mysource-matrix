@@ -86,7 +86,6 @@ class Antivirus
 						$path_to_av .= ' '.$option;
 					}//end foreach
 					$command = $path_to_av.' '.escapeshellarg($file).' 2>&1';
-log_dump(get_backtrace());
 					// Run the command
 					exec($command, $av, $return);
 					
