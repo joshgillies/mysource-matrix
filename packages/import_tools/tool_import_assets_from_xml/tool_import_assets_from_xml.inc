@@ -106,7 +106,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 		} else {
 			
 			// make import directory, move xml files there
-			$import_dir = SQ_DATA_PATH.'/private/import_assets'.time();
+			$import_dir = SQ_TEMP_PATH.'/import_assets/'.uniqid();
 
 			if (!move_file($file_info['tmp_name'], $import_dir.'/'.$file_info['name'])) {
 				trigger_error('Could not move uploaded file from tmp directory to data dir');
