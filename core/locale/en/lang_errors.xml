@@ -1835,6 +1835,7 @@ Full Node Contents :
 
 	<!-- Miscellaneous -->
 	<error code="CORE0327">Could not parse design file. Design Area "%s" is not installed in the system.</error>
+	<error code="CORE0328">Access to the file "%s" is not authorised for this operation.</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->

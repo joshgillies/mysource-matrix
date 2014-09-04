@@ -3307,4 +3307,56 @@ function compressIPv6Address($address)
 
 }//end compressIPv6Address()
 
+
+/**
+* Returns TRUE if the filepath is authorised for read access
+* as per SQ_TOOL_AUTHORISED_PATHS settings in External Tool config file
+*
+* @param string	$filename	Filename with full path to check
+*
+* @return boolean
+* @access public
+*/
+function authorised_file_path($filename)
+{
+	$filename = trim($filename);
+	if (empty($filename)) {
+		return FALSE;
+	}
+
+	$filename = realpath($filename);
+	if (empty($filename)) {
+		return FALSE;
+	}
+
+	require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+	$authorised_paths = explode("\n", SQ_TOOL_AUTHORISED_PATHS);
+
+	foreach($authorised_paths as $index => $val) {
+		$authorised_paths[$index] = trim($authorised_paths[$index]);
+		if (empty($authorised_paths[$index])) {
+			unset($authorised_paths[$index]);
+			continue;
+		}
+		if (is_dir($authorised_paths[$index])) {
+			$authorised_paths[$index] = rtrim($authorised_paths[$index], '/').'/';
+		}
+	}//end foreach
+
+	// Public data dir and temp asset import dir are always authorised by default
+	$authorised_paths[] = SQ_DATA_PATH.'/public/';
+	$authorised_paths[] = SQ_TEMP_PATH.'/import_assets/';
+
+	$authorised = FALSE;
+	foreach($authorised_paths as $authorised_path) {
+		if (strpos($filename, $authorised_path) !== FALSE) {
+			$authorised = TRUE;
+			break;
+		}
+	}
+
+	return $authorised;
+
+}//end authorised_file_path()
+
 ?>
