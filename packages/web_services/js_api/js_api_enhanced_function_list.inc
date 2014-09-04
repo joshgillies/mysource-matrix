@@ -3057,6 +3057,7 @@ class Js_Api_Enhanced_Function_List
 						end_date:       null,
 						sort_by:        null,
 						filter:         null,
+						force_cache:    false,
 						dataCallback:	function(){}
 					},
 
@@ -3084,7 +3085,8 @@ class Js_Api_Enhanced_Function_List
 					['start_date', options.start_date],
 					['end_date', options.end_date],
 					['sort_by', options.sort_by],
-					['filter', options.filter]
+					['filter', options.filter],
+					['force_cache', options.force_cache]
 			],options);
 
 		},// end getGoogleAnalyticsStatistics
