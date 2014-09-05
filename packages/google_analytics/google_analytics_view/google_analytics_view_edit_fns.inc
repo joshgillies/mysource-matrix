@@ -119,7 +119,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $day_count
@@ -145,9 +145,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            } else if ($previous_report['ga:sessions'] === 0) {
 	                echo translate('Increased from zero');
 	            } else if ($report['ga:sessions'] > $previous_report['ga:sessions']) {
-	                echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($report['ga:sessions'] / $previous_report['ga:sessions']) - 1), 1));
+	                echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:sessions'] / $previous_report['ga:sessions']) - 1), 1));
 	            } else {
-	                echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($report['ga:sessions'] / $previous_report['ga:sessions'])), 1));
+	                echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:sessions'] / $previous_report['ga:sessions'])), 1));
 	            }
 	            ?></td>
 	        </tr>
@@ -161,9 +161,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            } else if ($previous_report['ga:pageviews'] === 0) {
 	                echo translate('Increased from zero');
 	            } else if ($report['ga:pageviews'] > $previous_report['ga:pageviews']) {
-	                echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($report['ga:pageviews'] / $previous_report['ga:pageviews']) - 1), 1));
+	                echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:pageviews'] / $previous_report['ga:pageviews']) - 1), 1));
 	            } else {
-	                echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($report['ga:pageviews'] / $previous_report['ga:pageviews'])), 1));
+	                echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:pageviews'] / $previous_report['ga:pageviews'])), 1));
 	            }
 	            ?></td>
 	        </tr>
@@ -180,9 +180,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else if ($prev_bounce_rate === 0) {
                         echo translate('Increased from zero');
                     } else if ($bounce_rate > $prev_bounce_rate) {
-                        echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($bounce_rate / $prev_bounce_rate) - 1), 1));
+                        echo sprintf(translate('Increase of %s%%'), number_format(100 * (($bounce_rate / $prev_bounce_rate) - 1), 1));
                     } else {
-                        echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($bounce_rate / $prev_bounce_rate)), 1));
+                        echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($bounce_rate / $prev_bounce_rate)), 1));
                     }
 	            }
 	            ?></td>
@@ -192,9 +192,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            <td><strong><?php
 	                $time = $report['ga:sessionDuration'] / $report['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
 	            ?></strong></td>
 	            <td></td>
@@ -207,9 +207,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else if ($prev_time === 0) {
                         echo translate('Increased from zero');
                     } else if ($time > $prev_time) {
-                        echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($time / $prev_time) - 1), 1));
+                        echo sprintf(translate('Increase of %s%%'), number_format(100 * (($time / $prev_time) - 1), 1));
                     } else {
-                        echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($time / $prev_time)), 1));
+                        echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($time / $prev_time)), 1));
                     }
 	            }
 	            ?></td>
@@ -221,11 +221,11 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                    echo translate('N/A');
 	                } else {
 	                    $time = $report['ga:pageLoadTime'] / $report['ga:pageLoadSample'];
-	                    echo sprintf(translate('%s sec', '%s'), number_format($time / 1000, 2));
+	                    echo sprintf(translate('%s sec'), number_format($time / 1000, 2));
 	                }
 	            ?></strong></td>
 	            <td><?php
-	                echo sprintf(translate('Sample of %s', '%s'), number_format($report['ga:pageLoadSample']));
+	                echo sprintf(translate('Sample of %s'), number_format($report['ga:pageLoadSample']));
 	            ?></td>
 	            <td><?php
 	            if (($previous_report['ga:pageLoadSample'] > 0) && ($report['ga:pageLoadSample'] > 0)) {
@@ -236,9 +236,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else if ($prev_time === 0) {
                         echo translate('Increased from zero');
                     } else if ($time > $prev_time) {
-                        echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($time / $prev_time) - 1), 1));
+                        echo sprintf(translate('Increase of %s%%'), number_format(100 * (($time / $prev_time) - 1), 1));
                     } else {
-                        echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($time / $prev_time)), 1));
+                        echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($time / $prev_time)), 1));
                     }
 	            }
 	            ?></td>
@@ -339,9 +339,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 <td style="text-align: right"><?php
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 ?></th>
                 <td style="text-align: right"><?php echo number_format($row['ga:bounces'] / $row['ga:sessions'] * 100.0, 2).'%'; ?></th>
@@ -432,9 +432,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 <td style="text-align: right"><?php
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 ?></th>
                 <td style="text-align: right"><?php echo number_format($row['ga:bounces'] / $row['ga:sessions'] * 100.0, 2).'%'; ?></th>
@@ -509,7 +509,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $day_count
@@ -829,7 +829,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -894,9 +894,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 } else {
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 }
                 ?></th><?php
@@ -924,9 +924,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         } else {
                             $time = $city_row['ga:sessionDuration'] / $city_row['ga:sessions'];
                             if ($time >= 60) {
-                                echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                                echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                             } else {
-                                echo sprintf(translate('%s sec', '%s'), floor($time));
+                                echo sprintf(translate('%s sec'), floor($time));
                             }
                         }
                         ?></td>
@@ -983,7 +983,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -1045,9 +1045,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 } else {
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 }
                 ?></td>
@@ -1149,7 +1149,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -1215,9 +1215,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 } else {
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 }
                 ?></th><?php
@@ -1247,9 +1247,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else {
                         $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
                         if ($time >= 60) {
-                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                            echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                         } else {
-                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                            echo sprintf(translate('%s sec'), floor($time));
                         }
                     }
                     ?></td>
@@ -1358,7 +1358,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -1420,9 +1420,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 } else {
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 }
                 ?></th><?php
@@ -1448,9 +1448,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else {
                         $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
                         if ($time >= 60) {
-                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                            echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                         } else {
-                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                            echo sprintf(translate('%s sec'), floor($time));
                         }
                     }
                     ?></td>
@@ -1557,7 +1557,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -1619,9 +1619,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 } else {
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 }
                 ?></th><?php
@@ -1647,9 +1647,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else {
                         $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
                         if ($time >= 60) {
-                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                            echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                         } else {
-                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                            echo sprintf(translate('%s sec'), floor($time));
                         }
                     }
                     ?></td>
@@ -1757,7 +1757,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -1819,9 +1819,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 } else {
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 }
                 ?></th><?php
@@ -1847,9 +1847,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else {
                         $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
                         if ($time >= 60) {
-                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                            echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                         } else {
-                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                            echo sprintf(translate('%s sec'), floor($time));
                         }
                     }
                     ?></td>
@@ -1954,7 +1954,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -2016,9 +2016,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 } else {
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 }
                 ?></th><?php
@@ -2044,9 +2044,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else {
                         $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
                         if ($time >= 60) {
-                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                            echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                         } else {
-                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                            echo sprintf(translate('%s sec'), floor($time));
                         }
                     }
                     ?></td>
@@ -2152,7 +2152,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -2214,9 +2214,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 } else {
                     $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
                     if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                     } else {
-                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                        echo sprintf(translate('%s sec'), floor($time));
                     }
                 }
                 ?></th><?php
@@ -2242,9 +2242,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else {
                         $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
                         if ($time >= 60) {
-                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                            echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
                         } else {
-                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                            echo sprintf(translate('%s sec'), floor($time));
                         }
                     }
                     ?></td>
@@ -2542,7 +2542,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -2661,7 +2661,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -2780,7 +2780,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
-	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            translate('%s until %s (%s days)'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
 	            $date_diff->format('%a')
@@ -2955,7 +2955,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		    if (array_key_exists($current_viewid, $views) === TRUE) {
 		        echo sprintf(translate('%1$s [ga:%2$s]', '%1$s', '%2$s'), $views[$current_viewid]['name'], $current_viewid);
 		    } else {
-		        echo sprintf(translate('Unknown or inaccessible view [ga:%s]', '%s'), $current_viewid);
+		        echo sprintf(translate('Unknown or inaccessible view [ga:%s]'), $current_viewid);
 		    }
 		} else {
             echo '<table class="sq-backend-table">';
