@@ -3319,6 +3319,11 @@ function compressIPv6Address($address)
 */
 function authorised_file_path($filename)
 {
+	if (SQ_PHP_CLI) {
+		// No file path restriction when in CLI
+		return TRUE;
+	}
+
 	$filename = trim($filename);
 	if (empty($filename)) {
 		return FALSE;
@@ -3331,29 +3336,28 @@ function authorised_file_path($filename)
 
 	require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 	$authorised_paths = explode("\n", SQ_TOOL_AUTHORISED_PATHS);
-
-	foreach($authorised_paths as $index => $val) {
-		$authorised_paths[$index] = trim($authorised_paths[$index]);
-		if (empty($authorised_paths[$index])) {
-			unset($authorised_paths[$index]);
-			continue;
-		}
-		if (is_dir($authorised_paths[$index])) {
-			$authorised_paths[$index] = rtrim($authorised_paths[$index], '/').'/';
-		}
-	}//end foreach
-
+	
 	// Public data dir and temp asset import dir are always authorised by default
 	$authorised_paths[] = SQ_DATA_PATH.'/public/';
 	$authorised_paths[] = SQ_TEMP_PATH.'/import_assets/';
 
 	$authorised = FALSE;
 	foreach($authorised_paths as $authorised_path) {
-		if (strpos($filename, $authorised_path) !== FALSE) {
-			$authorised = TRUE;
+		$authorised_path = trim($authorised_path);
+		if (empty($authorised_path)) {
+			continue;
+		}
+		if (is_dir($authorised_path)) {
+			$authorised_path = rtrim($authorised_path, '/').'/';
+			$authorised = strpos($filename, $authorised_path) !== FALSE;
+		} else {
+			$authorised = $filename == $authorised_path;
+		}
+		
+		if ($authorised) {
 			break;
 		}
-	}
+	}//end foreach
 
 	return $authorised;
 
