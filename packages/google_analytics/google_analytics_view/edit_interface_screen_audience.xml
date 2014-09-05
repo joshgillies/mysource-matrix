@@ -16,6 +16,16 @@
 -->
 
 <contents>
+	<section name="Top 20 Countries" write_access="root:none">
+	    <function_call>
+	        <paint_function name="paintGeoCountryReport" />
+	    </function_call>
+	</section>
+	<section name="Top 50 Cities" write_access="root:none">
+	    <function_call>
+	        <paint_function name="paintGeoCityReport" />
+	    </function_call>
+	</section>
 	<section name="Operating Systems (Desktop)" write_access="root:none">
 	    <function_call>
 	        <paint_function name="paintTechnologiesOSesReportDesktop" />
@@ -26,7 +36,7 @@
             <paint_function name="paintTechnologiesBrowsersReportDesktop" />
         </function_call>
     </section>
-	
+
     <section name="Operating Systems (Mobile)" write_access="root:none">
         <function_call>
             <paint_function name="paintTechnologiesOSesReportMobile" />
@@ -37,12 +47,7 @@
             <paint_function name="paintTechnologiesBrowsersReportMobile" />
         </function_call>
     </section>
-    <section name="Mobile Devices (Mobile)" write_access="root:none">
-        <function_call>
-            <paint_function name="paintTechnologiesDevicesReportMobile" />
-        </function_call>
-    </section>
-    
+
     <section name="Operating Systems (Tablet)" write_access="root:none">
 	    <function_call>
 	        <paint_function name="paintTechnologiesOSesReportTablet" />
@@ -53,9 +58,4 @@
             <paint_function name="paintTechnologiesBrowsersReportTablet" />
         </function_call>
     </section>
-	<section name="Mobile Devices (Tablet)" write_access="root:none">
-	    <function_call>
-	        <paint_function name="paintTechnologiesDevicesReportTablet" />
-	    </function_call>
-	</section>
 </contents>

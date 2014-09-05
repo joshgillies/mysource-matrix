@@ -33,7 +33,7 @@ class Google_Analytics_View extends Page
     /**
      * Common site-level metrics.
      */
-    const SITE_METRICS = 'ga:sessions,ga:newUsers,ga:users,ga:pageviews,ga:sessionDuration,ga:bounces,ga:goalStartsAll,ga:goalCompletionsAll';
+    const SITE_METRICS = 'ga:sessions,ga:newUsers,ga:users,ga:pageviews,ga:sessionDuration,ga:bounces,ga:pageLoadTime,ga:pageLoadSample,ga:goalStartsAll,ga:goalCompletionsAll';
 
     /**
      * Common page-level metrics.
