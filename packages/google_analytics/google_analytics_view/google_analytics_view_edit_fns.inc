@@ -74,6 +74,12 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 	    $day_count  = (int) $date_diff->format('%a');
 
+	    $prev_end_date = clone $end_date;
+	    $prev_end_date->sub(new DateInterval('P'.$day_count.'D'));
+
+	    $prev_start_date = clone $start_date;
+	    $prev_start_date->sub(new DateInterval('P'.$day_count.'D'));
+
 	    $report = $asset->generateReport(
 	        Array(),
 	        Google_Analytics_View::SITE_METRICS,
@@ -82,6 +88,15 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    );
 
 	    $report = array_get_index($report['rows'], 0, Array());
+
+	    $previous_report = $asset->generateReport(
+	        Array(),
+	        Google_Analytics_View::SITE_METRICS,
+	        $prev_start_date->format('Y-m-d'),
+	        $prev_end_date->format('Y-m-d')
+	    );
+
+	    $previous_report = array_get_index($previous_report['rows'], 0, Array());
 
 	    $visTypeRawReport = $asset->generateReport(
 	        Array('ga:userType'),
@@ -101,6 +116,353 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $visTypeReport['new']       = array_get_index($visTypeReport, 'new', Array());
 	    $visTypeReport['returning'] = array_get_index($visTypeReport, 'returning', Array());
 	    unset($visTypeRawReport);
+
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+
+	    // Sessions and unique users.
+	    $o->openSection(translate('Sessions and page views'));
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="25%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="35%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Total sessions') ?></th>
+	            <td><strong><?php echo number_format($report['ga:sessions'], 0); ?></strong></td>
+	            <td><?php echo translate('%s / day', number_format($report['ga:sessions'] / $day_count, 0)); ?></td>
+	            <td><?php
+	            if ($report['ga:sessions'] === $previous_report['ga:sessions']) {
+	                echo translate('Steady');
+	            } else if ($previous_report['ga:sessions'] === 0) {
+	                echo translate('Increased from zero');
+	            } else if ($report['ga:sessions'] > $previous_report['ga:sessions']) {
+	                echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($report['ga:sessions'] / $previous_report['ga:sessions']) - 1), 1));
+	            } else {
+	                echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($report['ga:sessions'] / $previous_report['ga:sessions'])), 1));
+	            }
+	            ?></td>
+	        </tr>
+	        <tr>
+	            <th><?php echo translate('Total page views') ?></th>
+	            <td><strong><?php echo number_format($report['ga:pageviews'], 0); ?></strong></td>
+	            <td><?php echo translate('%s / day', number_format($report['ga:pageviews'] / $day_count, 0)); ?></td>
+	            <td><?php
+	            if ($report['ga:pageviews'] === $previous_report['ga:pageviews']) {
+	                echo translate('Steady');
+	            } else if ($previous_report['ga:pageviews'] === 0) {
+	                echo translate('Increased from zero');
+	            } else if ($report['ga:pageviews'] > $previous_report['ga:pageviews']) {
+	                echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($report['ga:pageviews'] / $previous_report['ga:pageviews']) - 1), 1));
+	            } else {
+	                echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($report['ga:pageviews'] / $previous_report['ga:pageviews'])), 1));
+	            }
+	            ?></td>
+	        </tr>
+	        <tr>
+	            <th><?php echo translate('Bounce rate') ?></th>
+	            <td><strong><?php echo number_format((100.0 * $report['ga:bounces'] / $report['ga:sessions']), 2) ?>%</strong> (<?php echo number_format($report['ga:bounces'], 0).')'; ?></td>
+	            <td></td>
+	            <td><?php
+	            if (($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
+                    $bounce_rate      = (100.0 * $report['ga:bounces'] / $report['ga:sessions']);
+                    $prev_bounce_rate = (100.0 * $previous_report['ga:bounces'] / $previous_report['ga:sessions']);
+                    if ($bounce_rate === $prev_bounce_rate) {
+                        echo translate('Steady');
+                    } else if ($prev_bounce_rate === 0) {
+                        echo translate('Increased from zero');
+                    } else if ($bounce_rate > $prev_bounce_rate) {
+                        echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($bounce_rate / $prev_bounce_rate) - 1), 1));
+                    } else {
+                        echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($bounce_rate / $prev_bounce_rate)), 1));
+                    }
+	            }
+	            ?></td>
+	        </tr>
+	        <tr>
+	            <th><?php echo translate('Session duration') ?></th>
+	            <td><strong><?php
+	                $time = $report['ga:sessionDuration'] / $report['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+	            ?></strong></td>
+	            <td></td>
+	            <td><?php
+	            if (($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
+                    $time      = $report['ga:sessionDuration'] / $report['ga:sessions'];
+                    $prev_time = $previous_report['ga:sessionDuration'] / $previous_report['ga:sessions'];
+                    if ($time === $prev_time) {
+                        echo translate('Steady');
+                    } else if ($prev_time === 0) {
+                        echo translate('Increased from zero');
+                    } else if ($time > $prev_time) {
+                        echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($time / $prev_time) - 1), 1));
+                    } else {
+                        echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($time / $prev_time)), 1));
+                    }
+	            }
+	            ?></td>
+	        </tr>
+	        <tr>
+	            <th><?php echo translate('Average page speed') ?></th>
+	            <td><strong><?php
+	                if ($report['ga:pageLoadSample'] === 0) {
+	                    echo translate('N/A');
+	                } else {
+	                    $time = $report['ga:pageLoadTime'] / $report['ga:pageLoadSample'];
+	                    echo sprintf(translate('%s sec', '%s'), number_format($time / 1000, 2));
+	                }
+	            ?></strong></td>
+	            <td><?php
+	                echo sprintf(translate('Sample of %s', '%s'), number_format($report['ga:pageLoadSample']));
+	            ?></td>
+	            <td><?php
+	            if (($previous_report['ga:pageLoadSample'] > 0) && ($report['ga:pageLoadSample'] > 0)) {
+                    $time      = $report['ga:pageLoadTime'] / $report['ga:pageLoadSample'];
+                    $prev_time = $previous_report['ga:pageLoadTime'] / $previous_report['ga:pageLoadSample'];
+                    if ($time === $prev_time) {
+                        echo translate('Steady');
+                    } else if ($prev_time === 0) {
+                        echo translate('Increased from zero');
+                    } else if ($time > $prev_time) {
+                        echo sprintf(translate('Increase of %s%%%%', '%s'), number_format(100 * (($time / $prev_time) - 1), 1));
+                    } else {
+                        echo sprintf(translate('Decrease of %s%%%%', '%s'), number_format(100 * (1 - ($time / $prev_time)), 1));
+                    }
+	            }
+	            ?></td>
+	        </tr>
+	    </tbody></table><?php
+	    $o->closeRaw();
+	    $o->closeSection();
+
+	    // Sessions and unique users.
+	    $o->openSection(translate('Top external referrers'));
+	    $o->openRaw();
+	    $this->_paintExternalReferrerSummary($asset, $o, $prefix, 10);
+	    $o->closeRaw();
+	    $o->closeSection();
+
+
+	    // Sessions and unique users.
+	    $o->openSection(translate('Top campaigns'));
+	    $o->openRaw();
+	    $this->_paintTopCampaigns($asset, $o, $prefix, 10);
+	    $o->closeRaw();
+	    $o->closeSection();
+
+	    return FALSE;
+
+	}//end paintSummaryOverallReport()
+
+
+	/**
+	 * Paint a Top Campaigns report.
+	 *
+	 */
+	public function _paintExternalReferrerSummary($asset, &$o, $prefix, $limit=5)
+	{
+	    $period = 'P1M';
+
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
+
+	    // Grab all the report.
+	    $raw_report = $asset->generateReport(
+	        Array(
+	            'ga:medium',
+	            'ga:source',
+            ),
+            Array(
+                'ga:sessions',
+                'ga:pageviews',
+                'ga:sessionDuration',
+                'ga:bounces'
+            ),
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
+	    );
+
+	    $report = $raw_report['rows'];
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+
+	    $total_sessions = array_reduce($report, function($carry, $row) {
+            return $carry + $row['ga:sessions'];
+	    }, 0);
+
+	    ?><table class="sq-backend-table">
+	    <col width="25%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Medium / Source') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Page Views') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	            <th><?php echo translate('Bounce Rate') ?></td>
+	        </tr><?php
+	        $rank = 0;
+            for ($i = 0; ($i < count($report) && ($rank < $limit)); $i++) {
+	            $row =& $report[$i];
+	            if ($row['ga:medium'] !== 'referral') {
+	                continue;
+	            }
+
+	            $rank++;
+            ?><tr>
+                <td><?php
+                echo $rank.'. '.$row['ga:source'];
+                ?></td>
+                <td style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:pageviews'], 0); ?></th>
+                <td style="text-align: right"><?php
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:bounces'] / $row['ga:sessions'] * 100.0, 2).'%'; ?></th>
+                </tr><?php
+            }//end foreach
+            ?></tbody></table><?php
+
+	    return FALSE;
+
+	}//end _paintExternalReferrerSummary()
+
+
+	/**
+	 * Paint a Top Campaigns report.
+	 *
+	 */
+	public function _paintTopCampaigns($asset, &$o, $prefix, $limit=5)
+	{
+	    $period = 'P1M';
+
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
+
+	    // Grab all the report.
+	    $raw_report = $asset->generateReport(
+	        Array(
+	            'ga:source',
+	            'ga:medium',
+            ),
+            Array(
+                'ga:sessions',
+                'ga:pageviews',
+                'ga:sessionDuration',
+                'ga:bounces'
+            ),
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
+	    );
+
+	    $report = $raw_report['rows'];
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+
+	    $total_sessions = array_reduce($report, function($carry, $row) {
+            return $carry + $row['ga:sessions'];
+	    }, 0);
+
+	    ?><table class="sq-backend-table">
+	    <col width="25%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Medium / Source') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Page Views') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	            <th><?php echo translate('Bounce Rate') ?></td>
+	        </tr><?php
+	        $rank = 0;
+            for ($i = 0; ($i < count($report) && ($rank < $limit)); $i++) {
+	            $row =& $report[$i];
+	            if (($row['ga:medium'] === '(none)') || ($row['ga:medium'] === 'referral')) {
+	                continue;
+	            } else if ($row['ga:medium'] === 'cpc') {
+	                $row['ga:medium'] = translate('Paid search');
+	                $row['ga:source'] = ucwords($row['ga:source']);
+	            } else if ($row['ga:medium'] == 'organic') {
+	                $row['ga:medium'] = translate('Search');
+	                $row['ga:source'] = ucwords($row['ga:source']);
+	            }
+
+	            $rank++;
+            ?><tr>
+                <td><?php
+                echo $rank.'. '.ucfirst($row['ga:medium']).' / '.$row['ga:source'];
+                ?></td>
+                <td style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:pageviews'], 0); ?></th>
+                <td style="text-align: right"><?php
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:bounces'] / $row['ga:sessions'] * 100.0, 2).'%'; ?></th>
+                </tr><?php
+            }//end foreach
+            ?></tbody></table><?php
+
+	    return FALSE;
+
+	}//end _paintTopCampaigns()
+
+
+	/**
+	 * Paint the "Goals" report.
+	 *
+	 */
+	public function paintGoalsReport($asset, &$o, $prefix)
+	{
+	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'google_analytics_connector', FALSE, NULL, 'minor');
+	    $connector      = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_link['majorid']);
+        $period         = 'P1M';
+
+	    $end_date   = new DateTime('today 00:00:00');
+	    $start_date = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff  = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
+	    $day_count  = (int) $date_diff->format('%a');
 
 	    // Give us some goal stats for this period, five at a time (because
 	    // 10 metrics maximum).
@@ -154,120 +516,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        );
 	    $o->closeField();
 
-	    // Sessions and unique users.
-	    $o->openSection(translate('Sessions and users'));
-	    $o->openRaw();
-	    ?><table class="sq-backend-table">
-	    <col width="25%" />
-	    <col width="15%" />
-	    <col width="15%" />
-	    <col width="35%" />
-	    <tbody>
-	        <tr>
-	            <th><?php echo translate('Total sessions') ?></th>
-	            <td><strong><?php echo number_format($report['ga:sessions'], 0); ?></strong></td>
-	            <td colspan="2"><?php echo translate('%s / day', number_format($report['ga:sessions'] / $day_count, 0)); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('Bounced sessions') ?></th>
-	            <td><strong><?php echo number_format($report['ga:bounces'], 0); ?></strong></td>
-	            <td colspan="2"><?php echo translate('%s%% of total', number_format((100.0 * $report['ga:bounces'] / $report['ga:sessions']), 1)); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('Unique users') ?></th>
-	            <td><strong><?php echo number_format($report['ga:users'], 0); ?></strong></td>
-	            <td colspan="2"><?php echo translate('%s / day', number_format($report['ga:users'] / $day_count, 0)); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('New users') ?></th>
-	            <td colspan="3"><?php echo number_format($visTypeReport['new']['ga:users'], 0); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('Returning users') ?></th>
-	            <td colspan="3"><?php echo number_format($visTypeReport['returning']['ga:users'], 0); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('Sessions per user') ?></th>
-	            <td colspan="3"><?php echo number_format(($report['ga:sessions'] / $report['ga:users']), 1); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('Sessions per returning user') ?></th>
-	            <td colspan="3"><?php echo number_format(($visTypeReport['returning']['ga:sessions'] / $visTypeReport['returning']['ga:users']), 1); ?></td>
-	        </tr>
-	    </tbody></table><?php
-	    $o->closeRaw();
-	    $o->closeSection();
-
-	    // Session statistics.
-	    $o->openSection(translate('Session statistics'));
-	    $o->openRaw();
-	    ?><table class="sq-backend-table">
-	    <col width="25%" />
-	    <col width="15%" />
-	    <col width="15%" />
-	    <col width="35%" />
-	    <tbody>
-	        <tr>
-	            <th><?php echo translate('Total page views') ?></th>
-	            <td><strong><?php echo number_format($report['ga:pageviews'], 0); ?></strong></td>
-	            <td colspan="2"><?php echo translate('%s / day', number_format($report['ga:pageviews'] / $day_count, 0)); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('Page views per session') ?></th>
-	            <td colspan="3"><?php echo number_format($report['ga:pageviews'] / $report['ga:sessions'], 1); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('Session duration') ?></th>
-	            <td colspan="3"><?php
-	                $time = $report['ga:sessionDuration'] / $report['ga:sessions'];
-                    if ($time >= 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), floor($time % 60));
-                    } else {
-                        echo sprintf(translate('%s sec', '%s'), (floor($time * 10) / 10));
-                    }
-	            ?></td>
-	        </tr>
-	    </tbody>
-	    </table><?php
-	    $o->closeRaw();
-	    $o->closeSection();
-
-	    // Session statistics.
-	    $o->openSection(translate('...amongst users who don\'t bounce off your site'));
-	    $o->openRaw();
-	    ?><table class="sq-backend-table">
-	    <col width="25%" />
-	    <col width="15%" />
-	    <col width="15%" />
-	    <col width="35%" />
-	    <tbody>
-	        <tr>
-	            <th><?php echo translate('Page views per session') ?></th>
-	            <td colspan="3"><?php echo translate(
-	                '%s',
-	                number_format($report['ga:pageviews'] / ($report['ga:sessions'] - $report['ga:bounces']), 1)
-	            ); ?></td>
-	        </tr>
-	        <tr>
-	            <th><?php echo translate('Session duration') ?></th>
-	            <td colspan="3"><?php
-	                $nb_time = $report['ga:sessionDuration'] / ($report['ga:sessions'] - $report['ga:bounces']);
-                    if ($nb_time >= 60) {
-                        $nb_str = sprintf(translate('%s min %s sec', '%s', '%s'), (int)($nb_time / 60), floor($nb_time % 60));
-                    } else {
-                        $nb_str = sprintf(translate('%s sec', '%s'), (floor($nb_time * 10) / 10));
-                    }
-
-                    echo translate('%s', $nb_str);
-	            ?></td>
-	        </tr>
-	    </tbody>
-	    </table><?php
-	    $o->closeRaw();
-	    $o->closeSection();
-
 	    // Start the section on goal stats.
-	    $o->openSection(translate('Goal statistics'));
 	    $o->sectionNote(translate('For <strong>"URL (Funnel)" goals</strong>, only sessions that view the first page in the funnel are considered "starts".').
 	        '<br/>'.
 	        translate('For other goal types, all sessions are considered "starts" for the purposes of the Completion Rate presented here.'));
@@ -347,11 +596,23 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        ?></tbody>
 	    </table><?php
 	    $o->closeRaw();
-	    $o->closeSection();
+
+	    return FALSE;
+
+	}//end paintGoalsReport()
+
+
+	/**
+	 * Paint the Content Experiments report.
+	 *
+	 */
+	public function paintExperimentsReport($asset, &$o, $prefix)
+	{
+	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'google_analytics_connector', FALSE, NULL, 'minor');
+	    $connector      = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_link['majorid']);
 
 	    // Start the section on experiment management API info.
 	    $experiments = $connector->getExperiments($asset->attr('viewid'));
-	    $o->openSection(translate('Content Experiments'));
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="30%" />
@@ -459,11 +720,10 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        ?></tbody>
 	    </table><?php
 	    $o->closeRaw();
-	    $o->closeSection();
 
 	    return FALSE;
 
-	}//end paintSummaryOverallReport()
+	}//end paintExperimentsReport()
 
 	/**
 	 * Paint the geographic reports.
@@ -2223,8 +2483,6 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 
 //--        CONTENT REPORTS        --//
-
-
 
 
 	/**
