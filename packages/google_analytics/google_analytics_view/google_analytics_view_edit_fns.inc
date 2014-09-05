@@ -225,7 +225,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                }
 	            ?></strong></td>
 	            <td><?php
-	                echo sprintf(translate('Sample of %s'), number_format($report['ga:pageLoadSample']));
+	                echo sprintf(translate('Sample of %s pages'), number_format($report['ga:pageLoadSample']));
 	            ?></td>
 	            <td><?php
 	            if (($previous_report['ga:pageLoadSample'] > 0) && ($report['ga:pageLoadSample'] > 0)) {
@@ -244,6 +244,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            ?></td>
 	        </tr>
 	    </tbody></table><?php
+	    $o->closeRaw();
+	    $o->closeSection();
+
+	    // Sessions and unique users.
+	    $o->openSection(translate('Device usage'));
+	    $o->openRaw();
+	    $this->_paintDeviceUsageSummary($asset, $o, $prefix);
 	    $o->closeRaw();
 	    $o->closeSection();
 
@@ -268,7 +275,90 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	 * Paint a Top Campaigns report.
+	 * Paint a Device Usage Summary report.
+	 *
+	 */
+	public function _paintDeviceUsageSummary($asset, &$o, $prefix)
+	{
+	    $period = 'P1M';
+
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
+
+	    // Grab all the report.
+	    $raw_report = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+            ),
+            Array(
+                'ga:sessions',
+                'ga:pageviews',
+                'ga:sessionDuration',
+                'ga:bounces'
+            ),
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
+	    );
+
+	    $report = $raw_report['rows'];
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+
+	    $total_sessions = array_reduce($report, function($carry, $row) {
+            return $carry + $row['ga:sessions'];
+	    }, 0);
+
+	    ?><table class="sq-backend-table">
+	    <col width="25%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Device Category') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Page Views') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	            <th><?php echo translate('Bounce Rate') ?></td>
+	        </tr><?php
+	        $rank = 0;
+            for ($i = 0; $i < count($report); $i++) {
+	            $row =& $report[$i];
+
+	            $rank++;
+            ?><tr>
+                <td><?php
+                echo $rank.'. '.ucfirst($row['ga:deviceCategory']);
+                ?></td>
+                <td style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:pageviews'], 0); ?></th>
+                <td style="text-align: right"><?php
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec'), floor($time));
+                    }
+                ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:bounces'] / $row['ga:sessions'] * 100.0, 2).'%'; ?></th>
+                </tr><?php
+            }//end foreach
+            ?></tbody></table><?php
+
+	    return FALSE;
+
+	}//end _paintDeviceUsageSummary()
+
+
+	/**
+	 * Paint an External Referrer summary report.
 	 *
 	 */
 	public function _paintExternalReferrerSummary($asset, &$o, $prefix, $limit=5)
