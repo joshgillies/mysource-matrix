@@ -4106,7 +4106,7 @@ class JS_Api extends Page
 							}
 						}
 					}
-				} else if ($asset->writeAccess()) {
+				} else if ($asset->writeAccess() && (isset($parent_link_info['linkid']) && $asset->canDeleteLink($parent_link_info['linkid']))) {
 					// asset isnt in trash and none of the links are locked, Hooorrrrray !!!!
 					$am->acquireLock($id, 'all');
 					$result	= $am->trashAsset($id, TRUE);
