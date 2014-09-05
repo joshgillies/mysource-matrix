@@ -64,6 +64,12 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 		if (empty($settings['parentid'])) return FALSE;
 		if (empty($settings['link_type'])) return FALSE;
 		if (empty($settings['file_path'])) return FALSE;
+
+		if (!authorised_file_path($settings['file_path'])) {
+			trigger_localised_error('CORE0328', E_USER_WARNING, htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			return FALSE;
+		}
+
 		if (!is_readable($settings['file_path'])) {
 			trigger_localised_error('CORE0276', E_USER_WARNING, htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 			return FALSE;
@@ -377,6 +383,10 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 		}
 
 		$settings['type_code'] = $type_code;
+		if (!authorised_file_path($request_data['file_path'])) {
+			trigger_localised_error('CORE0328', E_USER_WARNING, htmlentities($request_data['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$request_data['file_path'] = '';
+		}
 		$settings['file_path'] = $request_data['file_path'];
 
 		// optional fields

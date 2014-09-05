@@ -3203,6 +3203,10 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="closure_compiler">Closure Compiler</string>
 	<string source="closure_compiler_path">Path</string>
 
+	<!-- Authorised file paths -->
+	<string source="authorised_file_paths">Authorised File Paths</string>
+	<string source="authorised_file_paths_list">File Paths</string>
+	<string source="authorised_file_paths_note">Authorised locations to source the files from for backend operations, like 'Create File Asset' trigger action.</string>
 
 	<!-- SOAP -->
 	<string source="service_address">Service Address</string>

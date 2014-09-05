@@ -79,6 +79,7 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_RECAPTCHA_PUBLIC_KEY'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_RECAPTCHA_PRIVATE_KEY'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_CLOSURE_COMPILER_PATH'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_AUTHORISED_PATHS'				=> Array('editable' => 1, 'default' => ''),
 				);
 
 
@@ -622,6 +623,34 @@ class External_Tools_Config extends Config
 			if (!is_file(SQ_TOOL_CLOSURE_COMPILER_PATH)) {
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Closure compiler'); ?></span><?php
 			}
+			$o->closeField();
+		$o->closeSection();
+
+		$o->openSection(translate('authorised_file_paths'));
+			$o->openField(translate('authorised_file_paths_list'));
+
+			$paths = explode("\n", SQ_TOOL_AUTHORISED_PATHS);
+			foreach($paths as $index => $val) {
+				$paths[$index] = trim($paths[$index]);
+				if (empty($paths[$index])) {
+					unset($paths[$index]);
+					continue;
+				}
+				if (!empty($paths[$index]) && !is_file($paths[$index])) {
+					$paths[$index] = rtrim($paths[$index], '/').'/';
+				}
+			}//end foreach
+
+			// Public data dir and temp asset import dir are always authorised by default
+			$paths[] = SQ_DATA_PATH.'/public/';
+			$paths[] = SQ_TEMP_PATH.'/import_assets/';
+
+			$paths = array_unique($paths);
+			foreach($paths as $path) {
+				echo $path.'<br />';
+			}
+
+			echo $o->note(translate('authorised_file_paths_note'));
 			$o->closeField();
 		$o->closeSection();
 
