@@ -4883,7 +4883,7 @@ class JS_Api extends Page
         };
 
         if (array_key_exists('force_cache', $args) === FALSE) {
-            $args['force_cache'] = NULL;
+            $args['force_cache'] = FALSE;
         };
 
 	    // We have to get our own asset ID.
