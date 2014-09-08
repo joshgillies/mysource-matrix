@@ -79,7 +79,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	function _createBodycopy($default_content=NULL)
 	{
 		if (is_null($default_content)) {
-			$default_content = translate('default_bodycopy_content');
+			$default_content = translate('default_bodycopy_content_pg_esec');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');

@@ -1489,7 +1489,6 @@
 	<string source="trigger_set_permission_dependant_parents_note">&lt;strong&gt;Note:&lt;/strong&gt; eg. set the permission of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the permission set normally.</string>
 
 	<string source="trigger_asset_id">Asset ID is %s</string>
-	<string source="trigger_asset_type">Asset is of type %s</string>
 	<string source="trigger_asset_sysadmin">Current user %s effectively a system administrator</string>
 	<string source="trigger_asset_public_user">Current user %s a public user</string>
 	<string source="trigger_asset_ldap_user">Current user %s a LDAP user</string>

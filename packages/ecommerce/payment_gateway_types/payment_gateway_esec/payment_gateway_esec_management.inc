@@ -110,7 +110,7 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 		if (version_compare($current_version, '0.3', '<')) {
 			pre_echo('UPGRADING TO v0.3');
 			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('payment_gateway_esec', FALSE);
-			$default_content = translate('default_bodycopy_content');
+			$default_content = translate('default_bodycopy_content_pg_esec');
 			foreach ($assetid_list as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$content = $default_content;

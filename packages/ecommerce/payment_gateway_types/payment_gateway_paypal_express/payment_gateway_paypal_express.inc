@@ -66,7 +66,7 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content')));
+		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content_pg_paypal_express')));
 
 	}//end _createAdditional()
 

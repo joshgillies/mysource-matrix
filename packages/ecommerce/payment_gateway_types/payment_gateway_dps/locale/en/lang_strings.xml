@@ -16,7 +16,7 @@
 -->
 
 <strings>
-<string source="default_bodycopy_content"><![CDATA[
+<string source="default_bodycopy_content_pg_dps"><![CDATA[
 %%processing_error%%
 <div style="background-color: #CCC; padding: 5px"><strong>&pound;%%transaction_amount%%</strong> Pounds Sterling (GBP) are about to be debited from your card</div>
 <table cellpadding="5">
