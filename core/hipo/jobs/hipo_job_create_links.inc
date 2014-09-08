@@ -301,10 +301,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					for (reset($links); NULL !== ($link_idx = key($links)); next($links)) {
 						$current = current($links);
-
+						$ignore_link_id = isset($current['linkid']) ? $current['linkid'] : 0;
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
+						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, '', TRUE, $ignore_link_id);
 
 						if (!empty($trash_link)) $num_other_links--;
 						if (!$num_other_links) {
@@ -345,7 +345,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						// if we can't Safe-Trash for any reason whatsoever, then
 						// let them know
 						if ($safe_trash) {
-							$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid, $current['linkid'], FALSE);
+							$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid, $ignore_link_id, FALSE);
 							if ($trash_errors) {
 								$this->_running_vars['do_not_trash'][$assetid] = $trash_errors;
 								$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
