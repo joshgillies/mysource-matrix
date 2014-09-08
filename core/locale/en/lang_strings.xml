@@ -3278,4 +3278,5 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="allow_virus_scan">Allow Virus Scan</string>
 	<string source="allow_virus_scan_note">If global Virus Checker is enabled, perform immediate virus scan on each imported file. This will slow down import process.</string>
 
+    <string source="trigger_schema_no_schema_specified">No schema specified</string>
 </strings>

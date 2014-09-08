@@ -181,9 +181,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo ' <em>('.translate('using_default_value').')</em>';
 				} else{
 
-				}	
+				}
 			echo '</span>';
-			
+
 			if (!((is_array($value) && empty($value)) || (is_string($value) && $value == ''))) {
 				if (!is_array($value)) $value = Array($value);
 				$value_output = '';
@@ -217,7 +217,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$processed = FALSE;
-		
+
 		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
@@ -368,7 +368,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		// Being user friendly show a quick preview of what it looks like
-		$o->openField(translate('preview'));
+		$o->openField(translate('preview_hierarchy'));
 			if (!empty($hierarchy_options)) {
 
 				$display_type = $asset->attr('display_type');
@@ -1159,8 +1159,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		return $wa;
 
 	}//end processLevelTitles()
-	
-	
+
+
 	/**
 	* Paint the interface for setting Display Type
 	*
@@ -1214,8 +1214,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		return $wa;
 
 	}//end processDisplayType()
-	
-	
+
+
 }//end class
 
 ?>

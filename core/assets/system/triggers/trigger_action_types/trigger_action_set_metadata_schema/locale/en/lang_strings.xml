@@ -18,5 +18,4 @@
 
 <strings>
 	<string source="trigger_schema_apply-deny_the_following_schema">%s the following schema:</string>
-	<string source="trigger_schema_no_schema_specified">No schema specified</string>
 </strings>
