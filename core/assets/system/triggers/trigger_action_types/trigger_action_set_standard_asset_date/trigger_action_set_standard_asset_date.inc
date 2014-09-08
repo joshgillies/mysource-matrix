@@ -255,12 +255,12 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 		$formats['explicit_exact'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_asset_attribute').'&nbsp', $prefix.'_as_determined_from_attr');
+			label(translate('to_value_of_asset_attribute').'&nbsp', $prefix.'_as_determined_from_attr');
 			echo self::getAttributeChooser($prefix.'_exact_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
 		$formats['by_attr_value'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_metadata_field').'&nbsp;', $prefix.'_as_determined_from_meta');
+			label(translate('to_value_of_metadata_field').'&nbsp;', $prefix.'_as_determined_from_meta');
 			$metadata_field_id = $settings['when_meta_field_id'];
 			if ($write_access) {
 				asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));

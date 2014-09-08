@@ -157,7 +157,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 
 				echo '<br />';
 				check_box($prefix.'[cascade_to_new]', '1', $cascade_to_new);
-				label(translate('cascade_schema_changes_to_new_children'), $prefix.'[cascade_to_new]');
+				label(translate('cascade_schema_changes_to_newly_linked_children'), $prefix.'[cascade_to_new]');
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
@@ -178,7 +178,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 
 				echo '<br />';
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
-				echo translate('cascade_schema_changes_to_new_children');
+				echo translate('cascade_schema_changes_to_newly_linked_children');
 			}
 			echo '</div>';
 

@@ -53,7 +53,7 @@
 
 <!-- Thesaurus/Feature Pages/Metamap -->
 <string source="funnelback_no_collection_to_proceed">No Collections have been set, please go to the 'Collections' screen and create a collection before continuing</string>
-<string source="funnelback_no_collection_selected">Choose a collection to start editing</string>
+<string source="funnelback_choose_collection_to_start">Choose a collection to start editing</string>
 <string source="funnelback_add_new_feature_page">Add new feature page entries</string>
 <string source="funnelback_editing_collection"><![CDATA[<b>Editing Collection: %s</b>]]></string>
 <string source="funnelback_mclass">Metadata Class</string>

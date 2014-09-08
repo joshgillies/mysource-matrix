@@ -17,7 +17,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
-* Funnelback_Manager_Edit_Fns 
+* Funnelback_Manager_Edit_Fns
 *
 * Purpose
 *
@@ -73,7 +73,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the interface for enabling indexing by Funnelback 
+	* Paints the interface for enabling indexing by Funnelback
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -285,7 +285,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the interface for collections 
+	* Paints the interface for collections
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -318,7 +318,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Processes the interface for collections 
+	* Processes the interface for collections
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -360,7 +360,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the interface for collections 
+	* Paints the interface for collections
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -433,7 +433,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Processes the interface for collections 
+	* Processes the interface for collections
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -628,7 +628,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 						$source_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
 						if (!empty($source_asset)) {
 							$asset_url = $source_asset->getURL();
-							$unrestricted_asset = strpos($asset_url, '/__data/') !== FALSE || 
+							$unrestricted_asset = strpos($asset_url, '/__data/') !== FALSE ||
 												(SQ_CONF_STATIC_ROOT_URL && strpos($asset_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($source_asset);
 
@@ -982,7 +982,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				echo ' '.translate('funnelback_add_new_feature_page');
 			}//end if
 		} else {
-			echo translate('funnelback_no_collection_selected');
+			echo translate('funnelback_choose_collection_to_start');
 		}//end if
 
 		return TRUE;
@@ -1311,7 +1311,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				}//end if
 			}//end foreach
 		} else {
-			echo translate('funnelback_no_collection_selected');
+			echo translate('funnelback_choose_collection_to_start');
 		}//end if
 
 		return TRUE;
@@ -1562,10 +1562,10 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					echo '</tr>';
 				}//end for
 			} else {
-				echo translate('funnelback_no_collection_selected');
+				echo translate('funnelback_choose_collection_to_start');
 			}//end if
 		} else {
-			echo translate('funnelback_no_collection_selected');
+			echo translate('funnelback_choose_collection_to_start');
 		}//end if
 
 		return TRUE;
@@ -1925,7 +1925,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Check if a collection is valid or not 
+	* Check if a collection is valid or not
 	*
 	* @param array	$collections	The collections to check
 	* @param string	$collection_id	The collection id to check, if empty return all collections with valid set

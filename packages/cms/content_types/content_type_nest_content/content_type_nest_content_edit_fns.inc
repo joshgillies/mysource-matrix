@@ -220,7 +220,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 								</tr>
 								<tr>
 									<td colspan="3">You can use keywords of the form <strong>%nested_*%</strong> (e.g %nested_asset_name%) to refer to any of the keywords of the asset being nested. <br/>You can also use global keywords (<strong>%globals_*%</strong>). These will be evaluated upon asset load.
-									<br/>You can use keywords of the form <strong>%list_current_*%</strong> (e.g %list_current_asset_name%) to refer to the current asset being listed by listing page or search page.     
+									<br/>You can use keywords of the form <strong>%list_current_*%</strong> (e.g %list_current_asset_name%) to refer to the current asset being listed by listing page or search page.
 									</td>
 								</tr>
 							</tfoot>
@@ -295,7 +295,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 			}
-			$asset_contents = '<strong>'.translate('cms_ct_nest_content_nested_content').get_asset_tag_line($nested_asset->id).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
+			$asset_contents = '<strong>'.translate('cms_ct_nest_content_nested_content', get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
 		} else {
 			$asset_contents = '';
 			// This is the real deal, so we want to actually print the asset

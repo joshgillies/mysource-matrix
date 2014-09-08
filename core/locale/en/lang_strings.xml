@@ -1113,7 +1113,7 @@
 	<string source="core_use_simple_upload_button">Use Simple Upload</string>
 	<string source="core_dimensions">&lt;b&gt;Dimensions:&lt;/b&gt; %1$s x %2$s pixels</string>
 	<string source="core_click_to_open_in_new_window">Click to open in a new window</string>
-	<string source="report_not_generated">This report has not yet been generated</string>
+	<string source="report_not_generated">This report has not been generated</string>
 	<string source="core_generate_report">Generate the latest version of this report</string>
 	<string source="core_report_last_generated">&lt;b&gt;This report has been generated&lt;/b&gt; &lt;br /&gt;Date: %1$s&lt;br /&gt;User: %2$s</string>
 	<string source="core_no_visual_report">This report does not contain a visual component</string>

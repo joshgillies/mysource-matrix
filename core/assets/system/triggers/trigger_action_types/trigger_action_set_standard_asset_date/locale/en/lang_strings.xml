@@ -22,7 +22,7 @@
 	<string source="to_this_exact_time">To this exact time</string>
 	<string source="offset_for_above_fields">Offset for the above fields</string>
 	<string source="offset_ignored_for_exact_time"><![CDATA[<strong>Note:</strong> When an exact time is set, the offset setting is ignored.]]></string>
-	<string source="as_determined_from_asset_attribute">To the value of this Asset Attribute</string>
-	<string source="as_determined_from_metadata_field">To the value of this Metadata Field</string>
+	<string source="to_value_of_asset_attribute">To the value of this Asset Attribute</string>
+	<string source="to_value_of_metadata_field">To the value of this Metadata Field</string>
 	<string source="specified_value">the specified value</string>
 </strings>
