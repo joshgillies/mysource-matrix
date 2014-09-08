@@ -1914,7 +1914,7 @@ class Form extends Asset implements Bridge
 					// If we have a submission, then, update it
 					if (isset($submission)) {
 						$this->updateSubmission($submission);
-					} else if (isset($submission_var)) {
+					} else if (isset($submission_var) && !is_null($action)) {
 						$this->updateSubmissionCookie();
 					}
 
