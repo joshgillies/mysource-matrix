@@ -3503,18 +3503,26 @@ class JS_Api extends Page
 				$asset = $am->getAsset($id);
 				//need to make sure that links are not locked
 				$parents = $this->getParents($id, 1);
-				$locked = FALSE;
+				$locked  = $is_dependant = FALSE;
+				$perms_on_parent = TRUE;
 				//loop through each parents and see if any of the links are locked
-				foreach ($parents as $parentid => $parent_link_info) {
-					if($parent_link_info['locked'] == '1') $locked = TRUE;
+				foreach ($parents as $parent_link_info) {
+					if ($parent_link_info['locked'] == '1') $locked = TRUE;
+					if ($parent_link_info['is_dependant'] == '1') $is_dependant = TRUE;
+					$parent_asset = $am->getAsset($parent_link_info['asset_id']);
+					if (TRUE !== $parent_asset->canDeleteLink($parent_link_info['link_id'])) $perms_on_parent = $parent_link_info['asset_id'];
 				}
 
 				if ($already_in_trash) {
 					$response[] = 'Asset (#'.$asset->id.') is already in the trash';
+				} else if ($is_dependant) {
+					$response[] = 'Unable to trash asset #'.$id.'. You cannot delete a dependant link';
+				} else if ($perms_on_parent !== TRUE) {
+					$response[] = 'Not enough permission, on parent asset #'.$perms_on_parent.', to delete Asset (#'.$asset->id.')';
 				} else if ($locked && $asset->writeAccess()){
 					// few or all the links are locked so lets go through each one of them and try to delete the links
 					foreach ($parents as $parentid => $parent_link_info) {
-						$parent_asset = $am->getAsset($parentid);
+						$parent_asset = $am->getAsset($parent_link_info['asset_id']);
 						if ($parent_link_info['locked'] == '1') {
 							// found the link locked....
 							$response[] = 'Link between Asset "'.$asset->name.'" (#'.$asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') is locked';
@@ -3525,7 +3533,7 @@ class JS_Api extends Page
 							}
 						}
 					}
-				} else if ($asset->writeAccess() && (isset($parent_link_info['linkid']) && $asset->canDeleteLink($parent_link_info['linkid']))) {
+				} else if ($asset->writeAccess()) {
 					// asset isnt in trash and none of the links are locked, Hooorrrrray !!!!
 					$am->acquireLock($id, 'all');
 					$result	= $am->trashAsset($id, TRUE);
