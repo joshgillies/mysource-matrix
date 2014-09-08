@@ -407,6 +407,7 @@ class Internal_Message extends MySource_Object
 					}
 
 					if (!isset($this->replacements['user_name'])){
+						if(empty($this->replacements)) $this->replacements = Array();
 						$this->replacements['user_name'] = $user->name;
 					}
 		
@@ -585,6 +586,7 @@ class Internal_Message extends MySource_Object
 
 		$replacements = $tmpReplacements;
 		if (!isset($replacements['user_name'])){
+			if(empty($this->replacements)) $this->replacements = Array();
 			$replacements['user_name'] = $user->name;
 		}
 
