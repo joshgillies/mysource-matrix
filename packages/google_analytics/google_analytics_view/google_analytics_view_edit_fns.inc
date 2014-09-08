@@ -177,7 +177,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     $prev_bounce_rate = (100.0 * $previous_report['ga:bounces'] / $previous_report['ga:sessions']);
                     if ($bounce_rate === $prev_bounce_rate) {
                         echo translate('Steady');
-                    } else if ($prev_bounce_rate === 0) {
+                    } else if ($previous_report['ga:bounces'] === 0) {
                         echo translate('Increased from zero');
                     } else if ($bounce_rate > $prev_bounce_rate) {
                         echo sprintf(translate('Increase of %s%%'), number_format(100 * (($bounce_rate / $prev_bounce_rate) - 1), 1));
