@@ -15,5 +15,5 @@
 -->
 
 <errors>
-	<error code="REST0001">Error occured when processing JavaScript in asset #%1$s: #%2$s</error>
+	<error code="REST0002">Error occured when processing JavaScript in asset #%1$s: #%2$s</error>
 </errors>

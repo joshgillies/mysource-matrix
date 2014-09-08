@@ -20,5 +20,5 @@
 	is a number representing the number of this error(start at 1 and increment)
 -->
 <errors>
-	<error code="XSL0001">PHP is missing the XSL extension</error>
+
 </errors>

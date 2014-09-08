@@ -1701,7 +1701,7 @@ Full Node Contents :
 	<error code="CORE0232">Unable to create Trigger, incorrect format</error>
 	<error code="CORE0233">This operation requires the System Configuration lock to be acquired, but another user has that lock.  Please try again later.</error>
 	<error code="CORE0234">No design area asset with ID name %s was found.  There must have been a problem initialising the asset for this design area.  Area tag ignored.</error>
-	
+
 
 	<!-- Thesaurus Support -->
 	<error code="CORE0235">Failed copying uploaded file (%1$s) to destination directory (%2$s)</error>
