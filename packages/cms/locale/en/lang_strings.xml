@@ -63,9 +63,6 @@
 <string source="do_not_sort">Do Not Sort</string>
 <string source="short_name">Short Name</string>
 <string source="version">Version</string>
-<string source="created_date">Created Date</string>
-<string source="last_updated_date">Last Updated Date</string>
-<string source="last_published_date">Last Published Date</string>
 <string source="type_code">Type Code</string>
 <string source="default_format">Default Format</string>
 <string source="report_not_generated">This report has not been generated</string>

@@ -36,7 +36,6 @@
 <string source="cms_form_submission_ip_address">Submission IP Address</string>
 <string source="cms_form_submission_summary">Submission Summary</string>
 <string source="cms_form_submission_info">Submission Info</string>
-<string source="cms_form_submission_time">Time of Submission</string>
 <string source="cms_form_submission_time_format">Time of Submission (%s)</string>
 <string source="cms_form_question_response">Response to %s</string>
 <string source="cms_form_section_response">Response to %1$s: %2$s</string>

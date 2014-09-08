@@ -155,7 +155,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					}
 				}
 			}
-			$types['select'] = translate('select_asset_type');
+			$types['select'] = '-- '.translate('select_asset_type').' --';
 			$wa = $asset->writeAccess('attributes');
 			if ($wa) {
 				$type = null;
@@ -181,7 +181,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					</tr>
 					<?php
 					if (!empty($type)) {
-						$keywords['select'] = translate('select_keyword');
+						$keywords['select'] = '-- '.translate('select_keyword').' --';
 						$keyword = null;
 						$tag = null;
 						if (isset($_POST[$prefix.'_keyword']) && ($_POST[$prefix.'_keyword'] != 'select')) {

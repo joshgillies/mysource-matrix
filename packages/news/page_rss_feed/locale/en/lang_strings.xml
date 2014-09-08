@@ -22,9 +22,8 @@
 <string source="required">Required</string>
 <string source="missing_for_channel">Missing For Channel</string>
 <string source="missing_for_image">Missing For Image</string>
-<string source="select_asset_type">--SELECT ASSET TYPE--</string>
 <string source="choose_asset_type">Choose Asset Type</string>
-<string source="select_keyword">--SELECT KEYWORD--</string>
+<string source="select_keyword">Select Keyword</string>
 <string source="choose_or_enter_keyword">Choose /Enter Keyword</string>
 <string source="choose_tag">Choose Tag</string>
 <string source="asset_type">Asset Type</string>

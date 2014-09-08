@@ -171,9 +171,9 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 
 		$state['asset']->$date_field = $when;
 		$state['asset']->$date_field_userid = $userid;
-		
+
 		$em->broadcastEvent($state['asset'], 'AssetUpdate', $changed_data);
-		
+
 		return Array(
 				'assetid'		=> $state['asset']->id,
 				'userid'		=> $userid,
@@ -246,7 +246,7 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 		$formats = Array();
 
 		ob_start();
-			label(translate('immediately_when_trigger_fired'), $prefix.'_when_type_on_trigger_fire');
+			label(translate('to_time_when_trigger_fired'), $prefix.'_when_type_on_trigger_fire');
 		$formats['on_trigger_fire'] = ob_get_clean();
 
 		ob_start();

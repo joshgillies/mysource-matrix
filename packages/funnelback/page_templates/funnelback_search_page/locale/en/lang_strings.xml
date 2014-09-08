@@ -34,7 +34,7 @@
 	<string source="funnelback_sort_date">Sort By Date</string>
 	<string source="funnelback_sort_title">Sort By Title</string>
 	<string source="funnelback_sort_url">Sort By URL</string>
-	<string source="funnelback_no_collection">No collection selected</string>
+	<string source="funnelback_no_collection_selected">No collection selected</string>
 
 	<!-- Notes -->
 	<string source="funnelback_initial_bodycopy_desc">This format defines the layout for the initial funnelback search page</string>

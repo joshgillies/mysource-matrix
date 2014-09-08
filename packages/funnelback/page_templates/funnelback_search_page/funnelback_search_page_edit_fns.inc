@@ -189,7 +189,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				if ($delete_control) {
 					echo '<td>';
 					check_box($prefix.'_delete['.$bodycopy_name.']');
-					echo '</td>';	
+					echo '</td>';
 				}//end if
 				?>
 			</tr>
@@ -276,7 +276,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			unset($deleted_formats[$new_type]);
 			$new_type = '';
 		}//end if
-	
+
 		foreach ($deleted_formats as $type => $on) {
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type);
 			if (!empty($current_link)) {
@@ -294,13 +294,13 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-	
+
 				$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-	
+
 				$bodycopy = new Bodycopy();
 				$bodycopy->setAttrValue('name', strtoupper($new_type).' Format');
 				$copy_args = Array('content' => $asset->_getDefaultBodycopyContent('custom_format'));
-	
+
 				if (!$bodycopy->create($copy_link, $copy_args)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -319,7 +319,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 
 	/**
-	* Paints the search options for choosing the url/collections 
+	* Paints the search options for choosing the url/collections
 	*
 	* @param object		&$asset		asset being painted
 	* @param object		&$o			backend outputter
@@ -336,7 +336,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$collection           = $asset->attr('collection');
 		$fm                   = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 		$all_collections      = $fm->getCollections();
-		$local_collections    = Array(''=>translate('funnelback_no_collection'));
+		$local_collections    = Array(''=>translate('funnelback_no_collection_selected'));
 		$squiz_search_options = $this->_getSquizSearchSystems();
 		$suiteid              = $asset->attr('systemid');
 		$systemname           = array_get_index($squiz_search_options, $suiteid, '');
@@ -480,13 +480,13 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			} else {
 				if ($search_type == 'integrated') {
 					if (empty($collection) || !isset($local_collections[$collection])) {
-						echo translate('funnelback_no_collection');
+						echo translate('funnelback_no_collection_selected');
 					} else {
 						echo $local_collections[$collection];
 					}//end if
 				} else if ($search_type == 'squiz') {
 					if (empty($collection) || !isset($squiz_collections[$collection])) {
-						echo translate('funnelback_no_collection');
+						echo translate('funnelback_no_collection_selected');
 					} else {
 						echo $squiz_collections[$collection];
 					}//end if
@@ -502,7 +502,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 
 	/**
-	* Processes the search options for choosing the url/collections 
+	* Processes the search options for choosing the url/collections
 	*
 	* @param object	&$asset	asset being painted
 	* @param object	&$o		backend outputter
@@ -910,7 +910,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 				var optionList = document.getElementById('option-list-<?php echo $prefix; ?>');
 				var inputs = optionList.getElementsByTagName('INPUT');
-	
+
 				var brElements = lastInput.parentNode.getElementsByTagName('BR');
 				input.parentNode.removeChild(brElements[brElements.length-1]);
 				input.parentNode.appendChild(document.createTextNode(' '));

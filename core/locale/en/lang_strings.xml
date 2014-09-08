@@ -1422,7 +1422,7 @@
 	<string source="trigger_input_data_error">There was an error with input data</string>
 	<string source="trigger_type_code_not_supplied">Asset type code has not been supplied</string>
 
-	<string source="trigger_new_asset_basic">Create a new asset of type %1$s %2$s using a %3$s link and populate it with the file located on the server at %4$s.</string>
+	<string source="trigger_new_file_asset_basic">Create a new asset of type %1$s %2$s using a %3$s link and populate it with the file located on the server at %4$s.</string>
 	<string source="no_parent_selected">no parent selected</string>
 	<string source="trigger_new_asset_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the parent.</string>
 	<string source="no_value_entered">no value entered</string>

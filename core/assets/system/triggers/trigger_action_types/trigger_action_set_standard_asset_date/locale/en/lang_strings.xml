@@ -18,7 +18,7 @@
 
 <strings>
 	<string source="set_standard_date_field_type">Set the following standard asset date field</string>
-	<string source="immediately_when_trigger_fired">To the time when the trigger was fired</string>
+	<string source="to_time_when_trigger_fired">To the time when the trigger was fired</string>
 	<string source="to_this_exact_time">To this exact time</string>
 	<string source="offset_for_above_fields">Offset for the above fields</string>
 	<string source="offset_ignored_for_exact_time"><![CDATA[<strong>Note:</strong> When an exact time is set, the offset setting is ignored.]]></string>
