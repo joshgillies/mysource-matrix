@@ -16,14 +16,9 @@
 -->
 
 <contents>
-	<section name="Top 20 Countries" write_access="root:none">
+	<section name="Content Experiments" write_access="root:none">
 	    <function_call>
-	        <paint_function name="paintGeoCountryReport" />
-	    </function_call>
-	</section>
-	<section name="Top 50 Cities" write_access="root:none">
-	    <function_call>
-	        <paint_function name="paintGeoCityReport" />
+	        <paint_function name="paintExperimentsReport" />
 	    </function_call>
 	</section>
 </contents>

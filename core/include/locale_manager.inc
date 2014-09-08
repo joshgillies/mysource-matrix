@@ -77,8 +77,8 @@ class Locale_Manager extends MySource_Object
 	 * @access private
 	 */
 	private $_assets_included = Array();
-	
-	
+
+
 	/**
 	 * keep track of which packages have been included so we don't include
 	 * a certain set of strings more than once for each locale
@@ -87,8 +87,8 @@ class Locale_Manager extends MySource_Object
 	 * @access private
 	 */
 	private $_packages_included = Array();
-	
-	
+
+
 	/**
 	 * keep track of whether we've included the core strings already
 	 * (for this locale at least)
@@ -97,8 +97,8 @@ class Locale_Manager extends MySource_Object
 	 * @access private
 	 */
 	private $_core_included = Array();
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -110,8 +110,8 @@ class Locale_Manager extends MySource_Object
 		$this->MySource_Object();
 
 	}//end constructor
-	
-	
+
+
 	/**
 	 * Destructor
 	 *
@@ -129,7 +129,7 @@ class Locale_Manager extends MySource_Object
 				$deja_vu->remember(SQ_DEJA_VU_LOCALE, NULL, $this);
 			}
 		}
-		
+
 	}//end destructor
 
 
@@ -181,7 +181,7 @@ class Locale_Manager extends MySource_Object
 	{
 		array_unshift($this->locale_stack, $locale);
 		$this->includeCoreStrings($locale);
-		
+
 		return TRUE;
 
 	}//end setCurrentLocale()
@@ -305,7 +305,7 @@ class Locale_Manager extends MySource_Object
 	*
 	* If sent an array of {$string}s, we'll throw back an array.
 	*
-	* @param mixed	$string		(string|array) The untranslated string(s) 
+	* @param mixed	$string		(string|array) The untranslated string(s)
 	*
 	* @see    translate()
 	* @return string|array
@@ -314,7 +314,7 @@ class Locale_Manager extends MySource_Object
 	public function getString($strings)
 	{
         $locale = $this->getCurrentLocale();
-        
+
         // if second parameter is an array, use that as our list of params
         if (func_num_args() > 1) {
             if (!is_array($func_args = func_get_arg(1))) {
@@ -324,33 +324,35 @@ class Locale_Manager extends MySource_Object
         } else {
             $func_args = Array();
         }
-        
+
 	    $return_array = TRUE;
 	    if (is_array($strings) === FALSE) {
 	        $return_array = FALSE;
 	        $strings      = Array($strings);
 	    }
-	    
+
 	    $retval = Array();
-	    
+
 	    foreach ($strings as $index => $string) {
             if (!isset($this->_strings[$locale])) {
                 $retval[$index] = $string;
             } else {
                 $retval[$index] = array_get_index($this->_strings[$locale], $string, $string);
             }
-            
-            $retval[$index] = vsprintf($retval[$index], $func_args);
+
+            if (count($func_args) > 0) {
+                $retval[$index] = vsprintf($retval[$index], $func_args);
+            }
         }
-        
+
         if ($return_array === FALSE) {
             $retval = reset($retval);
         }
-        
+
         return $retval;
 
 	}//end getString()
-	
+
 
 	/**
 	* Includes the compiled strings for a specified asset, if they haven't already
@@ -366,12 +368,12 @@ class Locale_Manager extends MySource_Object
 		if (!isset($this->_assets_included[$type_code])) {
 			$this->_assets_included[$type_code] = Array();
 		}
-		
+
 		if ($locale == NULL) {
 			$locale = $this->getCurrentLocale();
 		}
-		
-		
+
+
 		if (!array_get_index($this->_assets_included[$type_code], $locale, FALSE)) {
 			$this->_tmp['strings_modified'] = TRUE; // So that we know we've changed.
 			$this->_assets_included[$type_code][$locale] = TRUE;
@@ -397,7 +399,7 @@ class Locale_Manager extends MySource_Object
 					$locales[] = $lang.'_'.$country.'@'.$variant;
 				}
 			}
-			
+
 			foreach ($locales as $this_locale) {
 				$file = SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$this_locale;
 
@@ -429,7 +431,7 @@ class Locale_Manager extends MySource_Object
 		if (!isset($this->_packages_included[$package_name])) {
 			$this->_packages_included[$package_name] = Array();
 		}
-		
+
 		if ($locale == NULL) {
 			$locale = $this->getCurrentLocale();
 		}
@@ -582,7 +584,7 @@ class Locale_Manager extends MySource_Object
 
 		$additional_info_array = Array();
 		if (SQ_CONF_DEBUG & 8) {
-			if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && !is_null($GLOBALS['SQ_SYSTEM']->frontend_asset)) { 
+			if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && !is_null($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
 				$additional_info_array['frontend_assetid'] = $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
 			}
 			$additional_info_array['frontend_url']= current_url(TRUE);
@@ -596,7 +598,7 @@ class Locale_Manager extends MySource_Object
 			$error_log_line   = 'Additional info for \''.$code.'\' error:'."\n";
 			$additional_info  = isset($additional_info_array['frontend_assetid']) ? 'Frontend assetid: #'.$additional_info_array['frontend_assetid'] : '';
 			if (!empty($additional_info) || strpos(current_url(), SQ_CONF_BACKEND_SUFFIX) === FALSE) {
-				$additional_info .= empty($additional_info) ? '' : "\n"; 
+				$additional_info .= empty($additional_info) ? '' : "\n";
 				$additional_info .= isset($additional_info_array['frontend_url']) ? 'Current URL: '.$additional_info_array['frontend_url'] : '';
 			}
 			if (!empty($additional_info)) error_log($error_log_line.$additional_info);
@@ -635,7 +637,7 @@ class Locale_Manager extends MySource_Object
 		if (!isset($this->_errors[$locale][$code])) {
 			$valid_code = FALSE;
 		}
-		
+
 		// do not dump array data here
 		foreach ($func_args as $index => $arg) {
 		    if(!is_scalar($arg)) {

@@ -4863,7 +4863,7 @@ class JS_Api extends Page
 	 *                another array. Top level filters will be ANDed, inner
 	 *                arrays will be ORed together then ANDed into the top level.
 	 *                Omit for no filtering.
-	 * - force      : Force fresh data.
+	 * - force_cache: Force fresh data.
 	 *
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
@@ -4880,6 +4880,10 @@ class JS_Api extends Page
 
         if (array_key_exists('id', $args) === FALSE) {
             $args['id'] = array_get_index($args, 'assetid', NULL);
+        };
+
+        if (array_key_exists('force_cache', $args) === FALSE) {
+            $args['force_cache'] = FALSE;
         };
 
 	    // We have to get our own asset ID.
@@ -4966,10 +4970,13 @@ class JS_Api extends Page
 	        $args['start_date'],
 	        $args['end_date'],
 	        $args['sort_by'],
-	        $args['filter']
+	        $args['filter'],
+	        $args['force_cache']
 	    );
 
-	    if ($result['errors'] !== NULL) {
+	    if ($result === NULL) {
+	        return $this->buildError(translate('No cached analytics data available'), 'noContent');
+	    } else if ($result['errors'] !== NULL) {
 	        return $this->buildError(translate('Failed to get analytics data'), 'analyticsError', $result['errors']);
 	    } else {
 	        return $result;

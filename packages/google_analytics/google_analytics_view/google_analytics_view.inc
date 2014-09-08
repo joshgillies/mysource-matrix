@@ -33,7 +33,7 @@ class Google_Analytics_View extends Page
     /**
      * Common site-level metrics.
      */
-    const SITE_METRICS = 'ga:sessions,ga:newUsers,ga:users,ga:pageviews,ga:sessionDuration,ga:bounces,ga:goalStartsAll,ga:goalCompletionsAll';
+    const SITE_METRICS = 'ga:sessions,ga:newUsers,ga:users,ga:pageviews,ga:sessionDuration,ga:bounces,ga:pageLoadTime,ga:pageLoadSample,ga:goalStartsAll,ga:goalCompletionsAll';
 
     /**
      * Common page-level metrics.
@@ -86,9 +86,25 @@ class Google_Analytics_View extends Page
 	 * Returns an array of the appropriate data, that can be sent to keywords
 	 * and reports, both front-end and back-end (edit interface).
 	 *
+	 * Filter enforces the logic permitted by Google Analytics. At the first
+	 * level of the array, the options there are ANDed. If any of the elements
+	 * is itself an array, they are first ORd together before becoming one AND
+	 * option.
+	 *
+	 * Returns array if successful or error. If nothing in the cache and
+	 * $force_cache is TRUE, return NULL instead.
+	 *
+	 * @param array   $dimensions    List of dimensions.
+	 * @param array   $metrics       List of metrics.
+	 * @param mixed   $start_date    Start date (Y-m-d or unix timestamp).
+	 * @param string  $end_date      End date (Y-m-d or unix timestamp).
+	 * @param array   $sort          Sort order.
+	 * @param array   $filter        Filters.
+	 * @param boolean $force_cache   TRUE forces use of cache and won't fetch.
+	 *
 	 * @return array|NULL
 	 */
-	public function generateReport($dimensions, $metrics, $start_date, $end_date, $sort=Array(), $filter=Array(), $force=FALSE)
+	public function generateReport($dimensions, $metrics, $start_date, $end_date, $sort=Array(), $filter=Array(), $force_cache=FALSE)
 	{
 	    require_once SQ_FUDGE_PATH.'/general/www.inc';
 
@@ -158,7 +174,7 @@ class Google_Analytics_View extends Page
         $cache_key .= '.'.http_build_query($params, '', ',');
 
         $response = $connector->loadFromFetchCache($cache_key);
-        if ($response === NULL) {
+        if (($response === NULL) && ($force_cache === FALSE)) {
             $done     = FALSE;
             $response = Array();
             $url_params = $params;
@@ -225,9 +241,13 @@ class Google_Analytics_View extends Page
         }//end if (not cached)
 
         if (($response === FALSE) || ($response === NULL)) {
-            $result = Array(
-                        'errors' => $raw_response['errors'],
-                      );
+            if ($raw_response['errors']) {
+                $result = Array(
+                            'errors' => $raw_response['errors'],
+                          );
+            } else {
+                $result = NULL;
+            }
         } else {
             $result = Array(
                 'start-date' => $start_date,
