@@ -18,29 +18,41 @@
 <contents>
 	<section name="General" write_access="write:attributes">
 		<field attribute="print">
+			<display_name>Print</display_name>
+			<note>Select whether this design area should be printed or hidden in this design customisation</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache">
+			<display_name>Cache?</display_name>
+			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache_globally">
+			<display_name>Cache Globally?</display_name>
+			<note>When enabled this design area will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the design area content is not dynamic based on URL. &lt;br/&gt; The URL recache suffix will not work for globally cached design areas. However you can clear global design area cache using the cache manager. </note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Link" write_access="write:links" read_access="write:">
 		<field>
+			<display_name>Linked CSS</display_name>
+			<note>The assetid that represents the CSS File</note>
 			<function_call>
 				<paint_function   name="paintAssetid" />
 				<process_function name="processAssetid" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Tag Type</display_name>
+			<note>The type of tag to use to link to the CSS file</note>
 			<function_call>
 				<paint_function name="paintTagType" />
 				<process_function name="processTagType" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Media</display_name>
+			<note>The media attribute for the CSS link (only used with a LINK tag)</note>
 			<function_call>
 				<paint_function name="paintMedia" />
 				<process_function name="processMedia" />

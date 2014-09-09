@@ -18,45 +18,69 @@
 <contents>
 	<section name="General" write_access="write:attributes">
 		<field attribute="print">
+			<display_name>Print</display_name>
+			<note>Select whether this design area should be printed or hidden in this design customisation</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache">
+			<display_name>Cache?</display_name>
+			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache_globally">
+			<display_name>Cache Globally?</display_name>
+			<note>When enabled this design area will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the design area content is not dynamic based on URL. &lt;br/&gt; The URL recache suffix will not work for globally cached design areas. However you can clear global design area cache using the cache manager. </note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Lineage options" write_access="write:attributes">
 		<field>
+			<display_name>Excluded Asset Types</display_name>
+			<note>Assets of these types and their inherited types will be omitted from the lineage</note>
 			<function_call>
 				<paint_function   name="paintExcludedTypes" />
 				<process_function name="processExcludedTypes" />
 			</function_call>
 		</field>
 		<field attribute="start_at_level">
+			<display_name>Start At Level</display_name>
+			<note>Define at what level to start printing the asset</note>
 			<int width="3" />
 		</field>
 		<field attribute="levels_to_print">
+			<display_name>Levels To Print</display_name>
+			<note>Define how many levels deep to print in the asset lineage</note>
 			<int width="3" />
 		</field>
 		<field attribute="prefix_with_divider">
+			<display_name>Prefix With Divider</display_name>
+			<note>Define whether to show the divider at the start of the asset lineage</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="suffix_with_divider">
+			<display_name>Suffix With Divider</display_name>
+			<note>Define whether to show the divider at the end of the asset lineage</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="prefix_with_home_link">
+			<display_name>Prefix With Home Link</display_name>
+			<note>Define whether to show a link to the Site at the start of the asset lineage</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="suffix_with_current_link">
+			<display_name>Suffix With Current Link</display_name>
+			<note>Define whether to show a hyperlink to the current page in the asset lineage</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="show_hidden_links">
+			<display_name>Show Hidden Links</display_name>
+			<note>Define whether to show TYPE_2 linked assets in the asset lineage</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="reverse_lineage">
+			<display_name>Reverse Lineage</display_name>
+			<note>Allows you to print the asset lineage in reverse so that the last asset is first and the first asset is last</note>
 			<boolean true_text="yes" false_text="no" />
-		</field>		
+		</field>
 	</section>
 </contents>
