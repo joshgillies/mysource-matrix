@@ -17,6 +17,8 @@
 <contents>
 	<section name="View File" write_access="write:links">
 		<field>
+			<display_name>Contents</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintView"   />
 				<process_function name="processView" />
