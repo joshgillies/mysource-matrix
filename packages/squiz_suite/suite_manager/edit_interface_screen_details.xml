@@ -17,6 +17,8 @@
 <contents>
 	<section name="Current System" write_access="write:attributes">
 		<field>
+            <display_name>System ID</display_name>
+            <note />
 			<function_call>
 				<paint_function		name="paintSystemId" />
 				<process_function	name="processSystemId" />
