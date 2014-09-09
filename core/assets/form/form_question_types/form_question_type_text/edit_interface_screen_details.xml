@@ -15,72 +15,99 @@
 -->
 
 <contents>
-	<section>
-	    <field>
-			<function_call>
-				<paint_function   name="paintLockMessage"   />
-				<process_function name="processLockMessage" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Question Options" write_access="write:attributes">
-	    	<field attribute="name">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="note">
-			<text width="40" height="2" />
-		</field>
-		<field attribute="default">
-			<text width="40" height="2" />
-		</field>
-		<field attribute="text_type">
-			<selection style="list" />
-		</field>
-		<field attribute="width">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="height">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="max">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="tabindex">
-			<int width="5" />
-		</field>
-		<field attribute="extra">
-			<text width="80" height="4" />
-		</field>
-		<field attribute="sticky">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Simple Validation Rules" write_access="write:attributes">
-		<field attribute="is_required">
-			<boolean true_text="required" false_text="optional" />
-		</field>
-		<field attribute="cust_required_error">
-			<text width="60" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintCondition"   />
-				<process_function name="processCondition" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Complex Validation Rules" write_access="write:attributes">
-		<function_call>
-			<paint_function   name="paintRules"   />
-			<process_function name="processRules" />
-		</function_call>
-	</section>
-	<section name="Add New Rule" write_access="write:attributes" read_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintAddRule"   />
-				<process_function name="processAddRule" />
-			</function_call>
-		</field>
-	</section>
+    <section>
+        <field>
+            <function_call>
+                <paint_function name="paintLockMessage" />
+                <process_function name="processLockMessage" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Question Options" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Title</display_name>
+            <note></note>
+            <text width="20" height="1" />
+        </field>
+        <field attribute="note">
+            <display_name>Note</display_name>
+            <note>This text will be displayed next to the question</note>
+            <text width="40" height="2" />
+        </field>
+        <field attribute="default">
+            <display_name>Default Value</display_name>
+            <note></note>
+            <text width="40" height="2" />
+        </field>
+        <field attribute="text_type">
+            <display_name>Input Type</display_name>
+            <note>The value for the &lt;b&gt;type&lt;/b&gt; attribute in the input field. Modern browsers provide specific interfaces to suit each input type. Older browsers will fall back to a basic text field.</note>
+            <selection style="list" />
+        </field>
+        <field attribute="width">
+            <display_name>Width</display_name>
+            <note>Width of the field (in characters)</note>
+            <text width="5" height="1" />
+        </field>
+        <field attribute="height">
+            <display_name>Height</display_name>
+            <note>Height of the field (in lines)</note>
+            <text width="5" height="1" />
+        </field>
+        <field attribute="max">
+            <display_name>Maximum Length</display_name>
+            <note>Maximum length of answer (characters)</note>
+            <text width="5" height="1" />
+        </field>
+        <field attribute="tabindex">
+            <display_name>Tab Index</display_name>
+            <note>If a tab index is supplied it will be added to the input tag</note>
+            <int width="5" />
+        </field>
+        <field attribute="extra">
+            <display_name>Extras</display_name>
+            <note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
+            <text width="80" height="4" />
+        </field>
+        <field attribute="sticky">
+            <display_name>Sticky?</display_name>
+            <note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Simple Validation Rules" write_access="write:attributes">
+        <field attribute="is_required">
+            <display_name>Required Entry?</display_name>
+            <note>If required, this question must be answered before the form can be submitted</note>
+            <boolean true_text="required" false_text="optional" />
+        </field>
+        <field attribute="cust_required_error">
+            <display_name>Custom Required Error</display_name>
+            <note>This message will replace the default required error message</note>
+            <text width="60" />
+        </field>
+        <field>
+            <display_name>Condition</display_name>
+            <function_call>
+                <paint_function name="paintCondition" />
+                <process_function name="processCondition" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Complex Validation Rules" write_access="write:attributes">
+        <function_call>
+            <paint_function name="paintRules" />
+            <process_function name="processRules" />
+        </function_call>
+    </section>
+    <section name="Add New Rule" write_access="write:attributes" read_access="write:attributes">
+        <field>
+            <display_name>Add Rule</display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintAddRule" />
+                <process_function name="processAddRule" />
+            </function_call>
+        </field>
+    </section>
 </contents>

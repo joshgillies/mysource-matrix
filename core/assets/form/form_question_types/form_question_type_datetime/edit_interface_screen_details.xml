@@ -25,18 +25,26 @@
 	</section>
 	<section name="Question Options" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Title</display_name>
+			<note></note>
 			<text width="20" height="1" />
 		</field>
 		<field attribute="note">
+			<display_name>Note</display_name>
+			<note></note>
 			<text width="40" height="2" />
 		</field>
 		<field>
+			<display_name>Options</display_name>
+			<note>If &quot;Display as Text Box ?&quot; is not checked, fields will be displayed as a drop-down list</note>			<function_call>
 			<function_call>
 				<paint_function   name="paintInterface"   />
 				<process_function name="processInterface" />
 			</function_call>
 		</field>
 		<field attribute="minimum">
+			<display_name>Minimum</display_name>
+			<note></note>
 			<datetime min="0001-01-01 00:00:00" max="9999-12-31 23:59:59" allow_circa="0">
 				<show>
 					<y style="t" allow_null="1" />
@@ -49,6 +57,8 @@
 			</datetime>
 		</field>
 		<field attribute="maximum">
+			<display_name>Maximum</display_name>
+			<note></note>
 			<datetime min="0001-01-01 00:00:00" max="9999-12-31 23:59:59" allow_circa="0">
 				<show>
 					<y style="t" allow_null="1" />
@@ -61,6 +71,8 @@
 			</datetime>
 		</field>
 		<field attribute="default">
+			<display_name>Default</display_name>
+			<note></note>
 			<datetime min="0001-01-01 00:00:00" max="9999-12-31 23:59:59" allow_circa="0">
 				<show>
 					<y style="t" allow_null="1" />
@@ -73,24 +85,36 @@
 			</datetime>
 		</field>
 		<field attribute="print_format">
+			<display_name>Print Format</display_name>
+			<note>This &lt;a href="http://www.php.net/date" target="_blank"&gt;PHP date()&lt;/a&gt; format will be used to format this question's summary. This will be the format displayed on the Thank You screen when this field is shown, and when viewing and exporting submission logs. If you need to use a letter that has special meaning, you will need to escape it with a backslash. A default date will be used if you specify a date() component that is not offered to the user above.</note>
 			<text width="20" height="1" />
 		</field>
 		<field attribute="tabindex">
+			<display_name>Tab Index</display_name>
+			<note>If a tab index is supplied it will be added to the input tag</note>
 			<int width="5" />
 		</field>
 		<field>
+			<display_name>Extras</display_name>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes for each date time element, eg class="yourCssClass"</note>
 			<function_call>
 				<paint_function   name="paintExtras"   />
 				<process_function name="processExtras" />
 			</function_call>
 		</field>
 		<field attribute="sticky">
+			<display_name>Sticky?</display_name>
+			<note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cust_required_error">
+			<display_name>Custom Error Message</display_name>
+			<note>Error message that will be displayed if the entered date/time is invalid</note>
 			<text width="60" />
 		</field>
 		<field attribute="use_js">
+			<display_name>JS assistance</display_name>
+			<note>Use JS to validate date range and automatically correct input date.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

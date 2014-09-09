@@ -15,56 +15,75 @@
 -->
 
 <contents>
-	<section>
-	    <field>
-			<function_call>
-				<paint_function   name="paintLockMessage"   />
-				<process_function name="processLockMessage" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Question Options" write_access="write:attributes">
-	    <field attribute="name">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="note">
-			<text width="40" height="2" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintOptions"   />
-				<process_function name="processOptions" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintDefault"   />
-				<process_function name="processDefault" />
-			</function_call>
-		</field>
-		<field attribute="tabindex">
-			<int width="5" />
-		</field>
-		<field attribute="extra">
-			<text width="80" height="4" />
-		</field>
-		<field attribute="sticky">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Simple Validation Rules" write_access="write:attributes">
+    <section>
+        <field>
+            <function_call>
+                <paint_function name="paintLockMessage" />
+                <process_function name="processLockMessage" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Question Options" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Title</display_name>
+            <note></note>
+            <text width="20" height="1" />
+        </field>
+        <field attribute="note">
+            <display_name>Note</display_name>
+            <note></note>
+            <text width="40" height="2" />
+        </field>
+        <field>
+            <display_name>Options</display_name>
+            <note>Enter possible options (the list will expand as necessary)</note>
+            <function_call>
+                <paint_function name="paintOptions" />
+                <process_function name="processOptions" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Default</display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintDefault" />
+                <process_function name="processDefault" />
+            </function_call>
+        </field>
+        <field attribute="tabindex">
+            <display_name>Tab Index</display_name>
+            <note>If a tab index is supplied it will be added to the input tag</note>
+            <int width="5" />
+        </field>
+        <field attribute="extra">
+            <display_name>Extras</display_name>
+            <note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
+            <text width="80" height="4" />
+        </field>
+        <field attribute="sticky">
+            <display_name>Sticky?</display_name>
+            <note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Simple Validation Rules" write_access="write:attributes">
 
-	    <field attribute="is_required">
-			<boolean true_text="required" false_text="optional" />
-		</field>
-		<field attribute="cust_required_error">
-			<text width="60" />
-		</field>
-	    <field>
-		<function_call>
-			<paint_function   name="paintCondition"   />
-			<process_function name="processCondition" />
-		</function_call>
-	    </field>
-	</section>
+        <field attribute="is_required">
+            <display_name>Required Entry?</display_name>
+            <note>If required, at least one radio button must be selected before the form can be submitted</note>
+            <boolean true_text="required" false_text="optional" />
+        </field>
+        <field attribute="cust_required_error">
+            <display_name>Custom Required Error</display_name>
+            <note>This message will replace the default required error message</note>
+            <text width="60" />
+        </field>
+        <field>
+            <display_name>Condition</display_name>
+            <function_call>
+                <paint_function name="paintCondition" />
+                <process_function name="processCondition" />
+            </function_call>
+        </field>
+    </section>
 </contents>

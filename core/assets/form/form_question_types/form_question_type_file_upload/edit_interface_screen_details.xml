@@ -25,35 +25,58 @@
 	</section>
 	<section name="Question Options" write_access="write:attributes">
 	    <field attribute="name">
-			<text width="20" height="1" />
+			<display_name>Title</display_name>
+			<note></note>
+		<text width="20" height="1" />
 		</field>
 		<field attribute="note">
-			<text width="40" height="2" />
+			<display_name>Note</display_name>
+			<note>This text will be displayed next to the question</note>
+		<text width="40" height="2" />
 		</field>
 		<field attribute="create_location">
-			<assetid />
+			<display_name>Create Location</display_name>
+			<note>Successfully created File assets will be placed underneath the specified folder</note>
+		<assetid />
 		</field>
 		<field attribute="tabindex">
-			<int width="5" />
+			<display_name>Tab Index</display_name>
+			<note>If a tab index is supplied it will be added to the input tag</note>
+		<int width="5" />
 		</field>
 		<field attribute="extra">
-			<text width="80" height="4" />
+			<display_name>Extras</display_name>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
+		<text width="80" height="4" />
 		</field>
 		<field attribute="attach_to_mail">
-			<boolean true_text="yes" false_text="no" />
+			<display_name>Attach to Emails</display_name>
+			<note>Select yes if you would like this file to be attached to the submission emails.</note>
+		<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Simple Validation Rules" write_access="write:attributes">
 		<field attribute="is_required">
-			<boolean true_text="required" false_text="optional" />
+			<display_name>Required Entry?</display_name>
+			<note>If required, a file must be uploaded at this question before the form can be submitted</note>
+		<boolean true_text="required" false_text="optional" />
 		</field>
 		<field attribute="cust_required_error">
-			<text width="60" />
+			<display_name>Custom Required Error</display_name>
+			<note>This message will replace the default required error message</note>
+		<text width="60" />
 		</field>
 		<field attribute="overwrite_rule">
-			<selection style="list" />
+			<display_name>Overwrite Rule</display_name>
+			<note>If a <![CDATA[<em>Create Location</em>]]> is specified above, this action will be taken if the Create Location contains an asset with the same web path as the file being uploaded. The following options are available:<![CDATA[<ul>
+			<li><strong>Overwrite Existing File:</strong> If the web path conflict is with another File asset, store the newly uploaded file into that asset. If the conflict is with an asset that is a <em>not</em> a File, a submission error will appear instead.</li>
+			<li><strong>Rename Uploaded File:</strong> Apply a numeric suffix to the uploaded file's name (<em>file.ext</em> would be renamed <em>file2.ext</em>, then <em>file3.ext</em>, and so on), until the conflict is resolved.</li>
+			<li><strong>Raise a Submission Error:</strong> Do not overwrite or rename the uploaded file. An submission error will appear on the <em>last</em> page of the form if a naming conflict arises.</li>
+			</ul>]]>The Overwrite Rule will be applied after the form is finally submitted. If a <![CDATA[<em>Create Location</em>]]> is not specified, this option has no effect.</note>
+		<selection style="list" />
 		</field>
 		<field>
+			<display_name>Condition</display_name>
 			<function_call>
 				<paint_function   name="paintCondition"   />
 				<process_function name="processCondition" />
@@ -68,6 +91,8 @@
 	</section>
 	<section name="Add New Rule" write_access="write:attributes" read_access="write:attributes">
 		<field>
+			<display_name>Add Rule</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintAddRule"   />
 				<process_function name="processAddRule" />

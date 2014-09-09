@@ -25,36 +25,54 @@
 	</section>
 	<section name="Question Options" write_access="write:attributes">
 	    <field attribute="name">
+			<display_name>Title</display_name>
+			<note></note>
 			<text width="20" height="1" />
 		</field>
 		<field attribute="note">
+			<display_name>Note</display_name>
+			<note></note>
 			<text width="40" height="2" />
 		</field>
 		<field>
+			<display_name>Available Countries</display_name>
+			<note>You may select more than one country</note>
 			<function_call>
 				<paint_function   name="paintAvailableCountries"   />
 				<process_function name="processAvailableCountries" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Default</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintDefault"   />
 				<process_function name="processDefault" />
 			</function_call>
 		</field>
 		<field attribute="height">
+			<display_name>Height</display_name>
+			<note></note>
 			<text width="5" height="1" />
 		</field>
 		<field attribute="multiple">
+			<display_name>Multiple?</display_name>
+			<note></note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="tabindex">
+			<display_name>Tab Index</display_name>
+			<note>If a tab index is supplied it will be added to the input tag</note>
 			<int width="5" />
 		</field>
 		<field attribute="extra">
+			<display_name>Extras</display_name>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
 			<text width="80" height="4" />
 		</field>
 		<field attribute="sticky">
+			<display_name>Sticky?</display_name>
+			<note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
