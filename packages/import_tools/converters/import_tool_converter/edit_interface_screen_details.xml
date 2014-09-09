@@ -18,6 +18,8 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
