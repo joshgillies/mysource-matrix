@@ -862,10 +862,10 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $city .= ', '.$row['ga:region'];
 	            }
 
+	            $city_report[$country] = array_get_index($city_report, $country, Array());
 	            if ($city !== self::NOT_SET) {
 	                $i++;
-	                $city_report[$country] = array_get_index($city_report, $country, Array());
-                    $city_report[$country][$city] = $row;
+	                $city_report[$country][$city] = $row;
                     $city_report[$country][$city]['sq:cityRegion'] = $city;
                     $city_report[$country][$city]['sq:rank'] = $i;
                 }
@@ -894,28 +894,31 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    }
 
 	    $max_results = 20;
-	    $other_report = array_reduce(
-	        array_slice($report, $max_results),
-	        function($carry, $row) {
-	            if (empty($carry) === FALSE) {
-	                foreach ($row as $fieldid => &$value) {
-	                    if (is_numeric($value) === TRUE) {
-	                        $carry[$fieldid] += $value;
-	                    }
-	                }
-	            } else {
-	                $carry = $row;
-	            }
+	    // Do we need an "other countries" section?
+	    if (count($report) > $max_results) {
+            $other_report = array_reduce(
+                array_slice($report, $max_results),
+                function($carry, $row) {
+                    if (empty($carry) === FALSE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (is_numeric($value) === TRUE) {
+                                $carry[$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $carry = $row;
+                    }
 
-	            return $carry;
-	        },
-	        Array()
-	    );
+                    return $carry;
+                },
+                Array()
+            );
 
-	    $other_report['ga:country'] = translate('Other countries (%s)', count($report) - $max_results);
-	    $other_report['sq:other']   = TRUE;
-	    $report = array_slice($report, 0, $max_results);
-	    $report[] = $other_report;
+            $other_report['ga:country'] = translate('Other countries (%s)', count($report) - $max_results);
+            $other_report['sq:other']   = TRUE;
+            $report = array_slice($report, 0, $max_results);
+            $report[] = $other_report;
+	    }
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
