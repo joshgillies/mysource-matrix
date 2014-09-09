@@ -18,17 +18,25 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Linking" write_access="write:attributes">
 		<field attribute="link_type">
+			<display_name>Link Types</display_name>
+			<note>Select which type of links to create and modify on the frontend.</note>
 			<selection style="list" height="1" />
 		</field>
 		<field attribute="managed_asset">
+			<display_name>Managed Asset</display_name>
+			<note>Select an asset for which to manage links. If no asset is selected, the current user will be used instead.</note>
 			<assetid />
 		</field>
 	</section>
@@ -47,25 +55,19 @@
 		</field>
 	</section>
 	<section name="Asset Locations" write_access="write:content">
-		<field>
-			<function_call>
-				<paint_function   name="paintRootNode"  />
-				<process_function name="processRootNode" />
-			</function_call>
-		</field>
-		<field attribute="subs_only">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="direction">
-			<selection style="list" />
-		</field>
 		<field attribute="min_depth">
+			<display_name>Minimum Depth/Height</display_name>
+			<note>Optional setting that defines the minimum number of levels below/above a root node an asset must be to qualify for listing. The immediate child/parent is level '1' for the purposes of this and the Maximum Depth/Height setting. Only makes sense when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned off.</note>
 			<int width="5" />
 		</field>
 		<field attribute="max_depth">
+			<display_name>Maximum Depth/Height</display_name>
+			<note>Optional setting that defines the maximum number of levels below/above a root node an asset can be to qualify for listing.</note>
 			<int width="5" />
 		</field>
 		<field>
+		    <display_name>Link Types</display_name>
+			<note>Only assets that are linked underneath the root node(s) with the appropriate link types will be listed. The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links. This setting only applies when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned on.</note>
 			<function_call>
 				<paint_function   name="paintLinkTypes" />
 				<process_function name="processLinkTypes" />
@@ -113,11 +115,15 @@
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes">
 		<field attribute="parameter_map" format="new_line">
+			<display_name />
+			<note />
 			<parameter_map />
 		</field>
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes">
 		<field>
+			<display_name></display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintStructuredDropdownOptions"   />
 				<process_function name="processStructuredDropdownOptions" />
@@ -126,14 +132,19 @@
 	</section>
 	<section name="Button Text" write_access="write:attributes">
 		<field attribute="submit_button_text">
+            <display_name>Submit Button Text</display_name>
+            <note />
 			<text width="25" height="1" />
 		</field>
 		<field attribute="reset_button_text">
+            <display_name>Reset Button Text</display_name>
+            <note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="submit_to_page_url">
+			<display_name>Form Submission URL</display_name>
 			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
 		</field>
 	</section>
