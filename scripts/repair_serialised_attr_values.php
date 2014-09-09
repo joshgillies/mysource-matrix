@@ -73,6 +73,7 @@ $sql = "SELECT attrid FROM sq_ast_attr WHERE type IN ('".implode("','", $serials
 $serialise_attrids = array_keys(MatrixDAL::executeSqlGrouped($sql));
 
 // Select the entries in the asset attribute value tables with serialsed data
+$count = 0;
 $invalid_count = 0;
 $fixed_count = 0;
 foreach(Array('sq_', 'sq_rb_') as $table_prefix) {
@@ -81,7 +82,7 @@ foreach(Array('sq_', 'sq_rb_') as $table_prefix) {
 		$sql = "SELECT assetid, attrid, contextid, custom_val FROM ".$table_prefix."ast_attr_val WHERE attrid IN ('".implode("','", $attrids_chunk)."')";
 		$entries = MatrixDAL::executeSqlGrouped($sql);
 		foreach($entries as $assetid => $attr_values) {
-			echo '.';
+			echo ++$count%100 ? '' : '.';
 			foreach($attr_values as $data) {
 				$attrid = isset($data[0]) ? $data[0] : '';
 				$contextid = isset($data[1]) ? $data[1] : '';
