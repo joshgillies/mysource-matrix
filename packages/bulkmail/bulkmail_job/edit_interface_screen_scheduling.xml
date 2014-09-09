@@ -18,9 +18,13 @@
 <contents>
 	<section name="Bulkmail Job Scheduling" write_access="write:attributes">
 		<field attribute="scheduling_status">
+			<display_name>Enabled</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
+			<display_name>Scheduling Details</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintScheduling"   />
 				<process_function name="processScheduling" />
