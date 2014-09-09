@@ -18,24 +18,33 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<text width="35" height="1" />
+			<display_name>Paint Layout Name</display_name>
+            <note />
+            <text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
-			<text width="25" height="1" />
+			<display_name>Paint Layout Short Name</display_name>
+            <note />
+            <text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Layout Settings" write_access="write:content">
-		<field>
-			<function_call>
-				<paint_function   name="paintCurrentAssetTypes"   />
-				<process_function name="processCurrentAssetTypes" />
-			</function_call>
-		</field>
-		<field read_access="write:contents">
-			<function_call>
-				<paint_function   name="paintAddAssetType"   />
-				<process_function name="processAddAssetType" />
-			</function_call>
-		</field>
-	</section>
+	    <display_name>Custom Layout Settings</display_name>
+        <field>
+            <display_name>Custom Asset Types</display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintCurrentAssetTypes" />
+                <process_function name="processCurrentAssetTypes" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Add Custom Asset Type</display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintAddAssetType" />
+                <process_function name="processAddAssetType" />
+            </function_call>
+        </field>
+    </section>
 </contents>
