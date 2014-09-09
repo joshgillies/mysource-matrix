@@ -18,6 +18,8 @@
 <contents>
 	<section name="Required Attributes" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function   name="paintRequiredFields"   />
 				<process_function name="processRequiredFields" />

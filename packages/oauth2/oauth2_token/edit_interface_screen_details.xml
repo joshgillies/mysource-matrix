@@ -16,57 +16,85 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="25" height="1" />
-		</field>
-	</section>
-	<section name="Oauth 2.0 Settings" write_access="write:attributes">
-		<field attribute="client_id">
-			<text width="60" height="1" />
-		</field>
-		<field attribute="client_secret">
-			<text width="60" height="1" />
-		</field>
-		<field attribute="authorization_endpoint">
-			<text width="60" height="1" />
-		</field>
-		<field attribute="token_endpoint">
-			<text width="60" height="1" />
-		</field>
-		<field attribute="scope">
-			<text width="60" height="1" />
-		</field>
-		<field attribute="redirect_uri">
-			<text width="60" height="1" />
-		</field>
-	</section>
-	<section name="Advanced Settings" write_access="write:attributes">
-		<field attribute="access_token_param_name">
-			<text width="30" height="1" />
-		</field>
-	        	<field attribute="authorization_type">
-			<selection style="list" />
-		</field>
-		<field attribute="access_token_type">
-			<selection style="list" />
-		</field>
-		<field attribute="verify_ssl_peer">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Access Token" write_access="write:attributes">
-    		<field attribute="token_storage">
-			<selection style="list" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintAccessToken" />
-				<process_function name="processAccessToken" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Page Short Name</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="Oauth 2.0 Settings" write_access="write:attributes">
+        <note>Change of client_id, scope or token storage will invalidate and truncate all stored tokens.</note>
+        <field attribute="client_id">
+            <display_name>Client ID</display_name>
+            <note />
+            <text width="60" height="1" />
+        </field>
+        <field attribute="client_secret">
+            <display_name>Client Secret</display_name>
+            <note />
+            <text width="60" height="1" />
+        </field>
+        <field attribute="authorization_endpoint">
+            <display_name>Authorization Endpoint</display_name>
+            <note />
+            <text width="60" height="1" />
+        </field>
+        <field attribute="token_endpoint">
+            <display_name>Token Endpoint</display_name>
+            <note />
+            <text width="60" height="1" />
+        </field>
+        <field attribute="scope">
+            <display_name>Scope</display_name>
+            <note />
+            <text width="60" height="1" />
+        </field>
+        <field attribute="redirect_uri">
+            <display_name>Redirect URI</display_name>
+            <note>Leave blank to use current frontend URI. The URI must be allowed on service provider.</note>
+            <text width="60" height="1" />
+        </field>
+    </section>
+    <section name="Advanced Settings" write_access="write:attributes">
+        <field attribute="access_token_param_name">
+            <display_name>Access Token URI Parameter Name</display_name>
+            <note />
+            <text width="30" height="1" />
+        </field>
+        <field attribute="authorization_type">
+            <display_name>Authorization Type</display_name>
+            <note />
+            <selection style="list" />
+        </field>
+        <field attribute="access_token_type">
+            <display_name>Access Token Type</display_name>
+            <note />
+            <selection style="list" />
+        </field>
+        <field attribute="verify_ssl_peer">
+            <display_name>Verify SSL Peer</display_name>
+            <note>Verify SSL certificate using the CURL's default CA bundle file.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Access Token" write_access="write:attributes">
+        <field attribute="token_storage">
+            <display_name>Token Storage</display_name>
+            <note />
+            <selection style="list" />
+        </field>
+        <field>
+            <display_name>Access Token</display_name>
+            <function_call>
+                <paint_function name="paintAccessToken" />
+                <process_function name="processAccessToken" />
+            </function_call>
+        </field>
+    </section>
 </contents>
