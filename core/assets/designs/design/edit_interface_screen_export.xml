@@ -17,16 +17,24 @@
 
 <contents>
 	<section name="Import" write_access="write:parsing" read_access="write:">
+	    <field>
+			<display_name>Import</display_name>
+			<note>Select a .tar file to import as this design</note>
 			<function_call>
 				<paint_function   name="paintImport"   />
 				<process_function name="processImport" />
 			</function_call>
+		</field>
 	</section>
 	<section name="Export" write_access="write:parsing" read_access="write:">
+	    <field>
+	        <display_name>Export</display_name>
+			<note>Customisations will not be exported. They will need to be recreated when this design is imported and applied.</note>
 			<function_call>
 				<paint_function   name="paintExport"   />
 				<process_function name="processExport" />
 			</function_call>
+		</field>
 	</section>
 	<section name="Current Files" write_access="write:parsing" read_access="write:">
 		<field>

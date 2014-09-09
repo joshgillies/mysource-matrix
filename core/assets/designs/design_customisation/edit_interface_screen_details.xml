@@ -18,20 +18,28 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="id_name">
+			<display_name>Id Name</display_name>
+			<note />
 			<text width="60" height="1" />
 		</field>
 		<field attribute="static_url_versioning">
+			<display_name>Include file version in static URL</display_name>
+			<note>This will help bust external caching of statically served content.</note>
 			<boolean true_text="yes" false_text="no"/>
 		</field>
 	</section>
 	<section name="Design Areas" write_access="write:links" read_access="write:">
 		<field>
+			<display_name>Customised</display_name>
+			<note/>
 			<function_call>
 				<paint_function   name="paintCustomisedDesignAreas"   />
 				<process_function name="processCustomisedDesignAreas" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Un-Customised</display_name>
+			<note/>
 			<function_call>
 				<paint_function   name="paintUnCustomisedDesignAreas"   />
 				<process_function name="processUnCustomisedDesignAreas" />
@@ -40,6 +48,8 @@
 	</section>
 	<section name="Customise Associated Files"  write_access="write:links" read_access="write:">
 		<field>
+			<display_name>New</display_name>
+			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tar.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>
 			<function_call>
 				<paint_function   name="paintNewFiles"   />
 				<process_function name="processNewFiles" />

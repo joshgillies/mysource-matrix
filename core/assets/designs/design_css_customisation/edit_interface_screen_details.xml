@@ -18,17 +18,37 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="id_name">
+			<display_name>Id Name</display_name>
+			<note />
 			<text width="60" height="1" />
 		</field>
+		<field>
+            <display_name>File Reference Method</display_name>
+            <note><![CDATA[Reference method used when printing 'mysource_files' links in the CSS design on the frontend. Examples:
+				<ul>
+					<li>Absolute Path - http://www.site.com/path/to/file</li>
+					<li>Scheme Relative Path - //www.site.com/path/to/file</li>
+					<li>Domain Relative Path - /path/to/file</li>
+				</ul>]]>
+			</note>
+            <function_call>
+                <paint_function name="paintFileReferenceMethod" />
+                <process_function name="processFileReferenceMethod" />
+            </function_call>
+        </field>
 	</section>
 	<section name="Design Areas" write_access="write:links" read_access="write:">
 		<field format="new_line">
+			<display_name>Customised</display_name>
+			<note/>
 			<function_call>
 				<paint_function   name="paintCustomisedDesignAreas"   />
 				<process_function name="processCustomisedDesignAreas" />
 			</function_call>
 		</field>
 		<field format="new_line">
+			<display_name>Un-Customised</display_name>
+			<note/>
 			<function_call>
 				<paint_function   name="paintUnCustomisedDesignAreas"   />
 				<process_function name="processUnCustomisedDesignAreas" />
@@ -37,17 +57,25 @@
 	</section>
 	<section name="Static Caching" write_access="write:attributes">
 		<field attribute="cache_css">
+			<display_name>Cache CSS File</display_name>
+			<note>If this option is enabled and this asset is live and has public read access granted, a static file representation of this CSS file will be served, thus reducing the load on the web server.  Note, however, that contextual design areas such as menus will not function when the static cache file is used.</note>
 			<boolean true_text="on" false_text="off"/>
 		</field>
 		<field attribute="strip_whitespace">
+			<display_name>Strip Whitespace</display_name>
+			<note>Whether to strip extra whitespace from the cached CSS file.</note>
 			<boolean true_text="on" false_text="off"/>
 		</field>
 		<field attribute="static_url_versioning">
+			<display_name>Include file version in static URL</display_name>
+			<note>This will help bust external caching of statically served content.</note>
 			<boolean true_text="yes" false_text="no"/>
 		</field>
 	</section>
 	<section name="Customise Associated Files"  write_access="write:links" read_access="write:">
 		<field>
+			<display_name>New</display_name>
+			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tar.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>
 			<function_call>
 				<paint_function   name="paintNewFiles"   />
 				<process_function name="processNewFiles" />
