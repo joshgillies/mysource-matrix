@@ -15,74 +15,106 @@
 */
 -->
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="25" height="1" />
-		</field>
-	</section>
-	<section name="Cart Settings" write_access="write:attributes">
-		<field attribute="ecommerce_checkout_id">
-			<assetid type_codes="ecommerce_checkout:D" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetTypes"   />
-				<process_function name="processAssetTypes" />
-			</function_call>
-		</field>
-		<field attribute="float_precision">
-			<int width="5" height="1" />
-		</field>
-	</section>
-	<section name="List Position Settings" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetPositions"   />
-				<process_function name="processAssetPositions" />
-			</function_call>
-		</field>
-	</section>
-	<section name="List Settings" write_access="write:content">
-		<field attribute="group_by">
-			<selection style="list" />
-		</field>
-		<field attribute="num_per_page">
-			<text width="30" />
-		</field>
-	</section>
-	<section name="List Position Settings" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetPositions"   />
-				<process_function name="processAssetPositions" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Dynamic Parameters" write_access="write:attributes">
-		<field attribute="parameter_map" format="new_line">
-			<parameter_map />
-		</field>
-	</section>
-	<section name="Submit Button" write_access="write:attributes">
-		<field attribute="submit_button_text">
-			<text width="25" height="1" />
-		</field>
-		<field attribute="reset_button_text">
-			<text width="25" height="1" />
-		</field>
-		<field attribute="checkout_text">
-			<text width="25" height="1" />
-		</field>
-	</section>
-	<section name="Messages" write_access="write:attributes">
-		<field attribute="cart_updated_text">
-			<text width="25" height="1" />
-		</field>
-		<field attribute="no_items_text">
-			<text width="25" height="1" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Page Short Name</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="Cart Settings" write_access="write:attributes">
+        <field attribute="ecommerce_checkout_id">
+            <display_name>Ecommerce Checkout Asset</display_name>
+            <note>The Ecommerce Checkout asset we want to link this cart to</note>
+            <assetid type_codes="ecommerce_checkout:D" />
+        </field>
+        <field>
+            <display_name>Cart Items to List</display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintAssetTypes" />
+                <process_function name="processAssetTypes" />
+            </function_call>
+        </field>
+        <field attribute="float_precision">
+            <display_name>Float Precision</display_name>
+            <note>The precision of the floating point decimal numbers used to denote all item costs.</note>
+            <int width="5" height="1" />
+        </field>
+    </section>
+    <section name="List Position Settings" write_access="write:attributes">
+        <field>
+            <display_name>Asset Positions</display_name>
+            <note>You can configure the list to include certain assets at specific positions, even if they would not normally be included in the list.</note>
+            <function_call>
+                <paint_function name="paintAssetPositions" />
+                <process_function name="processAssetPositions" />
+            </function_call>
+        </field>
+    </section>
+    <section name="List Settings" write_access="write:content">
+        <field attribute="group_by">
+            <display_name>List Format</display_name>
+            <note>A standard list displays all assets on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.
+			&lt;br/&gt;A Random listing displays one or more assets in random order.
+			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
+			</note>
+            <selection style="list" />
+        </field>
+        <field attribute="num_per_page">
+            <display_name>Assets Per Page</display_name>
+            <note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).&lt;br/&gt;Keywords can be used to dynamically set the number of items on the page.</note>
+            <text width="30" />
+        </field>
+    </section>
+    <section name="List Position Settings" write_access="write:attributes">
+        <field>
+            <function_call>
+                <paint_function name="paintAssetPositions" />
+                <process_function name="processAssetPositions" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Dynamic Parameters" write_access="write:attributes">
+        <field attribute="parameter_map" format="new_line">
+            <display_name />
+            <note />
+            <parameter_map />
+        </field>
+    </section>
+    <section name="Form Button Text" write_access="write:attributes">
+        <field attribute="submit_button_text">
+            <display_name>Update Cart Button Text</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+        <field attribute="reset_button_text">
+            <display_name>Reset Button Text</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+        <field attribute="checkout_text">
+            <display_name>Checkout Cart Button Text</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="Messages" write_access="write:attributes">
+        <field attribute="cart_updated_text">
+            <display_name>Cart Updated Message</display_name>
+            <note>Specify the text that displays when an item is add, updated or removed from the cart</note>
+            <text width="25" height="1" />
+        </field>
+        <field attribute="no_items_text">
+            <display_name>No Items Message</display_name>
+            <note>Specify the text that displays when no items are in your cart</note>
+            <text width="25" height="1" />
+        </field>
+    </section>
 </contents>

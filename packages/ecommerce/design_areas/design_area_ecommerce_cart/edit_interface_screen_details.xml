@@ -18,6 +18,8 @@
 <contents>
 	<section name="Details">
 		<field>
+			<display_name>Id Name</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintIdName" />
 			</function_call>
@@ -25,9 +27,13 @@
 	</section>
 	<section name="Form" write_access="write:attributes">
 		<field attribute="cart">
+			<display_name>Cart Asset</display_name>
+			<note />
 			<assetid type_codes="ecommerce_cart:D" />
 		</field>
 		<field attribute="ecom_form">
+			<display_name>Checkout Asset</display_name>
+			<note />
 			<assetid type_codes="ecommerce_checkout:D" />
 		</field>
 	</section>

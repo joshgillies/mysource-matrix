@@ -18,7 +18,42 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Asset Name</display_name>
+			<note />
 			<text width="35" height="1" />
+		</field>
+	</section>
+	<section name="Required Questions">
+		<field attribute="field_name">
+			<display_name>Name</display_name>
+			<note />
+		</field>
+		<field attribute="field_contact_phone">
+			<display_name>Contact Phone Number</display_name>
+			<note />
+		</field>
+		<field attribute="field_fax">
+			<display_name>Fax Number</display_name>
+			<note />
+		</field>
+		<field attribute="field_heard_of">
+			<display_name>Heard Of</display_name>
+			<note />
+		</field>
+		<field attribute="field_enquiry_received_by">
+			<display_name>Enquiry Received By</display_name>
+			<note />
+		</field>
+		<note>These questions are considered mandatory in the context of this delivery method (except
+		for "Enquiry Received By" which is only accessible for logged-in users).
+		Processing of the delivery section of checkout form will fail if these fields are not entered
+		on the frontend, or if no question is selected on this screen - whether or not the form
+		linked underneath has rules that enforce these mandatory fields.</note>
+	</section>
+	<section name="Placeholders">
+		<field attribute="external_contact_file">
+			<display_name>External Contact PDF</display_name>
+			<note>Documents that don't have an attached file or url will instead be replaced by this placeholder PDF</note>
 		</field>
 	</section>
 </contents>

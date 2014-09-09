@@ -16,75 +16,103 @@
 -->
 
 <contents>
-	<section name="Country Question" write_access="write:attributes">
-		<field attribute="country_question">
-			<assetid type_codes="form_question_type_country:I" />
-		</field>
-		<field attribute="accept_empty_country_question">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
+    <section name="Country Question" write_access="write:attributes">
+        <field attribute="country_question">
+            <display_name>Country Question</display_name>
+            <note>Select a form question of type 'country' from one of your defined delivery methods. This form question will be used as the country identifier for the region specific options defined below.&lt;br/&gt; Note: If this form question is not selected, none of the region specific options will be evaluated.</note>
+            <assetid type_codes="form_question_type_country:I" />
+        </field>
+        <field attribute="accept_empty_country_question">
+            <display_name>Accept empty question?</display_name>
+            <note>If set to 'Yes', delivery prices per weight metric will be calculated without the need of the above country question is specified.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
 
-	<section name="Taxable Countries" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintTaxableCountries"  />
-				<process_function name="processTaxableCountries" />
-			</function_call>
-		</field>
-		<field attribute="apply_tax_on_delivery">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="delivery_includes_tax">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
+    <section name="Taxable Countries" write_access="write:attributes">
+        <field>
+            <display_name>Taxable Countries</display_name>
+            <note>Some or all of your products may include tax in their product price. However you may not require tax to be charged to customers outside of a specific region. You may select countries which you would like to be charged the tax included in the product price. All other countries will have the tax amount specified on the 'Extra Options' page deducted from their final price when they enter their address before order confirmation.</note>
+            <function_call>
+                <paint_function name="paintTaxableCountries" />
+                <process_function name="processTaxableCountries" />
+            </function_call>
+        </field>
+        <field attribute="apply_tax_on_delivery">
+            <display_name>Calculate Tax on Delivery?</display_name>
+            <note>Whether to calculate tax on the delivery fee at the checkout.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="delivery_includes_tax">
+            <display_name>Delivery Fee Includes Tax?</display_name>
+            <note>Whether the delivery fee already includes the tax amount. If set to 'Yes', no additional tax will added to the delivery fee. This option is relevant only if "Calculate Tax on Delivery?" is set to Yes.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
 
-	<section name="Delivery Prices Per Weight Metric" write_access="write:attributes">
-		<field attribute="item_weight_selector">
-			<selection style="list" height="1" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintItemWeightSource"  />
-				<process_function name="processItemWeightSource" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintCountryDeliveryWeightFees"  />
-				<process_function name="processCountryDeliveryWeightFees" />
-			</function_call>
-		</field>
-		<field attribute="default_delivery_weight_fee">
-			<float width="10" />
-		</field>
-		<field attribute="default_max_product_quantity">
-			<int width="5" />
-		</field>
-	</section>
+    <section name="Delivery Prices Per Weight Metric" write_access="write:attributes">
+        <field attribute="item_weight_selector">
+            <display_name>Item Weight Selector</display_name>
+            <note>Specify whether you would like to use a metadata text field or an asset attribute value to select where an item's weight information is kept.</note>
+            <selection style="list" height="1" />
+        </field>
+        <field>
+            <display_name>Item Weight Source</display_name>
+            <note>Specify the source for an item's weight, to be used in calculating delivery prices in conjunction with the options below. The value must be a valid float.</note>
+            <function_call>
+                <paint_function name="paintItemWeightSource" />
+                <process_function name="processItemWeightSource" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Price Per Weight Metric</display_name>
+            <note>You may configure any number of countries to have a specific price per weight metric cost.&lt;br/&gt; Note: If a country is specified more than once, only the first occurrence of its mapping will be used.</note>
+            <function_call>
+                <paint_function name="paintCountryDeliveryWeightFees" />
+                <process_function name="processCountryDeliveryWeightFees" />
+            </function_call>
+        </field>
+        <field attribute="default_delivery_weight_fee">
+            <display_name>Default Price Per Weight Metric</display_name>
+            <note>If a country is not configured above to have a specific delivery price per weight metric, this value will be used.</note>
+            <float width="10" />
+        </field>
+        <field attribute="default_max_product_quantity">
+            <display_name>Default Maximum Product Quantity</display_name>
+            <note>The maximum number of products used for calculating weight. The default empty value means all products are included.</note>
+            <int width="5" />
+        </field>
+    </section>
 
-	<section name="Additional International Delivery Fee" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintInternationalDeliveryFeeExempt"  />
-				<process_function name="processInternationalDeliveryFeeExempt" />
-			</function_call>
-		</field>
-		<field attribute="international_delivery_fee">
-			<float width="10" />
-		</field>
-	</section>
+    <section name="Additional International Delivery Fee" write_access="write:attributes">
+        <field>
+            <display_name>International Delivery Fee Exempt Countries</display_name>
+            <note>Countries which will not be charged an international delivery fee.</note>
+            <function_call>
+                <paint_function name="paintInternationalDeliveryFeeExempt" />
+                <process_function name="processInternationalDeliveryFeeExempt" />
+            </function_call>
+        </field>
+        <field attribute="international_delivery_fee">
+            <display_name>International Delivery Fee</display_name>
+            <note>Specify an additional fee for deliveries occurring outside of the countries selected above.</note>
+            <float width="10" />
+        </field>
+    </section>
 
-	<section name="Additional Conditional Delivery Fee" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintConditionalDeliveryFee"  />
-				<process_function name="processConditionalDeliveryFee" />
-			</function_call>
-		</field>
-		<field attribute="max_delivery_fee">
-			<float width="10" />
-		</field>
-	</section>
+    <section name="Additional Conditional Delivery Fee" write_access="write:attributes">
+        <field>
+            <display_name>Conditional Delivery Fees</display_name>
+            <note>1. Select destination countries where the additional conditional delivery fee will be charged.&lt;br/&gt; 2. Select a comparison price which will be compared with the total cost of the cart after all other delivery fees have been processed.&lt;br/&gt; 3. Select an operator with which to evaluate this comparison.&lt;br/&gt; 4. Specify the additional cost that will be added to the total cost of the cart.&lt;br/&gt; 5. Selecting 'Remove All Fees' will mean that if the condition is satisifed, no delivery fees will be charged at all.&lt;br/&gt; 6. Each condition specified is evaluated in the order it appears here.</note>
+            <function_call>
+                <paint_function name="paintConditionalDeliveryFee" />
+                <process_function name="processConditionalDeliveryFee" />
+            </function_call>
+        </field>
+        <field attribute="max_delivery_fee">
+            <display_name>Maximum delivery fee</display_name>
+            <note>If this field is set to a value other than 0, the total delivery fee will be capped to this amount.</note>
+            <float width="10" />
+        </field>
+    </section>
 </contents>

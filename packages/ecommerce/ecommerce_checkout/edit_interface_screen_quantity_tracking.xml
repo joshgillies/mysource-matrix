@@ -15,24 +15,34 @@
 */
 -->
 <contents>
-	<section name="Product Quantities" write_access="write:attributes">
-		<field attribute="enforce_quantities">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="quantity_selector">
-			<selection style="list" height="1" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintQuantitySource"  />
-				<process_function name="processQuantitySource" />
-			</function_call>
-		</field>
-		<field attribute="quantity_message_cart">
-			<text width="50" height="2" />
-		</field>
-		<field attribute="quantity_message_checkout">
-			<text width="50" height="2" />
-		</field>
-	</section>
+    <section name="Product Quantities" write_access="write:attributes">
+        <field attribute="enforce_quantities">
+            <display_name>Enforce Quantities</display_name>
+            <note>Whether the cart should update product quantity information upon successful order delivery, and check items for availability as they are added to the cart.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="quantity_selector">
+            <display_name>Quantity Selector</display_name>
+            <note>Specify whether you would like to use a metadata text field or an asset attribute value to select where an item's quantity information is kept.</note>
+            <selection style="list" height="1" />
+        </field>
+        <field>
+            <display_name>Quantity Source</display_name>
+            <note>Specify the source for an item's quantity.</note>
+            <function_call>
+                <paint_function name="paintQuantitySource" />
+                <process_function name="processQuantitySource" />
+            </function_call>
+        </field>
+        <field attribute="quantity_message_cart">
+            <display_name>Cart Insufficient Quantity Message</display_name>
+            <note>Message displayed when there is an insufficient amount of products to proceed to checkout. A list of items which have insufficient quantities will automatically follow this message.</note>
+            <text width="50" height="2" />
+        </field>
+        <field attribute="quantity_message_checkout">
+            <display_name>Checkout Insufficient Quantity Message</display_name>
+            <note>Message displayed when there is an insufficient amount of products to proceed to order confirmation. A list of items which have insufficient quantities will automatically follow this message.</note>
+            <text width="50" height="2" />
+        </field>
+    </section>
 </contents>

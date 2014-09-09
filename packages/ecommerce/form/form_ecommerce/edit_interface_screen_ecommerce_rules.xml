@@ -17,12 +17,21 @@
 
 <contents>
 	<section name="Ecommerce Questions">
+		<note><![CDATA[<p>Each Numeric, Selection-type or Tickbox Table question can have an ecommerce rule set, to relate a question with a monetary value which is then added to the order total (along with any products added to a cart). To enable a question, check the <strong>Ecom Enabled?</strong> box and commit the screen. Once enabled, ecommerce rules apply in this way:</p>
+
+		<ul>
+		<li>For Numeric questions, there are no options you can set. The value entered by the user becomes the amount added to the order total.</li>
+		<li>For other questions, you can enter a value for each possible option from this screen. If an option is selected, the entered value will be added to the order total.</li>
+		</ul>
+
+		<p>If the <strong>Is Taxable?</strong> option is set, the value of the question <strong>includes</strong> any tax rate set on the Details screen.</p>]]></note>
 		<function_call>
 			<paint_function   name="paintEcommerceQuestionLinks"   />
 			<process_function name="processEcommerceQuestionLinks" />
 		</function_call>
 	</section>
 	<section name="Pass-through Variables Questions">
+	    <note>Key value pair pass-through variables. These variables will be sent to the Payment Gateways. Each Payment Gateway defines different pass-through variables for their own usage. For example, Datacash Payment Gateway can use Address 1, Address 2, Address 3, Address 4 and Postcode values from Ecommerce Form to run AVS check.</note>
 		<function_call>
 			<paint_function   name="paintPassthroughVarQuestionLinks"   />
 			<process_function name="processPassthroughVarQuestionLinks" />

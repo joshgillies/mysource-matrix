@@ -18,6 +18,8 @@
 <contents>
 	<section name="Order XML" write_access="write:content"  limbo_access="1">
 		<field>
+			<display_name>Order XML</display_name>
+			<note>The XML representation of this Ecommerce Order.</note>
 			<function_call>
 				<paint_function   name="paintOrderXML"   />
 			</function_call>
