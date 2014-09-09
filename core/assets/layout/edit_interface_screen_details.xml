@@ -20,7 +20,7 @@
 		<field attribute="name">
 			<display_name>Layout Name</display_name>
 			<note />
-			<text width="12" height="1" />
+			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="Simple Edit Configuration Options" write_access="write:attributes">

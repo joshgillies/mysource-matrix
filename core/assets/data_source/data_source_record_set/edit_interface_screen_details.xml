@@ -18,6 +18,8 @@
 <contents>
 	<section name="User Details" write_access="root:noEditAllowed" limbo_access="1">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function   name="paintDetails"   />
 				<process_function name="processDetails" />

@@ -18,6 +18,8 @@
 <contents>
 	<section name="Report" limbo_access="1">
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintReport"   />
 				<process_function name="processReport" />

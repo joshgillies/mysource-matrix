@@ -18,6 +18,8 @@
 <contents>
 	<section name="Contents" write_access="write:content" limbo_access="1">
 		<field keyword="contents">
+			<display_name></display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintBodycopy"   />
 				<process_function name="processBodycopy" />

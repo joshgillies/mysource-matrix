@@ -18,9 +18,13 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Container Name</display_name>
+			<note />
 			<text width="20" height="1" />
 		</field>
 		<field keyword="description">
+			<display_name>Description</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintDescription" />
 				<process_function name="processDescription" />

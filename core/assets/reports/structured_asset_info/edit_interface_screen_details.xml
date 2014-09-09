@@ -18,24 +18,33 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Report Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field>
+			<display_name>Root Node</display_name>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
 		<field attribute="selected_asset_fields">
+			<display_name>Asset Fields</display_name>
+			<note>Select the fields to display for each asset&lt;br /&gt;Note: the asset's Short Name will always be printed.</note>
 			<selection style="boxes" columns="1" extras="" />
 		</field>
 		<field>
+			<display_name>Asset Types to List</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
 				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Regenerate Report</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
