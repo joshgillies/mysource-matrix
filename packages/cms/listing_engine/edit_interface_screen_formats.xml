@@ -18,6 +18,8 @@
 <contents>
 	<section name="Default Formats"  limbo_access="0">
 		<field>
+			<display_name />
+			<note></note>
 			<function_call>
 				<paint_function   name="paintDefaultFormatLinks"   />
 			</function_call>
@@ -25,6 +27,8 @@
 	</section>
 	<section name="Group Formats"  limbo_access="0">
 		<field>
+			<display_name />
+			<note></note>
 			<function_call>
 				<paint_function name="paintGroupFormatLinks" />
 			</function_call>
@@ -32,6 +36,8 @@
 	</section>
 	<section name="Customised Asset Type Formats" write_access="write:links"  limbo_access="0">
 		<field>
+			<display_name />
+			<note></note>
 			<function_call>
 				<paint_function   name="paintTypeFormats"   />
 				<process_function name="processTypeFormats" />
@@ -40,6 +46,8 @@
 	</section>
 	<section name="Customised List Position Formats" write_access="write:links"  limbo_access="0">
 		<field>
+			<display_name />
+			<note></note>
 			<function_call>
 				<paint_function   name="paintPositionFormats"   />
 				<process_function name="processPositionFormats" />

@@ -17,6 +17,7 @@
 
 <contents>
 	<section name="Asset Grouping" write_access="write:attributes"  limbo_access="1">
+	    <note>To make these grouping settings apply to the frontend you must choose "Custom Grouping" in the "List Format" field on the details screen</note>
 		<function_call>
 			<paint_function   name="paintGroupBy" />
 			<process_function name="processGroupBy" />
@@ -24,7 +25,9 @@
 	</section>
 	<section name="Add New Group" read_access="write:attributes" write_access="write:attributes"  limbo_access="1">
 		<field>
-			<function_call>
+		    <display_name>New Group ?</display_name>
+		    <note>Note that the new group will be positioned in relation to the <![CDATA[<b>current</b>]]> group positions, even if you delete one or more of those groups at the same time</note>
+		    <function_call>
 				<paint_function   name="paintNewGroupBy" />
 				<process_function name="processNewGroupBy" />
 			</function_call>
