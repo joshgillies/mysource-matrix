@@ -18,21 +18,29 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name>Recurring Event to Modify</display_name>
+			<note>This is the event you are adding a modification to an instance of</note>
 			<function_call>
 				<paint_function	  name="paintRecurringEventChooser" />
 				<process_function name="processRecurringEventChooser" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Occurrence to Modify</display_name>
+			<note>This must be a date on which the specified event occurs</note>
 			<function_call>
 				<paint_function   name="paintDateTimeChooser"  />
 				<process_function name="processDateTimeChooser" />
 			</function_call>
 		</field>
 		<field attribute="name">
+			<display_name>Modified Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
+			<display_name>Modified Description</display_name>
+			<note />
 			<wysiwyg />
 		</field>
 	</section>
