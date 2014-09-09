@@ -18,16 +18,19 @@
 <contents>
 	<section name="Export" limbo_access="1" show_if="restrictedSubmissionAccess">
 		<field keyword="download_date_range">
+			<display_name>Date Range</display_name>
 			<function_call>
 				<paint_function   name="paintDownloadDateRange"   />
 			</function_call>
 		</field>
 		<field keyword="download_format">
+			<display_name>Format</display_name>
 			<function_call>
 				<paint_function   name="paintDownloadFormat"   />
 			</function_call>
 		</field>
 		<field keyword="download_button">
+			<display_name>Download</display_name>
 			<function_call>
 				<paint_function   name="paintDownloadButton"   />
 			</function_call>
@@ -35,12 +38,13 @@
 	</section>
 	<section name="Send Submissions To Email" write_access="write:attributes">
 		<field keyword="current_send_submissions_email_cron_jobs">
+		    <display_name>Scheduled Jobs</display_name>
 			<function_call>
 				<paint_function   name="paintSendSubmissionsEmail" />
 				<process_function   name="processSendSubmissionsEmail" />
 			</function_call>
 		</field>
-	</section>	
+	</section>
 	<section name="Export" show_if="notRestrictedSubmissionAccess">
 		<field>
 			<function_call>
@@ -50,16 +54,20 @@
 	</section>
 	<section name="Submissions" limbo_access="0" show_if="restrictedSubmissionAccess">
 		<field keyword="submission_date_range">
+			<display_name>Date Range</display_name>
 			<function_call>
 				<paint_function   name="paintSubmissionDateRange"   />
 			</function_call>
 		</field>
 		<field keyword="submission_count">
+			<display_name>Items per Page</display_name>
 			<function_call>
 				<paint_function   name="paintSubmissionCount"   />
 			</function_call>
 		</field>
 		<field keyword="submission_list">
+			<display_name>Submissions</display_name>
+			<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit</note>
 			<function_call>
 				<paint_function   name="paintSubmissionList"   />
 				<process_function   name="processSubmissionList"   />

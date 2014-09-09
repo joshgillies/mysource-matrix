@@ -18,6 +18,8 @@
 <contents>
 	<section name="Current Pages" write_access="write:content" limbo_access="1">
 		<field>
+			<display_name>Current Pages</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintCurrentPages"    />
 				<process_function name="processCurrentPages"  />

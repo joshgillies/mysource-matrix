@@ -18,6 +18,8 @@
 <contents screen="details">
 	<section name="Details" read_access="write:" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Question Name</display_name>
+			<note />
 			<text width="40" height="1" />
 		</field>
 	</section>

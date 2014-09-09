@@ -17,6 +17,8 @@
 <contents screen="details">
 	<section name="Locking / Editing">
 		<field>
+			<display_name></display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintLockMessage"   />
 				<process_function name="processLockMessage" />
@@ -25,33 +27,49 @@
 	</section>
 	<section name="Question Options" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Question Title</display_name>
+			<note />
 			<text width="40" height="1" />
 		</field>
 		<field attribute="note">
+			<display_name>Note</display_name>
+			<note>This text will be displayed next to the question</note>
 			<text width="40" height="2" />
 		</field>
 		<field>
+			<display_name>Answer Ranges</display_name>
+			<note>Enter possible answer ranges. You may leave either the min or max empty to use only one side of the operator.</note>
 			<function_call>
 				<paint_function   name="paintOptions"   />
 				<process_function name="processOptions" />
 			</function_call>
 		</field>
 		<field attribute="button_value">
+			<display_name>Button Value</display_name>
+			<note>This is name of the submit button that will be displayed next to the question</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="width">
+			<display_name>Width</display_name>
+			<note>Width of the field (in characters)</note>
 			<text width="5" height="1" />
 		</field>
 		<field attribute="max">
+			<display_name>Maximum Length</display_name>
+			<note>Maximum length of answer (characters)</note>
 			<text width="5" height="1" />
 		</field>
 		<field attribute="extra">
+			<display_name>Extras</display_name>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
 			<text width="20" height="1" />
 		</field>
 	</section>
 	<section name="Answer Destinations" write_access="write:attributes">
 		<field>
-			<function_call>
+            <display_name>Answers</display_name>
+            <note>If you choose an existing question which is not an immediate child of this question, a new link will be created under this question. Specifying the Next Question will override the use of Result Bodycopies. Do not specify a Result Bodycopy if you want to use the Points Values to dynamically select the Result Bodycopy (configure on the Decision Tree Page details screen).</note>
+            <function_call>
 				<paint_function   name="paintDestinations"   />
 				<process_function name="processDestinations" />
 			</function_call>
@@ -59,12 +77,16 @@
 	</section>
 	<section name="Questions">
 		<field write_access="write:menu">
+			<display_name>Next Questions</display_name>
+			<note>These are the potential next questions for this question.</note>
 			<function_call>
 				<paint_function   name="paintQuestionLinks"   />
 				<process_function name="processQuestionLinks" />
 			</function_call>
 		</field>
 		<field read_access="write:menu" write_access="write:menu">
+			<display_name>Add A Question</display_name>
+			<note>Select the question type and enter the name of the question to add.</note>
 			<function_call>
 				<paint_function   name="paintAddQuestions"   />
 				<process_function name="processAddQuestions" />
