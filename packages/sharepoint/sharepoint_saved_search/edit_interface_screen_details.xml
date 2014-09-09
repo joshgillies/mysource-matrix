@@ -16,71 +16,89 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
     <section name="Connection Setup" write_access="write:attributes">
         <field>
-    		<function_call>
-                <paint_function     name="paintTestConnection" />
-                <process_function   name="processTestConnection" />
+            <display_name>Connection Status</display_name>
+            <function_call>
+                <paint_function name="paintTestConnection" />
+                <process_function name="processTestConnection" />
             </function_call>
-    	</field>
-		<field>
-			<function_call>
-				<paint_function		name="paintSystemUrl" />
-				<process_function	name="processSystemUrl" />
-			</function_call>
-		</field>
+        </field>
+        <field>
+            <display_name>System URL</display_name>
+            <function_call>
+                <paint_function name="paintSystemUrl" />
+                <process_function name="processSystemUrl" />
+            </function_call>
+        </field>
         <field attribute="username">
+            <display_name>Username</display_name>
+            <note />
             <text width="35" height="1" />
         </field>
         <field attribute="password">
+            <display_name>Password</display_name>
+            <note />
             <password width="35" height="1" />
         </field>
     </section>
     <section name="Synchronize Options" write_access="write:attributes">
-    	<field>
-    		<function_call>
-    			<paint_function   name="paintSynchCheck"	/>
-    			<process_function name="processSynchCheck"	/>
-    		</function_call>
-    	</field>
-    	<field>
-    		<function_call>
-    			<paint_function   name="paintListSelection"	/>
-    			<process_function name="processListSelection"	/>
-    		</function_call>
-    	</field>
         <field>
-			<function_call>
-    			<paint_function   name="paintDownloadFile"/>
-    			<process_function name="processDownloadFile"/>
-    		</function_call>
+            <function_call>
+                <paint_function name="paintSynchCheck"/>
+                <process_function name="processSynchCheck"/>
+            </function_call>
+        </field>
+        <field>
+            <display_name>Sharepoint List</display_name>
+            <note>Select from the available Sharepoint lists to get data from.</note>
+            <function_call>
+                <paint_function name="paintListSelection"/>
+                <process_function name="processListSelection"/>
+            </function_call>
+        </field>
+        <field>
+            <display_name>Download File</display_name>
+            <note>If set to yes, documents from SharePoint will be downloaded to the web server. This will allow file listed in document list to be be served from web server rather than via SharePoint URL.</note>
+            <function_call>
+                <paint_function name="paintDownloadFile"/>
+                <process_function name="processDownloadFile"/>
+            </function_call>
         </field>
     </section>
     <section name="Use a Connector Asset" write_access="write:attributes">
         <field>
+            <display_name>Sharepoint Connector Asset</display_name>
+            <note>If a Sharepoint connector is selected, the settings in the 'Connection Setup' section (above) have no effect. Sharepoint Connector allows the Sharepoint settings to be reused on other Sharepoint assets.</note>
             <function_call>
-                <paint_function   name="paintConnectorLink"   />
+                <paint_function name="paintConnectorLink" />
                 <process_function name="processConnectorLink" />
             </function_call>
         </field>
     </section>
     <section name="Record Set Asset Names" write_access="write:attributes">
         <field>
+            <display_name>Record Set Asset Names</display_name>
+            <note>Enter the name that should be used for record set assets exposed by this data source.  It can either be a normal string or a combination of string and keywords.  See the Available Keywords section below for the keywords available for use in this field</note>
             <function_call>
-                <paint_function   name="paintShadow"   />
+                <paint_function name="paintShadow" />
                 <process_function name="processShadow" />
             </function_call>
         </field>
     </section>
     <section name="Available Keywords" write_access="write:attributes">
         <field>
+            <display_name>Available Keywords</display_name>
+            <note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
             <function_call>
-                <paint_function   name="paintKeywords"   />
+                <paint_function name="paintKeywords" />
                 <process_function name="processKeywords" />
             </function_call>
         </field>
