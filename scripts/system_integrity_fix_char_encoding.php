@@ -96,11 +96,10 @@ if (function_exists('iconv') == FALSE) {
 //		),
 //	)
 //
-// NOTE 1: 	The script does not checks rollback tables
-// NOTE 2: 	If the value field holds serialised value then script must handle that field accourdingly.
-//			Currently "custom_val" field of "ast_attr_val" table of attribute type "serialsed" and
-//			"data" field of "trig" are only ones that are treated as serialsed values by this script.
-// NOTE 3:	There are two entries for 'internal_msg' table below because one targets the messages that are assoicated with an asset, 
+// NOTE 1: 	If the value field holds serialised value then script must handle that field accourdingly.
+//			Currently "custom_val" field of "ast_attr_val" table of attribute types 'option_list','email_format','parameter_map','serialise',
+//			'http_request' and 'oauth', and	"data" field of "trig" are only ones that are treated as serialsed values by this script.
+// NOTE 2:	There are two entries for 'internal_msg' table below because one targets the messages that are assoicated with an asset, 
 // 			while other targets non-asset specific messages (message that has empty assetid field, like internal message sent by user or trigger action).
 //
 $tables = Array(
@@ -150,6 +149,16 @@ $tables = Array(
 				'asset_assoc'	=> FALSE,
 			),
 	);
+
+$TABLES = getCLIArg('skip-tables');
+if (!empty($TABLES)) {
+	$skip_tables = explode(',', $TABLES);
+	foreach($tables as $index => $table_data) {
+		if (in_array($table_data['table'], $skip_tables)) {
+			unset($tables[$index]);
+		}//end if
+	}//end forach
+}
 
 if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
 	echo  "\nERROR: The old encoding ('" . SYS_OLD_ENCODING . "') is the same as the current/new character set.\n\n";
@@ -340,8 +349,18 @@ function fix_db($root_node, $tables, $rollback)
 
 	$tables_info = get_tables_info();
 
+	// All the Matrix attribute types with serialised value
+	 $serialsed_attrs = Array(
+							'option_list',
+							'email_format',
+							'parameter_map',
+							'serialise',
+							'http_request',
+							'oauth',
+						);
+
 	// Get the list of attrids of the type 'serialise'
-	$sql = "SELECT attrid FROM sq_ast_attr where type='serialise'";
+	$sql = "SELECT attrid FROM sq_ast_attr WHERE type IN ('".implode("','", $serialsed_attrs)."')";
 	$serialise_attrids = array_keys(MatrixDAL::executeSqlGrouped($sql));
 
 	$target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
@@ -962,12 +981,12 @@ function print_usage()
 	echo "\nThis script performs the charset conversion on the database from the older to the current encoding.";
 	echo "\nIt also regenerates the content files (bodycopy, metadata and design) of asset associated with the db record.\n\n";
 
-	echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--ignore-rollback] [--report]\n\n";
+	echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--skip-tables=<TABLES>] [--ignore-rollback] [--report]\n\n";
 	echo "\t<SYSTEM_ROOT>		: The root directory of Matrix system.\n";
 	echo "\t<OLD_CHARSET>		: Previous charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
 	echo "\t<NEW_CHARSET>		: New charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
 	echo "\t<ROOT_NODE>			: Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
-	echo "\t<ROOT_NODE>			: Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
+	echo "\t<TABLES>			: Comma seperated list of db table names (without prefix) to ignore.\n";
 	echo "\t[--report]			: Issue a report only instead of also trying to convert the data.\n";
 	echo "\t[--ignore-rollback]	: Do not include rollback tables.\n";
 
