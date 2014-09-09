@@ -93,7 +93,7 @@ foreach(Array('sq_', 'sq_rb_') as $table_prefix) {
 				if (!valid_serialised_value($value)) {
 					echo "\nInvalid serialised value assetid #".$assetid." attrid #".$attrid." contextid #".$contextid;
 					$invalid_count++;
-					
+
 					// Try fix the serialsed value
 					$value = fix_bad_serialsed_value($value);
 					if (!$value) {
@@ -154,10 +154,10 @@ echo "\n\n";
 */
 function fix_bad_serialsed_value($value)
 {
-	$value = preg_replace_callback('!(?<=^|;)s:(\d+)(?=:"(.*?)";(?:}|a:|s:|b:|d:|i:|o:|N;))!','serialize_fix_callback', $value);
+	$value = preg_replace_callback('!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!sm', "serialize_fix_callback", $value);
 
 	return valid_serialised_value($value) ? $value : FALSE;
-	
+
 }//end fix_bad_serialsed_value()
 
 
@@ -168,7 +168,7 @@ function fix_bad_serialsed_value($value)
 */
 function serialize_fix_callback($match)
 {
-	return 's:'.strlen($match[2]);
+	return isset($match[3]) ? 's:'.strlen($match[3]).':"'.$match[3].'";' : $match[0];
 
 }//end serialize_fix_callback()
 
