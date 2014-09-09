@@ -17,7 +17,13 @@
 
 <contents>
 	<section name="Versioning">
-		<field code="version_current_version" />
-		<field code="version_update_version" />
+		<field code="version_current_version">
+			<display_name>Current Version</display_name>
+			<note />
+		</field>
+		<field code="version_update_version">
+			<display_name>Update Major Version ?</display_name>
+			<note>Check the box to increment the major version number of this asset</note>
+		</field>
 	</section>
 </contents>

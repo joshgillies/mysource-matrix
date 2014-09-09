@@ -16,15 +16,30 @@
 -->
 
 <contents>
-	<section name="Status" limbo_access="0">
-		<field code="status_current" />
-		<field code="status_change" read_access="write:" write_access="write:attributes" />
+    <section name="Status">
+		<field code="status_current">
+			<display_name>Current</display_name>
+			<note />
+		</field>
+		<field code="status_change" read_access="write:" write_access="write:attributes">
+			<display_name>Change ?</display_name>
+			<note />
+		</field>
 	</section>
 	<section name="Future Status">
-		<field code="status_future_status" />
+		<field code="status_future_status">
+			<display_name>Scheduled</display_name>
+			<note />
+		</field>
 	</section>
 	<section name="Thumbnail">
-		<field code="thumbnail_current" />
-		<field code="thumbnail_change" />
+		<field code="thumbnail_current">
+			<display_name>Current</display_name>
+			<note />
+		</field>
+		<field code="thumbnail_change">
+			<display_name>Change ?</display_name>
+			<note />
+		</field>
 	</section>
 </contents>
