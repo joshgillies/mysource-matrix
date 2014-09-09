@@ -18,6 +18,8 @@
 <contents>
 	<section name="Contents">
 		<field>
+			<display_name></display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="redirectToBodycopy"  />
 				<process_function name="redirectToBodycopy"  />

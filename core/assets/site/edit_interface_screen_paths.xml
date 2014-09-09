@@ -18,6 +18,8 @@
 <contents>
 	<section name="Web Urls" write_access="write:lookups">
 		<field>
+			<display_name>URLs</display_name>
+			<note>If Force Secure is set (on the Settings Screen), then setting the HTTP option has no effect</note>
 			<function_call>
 				<paint_function   name="paintURLs"   />
 				<process_function name="processURLs" />
@@ -25,6 +27,7 @@
 		</field>
 	</section>
 	<section name="Authentication Redirects" write_access="write:lookups" limbo_access="1">
+		<note>This section allows you, as an alternative to displaying a login box, to attempt a redirect from one URL to another in an attempt to be authenticated by some external mechanism. If the second URL provides some form of HTTP-based or other external authentication (whether by the web server itself, or by a proxy server, or by other means), then this may be useful to you. The redirection will continue in a chain (eg. a set up of URL &quot;A =&gt; B, B =&gt; C&quot; will redirect first to B, and then to C unless authentication occurred at URL &quot;B&quot;). If you are taken to a URL in the chain with no redirect defined, you will then receive a login box if still not authenticated.</note>
 		<function_call>
 			<paint_function	  name="paintAuthURLs" />
 			<process_function name="processAuthURLs" />
