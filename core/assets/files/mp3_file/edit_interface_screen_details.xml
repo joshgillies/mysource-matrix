@@ -38,54 +38,84 @@
 	</section>
 	<section name="ID3 Tag Information" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name>Extract ID3 Metadata?</display_name>
+			<note>If this option is checked, ID3 and other metadata will be re-extracted from the current file and applied to the asset, where such metadata exists. This will replace any data previously entered.</note>
 			<function_call>
 				<paint_function   name="paintExtractID3"   />
 				<process_function name="processExtractID3" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Write ID3 Metadata to file?</display_name>
+			<note>If this option is checked, ID3 and other metadata will be written back to the current file. This will update any data previously in the file.</note>
 			<function_call>
 				<paint_function   name="paintWriteID3"   />
 				<process_function name="processWriteID3" />
 			</function_call>
 		</field>
 		<field attribute="song">
+			<display_name>Track Title</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="album">
+			<display_name>Album</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="artist">
+			<display_name>Artist</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="track">
+			<display_name>Track Number</display_name>
+			<note />
 			<text width="6" />
 		</field>
 		<field attribute="year">
+			<display_name>Year</display_name>
+			<note />
 			<text width="6" />
 		</field>
 		<field attribute="genre">
+			<display_name>Genre</display_name>
+			<note />
 			<text width="20" />
 		</field>
 		<field attribute="length">
+			<display_name>Duration of track</display_name>
+			<note />
 			<duration biggest_units="minutes" smallest_units="seconds" />
 		</field>
 		<field attribute="bitrate">
+			<display_name>Bitrate (kbps)</display_name>
+			<note />
 			<float width="4" />
 		</field>
 		<field attribute="samplerate">
+			<display_name>Sample Rate (Hz)</display_name>
+			<note />
 			<float width="7" />
 		</field>
 		<field attribute="composer">
+			<display_name>Composer</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="copyright">
+			<display_name>Copyright</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="comments">
+			<display_name>Comments</display_name>
+			<note />
 			<text width="60" height="8" />
 		</field>
 		<field attribute="lyrics">
+			<display_name>Lyrics</display_name>
+			<note />
 			<text width="60" height="8" />
 		</field>
 	</section>

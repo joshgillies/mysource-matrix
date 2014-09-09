@@ -16,62 +16,84 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field keyword="filename">
-			<function_call>
-				<paint_function   name="paintFilename"   />
-				<process_function name="processFilename" />
-			</function_call>
-		</field>
-		<field attribute="title">
-			<text width="25" height="1" />
-		</field>
-		<field keyword="file_upload">
-			<function_call>
-				<paint_function   name="paintFileUpload"   />
-				<process_function name="processFileUploadPreUpload" />
-			</function_call>
-		</field>
-		<field attribute="allow_unrestricted">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="FLV Basic Metadata" write_access="write:attributes" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintExtractMetadata"   />
-				<process_function name="processExtractMetadata" />
-			</function_call>
-		</field>
-		<field attribute="duration">
-			<float width="40" />
-		</field>
-		<field attribute="width">
-			<float width="40" />
-		</field>
-		<field attribute="height">
-			<float width="40" />
-		</field>
-		<field attribute="framerate">
-			<float width="40" />
-		</field>
-		<field attribute="videodatarate">
-			<float width="40" />
-		</field>
-		<field attribute="videocodecid">
-			<float width="40" />
-		</field>
-		<field attribute="audiodatarate">
-			<float width="40" />
-		</field>
-		<field attribute="audiocodecid">
-			<float width="40" />
-		</field>
-		<field attribute="audiosamplerate">
-			<float width="40" />
-		</field>
-		<field attribute="audiosamplesize">
-			<float width="40" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field keyword="filename">
+            <function_call>
+                <paint_function name="paintFilename" />
+                <process_function name="processFilename" />
+            </function_call>
+        </field>
+        <field attribute="title">
+            <text width="25" height="1" />
+        </field>
+        <field keyword="file_upload">
+            <function_call>
+                <paint_function name="paintFileUpload" />
+                <process_function name="processFileUploadPreUpload" />
+            </function_call>
+        </field>
+        <field attribute="allow_unrestricted">
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="FLV Basic Metadata" write_access="write:attributes" limbo_access="1">
+        <field>
+            <display_name>Extract Basic FLV Metadata?</display_name>
+            <note>If this option is checked, basic FLV metadata will be re-extracted from the current file and applied to the asset, where such metadata exists. This will replace any data previously entered.</note>
+            <function_call>
+                <paint_function name="paintExtractMetadata" />
+                <process_function name="processExtractMetadata" />
+            </function_call>
+        </field>
+        <field attribute="duration">
+            <display_name>Duration</display_name>
+            <note>Duration of the FLV file in seconds</note>
+            <float width="40" />
+        </field>
+        <field attribute="width">
+            <display_name>Width</display_name>
+            <note>The width of the video in pixels</note>
+            <float width="40" />
+        </field>
+        <field attribute="height">
+            <display_name>Height</display_name>
+            <note>The height of the video in pixels</note>
+            <float width="40" />
+        </field>
+        <field attribute="framerate">
+            <display_name>Frame rate</display_name>
+            <note>Number of frames per second</note>
+            <float width="40" />
+        </field>
+        <field attribute="videodatarate">
+            <display_name>Video data rate</display_name>
+            <note>Video bit rate in kilobits per second</note>
+            <float width="40" />
+        </field>
+        <field attribute="videocodecid">
+            <display_name>Video codec ID</display_name>
+            <note>The video codec ID used in the file</note>
+            <float width="40" />
+        </field>
+        <field attribute="audiodatarate">
+            <display_name>Audio data rate</display_name>
+            <note>Audio bit rate in kilobits per second</note>
+            <float width="40" />
+        </field>
+        <field attribute="audiocodecid">
+            <display_name>Audio codec ID</display_name>
+            <note>The audio codec ID used in the file</note>
+            <float width="40" />
+        </field>
+        <field attribute="audiosamplerate">
+            <display_name>Audio Sample Rate</display_name>
+            <note>The frequency at which the audio stream is replayed</note>
+            <float width="40" />
+        </field>
+        <field attribute="audiosamplesize">
+            <display_name>Audio Sample Size</display_name>
+            <note>The resolution of a single audio sample</note>
+            <float width="40" />
+        </field>
+    </section>
 </contents>

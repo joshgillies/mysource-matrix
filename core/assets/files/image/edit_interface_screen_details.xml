@@ -36,12 +36,17 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="alt">
+			<display_name>Alt</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="caption">
+			<display_name>Caption</display_name>
+			<note>%description%</note>
 			<text width="60" height="2" />
 		</field>
 		<field>
+			<display_name>Embedded Data</display_name>
 			<function_call>
 				<paint_function		name="paintEmbeddedData" />
 			</function_call>

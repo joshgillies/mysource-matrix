@@ -18,6 +18,8 @@
 <contents>
 	<section name="Edit File" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function   name="paintEditFile"   />
 				<process_function name="processEditFile" />

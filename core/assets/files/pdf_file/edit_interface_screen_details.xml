@@ -38,6 +38,8 @@
 	</section>
 	<section name="Security Options" write_access="write:attributes" limbo_access="1">
 		<field attribute="password">
+		    <display_name>Password</display_name>
+			<note>If this PDF file has security features enabled, it will not be indexed without a password. The validity of this password is not verified.</note>
 			<password width="20" />
 		</field>
 	</section>
