@@ -18,16 +18,20 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+    		<display_name>Name</display_name>
+			<note>Defines the name of the question group</note>
 			<text width="40" height="1" />
 		</field>
 	</section>
 	<section name="Score Categories" write_access="write:attributes">
+	    <note>Score ranges can be categorised in this section, by specifying a category name and a score range. For example: A range named &quot;Low&quot; may correspond to a Question Group score of between 0 and 10 points. The score ranges are inclusive and can be closed (eg; between 0 and 10) or open-ended (eg; 10 or higher) - this is achieved by omitting a number from the open end of the score range.</note>
 		<function_call>
 			<paint_function   name="paintScoreCategories"   />
 			<process_function name="processScoreCategories" />
 		</function_call>
 	</section>
 	<section name="Score Categories: Supplementary Content" write_access="write:attributes">
+	    <note>Supplementary content related to Score Categories (specified above) can be provided in this section. This content is intended as a general overview of the score obtained for the Question Group upon completion of the Quiz. A keyword is provided in the &quot;Thank You&quot; bodycopy to print the applicable content for the Group.</note>
 		<function_call>
 			<paint_function   name="paintScoreCategoriesContent"   />
 		</function_call>

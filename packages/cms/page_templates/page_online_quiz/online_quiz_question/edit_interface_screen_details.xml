@@ -18,6 +18,8 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+    		<display_name>Name</display_name>
+			<note>Defines the name of the question</note>
 			<text width="12" height="1" />
 		</field>
 	</section>
@@ -29,6 +31,8 @@
 			</function_call>
 		</field>
 		<field attribute="question_note">
+		    <display_name>Question Note</display_name>
+			<note>Further information which may be displayed alongside the question during the Quiz, or within the Quiz results.</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
