@@ -18,35 +18,53 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintKeywordInstructions"   />
 				<process_function name="processKeywordInstructions" />
 			</function_call>
 		</field>
 		<field attribute="name">
+			<display_name>Field Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="friendly_name">
+			<display_name>Friendly Name</display_name>
+			<note>Friendly Name will be used as the caption for metadata fields in the edit interface. If it is left empty, Field Name will be used instead.</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
+			<display_name>Description</display_name>
+			<note>Use of HTML tags in description will be picked up by browser on the Metadata screen of the Asset it is applied to. This can conflict with other HTML on the page and may stop the screen from loading. Care needs to be taken here and use of entity name or entity number format is encouraged.</note>
 			<text width="30" height="5" />
 		</field>
 		<field attribute="scheme">
+			<display_name>Scheme</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="language">
+			<display_name>Language</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="field_name_text">
+			<display_name>Text for Name Attribute</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="value_name_text">
+			<display_name>Text for Value Attribute</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Settings" write_access="write:attributes">
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintHierarchy"   />
 				<process_function name="processHierarchy" />
@@ -55,35 +73,50 @@
 	</section>
 	<section name="View Options" write_access="write:attributes">
 		<field>
+			<display_name>Display Type</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintDisplayType"   />
 				<process_function name="processDisplayType" />
 			</function_call>
 		</field>
 		<field attribute="is_contextable">
+			<display_name>Contextable?</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_empty">
+			<display_name>Allow Empty</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="visible_part">
+	    	<display_name>Frontend Part</display_name>
+            <note>%description%</note>
 			<selection style="boxes" columns="1" extras="" />
 		</field>
 	</section>
 	<section name="Flat View Options" show_if="isFlatView" write_access="write:attributes">
 		<field attribute="hier_structure">
+	    	<display_name>Show structure</display_name>
 			<selection style="list" columns="1" extras="" />
 		</field>
 		<field attribute="multiple">
+			<display_name>Allow Multiple</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="hier_sort">
+			<display_name>Sort Hierarchy</display_name>
+			<note />
 			<selection style="list" columns="1" extras="" />
 		</field>
 	</section>
 	<section name="Drill-Down View Options" show_if="isDrillDownView" write_access="write:attributes">
 		<field>
-			<function_call>
+			<display_name>Level Titles</display_name>
+			<note />
+            <function_call>
 				<paint_function   name="paintLevelTitles"   />
 				<process_function name="processLevelTitles" />
 			</function_call>

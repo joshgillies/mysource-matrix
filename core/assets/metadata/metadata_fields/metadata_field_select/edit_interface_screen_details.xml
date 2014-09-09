@@ -18,59 +18,96 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintKeywordInstructions"   />
 				<process_function name="processKeywordInstructions" />
 			</function_call>
 		</field>
 		<field attribute="name">
+			<display_name>Field Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="friendly_name">
+			<display_name>Friendly Name</display_name>
+			<note>Friendly Name will be used as the caption for metadata fields in the edit interface. If it is left empty, Field Name will be used instead.</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
+			<display_name>Description</display_name>
+			<note>Use of HTML tags in description will be picked up by browser on the Metadata screen of the Asset it is applied to. This can conflict with other HTML on the page and may stop the screen from loading. Care needs to be taken here and use of entity name or entity number format is encouraged.</note>
 			<text width="30" height="5" />
 		</field>
 		<field attribute="scheme">
+			<display_name>Scheme</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="language">
+			<display_name>Language</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="field_name_text">
+			<display_name>Text for Name Attribute</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="value_name_text">
+			<display_name>Text for Value Attribute</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Settings" write_access="write:attributes">
 		<field attribute="multiple">
+			<display_name>Allow Multiple</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_empty">
+			<display_name>Allow Empty</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
+			<display_name>Style</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintEditParams"   />
 				<process_function name="processEditParams" />
 			</function_call>
 		</field>
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintSelection"   />
 				<process_function name="processSelection" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Upload from CSV file</display_name>
+			<note><![CDATA[<p>Use this option to upload a mass list of options from a file of comma-separated values (CSV). Note that your existing options <strong>will be erased</strong> and completely replaced with the options listed in the file. The CSV file can contain one, two or three fields, which are interpreted as follows:</p>
+
+			<ul>
+				<li><strong>One field:</strong> the field will determine the value of each option. The assigned key will be numeric and sequentially assigned, starting from zero (0).</li>
+				<li><strong>Two fields:</strong> first field will denote the key of each option, the second field the value.</li>
+				<li><strong>Three fields:</strong> first field will denote the key, second field the value. The third field should be either numeric '1' or '0', with '1' indicating that this option should be the default value (or a default value, in the case of multiple selections being possible).</li>
+			</ul>
+
+			<p>The number of fields in each row should be consistent: the number of fields in the first row determines how all rows are processed. If less than three fields are specified, the default will not change, except that any default(s) that do not exist in the new set of options (compared by their key) will be removed.</p>
+			]]></note>
 			<function_call>
 				<paint_function   name="paintOptionUpload"   />
 				<process_function name="processOptionUpload" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Column Headings in CSV File?</display_name>
+			<note>If the first row of your CSV file contains column headings, select this field to ensure Matrix correctly imports the CSV file.</note>
 			<function_call>
 				<paint_function   name="paintOptionUploadHeader"   />
 				<process_function name="processOptionUpload" />
@@ -79,18 +116,26 @@
 	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="editable">
+			<display_name>Editable</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="required">
+			<display_name>Required</display_name>
+			<note>%description%</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="is_contextable">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="frontend">
+			<display_name>Show On Frontend</display_name>
+			<note>&lt;b&gt;Always:&lt;/b&gt; this metadata field will always be printed on the frontend.&lt;br&gt;&lt;b&gt;Only If Filled:&lt;/b&gt; this metadata field will only be printed on the frontend if data is entered in that field for that asset.&lt;br&gt;&lt;b&gt;Never:&lt;/b&gt; this metadata field will not be printed on the frontend.</note>
 			<selection style="list" />
 		</field>
 		<field attribute="visible_part">
+			<display_name>Frontend Part</display_name>
+			<note>%description%</note>
 			<selection style="boxes" columns="1" extras="" />
 		</field>
 	</section>

@@ -18,17 +18,25 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Section Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
+			<display_name>Section Description</display_name>
+			<note />
 			<text width="30" height="5" />
 		</field>
 	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="frontend">
+			<display_name>Show On Frontend</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="desc_frontend">
+			<display_name>Show Description On Frontend</display_name>
+			<note>You will need to regenerate metadata schema if you want the section description added to the asset current frontend metadata</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
