@@ -17,39 +17,55 @@
 <contents>
 	<section name="Date Filters and Search Fields Grouping Logic">
 		<field write_access="write:attributes" attribute="main_logic">
+			<display_name>Logical Grouping</display_name>
+			<note>Logic to combine the Date Filter and Search Field settings</note>
 			<selection />
 		</field>
 	</section>
 
 	<section name="Events Date Filter Configuration">
 		<field write_access="write:attributes" attribute="events_filter_logic">
+			<display_name>Logical Grouping</display_name>
+			<note></note>
 			<selection />
 		</field>
 		<field write_access="write:attributes" attribute="events_filter_allow_empty_search">
+			<display_name>Allow Empty Searches?</display_name>
+			<note>When enabled, an empty date search will act as a wildcard and return all the event instances possible.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
+		    <display_name>Events Filter Fields</display_name>
+			<note></note>
 			<function_call>
 				<paint_function name="paintEventsDateFilters" />
 				<process_function name="processEventsDateFilters" />
 			</function_call>
-		</field>		
+		</field>
 	</section>
-	
+
 	<section name="Search Field Configuration">
 		<field write_access="write:attributes" attribute="logic">
+			<display_name>Logical Grouping</display_name>
+			<note>Search logic does not apply to <b>Exclude</b> field types.</note>
 			<selection />
 		</field>
 		<field write_access="write:attributes" attribute="allow_empty_search">
+			<display_name>Allow Empty Searches?</display_name>
+			<note>When enabled, an empty search will act as a wildcard and return everything possible.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
+			<display_name>Search Fields </display_name>
+			<note></note>
 			<function_call>
 				<paint_function name="paintFields" />
 				<process_function name="processFields" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Exclude Fields</display_name>
+			<note></note>
 			<function_call>
 				<paint_function name="paintExcludeFields" />
 				<process_function name="processExcludeFields" />
@@ -58,10 +74,13 @@
 	</section>
 	<section name="Field Styles">
 		<field write_access="write:attributes" attribute="use_picker">
+			<display_name>Use Date Picker ?</display_name>
+			<note>Use the Javascript date picker for all date fields ?</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field read_access="" write_access="write:attributes">
-
+			<display_name>Field Styles</display_name>
+			<note></note>
 			<function_call>
 				<paint_function name="paintStyles" />
 				<process_function name="processStyles" />
@@ -70,10 +89,14 @@
 	</section>
 	<section name="Restrict Results Date Range" write_access="write:attributes">
 		<field attribute="restrict_date_field">
+			<display_name>Date Field</display_name>
+			<note>This is the date used to determine which date range to restrict</note>
 			<selection style="list" />
 		</field>
 		<field attribute="restrict_date_range_from">
-			 <datetime default="2009-01-01 00:00:00" min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="1" use_picker="1">
+			<display_name>Oldest Date</display_name>
+			<note>Restrict search results that are newer than this date</note>
+			<datetime default="2009-01-01 00:00:00" min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="1" use_picker="1">
 				<show>
 					<y style="t" allow_null="1" />
 					<m style="s" allow_null="1" />
@@ -85,7 +108,9 @@
 			</datetime>
 		</field>
 		<field attribute="restrict_date_range_to">
-			 <datetime default="2009-01-01 00:00:00" min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="1" use_picker="1">
+			<display_name>Newest Date</display_name>
+			<note>Restrict search results that are older than this date</note>
+			<datetime default="2009-01-01 00:00:00" min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="1" use_picker="1">
 				<show>
 					<y style="t" allow_null="1" />
 					<m style="s" allow_null="1" />

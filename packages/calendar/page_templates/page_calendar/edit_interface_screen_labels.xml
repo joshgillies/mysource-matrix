@@ -18,24 +18,38 @@
 <contents>
 	<section name="Day Labels" write_access="write:attributes" limbo_access="1">
 		<field attribute="label_mon">
+			<display_name>Monday</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="label_tue">
+			<display_name>Tuesday</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="label_wed">
+			<display_name>Wednesday</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="label_thu">
+			<display_name>Thursday</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="label_fri">
+			<display_name>Friday</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="label_sat">
+			<display_name>Saturday</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="label_sun">
+			<display_name>Sunday</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>

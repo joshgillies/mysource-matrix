@@ -18,23 +18,31 @@
 <contents>
 	<section name="General" write_access="write:attributes">
 		<field attribute="print">
+			<display_name>Print?</display_name>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache">
+			<display_name>Cache?</display_name>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Calendar Options">
 		<field write_access="write:links">
+			<display_name>Target Pages</display_name>
+			<note>When a user clicks on a year, month, week or day in the calendar navigator, they will be taken to the page selected above for that type of view.  If no target pages are selected, the calendar navigator will not be shown.</note>
 			<function_call>
 				<paint_function name="paintTargetPages" />
 				<process_function name="processTargetPages" />
 			</function_call>
 		</field>
 		<field attribute="element_id" write_access="write:attributes">
+			<display_name>Element ID</display_name>
+			<note>This is used by HTML, CSS and JS. Make sure it is unique on the page.</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="style_assetid" write_access="write:attributes">
+			<display_name>Custom CSS File</display_name>
+			<note>Can be left blank. If nothing is supplied, a default stylesheet will be used</note>
 			<assetid type_codes="file:D" />
 		</field>
 	</section>

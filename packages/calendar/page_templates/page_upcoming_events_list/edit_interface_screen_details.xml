@@ -17,27 +17,40 @@
 
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
+	    <note>This asset will list upcoming events in chronological order, up to the maximum number specified.  Events that begin beyond the event horizon will not be shown.</note>
+	    <field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 		<field>
+			<display_name>Event Sources</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintEventSources" />
 				<process_function name="processEventSources" />
 			</function_call>
 		</field>
 		<field attribute="horizon">
+			<display_name>Event Horizon</display_name>
+			<note>Events that start more than this number of days in the future will not be shown</note>
 			<int width="3" />
 		</field>
 		<field attribute="num_events">
+			<display_name>Number of Events to show</display_name>
+			<note>At most, this number of events will be displayed</note>
 			<int width="3" />
 		</field>
 	</section>
 	<section name="Event Source Selections" write_access="write:attributes">
 		<field attribute="parameter_map">
+			<display_name>Dynamic Event Sources</display_name>
+			<note>Assets used as Dynamic Event Sources must reside underneath the Event Sources root node.</note>
 			<parameter_map />
 		</field>
 	</section>

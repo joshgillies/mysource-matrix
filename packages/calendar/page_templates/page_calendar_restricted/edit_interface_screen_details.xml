@@ -18,42 +18,63 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 		<field attribute="start_date">
-		<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="0" use_picker="1">
-						  <show>
-								<y style="t" allow_null="1" />
-								<m style="s" allow_null="1" />
-								<d style="s" allow_null="1" />
-						  </show>
-		</datetime>
+			<display_name>Earliest date to show</display_name>
+			<note/>
+            <datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="0" use_picker="1">
+                <show>
+                    <y style="t" allow_null="1" />
+                    <m style="s" allow_null="1" />
+                    <d style="s" allow_null="1" />
+                </show>
+            </datetime>
 		</field>
 		<field attribute="end_date">
-		<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="0" use_picker="1">
-						  <show>
-								<y style="t" allow_null="1" />
-								<m style="s" allow_null="1" />
-								<d style="s" allow_null="1" />
-						  </show>
-		</datetime>
+			<display_name>Latest date to show</display_name>
+			<note/>
+            <datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="0" use_picker="1">
+                <show>
+                    <y style="t" allow_null="1" />
+                    <m style="s" allow_null="1" />
+                    <d style="s" allow_null="1" />
+                </show>
+            </datetime>
 		</field>
 		<field attribute="days_per_page">
+			<display_name>Days to show per page</display_name>
+			<note/>
 			<int width="2" />
 		</field>
 		<field>
+			<display_name>Event Sources</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintEventSources" />
 				<process_function name="processEventSources" />
 			</function_call>
 		</field>
-		<field attribute="next_text">
+		<field attribute="day_heading_format">
+			<display_name>Day Heading Format</display_name>
+			<note>Day headings will display the date in this format.  (Symbols are from the PHP date function)</note>
 			<text height="1" width="40" />
 		</field>
+		<field attribute="next_text">
+            <display_name>Next Page Link Text</display_name>
+            <note>The text used in the link that the user clicks to view the next page of events.  The keyword %n% ca    n be used to place the days-per-page value in this text</note>
+        	<text height="1" width="40" />
+		</field>
 		<field attribute="prev_text">
+			<display_name>Prev Page Link Text</display_name>
+			<note>The text used in the link that the user clicks to view the previous page of events.  The keyword %n% can be used to place the days-per-page value in this text</note>
 			<text height="1" width="40" />
 		</field>
 

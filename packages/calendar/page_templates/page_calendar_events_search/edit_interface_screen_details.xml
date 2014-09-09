@@ -17,95 +17,145 @@
 <contents>
 	<section name="Details">
 		<field write_access="write:attributes" attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="15" />
 		</field>
 		<field write_access="write:attributes" attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
 			<text width="15" />
 		</field>
 	</section>
 	<section name="Search Parameters">
 		<field  write_access="write:content">
+			<display_name>Root Nodes</display_name>
+			<note>Searches will be restricted to trees rooted at the selected asset(s). If no root nodes are selected, this asset will be used as the root.</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
-		</field>		
+		</field>
 	</section>
 	<section name="Display Options">
 		<field attribute="group_by" write_access="write:attributes">
+			<display_name>List Format</display_name>
+			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
+			</note>
 			<selection style="list" />
 		</field>
 		<field attribute="num_per_page" write_access="write:attributes">
+			<display_name>Assets Per Page</display_name>
+			<note>Set to '0' (zero) to list all assets on the same page. Keywords can be used to dynamically set the number of items on the page.</note>
 			<text width="30" />
 		</field>
 		<field write_access="write:links">
+			<display_name>Search Forms</display_name>
+			<note>Search forms that require customising for the search page</note>
 			<function_call>
 				<paint_function   name="paintCustomiseSearchForms" />
 				<process_function name="processCustomiseSearchForms" />
 			</function_call>
 		</field>
 		<field attribute="lineage_seperator" write_access="write:attributes">
+			<display_name>Lineage Separator</display_name>
+			<note>Separator to use when printing the lineage to a search result asset.</note>
 			<text />
 		</field>
 		<field attribute="search_as_public_user" write_access="write:attributes">
+			<display_name>Search as Public User</display_name>
+			<note>If selected, only assets which are granted public access (and not denied) will be returned as results.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="no_roles_check" write_access="write:attributes">
+			<display_name>Perform Roles Check</display_name>
+			<note>When set to 'No', Search performance will be increased substantially, however no roles check will be performed.</note>
 			<boolean true_text="no" false_text="yes" />
 		</field>
 		<field attribute="no_group_access_check" write_access="write:attributes">
+			<display_name>Perform Group Access Check</display_name>
+			<note>When set to 'No', Search performance will be increased substantially, however no group access priviledge check will be performed.</note>
 			<boolean true_text="no" false_text="yes" />
 		</field>
 		<field attribute="root_in_lineage" write_access="write:attributes">
+			<display_name>Show root node in lineage</display_name>
+			<note></note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="self_in_lineage" write_access="write:attributes">
+			<display_name>Show result asset in lineage</display_name>
+			<note></note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="submit_button_text" write_access="write:attributes">
+			<display_name>Search button text</display_name>
+			<note>This text will appear on the submit button of this search page</note>
 			<text />
 		</field>
 		<field attribute="reset_button_text" write_access="write:attributes">
+			<display_name>Reset button text</display_name>
+			<note>This text will appear on the reset button of this search page</note>
 			<text />
 		</field>
 		<field attribute="sis_button_text" write_access="write:attributes">
+			<display_name>Search in search button text</display_name>
+			<note>This text will appear on the submit button of the search within search form</note>
 			<text />
 		</field>
 		<field attribute="prev_page_text" write_access="write:attributes">
+			<display_name>Next page link text</display_name>
+			<note>This text will appear on the link to the next page of results (if any)</note>
 			<text width="30" />
 		</field>
 		<field attribute="next_page_text" write_access="write:attributes">
+			<display_name>Previous page link text</display_name>
+			<note>This text will appear on the link to the previous page of results (if any)</note>
 			<text width="30" />
 		</field>
 		<field attribute="page_link_format" write_access="write:attributes">
+			<display_name>Page Link Format</display_name>
+			<note>This is the format of a linked page number in pagination. Available keywords are %page_link%, %page_number%</note>
 			<text width="50" />
 		</field>
 		<field attribute="current_page_format" write_access="write:attributes">
+			<display_name>Current Page Format</display_name>
+			<note>This is the format of current page number in pagination. Available keyword is %page_number%</note>
 			<text width="50" />
 		</field>
 		<field attribute="hide_no_href_links" write_access="write:attributes">
+			<display_name>Hide Unlinked Navigational Text</display_name>
+			<note>This option lets you define if the navigational text, like 'Previous Page' or 'Next Page', should be hidden if these text is not a link. This is useful to hide 'Next Page' on last page and 'Prev Page' on first page etc.,.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="submit_to_page_url">
+			<display_name>Form Submission URL</display_name>
+			<note>If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the search form should submit to the same URL it's displayed at, or to this page's own URL.</note>
 			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
 		</field>
 	</section>
 	<section name="Synonym Search Options" show_if="thesaurusInstalled">
 		<field write_access="write:links">
+			<display_name>Thesaurus Asset</display_name>
+			<note>The thesaurus asset selected here will be used for synonym searching. If none is selected then synonym searching will not be available</note>
 			<function_call>
 				<paint_function   name="paintThesaurusAsset" />
 				<process_function name="processThesaurusAsset" />
 			</function_call>
 		</field>
 		<field write_access="write:attributes">
+			<display_name>Auto Synonym Search</display_name>
+			<note>If enabled, a second search will take place using the synonyms of the search term entered in this field if the original search term returns zero results. Use the drop-down to select the field to search with. All other search fields will use the term(s) used in the original search.</note>
 			<function_call>
 				<paint_function   name="paintAutoSynonymSearch" />
 				<process_function name="processAutoSynonymSearch" />
 			</function_call>
 		</field>
 		<field write_access="write:attributes">
+			<display_name>Multi-Word Synonym Lookups</display_name>
+			<note><![CDATA[This option will iterate through the supplied search string and search the Thesaurus for groups of two-or-more words. If these grouped words have synonyms in the Thesaurus then these synonyms will be appended to the search string.<br />For example, a search for "fred flute player" will result in a Thesaurus lookup of synonyms for "fred flute", "flute player" (matches "flautist") and "fred flute player". The search string in this case will be modified on-the-fly to read "fred flute player flautist"]]></note>
 			<function_call>
 				<paint_function   name="paintEnableMultiWordSynonymLookups" />
 				<process_function name="processEnableMultiWordSynonymLookups" />
@@ -119,6 +169,8 @@
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes">
 		<field>
+			<display_name></display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintStructuredDropdownOptions"   />
 				<process_function name="processStructuredDropdownOptions" />
@@ -127,6 +179,8 @@
 	</section>
 	<section name="Stored Search" write_access="write:attributes">
 		<field>
+			<display_name>Stored Query Location</display_name>
+			<note />
 			<function_call>
 				<paint_function		name="paintSavedSearch" />
 				<process_function	name="processSavedSearch" />
@@ -135,11 +189,15 @@
 	</section>
 	<section name="Stored Search Options" write_access="write:attributes">
 		<field attribute="stored_query_show_results">
+			<display_name>Show the Results page</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Security Enhancement" write_access="write:attributes">
 		<field attribute="disable_keyword_replacements">
+			<display_name>Disable Keyword Replacements</display_name>
+			<note>If set to Yes, Search Page will not replace the keywords that might be used in the user input on the frontend.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
