@@ -2,15 +2,21 @@
     $DIRNAME = dirname(dirname(__FILE__));
     $INCLUDE = [
         'core',
-        'packages',
     ];
 
-    $strings = [];
-    $output  = [];
+    exec('find '.$DIRNAME.'/packages -mindepth 1 -maxdepth 1 -type d', $pkgs);
+    foreach ($pkgs as $pkg) {
+        $INCLUDE[] = str_replace($DIRNAME.'/', '', $pkg);
+    }
+
+    print_r($INCLUDE);
+
     foreach ($INCLUDE as $inc_dir) {
         exec('find '.$DIRNAME.'/'.$inc_dir.' -name lang_strings.xml', $output);
     }
 
+    $strings = [];
+    $output  = [];
     foreach ($output as $line) {
         $sxml = simplexml_load_file($line);
         foreach ($sxml->string as $string) {
