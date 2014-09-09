@@ -17,40 +17,60 @@
 <contents>
 	<section name="Cache Options" write_access="write:attributes">
 		<field attribute="enabled">
+			<display_name>Caching Status</display_name>
+			<note>Setting this value to 'On' will enable caching for the system and bring the Default Expiry setting into effect.</note>
 			<boolean true_text="on" false_text="off" />
 		</field>
 		<field>
+			<display_name>Cache Storage Type</display_name>
+			<note>The method used to store and retrieve cache objects.</note>
 			<function_call>
 				<paint_function name="paintCacheStorageType" />
 				<process_function name="processCacheStorageType" />
 			</function_call>
 		</field>
 		<field attribute="num_cache_dirs">
+			<display_name>Number of Cache Buckets</display_name>
+			<note>The number of cache buckets that will be created to avoid directory size limits. The maximum number of cache directories created for storage will be this number squared.</note>
 			<int width="5" />
 		</field>
 		<field attribute="expiry">
+			<display_name>Default Expiry</display_name>
+			<note>The length of time a cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days).</note>
 			<int width="5" />
 		</field>
 		<field attribute="accelerator_cache_expiry">
+			<display_name>Accelerator Cache Expiry</display_name>
+			<note>Expire the requested content in the accelerator proxy the specified number of seconds after which it is accessed. When this value is not supplied, the 's-maxage' cache header attribute will not be sent.</note>
 			<int width="5" />
 		</field>
 		<field attribute="browser_cache_expiry">
+			<display_name>Browser Cache Expiry</display_name>
+			<note>Expire the requested content in the browser the specified number of seconds after which it is accessed. When this value is not supplied, the content will expire after the "Default Expiry" period.</note>
 			<int width="5" />
 		</field>
 	</section>
 	<section name="Cache Levels" write_access="write:attributes">
 		<field attribute="public_caching">
+			<display_name>Public Level Caching</display_name>
+			<note />
 			<boolean true_text="on" false_text="off" />
 		</field>
 		<field attribute="permission_caching">
+			<display_name>Permission Level Caching</display_name>
+			<note />
 			<boolean true_text="on" false_text="off" />
 		</field>
 		<field attribute="group_caching">
+			<display_name>Group Level Caching</display_name>
+			<note />
 			<boolean true_text="on" false_text="off" />
 		</field>
 	</section>
-	<section name="Cachable Root URLs" write_access="write:attributes">
+	<section name="Cacheable Root URLs" write_access="write:attributes">
 		<field>
+			<display_name>Cacheable Root URLs</display_name>
+			<note>Choose the system root URLs for which caching should be enabled.  If a root URL has caching disabled then content will be served via that URL. However this will not affect sending cache header for browsers.</note>
 			<function_call>
 				<paint_function name="paintCachableRootURLs" />
 				<process_function name="processCachableRootURLs" />

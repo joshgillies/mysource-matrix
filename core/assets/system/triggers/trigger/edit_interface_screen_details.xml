@@ -16,39 +16,48 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="active">
-			<boolean true_text="enabled" false_text="disabled" />
-		</field>
-		<field attribute="blocking">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="name">
-			<text width="60" />
-		</field>
-		<field attribute="description">
-			<text height="4" width="60" />
-		</field>
-		<field attribute="category">
-			<text width="60" />
-		</field>
-	</section>
-	<section name="Events" write_access="write:attributes">
-		<function_call>
-			<paint_function   name="paintEvents" />
-			<process_function name="processEvents" />
-		</function_call>
-	</section>
-	<section name="Conditions" write_access="write:attributes">
-		<function_call>
-			<paint_function   name="paintConditions" />
-			<process_function name="processConditions" />
-		</function_call>
-	</section>
-	<section name="Actions" write_access="write:attributes">
-		<function_call>
-			<paint_function   name="paintActions" />
-			<process_function name="processActions" />
-		</function_call>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <note>A trigger consists of descriptive information and a set of events, conditions and actions. Use the sections below to change settings of this trigger. In order to speed trigger execution, MySource Matrix tries to make some pre-calculations. There is an overhead to determining whether a trigger needs to be run. Upon loading, the conditions are checked and if all pass, the actions are executed. It can be rewarding to put the fastest conditions first. As a rule of the thumb any condition that works on a whole range of values, like "anything that extends this asset type" will be relatively slow and should not be placed first. On the other hand system conditions that work on exact values of asset type (not inheritance), status and tree location should be placed first.</note>
+        <field attribute="active">
+            <display_name>Status</display_name>
+            <boolean true_text="enabled" false_text="disabled" />
+        </field>
+        <field attribute="blocking">
+            <display_name>Blocking</display_name>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <text width="60" />
+        </field>
+        <field attribute="description">
+            <display_name>Description</display_name>
+            <text height="4" width="60" />
+        </field>
+        <field attribute="category">
+            <display_name>Category</display_name>
+            <text width="60" />
+        </field>
+    </section>
+    <section name="Events" write_access="write:attributes">
+        <note>This is a list of all the events installed in this system. Select the ones you want this trigger to respond to. Having a trigger fire on an excessive number of events may negatively affect the speed of the system.</note>
+        <function_call>
+            <paint_function name="paintEvents" />
+            <process_function name="processEvents" />
+        </function_call>
+    </section>
+    <section name="Conditions" write_access="write:attributes">
+        <note>Here you specify the conditions that must be satisfied before the actions are allowed to perform. Note that order is important. New conditions are added to the bottom of the list with default settings. If you add a condition, but do not change it's settings it will automatically fail. Some condition types can only be used once in a trigger.</note>
+        <function_call>
+            <paint_function name="paintConditions" />
+            <process_function name="processConditions" />
+        </function_call>
+    </section>
+    <section name="Actions" write_access="write:attributes">
+        <note>Actions are performed in the order they are specified. If one action fails, the trigger will fail. Unless 'Ignore Permissions' is selected, the action is run as a user that caused the trigger to be executed (currently logged in user). This means that some actions might fail if they user doesn't have appropriate access privileges. To make sure that the actions are performed regardless of user's access rights, select 'Ignore Permissions'. Actions can be marked as 'Non-Critical' which means that if that action fails for any reason, the remaining actions will continue to run normally. If an action fails and it is required, then the system will try to undo all the previous actions in this trigger.</note>
+        <function_call>
+            <paint_function name="paintActions" />
+            <process_function name="processActions" />
+        </function_call>
+    </section>
 </contents>

@@ -17,6 +17,8 @@
 <contents>
 	<section name="Root Node Cache Management" read_access="write:" write_access="write:attributes">
 		<field>
+			<display_name>Root Node</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintCustomiseRootNodeCaching" />
 				<process_function name="processCustomiseRootNodeCaching" />
@@ -25,6 +27,8 @@
 	</section>
 	<section name="Select Root Node" read_access="write:" write_access="write:attributes">
 		<field>
+		    <display_name>Configure Root Node</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintChooseRootNode" />
 				<process_function name="processChooseRootNode" />
