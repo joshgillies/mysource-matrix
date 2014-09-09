@@ -18,17 +18,25 @@
 <contents>
 	<section name="Login" write_access="write:attributes">
 		<field attribute="login_invite">
+			<display_name>Invite</display_name>
+			<note>This message is displayed above the form used to log into the system</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field attribute="login_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if the user tried to log into the system but the login failed (probably due to an incorrect username or password)</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
 	<section name="Create Asset" write_access="write:attributes">
 		<field attribute="create_invite">
+			<display_name>Invite</display_name>
+			<note>This message is displayed above the form used to create a new asset</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field attribute="create_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if the new asset could not be created</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
