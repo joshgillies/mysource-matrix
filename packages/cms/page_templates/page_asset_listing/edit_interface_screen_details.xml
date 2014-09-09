@@ -18,9 +18,13 @@
 <contents>
 	<section name="Details" write_access="write:attributes"  limbo_access="1">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
@@ -61,12 +65,16 @@
 	</section>
 	<section name="Asset Locations" write_access="write:content"  limbo_access="1">
 		<field>
+			<display_name>Link Types</display_name>
+			<note>This setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned on.  Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links.</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
 		<field attribute="all_root_nodes">
+			<display_name>Root Node Logic</display_name>
+			<note>Defines how assets are managed when there is more than one root node displayed (either selected above, or through a replacement root node setting). If there is only one root node selected, then this option has no effect.</note>
 			<boolean true_text="cms_listing_all_root_nodes_yes" false_text="cms_listing_all_root_nodes_no" />
 		</field>
 		<field attribute="subs_only">
@@ -76,9 +84,13 @@
 			<selection style="list" />
 		</field>
 		<field attribute="min_depth">
+			<display_name>Minimum Depth/Height</display_name>
+			<note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0, will include the root nodes in the results</note>
 			<int width="5" />
 		</field>
 		<field attribute="max_depth">
+			<display_name>Maximum Depth/Height</display_name>
+			<note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0 (with the minimum depth/height set to 0 as well) will only return the root nodes.</note>
 			<int width="5" />
 		</field>
 		<field>
@@ -88,12 +100,18 @@
 			</function_call>
 		</field>
 		<field attribute="link_value_filter">
+			<display_name>Link Value</display_name>
+			<note>The value provided in that field will be used to filter the assets returned. You will need to enable 'Link Value Filtering'.</note>
 			<text width="50" height="1" />
 		</field>
 		<field attribute="link_value_filter_logic">
+			<display_name>Link Value Filtering Logic</display_name>
+			<note>This specifies if assets returned should have link value equal or different from the 'Link Value' field. You will need to enable 'Link Value Filtering'.</note>
 			<boolean true_text="match" false_text="does_not_match" />
 		</field>
 		<field attribute="link_value_filter_enabled">
+			<display_name>Enable Link Value Filtering</display_name>
+			<note>If set to 'Yes' and lookup direction is set to 'down the tree', only assets with the link value equal to the 'Link Value' field will be returned. If set to 'Yes' and the lookup direction is set as 'up the tree', only parents of children assets with the link value equal to the 'Link Value' field will be returned.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
@@ -106,7 +124,7 @@
 		</field>
 		<field attribute="start_position">
 			<text width="30" />
-		</field>		
+		</field>
 		<field attribute="a_z_style">
 			<selection style="list" />
 		</field>
@@ -150,17 +168,25 @@
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes" limbo_access="1">
 		<field attribute="parameter_map" format="new_line">
+			<display_name />
+			<note />
 			<parameter_map />
 		</field>
 		<field attribute="dynamic_root_option">
+			<display_name>If dynamic root not found</display_name>
+			<note />
 			<selection style="list" />
 		</field>
 		<field attribute="dynamic_asset_selection_option">
+			<display_name>If asset selection not specified</display_name>
+			<note />
 			<selection style="list" />
-		</field>		
+		</field>
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name></display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintStructuredDropdownOptions"   />
 				<process_function name="processStructuredDropdownOptions" />
@@ -169,9 +195,13 @@
 	</section>
 	<section name="Button Text" write_access="write:attributes" limbo_access="1">
 		<field attribute="submit_button_text">
+		    <display_name>Submit Button Text</display_name>
+            <note />
 			<text width="25" height="1" />
 		</field>
 		<field attribute="reset_button_text">
+		    <display_name>Reset Button Text</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
