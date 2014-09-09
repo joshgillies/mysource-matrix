@@ -18,11 +18,15 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Step Name</display_name>
+			<note />
 			<text width="20" height="1" />
 		</field>
 	</section>
 	<section name="Details of this step" write_access="write:links">
 		<field format="blank">
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintStep"   />
 				<process_function name="processStep" />

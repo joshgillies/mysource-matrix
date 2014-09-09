@@ -18,39 +18,71 @@
 <contents>
 	<section name="Start Workflow Message" write_access="admin:attributes">
 		<field attribute="start_workflow_subject">
+			<display_name>Subject</display_name>
+			<note />
 			<text height="1" width="80" />
 		</field>
 		<field attribute="start_workflow_msg">
+			<display_name>Body</display_name>
+			<note><![CDATA[This message will be sent to users when workflow is started on the bundle, by changing the status from "Editing" to "Approving". Each user will be sent the list of assets for which they have access to the workflow.]]></note>
 			<wysiwyg height="10em" width="80%" />
 		</field>
 		<field attribute="auto_approve_progress_workflow_subject">
+			<display_name>Subject</display_name>
+			<note />
 			<text height="1" width="80" />
 		</field>
 		<field attribute="auto_approve_progress_workflow_msg">
+			<display_name>Body</display_name>
+			<note><![CDATA[This message will be sent to users when workflow is started on the bundle, by changing the status from "Editing" to "Approving". Each user will be sent the list of assets for which they have access to the workflow.]]></note>
 			<wysiwyg height="10em" width="80%" />
 		</field>
 	</section>
 	<section name="Progress Workflow Message" write_access="admin:attributes">
 		<field attribute="progress_workflow_subject">
+			<display_name>Subject</display_name>
+			<note />
 			<text height="1" width="80" />
 		</field>
 		<field attribute="progress_workflow_msg">
+			<display_name>Body</display_name>
+			<note><![CDATA[This message will be sent when workflow has progressed to a new set of users, as a result of changes being approved at the bundle level. Only users who can newly approve an asset will receive this email, amd will contain the assets they now have the ability to approve - in other words, the assets they would receive messages for had this message not been sent instead.]]></note>
 			<wysiwyg height="10em" width="80%" />
 		</field>
 	</section>
 	<section name="Reject Workflow Message" write_access="admin:attributes">
 		<field attribute="reject_workflow_subject">
+			<display_name>Subject</display_name>
+			<note />
 			<text height="1" width="80" />
 		</field>
 		<field attribute="reject_workflow_msg">
+			<display_name>Body</display_name>
+			<note><![CDATA[This message will be sent to users when changes are rejected by a user at the bundle level.]]></note>
 			<wysiwyg height="10em" width="80%" />
 		</field>
 	</section>
 	<section name="Approve Workflow Message" write_access="admin:attributes">
+		<note><![CDATA[<p>The following keywords can be used in any of the <strong>Body</strong> sections of the messages:</p>
+		<ul>
+		<li><strong>%asset_list%</strong> - is replaced with the list of assets that are affected by the message. For instance, for the "Start Workflow" message, the list would involve all assets whose workflow was started, that can be acted upon by the user being sent the message.</li>
+		<li><strong>%bundle_name%, %bundle_assetid%</strong> - the name and asset ID of this bundle.</li>
+		<li><strong>%bundle_workflow_url%</strong> - the URL to the bundle's Workflow screen.</li>
+		<li><strong>%bundle_approve_url%</strong> - a URL that can be used to approve the bundle's changes, including any assets that they have access to the workflow.</li>
+		<li><strong>%bundle_reject_url%</strong> - a URL that can be used to reject the bundle's changes, sending it back to "Editing" and cancelling any bundled assets' workflow.</li>
+		<li><strong>%workflow_user%</strong> - the full name or username (if no full name entered) of the user that initiated the status change that triggered the message.</li>
+		<li><strong>%workflow_user_first_name%, %workflow_user_last_name%, %workflow_user_email%</strong> - the first name, last name, or email address of the user that initiated the status change.</li>
+		</ul>
+
+		<p>If any of the above subject or body lines are blank, a default message will be used.</p>]]></note>
 		<field attribute="approve_workflow_subject">
+			<display_name>Subject</display_name>
+			<note />
 			<text height="1" width="80" />
 		</field>
 		<field attribute="approve_workflow_msg">
+			<display_name>Body</display_name>
+			<note><![CDATA[This message will be sent to users when changes are approved by a user at the bundle level.]]></note>
 			<wysiwyg height="10em" width="80%" />
 		</field>
 	</section>

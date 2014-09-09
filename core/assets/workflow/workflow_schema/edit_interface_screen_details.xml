@@ -16,80 +16,112 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="allow_comment_on_request">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="notify_starter_on_live">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="notify_starter_after_approval">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="notify_approvers_after_approval">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="schema_from_email_address">
-			<email width="50" />
-		</field>
-		<field attribute="schema_reply_to_email_address">
-			<email width="50" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintWorkflowRestrictions"   />
-				<process_function name="processWorkflowRestrictions" />
-			</function_call>
-		</field>
-		<field attribute="who_can_choose_stream">
-			<selection style="list" />
-		</field>
-		<field attribute="stream_selection_rules_no_match">
-			<selection style="list" />
-		</field>
-
-	</section>
-	<section name="Workflow Streams" write_access="write:links">
-		<field>
-			<function_call>
-				<paint_function   name="paintWorkflowStreams"   />
-				<process_function name="processWorkflowStreams" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Stream Selection Rules" write_access="write:links" show_if="hasSelectedCurrentStream">
-		<field>
-			<function_call>
-				<paint_function   name="paintStreamSelectionRules"   />
-				<process_function name="processStreamSelectionRules" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Workflow Stream Summary" write_access="write:links" show_if="hasSelectedCurrentStream">
-		<field>
-			<function_call>
-				<paint_function   name="paintWorkflowSummary"   />
-				<process_function name="processWorkflowSummary" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Steps Defined For This Workflow Stream" write_access="write:links" show_if="hasSelectedCurrentStream">
-		<field format="blank">
-			<function_call>
-				<paint_function   name="paintSteps"   />
-				<process_function name="processSteps" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Create New Step" read_access="write:links" write_access="write:links" show_if="hasSelectedCurrentStream">
-		<field>
-			<function_call>
-				<paint_function   name="paintNewStep"   />
-				<process_function name="processNewStep" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Schema Name</display_name>
+            <note />
+            <text width="20" height="1" />
+        </field>
+        <field attribute="allow_comment_on_request">
+            <display_name>Allow Comments When Requesting Approval?</display_name>
+            <note>If enabled, editors will be allowed to add a comment while initiating the workflow process.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="notify_starter_on_live">
+            <display_name>Notify Starter When Live?</display_name>
+            <note>If enabled, will send the Notify on Live message to the initiator of the workflow process.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="notify_starter_after_approval">
+            <display_name>Notify Starter After Approval?</display_name>
+            <note>If enabled, will send the Asset Changes Approved message to the initiator of the workflow process.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="notify_approvers_after_approval">
+            <display_name>Notify Approvers After Approval?</display_name>
+            <note>If enabled, will send the Asset Changes Approved message to all approvers in current step.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="schema_from_email_address">
+            <display_name>Email to be Sent From</display_name>
+            <note>If this option is set, workflow emails will be sent from this email address rather than the email address of the user triggering the workflow changes.</note>
+            <email width="50" />
+        </field>
+        <field attribute="schema_reply_to_email_address">
+            <display_name>Email to Reply-To</display_name>
+            <note>If this option is set, workflow emails will use this email address as their Reply-To address rather than the email address of the user triggering the workflow changes.</note>
+            <email width="50" />
+        </field>
+        <field>
+            <display_name></display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintWorkflowRestrictions" />
+                <process_function name="processWorkflowRestrictions" />
+            </function_call>
+        </field>
+        <field attribute="who_can_choose_stream">
+            <display_name>Who Can Choose Workflow Stream?</display_name>
+            <note>Allow user with either admin or write access to choose workflow stream when applying workflow or only allow user with admin access to do so?</note>
+            <selection style="list" />
+        </field>
+        <field attribute="stream_selection_rules_no_match">
+            <display_name>Stream Selection Rules No Match</display_name>
+            <note>Specify the behaviour when no stream can be automaticlaly selected from the Stream Selection Rules.</note>
+            <selection style="list" />
+        </field>
+    </section>
+    <section name="Workflow Streams" write_access="write:links">
+        <field>
+            <display_name></display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintWorkflowStreams" />
+                <process_function name="processWorkflowStreams" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Stream Selection Rules" write_access="write:links" show_if="hasSelectedCurrentStream">
+        <note>If rules are configured and evaluated to true based on the rule logic, this stream will be available for user selection. If rules are evaluated to false, this stream will not be available.</note>
+        <field>
+            <display_name></display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintStreamSelectionRules" />
+                <process_function name="processStreamSelectionRules" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Workflow Stream Summary" write_access="write:links" show_if="hasSelectedCurrentStream">
+        <field>
+            <display_name></display_name>
+            <note><![CDATA[When you have the lock for this schema, you can change the order of the workflow by dragging the drag handle (the double-headed arrow button) of a workflow step up and down.<br/>
+			You may only move a step up and down within the same level - ie. you cannot change a top-level workflow step into an escalation step, or vice versa.  Available drop points will be highlighted when you start dragging.<br/>
+			If a drag handle does not appear for a step, there is nothing that can be re-ordered. <strong>NOTE: The changes you make will not take effect until you commit the screen.</strong>]]></note>
+            <function_call>
+                <paint_function name="paintWorkflowSummary" />
+                <process_function name="processWorkflowSummary" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Steps Defined For This Workflow Stream" write_access="write:links" show_if="hasSelectedCurrentStream">
+        <field format="blank">
+            <display_name></display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintSteps" />
+                <process_function name="processSteps" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Create New Step" read_access="write:links" write_access="write:links" show_if="hasSelectedCurrentStream">
+        <field>
+            <display_name></display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintNewStep" />
+                <process_function name="processNewStep" />
+            </function_call>
+        </field>
+    </section>
 </contents>
