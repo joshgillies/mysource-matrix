@@ -18,12 +18,16 @@
 <contents>
 	<section name="Current Date Ranges" write_access="write:attributes">
 		<field>
+			<display_name>Customise Range</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintCurrentRanges"   />
 				<process_function name="processCurrentRanges" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Add New Range?</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintAddRange"   />
 				<process_function name="processAddRange" />
@@ -32,6 +36,8 @@
 	</section>
 	<section name="Date Range Options" write_access="write:attributes">
 		<field>
+			<display_name>Date Range Name</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRangeOptions"   />
 				<process_function name="processRangeOptions" />

@@ -18,50 +18,76 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Configuration" write_access="write:attributes" limbo_access="1">
 		<field attribute="submit-button">
+			<display_name>Submit Button Text</display_name>
+			<note>Text for the submit button</note>
 			<text width="20" />
 		</field>
 		<field>
+			<display_name>Root Node</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode"  />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Asset Statuses</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintStatus"  />
 				<process_function name="processStatus"  />
 			</function_call>
 		</field>
 		<field attribute="link_type">
+			<display_name>Link Types</display_name>
+			<note>Select which type of links to create and modify on the frontend.</note>
 			<selection style="list" height="1" />
 		</field>
 		<field attribute="structured_width">
+			<display_name>Location Selector Width</display_name>
+			<note>Width in Pixels. 0 width will size the selector based on contents.</note>
 			<int width="5" />
 		</field>
 		<field attribute="structured_height">
+			<display_name>Location Selector Height</display_name>
+			<note>In entries. 0 height will result in a standard dropdown selector.</note>
 			<int width="5" />
 		</field>
 		<field attribute="max_depth">
+			<display_name>Maximum Depth</display_name>
+			<note>Maximum number of levels to display in the location selector.</note>
 			<int width="5" />
 		</field>
 		<field attribute="seperator">
+			<display_name>Separator</display_name>
+			<note>This text will be displayed between levels in the selector.</note>
 			<text width="10" />
 		</field>
 		<field attribute="include_root_node">
+			<display_name>Show Root Node</display_name>
+			<note>Show the top level asset in the selector</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_multiple">
+			<display_name>Allow Multiple Selections</display_name>
+			<note>Allow the selection of multiple new links at once</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="structured_style">
+			<display_name>Listing Style</display_name>
+			<note>Style to display for selections</note>
 			<boolean true_text="radio_buttons" false_text="dropdown_list" />
 		</field>
 	</section>
