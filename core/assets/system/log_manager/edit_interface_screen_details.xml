@@ -17,6 +17,7 @@
 
 <contents>
 	<section name="Known Logs" write_access="write:attributes">
+		<note>This is a list of logs this system knows about</note>
 		<function_call>
 			<paint_function   name="paintLogList" />
 		</function_call>
