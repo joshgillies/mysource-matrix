@@ -17,6 +17,8 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
         <field attribute="name">
+            <display_name>Name</display_name>
+            <note />
             <text width="35" height="1" />
         </field>
 		<field>
@@ -26,29 +28,45 @@
 			</function_call>
 		</field>
 		<field attribute="wsdl">
+			<display_name>WSDL</display_name>
+			<note>The URL to the WSDL of the TRIM system.</note>
 			<text width="35" height="1"/>
 		</field>
 		<field attribute="username">
+			<display_name>Username</display_name>
+			<note>The username used to connect to TRIM</note>
 			<text width="35" height="1"/>
 		</field>
 		<field attribute="password">
+			<display_name>Password</display_name>
+			<note>The password used to connect to TRIM</note>
 			<password width="35" height="1"/>
 		</field>
 	</section>
-	<section name="Proxy" write_access="write:attributes" limbo_access="1">	
+	<section name="Proxy" write_access="write:attributes" limbo_access="1">
 		<field attribute="use_proxy">
+			<display_name>Use Proxy</display_name>
+			<note>Enable, disable or use Matrix primary proxy.</note>
 			<selection width="35" />
 		</field>
 		<field attribute="proxy_host">
+			<display_name>Host</display_name>
+			<note>Proxy host name</note>
 			<text width="35" height="1"/>
 		</field>
 		<field attribute="proxy_port">
+			<display_name>Port</display_name>
+			<note>Proxy port number</note>
 			<int width="35" height="1"/>
 		</field>
 		<field attribute="proxy_login">
+			<display_name>Login</display_name>
+			<note>The login used for proxy</note>
 			<text width="35" height="1"/>
 		</field>
 		<field attribute="proxy_password">
+			<display_name>Password</display_name>
+			<note>The password used for proxy</note>
 			<password width="35" height="1"/>
 		</field>
 	</section>

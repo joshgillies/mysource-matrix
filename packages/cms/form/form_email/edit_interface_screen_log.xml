@@ -18,21 +18,26 @@
 <contents>
 	<section name="Enable / Disable Logging">
 		<field attribute="log_submissions">
+			<display_name>Log Submissions</display_name>
+			<note></note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Export" show_if="restrictedSubmissionAccess">
 		<field keyword="download_date_range">
+			<display_name>Date Range</display_name>
 			<function_call>
 				<paint_function   name="paintDownloadDateRange"   />
 			</function_call>
 		</field>
 		<field keyword="download_format">
+			<display_name>Format</display_name>
 			<function_call>
 				<paint_function   name="paintDownloadFormat"   />
 			</function_call>
 		</field>
 		<field keyword="download_button">
+			<display_name>Download</display_name>
 			<function_call>
 				<paint_function   name="paintDownloadButton"   />
 			</function_call>
@@ -52,19 +57,23 @@
 				<process_function   name="processSendSubmissionsEmail" />
 			</function_call>
 		</field>
-	</section>	
+	</section>
 	<section name="Submissions" show_if="restrictedSubmissionAccess">
+		<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit. <![CDATA[<strong>Only completed submissions will be listed here.</strong>]]></note>
 		<field keyword="submission_date_range">
+			<display_name>Date Range</display_name>
 			<function_call>
 				<paint_function   name="paintSubmissionDateRange"   />
 			</function_call>
 		</field>
 		<field keyword="submission_count">
+			<display_name>Items per Page</display_name>
 			<function_call>
 				<paint_function   name="paintSubmissionCount"   />
 			</function_call>
 		</field>
 		<field keyword="submission_list">
+			<display_name>Submissions</display_name>
 			<function_call>
 				<paint_function   name="paintSubmissionList"   />
 				<process_function   name="processSubmissionList"   />

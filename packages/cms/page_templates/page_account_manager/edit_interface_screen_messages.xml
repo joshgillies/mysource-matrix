@@ -18,36 +18,54 @@
 <contents>
 	<section name="Login" write_access="write:attributes">
 		<field attribute="login_invite">
+			<display_name>Invite</display_name>
+			<note>This message is displayed above the form used to log into the system</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field attribute="login_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if the user tried to log into the system but the login failed (probably due to an incorrect username or password)</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
 	<section name="Create Account" write_access="write:attributes">
 		<field attribute="create_invite">
+			<display_name>Invite</display_name>
+			<note>This message is displayed above the form used to create a new account</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field attribute="create_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if the new account could not be created</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
 	<section name="Edit Your Details" write_access="write:attributes">
 		<field attribute="edit_details_invite">
+			<display_name>Invite</display_name>
+			<note>This message is displayed above the form used to edit the account details of the currently logged in user</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field attribute="edit_details_success">
+			<display_name>Success</display_name>
+			<note>This message is displayed when the user's account has been updated</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field attribute="edit_details_lock_error">
+			<display_name>Lock Error</display_name>
+			<note>This message is displayed when the system cannot lock the current user for editing - probably due to the lock being held by someone else</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
 	<section name="Send Validation" write_access="write:attributes">
 		<field attribute="resend_validation_success">
+			<display_name>Success</display_name>
+			<note>This message is displayed if validation email was sent</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field attribute="resend_validation_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if there was an error with sending the validation email</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
