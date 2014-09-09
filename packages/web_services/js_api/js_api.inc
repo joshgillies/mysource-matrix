@@ -394,26 +394,7 @@ class JS_Api extends Page
 					// but no we look into any of the argument where the  $result_*$
 					// type  keywords might  have been used and  try and evaluate it
 					foreach ($args as $idx => $arg) {
-						if (preg_match('/[\$%]results_[^\$%]*[\$%]/', $args[$idx], $matches)) {
-							if(!isset($matches[0])) continue;
-							$keyword = $matches[0];
-							$instructions = preg_split('/(?<!\\\\)\\_/', trim($keyword, '$%'));
-							
-							foreach ($instructions as &$instruction) {
-							    // Replace escaped underscores, and backslashes
-							    $instruction = str_replace('\\_', '_', $instruction);
-							    $instruction = str_replace('\\\\', '\\', $instruction);
-							}
-							// if we know where to take the new id from, do it or else
-							// just  continue with the previous one we have been using
-							$string_to_eval = '';
-							if (count($instructions) >= 3) {
-								for ($i = 1; $i < count($instructions); $i++) {
-									$string_to_eval .= '[$'."instructions[$i]]";
-								}
-								eval('$args[$idx] = $results'.$string_to_eval.';');
-							}//end if
-						}//end if
+						$args[$idx] = $this->evaluateArgumentKeywords($arg, $results);
 					}//end foreach
 					$id = $args['id'];
 				}//end if/else
@@ -515,6 +496,49 @@ class JS_Api extends Page
 		restore_error_handler();
 
 	}//end printFrontend()
+
+
+	/**
+	* Description: This will recursively replace the %resuls_*% type keywords in the arguments
+	*
+	* @param mixed	$arg		the content of the argument
+	* @param array	$results	the results from the previous api function calls
+	*
+	* @return mixed
+	* @access public
+	*/
+	function evaluateArgumentKeywords($arg, $results)
+	{
+		if (is_array($arg)) {
+			foreach ($arg as $idx => $param) {
+				$arg[$idx] =$this->evaluateArgumentKeywords($param, $results);
+			}
+		} else {
+			if (preg_match('/[\$%]results_[^\$%]*[\$%]/', $arg, $matches)) {
+				if(!isset($matches[0])) continue;
+				$keyword = $matches[0];
+				$instructions = preg_split('/(?<!\\\\)\\_/', trim($keyword, '$%'));
+
+				foreach ($instructions as &$instruction) {
+					// Replace escaped underscores, and backslashes
+					$instruction = str_replace('\\_', '_', $instruction);
+					$instruction = str_replace('\\\\', '\\', $instruction);
+				}
+				// if we know where to take the new id from, do it or else
+				// just  continue with the previous one we have been using
+				$string_to_eval = '';
+				if (count($instructions) >= 3) {
+					for ($i = 1; $i < count($instructions); $i++) {
+						$string_to_eval .= '[$'."instructions[$i]]";
+					}
+					eval('$arg = $results'.$string_to_eval.';');
+				}//end if
+			}//end if
+		}//end if
+
+		return $arg;
+
+	}//end evaluateArgumentKeywords()
 
 
 	/**
