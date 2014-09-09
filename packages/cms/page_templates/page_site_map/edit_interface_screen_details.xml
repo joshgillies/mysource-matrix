@@ -18,59 +18,89 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Site Map Settings" write_access="write:attributes">
 		<field>
-			<function_call>
+			<display_name>Static Root Node</display_name>
+			<note>Leave blank to print the site map for the current site</note>
+            <function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
 		<field attribute="parameter_map">
+			<display_name>Dynamic Root Node</display_name>
+			<note />
 			<parameter_map />
 		</field>
 		<field attribute="map_format">
+			<display_name>Map Format</display_name>
+			<note>Format in which the Site Map is to be displayed. Note stalks are useless in 'Unordered List' format</note>
 			<selection style="list"  height="1" extras="" />
 		</field>
 		<field attribute="columns">
+			<display_name>Number of Columns</display_name>
+			<note></note>
 			<int width="3" />
 		</field>
 		<field attribute="levels">
+			<display_name>Number of Levels</display_name>
+			<note>Enter 0 for all levels</note>
 			<int width="3" />
 		</field>
 		<field attribute="stalks">
+			<display_name>Print Stalks</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="top_level">
+			<display_name>Print Stalks at The Top Level</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="icons">
+			<display_name>Print Asset Icons</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="show_type_2">
+			<display_name>Show TYPE_2 Links</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="include_dependants">
+			<display_name>Show Dependant Assets</display_name>
+			<note>Dependant assets generally include type formats, or page bodycopies.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
+			<display_name>Exclude Asset List</display_name>
+			<note>Assets within this list are excluded from the site map</note>
 			<function_call>
 				<paint_function   name="paintExcludeList"   />
 				<process_function name="processExcludeList" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Include Type List</display_name>
+			<note>Asset types within this list are included in the site map. If nothing is selected all asset types will be included.</note>
 			<function_call>
 				<paint_function   name="paintTypeIncludeList"   />
 				<process_function name="processTypeIncludeList" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Display Formats</display_name>
+			<note>Change the display format of asset types using html and keywords.</note>
 			<function_call>
 				<paint_function   name="paintTypeFormats"   />
 				<process_function name="processTypeFormats" />

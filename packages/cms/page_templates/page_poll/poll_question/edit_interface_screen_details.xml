@@ -18,28 +18,38 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Poll Question</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="Poll Options" write_access="write:attributes">
 		<field>
+			<display_name>Current Options</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintPollOptions" />
 				<process_function name="processPollOptions" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Add New Options</display_name>
+			<note>Select the number of options to add</note>
 			<function_call>
 				<paint_function name="paintAddPollOptions" />
 				<process_function name="processAddPollOptions" />
 			</function_call>
 		</field>
 		<field attribute="allow_multiple">
+			<display_name>Allow Multiple Selections</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Voting Records" write_access="write:attributes">
 		<field>
+			<display_name>Delete users</display_name>
+			<note>Delete records of users voting on this poll</note>
 			<function_call>
 				<paint_function name="paintDeleteUsers" />
 				<process_function name="processDeleteUsers" />
