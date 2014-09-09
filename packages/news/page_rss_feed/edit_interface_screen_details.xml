@@ -18,28 +18,40 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Choose RSS Formats And Version" write_access="write:attributes">
 		<field attribute="rss_types">
+			<display_name>RSS Formats</display_name>
+			<note />
 			<selection style="list" />
 		</field>
 		<field attribute="http_auth">
+			<display_name>Use HTTP Authentication ?</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Listing Engine Assets Selection" write_access="write:attributes">
 		<field>
+			<display_name>Select Listing Engine Assets</display_name>
+			<note>The asset list from these listing engine assets are used to create the RSS feeds.</note>
 			<function_call>
 				<paint_function   name="paintLisitngChooser"   />
 				<process_function name="processLisitngChooser" />
 			</function_call>
 		</field>
 		<field attribute="num_assets_as_items">
+			<display_name>Number Of Assets To Be Added In The RSS</display_name>
+			<note>Leave this to Zero to have all the assets from the asset listing of the listing engine assets to be added as items. Or enter a value to restrict the number of assets being added as items in the feed.</note>
 			<int width="10" />
 		</field>
 	</section>
