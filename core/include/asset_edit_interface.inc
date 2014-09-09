@@ -479,7 +479,7 @@ class Asset_Edit_Interface extends MySource_Object
 										<table class="sq-backend-table">
 											<tr>
 												<th class="sq-backend-table-header" style="width: 20px;">
-													
+
 												</th>
 												<th class="sq-backend-table-header" align="left" nowrap>
 													<?php echo translate('lock_type'); ?>
@@ -554,9 +554,9 @@ class Asset_Edit_Interface extends MySource_Object
 						?>
 						<!--
 
-						
+
 						-->
-						
+
 						<?php
 					$o->closeRaw();
 					//$o->closeSection();
@@ -973,7 +973,7 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function printEditInterface($screen, &$owner, &$o, $creating=FALSE, $create_sections=Array(), &$onclick_js='')
 	{
-		// grab the closest language file generated for this screen, then
+        // grab the closest language file generated for this screen, then
 		// unserialise it to get our XML_Tree root
 		$root = $this->findScreen($screen);
 		if (is_null($root)) return FALSE;
@@ -1122,7 +1122,7 @@ class Asset_Edit_Interface extends MySource_Object
 								if (empty($paint_node->attributes()->name) || !method_exists($this->_edit_fns, $paint_node->attributes()->name)) {
 									$o->note(translate('specific_painting_function_not_found', $paint_node->attributes()->name));
 								} else {
-									
+
 									$method_name = (string) $paint_node->attributes()->name;
 									if ($this->_edit_fns->{$method_name}($owner, $o, $prefix, $onclick_js)) {
 										$print_commit_button = TRUE;
@@ -1282,8 +1282,8 @@ class Asset_Edit_Interface extends MySource_Object
 		// Get the order in which keywords are placed in the raw content in container.
 		// This order is required to deciede which keyword to evaluate first. Say a metadata keyword is placed
 		// after custom keyword in a container, if it is evaluted before custom keyword, the the js code for wysiwyg (i.e.
-		// if metadata contains wysiwyg field) is placed with metadata keyword. In this case, custom key will only have 
-		// function call to wysiwyg (as the wysiwyg js code printed only once in a page), but since it is defined later in page, 
+		// if metadata contains wysiwyg field) is placed with metadata keyword. In this case, custom key will only have
+		// function call to wysiwyg (as the wysiwyg js code printed only once in a page), but since it is defined later in page,
 		// its will give 'undefined function call' js error.
 		//
 		// See bug #3698 + bug #4458 Conflicting WYSIWYG's
@@ -1399,7 +1399,7 @@ class Asset_Edit_Interface extends MySource_Object
 					if ($screen == 'tagging') continue;
 					if ($screen == 'lookupvalues') continue;
 					if ($screen == 'layouts') continue;
-		
+
 					// its not a static screen, so get the xml file and parse it for
 					// the keywords that we want, if the xml file exists
 					$file = $this->findLanguageFile('screen_'.$screen);
@@ -1413,18 +1413,18 @@ class Asset_Edit_Interface extends MySource_Object
 						} catch (Exception $e) {
 							throw new Exception('Unable to parse localised screen "'.$screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
 						}
-		
+
 					} else {
 						$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 					}
-		
+
 					if ($root) {
 						// get the layout replacements for this NON-static screen
 						if ($this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen)) {
 							$print_commit_button = TRUE;
 						}
 					}//end if
-	
+
 				}//end foreach
 
 			}// End if screen
@@ -1446,11 +1446,11 @@ class Asset_Edit_Interface extends MySource_Object
 					if ($custom_replacements['print_commit_button']) {
 						$print_commit_button = TRUE;
 					}
-	
+
 				}//end if
 
 			}//end if
-		
+
 		}// End foreach layout_keywords_order
 
 		if (!isset($keywords['layout'])) {
@@ -1740,7 +1740,7 @@ class Asset_Edit_Interface extends MySource_Object
 									ob_end_flush();
 								}
 								$o->closeField();
-							
+
 								// Field id layout keyword replacement
 								if (isset($layout_keywords['screens'][$screen]['field_ids'][(string)$field->attributes()->attribute])) {
 									$field_id_keyword = $layout_keywords['screens'][$screen]['field_ids'][(string)$field->attributes()->attribute];
@@ -1936,7 +1936,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// save the status for later so we can see if it changed
 				$old_status = $owner->status;
-				
+
 				// process the system defined bit of this tab if we
 				// are not creating the asset
 				if (!$creating) {
@@ -1947,14 +1947,13 @@ class Asset_Edit_Interface extends MySource_Object
 					}
 				}
 
-				// If we have just reverted to the system version, so don't overwrite those 
+				// If we have just reverted to the system version, so don't overwrite those
 				// with the attribute values submitted in safe edit mode (see bug #5786)
 				if (isset($owner->_tmp['reverting_to_system_version']) && $owner->_tmp['reverting_to_system_version']) {
 					return TRUE;
 				}
 				// try and find the file to print user defined
 				$file = @$this->findLanguageFile('screen_'.$active_screen);
-
 				if (empty($file)) {
 					// no language files, try and find the base structure
 					$file  = @$this->findFile('screen_'.$active_screen);
@@ -2074,7 +2073,7 @@ class Asset_Edit_Interface extends MySource_Object
 								$attr = $owner->getAttribute((string)$field->attributes()->attribute);
 								if (is_null($attr)) continue;
 								if (!$attr->setEditParams($last_child)) continue;
-							
+
 								$revert_attr = $attr;
 								$attr->process($prefix.'_'.$attr->id, $owner->id);
 								if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
@@ -2277,7 +2276,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$bind_vars = Array();
 		foreach ($groups as $key => $group) {
-			$bind_vars['group_'.$key] = (string) $group;	
+			$bind_vars['group_'.$key] = (string) $group;
 		}
 
 		$sql = 'SELECT screen, section
@@ -2320,7 +2319,7 @@ class Asset_Edit_Interface extends MySource_Object
 	* @access public
 	*/
 	function findFile($file_name, $throw_error=TRUE)
-	{	
+	{
 		$file_name = 'edit_interface_'.$file_name.'.xml';
 
 		$file = '';
@@ -2422,8 +2421,6 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!empty($root) && (count($root->children()) > 0)) {
 				$lang_file = $this->findLanguageFile($screen_name);
 				if (empty($lang_file)) {
-					trigger_localised_error('SYS0197', E_USER_WARNING, $screen_name);
-					$root = NULL;
 					return $root;
 				} else {
 					$root_xml = file_get_contents($lang_file);
@@ -2572,7 +2569,6 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!empty($root) && (count($root->children()) > 0)) {
 				$lang_file = $this->findLanguageFile($screen_name, FALSE);
 				if (empty($lang_file)) {
-					$root = NULL;
 					return $root;
 				} else {
 					$root = unserialize(file_get_contents($lang_file));
@@ -2728,7 +2724,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!strcmp($current_screen, current($screens_specific))) {
 				$o->closeSection();
 				$o->openSection('Asset Specific Screens');
-			} 
+			}
 
 			// the dependant and format screens have some problems with the links displayed
 			// therefore we dont display dependants and format screens keywords
@@ -2785,7 +2781,7 @@ class Asset_Edit_Interface extends MySource_Object
 							</tr>
 						<?php
 						}//end foreach
-					}//end foreach			
+					}//end foreach
 				?>
 				</table>
 			<?php
@@ -2846,12 +2842,12 @@ class Asset_Edit_Interface extends MySource_Object
 		$custom_pos = FALSE;
 		$screen_pos = FALSE;
 
-		// Defaut order 
+		// Defaut order
 		$layout_keywords_order = Array(
 				0 => 'screen',
 				1 => 'custom'
 			);
-		
+
 		$containers = $layout->getContainers();
 
 		foreach (array_keys($containers) as $key) {
@@ -2863,7 +2859,7 @@ class Asset_Edit_Interface extends MySource_Object
 			ob_end_clean();
 
 			$custom_pos = strpos($raw_content, '%__custom');
-			
+
 			$screen_pos_metadata = strpos($raw_content, '%metadata');
 			$screen_pos_lookups = strpos($raw_content, '%lookupvalues-');
 
@@ -2878,7 +2874,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		// Check which of screen or custom keywords are placed before in raw content
-		// if we just find a custom keyword and no screen keyword we should make sure we 
+		// if we just find a custom keyword and no screen keyword we should make sure we
 		// still place 'custom' before 'screen' in layout_keywords_order
 		// Bug #4458 Conflicting WYSIWYG's
 		if (($screen_pos > $custom_pos && $custom_pos !== FALSE) || ($custom_pos !== FALSE && $screen_pos === FALSE)) {
