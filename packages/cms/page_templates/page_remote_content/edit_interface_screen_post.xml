@@ -23,6 +23,8 @@
 			</function_call>
 		</field>
 		<field>
+			<display_name>New ?</display_name>
+			<note>Post data with the name(s) and value(s) above will be sent with the request to the Remote URL specified for this asset only.</note>
 			<function_call>
 				<paint_function		name="paintNewPostVariableInput"	/>
 				<process_function	name="processNewPostVariableInput"/>
