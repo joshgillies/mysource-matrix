@@ -18,10 +18,14 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Job Progress" show_if="showProgressSection">
+		<display_name>Job Progress</display_name>
+		<note />
 		<function_call>
 			<paint_function name="paintJobQueue" />
 			<process_function name="processJobQueue" />
@@ -35,18 +39,25 @@
 	</section>
 	<section name="Header Details" write_access="write:attributes">
 		<field attribute="from">
+			<display_name>From</display_name>
+			<note>From field is required.</note>
 			<email width="30" />
 		</field>
 		<field attribute="subject">
+			<display_name>Subject</display_name>
+			<note>Subject field is required. The normal asset keywords are available to use, eg. "%asset_name% - %asset_created%"</note>
 			<text width="30" height="1" />
 		</field>
 		<field>
+			<display_name>Headers</display_name>
 			<function_call>
 				<paint_function name="paintCurrentHeaders" />
 				<process_function name="processCurrentHeaders" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Add New Header</display_name>
+			<note>Eg. Key = "Content-Type", Value = "text/html"</note>
 			<function_call>
 				<paint_function name="paintNewHeader" />
 				<process_function name="processNewHeader" />
@@ -61,6 +72,8 @@
 	</section>
 	<section name="Other Settings" write_access="write:attributes">
 		<field attribute="bulkmail_mode">
+			<display_name>Bulkmail Mode</display_name>
+			<note>Live mode sends out bulkmail normally, Test mode does not send out bulkmail and logs it</note>
 			<selection style="list" />
 		</field>
 	</section>

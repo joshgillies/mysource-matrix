@@ -28,56 +28,87 @@
 	</section>
 	<section name="Configuration" write_access="write:attributes" limbo_access="1">
 		<field attribute="submit-button">
+			<display_name>Submit Button Text</display_name>
+			<note>Text for the submit button</note>
 			<text width="20" />
 		</field>
 		<field>
+			<display_name>Root Node</display_name>
+			<note>Users will be able to subscribe to / unsubscribe from groups linked underneath this asset</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode"  />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Asset Statuses</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintStatus"  />
 				<process_function name="processStatus"  />
 			</function_call>
 		</field>
 		<field attribute="link_type">
+			<display_name>Bulkmail User Link Type</display_name>
+			<note>Bulkmail Users will be created using this link type.</note>
 			<selection style="list" height="1" />
 		</field>
 		<field attribute="structured_width">
+			<display_name>Location Selector Width</display_name>
+			<note>Width in Pixels. 0 width will size the selector based on contents.</note>
 			<int width="5" />
 		</field>
 		<field attribute="structured_height">
+			<display_name>Location Selector Height</display_name>
+			<note>In entries. 0 height will result in a standard dropdown selector.</note>
 			<int width="5" />
 		</field>
 		<field attribute="max_depth">
+			<display_name>Maximum Depth</display_name>
+			<note>Maximum number of levels to display in the location selector.</note>
 			<int width="5" />
 		</field>
 		<field attribute="seperator">
+			<display_name>Separator</display_name>
+			<note>This text will be displayed between levels in the selector.</note>
 			<text width="10" />
 		</field>
 		<field attribute="include_root_node">
+			<display_name>Show Root Node</display_name>
+			<note>Show the top level asset in the selector</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_multiple">
+			<display_name>Allow Multiple Selections</display_name>
+			<note>Allow the selection of multiple new links at once</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="structured_style">
+			<display_name>Listing Style</display_name>
+			<note>Style to display for selections</note>
 			<boolean true_text="radio_buttons" false_text="dropdown_list" />
 		</field>
 	</section>
 	<section name="Email Verification" write_access="write:attributes">
+		<note>If verification is enabled, the user will receive a confirmation email. Clicking on the URL in the email will complete the subscription / unsubscriptions process.</note>
 		<field attribute="verify_from_address">
+			<display_name>From Address</display_name>
+			<note>Verification emails will be sent out using this as the from address.</note>
 			<text width="60" />
 		</field>
 		<field attribute="verify_subject_line">
+			<display_name>Verify Email Subject</display_name>
+			<note>If set this subject header will be used for emails sent out for verification or else the default , 'Please confirm your subscription / unsubscription request', will be used.</note>
 			<text width="60" />
 		</field>
 		<field attribute="verify_logged_in">
+			<display_name>Logged In Users</display_name>
+			<note />
 			<selection style="list" />
 		</field>
 		<field attribute="verify_not_logged_in">
+			<display_name>Public Users</display_name>
+			<note />
 			<selection style="list" />
 		</field>
 	</section>

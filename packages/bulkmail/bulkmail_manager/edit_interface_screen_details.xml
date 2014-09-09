@@ -17,6 +17,8 @@
 
 <contents>
 	<section name="Job Progress" show_if="showProgressSection">
+		<display_name>Job Progress</display_name>
+		<note />
 		<function_call>
 			<paint_function name="paintJobQueue" />
 			<process_function name="processJobQueue" />

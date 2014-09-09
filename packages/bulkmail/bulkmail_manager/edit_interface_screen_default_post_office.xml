@@ -24,18 +24,25 @@
 	</section>
 	<section name="Header Details" write_access="write:attributes">
 		<field attribute="from">
+			<display_name>From</display_name>
+			<note>From field is required.</note>
 			<email width="30" />
 		</field>
 		<field attribute="subject">
+			<display_name>Subject</display_name>
+			<note>Subject field is required. The normal asset keywords are available to use, eg. "%asset_name% - %asset_created%"</note>
 			<text width="30" height="1" />
 		</field>
 		<field>
+			<display_name>Headers</display_name>
 			<function_call>
 				<paint_function name="paintCurrentHeaders" />
 				<process_function name="processCurrentHeaders" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Add New Header</display_name>
+			<note>Eg. Key = "Content-Type", Value = "text/html"</note>
 			<function_call>
 				<paint_function name="paintNewHeader" />
 				<process_function name="processNewHeader" />
@@ -44,12 +51,16 @@
 	</section>
 	<section name="Threshold Settings" write_access="write:attributes">
 		<field>
+			<display_name>Force Defaults?</display_name>
+			<note>If yes, the threshold rules on this page will override the settings in all post offices / jobs in the system</note>
 			<function_call>
 				<paint_function name="paintThresholdSettingCheckBox" />
 				<process_function name="processThresholdSettingCheckBox" />
 			</function_call>
 		</field>
 		<field attribute="chunk_size">
+			<display_name>Chunk Size</display_name>
+			<note>If there are no thresholding values for send rate, the recipients will be grouped together into chunks of this size. Jobs can only be paused / cancelled when a "chunk" is finished, so this value shouldn't be set too high.</note>
 			<int width="5" />
 		</field>
 		<field>
@@ -61,6 +72,8 @@
 	</section>
 	<section name="Other Settings" write_access="write:attributes">
 		<field attribute="bulkmail_mode">
+			<display_name>Bulkmail Mode</display_name>
+			<note>Live mode sends out bulkmail normally, Test mode does not send out bulkmail and logs it</note>
 			<selection style="list" />
 		</field>
 	</section>
