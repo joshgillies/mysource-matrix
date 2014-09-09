@@ -18,21 +18,27 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="display_name" write_access="write:attributes">
+			<display_name>Task Name</display_name>
 			<text width="25" height="1" />
 		</field>
         <field>
+			<display_name>When</display_name>
 			<function_call>
 				<paint_function		name="paintScheduleInterface" />
 				<process_function	name="processScheduleInterface" />
 			</function_call>
         </field>
 	</section>
-	
+
 	<section name="Submissions Log">
 		<field attribute="submissions_range" write_access="write:attributes">
+			<display_name>Send Logs Since</display_name>
+			<note>Specify from which date to send the submission logs of -- either from the allocated Start Date or from when the cron job was last run</note>
 			<selection style="list" />
 		</field>
 		<field attribute="submissions_from_date" write_access="write:attributes">
+		    <display_name>Start Date</display_name>
+			<note>Send the submissions since the specified date</note>
 			<datetime default="2012-01-01 00:00:00" min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="1" use_picker="1">
 				<show>
 					<y style="t" allow_null="1" />
@@ -41,18 +47,21 @@
 					<h style="s" allow_null="1" />
 					<i style="s" allow_null="1" />
 				</show>
-			</datetime>		
+			</datetime>
 		</field>
 		<field attribute="logs_format" write_access="write:attributes">
+		    <display_name>Log Format</display_name>
 			<selection style="list" />
 		</field>
 		<field attribute="csv_delimiter" write_access="write:attributes">
+		    <display_name>CSV Delimiter</display_name>
 			<text width="1" height="1" />
 		</field>
 	</section>
-	
+
 	<section name="Email Format">
 		<field attribute="email_format" write_access="write:attributes">
+			<display_name>Email Format</display_name>
 			<email_format with_asset_finder="1" show_inc_attachments="0" />
 		</field>
 	</section>
