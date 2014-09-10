@@ -1281,12 +1281,6 @@ class File extends Asset
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$extension = get_file_type($filename);
 
-		// Restrict PHP file upload
-		if ($extension == 'php') {
-			trigger_localised_error('CORE0266', E_USER_WARNING, $filename);
-			return FALSE;
-		}
-
 		// If the script is running from the command line, do not restrict file type
 		// e.g. installation scripts.
 		if (php_sapi_name() == 'cli') return TRUE;
