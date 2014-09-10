@@ -858,7 +858,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 
 
 				if(isset($group['delete'])) continue;
-				if(isset($field['new_search_group']) && $field['new_search_group'] === 'none')	continue;
+				if(isset($group['new_search_group']) && $group['new_search_group'] === 'none')	continue;
 				if(isset($group['new_search_group']) && $group['new_search_group'] != 'none') {
 					// build a search field with a new group
 					$new_group = Array();
