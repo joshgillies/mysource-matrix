@@ -99,7 +99,7 @@ if (function_exists('iconv') == FALSE) {
 // NOTE 1: 	If the value field holds serialised value then script must handle that field accourdingly.
 //			Currently "custom_val" field of "ast_attr_val" table of attribute types 'option_list','email_format','parameter_map','serialise',
 //			'http_request' and 'oauth', and	"data" field of "trig" are only ones that are treated as serialsed values by this script.
-// NOTE 2:	There are two entries for 'internal_msg' table below because one targets the messages that are assoicated with an asset, 
+// NOTE 2:	There are two entries for 'internal_msg' table below because one targets the messages that are assoicated with an asset,
 // 			while other targets non-asset specific messages (message that has empty assetid field, like internal message sent by user or trigger action).
 //
 $tables = Array(
@@ -241,18 +241,23 @@ if ($include_rollback) {
 
 		// Fix the rollback tables
 		$summary = fix_db($root_node_id, $tables, TRUE);
+		echo "\n*Finished fixing rollback database*";
 
-		// Unlike regular tables, for rollback table entries we dont need to obtain affected assetids 
+		// Unlike regular tables, for rollback table entries we dont need to obtain affected assetids
 		// list to regenerate the relevant files in the filesystem
 		unset($summary['affected_assetids']);
-		file_put_contents(SYNC_FILE, serialize($summary));
+		if (!file_put_contents(SYNC_FILE, serialize($summary))) {
+			echo "\nFailed to create the sync file ".SYNC_FILE;
+		}
 
 		exit();
 
 	}//end child process
 
 	if (!is_file(SYNC_FILE)) {
-		echo "Expected sync file containing the affected rollback entries not found. Only rollback tables were updated\n";
+		echo "\n";
+		echo "ERROR: Expected sync file containing the affected rollback entries not found. Either script ran out of memory while fixing the db,\n";
+		echo "or the script did not had write permission on [MATRIX_ROOT]/data/temp directory.\n\n";
 		exit(1);
 	}
 	$rollback_summary = unserialize(file_get_contents(SYNC_FILE));
@@ -269,10 +274,12 @@ if (!$pid) {
 
 	// Fix regular tables
 	$summary = fix_db($root_node_id, $tables, FALSE);
+	echo "\n*Finished fixing database*\n\n";
 
 	// Get the list of assetids for which we need to regenerate  the filesystem content
 	// to reflect the changes made in the db
 	$affected_assetids = get_affected_assetids($summary['affected_assetids']);
+	echo "\n*Finished compiling affected assets list*\n";
 
 	// Also get the context ids
 	$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
@@ -284,14 +291,23 @@ if (!$pid) {
 					'rollback' => $rollback_summary,
 				);
 
-	file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $db_summary, 'contextids' => $contextids)));
+	if (!file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $db_summary, 'contextids' => $contextids)))) {
+		echo "\nFailed to create the sync file ".SYNC_FILE;
+	}
 
 	exit();
 
 }//end child process
 
 if (!is_file(SYNC_FILE)) {
-	echo "Expected sync file containing the affected assetids not found. Only database was updated\n";
+	echo "\n";
+	echo "ERROR: Expected sync file containing the affected assetids not found. Either script ran out of memory while fixing the db,\n";
+	echo "or the script did not had write permission on [MATRIX_ROOT]/data/temp directory.\n";
+	echo "Either way this means the file content regeneration for the affected assets will have to be done manually.\n";
+	echo "\n";
+	echo "If the script has finished processing the db, please run the following script as an Apache user to regenerate the asset content files:\n";
+	echo "php scripts/regenerate_file_system.php --system=[SYSTEM_ROOT] --all\n\n";
+
 	exit(1);
 }
 
