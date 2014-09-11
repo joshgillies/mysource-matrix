@@ -18,6 +18,8 @@
 <contents>
 	<section name="Attributes" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function   name="paintUserSetup"   />
 				<process_function name="processUserSetup" />

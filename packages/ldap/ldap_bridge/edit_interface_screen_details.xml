@@ -18,66 +18,100 @@
 <contents>
 	<section name="Identification" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="user_type">
+			<display_name>User Type</display_name>
+			<note>This option controls the access level of all LDAP users under this bridge</note>
 			<selection style="list"  height="1" />
 		</field>
 	</section>
 	<section name="Connection Details" write_access="admin:attributes" show_if="ldapAvailable">
+		<note>If the <![CDATA[<b>Bind DN</b>]]> field is left blank, the LDAP Bridge will assume that the directory is to be accessed anonymously, and the <![CDATA[<b>Password</b>]]> field will be ignored. Your LDAP directory must be set up to allow anonymous binding for this to work correctly.</note>
 		<field>
+			<display_name>Connection Status</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintConnectionTest"   />
 				<process_function name="processConnectionTest" />
 			</function_call>
 		</field>
 		<field attribute="system_type">
+			<display_name>System Type</display_name>
+			<note>The type of your LDAP directory</note>
 			<selection style="list" />
 		</field>
 		<field>
+			<display_name>Options</display_name>
 			<function_call>
 				<paint_function   name="paintConnectionOptions"   />
 				<process_function name="processConnectionOptions" />
 			</function_call>
 		</field>
 		<field attribute="aliases">
+			<display_name>Aliases</display_name>
+			<note>Alternate rules for following server aliases</note>
 			<selection style="list" />
 		</field>
 		<field attribute="host">
+			<display_name>Host</display_name>
+			<note>The hostname used to connect to the LDAP directory</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="port">
+			<display_name>Port</display_name>
+			<note>The port used to connect to the LDAP directory</note>
 			<text width="8" height="1" />
 		</field>
 		<field attribute="root_dn">
+			<display_name>Base DN</display_name>
+			<note>The Base DN of the LDAP directory</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="bind_dn">
+			<display_name>Bind DN</display_name>
+			<note>The DN of the user to bind as</note>
 			<text width="40" height="1" />
-		</field>		
+		</field>
 		<field attribute="password">
+			<display_name>Password</display_name>
+			<note>The current password is not displayed here. Use this field to change the current password without it being displayed.</note>
 			<password width="15" min_length="1" />
 		</field>
 		<field attribute="auth_dn">
+			<display_name>Auth DN</display_name>
+			<note>This field is used only when MySource Matrix attempts to authenticate an LDAP user for logging in. If this is set, this DN will be used to search for the user being authenticated. If this field is left blank, the <![CDATA[<b>Base DN</b>]]> will also be used for authentication. This is an advanced option; in most cases, this field should be left blank.</note>
 			<text width="40" height="1" />
-		</field>		
+		</field>
 		<field attribute="auth_filter">
+			<display_name>Auth Filter</display_name>
+			<note>This field is used only when MySource Matrix attempts to authenticate an LDAP user for logging in. If this is set, this filter will be used to search for the user being authenticated. If this field is left blank, no filter will be used for authentication. This is an advanced option; in most cases, this field should be left blank.</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="recursive_parents">
+			<display_name>Recursive Parent Groups</display_name>
+			<note>Allow the LDAP bridge to recursively return all parent groups of an LDAP user when the user logs in Matrix. These parent groups are used by Squiz Matrix's permission system. Disable this option to speed up the login process by only retrieving a user's immediate parent groups.</note>
 			<boolean true_text="yes" false_text="no" />
-		</field>		
+		</field>
 	</section>
 	<section name="Cache Options" write_access="admin:attributes">
 		<field attribute="cache_status">
+			<display_name>Caching Status</display_name>
+			<note>Setting this value to 'On', will enable caching for the LDAP result and bring the Cache Expiry setting into effect. The Caching Status on the Cache Manager must also be enabled in order for this setting to take effect.</note>
 			<boolean true_text="on" false_text="off" />
 		</field>
 		<field attribute="cache_expiry">
+			display_name>Cache Expiry</display_name>
+			<note>The length of time an LDAP result cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days). When this value is set to zero or not supplied, the cached LDAP result will expire after the "Default Expiry" period set on the Cache Manager.</note>
 			<int width="5" />
 		</field>
 	</section>
 	<section name="LDAP Not Available" write_access="admin:attributes" show_if="ldapNotAvailable">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function   name="paintLDAPNotAvailable"   />
 				<process_function name="processLDAPNotAvailable" />
