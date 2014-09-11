@@ -708,6 +708,14 @@ HEREDOC;
 			$receipt_value = @unserialize($email_receipt_attr->value);
 			$recipient_value = @unserialize($email_recipient_attr->value);
 
+			$keywords_in_content = Array();
+			$email_content  = array_get_index($receipt_value, 'text_format', '');
+			$email_content .= array_get_index($receipt_value, 'html_format', '');
+			$email_content .= array_get_index($recipient_value, 'text_format', '');
+			$email_content .= array_get_index($recipient_value, 'html_format', '');
+
+			$keywords_in_content = retrieve_keywords_replacements($email_content);
+
 			// get all the keyword replacements
 			$keywords_replacements = Array();
 			$keywords_to_replace = Array();
@@ -800,6 +808,17 @@ HEREDOC;
 			$send_mail_replacements = Array();
 			for ($i = 0; $i < count($keywords_to_replace); $i++) {
 				$send_mail_replacements = array_merge($send_mail_replacements, Array($keywords_to_replace[$i] => $keywords_replacements[$i]));
+			}
+
+			// before we pass all the replacements, run our keyword modifier magic
+			foreach ($keywords_in_content as $idx => $keyword_in_content) {
+				$full_keyword = $keyword_in_content;
+				$keyword_in_content = parse_keyword($keyword_in_content, $modifiers);
+				if (!empty($modifiers) && isset($send_mail_replacements[$keyword_in_content])) {
+					$send_mail_replacements[$full_keyword] = $send_mail_replacements[$keyword_in_content];
+					apply_keyword_modifiers($send_mail_replacements[$full_keyword], $modifiers, Array('assetid' => $this->id));
+				}
+				unset($full_keyword);
 			}
 
 			// send emails if we need to
