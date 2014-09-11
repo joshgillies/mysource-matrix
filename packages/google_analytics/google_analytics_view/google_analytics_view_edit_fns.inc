@@ -140,14 +140,16 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            <td><strong><?php echo number_format($report['ga:sessions'], 0); ?></strong></td>
 	            <td><?php echo translate('%s / day', number_format($report['ga:sessions'] / $day_count, 0)); ?></td>
 	            <td><?php
-	            if ($report['ga:sessions'] === $previous_report['ga:sessions']) {
-	                echo translate('Steady');
-	            } else if ($previous_report['ga:sessions'] === 0) {
-	                echo translate('Increased from zero');
-	            } else if ($report['ga:sessions'] > $previous_report['ga:sessions']) {
-	                echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:sessions'] / $previous_report['ga:sessions']) - 1), 1));
-	            } else {
-	                echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:sessions'] / $previous_report['ga:sessions'])), 1));
+	            if (empty($previous_report) === FALSE) {
+                    if ($report['ga:sessions'] === $previous_report['ga:sessions']) {
+                        echo translate('Steady');
+                    } else if ($previous_report['ga:sessions'] === 0) {
+                        echo translate('Increased from zero');
+                    } else if ($report['ga:sessions'] > $previous_report['ga:sessions']) {
+                        echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:sessions'] / $previous_report['ga:sessions']) - 1), 1));
+                    } else {
+                        echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:sessions'] / $previous_report['ga:sessions'])), 1));
+                    }
 	            }
 	            ?></td>
 	        </tr>
@@ -156,14 +158,16 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            <td><strong><?php echo number_format($report['ga:pageviews'], 0); ?></strong></td>
 	            <td><?php echo translate('%s / day', number_format($report['ga:pageviews'] / $day_count, 0)); ?></td>
 	            <td><?php
-	            if ($report['ga:pageviews'] === $previous_report['ga:pageviews']) {
-	                echo translate('Steady');
-	            } else if ($previous_report['ga:pageviews'] === 0) {
-	                echo translate('Increased from zero');
-	            } else if ($report['ga:pageviews'] > $previous_report['ga:pageviews']) {
-	                echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:pageviews'] / $previous_report['ga:pageviews']) - 1), 1));
-	            } else {
-	                echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:pageviews'] / $previous_report['ga:pageviews'])), 1));
+	            if (empty($previous_report) === FALSE) {
+                    if ($report['ga:pageviews'] === $previous_report['ga:pageviews']) {
+                        echo translate('Steady');
+                    } else if ($previous_report['ga:pageviews'] === 0) {
+                        echo translate('Increased from zero');
+                    } else if ($report['ga:pageviews'] > $previous_report['ga:pageviews']) {
+                        echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:pageviews'] / $previous_report['ga:pageviews']) - 1), 1));
+                    } else {
+                        echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:pageviews'] / $previous_report['ga:pageviews'])), 1));
+                    }
 	            }
 	            ?></td>
 	        </tr>
@@ -172,7 +176,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            <td><strong><?php echo number_format((100.0 * $report['ga:bounces'] / $report['ga:sessions']), 2) ?>%</strong> (<?php echo number_format($report['ga:bounces'], 0).')'; ?></td>
 	            <td></td>
 	            <td><?php
-	            if (($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
+	            if ((empty($previous_report) === FALSE) && ($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
                     $bounce_rate      = (100.0 * $report['ga:bounces'] / $report['ga:sessions']);
                     $prev_bounce_rate = (100.0 * $previous_report['ga:bounces'] / $previous_report['ga:sessions']);
                     if ($bounce_rate === $prev_bounce_rate) {
@@ -199,7 +203,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            ?></strong></td>
 	            <td></td>
 	            <td><?php
-	            if (($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
+	            if ((empty($previous_report) === FALSE) && ($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
                     $time      = $report['ga:sessionDuration'] / $report['ga:sessions'];
                     $prev_time = $previous_report['ga:sessionDuration'] / $previous_report['ga:sessions'];
                     if ($time === $prev_time) {
@@ -228,7 +232,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                echo sprintf(translate('Sample of %s pages'), number_format($report['ga:pageLoadSample']));
 	            ?></td>
 	            <td><?php
-	            if (($previous_report['ga:pageLoadSample'] > 0) && ($report['ga:pageLoadSample'] > 0)) {
+	            if ((empty($previous_report) === FALSE) && ($previous_report['ga:pageLoadSample'] > 0) && ($report['ga:pageLoadSample'] > 0)) {
                     $time      = $report['ga:pageLoadTime'] / $report['ga:pageLoadSample'];
                     $prev_time = $previous_report['ga:pageLoadTime'] / $previous_report['ga:pageLoadSample'];
                     if ($time === $prev_time) {
