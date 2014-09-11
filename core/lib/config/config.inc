@@ -140,6 +140,11 @@ class Config extends MySource_Object
 			return FALSE;
 		}
 
+		// reset opcache otherwise it would cache the constants of config file and redriect won't help.
+		if(function_exists('opcache_reset')) {
+		    opcache_reset();
+		}
+
 		// Check if a message should be sent.
 		if ($changed_vars && $send_message) {
 			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -415,10 +420,6 @@ class Config extends MySource_Object
 			$this->acquireLock();
 		}
 		
-		// reset opcache otherwise it would cache the constants of config file and redriect won't help.
-		if(function_exists('opcache_reset')) {
-		    opcache_reset();
-		}
 		
 		// if the save was successful, we need to redirect because the constants
 		// that are already defined cannot be redefined in this script execution
