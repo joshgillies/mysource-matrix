@@ -77,9 +77,12 @@ $count = 0;
 $invalid_count = 0;
 $fixed_count = 0;
 foreach(Array('sq_', 'sq_rb_') as $table_prefix) {
+	$rollback = $table_prefix == 'sq_rb_';
 	echo "\nLooking into '".$table_prefix."' tables .";
 	foreach(array_chunk($serialise_attrids, 50) as $attrids_chunk) {
-		$sql = "SELECT assetid, attrid, contextid, custom_val FROM ".$table_prefix."ast_attr_val WHERE attrid IN ('".implode("','", $attrids_chunk)."')";
+		$sql = "SELECT assetid, attrid, contextid, custom_val".($rollback ? ', sq_eff_from ' : ' ').
+				"FROM ".$table_prefix."ast_attr_val WHERE attrid IN ('".implode("','", $attrids_chunk)."')";
+
 		$entries = MatrixDAL::executeSqlGrouped($sql);
 		foreach($entries as $assetid => $attr_values) {
 			echo ++$count%100 ? '' : '.';
@@ -90,6 +93,11 @@ foreach(Array('sq_', 'sq_rb_') as $table_prefix) {
 				if (empty($value) || empty($attrid)) {
 					continue;
 				}//end if
+
+				$eff_from = isset($data[3]) ? $data[3] : '';
+				if ($rollback && empty($eff_from)) {
+					continue;
+				}
 
 				if (!valid_serialised_value($value)) {
 					echo "\nInvalid serialised value assetid #".$assetid." attrid #".$attrid." contextid #".$contextid;
@@ -106,12 +114,16 @@ foreach(Array('sq_', 'sq_rb_') as $table_prefix) {
 					if ($FIX_DB && $value) {
 						// Update the db with the fixed serialsed data
 						try {
-							$sql = 'UPDATE sq_ast_attr_val SET custom_val=:value WHERE assetid=:assetid AND attrid=:attrid AND contextid=:contextid';
+							$sql = 'UPDATE '.$table_prefix.'ast_attr_val SET custom_val=:value '.
+									'WHERE assetid=:assetid AND attrid=:attrid AND contextid=:contextid'.($rollback ? ' AND sq_eff_from=:sq_eff_from' : '');
 							$update_sql = MatrixDAL::preparePdoQuery($sql);
 							MatrixDAL::bindValueToPdo($update_sql, 'value', $value);
 							MatrixDAL::bindValueToPdo($update_sql, 'assetid', $assetid);
 							MatrixDAL::bindValueToPdo($update_sql, 'attrid', $attrid);
 							MatrixDAL::bindValueToPdo($update_sql, 'contextid', $contextid);
+							if ($rollback) {
+								MatrixDAL::bindValueToPdo($update_sql, 'sq_eff_from', $eff_from);
+							}
 							$execute = MatrixDAL::executePdoAssoc($update_sql);
 						} catch (Exception $e) {
 							echo "Unexpected error occured while updating database: ".$e->getMessage();
