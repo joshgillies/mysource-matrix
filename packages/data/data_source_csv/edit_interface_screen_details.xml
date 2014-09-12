@@ -16,37 +16,54 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="header_row">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="header_col">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Upload new CSV file" read_access="write:attributes" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function		name="paintUploadFile" />
-				<process_function	name="processUploadFile" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Shadow Asset Name" write_access="write:attributes" show_if="resultSetExists">
-		<field>
-			<function_call>
-				<paint_function   name="paintShadow"   />
-				<process_function name="processShadow" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintKeywords"   />
-				<process_function name="processKeywords" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note></note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="header_row">
+            <display_name>Use first row as attribute names?</display_name>
+            <note>If enabled, the first row of the CSV file will be used as attribute names for the exposed assets</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="header_col">
+            <display_name>Use first column as row identifier?</display_name>
+            <note>If enabled, the first column of the CSV file will be used as an identifier for that row.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Upload new CSV file" read_access="write:attributes" write_access="write:attributes">
+        <field>
+            <display_name></display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintUploadFile" />
+                <process_function name="processUploadFile" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Shadow Asset Name" write_access="write:attributes" show_if="resultSetExists">
+        <field>
+            <display_name>Enter The Name Of The Shadow Assets</display_name>
+            <note>You can choose the name of the shadow assets. It can either be a normal string or a combination of string and keywords.
+			For example you can enter 'Result Of Query1' or you can enter '%asset_data_source_id%(%asset_short_name%)Result'
+			to have the 'datasourceid(short name of the asset)Result' as the name of your Shadow Asset. Please have a look in the
+			Available Keywords Section and do not forget to enter '%' before and after the keyword or else the keyword is considered as a normal string.</note>
+            <function_call>
+                <paint_function name="paintShadow" />
+                <process_function name="processShadow" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Available Keywords For the Data Source Record Set Asset</display_name>
+            <note>The above are the available keywords for the record set assets. You can choose to have one or more keywords
+            or a combination of strings and keywords as the name of the record set assets. Please remember that the keywords
+            have to be preceded and succeeded with a '%' sign or else it can be considered as a normal string.  </note>
+            <function_call>
+                <paint_function name="paintKeywords" />
+                <process_function name="processKeywords" />
+            </function_call>
+        </field>
+    </section>
 </contents>

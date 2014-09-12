@@ -18,34 +18,45 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="RSS Details" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name>Link For The Feed</display_name>
+			<note>The feed cache will be refreshed every time you modify the link for feed.</note>
 			<function_call>
 				<paint_function   name="paintRSS"   />
 				<process_function name="processRSS" />
 			</function_call>
 		</field>
 		<field attribute="data_delimiter">
+			<display_name>Data Delimiter</display_name>
+			<note>Delimiter to separate data from xml elements with same name.</note>
 			<text width="25" height="1"/>
 		</field>
 	</section>
 	<section name="Shadow Asset Name" write_access="write:attributes" show_if="resultSetExists">
 		<field>
+			<display_name>Record Name</display_name>
+			<note>Keywords available for use in the record display name are listed below. For example: "%ds__title% [%ds__guid%]"</note>
 			<function_call>
 				<paint_function   name="paintShadow"   />
 				<process_function name="processShadow" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Date Field</display_name>
+			<note>Convert this field to a timestamp, and access it using keyword %ds__timestamp%.</note>
 			<function_call>
 				<paint_function name="paintShadowDate" />
 				<process_function name="processShadowDate" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Available Keywords</display_name>
 			<function_call>
 				<paint_function   name="paintKeywords"   />
 				<process_function name="processKeywords" />

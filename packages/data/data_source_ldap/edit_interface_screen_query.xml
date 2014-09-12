@@ -16,37 +16,49 @@
 -->
 
 <contents>
-	<section name="LDAP Search Filter" write_access="write:attributes" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function name="paintLdapSearchFilter"/>
-				<process_function name="processLdapSearchFilter"/>
-			</function_call>
-		</field>
-		<field attribute="sort_by">
-			<text width="40" height="1" />
-		</field>
-		<field attribute="attributes">
-			<text width="100" height="1" />
-		</field>
-		<field attribute="binary_attributes">
-			<text width="100" height="1" />
-		</field>
-	</section>
-	<section name="Record Set Asset Names" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintShadow"   />
-				<process_function name="processShadow" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Available Keywords" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintKeywords"   />
-				<process_function name="processKeywords" />
-			</function_call>
-		</field>
-	</section>	
+    <section name="LDAP Search Filter" write_access="write:attributes" limbo_access="1">
+        <field>
+            <display_name>Search Filter Query</display_name>
+            <note>Use search query "(objectClass=*)" to list all the entries</note>
+            <function_call>
+                <paint_function name="paintLdapSearchFilter"/>
+                <process_function name="processLdapSearchFilter"/>
+            </function_call>
+        </field>
+        <field attribute="sort_by">
+            <display_name>Sort By</display_name>
+            <note>Enter a attribute name to sort by</note>
+            <text width="40" height="1" />
+        </field>
+        <field attribute="attributes">
+            <display_name>Attributes To Extract</display_name>
+            <note>Enter a comma-separated list of attributes to extract from the LDAP directory</note>
+            <text width="100" height="1" />
+        </field>
+        <field attribute="binary_attributes">
+            <display_name>Binary Attributes To Extract</display_name>
+            <note>Enter a comma-separated list of &lt;strong&gt;binary&lt;/strong&gt; attributes to extract from the LDAP directory. &lt;em&gt;Please use these binary attributes with care as they might decrease the LDAP Data Source performance&lt;/em&gt;</note>
+            <text width="100" height="1" />
+        </field>
+    </section>
+    <section name="Record Set Asset Names" write_access="write:attributes">
+        <field>
+            <display_name>Record Set Asset Names</display_name>
+            <note>Enter the name that should be used for record set assets exposed by this data source.  It can either be a normal string or a combination of string and keywords.  See the Available Keywords section below for the keywords available for use in this field</note>
+            <function_call>
+                <paint_function name="paintShadow" />
+                <process_function name="processShadow" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Available Keywords" write_access="write:attributes">
+        <field>
+            <display_name>Available Keywords</display_name>
+            <note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
+            <function_call>
+                <paint_function name="paintKeywords" />
+                <process_function name="processKeywords" />
+            </function_call>
+        </field>
+    </section>
 </contents>

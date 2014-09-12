@@ -18,23 +18,33 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="Connection Setup" write_access="write:attributes">
 		<field attribute="user">
+			<display_name>Username</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="password">
+			<display_name>Password</display_name>
+			<note />
 			<password width="35"/>
 		</field>
 		<field>
+			<display_name>Database Details</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintDSN"   />
 				<process_function name="processDSN" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>OR Complete DSN</display_name>
+			<note>Please note that if you enter a DSN here then the fields in the Database Details section above will be ignored. To accept input from the other fields please leave this field empty.</note>
 			<function_call>
 				<paint_function   name="paintDSNAlone"   />
 				<process_function name="processDSNAlone" />
@@ -43,6 +53,8 @@
 	</section>
 	<section name="Info">
 		<field>
+			<display_name>Connector Consumers</display_name>
+			<note>This is a list of all assets that use this connector.</note>
 			<function_call>
 				<paint_function   name="paintUsageInfo"   />
 			</function_call>

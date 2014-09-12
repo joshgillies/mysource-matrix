@@ -16,44 +16,58 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="JSON Data Source" write_access="write:json_data_source" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function name="paintConnectorLink" />
-				<process_function name="processConnectorLink" />
-			</function_call>
-		</field>
-		<field attribute="path">
-			<text width="50" height="1"/>
-		</field>
-	</section>
-	<section name="Advanced" write_access="write:attributes" limbo_access="1">
-		<field attribute="nodes">
-			<text width="40" height="6" />
-		</field>
-		<field attribute="root_object">
-			<text width="40" height="1" />
-		</field>
-	</section>
-	<section name="Record Set Asset Names" write_access="write:attributes" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintShadow"   />
-				<process_function name="processShadow" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Available Keywords" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function name="paintKeywords" />
-				<process_function name="processKeywords" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="JSON Data Source" write_access="write:json_data_source" limbo_access="1">
+        <field>
+            <display_name>Source Asset</display_name>
+            <note>Select a REST Resource asset and the contents of the JSON data will be retrieved using that asset. You can also specify a text file asset or another page.</note>
+            <function_call>
+                <paint_function name="paintConnectorLink" />
+                <process_function name="processConnectorLink" />
+            </function_call>
+        </field>
+        <field attribute="path">
+            <display_name>or URI to JSON data</display_name>
+            <note>If no source asset is specified above, the JSON data will be retrieved from this local path or URI. Global keywords are supported. Note that it is recommended to specify a REST Resource above as the source if fetching data from a remote source.</note>
+            <text width="50" height="1"/>
+        </field>
+    </section>
+    <section name="Advanced" write_access="write:attributes" limbo_access="1">
+        <field attribute="nodes">
+            <display_name>JSON Data Attributes</display_name>
+            <note>A newline or comma separated list of JSON values to retrieve as attributes in addition to the top-level properties. This can be used to access data which is deep within your JSON structure. Format is JS notation (eg.: "objectName.foo.bar", "objectName.foo.baz[1]"). Values entered here should be relative to the root object (if specified, below). Global keywords are supported.</note>
+            <text width="40" height="6" />
+        </field>
+        <field attribute="root_object">
+            <display_name>JSON Root Object</display_name>
+            <note>If your JSON data array is not in the top-level of the JSON structure, enter the path to the property which holds a JSON array and parsing will begin from there. Format is JS notation (eg.: "response.results" or "requests.response[0].data"). Global keywords are supported.</note>
+            <text width="40" height="1" />
+        </field>
+    </section>
+    <section name="Record Set Asset Names" write_access="write:attributes" limbo_access="1">
+        <field>
+            <display_name>Record Set Asset Names</display_name>
+            <note>Optionally customise the name of the feed's shadow assets. It can either be a normal string or a combination of string and keywords. See the Available Keywords section below for the keywords available for use in this field.</note>
+            <function_call>
+                <paint_function name="paintShadow" />
+                <process_function name="processShadow" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Available Keywords" limbo_access="1">
+        <field>
+            <display_name>Available Keywords</display_name>
+            <note>The above keywords are available for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
+            <function_call>
+                <paint_function name="paintKeywords" />
+                <process_function name="processKeywords" />
+            </function_call>
+        </field>
+    </section>
 </contents>
