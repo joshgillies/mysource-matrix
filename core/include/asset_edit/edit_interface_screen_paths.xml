@@ -18,26 +18,35 @@
 <contents>
 	<section name="Web Paths" write_access="write:lookups" limbo_access="1">
 		<field>
+			<display_name>Paths</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintPaths"   />
 				<process_function name="processPaths" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Current URLs</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintURLs"   />
 			</function_call>
 		</field>
 		<field read_access="write:lookups">
+			<display_name>Automatically add remaps?</display_name>
+			<note>When set, this option will add remaps for Web Paths that have been changed above.</note>
 			<function_call>
-				<paint_function		name="paintAutomaticRemapSetting" />
+				<paint_function         name="paintAutomaticRemapSetting" />
+				<process_function       name="processAutomaticRemapSetting" />
 			</function_call>
 		</field>
 	</section>
 	<section name="Remaps" write_access="write:lookups" limbo_access="1">
 		<field>
+			<display_name>Remaps</display_name>
+			<note />
 			<function_call>
-				<paint_function	  name="paintEditRemapURLs" />
+				<paint_function   name="paintEditRemapURLs" />
 				<process_function name="processEditRemapURLs" />
 			</function_call>
 		</field>

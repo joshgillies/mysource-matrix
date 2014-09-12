@@ -17,7 +17,13 @@
 
 <contents>
 	<section name="Users and groups assigned to roles for this asset">
-		<field code="roles_current" />
-		<field code="roles_add" read_access="write:roles" write_access="write:roles"/>
+		<field code="roles_current">
+		    <display_name>Current</display_name>
+			<note>This table shows the roles that are applicable for this asset, and which users can perform those roles. Any role marked as "Global" may be performed on this asset by any user linked underneath the role.</note>
+		</field>
+		<field code="roles_add" read_access="write:roles" write_access="write:roles">
+			<display_name>Add New</display_name>
+			<note />
+		</field>
 	</section>
 </contents>
