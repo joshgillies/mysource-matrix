@@ -18,9 +18,13 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Order Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>

@@ -16,98 +16,112 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="25" height="1" />
-		</field>
-	</section>
-	<section name="Button details" write_access="write:attributes" limbo_access="1">
-		<field attribute="button_type">
-			<selection style="list" />
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintItemName" />
-				<process_function name="processItemName" />
-			</function_call>
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintItemID" />
-				<process_function name="processItemID" />
-			</function_call>
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintPrice" />
-				<process_function name="processPrice" />
-			</function_call>
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintCurrency" />
-				<process_function name="processCurrency" />
-			</function_call>
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintUndefinedQuantity" />
-				<process_function name="processUndefinedQuantity" />
-			</function_call>
-		</field>
-		<field attribute="paypal_account_id">
-			<assetid type_codes="paypal_business_account:I" />
-		</field>
-		<field attribute="paypal_config_id">
-			<assetid type_codes="paypal_configuration:I" />
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintCustomVar" />
-				<process_function name="processCustomVar" />
-			</function_call>
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintNotifyUrl" />
-				<process_function name="processNotifyUrl" />
-			</function_call>
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintReturnUrl" />
-				<process_function name="processReturnUrl" />
-			</function_call>
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintCancelUrl" />
-				<process_function name="processCancelUrl" />
-			</function_call>
-		</field>
-		<field attribute="image_url">
-			<text width="60" height="1" />
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintCartTargetWindow" />
-				<process_function name="processCartTargetWindow" />
-			</function_call>
-		</field>
-		<field format="blank">
-			<function_call>
-				<paint_function name="paintShoppingURL" />
-				<process_function name="processShoppingURL" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintExtraVars"   />
-				<process_function name="processExtraVars" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Page Short Name</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="Button details" write_access="write:attributes" limbo_access="1">
+        <field attribute="button_type">
+            <display_name>Button Type</display_name>
+            <note>The type of button supported by Paypal includes Buy Now and Donate buttons.</note>
+            <selection style="list" />
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintItemName" />
+                <process_function name="processItemName" />
+            </function_call>
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintItemID" />
+                <process_function name="processItemID" />
+            </function_call>
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintPrice" />
+                <process_function name="processPrice" />
+            </function_call>
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintCurrency" />
+                <process_function name="processCurrency" />
+            </function_call>
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintUndefinedQuantity" />
+                <process_function name="processUndefinedQuantity" />
+            </function_call>
+        </field>
+        <field attribute="paypal_account_id">
+            <display_name>Paypal Business Account</display_name>
+            <note>The Paypal Business Account asset this button want to make payment to. The Paypal Business Account asset must include the paths to public certificate, private key and Paypal certificate as well as the correct public certificate ID provided by Paypal in order for this button to work because this button supports encrypted Paypal button only. It is for the security reason. If you want to create unencrypted Paypal button, you can use a Standard Page instead.</note>
+            <assetid type_codes="paypal_business_account:I" />
+        </field>
+        <field attribute="paypal_config_id">
+            <display_name>Paypal Configuration</display_name>
+            <note>The Paypal Configuration asset that keeps information this button needs to encrypt its data. The Paypal Configuration asset must specify the location of the Paypal Encryption Library Path in order for this button to work.</note>
+            <assetid type_codes="paypal_configuration:I" />
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintCustomVar" />
+                <process_function name="processCustomVar" />
+            </function_call>
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintNotifyUrl" />
+                <process_function name="processNotifyUrl" />
+            </function_call>
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintReturnUrl" />
+                <process_function name="processReturnUrl" />
+            </function_call>
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintCancelUrl" />
+                <process_function name="processCancelUrl" />
+            </function_call>
+        </field>
+        <field attribute="image_url">
+            <display_name>Image URL</display_name>
+            <note>The URL of the image to use for the payment button. You can use Paypal images such as Buy Now (https://www.paypal.com/en_GB/i/btn/btn_buynowCC_LG.gif), Donate (https://www.paypal.com/en_GB/i/btn/btn_donateCC_LG.gif), Add to Cart (https://www.paypal.com/en_GB/i/btn/btn_cart_LG.gif), View Cart (https://www.paypal.com/en_GB/i/btn/btn_viewcart_LG.gif).</note>
+            <text width="60" height="1" />
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintCartTargetWindow" />
+                <process_function name="processCartTargetWindow" />
+            </function_call>
+        </field>
+        <field format="blank">
+            <function_call>
+                <paint_function name="paintShoppingURL" />
+                <process_function name="processShoppingURL" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Extra variables</display_name>
+            <note>The variables and values of Paypal buttons in the format of variable_name=variable_value.</note>
+            <function_call>
+                <paint_function name="paintExtraVars" />
+                <process_function name="processExtraVars" />
+            </function_call>
+        </field>
+    </section>
 </contents>

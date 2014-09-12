@@ -16,46 +16,64 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="30" height="1" />
-		</field>
-	</section>
-	<section name="Paypal Bussiness Account Information" write_access="write:attributes" limbo_access="1">
-		<field attribute="account_type">
-			<selection style="list" />
-		</field>
-		<field attribute="account_id">
-			<text width="40" height="1" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintPublicCertPath"   />
-				<process_function name="processPublicCertPath" />
-			</function_call>
-		</field>
-		<field attribute="public_cert_id">
-			<text width="20" height="1" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintPrivateKeyPath"   />
-				<process_function name="processPrivateKeyPath" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintPaypalCertPath"   />
-				<process_function name="processPaypalCertPath" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Send Emails On Error" write_access="write:attributes" limbo_access="1">
-		<field attribute="error_email">
-			<email width="25" />
-		</field>
-		<field attribute="send_email_on_error">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note />
+            <text width="30" height="1" />
+        </field>
+    </section>
+    <section name="Paypal Bussiness Account Information" write_access="write:attributes" limbo_access="1">
+        <field attribute="account_type">
+            <display_name>Paypal Account Type</display_name>
+            <note>The type of accounts supported by Paypal: Live accounts are used in the live Paypal website and Sandbox accounts are used in the Paypal Sandbox.</note>
+            <selection style="list" />
+        </field>
+        <field attribute="account_id">
+            <display_name>Merchant Account ID</display_name>
+            <note>Paypal Secure Merchant Account ID or the business email address.</note>
+            <text width="40" height="1" />
+        </field>
+        <field>
+            <display_name>Public Certificate Path</display_name>
+            <note>The path to the public certificate that is uploaded to Paypal.</note>
+            <function_call>
+                <paint_function name="paintPublicCertPath" />
+                <process_function name="processPublicCertPath" />
+            </function_call>
+        </field>
+        <field attribute="public_cert_id">
+            <display_name>Public Certificate ID</display_name>
+            <note>The Certificate ID that Paypal gives to the above Public Certificate.</note>
+            <text width="20" height="1" />
+        </field>
+        <field>
+            <display_name>Private Key Path</display_name>
+            <note>The path to the private key that is used to encrypt Paypal Buttons.</note>
+            <function_call>
+                <paint_function name="paintPrivateKeyPath" />
+                <process_function name="processPrivateKeyPath" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Paypal Certificate Path</display_name>
+            <note>The path to the Paypal public certificate that is used to encrypt Paypal Buttons so that only Paypal can decipher the encrypted contents.</note>
+            <function_call>
+                <paint_function name="paintPaypalCertPath" />
+                <process_function name="processPaypalCertPath" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Send Emails On Error" write_access="write:attributes" limbo_access="1">
+        <field attribute="error_email">
+            <display_name>Email</display_name>
+            <note>The email address to send email to when an error occurs. If this field is not specified, the system Tech email will be used.</note>
+            <email width="25" />
+        </field>
+        <field attribute="send_email_on_error">
+            <display_name>Send emails on error?</display_name>
+            <note>Yes, if an email will be sent to the above email address when an error occurs (when processing Paypal Order assets only).</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
 </contents>
