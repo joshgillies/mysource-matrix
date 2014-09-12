@@ -16,13 +16,18 @@
 -->
 <contents>
 	<section name="Categories" read_access="write:" write_access="write:attributes">
+		<note>When a frontend user selects options from several category sets, the search results will be restricted to assets that satisfy every selected category's conditions</note>
 		<field format="new_line">
+			<display_name>Category Sets</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintCategories" />
 				<process_function name="processCategories" />
 			</function_call>
 		</field>
 		<field format="new_line" read_access="write:attributes">
+			<display_name>Add New Category Set</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintAddCategory" />
 				<process_function name="processAddCategory" />

@@ -18,12 +18,18 @@
 <contents>
 	<section name="Search Results Keywords" write_access="write:attributes">
 		<field attribute="spell_check_string">
+			<display_name>Spell Check</display_name>
+			<note>This message is displayed (via a keyword) if the spell checker suggests alternative spellings for a word. The keyword "%suggestions%" will be replaced with the spell check suggestions</note>
 			<text width="100" />
 		</field>
 		<field attribute="synonym_string">
+			<display_name>Synonyms</display_name>
+			<note>This message is displayed (via a keyword) if synonyms are found in the thesaurus used to check for them. The keyword "%suggestions%" will be replaced with the synonym suggestions</note>
 			<text width="100" />
 		</field>
 		<field attribute="auto_synonym_string">
+			<display_name>Auto Synonym Search</display_name>
+			<note>This message is displayed (via a keyword) on the search results page if the automatic synonym search feature was triggered</note>
 			<text width="100" />
 		</field>
 	</section>

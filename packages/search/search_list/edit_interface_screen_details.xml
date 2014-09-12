@@ -16,61 +16,90 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="25" height="1" />
-		</field>
-	</section>
-	<section name="Search Term Format">
-		<field attribute="default_format" write_access="write:attributes">
-			<wysiwyg style="div" width="100%" height="100" />
-		</field>
-	</section>
-	<section name="Search Page Setup" write_access="write:links">
-		<field>
-			<function_call>
-				<paint_function   name="paintSearchPage"  />
-				<process_function name="processSearchPage" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintSearchField"  />
-				<process_function name="processSearchField" />
-			</function_call>
-		</field>
-	</section>
-	<section name="List Settings" write_access="write:content">
-		<field attribute="group_by">
-			<selection style="list" />
-		</field>
-		<field attribute="prev_page_text">
-			<text width="30" />
-		</field>
-		<field attribute="next_page_text">
-			<text width="30" />
-		</field>
-		<field attribute="page_link_format">
-			<text width="50" />
-		</field>
-		<field attribute="current_page_format">
-			<text width="50" />
-		</field>
-	</section>
-	<section name="Sorting" write_access="write:attributes">
-		<field attribute="num_per_page">
-			<text width="30" />
-		</field>
-	</section>
-	<section name="Customise Bodycopies" write_access="write:links">
-		<field>
-			<function_call>
-				<paint_function   name="paintUseNoResultsBodycopy"   />
-				<process_function name="processUseNoResultsBodycopy" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Page Short Name</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="Search Term Format">
+        <field attribute="default_format" write_access="write:attributes">
+            <display_name />
+            <note>
+			This is the format that will be used to print each search term. You can use the following keywords:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;&lt;b&gt;%search_term%&lt;/b&gt; - a linked search term that performs a search when clicked&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%number_of_occurrences%&lt;/b&gt; - the number of assets that include this search term (system wide)&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+            <wysiwyg style="div" width="100%" height="100" />
+        </field>
+    </section>
+    <section name="Search Page Setup" write_access="write:links">
+        <field>
+            <display_name>Select Search Page</display_name>
+            <note>When a search term is clicked, the search will be performed by this search page.</note>
+            <function_call>
+                <paint_function name="paintSearchPage" />
+                <process_function name="processSearchPage" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Select Search Field</display_name>
+            <note>This is the field whose search terms will be listed. Only search fields consisting entirely of Asset Attribute, Metadata Field or Standard Asset Field data sources will be available. Search fields containing an Include All data source cannot be used.</note>
+            <function_call>
+                <paint_function name="paintSearchField" />
+                <process_function name="processSearchField" />
+            </function_call>
+        </field>
+    </section>
+    <section name="List Settings" write_access="write:content">
+        <field attribute="group_by">
+            <display_name>List Format</display_name>
+            <note>A standard list displays all search terms on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;A Random listing displays one or more search terms in random order.</note>
+            <selection style="list" />
+        </field>
+        <field attribute="prev_page_text">
+            <display_name>Previous Link</display_name>
+            <note>This is the text that will be printed to link to the previous results page</note>
+            <text width="30" />
+        </field>
+        <field attribute="next_page_text">
+            <display_name>Next Link</display_name>
+            <note>This is the text that will be printed to link to the next results page</note>
+            <text width="30" />
+        </field>
+        <field attribute="page_link_format">
+            <display_name>Page Link Format</display_name>
+            <note>This is the format of a linked page number in pagination. Available keywords are %page_link%, %page_number%</note>
+            <text width="50" />
+        </field>
+        <field attribute="current_page_format">
+            <display_name>Current Page Format</display_name>
+            <note>This is the format of current page number in pagination. Available keyword is %page_number%</note>
+            <text width="50" />
+        </field>
+    </section>
+    <section name="Sorting" write_access="write:attributes">
+        <field attribute="num_per_page">
+            <text width="30" />
+        </field>
+    </section>
+    <section name="Customise Bodycopies" write_access="write:links">
+        <field>
+            <display_name>Words Per Page</display_name>
+            <note>Set to '0' (zero) to list all search terms on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.&lt;br/&gt;If the listing type is Random, this defines how many search terms are randomly displayed ('0' displays a single search term).&lt;br/&gt;Keywords can be used to dynamically set the number of items on the page.</note>
+            <function_call>
+                <paint_function name="paintUseNoResultsBodycopy" />
+                <process_function name="processUseNoResultsBodycopy" />
+            </function_call>
+        </field>
+    </section>
 </contents>

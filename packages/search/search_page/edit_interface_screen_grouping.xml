@@ -24,6 +24,8 @@
 	</section>
 	<section name="Add New Group" read_access="write:attributes" write_access="write:attributes">
 		<field>
+			<display_name>New Group ?</display_name>
+			<note>Note that the new group will be positioned in relation to the <![CDATA[<b>current</b>]]> group positions, even if you delete one or more of those groups at the same time</note>
 			<function_call>
 				<paint_function   name="paintNewGroupBy" />
 				<process_function name="processNewGroupBy" />
