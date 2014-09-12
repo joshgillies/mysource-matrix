@@ -18,36 +18,58 @@
 <contents>
 	<section name="User Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note>%description%</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="email">
+			<display_name>Email</display_name>
+			<note>%description%</note>
 			<email width="25" />
 		</field>
 		<field attribute="date_of_birth">
+			<display_name>Date Of Birth</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="aim_name">
+			<display_name>AOL Identity</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="icq_number">
+			<display_name>ICQ Number</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="yahoo">
+			<display_name>Yahoo Identity</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="msnname">
+			<display_name>MSN Messenger Identity</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="location">
+			<display_name>Location</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="website">
+			<display_name>Website</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="signature">
+			<display_name>Signature</display_name>
+			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="interests">
+			<display_name>Interests</display_name>
+			<note>%description%</note>
 			<text width="40" height="10" />
 		</field>
 	</section>

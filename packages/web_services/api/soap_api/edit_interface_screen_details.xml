@@ -16,20 +16,26 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
+    <section name="Details" write_access="write:attributes" limbo_access="1">
         <field attribute="name">
+            <display_name>SOAP Server API Name</display_name>
+            <note />
             <text width="35" height="1" />
-        </field>	
+        </field>
         <field attribute="short_name">
+            <display_name>SOAP Server API Short Name</display_name>
+            <note />
             <text width="35" height="1" />
-        </field>	
-	</section>
+        </field>
+    </section>
     <section name="Interface Settings" write_access="write:attributes">
         <field>
+            <display_name>Function List</display_name>
+            <note />
             <function_call>
-                <paint_function     name="paintFunctionList" />
-                <process_function   name="processFunctionList" />
+                <paint_function name="paintFunctionList" />
+                <process_function name="processFunctionList" />
             </function_call>
         </field>
-	</section>	
+    </section>
 </contents>

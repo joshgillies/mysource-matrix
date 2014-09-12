@@ -18,20 +18,28 @@
 <contents>
 	<section name="Identification" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="IPB Details" write_access="admin:attributes">
 		<field>
+			<display_name>Connection Status</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintIpbTest"   />
 				<process_function name="processIpbTest" />
 			</function_call>
 		</field>
 		<field attribute="version">
+			<display_name>Invision Power Board Version</display_name>
+			<note>The version of your Invision Power Board system</note>
 			<selection style="list" />
 		</field>
 		<field>
+			<display_name>Location</display_name>
+			<note>The full path of Invision Power Board</note>
 			<function_call>
 				<paint_function   name="paintGetLocation"   />
 				<process_function name="processGetLocation" />

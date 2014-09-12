@@ -24,12 +24,18 @@
 			</function_call>
 		</field>
 		<field attribute="post_date">
+			<display_name>Date</display_name>
+			<note>%description%</note>
 			<text width="40" height="5" />
 		</field>
 		<field attribute="post_title">
+			<display_name>Title</display_name>
+			<note>%description%</note>
 			<text width="40" height="5" />
 		</field>
 		<field attribute="post_parent">
+			<display_name>Is a reply</display_name>
+			<note>%description%</note>
 			<text width="40" height="5" />
 		</field>
 	</section>

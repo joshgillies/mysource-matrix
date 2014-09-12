@@ -18,30 +18,43 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="OAuth Parameters" write_access="write:attributes">
 		<field attribute="oauth">
+			<display_name>OAuth Parameters</display_name>
+			<note />
 			<oauth />
 		</field>
 		<field attribute="allow_global_replace">
+			<display_name>Allow Keyword replacement</display_name>
+			<note>Enabling this option will allow Squiz Matrix to replace keywords found in the REST response body. This can be useful when the response is returned from another instance of Squiz Matrix. Disabling this option will ensure that the system does not replace any keywords (or content using a format similar to a keyword) in the response.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="redirect_authorise">
+			<display_name>Redirect To Authorise</display_name>
+			<note>Redirect user to the service provider's authorisation page to authorise the request token, instead of nesting authorisation form in Matrix page.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="store_token">
+			<display_name>Store Access Token</display_name>
+			<note>Turn this option on while token is available in session to permanently store the token. Turn this option off to forget the stored token.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
+			<display_name>Access Token</display_name>
 			<function_call>
 				<paint_function   name="paintAccessToken" />
 				<process_function name="processAccessToken" />
 			</function_call>
 		</field>
-	</section>	
+	</section>
 </contents>
