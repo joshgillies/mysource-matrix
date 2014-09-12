@@ -36,7 +36,7 @@
 		</field>
 		<field>
 			<display_name>Options</display_name>
-			<note>If &quot;Display as Text Box ?&quot; is not checked, fields will be displayed as a drop-down list</note>			<function_call>
+			<note>If &quot;Display as Text Box ?&quot; is not checked, fields will be displayed as a drop-down list</note>
 			<function_call>
 				<paint_function   name="paintInterface"   />
 				<process_function name="processInterface" />

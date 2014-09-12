@@ -103,7 +103,7 @@
 			<boolean true_text="on" false_text="off" />
 		</field>
 		<field attribute="cache_expiry">
-			display_name>Cache Expiry</display_name>
+			<display_name>Cache Expiry</display_name>
 			<note>The length of time an LDAP result cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days). When this value is set to zero or not supplied, the cached LDAP result will expire after the "Default Expiry" period set on the Cache Manager.</note>
 			<int width="5" />
 		</field>
