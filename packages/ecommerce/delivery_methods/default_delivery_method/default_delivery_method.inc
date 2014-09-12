@@ -711,8 +711,10 @@ HEREDOC;
 			$keywords_in_content = Array();
 			$email_content  = array_get_index($receipt_value, 'text_format', '');
 			$email_content .= array_get_index($receipt_value, 'html_format', '');
+			$email_content .= array_get_index($receipt_value, 'subject', '');
 			$email_content .= array_get_index($recipient_value, 'text_format', '');
 			$email_content .= array_get_index($recipient_value, 'html_format', '');
+			$email_content .= array_get_index($recipient_value, 'subject', '');
 
 			$keywords_in_content = retrieve_keywords_replacements($email_content);
 
