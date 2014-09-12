@@ -18,6 +18,8 @@
 <contents>
 	<section name="Thesaurus" write_access="write:attributes">
 		<field>
+			<display_name>Choose a collection</display_name>
+			<note>To edit a thesaurus, you must choose a collection that the thesaurus will belong to</note>
 			<function_call>
 				<paint_function		name="paintThesaurusChooser" />
 				<process_function	name="processThesaurusChooser" />
@@ -26,6 +28,8 @@
 	</section>
 	<section name="Edit Thesaurus" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function		name="paintThesaurus" />
 				<process_function	name="processThesaurus" />

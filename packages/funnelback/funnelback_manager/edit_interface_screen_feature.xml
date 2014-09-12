@@ -17,12 +17,16 @@
 <contents>
 	<section name="Feature Pages" write_access="write:attributes">
 		<field>
+			<display_name>Choose a collection</display_name>
+			<note>Choose a collection to edit. A collection can only contain one set of feature pages each.</note>
 			<function_call>
 				<paint_function		name="paintFeaturePageChooser" />
 				<process_function	name="processFeaturePageChooser" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Edit feature page</display_name>
+			<note />
 			<function_call>
 				<paint_function		name="paintFeaturePage" />
 				<process_function	name="processFeaturePage" />
@@ -31,6 +35,8 @@
 	</section>
 	<section name="Edit Feature Page" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function		name="paintSelectedFeaturePage" />
 				<process_function	name="processSelectedFeaturePage" />

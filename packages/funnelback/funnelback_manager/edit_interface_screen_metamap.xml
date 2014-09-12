@@ -17,6 +17,8 @@
 <contents>
 	<section name="HTML Meta Tag Mapping" write_access="write:attributes">
 		<field>
+			<display_name>Choose a collection</display_name>
+			<note>Choose a collection to edit</note>
 			<function_call>
 				<paint_function		name="paintMetamapChooser" />
 				<process_function	name="processMetamapChooser" />
@@ -25,6 +27,8 @@
 	</section>
 	<section name="Edit HTML Meta Tag Mapping" write_access="write:attributes">
 		<field>
+			<display_name>HTML Meta Tag Mapping</display_name>
+			<note />
 			<function_call>
 				<paint_function		name="paintMetamap" />
 				<process_function	name="processMetamap" />

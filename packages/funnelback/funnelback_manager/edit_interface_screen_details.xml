@@ -17,6 +17,8 @@
 <contents>
 	<section name="Indexing Manager" write_access="write:attributes">
 		<field>
+			<display_name>Enable Indexing</display_name>
+			<note><![CDATA[<em>Note:</em> Indexing will not enable, if the current installation cannot be found.]]></note>
 			<function_call>
 				<paint_function		name="paintIndexing" />
 				<process_function	name="processIndexing" />
@@ -25,32 +27,48 @@
 	</section>
 	<section name="Indexing Options" write_access="write:attributes">
 		<field attribute="user">
+			<display_name>User</display_name>
+			<note><![CDATA[This user login will be used by funnelback to index the content of private assets. This user <em>must</em> have access on each asset.]]></note>
 			<assetid type_codes="user:D" />
 		</field>
 		<field keyword="password">
+			<display_name>Password</display_name>
+			<note>Please provide the password of the user to login as.</note>
 			<function_call>
 				<paint_function		name="paintPassword" />
 				<process_function	name="processPassword" />
 			</function_call>
 		</field>
 		<field attribute="politeness">
+			<display_name>Time Delay (Politeness)</display_name>
+			<note>When indexing, use this time delay between URL documents (in millisecs)</note>
 			<int width="10" />
 		</field>
 		<field attribute="spelleroff">
+			<display_name>Turn off Speller</display_name>
+			<note>Turn off spelling indexing</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="spelling_threshold">
+			<display_name>Spelling Threshold</display_name>
+			<note>Number of occurances of word before using spelling indexing</note>
 			<int width="10" />
 		</field>
 		<field attribute="ibd">
+			<display_name>Index if binary</display_name>
+			<note>Index all documents even if the document appears to be binary</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="ixcom">
+			<display_name>Index Comments</display_name>
+			<note>Index comments found in HTML or XML documents</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Rebuild Cache" show_if="indexingOn" read_access="write:attributes" write_access="write:attributes">
 		<field>
+			<display_name>Root Node</display_name>
+			<note>This will rebuild the sitemap xml cache stored in the system.</note>
 			<function_call>
 				<paint_function		name="paintRebuildCache" />
 				<process_function	name="processRebuildCache" />
@@ -59,6 +77,8 @@
 	</section>
 	<section name="Logging" write_access="write:attributes">
 		<field attribute="keep_log_period">
+			<display_name>Keep Archived Logs</display_name>
+			<note>The length of time to keep archived logs from funnelback queries (in months).</note>
 			<int width="10" />
 		</field>
 	</section>

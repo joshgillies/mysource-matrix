@@ -17,6 +17,8 @@
 <contents>
 	<section name="Contextual Navigation" write_access="write:attributes">
 		<field>
+			<display_name>Choose a collection</display_name>
+			<note>Choose a collection to edit</note>
 			<function_call>
 				<paint_function		name="paintFlusterChooser" />
 				<process_function	name="processFlusterChooser" />
@@ -25,6 +27,8 @@
 	</section>
 	<section name="Edit Contextual Navigation" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function		name="paintFluster" />
 				<process_function	name="processFluster" />

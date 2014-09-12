@@ -15,58 +15,86 @@
 */
 -->
 <contents>
-	<section name="Contextual Navigation Options"  limbo_access="0">
-		<field attribute="show_fluster_more" write_access="write:attributes">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Category Type Options" limbo_access="0">
-		<field attribute="more_type_text" write_access="write:attributes">
-			<text width="30" />
-		</field>
-		<field attribute="more_type_num" write_access="write:attributes">
-			<int width="10" />
-		</field>
-		<field attribute="less_type_text" write_access="write:attributes">
-			<text width="30" />
-		</field>
-		<field attribute="less_type_num" write_access="write:attributes">
-			<int width="10" />
-		</field>
-	</section>
-	<section name="Category Topic Options"  limbo_access="0">
-		<field attribute="more_topic_text" write_access="write:attributes">
-			<text width="30" />
-		</field>
-		<field attribute="more_topic_num" write_access="write:attributes">
-			<int width="10" />
-		</field>
-		<field attribute="less_topic_text" write_access="write:attributes">
-			<text width="30" />
-		</field>
-		<field attribute="less_topic_num" write_access="write:attributes">
-			<int width="10" />
-		</field>
-	</section>
-	<section name="Category Site Options"  limbo_access="0">
-		<field attribute="more_site_text" write_access="write:attributes">
-			<text width="30" />
-		</field>
-		<field attribute="more_site_num" write_access="write:attributes">
-			<int width="10" />
-		</field>
-		<field attribute="less_site_text" write_access="write:attributes">
-			<text width="30" />
-		</field>
-		<field attribute="less_site_num" write_access="write:attributes">
-			<int width="10" />
-		</field>
-	</section>
-	<section name="Contextual Navigation Formats"  limbo_access="0">
-		<field>
-			<function_call>
-				<paint_function   name="paintFlusterFormatLinks"   />
-			</function_call>
-		</field>
-	</section>
+    <section name="Contextual Navigation Options" limbo_access="0">
+        <field attribute="show_fluster_more" write_access="write:attributes">
+            <display_name>Show Contextual Navigation Expansion</display_name>
+            <note><![CDATA[When this is enabled, navigation shows extra links to enable more searches to be shown]]></note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Category Type Options" limbo_access="0">
+        <field attribute="more_type_text" write_access="write:attributes">
+            <display_name><![CDATA[Category "Type" show more link]]></display_name>
+            <note><![CDATA[The maximum number of clusters for the category "Type"]]></note>
+            <text width="30" />
+        </field>
+        <field attribute="more_type_num" write_access="write:attributes">
+            <display_name><![CDATA[Maximum <i>type</i> clusters displayed]]></display_name>
+            <note><![CDATA[The maximum number of clusters for the category "Type"]]></note>
+            <int width="10" />
+        </field>
+        <field attribute="less_type_text" write_access="write:attributes">
+            <display_name><![CDATA[Category "Type" show fewer link]]></display_name>
+            <note><![CDATA[The text for the link to show less for the category "Type"]]></note>
+            <text width="30" />
+        </field>
+        <field attribute="less_type_num" write_access="write:attributes">
+            <display_name><![CDATA[Minimum <i>type</i> clusters displayed]]></display_name>
+            <note><![CDATA[The minimum number of clusters for the category "Type"]]></note>
+            <int width="10" />
+        </field>
+    </section>
+    <section name="Category Topic Options" limbo_access="0">
+        <field attribute="more_topic_text" write_access="write:attributes">
+            <display_name><![CDATA[Category "Topic" show more link]]></display_name>
+            <note><![CDATA[The text for the link to show more for the category "Topic"]]></note>
+            <text width="30" />
+        </field>
+        <field attribute="more_topic_num" write_access="write:attributes">
+            <display_name><![CDATA[Maximum <i>topic</i> clusters displayed]]></display_name>
+            <note><![CDATA[The maximum number of clusters for the category "Topic"]]></note>
+            <int width="10" />
+        </field>
+        <field attribute="less_topic_text" write_access="write:attributes">
+            <display_name><![CDATA[Category "Topic" show fewer link]]></display_name>
+            <note><![CDATA[The text for the link to show less for the category "Topic"]]></note>
+            <text width="30" />
+        </field>
+        <field attribute="less_topic_num" write_access="write:attributes">
+            <display_name><![CDATA[Minimum <i>topic</i> clusters displayed]]></display_name>
+            <note><![CDATA[The minimum number of clusters for the category "Topic"]]></note>
+            <int width="10" />
+        </field>
+    </section>
+    <section name="Category Site Options" limbo_access="0">
+        <field attribute="more_site_text" write_access="write:attributes">
+            <display_name><![CDATA[Category "Site" show more link]]></display_name>
+            <note><![CDATA[The text for the link to show more for the category "Site"]]></note>
+            <text width="30" />
+        </field>
+        <field attribute="more_site_num" write_access="write:attributes">
+            <display_name><![CDATA[Maximum <i>site</i> clusters displayed]]></display_name>
+            <note><![CDATA[The maximum number of clusters for the category "Site"]]></note>
+            <int width="10" />
+        </field>
+        <field attribute="less_site_text" write_access="write:attributes">
+            <display_name><![CDATA[Category "Site" show fewer link]]></display_name>
+            <note><![CDATA[The text for the link to show less for the category "Site"]]></note>
+            <text width="30" />
+        </field>
+        <field attribute="less_site_num" write_access="write:attributes">
+            <display_name><![CDATA[Minimum <i>site</i> clusters displayed]]></display_name>
+            <note><![CDATA[The minimum number of clusters for the category "Site"]]></note>
+            <int width="10" />
+        </field>
+    </section>
+    <section name="Contextual Navigation Formats" limbo_access="0">
+        <field>
+            <display_name />
+            <note></note>
+            <function_call>
+                <paint_function name="paintFlusterFormatLinks" />
+            </function_call>
+        </field>
+    </section>
 </contents>

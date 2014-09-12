@@ -17,18 +17,24 @@
 <contents>
 	<section name="Global Asset Exclusions" write_access="write:attributes">
 		<field>
+			<display_name>Exclude By Asset ID</display_name>
+			<note>Select Asset IDs to exclude from Funnelback indexing</note>
 			<function_call>
 				<paint_function		name="paintExcludeAssetid" />
 				<process_function	name="processExcludeAssetid" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Exclude By Asset Type</display_name>
+			<note>Select Asset Types to exclude from Funnelback indexing</note>
 			<function_call>
 				<paint_function		name="paintExcludeAssetType" />
 				<process_function	name="processExcludeAssetType" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Exclude By Root Node</display_name>
+			<note>Select a Root Node to exclude from Funnelback indexing</note>
 			<function_call>
 				<paint_function		name="paintExcludeTreeNode" />
 				<process_function	name="processExcludeTreeNode" />
