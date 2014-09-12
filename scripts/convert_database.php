@@ -496,7 +496,7 @@ MatrixDAL::dbClose($source_db);
 pre_echo('Conversion is complete');
 
 echo "\n";
-$rebakeCmd = "/usr/bin/php ${SYSTEM_ROOT}/scripts/dev/rebake.php ${SYSTEM_ROOT}";
+$rebakeCmd = "/usr/bin/php ${SYSTEM_ROOT}/scripts/rebake.php ${SYSTEM_ROOT}";
 echo "rebake.php now needs to run. Do this now [Y/n] ? ";
 $response = strtolower(trim(fgets(STDIN)));
 if (empty($response) === TRUE) {

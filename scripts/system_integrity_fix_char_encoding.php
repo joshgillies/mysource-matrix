@@ -96,11 +96,10 @@ if (function_exists('iconv') == FALSE) {
 //		),
 //	)
 //
-// NOTE 1: 	The script does not checks rollback tables
-// NOTE 2: 	If the value field holds serialised value then script must handle that field accourdingly.
-//			Currently "custom_val" field of "ast_attr_val" table of attribute type "serialsed" and
-//			"data" field of "trig" are only ones that are treated as serialsed values by this script.
-// NOTE 3:	There are two entries for 'internal_msg' table below because one targets the messages that are assoicated with an asset, 
+// NOTE 1: 	If the value field holds serialised value then script must handle that field accourdingly.
+//			Currently "custom_val" field of "ast_attr_val" table of attribute types 'option_list','email_format','parameter_map','serialise',
+//			'http_request' and 'oauth', and	"data" field of "trig" are only ones that are treated as serialsed values by this script.
+// NOTE 2:	There are two entries for 'internal_msg' table below because one targets the messages that are assoicated with an asset,
 // 			while other targets non-asset specific messages (message that has empty assetid field, like internal message sent by user or trigger action).
 //
 $tables = Array(
@@ -150,6 +149,16 @@ $tables = Array(
 				'asset_assoc'	=> FALSE,
 			),
 	);
+
+$TABLES = getCLIArg('skip-tables');
+if (!empty($TABLES)) {
+	$skip_tables = explode(',', $TABLES);
+	foreach($tables as $index => $table_data) {
+		if (in_array($table_data['table'], $skip_tables)) {
+			unset($tables[$index]);
+		}//end if
+	}//end forach
+}
 
 if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
 	echo  "\nERROR: The old encoding ('" . SYS_OLD_ENCODING . "') is the same as the current/new character set.\n\n";
@@ -232,18 +241,23 @@ if ($include_rollback) {
 
 		// Fix the rollback tables
 		$summary = fix_db($root_node_id, $tables, TRUE);
+		echo "\n*Finished fixing rollback database*";
 
-		// Unlike regular tables, for rollback table entries we dont need to obtain affected assetids 
+		// Unlike regular tables, for rollback table entries we dont need to obtain affected assetids
 		// list to regenerate the relevant files in the filesystem
 		unset($summary['affected_assetids']);
-		file_put_contents(SYNC_FILE, serialize($summary));
+		if (!file_put_contents(SYNC_FILE, serialize($summary))) {
+			echo "\nFailed to create the sync file ".SYNC_FILE;
+		}
 
 		exit();
 
 	}//end child process
 
 	if (!is_file(SYNC_FILE)) {
-		echo "Expected sync file containing the affected rollback entries not found. Only rollback tables were updated\n";
+		echo "\n";
+		echo "ERROR: Expected sync file containing the affected rollback entries not found. Either script ran out of memory while fixing the db,\n";
+		echo "or the script did not had write permission on [MATRIX_ROOT]/data/temp directory.\n\n";
 		exit(1);
 	}
 	$rollback_summary = unserialize(file_get_contents(SYNC_FILE));
@@ -260,10 +274,12 @@ if (!$pid) {
 
 	// Fix regular tables
 	$summary = fix_db($root_node_id, $tables, FALSE);
+	echo "\n*Finished fixing database*\n\n";
 
 	// Get the list of assetids for which we need to regenerate  the filesystem content
 	// to reflect the changes made in the db
 	$affected_assetids = get_affected_assetids($summary['affected_assetids']);
+	echo "\n*Finished compiling affected assets list*\n";
 
 	// Also get the context ids
 	$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
@@ -275,14 +291,23 @@ if (!$pid) {
 					'rollback' => $rollback_summary,
 				);
 
-	file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $db_summary, 'contextids' => $contextids)));
+	if (!file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $db_summary, 'contextids' => $contextids)))) {
+		echo "\nFailed to create the sync file ".SYNC_FILE;
+	}
 
 	exit();
 
 }//end child process
 
 if (!is_file(SYNC_FILE)) {
-	echo "Expected sync file containing the affected assetids not found. Only database was updated\n";
+	echo "\n";
+	echo "ERROR: Expected sync file containing the affected assetids not found. Either script ran out of memory while fixing the db,\n";
+	echo "or the script did not had write permission on [MATRIX_ROOT]/data/temp directory.\n";
+	echo "Either way this means the file content regeneration for the affected assets will have to be done manually.\n";
+	echo "\n";
+	echo "If the script has finished processing the db, please run the following script as an Apache user to regenerate the asset content files:\n";
+	echo "php scripts/regenerate_file_system.php --system=[SYSTEM_ROOT] --all\n\n";
+
 	exit(1);
 }
 
@@ -340,8 +365,18 @@ function fix_db($root_node, $tables, $rollback)
 
 	$tables_info = get_tables_info();
 
+	// All the Matrix attribute types with serialised value
+	 $serialsed_attrs = Array(
+							'option_list',
+							'email_format',
+							'parameter_map',
+							'serialise',
+							'http_request',
+							'oauth',
+						);
+
 	// Get the list of attrids of the type 'serialise'
-	$sql = "SELECT attrid FROM sq_ast_attr where type='serialise'";
+	$sql = "SELECT attrid FROM sq_ast_attr WHERE type IN ('".implode("','", $serialsed_attrs)."')";
 	$serialise_attrids = array_keys(MatrixDAL::executeSqlGrouped($sql));
 
 	$target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
@@ -962,12 +997,12 @@ function print_usage()
 	echo "\nThis script performs the charset conversion on the database from the older to the current encoding.";
 	echo "\nIt also regenerates the content files (bodycopy, metadata and design) of asset associated with the db record.\n\n";
 
-	echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--ignore-rollback] [--report]\n\n";
+	echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--skip-tables=<TABLES>] [--ignore-rollback] [--report]\n\n";
 	echo "\t<SYSTEM_ROOT>		: The root directory of Matrix system.\n";
 	echo "\t<OLD_CHARSET>		: Previous charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
 	echo "\t<NEW_CHARSET>		: New charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
 	echo "\t<ROOT_NODE>			: Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
-	echo "\t<ROOT_NODE>			: Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
+	echo "\t<TABLES>			: Comma seperated list of db table names (without prefix) to ignore.\n";
 	echo "\t[--report]			: Issue a report only instead of also trying to convert the data.\n";
 	echo "\t[--ignore-rollback]	: Do not include rollback tables.\n";
 

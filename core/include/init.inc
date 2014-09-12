@@ -115,6 +115,11 @@ if (strrpos($_SERVER['PHP_SELF'], 'index.php/')) {
 // sanitize PHP_SELF against XSS attack <script> should never gets to PHP_SELF
 $_SERVER['PHP_SELF'] = htmlspecialchars($_SERVER['PHP_SELF']);
 
+
+// some matrix specific ini preferece
+// this setting allows Matrix to remove the broken multi-byte after a failed ellipsisize try
+ini_set('mbstring.substitute_character', "none");
+
 // Load general everyday handy functions for developers
 require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';

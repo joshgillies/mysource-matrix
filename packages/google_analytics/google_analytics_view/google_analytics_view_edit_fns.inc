@@ -140,14 +140,16 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            <td><strong><?php echo number_format($report['ga:sessions'], 0); ?></strong></td>
 	            <td><?php echo translate('%s / day', number_format($report['ga:sessions'] / $day_count, 0)); ?></td>
 	            <td><?php
-	            if ($report['ga:sessions'] === $previous_report['ga:sessions']) {
-	                echo translate('Steady');
-	            } else if ($previous_report['ga:sessions'] === 0) {
-	                echo translate('Increased from zero');
-	            } else if ($report['ga:sessions'] > $previous_report['ga:sessions']) {
-	                echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:sessions'] / $previous_report['ga:sessions']) - 1), 1));
-	            } else {
-	                echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:sessions'] / $previous_report['ga:sessions'])), 1));
+	            if (empty($previous_report) === FALSE) {
+                    if ($report['ga:sessions'] === $previous_report['ga:sessions']) {
+                        echo translate('Steady');
+                    } else if ($previous_report['ga:sessions'] === 0) {
+                        echo translate('Increased from zero');
+                    } else if ($report['ga:sessions'] > $previous_report['ga:sessions']) {
+                        echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:sessions'] / $previous_report['ga:sessions']) - 1), 1));
+                    } else {
+                        echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:sessions'] / $previous_report['ga:sessions'])), 1));
+                    }
 	            }
 	            ?></td>
 	        </tr>
@@ -156,14 +158,16 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            <td><strong><?php echo number_format($report['ga:pageviews'], 0); ?></strong></td>
 	            <td><?php echo translate('%s / day', number_format($report['ga:pageviews'] / $day_count, 0)); ?></td>
 	            <td><?php
-	            if ($report['ga:pageviews'] === $previous_report['ga:pageviews']) {
-	                echo translate('Steady');
-	            } else if ($previous_report['ga:pageviews'] === 0) {
-	                echo translate('Increased from zero');
-	            } else if ($report['ga:pageviews'] > $previous_report['ga:pageviews']) {
-	                echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:pageviews'] / $previous_report['ga:pageviews']) - 1), 1));
-	            } else {
-	                echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:pageviews'] / $previous_report['ga:pageviews'])), 1));
+	            if (empty($previous_report) === FALSE) {
+                    if ($report['ga:pageviews'] === $previous_report['ga:pageviews']) {
+                        echo translate('Steady');
+                    } else if ($previous_report['ga:pageviews'] === 0) {
+                        echo translate('Increased from zero');
+                    } else if ($report['ga:pageviews'] > $previous_report['ga:pageviews']) {
+                        echo sprintf(translate('Increase of %s%%'), number_format(100 * (($report['ga:pageviews'] / $previous_report['ga:pageviews']) - 1), 1));
+                    } else {
+                        echo sprintf(translate('Decrease of %s%%'), number_format(100 * (1 - ($report['ga:pageviews'] / $previous_report['ga:pageviews'])), 1));
+                    }
 	            }
 	            ?></td>
 	        </tr>
@@ -172,7 +176,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            <td><strong><?php echo number_format((100.0 * $report['ga:bounces'] / $report['ga:sessions']), 2) ?>%</strong> (<?php echo number_format($report['ga:bounces'], 0).')'; ?></td>
 	            <td></td>
 	            <td><?php
-	            if (($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
+	            if ((empty($previous_report) === FALSE) && ($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
                     $bounce_rate      = (100.0 * $report['ga:bounces'] / $report['ga:sessions']);
                     $prev_bounce_rate = (100.0 * $previous_report['ga:bounces'] / $previous_report['ga:sessions']);
                     if ($bounce_rate === $prev_bounce_rate) {
@@ -199,7 +203,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            ?></strong></td>
 	            <td></td>
 	            <td><?php
-	            if (($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
+	            if ((empty($previous_report) === FALSE) && ($previous_report['ga:sessions'] > 0) && ($report['ga:sessions'] > 0)) {
                     $time      = $report['ga:sessionDuration'] / $report['ga:sessions'];
                     $prev_time = $previous_report['ga:sessionDuration'] / $previous_report['ga:sessions'];
                     if ($time === $prev_time) {
@@ -228,7 +232,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                echo sprintf(translate('Sample of %s pages'), number_format($report['ga:pageLoadSample']));
 	            ?></td>
 	            <td><?php
-	            if (($previous_report['ga:pageLoadSample'] > 0) && ($report['ga:pageLoadSample'] > 0)) {
+	            if ((empty($previous_report) === FALSE) && ($previous_report['ga:pageLoadSample'] > 0) && ($report['ga:pageLoadSample'] > 0)) {
                     $time      = $report['ga:pageLoadTime'] / $report['ga:pageLoadSample'];
                     $prev_time = $previous_report['ga:pageLoadTime'] / $previous_report['ga:pageLoadSample'];
                     if ($time === $prev_time) {
@@ -862,10 +866,10 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $city .= ', '.$row['ga:region'];
 	            }
 
+	            $city_report[$country] = array_get_index($city_report, $country, Array());
 	            if ($city !== self::NOT_SET) {
 	                $i++;
-	                $city_report[$country] = array_get_index($city_report, $country, Array());
-                    $city_report[$country][$city] = $row;
+	                $city_report[$country][$city] = $row;
                     $city_report[$country][$city]['sq:cityRegion'] = $city;
                     $city_report[$country][$city]['sq:rank'] = $i;
                 }
@@ -894,28 +898,31 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    }
 
 	    $max_results = 20;
-	    $other_report = array_reduce(
-	        array_slice($report, $max_results),
-	        function($carry, $row) {
-	            if (empty($carry) === FALSE) {
-	                foreach ($row as $fieldid => &$value) {
-	                    if (is_numeric($value) === TRUE) {
-	                        $carry[$fieldid] += $value;
-	                    }
-	                }
-	            } else {
-	                $carry = $row;
-	            }
+	    // Do we need an "other countries" section?
+	    if (count($report) > $max_results) {
+            $other_report = array_reduce(
+                array_slice($report, $max_results),
+                function($carry, $row) {
+                    if (empty($carry) === FALSE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (is_numeric($value) === TRUE) {
+                                $carry[$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $carry = $row;
+                    }
 
-	            return $carry;
-	        },
-	        Array()
-	    );
+                    return $carry;
+                },
+                Array()
+            );
 
-	    $other_report['ga:country'] = translate('Other countries (%s)', count($report) - $max_results);
-	    $other_report['sq:other']   = TRUE;
-	    $report = array_slice($report, 0, $max_results);
-	    $report[] = $other_report;
+            $other_report['ga:country'] = translate('Other countries (%s)', count($report) - $max_results);
+            $other_report['sq:other']   = TRUE;
+            $report = array_slice($report, 0, $max_results);
+            $report[] = $other_report;
+	    }
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
