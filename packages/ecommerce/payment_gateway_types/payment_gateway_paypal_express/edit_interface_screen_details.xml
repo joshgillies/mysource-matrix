@@ -15,71 +15,106 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" />
-		</field>
-		<field attribute="short_name">
-			<text width="25" />
-		</field>
-	</section>
-	<section name="PayPal Express Checkout API Credentials" write_access="write:attributes">
-		<field attribute="username">
-			<text width="30" />
-		</field>
-		<field attribute="password">
-			<password width="30" />
-		</field>
-		<field attribute="signature">
-			<text width="80" />
-		</field>
-	</section>
-	<section name="Gateway Options" write_access="write:attributes">
-		<field attribute="currency">
-			<selection width="60" />
-		</field>
-		<field attribute="timeout">
-			<int width="10" />
-		</field>
-		<field attribute="test_mode">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="button_image">
-			<text width="80" />
-		</field>
-	</section>
-	<section name="Pass through Variables" write_access="write:attributes">
-		<field attribute="first_name_var_name">
-			<text width="30" />
-		</field>
-		<field attribute="last_name_var_name">
-			<text width="30" />
-		</field>
-		<field attribute="addr_street_var_name">
-			<text width="30" />
-		</field>
-		<field attribute="city_var_name">
-			<text width="30" />
-		</field>
-		<field attribute="postcode_var_name">
-			<text width="30" />
-		</field>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Short Name</display_name>
+            <note />
+            <text width="25" />
+        </field>
+    </section>
+    <section name="PayPal Express Checkout API Credentials" write_access="write:attributes">
+        <field attribute="username">
+            <display_name>API Username</display_name>
+            <note />
+            <text width="30" />
+        </field>
+        <field attribute="password">
+            <display_name>API Password</display_name>
+            <note />
+            <password width="30" />
+        </field>
+        <field attribute="signature">
+            <display_name>API Signature</display_name>
+            <note />
+            <text width="80" />
+        </field>
+    </section>
+    <section name="Gateway Options" write_access="write:attributes">
+        <field attribute="currency">
+            <display_name>Currency</display_name>
+            <note>Currency to use for the transaction</note>
+            <selection width="60" />
+        </field>
+        <field attribute="timeout">
+            <display_name>Timeout</display_name>
+            <note>How long to wait for response from PayPal, in seconds, when processing a transaction</note>
+            <int width="10" />
+        </field>
+        <field attribute="test_mode">
+            <display_name>Test Mode</display_name>
+            <note>Enabling test mode will use the Paypal Sandbox server</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="button_image">
+            <display_name>Button Image URL</display_name>
+            <note>Checkout button image URL to use for this gateway</note>
+            <text width="80" />
+        </field>
+    </section>
+    <section name="Pass through Variables" write_access="write:attributes">
+        <field attribute="first_name_var_name">
+            <display_name>First Name Variable Name</display_name>
+            <note>Name of the pass through variable for the First Name of the Delivery Address</note>
+            <text width="30" />
+        </field>
+        <field attribute="last_name_var_name">
+            <display_name>Last Name Variable Name</display_name>
+            <note>Name of the pass through variable for the Last Name of the Delivery Address</note>
+            <text width="30" />
+        </field>
+        <field attribute="addr_street_var_name">
+            <display_name>Street Variable Name</display_name>
+            <note>Name of the pass through variable for the Street of the Delivery Address</note>
+            <text width="30" />
+        </field>
+        <field attribute="city_var_name">
+            <display_name>City Variable Name</display_name>
+            <note>Name of the pass through variable for the City of the Delivery Address</note>
+            <text width="30" />
+        </field>
+        <field attribute="postcode_var_name">
+            <display_name>Postcode Variable Name</display_name>
+            <note>Name of the pass through variable for the Postcode of the Delivery Address</note>
+            <text width="30" />
+        </field>
         <field attribute="state_var_name">
-			<text width="30" />
-		</field>
-		<field attribute="country_var_name">
-			<text width="30" />
-		</field>
-	</section>
-	<section name="Interface Options" write_access="write:attributes">
-		<field attribute="submit_text">
-			<text width="35" />
-		</field>
-		<field attribute="reset_text">
-			<text width="35" />
-		</field>
-		<field attribute="cancel_text">
-			<text width="35" />
-		</field>
-	</section>
+            <display_name>State Variable Name</display_name>
+            <note>Name of the pass through variable for the State of the Delivery Address</note>
+            <text width="30" />
+        </field>
+        <field attribute="country_var_name">
+            <display_name>Country Variable Name</display_name>
+            <note>Name of the pass through variable for the Delivery Country</note>
+            <text width="30" />
+        </field>
+    </section>
+    <section name="Interface Options" write_access="write:attributes">
+        <field attribute="submit_text">
+            <display_name>Submit Button Text</display_name>
+            <text width="35" />
+        </field>
+        <field attribute="reset_text">
+            <display_name>Reset Button Text</display_name>
+            <text width="35" />
+        </field>
+        <field attribute="cancel_text">
+            <display_name>Cancel Button Text</display_name>
+            <text width="35" />
+        </field>
+    </section>
 </contents>

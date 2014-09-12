@@ -16,84 +16,123 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="25" height="1" />
-		</field>
-	</section>
-	<section name="UTransact Account Details" write_access="write:attributes">
-		<field attribute="bgas_webservice_url">
-			<text width="60" />
-		</field>		
-		<field attribute="transactions_webservice_url">
-			<text width="60" />
-		</field>		
-		<field attribute="services_webservice_url">
-			<text width="60" />
-		</field>
-		<field attribute="username">
-			<text width="20" height="1" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintAccountPassword"  />
-				<process_function name="processAccountPassword" />
-			</function_call>			
-		</field>		
-		<field attribute="merchant_id">
-			<text width="10"/>
-		</field>		
-		<field attribute="payment_model">
-			<text width="10"/>
-		</field>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Short Name</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="UTransact Account Details" write_access="write:attributes">
+        <field attribute="bgas_webservice_url">
+            <display_name>Utransact Bgas URL</display_name>
+            <note />
+            <text width="60" />
+        </field>
+        <field attribute="transactions_webservice_url">
+            <display_name>Utransact Transactions URL</display_name>
+            <note />
+            <text width="60" />
+        </field>
+        <field attribute="services_webservice_url">
+            <display_name>Utransact Services URL</display_name>
+            <note />
+            <text width="60" />
+        </field>
+        <field attribute="username">
+            <display_name>Username</display_name>
+            <note />
+            <text width="20" height="1" />
+        </field>
+        <field>
+            <display_name>Password</display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintAccountPassword" />
+                <process_function name="processAccountPassword" />
+            </function_call>
+        </field>
+        <field attribute="merchant_id">
+            <display_name>Merchant ID</display_name>
+            <note />
+            <text width="10"/>
+        </field>
+        <field attribute="payment_model">
+            <display_name>Payment Model</display_name>
+            <note />
+            <text width="10"/>
+        </field>
 
-	</section>
-	<section name="Card Verification 2 code property(CV2)" write_access="write:attributes">
-		<field attribute="display_ccv">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
+    </section>
+    <section name="Card Verification 2 code property(CV2)" write_access="write:attributes">
+        <field attribute="display_ccv">
+            <display_name>CV2 Verification</display_name>
+            <node />
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
 
-	<section name="Purchaser Checkout Form Question Map" write_access="write:attributes">
+    <section name="Purchaser Checkout Form Question Map" write_access="write:attributes">
         <field attribute="map_firstname_assetid">
+            <display_name>First name question</display_name>
+            <note></note>
             <assetid type_codes="form_question:D" />
         </field>
         <field attribute="map_surname_assetid">
+            <display_name>Surname question</display_name>
+            <note></note>
             <assetid type_codes="form_question:D" />
         </field>
         <field attribute="map_email_assetid">
+            <display_name>Email question</display_name>
+            <note></note>
             <assetid type_codes="form_question:D" />
         </field>
         <field attribute="map_address1_assetid">
+            <display_name>Address line 1 question</display_name>
+            <note></note>
             <assetid type_codes="form_question:D" />
         </field>
         <field attribute="map_address2_assetid">
+            <display_name>Address line 2 question</display_name>
+            <note></note>
             <assetid type_codes="form_question:D" />
         </field>
         <field attribute="map_suburb_assetid">
+            <display_name>Suburb question</display_name>
+            <note></note>
             <assetid type_codes="form_question:D" />
         </field>
         <field attribute="map_city_assetid">
+            <display_name>City question</display_name>
+            <note></note>
             <assetid type_codes="form_question:D" />
-        </field>        
+        </field>
         <field attribute="map_postcode_assetid">
+            <display_name>Postcode question</display_name>
+            <note></note>
             <assetid type_codes="form_question:D" />
-        </field>        
-	</section>
+        </field>
+    </section>
 
-	<section name="Interface Options" write_access="write:attributes">
-		<field attribute="submit_text">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="reset_text">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="cancel_text">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	
+    <section name="Interface Options" write_access="write:attributes">
+        <field attribute="submit_text">
+            <display_name>Submit Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+        <field attribute="reset_text">
+            <display_name>Reset Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+        <field attribute="cancel_text">
+            <display_name>Cancel Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+    </section>
+
 </contents>

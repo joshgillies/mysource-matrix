@@ -16,88 +16,133 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Configuration" write_access="write:attributes">
-		<field attribute="protocol">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="vendor">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="timeout">
-			<int width="3" />
-		</field>
-		<field attribute="currency">
-			<selection style="list" />
-		</field>
-		<field attribute="description">
-			<text width="60" height="1" />
-		</field>
-		<field attribute="delivery_addr_is_billing_addr">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="hide_delivery_addr">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="supported_card_types">
-			<selection style="boxes" columns="1" />
-		</field>
-	</section>
-	<section name="Fraud Prevention" write_access="write:attributes">
-		<field attribute="threeds_enabled">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="avscv2_enabled">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Pass through Variables" write_access="write:attributes">
-		<field attribute="giftaid_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="firstname_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="surname_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="addr1_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="addr2_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="city_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="postcode_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="country_var_name">
-			<text width="30" height="1" />
-		</field>
-	</section>
-	<section name="Interface Options" write_access="write:attributes">
-		<field attribute="submit_text">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="reset_text">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="cancel_text">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Run Mode" write_access="write:attributes">
-		<field attribute="run_mode">
-			<selection style="list" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Short Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Configuration" write_access="write:attributes">
+        <field attribute="protocol">
+            <display_name>Protocol</display_name>
+            <note>The Sage Pay Direct Protocol (2.23 is the version when this payment gateway is created).</note>
+            <text width="5" height="1" />
+        </field>
+        <field attribute="vendor">
+            <display_name>Vendor</display_name>
+            <note>The Vendor Login Name is supplied by Sage Pay when your account is created. It is used to authenticate your site.</note>
+            <text width="20" height="1" />
+        </field>
+        <field attribute="timeout">
+            <display_name>Timeout</display_name>
+            <note>How long to wait for a response, in seconds, before returning an error. Defaults to 60 seconds if unspecified.</note>
+            <int width="3" />
+        </field>
+        <field attribute="currency">
+            <display_name>Currency</display_name>
+            <note>The currency used in all the e-commerce transactions.</note>
+            <selection style="list" />
+        </field>
+        <field attribute="description">
+            <display_name>Description</display_name>
+            <note>The free text description of goods or services being purchased. It is displayed in the My Sage Page screens of the vendor account for reference.</note>
+            <text width="60" height="1" />
+        </field>
+        <field attribute="delivery_addr_is_billing_addr">
+            <display_name>Delivery Address is Billing Address?</display_name>
+            <note>The flag to indicate if delivery address is billing address. If the answer is yes, the card holder will not need to supply delivery address.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="hide_delivery_addr">
+            <display_name>Hide Delivery Address?</display_name>
+            <note>The flag to indicate if delivery address is hidden. If the answer is yes, the delivery address will get values from the pass-through variables.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="supported_card_types">
+            <display_name>Supported Card Types</display_name>
+            <note>The Card Types that are supported by this Payment Gateway. The selected card types will be available in the drop-down box of %card_type% keyword replacement.</note>
+            <selection style="boxes" columns="1" />
+        </field>
+    </section>
+    <section name="Fraud Prevention" write_access="write:attributes">
+        <field attribute="threeds_enabled">
+            <display_name>Enable 3-D Secure?</display_name>
+            <note>The flag to enable 3-D Secure check for the transactions. If 3-D Secure is ON for the vendor account, this flag must be yes.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="avscv2_enabled">
+            <display_name>Enable AVS/CV2?</display_name>
+            <note>The flag to enable AVS/CV2 check for the transactions. If AVS/CV2 is ON for the vendor account, this flag must be yes.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Pass through Variables" write_access="write:attributes">
+        <field attribute="giftaid_var_name">
+            <display_name>Gift Aid Variable Name</display_name>
+            <note>The name of the pass through variable for Gift Aid. If the pass through value is 1, yes or true string, this payment will be a Gift Aid charitable donation and the customer has AGREED to donate the tax. This feature is only of use if your merchant account is Gift Aid enabled.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="firstname_var_name">
+            <display_name>First Name Variable Name</display_name>
+            <note>The name of the pass through variable for First Name.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="surname_var_name">
+            <display_name>Surname Variable Name</display_name>
+            <note>The name of the pass through variable for Surname.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="addr1_var_name">
+            <display_name>Address 1 Variable Name</display_name>
+            <note>The prefix of the pass through variables for the first address component. For example, the variable names of Address 1 are address1_1 and address1_2, this value will be address1_</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="addr2_var_name">
+            <display_name>Address 2 Variable Name</display_name>
+            <note>The prefix of the pass through variables for the second address component. For example, the variable names of Address 2 are address2_1 and address2_2, this value will be address2_</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="city_var_name">
+            <display_name>City Variable Name</display_name>
+            <note>The name of the pass through variable for City.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="postcode_var_name">
+            <display_name>Postcode Variable Name</display_name>
+            <note>The name of the pass through variable for Postcode.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="country_var_name">
+            <display_name>Country Variable Name</display_name>
+            <note>The name of the pass through variable for Country.</note>
+            <text width="30" height="1" />
+        </field>
+    </section>
+    <section name="Interface Options" write_access="write:attributes">
+        <field attribute="submit_text">
+            <display_name>Submit Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+        <field attribute="reset_text">
+            <display_name>Reset Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+        <field attribute="cancel_text">
+            <display_name>Cancel Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Run Mode" write_access="write:attributes">
+        <field attribute="run_mode">
+            <display_name>Run Mode</display_name>
+            <note />
+            <selection style="list" />
+        </field>
+    </section>
 </contents>

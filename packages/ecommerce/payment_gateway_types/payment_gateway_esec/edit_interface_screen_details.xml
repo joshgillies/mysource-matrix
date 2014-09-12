@@ -16,33 +16,54 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Identifiers" write_access="write:attributes">
-		<field attribute="merchant_id">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Interface Options" write_access="write:attributes">
-		<field attribute="submit_text">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="reset_text">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="cancel_text">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Testing Mode" write_access="write:attributes">
-		<field attribute="test_mode">
-			<boolean true_text="on" false_text="off" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Short Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Identifiers" write_access="write:attributes">
+        <field attribute="merchant_id">
+            <display_name>Merchant ID</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Interface Options" write_access="write:attributes">
+        <field attribute="display_ccv">
+            <display_name>CCV Field</display_name>
+            <note>When enabled, this will print the CCV field on the credit card details form.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="message">
+            <display_name>Message</display_name>
+            <note>This message will be displayed on the gateway upon redirect from the e-commerce page.</note>
+            <text />
+        </field>
+        <field attribute="submit_text">
+            <display_name>Submit Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+        <field attribute="reset_text">
+            <display_name>Reset Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+        <field attribute="cancel_text">
+            <display_name>Cancel Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Testing Mode" write_access="write:attributes">
+        <field attribute="test_mode">
+            <display_name>Test Mode</display_name>
+            <note>Turn this switch ON for testing purposes. This will set the merchant ID to test among other things. When turned on, the gateway screen will display that it is in testing mode.</note>
+            <boolean true_text="on" false_text="off" />
+        </field>
+    </section>
 </contents>
