@@ -1406,11 +1406,12 @@ function getKeywordsReplacements(asset_id, keywords_array, dataCallback)
 *
 *
 */
-function setAssetStatus(asset_id, status, cascade, workflow_stream, dataCallback)
+function setAssetStatus(asset_id, status, cascade, workflow_stream, userlog, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 	var workflow_stream  = isset(workflow_stream) ? workflow_stream : '';
+	var userlog          = isset(userlog) ? userlog : '';
 	var cascade = isset(cascade) && ( cascade.toString().toLowerCase() != 'null' && cascade != '' ) ?  cascade : 0;
 
 	// we cannot pass TRUE or FALSE as string so lets do our conversion
@@ -1423,8 +1424,13 @@ function setAssetStatus(asset_id, status, cascade, workflow_stream, dataCallback
 		}
 	}
 
+	// Generic escaping function.
+	var apiEscape = function(str) {
+	    return str.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
+	}
+
 	// Build our string
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=setAssetStatus&id=' + asset_id + '&status=' + status + '&cascade=' + cascade + '&workflow_stream=' + workflow_stream.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=setAssetStatus&id=' + asset_id + '&status=' + status + '&cascade=' + cascade + '&workflow_stream=' + apiEscape(workflow_stream) + '&userlog=' + apiEscape(userlog);
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
