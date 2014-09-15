@@ -879,7 +879,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		} else {
 			$file_info = $file;
 			$file_type = $file['type'];
-			$assetid = substr($file_info['filename'], 0 ,strpos($file_info['filename'], '_'));
+			$assetid = substr($file_info['filename'], 0 ,strrpos($file_info['filename'], '_'));
 		}		
 
 		$path = $this->_running_vars['export_path'];
