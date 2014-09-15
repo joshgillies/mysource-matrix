@@ -644,16 +644,10 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 				?>
 				<tr>
 					<td class="sq-backend-table-cell" style="text-align: center;">
-						<?php
-						if ($link_type & SQ_SC_LINK_BACKEND_NAV) {
-							?>
-							<a href="#">
-							<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0; cursor: pointer"  onclick="'.asset_locator_onclick($asset_lineage_ids, TRUE).'"');
-							?>
-							</a>
-							<?php
-						}
+						<a href="#">
+						<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0; cursor: pointer"  onclick="'.asset_locator_onclick($asset_lineage_ids, TRUE).'"');
 						?>
+						</a>
 					</td>
 					<td style="text-align: center;">
 						<?php echo $linkid; ?>

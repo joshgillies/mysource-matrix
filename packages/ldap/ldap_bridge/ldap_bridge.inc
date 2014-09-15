@@ -550,24 +550,30 @@ class LDAP_Bridge extends Asset implements Bridge
 					}//end foreach
 
 					if (!empty($user_uids)) {
-						// Verify that the user is within the defined 'base dn'
-						$base_dn = $this->decodeString($this->attr('root_dn'));
+						// Verify that the users are within the defined 'base dn' or 'auth dn' (if supplied)
+						$start_dns = Array();
+						$start_dns[] = $this->decodeString($this->attr('root_dn'));
+						if (trim($this->attr('auth_dn'))) {
+							$start_dns[] = $this->decodeString(trim($this->attr('auth_dn')));
+						}
 						// Query all uids in a single go
 						$uids_filter = '(|'.implode($user_uids).')';
-						$member_result = $ldap->searchEntries($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
-						if (isset($member_result['count']) && $member_result['count'] > 0) {
-							foreach($member_result as $member_entry) {
-								if (isset($member_entry['dn'])) {
-									$dn = $member_entry['dn'];
-									$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
-									// dn of user group was stripped out in construction, but we need it this time
-									if (!is_null($user)){
-										$user->vars['dn'] = $dn;
-										$entries[$dn] = $user->vars;
+						foreach($start_dns as $start_dn) {
+							$member_result = $ldap->searchEntries($start_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+							if (isset($member_result['count']) && $member_result['count'] > 0) {
+								foreach($member_result as $member_entry) {
+									if (isset($member_entry['dn']) && !isset($entries[$member_entry['dn']])) {
+										$dn = $member_entry['dn'];
+										$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
+										// dn of user group was stripped out in construction, but we need it this time
+										if (!is_null($user)){
+											$user->vars['dn'] = $dn;
+											$entries[$dn] = $user->vars;
+										}//end if
 									}//end if
-								}//end if
-							}//end foreach
-						}//end if
+								}//end foreach
+							}//end if
+						}//end foreach startdns
 					}//end if
 
 					if (!empty($sort_by)){
@@ -1048,25 +1054,31 @@ class LDAP_Bridge extends Asset implements Bridge
 						}//end foreach
 						
 						if (!empty($user_uids)) {
-							// Verify that the users are within the defined 'base dn'
-							$base_dn = $this->decodeString($this->attr('root_dn'));
+							// Verify that the users are within the defined 'base dn' or 'auth dn' (if supplied)
+							$start_dns = Array();
+							$start_dns[] = $this->decodeString($this->attr('root_dn'));
+							if (trim($this->attr('auth_dn'))) {
+								$start_dns[] = $this->decodeString(trim($this->attr('auth_dn')));
+							}
 							// Query all uids in a single go
 							$uids_filter = '(|'.implode($user_uids).')';
-							$member_result = $ldap->searchEntries($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
-							if (!isset($member_result['count']) || $member_result['count'] == 0) {
-								continue;
-							}
-							foreach($member_result as $member_entry) {
-							 	if (isset($member_entry['dn'])) {
-									$dn = $member_entry['dn'];
-									$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
-									// dn of user group was stripped out in construction, but we need it this time
-									if (!is_null($user)){
-										$user->vars['dn'] = $dn;
-										$entries[] = $user->vars;
+							foreach($start_dns as $start_dn) {
+								$member_result = $ldap->searchEntries($start_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+								if (!isset($member_result['count']) || $member_result['count'] == 0) {
+									continue;
+								}
+								foreach($member_result as $member_entry) {
+								 	if (isset($member_entry['dn']) && !isset($entries[$member_entry['dn']])) {
+										$dn = $member_entry['dn'];
+										$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
+										// dn of user group was stripped out in construction, but we need it this time
+										if (!is_null($user)){
+											$user->vars['dn'] = $dn;
+											$entries[] = $user->vars;
+										}//end if
 									}//end if
-								}//end if
-							}//end foreach
+								}//end foreach
+							}//end foreach startdns
 						}//end if
 
 					}//end if
