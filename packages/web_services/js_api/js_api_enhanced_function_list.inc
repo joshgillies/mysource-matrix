@@ -1944,6 +1944,7 @@ class Js_Api_Enhanced_Function_List
 						status:             '',
 						cascade:            0,
 						workflow_stream:    '',
+						userlog:            '',
 						dataCallback:       function(){}
 					},
 
@@ -1963,7 +1964,8 @@ class Js_Api_Enhanced_Function_List
 				['id', options.asset_id],
 				['workflow_stream', this._cleanUrlParam(options.workflow_stream)],
 				['status',options.status],
-				['cascade',options.cascade]
+				['cascade',options.cascade],
+				['userlog', options.userlog]
 			],options);
 
 		},// end setAssetStatus
