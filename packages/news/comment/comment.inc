@@ -402,14 +402,14 @@ class Comment extends Page
 				// nothing at the moment
 			break;
 		}
-		
+
 		$disable_keyword_conf = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS');
-		
-		if ($disable_keyword_conf) {			
-			require_once SQ_FUDGE_PATH.'/general/text.inc';			
+
+		if ($disable_keyword_conf) {
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = extract_keywords($value);
-			
-			foreach ($keywords as $keyword) {				
+
+			foreach ($keywords as $keyword) {
 				$value = str_replace('%'.$keyword.'%', $keyword, $value);
 			}
 		}//end if disable keyword replacements

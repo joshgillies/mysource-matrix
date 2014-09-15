@@ -139,7 +139,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			// and save the report
 
 			$step_data['message'] = translate('core_get_readable_asset_descriptions');
-			
+
 			$report_contents .= '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n";
 			// generate the report
 			$report_contents .= '<asset_types>';
@@ -202,7 +202,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			$dom = new DOMDocument();
 			// use DOMDocument::loadXML() to see if there is any entity  reference loop
 			// which may exhaust us of the memory limit, if not then continue as normal
-			if ($dom->loadXML(file_get_contents($report_path), LIBXML_NOENT)) { 
+			if ($dom->loadXML(file_get_contents($report_path), LIBXML_NOENT)) {
 				$root = simplexml_import_dom($dom);
 			} else {
 				// don't worry about any warning, if we are here then PHP has already raised the warning for us

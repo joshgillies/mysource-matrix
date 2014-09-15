@@ -119,7 +119,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 								<?php
 								if (!empty($safe_trash_errors['links'])) {
 								?>
-								<li><?php echo translate('safe_trash_line_blocked_links', $owner->getBackendHref('linking')); ?></li>
+								<li><?php echo sprintf(translate('safe_trash_line_blocked_links'), $owner->getBackendHref('linking')); ?></li>
 								<?php
 								}
 								?>
@@ -485,7 +485,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 					combo_box($prefix.'_change_status_stream', $options['workflow'], FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_workflow"');
 				$cb2 = ob_get_clean();
 
-				echo translate('workflow_stream_using_workflow_stream', $cb1.$cb2);
+				echo sprintf(translate('workflow_stream_using_workflow_stream'), $cb1.$cb2);
 			} else {
 				// Only one option; hide the stream field and chuck it into a hidden field
 				$all_options = $options['bypass'] + $options['workflow'];
@@ -529,7 +529,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 						} else {
 							stream_byp_cb.disabled = true;
 						}
-						if (typeof(editorCommenting) != "undefined") { 
+						if (typeof(editorCommenting) != "undefined") {
 							editorCommenting(status_cb);
 						}
 						checkStatusDisplayWarning();
@@ -811,7 +811,7 @@ function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 		if (!empty($running_schemas)) {
-			echo translate('asset_currently_in_workflow', $owner->getBackendHref('workflow'));
+			echo sprintf(translate('asset_currently_in_workflow'), $owner->getBackendHref('workflow'));
 		} else {
 			_paintStatusChange($owner, $o, $prefix, $statii);
 			$needs_commit = TRUE;
@@ -932,7 +932,7 @@ function _paintDetailsFutureStatusNew(Asset $owner, Backend_Outputter $o, $prefi
 
 		$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 
-		$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+		$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
 		$needs_commit = TRUE;
 	} else {
 		echo translate('cron_manager_not_configured');
@@ -995,7 +995,7 @@ function _paintDetailsThumbnailCurrent(Asset $owner, Backend_Outputter $o, $pref
 		$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 	    }
 	}
-	
+
 	if($thumbnail) {
 	    $edit_fns = $thumbnail->getEditFns();
 	    $edit_fns->printExistingFileInfo($thumbnail);

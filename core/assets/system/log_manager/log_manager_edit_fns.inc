@@ -395,7 +395,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 							</td>
 						</tr>
 					</table>
-					
+
 				</div>
 				<?php
 			$o->closeField();

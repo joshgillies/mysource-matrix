@@ -597,7 +597,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 			// to move on to user authorization, token and token secret are required
 			if (empty($token_info) || !isset($token_info['oauth_token']) || !isset($token_info['oauth_token_secret'])) {
-				$this->_errors[] = translate('oauth_request_token_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+				$this->_errors[] = sprintf(translate('oauth_request_token_failed'), $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
 				return $this->_res;
 			}
 
@@ -607,7 +607,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		}
 
 		// shouldn't reach here...but if it does, it means we didn't get a response body, so, something must have gone wrong...
-		$this->_errors[] = translate('oauth_request_token_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+		$this->_errors[] = sprintf(translate('oauth_request_token_failed'), $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
 
 		return NULL;
 
@@ -652,7 +652,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		if (empty($request_token) || !isset($request_token['oauth_token'])) {
 			$auth_url = $this->_config['authorization_url'];
 			$this->_replaceKeywords($auth_url);
-			$this->_errors[] = translate('oauth_request_token_not_found', $auth_url);
+			$this->_errors[] = sprintf(translate('oauth_request_token_not_found'), $auth_url);
 			return NULL;
 		}
 
@@ -698,7 +698,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		// we need to rely on the http code they return in the response to check if the request went through
 		// as the presentation of authorization/log in pages are up to the service provider...
 		if ($this->_res['response']['info']['http_code'] >= 400) {
-			$this->_errors[] = translate('oauth_authorization_request_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+			$this->_errors[] = sprintf(translate('oauth_authorization_request_failed'), $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
 			return $this->_res;
 		}
 
@@ -729,7 +729,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		if (!isset($authorized_token) || !isset($verifier) || !isset($token_secret)) {
 			$access_url = $this->_config['access_token_url'];
 			$this->_replaceKeywords($access_url);
-			$this->_errors[] = translate('oauth_access_token_missing_params', $access_url, $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+			$this->_errors[] = sprintf(translate('oauth_access_token_missing_params'), $access_url, $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
 			return NULL;
 		}
 
@@ -827,7 +827,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			$token_info = $this->_getTokenInfoArray($this->_res['response']['body']);
 
 			if (empty($token_info) || !isset($token_info['oauth_token']) || !isset($token_info['oauth_token_secret'])) {
-				$this->_errors[] = translate('oauth_access_token_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+				$this->_errors[] = sprintf(translate('oauth_access_token_failed'), $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
 				return $this->_res;
 			}
 
@@ -856,7 +856,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 		// we need feed url, access token and access secret
 		if (empty($url) || ($this->getType() == 'THREE_LEGGED' && (empty($access_token) || empty($access_token_secret)))) {
-			$this->_errors[] = translate('oauth_user_data_missing_params', $url);
+			$this->_errors[] = sprintf(translate('oauth_user_data_missing_params'), $url);
 			return;
 		}
 

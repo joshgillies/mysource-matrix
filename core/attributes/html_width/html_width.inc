@@ -104,7 +104,7 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 		if (!isset($_REQUEST[$prefix])) return false;
 
 		if ($_REQUEST[$prefix.'_pct'] == 1) {
-			
+
 			$value = (int) $_REQUEST[$prefix].'%';
 		} else {
 			$value = (int) $_REQUEST[$prefix];

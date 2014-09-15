@@ -245,7 +245,7 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 
 
 	/**
-	* Flush the table only on the root folder. This will clean any assets not existing anymore 
+	* Flush the table only on the root folder. This will clean any assets not existing anymore
 	*
 	* @param array	&$step_data	a reference to the array of information about the current step
 	* @param string	$prefix		prefix for form vars
@@ -300,7 +300,7 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if ($asset) {
-				$step_data['message'] = translate('fnb_hipo_refreshing_asset', $asset->name);
+				$step_data['message'] = sprintf(translate('fnb_hipo_refreshing_asset'), $asset->name);
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$fm->updateAsset($asset, Array('update'));

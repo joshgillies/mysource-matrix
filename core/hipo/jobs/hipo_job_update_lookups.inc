@@ -235,7 +235,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 								 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						AND (('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_BACKEND_NAV).' > 0) OR 
+						AND (('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_BACKEND_NAV).' > 0) OR
 							 (('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_SIGNIFICANT).' > 0) AND ';
 				$sql .= (MatrixDAL::getDbType() === 'oci') ? '(l.value IS NOT NULL)))' : '(l.value <> \'\'))) ';
 				$where = 't.treeid LIKE :treeid
@@ -299,12 +299,12 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 
 			if (!is_null($asset)) {
 				if (!$asset->updateLookups($this->_running_vars['auto_add_remaps'])) return FALSE;
-				$step_data['message'] = translate('hipo_updating_lookups_for', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				$step_data['message'] = sprintf(translate('hipo_updating_lookups_for'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_cannot_update_lookups', $assetid));
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$this->_addError(sprintf(translate('hipo_cannot_update_lookups'), $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again

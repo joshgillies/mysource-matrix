@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
@@ -51,7 +51,7 @@ class Trigger_Condition_Request_Method extends Trigger_Condition
 		$type_list = Array(0 => 'GET', 1 => 'POST', 2 => 'PUT', 3 => 'DELETE');
 
 		return ($_SERVER['REQUEST_METHOD'] == $type_list[$settings['request_method']]);
-		
+
 	}//end evaluate()
 
 
@@ -80,7 +80,7 @@ class Trigger_Condition_Request_Method extends Trigger_Condition
 			$var = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_request_method', $var);
+		return sprintf(translate('trigger_request_method'), $var);
 
 	}//end getInterface()
 
@@ -101,11 +101,11 @@ class Trigger_Condition_Request_Method extends Trigger_Condition
 		}
 
 		$settings['request_method'] = $request_data['request_method'];
-		return FALSE;		
-		
+		return FALSE;
+
 	}//end processInterface()
 
-	
+
 }//end class
 
 ?>

@@ -1199,7 +1199,7 @@ class Asset_Manager extends MySource_Object
 
 		// This function is supposed to take in an assetid of type int or string only, array of assetids should not be accepted.
 		if (is_array($assetid)) {
-			$msg = translate('assert_assetid', gettype($assetid), '');
+			$msg = sprintf(translate('assert_assetid'), gettype($assetid), '');
 			trigger_exception($msg, FALSE, TRUE);
 			$asset = NULL;
 			return $asset;
@@ -5908,7 +5908,7 @@ class Asset_Manager extends MySource_Object
 				// To create a notice link you need effective write access
 				// to the major, but you don't need any access to the minor
 				if (($major->status == SQ_STATUS_ARCHIVED) || (!$major->writeAccess(''))) {
-					return translate('cannot_create_notice_link_permission_denied', $major->name, $major->id, $minor->name, $minor->id);
+					return sprintf(translate('cannot_create_notice_link_permission_denied'), $major->name, $major->id, $minor->name, $minor->id);
 				}
 			} else {
 				// To create a significant link you need write permissions
@@ -5916,11 +5916,11 @@ class Asset_Manager extends MySource_Object
 				$majwa = $major->writeAccess('');
 				$minwa = $minor->writeAccess('');
 				if (!($majwa || $minwa)) {
-					return translate('cannot_create_sig_link_no_perm_either', $major->name, $major->id, $minor->name, $minor->id);
+					return sprintf(translate('cannot_create_sig_link_no_perm_either'), $major->name, $major->id, $minor->name, $minor->id);
 				} else if (!$majwa) {
-					return translate('cannot_create_sig_link_no_perm_major', $major->name, $major->id, $minor->name, $minor->id);
+					return sprintf(translate('cannot_create_sig_link_no_perm_major'), $major->name, $major->id, $minor->name, $minor->id);
 				} else if (!$minwa) {
-					return translate('cannot_create_sig_link_no_perm_minor', $major->name, $major->id, $minor->name, $minor->id);
+					return sprintf(translate('cannot_create_sig_link_no_perm_minor'), $major->name, $major->id, $minor->name, $minor->id);
 				}
 			}
 		}
@@ -5933,7 +5933,7 @@ class Asset_Manager extends MySource_Object
 			$paths = $minor->getWebPaths();
 			$bad_paths = $this->webPathsInUse($major, $paths, $minor->id);
 			if (!empty($bad_paths)) {
-				return translate('cannot_create_link_paths_in_use', $major->name, $major->id, $minor->name, $minor->id, '"'.implode('", "', $bad_paths).'"');
+				return sprintf(translate('cannot_create_link_paths_in_use'), $major->name, $major->id, $minor->name, $minor->id, '"'.implode('", "', $bad_paths).'"');
 			}
 		}
 
@@ -5965,7 +5965,7 @@ class Asset_Manager extends MySource_Object
 
 			if ($current_majorid) {
 				$current_major = $this->getAsset($current_majorid);
-				return translate('cannot_create_link_exclusive_link', $minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
+				return sprintf(translate('cannot_create_link_exclusive_link'), $minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
 			}
 
 		}//end if
@@ -6034,7 +6034,7 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		if (empty($allowed_links[$link_type][$type])) {
-			return translate('asset_type_cannot_be_linktype_linked_to_type', $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
+			return sprintf(translate('asset_type_cannot_be_linktype_linked_to_type'), $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
 		}
 
 		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $exclusive) {
@@ -6042,7 +6042,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!$exclusive && !empty($allowed_links[$link_type][$type]['exclusive'])) {
-			return translate('asset_type_must_be_linktype_exclusively_linked_to_type', $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
+			return sprintf(translate('asset_type_must_be_linktype_exclusively_linked_to_type'), $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
 		}
 
 		//// Now we need to check that the cardinality is kept valid ////
@@ -6053,7 +6053,7 @@ class Asset_Manager extends MySource_Object
 			//  and we already have our quota of links
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				$cardTypeName = $this->getTypeInfo($type, 'name');
-				return translate('asset_type_can_have_only_linktypes_links_to_type', $typeNames[$major->type()], ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $cardTypeName);
+				return sprintf(translate('asset_type_can_have_only_linktypes_links_to_type'), $typeNames[$major->type()], ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $cardTypeName);
 			}
 		}
 

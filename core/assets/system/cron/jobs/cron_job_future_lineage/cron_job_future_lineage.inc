@@ -33,7 +33,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 
 
-	
+
 	/**
 	* Constructor
 	*
@@ -96,9 +96,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if (is_null($asset)) {
 			return translate('cron_job_asset-less_future_linking');
 		} else if ($short_name) {
-			return translate('cron_fl_for', translate('asset_format', $asset->short_name, $asset->id));
+			return sprintf(translate('cron_fl_for'), sprintf(translate('asset_format'), $asset->short_name, $asset->id));
 		} else {
-			return translate('cron_future_linking_for', translate('asset_format', $asset->name, $asset->id));
+			return sprintf(translate('cron_future_linking_for'), sprintf(translate('asset_format'), $asset->name, $asset->id));
 		}//end if
 
 	}//end _getName()
@@ -248,25 +248,25 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	public function readableDescription()
 	{
 		if($this->attr('reverse_mode')) return $this->_readableDescriptionReverse();
-		
+
 		$minor = $this->getAssetInLink('minor');
 
-		
+
 		if (is_null($minor)) {
 			return translate('no_minor_asset_found');
 		}
-		
-		
+
+
 		$str = '';
 
 		if ($this->attr('delete_linkid')) {
-			$str .= translate('deleting_link_id', $this->attr('delete_linkid'));
+			$str .= sprintf(translate('deleting_link_id'), $this->attr('delete_linkid'));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 
 			if (!empty($link)) {
 				$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				if (!is_null($old_major)) {
-					$str = translate('delete_link_for', translate('asset_format', $minor->name, $minor->id), translate('asset_format', $old_major->name, $old_major->id));
+					$str = sprintf(translate('delete_link_for'), sprintf(translate('asset_format'), $minor->name, $minor->id), sprintf(translate('asset_format'), $old_major->name, $old_major->id));
 				}
 			}
 		}
@@ -276,9 +276,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if ($this->attr('delete_linkid') && !is_null($new_major)) {
 			$str .= "\n";
 		}
-	
+
 		if (!is_null($new_major)) {
-			$str .= translate('create_new_link_for', translate('asset_format', $minor->name, $minor->id), translate('asset_format', $new_major->name, $new_major->id));
+			$str .= sprintf(translate('create_new_link_for'), sprintf(translate('asset_format'), $minor->name, $minor->id), sprintf(translate('asset_format'), $new_major->name, $new_major->id));
 		}
 
 		return $str;
@@ -299,18 +299,18 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if(is_null($major)){
 			return translate('no_major_asset_found');
 		}
-		
+
 		$str = '';
 
 		if ($this->attr('delete_linkid')) {
-			$str .= translate('deleting_link_id', $this->attr('delete_linkid'));
+			$str .= sprintf(translate('deleting_link_id'), $this->attr('delete_linkid'));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 
 			if (!empty($link)) {
 				$old_minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (!is_null($old_minor)) {
-					$str = translate('delete_link_for', translate('asset_format', $old_minor->name, $old_minor->id), translate('asset_format', $major->name, $major->id));
-				}	
+					$str = sprintf(translate('delete_link_for'), sprintf(translate('asset_format'), $old_minor->name, $old_minor->id), sprintf(translate('asset_format'), $major->name, $major->id));
+				}
 
 			}
 		}
@@ -321,13 +321,13 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 
 		if (!is_null($new_minor)) {
-			$str .= translate('create_new_link_for', translate('asset_format', $new_minor->name, $new_minor->id), translate('asset_format', $major->name, $major->id));
+			$str .= sprintf(translate('create_new_link_for'), sprintf(translate('asset_format'), $new_minor->name, $new_minor->id), sprintf(translate('asset_format'), $major->name, $major->id));
 		}
 
 		return $str;
 
 	}//end _readableDescriptionReverse()
-	
+
 
 	/**
 	* Actually executes the functionality for this job, called by run()
@@ -341,21 +341,21 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
 	protected function _exec(&$msg)
-	{	
+	{
 		// we can be removed because the error is beyound our control
 		$failed_ret_val = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
 		// need to get this here because we are could be deleting the link below
-		
+
 		$desc = $this->readableDescription();
 		$major = $this->getAssetInLink('major');
 		$minor = $this->getAssetInLink('minor');
-		
+
 		//in reverse mode, the current asset is major asset
 		$main_asset = $this->attr('reverse_mode') ? $major : $minor;
 		$target_asset = $this->attr('reverse_mode') ? $minor : $major;
 		$side_of_link = $this->attr('reverse_mode') ? 'major' : 'minor';
-		
+
 
 		if (is_null($main_asset)) {
 			trigger_localised_error('CRON0019', E_USER_WARNING);
@@ -364,11 +364,11 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 
 		// if we are moving to the trash folder, we need to check if the safe trash pref has been enabled
-		
+
 		$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
 		$can_safe_trash = TRUE;
-		
-		if ($safe_trash) {		
+
+		if ($safe_trash) {
 			$exclude_self = FALSE;
 			//if minor asset is empty, it must be deletion of children links
 			// so have to check the minor asset/assets
@@ -381,22 +381,22 @@ class Cron_Job_Future_Lineage extends Cron_Job
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 					$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				}
-				
+
 			}
-			
+
 			$can_safe_trash = $this->_canSafeTrash($minor, $exclude_self);
 		}
-		
+
 		$existing_links = Array();
-		if ($this->attr('delete_link_all') == TRUE && $can_safe_trash) {	
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($main_asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, $side_of_link);			
+		if ($this->attr('delete_link_all') == TRUE && $can_safe_trash) {
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($main_asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, $side_of_link);
 			foreach ($links as $link) {
 				$existing_links[] = $link['linkid'];
 			}
 		} else if ($this->attr('delete_linkid') > 0 && $can_safe_trash) {
 			$existing_links[] = $this->attr('delete_linkid');
 		}//end if
-		
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -442,7 +442,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			}
 
 		}//end if
-		
+
 		// Now delete the previous links
 		$delete_link_success = TRUE;
 		foreach ($existing_links as $linkid) {
@@ -452,8 +452,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 		if (!$delete_link_success) {
 			return $failed_ret_val;
-		}		
-		
+		}
+
 		//update lookups for all assets involved
 		if(!empty($minor)){
 			$this->_tmp['_update_lookups_assets'][] = $minor->id;
@@ -468,7 +468,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $failed_ret_val;
 		}
-	
+
 		$msg = "Successful in \n".$desc;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -491,7 +491,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		$delete_ok = FALSE;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-	
+
 		if (!empty($link)) {
 			$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			//keep all minor assets which must need a lookup update later
@@ -519,7 +519,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*
 	* @param Asset	$asset	the asset to get the future status jobs for
 	* @param Boolean $reverse_mode get active jobs for linked parents or children
-	* 
+	*
 	* @return array
 	* @access public
 	* @static
@@ -554,7 +554,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		return $assets_jobs;
 
 	}//end getActiveJobs()
-	
+
 
 	/**
 	* Given the $minor asset, check if this asset can be safe trashed
@@ -625,8 +625,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 		return $can_safe_trash;
 	}//end _canSafeTrash()
-	
-	
+
+
 }//end class
 
 ?>

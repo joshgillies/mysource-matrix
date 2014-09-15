@@ -37,7 +37,7 @@ class Trigger_Condition_Metadata_Set extends Trigger_Condition
 	* The settings used by this condition are in the form:
 	* <pre>
 	* Array(
-	*		'asset_id'		=> string	// the asset id of the metadata field	
+	*		'asset_id'		=> string	// the asset id of the metadata field
 	* );
 	* </pre>
 	*
@@ -97,7 +97,7 @@ class Trigger_Condition_Metadata_Set extends Trigger_Condition
 			$asset_id_component = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_metadata_set', $asset_id_component);
+		return sprintf(translate('trigger_metadata_set'), $asset_id_component);
 
 	}//end getInterface()
 

@@ -184,10 +184,10 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 							combo_box($prefix.'_list_entry_types['.$category.']', $listing_entry_options, 0,  $current_list_entry_types[$category], 0);
 							$list_entry_cb = ob_get_contents();
 							ob_end_clean();
-							echo translate('cal_page_list_entry_cb', $list_entry_cb);
+							echo sprintf(translate('cal_page_list_entry_cb'), $list_entry_cb);
 
 						} else if (strpos($current_views[$category], 'list') !== FALSE) {
-							echo translate('cal_page_list_entry_unlocked', strtolower($listing_entry_options[$current_list_entry_types[$category]]));
+							echo sprintf(translate('cal_page_list_entry_unlocked'), strtolower($listing_entry_options[$current_list_entry_types[$category]]));
 						} else {
 							echo '&nbsp;';
 						}
@@ -535,7 +535,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		?>
 		<p style="width: 80%; margin-left: 15ex"><?php echo translate('cal_page_look_and_feel_1'); ?></p>
 
-		<p style="width: 80%; margin-left: 15ex"><?php echo translate('cal_page_look_and_feel_2', sq_web_path('data').'/asset_types/page_calendar/css/calendar_default.css'); ?></p>
+		<p style="width: 80%; margin-left: 15ex"><?php echo sprintf(translate('cal_page_look_and_feel_2'), sq_web_path('data').'/asset_types/page_calendar/css/calendar_default.css'); ?></p>
 
 		<p style="width: 80%; margin-left: 15ex"><?php echo translate('cal_page_look_and_feel_3'); ?></p>
 		<?php
@@ -780,7 +780,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		$title_formats = $asset->attr('view_title_formats');
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.'_title_format_'.$view, $title_formats[$view]);
-			?><div class="sq-backend-smallprint"><?php echo translate('cal_page_paint_title_format', 'http://au.php.net/manual/en/function.date.php'); ?></div><?php
+			?><div class="sq-backend-smallprint"><?php echo sprintf(translate('cal_page_paint_title_format'), 'http://au.php.net/manual/en/function.date.php'); ?></div><?php
 		} else {
 			echo $title_formats[$view].'  ("'.date($title_formats[$view], ((($view == 'week') && (date('D') != 'Mon')) ? strtotime('last Monday') : time())).'")';
 		}
@@ -832,7 +832,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		$heading_formats = $asset->attr('view_heading_formats');
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.'_heading_format_'.$heading_index, $heading_formats[$heading_index]);
-			?><div class="sq-backend-smallprint"><?php echo translate('cal_page_paint_heading_format', 'http://au.php.net/manual/en/function.date.php'); ?><?php
+			?><div class="sq-backend-smallprint"><?php echo sprintf(translate('cal_page_paint_heading_format'), 'http://au.php.net/manual/en/function.date.php'); ?><?php
 		} else {
 			echo $heading_formats[$heading_index].'  ("'.date($heading_formats[$heading_index], ((($view == 'week') && (date('D') != 'Mon')) ? strtotime('last Monday') : time())).'")';
 		}
@@ -1147,7 +1147,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 
 	}//end processDayNaviLimit()
 
-	
+
 	/**
 	* Paint "use no result" bodycopy interface
 	*
@@ -1162,7 +1162,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintUseNoResultBodycopy(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('links');		
+		$write_access = $asset->writeAccess('links');
 		$current_value = $asset->attr('use_no_results_body_copy');
 		$options = Array(1 => 'Yes', 0 => 'No');
 
@@ -1189,16 +1189,16 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processUseNoResultBodycopy(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix.'_use_no_results_body_copy'])) {				
+		if (isset($_POST[$prefix.'_use_no_results_body_copy'])) {
 			if ($asset->createNoResultsBodycopy()) {
 				$asset->setAttrValue('use_no_results_body_copy',$_POST[$prefix.'_use_no_results_body_copy']);
 				$asset->saveAttributes();
 			}
-		}		
-		
+		}
+
 		return TRUE;
 
-	}//end processUseBodycopy()	
+	}//end processUseBodycopy()
 
 }//end class
 ?>

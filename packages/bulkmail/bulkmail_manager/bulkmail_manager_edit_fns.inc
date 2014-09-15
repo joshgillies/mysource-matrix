@@ -43,7 +43,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
-		
+
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['preview']);
 		unset($this->static_screens['lookupValues']);
@@ -202,7 +202,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				$progress_string = translate('bm_job_progress_none');
 				if (!empty($progress) && $progress['total_count'] != 0) {
 					$percent_done = round(($progress['current_count'] / $progress['total_count']) * 100, 2).'%';
-					$progress_string = translate('bm_job_progress', number_format($progress['current_count']), number_format($progress['total_count']), $percent_done);
+					$progress_string = sprintf(translate('bm_job_progress'), number_format($progress['current_count']), number_format($progress['total_count']), $percent_done);
 				}
 		?>
 				<tr>

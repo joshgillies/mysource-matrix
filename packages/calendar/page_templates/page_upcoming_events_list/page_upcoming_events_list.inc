@@ -378,7 +378,7 @@ class Page_Upcoming_Events_List extends Page
 		}
 
 		$event_list = '';
-		$events_data = Array();	
+		$events_data = Array();
 		$mm = NULL;
 
 		// Print one instance of each Multi-Date Event
@@ -499,7 +499,7 @@ class Page_Upcoming_Events_List extends Page
 
 				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);
 				if ($next_occurance === FALSE) continue; //we exceeded the stop date
-				
+
 				foreach($events as $temp_id => $temp_event) {
 					$original_id = strtok($temp_id, ':');
 					if ($original_id == $id) {
@@ -519,7 +519,7 @@ class Page_Upcoming_Events_List extends Page
 				$pattern = '/( [0-9\-]{2}:[0-9\-]{2}:[0-9\-]{2})/';
 
 				$occurance_date = preg_replace($pattern, '', $asset->attr('start_date'));
-				// for the modification event we ned to find what recurring 
+				// for the modification event we ned to find what recurring
 				// event we are modifying and update that events instances
 				$link = $GLOBALS['SQ_SYSTEM']->am->getParents($id, 'calendar_event_recurring', NULL, NULL, TRUE, 1, 1);
 
@@ -594,7 +594,7 @@ class Page_Upcoming_Events_List extends Page
 			replace_keywords($entry, $replacements);
 			$events_data[] = Array('data' => $entry, 'start_date_ts' => $event_occurance);
 
-			if ($asset && $asset->type() == 'calendar_event_modification') 
+			if ($asset && $asset->type() == 'calendar_event_modification')
 				$_REQUEST['SQ_CALENDAR_DATE'] = $recuring_event_last_occurance_date;
 
 		}//end foreach events
@@ -717,7 +717,7 @@ class Page_Upcoming_Events_List extends Page
 				$query = MatrixDAL::preparePdoQuery($sql);
 				foreach($bind_vars as $bind_value => $bind_var) {
 					MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-				}	
+				}
 				$recur_result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception($e->getMessage());
@@ -726,7 +726,7 @@ class Page_Upcoming_Events_List extends Page
 
 			foreach ($single_result as $event_id => $single_event) {
 				// don't expand the single events but the event
-				// cancellations and modification needs to be expanded 
+				// cancellations and modification needs to be expanded
 				if ($single_event['type_code'] == 'calendar_event_single') continue;
 				$recur_result[$event_id] = $single_event;
 				unset($single_result[$event_id]);

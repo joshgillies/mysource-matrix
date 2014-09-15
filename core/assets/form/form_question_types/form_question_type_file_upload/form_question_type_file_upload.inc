@@ -138,10 +138,10 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		
+
 		if (isset($this->_tmp['file_info']) && $this->_tmp['file_info'] === FALSE) {
 			// there was an upload error
-			$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
+			$this->failed_rules[] = sprintf(translate('core_form_file_upload_error'), $this->attr('name'));
 			return FALSE;
 		}
 
@@ -155,7 +155,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			if (strlen($this->attr('cust_required_error'))) {
 				$this->failed_rules[] = $this->attr('cust_required_error');
 			} else {
-				$this->failed_rules[] = translate('core_form_file_upload_none_rule', $this->attr('name'));
+				$this->failed_rules[] = sprintf(translate('core_form_file_upload_none_rule'), $this->attr('name'));
 			}
 			$ok = FALSE;
 		}
@@ -284,7 +284,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 								$new_summary = basename($file_info['filename']).$type.', '.easy_filesize($file_info['size']);
 							}
 						} else {
-							$new_summary = translate('core_form_file_upload_none');	
+							$new_summary = translate('core_form_file_upload_none');
 						}
 
 					break;
@@ -475,16 +475,16 @@ class Form_Question_Type_File_Upload extends Form_Question
 				 if(!empty($orphaned)) {
 					// create the link for the orphaned asset
 					$GLOBALS['SQ_SYSTEM']->am->createAssetLink($create_location, $orphaned, SQ_LINK_TYPE_2, '');
-					$existing_assetid = $orphaned->id;	
+					$existing_assetid = $orphaned->id;
 				}
 			}
-			
+
 			$existing_asset = NULL;
 			if (!empty($existing_assetid)) {
 				switch ($this->attr('overwrite_rule')) {
 					case 'D' :
 						// D = Raise a Submission Error
-						$this->failed_rules[] = translate('core_form_file_upload_already_exists', $this->attr('name'));
+						$this->failed_rules[] = sprintf(translate('core_form_file_upload_already_exists'), $this->attr('name'));
 						$ok = FALSE;
 					break;
 
@@ -596,7 +596,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 					// regarding write permissions, we'll force this through
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					if (!$file_asset->create($link, $file_info)) {
-						$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
+						$this->failed_rules[] = sprintf(translate('core_form_file_upload_error'), $this->attr('name'));
 						$ok = FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -689,7 +689,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$submission_path = $this->data_path.'/attachments/'.session_id().'_'.$parent->id;
 		}
 
-		$submission_path = str_replace(SQ_SYSTEM_ROOT.'/', '', $submission_path);   
+		$submission_path = str_replace(SQ_SYSTEM_ROOT.'/', '', $submission_path);
 		$submission_path .= '/'.str_replace(':', '_', $this->id);
 
 		return $submission_path;

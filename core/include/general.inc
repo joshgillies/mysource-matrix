@@ -130,7 +130,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			if (SQ_CONF_DEBUG & 1) {
 			    $msg .= "\nFile: $err_file\nLine:$err_line";
 			}
-			    
+
 			$root = simplexml_load_string('<xml></xml>');
 			$output = $root->addChild('error', $msg);
 			header('Content-Type: text/xml');
@@ -142,7 +142,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 			exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
 		break;
-		
+
 	    case 'json':
 	        // Used by asset map to return an error. This format returns an
 	        // equivalent format to that used by the asset map's JSON serialisation
@@ -155,7 +155,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			);
 			header('Content-Type: application/json');
 			echo json_encode_array($root);
-			
+
 	        exit();
         break;
 
@@ -919,7 +919,7 @@ function clean_url($url)
 				SQ_CONF_LIMBO_SUFFIX,
 				SQ_CONF_BACKEND_SUFFIX,
 				SQ_CONF_NOCACHE_SUFFIX,
-				SQ_CONF_NOPROXYCACHE_SUFFIX,				
+				SQ_CONF_NOPROXYCACHE_SUFFIX,
 				SQ_CONF_RECACHE_SUFFIX,
 				SQ_CONF_PERFORMANCE_SUFFIX,
 			);
@@ -2726,7 +2726,7 @@ function do_redirect($url, $message=NULL, $timeout=0)
 	if ($timeout || $message || headers_sent()) {
 		// Javascript Redirect
 		if (is_null($message)) {
-			$message = translate('redirecting_you_to', htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$message = sprintf(translate('redirecting_you_to'), htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 		}
 		?>
 		<html>
@@ -3381,7 +3381,7 @@ function authorised_file_path($filename)
 
 	require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 	$authorised_paths = explode("\n", SQ_TOOL_AUTHORISED_PATHS);
-	
+
 	// Public data dir and temp asset import dir are always authorised by default
 	$authorised_paths[] = SQ_DATA_PATH.'/public/';
 	$authorised_paths[] = SQ_TEMP_PATH.'/import_assets/';
@@ -3398,7 +3398,7 @@ function authorised_file_path($filename)
 		} else {
 			$authorised = $filename == $authorised_path;
 		}
-		
+
 		if ($authorised) {
 			break;
 		}

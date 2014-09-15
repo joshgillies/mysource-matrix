@@ -524,10 +524,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			?>
 			<tr>
 				<td style="text-align: center;" colspan="<?php echo $num_columns; ?>">
-					<?php echo translate('cms_listing_column_all_remaining_rows', $column_layout[0]); ?>
+					<?php echo sprintf(translate('cms_listing_column_all_remaining_rows'), $column_layout[0]); ?>
 					<?php
 					if ($num_per_page > 0 && $cell_num > $num_per_page) {
-						echo '<br /><b>'.translate('cms_listing_column_page_note', $num_per_page).'</b>';
+						echo '<br /><b>'.sprintf(translate('cms_listing_column_page_note'), $num_per_page).'</b>';
 					}
 					?>
 				</td>
@@ -973,7 +973,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$copy_link = Array('asset' => &$folder, 'value' => 'position_'.$new_position, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 				$bodycopy = new Bodycopy();
-				$bodycopy->setAttrValue('name', translate('cms_listing_position_number_format', $new_position));
+				$bodycopy->setAttrValue('name', sprintf(translate('cms_listing_position_number_format'), $new_position));
 
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2288,7 +2288,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_root_nodes']) || (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version'])) {	
+		if (!isset($_POST[$prefix.'_root_nodes']) || (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version'])) {
 			return FALSE;
 		}
 		$new_root_nodes = $_POST[$prefix.'_root_nodes'];
@@ -2383,7 +2383,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				case 'keyword':
 					$option_name = 'keyword';
 				break;
-				
+
 				default:
 					$option_name = '';
 				break;
@@ -2403,7 +2403,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					case 'standard_asset':
 						$commit_button |= $this->paintGroupByStandardAssetField($asset, $o, $prefix.'['.$level.']', $group_by_option);
 					break;
-					
+
 					case 'keyword':
 						$commit_button |= $this->paintGroupByKeyword($asset, $o, $prefix.'['.$level.']', $group_by_option);
 					break;
@@ -2429,7 +2429,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 					$o->note(translate('cms_listing_group_by_blank_note'));
 				$o->closeField();
-				
+
 				$o->openField(translate('cms_listing_group_name_match_query'));
 
 				$group_name_match_query = array_get_index($group_by_option, 'group_name_match_query', 0);
@@ -2446,8 +2446,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 					$o->note(translate('cms_listing_group_name_match_query_note'));
 				$o->closeField();
-				
-				
+
+
 				// common options - sort order, start group on a new page, delete
 				$o->openField(translate('cms_listing_sort_order'));
 
@@ -2478,7 +2478,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$o->closeField();
 
 
-		
+
 
 				// only display Delete option if we have write access
 				if ($write_access) {
@@ -2556,17 +2556,17 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				case 'standard_asset':
 					$this->processGroupByStandardAssetField($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
 				break;
-				
+
 				case 'keyword':
 					$this->processGroupByKeyword($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
 				break;
-				
+
 
 				case 'attribute':
 					// $this->processGroupByAttribute($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
 				break;
 			}
-			
+
 			$posted_option = array_get_index($_POST[$prefix], $group_by_key, NULL);
 			if (isset($posted_option['group_by_blank'])) {
 			    $group_by_details[$group_by_key]['group_by_blank'] = $posted_option['group_by_blank'];
@@ -2606,7 +2606,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$o->openField(translate('metadata_field'));
 			$field_assetid = array_get_index($group_by_option, 'metadata_field', Array());
 			if(is_scalar($field_assetid)) $field_assetid = Array($field_assetid);
-			
+
 			if ($write_access) {
 				multiple_asset_finder($prefix.'[metadata_field]', $field_assetid, Array('metadata_field' => 'D'));
 			} else {
@@ -2638,8 +2638,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			$o->note(translate('cms_listing_default_metadata_sort_type_note'));
 		$o->closeField();
-		
-		
+
+
 		$o->openField(translate('cms_listing_group_by_individual_entry'));
 
 		$group_by_individual = array_get_index($group_by_option, 'group_by_individual', 1);
@@ -2697,7 +2697,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if (isset($posted_option['metadata_sort_type'])) {
 			$group_by_option['metadata_sort_type'] = $posted_option['metadata_sort_type'];
 		}
-		
+
 		if (isset($posted_option['group_by_individual'])) {
 			$group_by_option['group_by_individual'] = $posted_option['group_by_individual'];
 		}
@@ -2898,8 +2898,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	}//end paintGroupByParentAsset()
 
 
-	
-	
+
+
 	/**
 	* Process 'Group By Parent Asset' Option
 	*
@@ -2952,7 +2952,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 	}//end processGroupByParentAsset()
 
-	
+
 	/**
 	* Paint 'Group By Standard Asset Field' Option
 	*
@@ -3017,7 +3017,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end processGroupByKeyword()
-	
+
 
 	/**
 	* Paint a place to add a new 'Group By' field
@@ -3271,7 +3271,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 											$to_box = ob_get_contents();
 										ob_end_clean();
 
-										echo ' '.translate('cms_listing_from_to_range', $from_box, $to_box);
+										echo ' '.sprintf(translate('cms_listing_from_to_range'), $from_box, $to_box);
 									?>
 								</td>
 								<td style="text-align: right; vertical-align: top;">
@@ -3586,12 +3586,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	*/
 	function paintStatus(&$asset, &$o, $prefix)
-	{ 	
+	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$write_access = $asset->writeAccess('attributes');
 
 		$current = $asset->attr('statuses');
-    
+
 		if ($write_access) {
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 			$statuses = get_constant_values('SQ_STATUS');
@@ -3599,7 +3599,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			foreach ($statuses as $constant => $value) {
 				$options[$value] = get_status_description($value);
 			}
-      
+
 			combo_box($prefix.'_statuses', $options, TRUE, $current);
 			hidden_field($prefix.'_statuses_submitted', '1');
 		} else {
@@ -3632,26 +3632,26 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	*/
 	function processStatus(&$asset, &$o, $prefix)
-	{	
+	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
-    	
+
 		// must make sure if the form 'statuses to list' was actually submitted
 		if (!isset($_POST[$prefix.'_statuses_submitted'])) return FALSE;
 
 		$statuses = Array();
 
-		
+
 		if (isset($_POST[$prefix.'_statuses'])) {
 			foreach ($_POST[$prefix.'_statuses'] as $status) {
 				$statuses[] = $status;
 			}
-			
+
 			$statuses = array_unique($statuses);
 		}
 
 		return $asset->setAttrValue('statuses', $statuses);
-    
+
 	}//end processStatus()
 
 
@@ -3694,7 +3694,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 				// display effective permission status
 				if ($conf_eff) {
-					echo translate('cms_listing_access_effective_permission', $perm_options[$conf_perm]);
+					echo sprintf(translate('cms_listing_access_effective_permission'), $perm_options[$conf_perm]);
 				} else {
 					echo $perm_options[$conf_perm];
 				}

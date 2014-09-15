@@ -314,7 +314,7 @@ class Ecommerce_Order extends Asset
 		$keywords['edit_url']			= translate('ecom_order_keyword_edit_url');
 		$keywords['order_xml']			= translate('ecom_order_keyword_order_xml');
 		$keywords['order_grand_total']	= translate('ecom_order_keyword_order_grand_total');
-		
+
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -420,7 +420,7 @@ class Ecommerce_Order extends Asset
 
 	}//end getEditUrlKeywordReplacement()
 
-	
+
 	/**
 	* Get order_xml keyword replacement
 	*
@@ -445,7 +445,7 @@ class Ecommerce_Order extends Asset
 		return $this->attr('order_grand_total');
 
 	}//end getCheckoutAssetidKeywordReplacement()
-	
+
 
 	/**
 	* Get the delivery method related to this order, if set

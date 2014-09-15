@@ -817,7 +817,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		$map_frame    = 'self';
 		$finder_frame = 'self';
 	}
-	
+
 	if ($new_window) {
 		$map_frame    = 'window.opener.'.$map_frame;
 		$finder_frame = 'self';
@@ -1096,7 +1096,7 @@ function multiple_root_nodes_selector ($name, $root_nodes, $wa)
 						}
 					}
 				</script>
-			<?php	
+			<?php
 
 }//end multiple_root_nodes_selector()
 
@@ -1194,7 +1194,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 		print_accessible_captcha_interface();
 		}
 		$replacements_link = '<a href="#" onclick="var img = document.getElementById(\'sq_security_key\'); img.src = \''.$img_url.'&amp;regen_key=1&amp;t=\' + new Date().getTime(); return false;">'.translate('security_key_link').'</a>';
-		echo '<span id="sq_regen_captcha"><br /><i>'. translate('security_key_question', $replacements_link).'</i></span>';
+		echo '<span id="sq_regen_captcha"><br /><i>'. sprintf(translate('security_key_question'), $replacements_link).'</i></span>';
 
 	}
 	else {
@@ -1226,7 +1226,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 				$replacements_link = ob_get_contents();
 			ob_end_clean()
 		?>
-			<td class="sq-backend-data" id="sq_regen_captcha" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i><?php echo translate('security_key_question', $replacements_link); ?></i></td>
+			<td class="sq-backend-data" id="sq_regen_captcha" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i><?php echo sprintf(translate('security_key_question'), $replacements_link); ?></i></td>
 		</tr>
 	</table>
 	<?php

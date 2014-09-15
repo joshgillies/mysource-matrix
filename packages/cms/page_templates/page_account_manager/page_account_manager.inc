@@ -66,8 +66,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 		// Set default value for validation email format attr
 		$val = Array();
 		$val['subject'] = translate('cms_account_manager_validation_email_default_subject');
-		$val['text_format'] = translate('cms_account_manager_validation_email_default_content', '%validation_url%');
-		$val['html_format'] = '<p>'.translate('cms_account_manager_validation_email_default_content', '<a href="%validation_url%">%validation_url%</a>').'</p>';
+		$val['text_format'] = sprintf(translate('cms_account_manager_validation_email_default_content'), '%validation_url%');
+		$val['html_format'] = '<p>'.sprintf(translate('cms_account_manager_validation_email_default_content'), '<a href="%validation_url%">%validation_url%</a>').'</p>';
 		$val['from'] = SQ_CONF_SYSTEM_NAME.' <'.SQ_CONF_DEFAULT_EMAIL.'>';
 		$this->setAttrVAlue('validation_email_format', $val);
 
@@ -164,7 +164,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(Array($type_code_to_create), 'name');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
 				$layout = new Layout();
-				$layout->setAttrValue('name', translate('cms_account_manager_logged_in_layout_for_type', $type_names[$type_code_to_create]));
+				$layout->setAttrValue('name', sprintf(translate('cms_account_manager_logged_in_layout_for_type'), $type_names[$type_code_to_create]));
 				$link = Array(
 							'asset'			=> &$this,
 							'link_type'		=> SQ_LINK_TYPE_2,
@@ -622,7 +622,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
 					}
 				restore_error_handler();
-				
+
 				$errors = '';
 				if (!empty($this->_errors)) {
 					foreach($this->_errors as $text) {
@@ -1206,7 +1206,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		$keywords['logout_form']				= translate('cms_asset_builder_keyword_logout_form');
 
-		// Exclude CAPTCHA keywords and other SPAM prevention functionality keywords from the "Logged In" form. 
+		// Exclude CAPTCHA keywords and other SPAM prevention functionality keywords from the "Logged In" form.
 		// Presume if the user has logged in, that they are not an artificial intelligence
 		if ($this->attr('require_captcha')) {
 			unset($keywords['form_captcha']);
@@ -1226,7 +1226,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			unset($keywords['form_recaptcha']);
 		}
 		unset($keywords['form_honeypot_field']);
-		
+
 		return $keywords;
 
 	}//end _getLoggedInKeywords()

@@ -256,8 +256,8 @@ class Password_Rules_Config extends Config
 				</table>
 				<?php
 			$o->closeField();
-			
-			
+
+
 			$o->openField(translate('password_history_enforcement'), '', translate('password_history_enforcement_note'));
 				if ($write_access && $is_root) {
 					text_box($class.'[SQ_PASSWD_RULE_PASSWORD_HISTORY]', SQ_PASSWD_RULE_PASSWORD_HISTORY, 0);
@@ -265,7 +265,7 @@ class Password_Rules_Config extends Config
 					echo SQ_PASSWD_RULE_PASSWORD_HISTORY;
 				}
 			$o->closeField();
-			
+
 		$o->closeSection();
 
 		$o->openSection(translate('passwd_blacklist'));

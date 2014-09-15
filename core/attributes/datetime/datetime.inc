@@ -344,7 +344,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 				case 'date_period':
 					if ((int)$period_num === 0) {
-						echo translate('attribute_datetime_period_age_0', $period_num, $period_options[$period_type]);
+						echo sprintf(translate('attribute_datetime_period_age_0'), $period_num, $period_options[$period_type]);
 					} else {
 						echo translate('attribute_datetime_period_age_'.$period_age, $period_num, $period_options[$period_type]);
 					}
@@ -352,7 +352,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 				case 'date_period_today':
 					if ((int)$period_num === 0) {
-						echo translate('attribute_datetime_today_age_0', $period_num, $period_options[$period_type], $base_time);
+						echo sprintf(translate('attribute_datetime_today_age_0'), $period_num, $period_options[$period_type], $base_time);
 					} else {
 						echo translate('attribute_datetime_today_age_'.$period_age, $period_num, $period_options[$period_type], $base_time);
 					}
@@ -828,7 +828,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					combo_box($prefix.'_period_age', $age_options, FALSE, $period_age);
 				$cb_period_age = ob_get_clean();
 
-				echo translate('attribute_datetime_date_period_edit_format', $cb_period_num, $cb_period_type, $cb_period_age);
+				echo sprintf(translate('attribute_datetime_date_period_edit_format'), $cb_period_num, $cb_period_type, $cb_period_age);
 
 			break;
 
@@ -877,7 +877,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					$field->printField();
 				$datetime_field_output = ob_get_clean();
 
-				echo translate('attribute_datetime_today_period_edit_format', $cb_period_num, $cb_period_type, $cb_period_age, $datetime_field_output);
+				echo sprintf(translate('attribute_datetime_today_period_edit_format'), $cb_period_num, $cb_period_type, $cb_period_age, $datetime_field_output);
 
 			break;
 

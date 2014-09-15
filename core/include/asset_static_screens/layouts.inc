@@ -103,7 +103,7 @@ function paintLayouts(&$owner, &$o, &$ei, $keywords=NULL)
 							if ($write_access) {
 								$o->openField('');
 								check_box($prefix.'_remove['.$type_code.']');
-								label(translate('remove_customisations_for', $uc_type_code), $prefix.'_remove['.$type_code.']');
+								label(sprintf(translate('remove_customisations_for'), $uc_type_code), $prefix.'_remove['.$type_code.']');
 								$o->closeField();
 							}
 
@@ -449,7 +449,7 @@ function processLayouts(&$owner, &$o, &$ei)
 /**
 * Returns the lookup array into something we can work with
 *
-* @param string	$lookup_values	the lookup array we need to format 
+* @param string	$lookup_values	the lookup array we need to format
 *
 * @return array
 * @access public

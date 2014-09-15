@@ -271,7 +271,7 @@ class Cron_Job extends Asset
 								// we have removed an "if" block from here
 								// we need not worry about the minutes greater than 60
 								// PHP mktime() will take care if we pass minutes like
-								// 60 or greater, 11:60 and 12:00 OR 11:66 and 12:06 
+								// 60 or greater, 11:60 and 12:00 OR 11:66 and 12:06
 								// will give us same results as timestamp outta mktime
 								$fields[$field] = $minutes;
 								$when_str .= $fields[$field];
@@ -296,7 +296,7 @@ class Cron_Job extends Asset
 					return FALSE;
 				}//end if
 
-				// instead of using $when_str, convert back the date 
+				// instead of using $when_str, convert back the date
 				// from when_ts this will ensure us that the date if
 				// passed something like 11:64 to mktime will be
 				// converted back to 12:04 below
@@ -445,11 +445,11 @@ class Cron_Job extends Asset
 		$when_arr['hour'] = str_replace(':', '', $when_arr['hour']);
 		switch ($when_arr['type']) {
 			case 'OO' :
-				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], ltrim($when_arr['day'], '0').' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
+				$ret_val .= sprintf(translate('cron_run_other'), $when_arr['hour'].':'.$when_arr['minute'], ltrim($when_arr['day'], '0').' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
 			break;
 
 			case 'YR' :
-				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)));
+				$ret_val .= sprintf(translate('cron_run_other'), $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)));
 			break;
 
 			case 'MT' :
@@ -457,7 +457,7 @@ class Cron_Job extends Asset
 			break;
 
 			case 'WK' :
-				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'s');
+				$ret_val .= sprintf(translate('cron_run_other'), $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'s');
 			break;
 
 			case 'DL' :
@@ -465,7 +465,7 @@ class Cron_Job extends Asset
 			break;
 
 			case 'HR' :
-				$ret_val .= translate('cron_run_hourly', $when_arr['minute']);
+				$ret_val .= sprintf(translate('cron_run_hourly'), $when_arr['minute']);
 			break;
 
 			case 'ET' :

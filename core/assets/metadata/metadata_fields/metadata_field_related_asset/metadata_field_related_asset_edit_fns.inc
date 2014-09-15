@@ -60,7 +60,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
-		
+
 		$is_default = FALSE;
 		$default_value = trim($asset->getDefaultValue());
 		if (is_null($value_str)) {
@@ -109,7 +109,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 					function handleMetadataRelatedAssetDefaultClickFor<?php echo $prefix; ?>() {
 						var ra_div = document.getElementById('<?php echo $prefix.'_ra_container'; ?>');
 						var default_ra_div = document.getElementById('<?php echo $prefix.'_default_ra_container'; ?>');
-	
+
 						if (ra_div.style.display == 'block') {
 							ra_div.style.display = 'none';
 							default_ra_div.style.display = 'block';
@@ -128,7 +128,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo ' <em>('.translate('using_default_value').')</em>';
 				} else{
 
-				}	
+				}
 			echo '</span>';
             echo !$value_str ? translate('no_asset_selected') : get_asset_tag_line($value_str);
 		}

@@ -442,11 +442,11 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			}//end if
 		}//end foreach
 
-		
+
 		// grab the specified address from WSDL
 		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], $settings['password']);
-		
-		
+
+
 		// Currently selected "Check response" fields
 		$current_selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
 		$field_rule = Array();

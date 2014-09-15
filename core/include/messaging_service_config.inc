@@ -139,7 +139,7 @@ class Messaging_Service_Config extends Config
 				$o->note(translate('messaging_service_mail_black_list_note'));
 			$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection(translate('messaging_service_section_email_format'));
 			$o->openField(translate('messaging_service_email_footer'));
 				if ($write_access) {

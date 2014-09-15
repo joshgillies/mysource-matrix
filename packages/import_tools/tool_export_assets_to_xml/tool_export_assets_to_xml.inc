@@ -67,7 +67,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$userHasLockId = '';
 		$hasLock = TRUE;
-		
+
 		foreach ($locks as $lock) {
 		    if(empty($lock)) continue;
 		    if($lock['lock_type'] == 'attributes' && $lock['userid'] == $userid) {
@@ -78,15 +78,15 @@ class Tool_Export_Assets_To_Xml extends Tool
 			$userHasLockId = $lock['userid'];
 		    }
 		}
-		
+
 	    	if(!$hasLock) {
 			$o->openRaw();
-			echo (translate('tool_export_assets_to_xml_can_not_acquire_lock', $userHasLockId));
+			echo (sprintf(translate('tool_export_assets_to_xml_can_not_acquire_lock'), $userHasLockId));
 			$o->closeRaw();
 			return FALSE;
-			
+
 		}
-		
+
 		$show_download = FALSE;
 		if(isset($_REQUEST['show_download'])) {
 			$show_download = TRUE;
@@ -106,7 +106,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 					return;
 				}
 			}
-			
+
 			// get the first export root asset id
 			$root_id = '';
 			$export_xml_file = $export_dir.'/export.xml';
@@ -124,7 +124,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 				fclose($handle);
 			    }
 			}
-			
+
 
 			// if we don't have a valid filesize, there isn't much point going fruther as the user will end up downloading an unusable file
 			$filesize = filesize($export_dir.'/export.tgz');
@@ -137,36 +137,36 @@ class Tool_Export_Assets_To_Xml extends Tool
 			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 			$ext = 'tgz';
 			$type	= (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
-	
+
 			// Fix for IE caching
 			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			header("Cache-Control: private",false);
-	
+
 			// We'll be outputting a file
 			header('Content-Type: '.$type);
-	
+
 			// Set the name of the file
 			header('Content-Disposition: attachment; filename="export'.$root_id.'.tgz";');
 			header('Content-Length: '.$filesize);
-	
+
 			 // Get the source file
 			self::_readfile_chunked($export_dir.'/export.tgz');
-			
+
 			// release lock after user downloads the tarball, otherwise locks will be left to lock system to decide
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($import_mgr->id, 'attributes');
 			return;
 			@ob_flush();
 			return;
 		}
-		
+
 
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
 		$o->openField(translate('tool_export_assets_to_xml_root_node'));
-		
+
 			asset_finder($type_code.'_root_node[0]', 0, Array('asset' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 			echo '<span id ="tool_export_assets_to_xml_mapping" style="margin-left:10px;">';
 			echo translate('tool_export_assets_to_xml_target_parent');
@@ -187,11 +187,11 @@ class Tool_Export_Assets_To_Xml extends Tool
 			target_parent_index = target_parent_index + 1;
 		}
 		</script>
-		<?php 
+		<?php
 			echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', \'null\', true); addParentNode(this);" style="margin-left:10px;"/>';
 			$o->note(translate('tool_export_assets_to_xml_root_node_note'));
 		$o->closeField();
-		
+
 		if($show_download) {
 			$o->openField(translate('download'));
 			$backend_url = $GLOBALS['SQ_SYSTEM']->backend->getBackendUrl();
@@ -202,9 +202,9 @@ class Tool_Export_Assets_To_Xml extends Tool
 
 		$o->closeSection();
 
-		
-		
-		
+
+
+
 	}//end paintTool()
 
 
@@ -224,13 +224,13 @@ class Tool_Export_Assets_To_Xml extends Tool
 			trigger_localised_error('EXP0003', E_USER_ERROR);
 			return FALSE;
 		}
-		
+
 		// make export temp directory
 		$export_dir = SQ_DATA_PATH.'/private/export_assets';
 		if (!create_directory($export_dir)) return FALSE;
-		
-		// clean up before export				
-		$command = "rm -rf $export_dir/*"; 
+
+		// clean up before export
+		$command = "rm -rf $export_dir/*";
 		system($command);
 		$root_node_mapping = Array();
 		foreach ($_POST[$type_code.'_root_node'] as $index => $node) {
@@ -238,11 +238,11 @@ class Tool_Export_Assets_To_Xml extends Tool
 			$target_parentid = 	$_POST[$type_code.'_target_parent'][$index];
 			if(empty($node_id) || empty($target_parentid)) continue;
 			$root_node_mapping[] = $node_id.':'.$target_parentid;
-			
+
 		}
-		
+
 		if (empty($root_node_mapping)) {
-			trigger_error ('There is no root node mapping specified');	
+			trigger_error ('There is no root node mapping specified');
 			return FALSE;
 		}
 		// set HIPO running_vars
@@ -256,14 +256,14 @@ class Tool_Export_Assets_To_Xml extends Tool
 		$backend_url = $GLOBALS['SQ_SYSTEM']->backend->getBackendUrl();
 		// run the hipo job and redirect back to the tool and show download link
 		$url = $hh->runQueuedJobs($backend_url.'&backend_section=tools&tool_type_code='.$type_code.'&show_download=1');
-		
+
 		if (!empty($url)) $o->setRedirect($url);
 		return TRUE;
 
 
 	}//end processTool()
 
-	
+
 
 	/**
 	* read file in chunks in case of memory exaust
@@ -298,8 +298,8 @@ class Tool_Export_Assets_To_Xml extends Tool
 		}
 		return $status;
 	  } // end _readfile_chunked()
-  
-  
+
+
 
 }//end class
 

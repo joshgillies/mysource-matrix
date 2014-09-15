@@ -68,7 +68,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell-alt"><b><?php echo translate('cms_ct_nest_content_currently_nesting', $nested_asset->attr('name')) ?><?php require_once SQ_INCLUDE_PATH.'/general.inc'; echo ' : '.get_asset_tag_line($nested_asset->id);?></b></td>
+						<td class="sq-backend-table-cell-alt"><b><?php echo sprintf(translate('cms_ct_nest_content_currently_nesting'), $nested_asset->attr('name')) ?><?php require_once SQ_INCLUDE_PATH.'/general.inc'; echo ' : '.get_asset_tag_line($nested_asset->id);?></b></td>
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('asset' => 'D')); ?></td>
@@ -295,7 +295,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 			}
-			$asset_contents = '<strong>'.translate('cms_ct_nest_content_nested_content', get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
+			$asset_contents = '<strong>'.sprintf(translate('cms_ct_nest_content_nested_content'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
 		} else {
 			$asset_contents = '';
 			// This is the real deal, so we want to actually print the asset

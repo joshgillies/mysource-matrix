@@ -221,7 +221,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 				trigger_localised_error('SCH0022', E_USER_WARNING, $assetid);
 				return FALSE;
 			}
-			
+
 			if (!empty($this->_running_vars['root_only']) && $this->_running_vars['root_only']) {
 				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
 			} else {
@@ -266,7 +266,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if ($asset) {
-				$step_data['message'] = translate('sch_reindexing_asset', $asset->name);
+				$step_data['message'] = sprintf(translate('sch_reindexing_asset'), $asset->name);
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$sm->reindexAsset($asset, Array('all'));

@@ -886,7 +886,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			echo nl2br(htmlentities($street_view_code));
 		}//end else
 		$o->closeField();
-	
+
 		return $wa;
 
     }//end paintMapInitialisation()

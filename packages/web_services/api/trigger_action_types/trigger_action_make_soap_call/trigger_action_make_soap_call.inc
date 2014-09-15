@@ -118,7 +118,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		if ($settings['mute_exceptions']) {
 			$options['exceptions'] = 0;
 		}
-		
+
 		// Make SOAP call
 		try {
 			$client = SOAP_Common::getSoapClient($settings, $options);
@@ -191,7 +191,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$auth_types = Soap_Common::$auth_types;
-		
+
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_BOTH);
 		$selected_service_address  = array_get_index($settings, 'service_address', NULL);
 		$disabled = $write_access ? '' : 'disabled';
@@ -226,7 +226,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				<?php
 					// Paint function authentication fields
 					$o = new Backend_Outputter();
-					Soap_Common::paintSoapAuthenticationFields($prefix, $settings, $o, $write_access, FALSE, TRUE);					
+					Soap_Common::paintSoapAuthenticationFields($prefix, $settings, $o, $write_access, FALSE, TRUE);
 				?>
 				<tr>
 					<th><?php echo translate('mute_exception'); ?></th>
@@ -566,7 +566,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		$settings['auth_type']			= array_get_index($request_data, 'auth_type', NULL);
 		$settings['cache_wsdl']			= array_get_index($request_data, 'cache_wsdl', NULL);
 		$settings['service_address']	= array_get_index($request_data, 'service_address', NULL);
-		
+
 		// Process function authentication fields
 		$o = new Backend_Outputter();
 		Soap_Common::processSoapAuthenticationFields($request_data, $settings, $o);
@@ -636,11 +636,11 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		if(isset($settings['action']))
 		    $settings[$settings['action'].'_treat_as_fatal'] = array_get_index($request_data, $request_data['action'].'_treat_as_fatal',0);
 
-		
+
 		// grab the service address from WSDL
 		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], $settings['password']);
-		
-		
+
+
 		// Currently selected "Check response" fields
 		$current_selected_fields = (isset($request_data[$settings['action'].'_response_error_fields']) && $request_data[$settings['action'].'_response_error_fields'] != '')? $request_data[$settings['action'].'_response_error_fields'] : Array();
 

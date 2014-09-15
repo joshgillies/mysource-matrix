@@ -56,7 +56,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
-	
+
 		// see if the id is set in the parameter map
 		$value_map = array_get_index($settings, 'value_map', serialize(Array()));
 		$param_map_attr = new Asset_Attribute_Parameter_Map(0, $value_map);
@@ -67,7 +67,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			// if no settings, fail
 			return FALSE;
 		}
-		
+
 		// whether we use the parameter map value or the settings value for the target asset
 		$assetid = is_null($param_map_value) ? $settings['assetid'] : $param_map_value;
 
@@ -87,10 +87,10 @@ class Trigger_Action_Set_Design extends Trigger_Action
 				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
-		
+
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		
+
 		// setting the default frontend design
 		if ($design_type == 'design::system') {
 			$design_final_name = 'design::system::frontend';
@@ -225,7 +225,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_set_design_basic', $basic_part_1);
+		return sprintf(translate('trigger_set_design_basic'), $basic_part_1);
 
 	}//end getInterface()
 
@@ -250,7 +250,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		if (!empty($request_data['design_name'])) {
 			$settings['design_name'] = $request_data['design_name'];
 		}
-		
+
 		// parameter map to accept dynamic value
 		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		if ($new_prefix) {
@@ -258,7 +258,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 				$param_map_attr->process($new_prefix.'_parameter_map');
 				$settings['value_map'] = $param_map_attr->value;
 		}
-		
+
 		$value_map = unserialize($settings['value_map']);
 		// make sure the assetid isn't blank
 		if (empty($settings['assetid']) && empty($value_map)) {

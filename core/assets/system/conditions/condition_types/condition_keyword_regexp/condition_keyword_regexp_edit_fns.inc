@@ -69,7 +69,7 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 				<td>
 					<?php
 					$selected_keyword = '';
-					if (isset($condition_data['keyword'])) {					
+					if (isset($condition_data['keyword'])) {
 					   $selected_keyword = $condition_data['keyword'];
 					}
 
@@ -162,7 +162,7 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 				$results['keyword'] .= $name_extension;
 			}
 		}
-		
+
 		return $results;
 
 	}//end processEditInterface()

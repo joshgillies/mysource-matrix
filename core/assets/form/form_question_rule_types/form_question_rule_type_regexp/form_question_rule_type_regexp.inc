@@ -76,11 +76,11 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1) ? '' : 'i';
-		
+
 		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
 		$condition_js = parent::generateConditionJSCode($rule_data);
-		if (strlen(trim($condition_js))) $condition_js = ' && '.$condition_js; 
-	
+		if (strlen(trim($condition_js))) $condition_js = ' && '.$condition_js;
+
 		ob_start();			// buffer this please
 
 			// JavaScript only accepts forward slashes for their regexs
@@ -121,9 +121,9 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	function evaluate($answer, $rule_data)
 	{
 		$operator = array_get_index($rule_data, 'operator', 1);
-		
+
 		$pattern = '/'.str_replace('/', '\\'.'/', array_get_index($rule_data, 'value', '')).'/';
-		
+
 		// case insensitive?
 		if (!array_get_index($rule_data, 'case_sensitive', 1)) {
 			$pattern .= 'i';
@@ -152,7 +152,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		if($use_accessible_string)
 		    $error_str = translate('core_form_rule_regexp_error_accessible');
 		else
-		    $error_str = translate('core_form_rule_regexp_error', $q_asset->name);
+		    $error_str = sprintf(translate('core_form_rule_regexp_error'), $q_asset->name);
 
 		return $error_str;
 

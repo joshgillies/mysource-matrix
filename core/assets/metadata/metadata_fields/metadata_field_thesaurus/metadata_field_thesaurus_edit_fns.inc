@@ -207,7 +207,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 						multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
 						hidden_field($prefix.'_terms_submitted', 1);
 						echo '<div style="margin-top: 3px">';
-							echo translate('thesaurus_meta_thesaurus_note', get_asset_tag_line($thesaurus->id, 'details'));
+							echo sprintf(translate('thesaurus_meta_thesaurus_note'), get_asset_tag_line($thesaurus->id, 'details'));
 						echo '</div>';
 					echo '</div>';
 
@@ -227,7 +227,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo ' <em>('.translate('using_default_value').')</em>';
 				} else{
 
-				}	
+				}
 			echo '</span>';
 			if (empty($values)) {
 				echo '<em>'.translate('thesaurus_no_values').'.</em>';
@@ -313,7 +313,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 					$term_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
 					$term_name = $term_asset->attr('name');
 					if ($term_asset->_thesaurus->id != $thesaurus->id) {
-						$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+						$asset->_tmp['error'][] = sprintf(translate('thesaurus_meta_wrong_thesaurus'), $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
 						continue;
 					}
@@ -423,7 +423,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			$term_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
 			$term_name = $term_asset->attr('name');
 			if ($term_asset->_thesaurus->id != $thesaurus->id) {
-				$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+				$asset->_tmp['error'][] = sprintf(translate('thesaurus_meta_wrong_thesaurus'), $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
 				continue;
 			}

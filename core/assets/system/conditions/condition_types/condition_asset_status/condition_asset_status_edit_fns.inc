@@ -106,7 +106,7 @@ class Condition_Asset_Status_Edit_Fns extends Condition_Edit_Fns
 				</td>
 			</tr>
 		</table>
-		
+
 		<?php
 
 	}//end paintEditInterface()

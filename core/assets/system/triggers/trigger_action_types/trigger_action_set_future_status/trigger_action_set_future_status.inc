@@ -124,7 +124,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			// so trying to use the metadata value from there will give us old value
 			$val = $mm->getMetadataValueByAssetid($state['assetid'], $settings['when_meta_field_id']);
 
-			// replace any keyword if found in value returned from above 
+			// replace any keyword if found in value returned from above
 			$keyword_list = extract_keywords($val);
 			if (!empty($keyword_list)) {
 				foreach ($keyword_list as $keyword) {
@@ -397,7 +397,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		echo '<p>';
 		$treat_fatal = array_get_index($settings, 'treat_as_fatal', 0);
 		if ($write_access) {
-			check_box($prefix.'_treat_as_fatal', '1', $treat_fatal); 
+			check_box($prefix.'_treat_as_fatal', '1', $treat_fatal);
 			label(translate('trigger_action_future_status_treat_as_fatal'), $prefix.'_treat_as_fatal');
 		} else {
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($treat_fatal ? 'tick' : 'cross').'.gif" alt="'.($treat_fatal ? translate('yes') : translate('no')).'" /> ';

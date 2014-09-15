@@ -92,7 +92,7 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 		if (strlen(trim($condition_js))) {
 			$additional_condition = 'if (!'.$condition_js.') return true;';
 		}
-		
+
 		ob_start();			// buffer this please
 
 			if (!$printed_fn) {

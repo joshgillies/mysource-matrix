@@ -40,7 +40,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	* <PRE>
 	* Array(
 	*       'path' => string // the web path to add
-	*		'remove_all' => 1|0 // remove all other webpath?		
+	*		'remove_all' => 1|0 // remove all other webpath?
 	*		'make_lowercase' => 1|0 // make webpath lowercase?
 	*		'update_children' => 1|0 update lookups for children?
 	*       );
@@ -77,7 +77,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		if (!empty($settings['make_lowercase'])) {
 			$web_path = strtolower($web_path);
 		}
-		
+
 		// add the new web path
 		$web_paths_new = $web_paths_old = $state['asset']->getWebPaths();
 		if (!in_array($web_path, $web_paths_new)) {
@@ -88,10 +88,10 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		if (!empty($settings['remove_all'])) {
 			$web_paths_new = Array($web_path);
 		}
-		
+
 		// don't add remaps, if set so
 		$add_auto_remaps = !isset($settings['dont_add_remap']) || !$settings['dont_add_remap'];
-		
+
 		// only save the new paths if they have changed
 		// (note that lookups are updated by the saveWebPaths fn)
 		if ($web_paths_new !== $web_paths_old) {
@@ -107,7 +107,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 
 		//update lookups for children
 		if(!empty($settings['update_children'])){
-			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();	
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetids' => Array($state['asset']->id));
 			$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 			if (!empty($lookup_errors)) {
@@ -193,7 +193,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 			echo '</li>';
 			echo '<li>';
 				check_box($prefix.'[dont_add_remap]', '1', array_get_index($settings, 'dont_add_remap', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-				echo '<label for='.$prefix.'[dont_add_remap]'.'>'.translate('trigger_add_web_path_dont_add_remap').'</label>';	
+				echo '<label for='.$prefix.'[dont_add_remap]'.'>'.translate('trigger_add_web_path_dont_add_remap').'</label>';
 			echo '</li>';
 		echo '</ul>';
 		return ob_get_clean();
@@ -228,7 +228,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 
 	}//end processInterface()
 
-	
+
 	/**
 	* Get the list of locks that the action needs acquire before executing
 	*

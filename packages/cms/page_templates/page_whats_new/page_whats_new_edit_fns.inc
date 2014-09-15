@@ -262,7 +262,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 		$write_access = $asset->writeAccess('attributes');
 		$ranges       = $asset->attr('date_ranges');
-		
+
 		if (isset($_POST[$prefix.'_new_range'])) {
 			$rangeid = -1;
 		} else if (isset($_POST[$prefix.'_range_id']) && $_POST[$prefix.'_range_id'] != 0 && isset($ranges[$_POST[$prefix.'_range_id'] - 1])) {

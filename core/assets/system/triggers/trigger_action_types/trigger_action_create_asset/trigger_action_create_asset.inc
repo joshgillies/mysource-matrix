@@ -296,7 +296,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			}
 			$attributes = ob_get_contents();
 			ob_end_clean();
-			
+
 			// Replace keywords checkbox
 			ob_start();
 				check_box($prefix.'[replace_keywords]', '1', array_get_index($settings, 'replace_keywords', 0), NULL, ($write_access? '' : 'disabled="disabled"'));
@@ -306,11 +306,11 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			$attributes .= $replace_keywords;
 
 			// now patch together the output
-			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_3).
+			$contents =	sprintf(translate('trigger_new_asset_basic'), $basic_part_1, $basic_part_3).
 						'<br /><br />'.
 						'<b>'.translate('create_asset_under').'</b><br />'.$basic_part_2.
 						'<br /><br /><b>'.translate('triggers_advanced_user_options').'</b><br /><br />'.
-						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
+						sprintf(translate('trigger_new_asset_advanced'), $advanced_part_1, $advanced_part_2, $advanced_part_3).
 						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
 						'<span>'.translate('trigger_create_asset_required_attrs_warning').'</span>';
 
@@ -373,9 +373,9 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			}
 			$settings['attributes'] = $new_attr;
 		}
-		
+
 		$settings['replace_keywords']      = array_get_index($request_data, 'replace_keywords', 0);
-		
+
 		return FALSE;
 
 	}//end processInterface()

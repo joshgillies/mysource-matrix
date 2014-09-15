@@ -25,11 +25,11 @@
 	require_once dirname(__FILE__).'/../../../../core/include/backend_outputter.inc';
 	$o = new Backend_Outputter();
 
-	$o->openSection(translate('keyword_extraction_for', translate('asset_format', $asset->attr('name'), $asset->id)));
+	$o->openSection(sprintf(translate('keyword_extraction_for'), sprintf(translate('asset_format'), $asset->attr('name'), $asset->id)));
 	$o->openField('', 'wide_col');
 ?>
 
-		<p><?php echo translate('kewords_for_asset', translate('asset_format', $asset->attr('name'), $asset->id)); ?></p>
+		<p><?php echo sprintf(translate('kewords_for_asset'), sprintf(translate('asset_format'), $asset->attr('name'), $asset->id)); ?></p>
 		<p><?php echo translate('use_keywords_in_metadata_fields'); ?></p>
 
 		<p>

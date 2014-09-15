@@ -194,8 +194,8 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 			$basic_part_5 = ob_get_contents();
 		ob_end_clean();
 
-		$contents = '<div class="sq-break-line-inputs">'.translate('trigger_delete_bmail_user_asset', $basic_part_1).'<br />'.translate('trigger_delete_bmail_user_email', $basic_part_2).
-					'<br />'.translate('trigger_delete_bmail_user_link', $basic_part_3, $basic_part_4).'</div><br />'.$basic_part_5;
+		$contents = '<div class="sq-break-line-inputs">'.sprintf(translate('trigger_delete_bmail_user_asset'), $basic_part_1).'<br />'.sprintf(translate('trigger_delete_bmail_user_email'), $basic_part_2).
+					'<br />'.sprintf(translate('trigger_delete_bmail_user_link'), $basic_part_3, $basic_part_4).'</div><br />'.$basic_part_5;
 
 		return $contents;
 

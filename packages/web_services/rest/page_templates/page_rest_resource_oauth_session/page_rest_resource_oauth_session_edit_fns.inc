@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
@@ -40,7 +40,7 @@ class Page_REST_Resource_OAuth_Session_Edit_Fns extends Page_REST_Resource_Edit_
 
 	}//end constructor
 
-	
+
 	/**
 	* Paints the stored access token
 	*
@@ -72,7 +72,7 @@ class Page_REST_Resource_OAuth_Session_Edit_Fns extends Page_REST_Resource_Edit_
 		?>
 		<table border="0" class="sq-backend-table">
 		    	<tr>
-			    <th width="20%"><?php echo translate('oauth_access_token_type', $type); ?></th>
+			    <th width="20%"><?php echo sprintf(translate('oauth_access_token_type'), $type); ?></th>
 			    <td>
 				<?php
 				   echo htmlspecialchars($type);
@@ -97,11 +97,11 @@ class Page_REST_Resource_OAuth_Session_Edit_Fns extends Page_REST_Resource_Edit_
 			</tr>
 		</table>
 	<?php
-	    
+
 
 	}//end paintAccessToken()
 
-	
+
 	/**
 	* Process access token interface
 	*
@@ -127,6 +127,6 @@ class Page_REST_Resource_OAuth_Session_Edit_Fns extends Page_REST_Resource_Edit_
 		}
 
 	}//end processAccessToken()
-	
+
 }//end class
 ?>

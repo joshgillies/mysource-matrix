@@ -232,7 +232,7 @@ class Page_Calendar extends Page
 	*/
 	function printFrontend()
 	{
-		
+
 		return parent::printFrontend();
 
 	}//end printFrontend()
@@ -993,7 +993,7 @@ class Page_Calendar extends Page
 		} else if ($format == 'list_with_headings') {
 			// Dates in month view with 'Listing with day Headings' option should always have url with day view
 			$drill_down_view = $enabled_views['day'] ? 'day' : '';
-			
+
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
 			$events_array = $raw_events;
@@ -2600,7 +2600,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			MatrixDAL::bindValueToPdo($query, 'start_date_ts', $end_ts);
 			$recurring_events = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -2712,7 +2712,7 @@ class Page_Calendar extends Page
 			trigger_localised_error('CAL0027', E_USER_WARNING);
 			return Array();
 		}
-		
+
 		// formulate the date restriction clauses
 		$start_ts = strtotime("$year-$month-01 00:00:00 GMT");
 		$next_month = ($month % 12) + 1;
@@ -2724,7 +2724,7 @@ class Page_Calendar extends Page
 		$date_sql = '((cd.start_date_year = :start_date_year AND (cd.start_date_mon = :start_date_month OR cd.end_date_mon = :end_date_month)) OR (cd.start_date_ts < :start_date_ts AND cd.end_date_ts > :end_date_ts))';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids, 'calendar_event_single', TRUE, $bind_vars)."\n AND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
-		
+
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
@@ -2756,7 +2756,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -2833,7 +2833,7 @@ class Page_Calendar extends Page
 			trigger_localised_error('CAL0028', E_USER_WARNING);
 			return Array();
 		}
-		
+
 		// get the single events
 		$bind_vars = Array();
 		$start_date_stamp = Calendar_Common::_getDayStamp($date);
@@ -2847,7 +2847,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds',   $start_date_stamp, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds_1', $start_date_stamp, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds_2', $start_date_stamp, PDO::PARAM_INT);
@@ -2868,7 +2868,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -2922,7 +2922,7 @@ class Page_Calendar extends Page
 		$res = Array();
 		$day_in_second = 24 * 60 * 60;	// 86400 seconds
 		$days_to_show = $this->attr('week_view_show_days');
-		
+
 		$i = iso8601_ts($date);
 		while ($i <= iso8601_ts(add_days_to_iso($date, 6))) {
 			$iso_date = iso8601_date_component(ts_iso8601($i));
@@ -3003,7 +3003,7 @@ class Page_Calendar extends Page
 		$cal_date = date('Y-m-d', $first_day);
 
 		$last_day = add_days_to_iso($cal_date, 6);
-		
+
 		$i = iso8601_ts($cal_date);
 		while ($i <= iso8601_ts(add_days_to_iso($cal_date, 6))) {
 			$iso_date = iso8601_date_component(ts_iso8601($i));
@@ -3071,14 +3071,14 @@ class Page_Calendar extends Page
 		$today_date_stamp = Calendar_Common::_getDayStamp($date);
 		$date_sql = '(('.$today_date_stamp.' = cd.start_date_ds) OR ('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds))';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids, 'calendar_event_single', TRUE, $bind_vars).' AND '.$date_sql;
-		$sql .= $this->_getRootNodeRestrictionSQL();		
-		
+		$sql .= $this->_getRootNodeRestrictionSQL();
+
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$single_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -3095,7 +3095,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -3443,7 +3443,7 @@ class Page_Calendar extends Page
 
 	}//end formatDatesToCompare()
 
-	
+
 	/**
 	* Create a "No Results" bodycopy under this asset
 	*
@@ -3451,9 +3451,9 @@ class Page_Calendar extends Page
 	* @access public
 	*/
 	function createNoResultsBodycopy()
-	{		
+	{
 		$bodycopy_name = "page_contents_no_results";
-		
+
 		// Check if "No result page" already exists
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $bodycopy_name);
 		if (!empty($bodycopy_link)) {
@@ -3462,13 +3462,13 @@ class Page_Calendar extends Page
 
 		// Being here means bodycopy doesn't exist, so create it
 		$copy_link = Array(
-						'asset' 	=> &$this, 
-						'link_type' => SQ_LINK_TYPE_2, 
-						'is_dependant' => 1, 
-						'is_exclusive' => 1, 
+						'asset' 	=> &$this,
+						'link_type' => SQ_LINK_TYPE_2,
+						'is_dependant' => 1,
+						'is_exclusive' => 1,
 						'value' => $bodycopy_name,
 					);
-					
+
 		$page_contents_data = Array(
 								'content' => '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p><p>No events</p>',
 						);

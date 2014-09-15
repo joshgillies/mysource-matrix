@@ -691,7 +691,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					?></span><?php
 				}
 				?>
-				&nbsp; &nbsp; <?php echo translate('page_number', round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
+				&nbsp; &nbsp; <?php echo sprintf(translate('page_number'), round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
 				<?php
 				if (($submission_offset + $num_per_page) < $asset_count) {
 					?><a title="<?php echo translate('online_quiz_submissions_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -722,7 +722,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				}
 				?></b>
 			</td>
-			<td class="sq-form-sub-header" colspan="5" align="right"><?php echo translate('online_quiz_submissions_during_period', $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
+			<td class="sq-form-sub-header" colspan="5" align="right"><?php echo sprintf(translate('online_quiz_submissions_during_period'), $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
 			</td>
 			</tr>
 			<tr>
@@ -831,7 +831,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 									$i = 0;
 									$incl_user_details = in_array('__user_details__',$expand_sections) ? TRUE : FALSE;
 									$incl_quiz_responses = in_array('__quiz_responses__', $expand_sections) ? TRUE : FALSE;
-									
+
 									$elements = $sub_asset->getSummary($incl_user_details, $incl_quiz_responses);
 									if (count($elements) % 2 != 0) {
 										$elements[] = Array('name' => '', 'answer' => '');
@@ -1153,7 +1153,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		// get existing root links (pools)
 		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 		$pool_setup = $asset->attr('question_pool_setup');
-		
+
 		?>
 		<table class="sq-backend-table">
 			<tr>
@@ -1210,19 +1210,19 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				?>
 				</td>
 			</tr>
-		<?php 
+		<?php
 			$order++;
 		}
-		?> 
-		</table> 
+		?>
+		</table>
 		<?php
 		hidden_field($prefix.'_interactive_mode', '1');
-		
+
 		return TRUE;
-		
+
 	}//end paintQuestionPoolSetup()
-	
-	
+
+
 	/**
 	* Process Question Pool Setup
 	*
@@ -1237,14 +1237,14 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (!isset($_POST[$prefix.'_interactive_mode'])) return TRUE;
-		
+
 		//adjust the order first
 		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 		foreach ($root_links as $link){
 			$order = (isset($_POST[$prefix.'_order_'.$link['minorid']])) ? (int)$_POST[$prefix.'_order_'.$link['minorid']] : $link['sort_order'];
-			$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $link['link_type'], $link['value'], $order, $link['locked']);	
+			$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $link['link_type'], $link['value'], $order, $link['locked']);
 		}
-		
+
 		$pool_setup = Array();
 		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 		foreach ($root_links as $link){
@@ -1254,21 +1254,21 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			if (($size + ($size*$retries)) > (count($children))){
 				trigger_localised_error('CMS0113', E_USER_WARNING, $link['minorid']);
 			}
-			
+
 			$pool_setup[$link['minorid']] = Array (
 												'retries' => $retries,
 												'size'	  => $size,
-											);								
+											);
 		}
-		
+
 		$asset->setAttrValue('question_pool_setup', $pool_setup);
 		$asset->saveAttributes();
-			
+
 		return TRUE;
-		
+
 	}//end processQuestionPoolSetup()
-	
-	
+
+
 	/**
 	* Paints the submission asset sections available for expanding in the submission list
 	*
@@ -1281,18 +1281,18 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function paintExpandSections(&$asset, &$o, $prefix)
 	{
-		
+
 		$expand_sections = isset($_POST[$prefix.'_expand_sections']) ? $_POST[$prefix.'_expand_sections'] : Array();
-		
+
 		//default is both checked and if you uncheck both, they'll be rechecked
 		$checked = ($expand_sections) ? in_array('__user_details__', $expand_sections) : TRUE;
 		echo check_box($prefix.'_expand_sections[]', '__user_details__', $checked).'User Details Form Questions<br/>';
 		$checked = ($expand_sections) ? in_array('__quiz_responses__', $expand_sections) : TRUE;
-		echo check_box($prefix.'_expand_sections[]', '__quiz_responses__', $checked).'Quiz Questions<br/>';	
+		echo check_box($prefix.'_expand_sections[]', '__quiz_responses__', $checked).'Quiz Questions<br/>';
 
 	}//end paintExpandSections()
-	
-	
+
+
 	/**
 	* Paint the question option format interface
 	*
@@ -1340,8 +1340,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		return TRUE;
 
 	}//end processQuestionOptionFormat()
-	
-	
+
+
 	/**
 	* Show-if conditional: isListingMode
 	*
@@ -1355,8 +1355,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		return ($asset->attr('interactive_mode')) ? FALSE : TRUE;
 
 	}//end isListingMode()
-	
-	
+
+
 	/**
 	* Show-if conditional: isInteractiveMode
 	*

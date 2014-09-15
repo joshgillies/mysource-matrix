@@ -557,7 +557,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					echo '</span>';
 				}
 				?>
-				&nbsp;<b><?php echo translate('page_number', (floor($start_printing_at / $num_per_page) + 1), ceil($num_roles / $num_per_page)); ?></b>&nbsp;
+				&nbsp;<b><?php echo sprintf(translate('page_number'), (floor($start_printing_at / $num_per_page) + 1), ceil($num_roles / $num_per_page)); ?></b>&nbsp;
 
 				<?php
 				if (($start_printing_at + $num_per_page) < $num_roles) {

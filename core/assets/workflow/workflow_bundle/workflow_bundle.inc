@@ -631,7 +631,7 @@ class Workflow_Bundle extends Asset implements Bridge
 	* @return int
 	* @access public
 	* @see Asset_Manager::createAssetLink()
-	*/	
+	*/
 	public function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		if (!$this->id) return 0;

@@ -142,7 +142,7 @@ class Content_Type_Snippet extends Content_Type
 						// exclude snippet that has not been initialised
 						continue;
 					}
-					
+
 					// special interface for nest content type
 					if($content_type_type == 'content_type_nest_content') {
 						$content = $content_type->getSnippetInterface();
@@ -150,7 +150,7 @@ class Content_Type_Snippet extends Content_Type
 						// grab html source code of other content types
 						$content = $content_type->attr('html');
 					}
-					
+
 					$results[$id] = Array(
 										'name'		=> $container->name,
 										'content'	=> $content,
@@ -233,8 +233,8 @@ class Content_Type_Snippet extends Content_Type
 		return FALSE;
 
 	}//end setContent()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the cloning of this asset
 	*
@@ -259,14 +259,14 @@ class Content_Type_Snippet extends Content_Type
 	*/
 	public function cloneComponentsAdditional(Asset $clone, Array $components)
 	{
-		// update content.php file 
+		// update content.php file
 		$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($clone->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
 		if (!empty($bc_container_link)) {
 			$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
 			$edit_fns = $container->getEditFns();
 			$edit_fns->generateContentFile($container);
 		}
-			
+
 		return parent::cloneComponentsAdditional($clone, $components);
 
 	}//end cloneComponentsAdditional()

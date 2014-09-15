@@ -456,7 +456,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 						$this->sendAlreadySubscribedEmail($email_address, $from_addr, $subscriptions);
 					}
 				}
-				$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+				$this->messages[] = sprintf(translate('bsp_verification_email_sent'), $email_address);
 				return;
 			}
 		}
@@ -473,7 +473,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				// if the email is valid send a confirmation
 				if (valid_email($_email_address_trim) && !empty($_email_address_trim)) {
 					$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
-					$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+					$this->messages[] = sprintf(translate('bsp_verification_email_sent'), $email_address);
 				}
 			}
 		}
@@ -650,7 +650,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 					trigger_localised_error('BML0016', E_USER_WARNING);
 				} else {
 					$this->sendAlreadySubscribedEmail($current_user_email, $from_addr, $subscriptions);
-					$this->messages[] = translate('bsp_verification_email_sent', $current_user_email);
+					$this->messages[] = sprintf(translate('bsp_verification_email_sent'), $current_user_email);
 				}
 			}
 			return;
@@ -664,7 +664,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				trigger_localised_error('BML0016', E_USER_WARNING);
 			} else {
 				$this->sendConfirmationEmail($current_user_email, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
-				$this->messages[] = translate('bsp_verification_email_sent', $current_user_email);
+				$this->messages[] = sprintf(translate('bsp_verification_email_sent'), $current_user_email);
 			}
 		}
 
@@ -790,15 +790,15 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$body .= translate('bsp_verification_email_body_sub_unsub',
 									$this->_getCommaSeparatedNamesByAssetid($subscriptions),
 									$this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
-			$body .= translate('bsp_verification_email_body_part2', $url);
+			$body .= sprintf(translate('bsp_verification_email_body_part2'), $url);
 		} else if (!empty($subscriptions)) {
-			$body .= translate('bsp_verification_email_body_sub', $this->_getCommaSeparatedNamesByAssetid($subscriptions));
-			$body .= translate('bsp_verification_email_body_sub_part2', $url);
+			$body .= sprintf(translate('bsp_verification_email_body_sub'), $this->_getCommaSeparatedNamesByAssetid($subscriptions));
+			$body .= sprintf(translate('bsp_verification_email_body_sub_part2'), $url);
 		} else if (!empty($unsubscriptions)) {
-			$body .= translate('bsp_verification_email_body_unsub', $this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
-			$body .= translate('bsp_verification_email_body_part2', $url);
+			$body .= sprintf(translate('bsp_verification_email_body_unsub'), $this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
+			$body .= sprintf(translate('bsp_verification_email_body_part2'), $url);
 		}
-			$body .= translate('bsp_verification_email_note', $from);
+			$body .= sprintf(translate('bsp_verification_email_note'), $from);
 
 
 		$mime = new Mail_mime("\n");
@@ -848,7 +848,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				   );
 
 		$url = current_url();
-		$body = translate('bsp_already_sub_email_body', $this->_getCommaSeparatedNamesByAssetid($subscriptions), $url);
+		$body = sprintf(translate('bsp_already_sub_email_body'), $this->_getCommaSeparatedNamesByAssetid($subscriptions), $url);
 
 		$mime = new Mail_mime("\n");
 		$mime->setTXTBody($body);
@@ -976,7 +976,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		switch ($code) {
 			case 'logged_in':
-				return '<h2>'.translate('bsp_default_title_logged_in', '%user_name%').'</h2>
+				return '<h2>'.sprintf(translate('bsp_default_title_logged_in'), '%user_name%').'</h2>
 					%success_messages_list% %error_messages_list%
 					<h3>'.translate('bsp_default_subtitle_current_subs').'</h3>
 					%current_subscriptions%

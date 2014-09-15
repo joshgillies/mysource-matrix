@@ -120,8 +120,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return FALSE;
 
 	}//end processAssetTypes()
-	
-	
+
+
 	/**
 	* Paints the root node selection box
 	*
@@ -206,8 +206,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end processRootNode()
-	
-	
+
+
 	/**
 	* Paints the api key field
 	*
@@ -221,9 +221,9 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 	function paintApiKey(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		
+
 		if ($write_access) {
-			text_box($prefix.'_key', $asset->attr('api_key')); 
+			text_box($prefix.'_key', $asset->attr('api_key'));
 		} else {
 			echo '<p><em>'.translate('js_api_api_key_lock').'.</em></p>';
 		}//end else
@@ -231,8 +231,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return $write_access;
 
 	}//end paintApiKey()
-	
-	
+
+
 	/**
 	* Processes the value input from the api key field
 	*
@@ -249,8 +249,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('api_key', $_POST[$prefix.'_key']);
 
 	}//end processRootNode()
-	
-	
+
+
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
@@ -299,8 +299,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		}//end else - if write access to content
 
 	}//end paintParentTypes()
-	
-	
+
+
 	/**
 	* Process the asset types to list
 	*
@@ -329,8 +329,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return FALSE;
 
 	}//end processAssetTypes()
-	
-	
+
+
 	/**
 	* Print set all buttons
 	*
@@ -350,8 +350,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 			print_set_all('Yes','1');
 			print_set_all('No','0');
 			echo '</span>';
-		} 
-		
+		}
+
 		return FALSE;
 
 	}//end processAssetTypes()
@@ -394,7 +394,7 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 					<th class="sq-backend-warning-header">
 						<?php echo translate('standard_mode_deprecated'); ?>
 					</th>
-				</tr>	
+				</tr>
 				<tr>
 					<td colspan="2" ><?php echo translate('standard_mode_deprecated_note'); ?>
 					</td>
@@ -404,7 +404,7 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		<?php
 
 		return TRUE;
-	
+
 	}//end paintWarning()
 
 

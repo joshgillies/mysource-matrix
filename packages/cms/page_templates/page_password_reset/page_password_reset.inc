@@ -77,8 +77,8 @@ class Page_Password_Reset extends Page
 		// Set default value for email format attr
 		$val = Array();
 		$val['subject'] = translate('cms_password_reset_email_subject');
-		$val['text_format'] = translate('cms_password_reset_email_msg', '%asset_attribute_username%', '%password_reset_url%');
-		$val['html_format'] = '<p>'.translate('cms_password_reset_email_msg', '%asset_attribute_username%', '<a href="%password_reset_url%">%password_reset_url%</a>').'</p>';
+		$val['text_format'] = sprintf(translate('cms_password_reset_email_msg'), '%asset_attribute_username%', '%password_reset_url%');
+		$val['html_format'] = '<p>'.sprintf(translate('cms_password_reset_email_msg'), '%asset_attribute_username%', '<a href="%password_reset_url%">%password_reset_url%</a>').'</p>';
 		$val['from'] = SQ_CONF_SYSTEM_NAME.' <'.SQ_CONF_DEFAULT_EMAIL.'>';
 		$this->setAttrVAlue('request_email_format', $val);
 
@@ -315,8 +315,8 @@ class Page_Password_Reset extends Page
 			}
 
 			// make sure user opens reset link in the same session in which he requested reset
-			$_SESSION['SQ_PASSWORD_RESET_HASH'] = $user_hash;	
-			
+			$_SESSION['SQ_PASSWORD_RESET_HASH'] = $user_hash;
+
 			// Do not attempt to send mail to anyone if we're not going to go ahead with this, especially
 			// if we did't create any link!
 			if (!$failure) {

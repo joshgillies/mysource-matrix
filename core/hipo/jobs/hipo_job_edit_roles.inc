@@ -57,7 +57,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 
 	}//end constructor
 
-	
+
 	/**
 	* Paints backend of this job
 	*
@@ -167,7 +167,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids']) || !isset($this->_running_vars['role_changes'])) {
 			return 0;
 		}
-		
+
 		//total userids in 'add' and 'delete' role changes - include duplicated userids because we are counting the number of calls to setRole and deleteRole methods
 		$total_userids = 0;
 		foreach ($this->_running_vars['role_changes'] as $action_data) {
@@ -175,7 +175,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 				$total_userids += count($userids);
 			}
 		}
-		
+
 		//we have to multiply with the number of users because we want to run runQueuedJobs() instead of freestyle() in hipo job
 		//when we want to set role for 1 asset but 1000 users. It will take time in this case
 		return ((count($this->_running_vars['todo_assetids']) * $total_userids / SQ_HIPO_EDIT_ROLE_THRESHOLD) * 100);
@@ -284,7 +284,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 								}
 							}
 						}
-						$step_data['message'] = translate('hipo_edit_role', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						$step_data['message'] = sprintf(translate('hipo_edit_role'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'roles');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						unset($asset);
@@ -297,8 +297,8 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 					trigger_localised_error('SYS0100', E_USER_WARNING, 'roles', $asset->name, ' skipping asset.');
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_skipping_role', $assetid));
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$this->_addError(sprintf(translate('hipo_skipping_role'), $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -372,7 +372,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+		$step_data['message'] = sprintf(translate('hipo_release_locks'), $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

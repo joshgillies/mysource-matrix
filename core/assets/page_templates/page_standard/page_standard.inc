@@ -202,7 +202,7 @@ class Page_Standard extends Page
 	*/
 	public function printBody()
 	{
-		
+
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		if ($contextid === 0) {
 			$cache_key = 'default';
@@ -221,10 +221,10 @@ class Page_Standard extends Page
 		    $GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'evaluate conditions');
 		}
 
-		
+
 		// start performance timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'print content');
-		
+
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 
@@ -250,10 +250,10 @@ class Page_Standard extends Page
 		} else {
 			echo $cached_contents;
 		}
-		
+
 		// end performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'print content');
-		
+
 	}//end printBody()
 
 
@@ -269,7 +269,7 @@ class Page_Standard extends Page
 	{
 		$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 		$screen = array_get_index($_REQUEST, 'asset_ei_screen', 'details');
-		
+
 		// Look for a layout for the details screen
 		$layout_pattern = 'layout::'.$this->type().'::details';
 		$details_layout = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(current_url(FALSE, TRUE), $layout_pattern, TRUE);
@@ -281,7 +281,7 @@ class Page_Standard extends Page
 			parent::initLimbo();
 		} else {
 			$bodycopy = $this->getBodycopy();
-			if (!is_null($bodycopy)) { 
+			if (!is_null($bodycopy)) {
 				$edit_interface = $bodycopy->getEI();
 				$available_screens = array_keys(array_merge($edit_interface->getScreens(), $edit_interface->_edit_fns->static_screens));
 				if (in_array($screen, $available_screens)) {
@@ -446,9 +446,9 @@ class Page_Standard extends Page
 
 	}//end processCustomKeywords()
 
-	
-		
-	
+
+
+
 	/**
 	*
 	* Call this function when the asset has been changed in some way (or its containers), so we should update the condition evaluation array of it
@@ -461,16 +461,16 @@ class Page_Standard extends Page
 	function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
-				
+
 		$bodycopy = $this->getBodycopy();
 		if(empty($bodycopy)) return TRUE;
-		
+
 		return ($this->extractConditionsFromBodycopy(Array($bodycopy->id)));
 	}//end _updated()
-	
 
-	
-	
+
+
+
 	/**
 	* Add condition keywords when asked
 	*
@@ -484,19 +484,19 @@ class Page_Standard extends Page
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
-		
+
 		// add common asset keywords to standard page
-		parent::onRequestKeywords($broadcaster, $vars);  
-		
+		parent::onRequestKeywords($broadcaster, $vars);
+
 		$keywords = $this->getAvailableConditionKeywords();
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
-	
-	
-	
 
-	
+
+
+
+
 }//end class
 
 ?>

@@ -330,10 +330,10 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 			ob_end_clean();
 
 			// now patch together the output
-			$contents =	translate('trigger_new_file_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4).
+			$contents =	sprintf(translate('trigger_new_file_asset_basic'), $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4).
 						'<br /><br />'.
 						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
+						sprintf(translate('trigger_new_asset_advanced'), $advanced_part_1, $advanced_part_2, $advanced_part_3).
 						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
 						'<span>'.translate('trigger_create_file_required_attrs_warning').'</span>';
 

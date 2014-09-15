@@ -103,7 +103,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 					if ($job_link) {
 
 						$cron_job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_link['majorid']);
-						$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
+						$step_data['message'] = sprintf(translate('core_checking_for_metadata'), $asset->name);
 
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$field_values = $mm->getMetadataFieldValues($asset->id);
@@ -134,17 +134,17 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						// write out the XML if there were any trash errors
 						if (!empty($trash_errors)) fwrite($temp_file, $content);
 					} else {
-						$step_data['message'] = translate('hipo_skipping_asset', $assetid).' - NO JOB';
+						$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid).' - NO JOB';
 					}
 
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
-					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+					$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$job->_addError(translate('core_cannot_generate_incomplete_metadata_report', $assetid));
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$job->_addError(sprintf(translate('core_cannot_generate_incomplete_metadata_report'), $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again

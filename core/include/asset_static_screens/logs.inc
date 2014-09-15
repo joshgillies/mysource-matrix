@@ -70,21 +70,21 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	$selected_based_url = '';
 	$selected_types = Array();
 	$o->openSection(translate('logged_messages'));
-	
+
 	$type_options = Array();
 	foreach ($log_types as $type) {
 		// We're only interested in log types starting with 'asset'
 		if (strpos($type, 'asset') !== 0) {
 			continue;
 		}
-		
+
 		// html option fields contains complete url to call via javascript self.location
 		if (in_array($type, $active_log_types)) {
 			$selected_types[] = $type;
 		}
 		$type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
 	}
-	
+
 	$date = '';
 	$date_parameters = Array(
 					'min'			=> '1990-01-01 00:00:00',
@@ -105,11 +105,11 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// get 2 date fields for to and from fields
 	$from_field = new DateTime_Field($prefix.'_date_from', $date, $date_parameters);
 	$to_field   = new DateTime_Field($prefix.'_date_to', $date, $date_parameters);
-	
+
 	//set default from and to dates (from date to be 1 year in the past)
-	$default_from_date = (date('Y')-1).date('-m-d H:i:s'); 
+	$default_from_date = (date('Y')-1).date('-m-d H:i:s');
 	$default_to_date = date('Y-m-d H:i:s');
-	
+
 	$from_date = $default_from_date;
 	$to_date = $default_to_date;
 
@@ -118,7 +118,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		$from_date = $from_field->value;
 	}
 	// this will look stupid but this is needed
-	// or else on screen reload both the date 
+	// or else on screen reload both the date
 	// fields will have the same date on them
 	$from_field->setValue($from_date);
 
@@ -151,7 +151,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 			$invalid_dates = FALSE;
 		}
 		$o->closeField();
-		
+
 		$o->openField('&nbsp;');
 			normal_button($prefix.'_go', translate('view'), 'this.form.submit()');
 		$o->closeField();
@@ -159,7 +159,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 
 	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-	
+
 	$all_logs = Array();
 	foreach($selected_types as $active_log_type) {
 
@@ -206,7 +206,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 	// Sort the logs
 	usort($all_logs, Array('Messaging_Service', 'sortMessages'));
-	
+
 	if (!empty($selected_types)) {
 		$selected_base_url = replace_query_string_vars(Array($_combo_box_name.'[]' => NULL, $owner->type().'_'.$owner->id.'_start_at' => NULL,));
 		$selected_base_url .= '&'.$_combo_box_name.'[]='.implode('&'.$_combo_box_name.'[]=', $selected_types);
@@ -226,9 +226,9 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	if (empty($all_logs) || !$invalid_dates) {
 		$o->openField('');
 			if (!( empty($type_options) && empty($selected_base_url) )) {
-				echo '<strong>'.translate('no_logged_messages', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
+				echo '<strong>'.sprintf(translate('no_logged_messages'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			} else {
-				echo '<strong>'.translate('no_logged_messages_found', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
+				echo '<strong>'.sprintf(translate('no_logged_messages_found'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			}
 		$o->closeField();
 	} else {
@@ -286,7 +286,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						echo '</span>';
 					}
 					?>
-					&nbsp;<b><?php echo translate('page_number', (floor($start_printing_at / $num_per_page) + 1), ceil($num_logs / $num_per_page)); ?></b>&nbsp;
+					&nbsp;<b><?php echo sprintf(translate('page_number'), (floor($start_printing_at / $num_per_page) + 1), ceil($num_logs / $num_per_page)); ?></b>&nbsp;
 
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_logs) {

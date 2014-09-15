@@ -95,7 +95,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 		if (strlen(trim($condition_js))) {
 			$additional_condition = 'if (!'.$condition_js.') return true;';
 		}
-			
+
 		ob_start();			// buffer this please
 
             // output js function for *required* validation
@@ -197,7 +197,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-	  
+
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 	    	$use_accessible_string = $form->useAccessibleFormat();

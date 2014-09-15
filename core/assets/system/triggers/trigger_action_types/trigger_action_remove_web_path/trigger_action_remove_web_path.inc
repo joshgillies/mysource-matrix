@@ -74,7 +74,7 @@ class Trigger_Action_Remove_Web_Path extends Trigger_Action
 		$web_path = array_shift($valid_paths);
 
 
-	
+
 		// remove web path
 		$web_paths_old = $web_paths_new = $state['asset']->getWebPaths();
 
@@ -96,10 +96,10 @@ class Trigger_Action_Remove_Web_Path extends Trigger_Action
 				return FALSE;
 			}
 		}
-		
+
 		//update lookups for children
 		if(!empty($settings['update_children'])){
-			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();	
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetids' => Array($state['asset']->id));
 			$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 			if (!empty($lookup_errors)) {
@@ -201,7 +201,7 @@ class Trigger_Action_Remove_Web_Path extends Trigger_Action
 		$settings['path'] = $web_path;
 		$settings['remove_all'] = $remove_all;
 		$settings['update_children'] = $update_children;
-		
+
 		return FALSE;
 
 	}//end processInterface()

@@ -180,7 +180,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 			$value_component = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_attribute_value', $asset_type_component, $attribute_component, $operator_component, $value_component);
+		return sprintf(translate('trigger_attribute_value'), $asset_type_component, $attribute_component, $operator_component, $value_component);
 
 	}//end getInterface()
 

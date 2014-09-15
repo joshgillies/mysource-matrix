@@ -86,7 +86,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// check that the edit functions have a details tab or else
 		// we cant even create assets of this type let alone edit them
-		assert_isset($this->_edit_fns->static_screens['details'], translate('no_details_screen_defined', $type_code));
+		assert_isset($this->_edit_fns->static_screens['details'], sprintf(translate('no_details_screen_defined'), $type_code));
 
 		$this->_dirs = Array($asset_dir);
 		$parent_type = $type_info['parent_type'];
@@ -246,7 +246,7 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		// if we dont have read access, go away
 		if ($owner->id && !$owner->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 			exit();
 		}
 
@@ -310,7 +310,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			if ($user_is_not_allowed) {
 				// this user is not allowed to view the current screen
-				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_inline_asset_screen', $active_screen, htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_inline_asset_screen'), $active_screen, htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 				exit();
 			}//end if
 		}
@@ -462,14 +462,14 @@ class Asset_Edit_Interface extends MySource_Object
 										if (!$have_all_locks) {
 											if ($need_force_locks) {
 												if ($can_force_locks) {
-													echo '<div class="sq-backend-locked-by-someone-else">'.translate('forcibly_acquire_lock', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</div>';
+													echo '<div class="sq-backend-locked-by-someone-else">'.sprintf(translate('forcibly_acquire_lock'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</div>';
 												}
 											} else if ($full_write_access && $acquire_lock_access) {
-												echo translate('acquire_lock', translate('acquire_lock_button'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+												echo sprintf(translate('acquire_lock'), translate('acquire_lock_button'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 											}
 										}
 										if ($have_any_locks) {
-											echo translate('release_lock', translate('release_lock_button'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+											echo sprintf(translate('release_lock'), translate('release_lock_button'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 										}
 										?>
 										<b class="clickable" onclick="sq_toggle_lock_info();" id="sq_lock_info_toggle"><?php echo translate('show_lock_details'); ?></b><br />
@@ -506,7 +506,7 @@ class Asset_Edit_Interface extends MySource_Object
 														if ($full_write_access && $acquire_lock_access) {
 															echo translate('currently_not_held').'.';
 														} else {
-															echo translate('no_access_to_edit', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+															echo sprintf(translate('no_access_to_edit'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 														}
 
 													} else {
@@ -528,10 +528,10 @@ class Asset_Edit_Interface extends MySource_Object
 															if (!$expires_in) {
 																$expires_in = '1 '.translate('second');
 															}
-															$expires_in = translate('due_to_expire', $expires_in);
+															$expires_in = sprintf(translate('due_to_expire'), $expires_in);
 														}
 
-														echo translate('lock_held_by', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+														echo sprintf(translate('lock_held_by'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
 														echo $expires_in;
 													}//end if
 													?>
@@ -749,7 +749,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($closest_parentid != $owner->id) {
 			$closest_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
 			if (!is_null($closest_parent)) {
-				$sub_heading = translate('currently_editing', '<strong>'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').'</strong>', '<strong>'.htmlspecialchars($closest_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
+				$sub_heading = sprintf(translate('currently_editing'), '<strong>'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').'</strong>', '<strong>'.htmlspecialchars($closest_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			}
 		}
 		$o->setSubHeading($sub_heading);
@@ -836,7 +836,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($owner->id && !$owner->readAccess()) {
 			$o->openField('');
 			?>
-				<span class="error"><?php echo translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></span>
+				<span class="error"><?php echo sprintf(translate('cannot_access_asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></span>
 			<?php
 			$o->closeField();
 			return FALSE;
@@ -882,7 +882,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($user_is_not_allowed) {
 				$o->openField('');
 				?>
-					<span class="error"><?php echo translate('cannot_access_inline_asset_screen', $active_screen, htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></span>
+					<span class="error"><?php echo sprintf(translate('cannot_access_inline_asset_screen'), $active_screen, htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></span>
 				<?php
 				$o->closeField();
 				return FALSE;
@@ -1019,7 +1019,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				if (!isset($paint_node->attributes()->name) || !method_exists($this->_edit_fns, (string)$paint_node->attributes()->name)) {
 					$o->openField('');
-					echo translate('section_not_found', (string)$section->attributes()->name);
+					echo sprintf(translate('section_not_found'), (string)$section->attributes()->name);
 					$o->closeField();
 				} else {
 					// if we are printing the create interface and this section is not included in that, ignore it
@@ -1120,7 +1120,7 @@ class Asset_Edit_Interface extends MySource_Object
 								$o->openField($display_name, $field->attributes()->format, '', isset($field->attributes()->hidden));
 
 								if (empty($paint_node->attributes()->name) || !method_exists($this->_edit_fns, $paint_node->attributes()->name)) {
-									$o->note(translate('specific_painting_function_not_found', $paint_node->attributes()->name));
+									$o->note(sprintf(translate('specific_painting_function_not_found'), $paint_node->attributes()->name));
 								} else {
 
 									$method_name = (string) $paint_node->attributes()->name;
@@ -1634,7 +1634,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 					if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 						$o->openField('');
-						echo translate('section_not_found', $section->attributes['name']);
+						echo sprintf(translate('section_not_found'), $section->attributes['name']);
 						$o->closeField();
 					} else {
 						if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
@@ -1922,7 +1922,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 						if ($user_is_not_allowed) {
 								// this user is not allowed to view the current screen
-								$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+								$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 								exit();
 						}//end if
 					}//end if

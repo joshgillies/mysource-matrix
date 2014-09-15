@@ -305,7 +305,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$new_format = $this->attr('print_format');
 
 		$required_fields = $this->attr('null');
-		
+
 		// if blank, then fill date up (using bits and pieces from the date
 		// 2000-01-01 00:00:00 - year 2000 so leap year dates appear properly)
 		$non_empty_date = TRUE;
@@ -349,17 +349,17 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		// If all six date fields is allow blank and they are blank, then return blank string.
 		if ($non_empty_date === TRUE) return '';
-		
+
 		// Flag set when supplied year is out of range 1970 - 2038 range
 		$invalid_year = FALSE;
 		$temp_date = mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], $val['y']);
-		
+
 		// If the supplied year doesn't returns the timestamp or date is not within range, use the year 2000
 		if ($temp_date === FALSE || $val['y'] < 1970 || $val['y'] > 2038) {
 			$temp_date = mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], 2000);
 			$invalid_year = TRUE;
 		}
-		
+
 		// Extra operation is required to handle UNIX Timestamp issues of mktime() function.
 		// Simply we don't want to pass the year to calculate the UNIX timestamp when year is not within range
 
@@ -376,7 +376,7 @@ class Form_Question_Type_Datetime extends Form_Question
 				}
 			}
 		}
-		
+
 		return ($circa ? 'circa ' : '').date($new_format, $temp_date);
 
 	}//end getSummary()
@@ -547,8 +547,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	{
 		return TRUE;
 	}//end useFieldset()
-	
-	
+
+
 	/**
 	* Get the HTML label for this form question
 	*
@@ -578,7 +578,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		}
 
 	}//end getHtmlLabel()
-	
-	
+
+
 }//end class
 ?>

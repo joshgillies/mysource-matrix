@@ -159,7 +159,7 @@ class Condition_Visited_Pages_Edit_Fns extends Condition_Edit_Fns
 			</tr>
 		</table>
 		<?php
-		$o->note(translate('condition_site_referrer_note', SQ_CONF_VISITED_PAGES_MAX_ENTRIES));
+		$o->note(sprintf(translate('condition_site_referrer_note'), SQ_CONF_VISITED_PAGES_MAX_ENTRIES));
 
 	}//end paintEditInterface()
 

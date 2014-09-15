@@ -119,16 +119,16 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		function get_bodycopy_current_div_count(bodycopy_name, asset_linked) {
 			return bodycopy_current_data[bodycopy_name].get_div_data(linked);
 		}
-		
+
 		function get_bodycopy_div_available_classes() {
 			<?php
 			$classes = Array();
 			if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 				$url = $GLOBALS['sq_preview_url'];
 				$url = preg_replace('|^http[s]?://|', '', $url);
-	
+
 				$designid = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'design::%frontend%', TRUE);
-	
+
 				if ($designid) {
 					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', TRUE);
 					if(!empty($design)) {
@@ -140,7 +140,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 						}
 					}
 				}
-			}			
+			}
 			?>
 			return var_unserialise('<?php echo empty($classes) ? NULL : var_serialise($classes, TRUE); ?>');
 		}
@@ -249,7 +249,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			//check if content type exists and then make a class out of it, if not, just add default
 			$content_type_class = 'default';
 			if(isset($div_attributes['content_type'])){
-				$content_type_class = $div_attributes['content_type']; 
+				$content_type_class = $div_attributes['content_type'];
 			}
 			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
 		}
@@ -351,7 +351,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (!empty($all_conditions)) {
 			$conditions_js = json_encode_array(array_unique($all_conditions));
 		}
-		
+
 		$condition_class = '';
 		if($is_conditional_display) {
 		    $condition_class .= ' div-conditions-set';
@@ -361,8 +361,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$condition_class .= ' div-conditions-set-disabled';
 		    }
 		}
-		
-		?>		
+
+		?>
 		<table<?php echo $attribute_list?> class="sq-edit-bodycopy-section sq-<?php echo get_class_lower($content_type) ;?>-table">
 			<tr>
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" class="sq-grey-header-wrapper<?php echo $condition_class;?>"<?php
@@ -388,7 +388,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							$desc .= '<tr><td>'.(($popup_attribute_list) ?  translate('current_properties').'</td><td> '.$popup_attribute_list :''.'</td><tr>');
 							$desc .= '</table>';
 							Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]', 'class="sq-icon"');
-							
+
 							// print condition editing icon if there are conditions to use
 							if(!empty($all_conditions)) {
 							    	$condition_count = count($all_conditions);
@@ -396,7 +396,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 								?><script language="JavaScript" type="text/javascript">bodycopy_available_conditions['<?php echo $asset->id; ?>'] = <?php echo $conditions_js; ?>; </script><?php
 								Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Container Display Conditions', $desc, 'conditions', '[Edit Container Display Conditions]');
 							}
-							
+
 							if (!is_null($content_type)) {
 								$content_edit = $content_type->getEditFns();
 								$content_edit->paintBackendIcons($content_type, $content_prefix, $o);
@@ -404,24 +404,24 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							?>
 						</span>
 						<span class="sq-icon-wrapper right">
-							<?php	
+							<?php
 							// print the condition set icon
 							if($is_conditional_display) {
 								Bodycopy_Edit_Fns::printBodycopyIcon('', 'Conditionally Displayed', 'This container has display conditions set on it.', 'conditions_set', '[Conditional Display]');
 							}
-							
-							$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 5);								
+
+							$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 5);
 							foreach ($lineages as $lineage_key => $lineage) {
-								if (!($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV)) {						
+								if (!($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV)) {
 									unset($lineages[$lineage_key]);
 								}
 							}// end foreach
-							?>				
+							?>
 							<?php
 							if (count($lineages) > 1) {
 								echo get_asset_tag_line_binoculars($asset->id, 'Multi-Linked DIV');
 							}
-							
+
 							if (!is_null($content_type)) {
 								$content_edit = $content_type->getEditFns();
 								$content_edit->paintBackendStatusIcons($content_type, $content_prefix, $o);

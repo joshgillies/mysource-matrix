@@ -45,7 +45,7 @@ class Form_Question_Rule_Type_Begins_With_Edit_Fns extends Form_Question_Rule_Ed
 
 	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
 	{
-		
+
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {

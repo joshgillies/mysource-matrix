@@ -188,11 +188,11 @@ class Asset_Edit_Fns extends MySource_Object
 		$page_num = min($page_num, $num_pages);
 
 		if ($num_pages == 1) {
-			$page_tag = translate('page_number', $page_num, $num_pages);
+			$page_tag = sprintf(translate('page_number'), $page_num, $num_pages);
 		} else {
-			$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_remap_urls_page');
+			$page_tag = sprintf(translate('page_number_with_pager'), $page_num, $num_pages, $prefix.'_remap_urls_page');
 		}
-		$asset_count_tag = translate('item_range', ($page_num - 1) * $num_per_page + 1, min($total_assets, $page_num * $num_per_page), $total_assets, strtolower(translate('remap_entries')));
+		$asset_count_tag = sprintf(translate('item_range'), ($page_num - 1) * $num_per_page + 1, min($total_assets, $page_num * $num_per_page), $total_assets, strtolower(translate('remap_entries')));
 
 		$remap_urls = array_slice($remap_urls, ($page_num - 1) * $num_per_page, $num_per_page);
 
@@ -270,7 +270,7 @@ class Asset_Edit_Fns extends MySource_Object
 							<?php
 						}
 					?>
-					
+
 					<td class="sq-backend-table-cell" align="center"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.gif" : "cross.gif"); ?>" width="15" height="15" /></td>
 				</tr>
 				<?php
@@ -414,7 +414,7 @@ class Asset_Edit_Fns extends MySource_Object
 	function paintAddRemapURLs(&$asset, &$o, $prefix)
 	{
 		if (!$asset->adminAccess('lookups')) return FALSE;
-		
+
 		$urls = $asset->getURLs();
 		if (empty($urls)) {
 			$o->openField(translate('url_remappings'));
@@ -733,12 +733,12 @@ class Asset_Edit_Fns extends MySource_Object
             check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
             label(translate('web_paths_auto_add_remaps_label'), $prefix.'_remap_upon_webpath_change');
         }
-		
+
 		return $write_access;
 
 	}//end paintAutomaticRemapSetting()
 
-		
+
 	/**
 	* Paint the interface for the choosing link type when creating assets
 	*
@@ -755,7 +755,7 @@ class Asset_Edit_Fns extends MySource_Object
 							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
 						   );
-						   
+
 		if (isset($_REQUEST['parent_assetid'])){
 			$restricted_sites = $GLOBALS['SQ_SYSTEM']->getUserPrefs('site', 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT');
 			$parent_sites = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($_REQUEST['parent_assetid'], 'site'));
@@ -767,7 +767,7 @@ class Asset_Edit_Fns extends MySource_Object
 				$_REQUEST['link_type'] = SQ_LINK_TYPE_2;
 			}
 		}
-		
+
 		$o->closeField();
 		$o->openField(translate('link_type'));
 		combo_box('link_type', $editable_link_types, FALSE, isset($_REQUEST['link_type']) ? $_REQUEST['link_type'] : SQ_LINK_TYPE_1);
@@ -776,8 +776,8 @@ class Asset_Edit_Fns extends MySource_Object
 
 	}//end paintCreateLink()
 
-	
-	
+
+
 	/**
 	* Paints adding a new user condition
 	*
@@ -791,7 +791,7 @@ class Asset_Edit_Fns extends MySource_Object
 	public function paintConditions(&$asset, &$o, $prefix)
 	{
 		$keywords = Array();
-		
+
 		// 1. asset content
 		$keywords[] = 'asset_contents';
 
@@ -806,7 +806,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		// 3. asset metadata
 		$keywords[] = 'asset_metadata_';
-			
+
 		$write_access = $asset->writeAccess('attributes');
 		$condition_list = new Conditions_List($asset, 'available_conditions');
 		return $condition_list->paintConditionsList($asset, $o, $prefix, $write_access, $keywords);
@@ -833,6 +833,6 @@ class Asset_Edit_Fns extends MySource_Object
 
 	}//end processConditions()
 
-	
+
 }//end class
 ?>

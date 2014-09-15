@@ -93,7 +93,7 @@ class Trigger_Action_Set_Force_Secure extends Trigger_Action
 		$basic_part = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_set_force_secure_basic', $basic_part);
+		return sprintf(translate('trigger_set_force_secure_basic'), $basic_part);
 
 
 	}//end getInterface()

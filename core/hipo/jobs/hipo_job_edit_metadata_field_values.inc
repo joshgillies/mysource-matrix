@@ -279,7 +279,7 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 
 					}//end foreach
 
-					$step_data['message'] = translate('hipo_editing_metadata_field_values', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('hipo_editing_metadata_field_values'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
@@ -289,8 +289,8 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 					trigger_localised_error('SYS0100', E_USER_WARNING, 'metadata', $asset->name, ' skipping asset.');
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_cannot_edit_schema', $assetid));
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$this->_addError(sprintf(translate('hipo_cannot_edit_schema'), $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -366,7 +366,7 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+		$step_data['message'] = sprintf(translate('hipo_release_locks'), $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

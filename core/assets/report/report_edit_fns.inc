@@ -59,7 +59,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 		if (!is_file($report_path)) {
 			$o->note(translate('report_not_generated'));
 		} else {
-			$o->note(translate('core_report_last_generated', $asset->attr('generated_date'), $asset->attr('generated_user')));
+			$o->note(sprintf(translate('core_report_last_generated'), $asset->attr('generated_date'), $asset->attr('generated_user')));
 		}
 
 		if ($asset->writeAccess('attributes')) {

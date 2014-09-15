@@ -672,7 +672,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
 
 			// restore the assetid for $from
-			if (!is_null($from_assetid)) $from = $from_assetid; 
+			if (!is_null($from_assetid)) $from = $from_assetid;
 
 			foreach ($to as $to_email) {
 

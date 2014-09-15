@@ -72,8 +72,8 @@ class Online_Quiz_Submission_Edit_Fns extends Asset_Edit_Fns
 		echo $asset->getScore();
 
 	}//end paintSubmissionScore()
-	
-	
+
+
 	/**
 	* Paint interface to edit form submission answers
 	*
@@ -103,7 +103,7 @@ class Online_Quiz_Submission_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintUserDetailsAnswers(&$asset, &$o, $prefix)
 	{
-		
+
 		$user_details_answers = $asset->attr('user_details_answers');
 
 		// If it is a system user's submission,(which is not required to fill in user detail form), print the user's detail
@@ -119,8 +119,8 @@ class Online_Quiz_Submission_Edit_Fns extends Asset_Edit_Fns
 							}
 						}
 						if (!$valid_user) {
-						 	echo '<i>'.translate('online_quiz_no_logged_in_user').'</i>'; 
-						}	
+						 	echo '<i>'.translate('online_quiz_no_logged_in_user').'</i>';
+						}
 			$o->closeField();
 		}
 		else { // if the user_details_answers is filled, print out the user's detail

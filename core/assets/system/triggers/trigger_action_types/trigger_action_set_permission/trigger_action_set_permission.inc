@@ -81,7 +81,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		// If permission change fails, fail silently
 		$mute_error = array_get_index($settings, 'mute_error', FALSE);
-		
+
 		// if dependant_parents is turned on, look for all our dependant parents
 		// and change their statuses, instead of our own
 		$target_assets = Array();
@@ -106,7 +106,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			$hipo_assets[] = $assetid;
 		}
 
-		// If we are deleting a permission, get the current access permission (bug #6605) 
+		// If we are deleting a permission, get the current access permission (bug #6605)
 		$previous_access = NULL;
 		if ($granted == -1) {
 			$current_access = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($state['assetid'], $settings['permission'], $userid);
@@ -173,13 +173,13 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		// print the grant/deny selection
 		if ($write_access) {
-			combo_box($prefix.'[granted]', 
+			combo_box($prefix.'[granted]',
 				Array (
-					'1' => translate('grant'), 
-					'0' => translate('deny'), 
+					'1' => translate('grant'),
+					'0' => translate('deny'),
 					'-1' => translate('delete'),
-				), 
-				FALSE, 
+				),
+				FALSE,
 				$granted);
 		} else {
 			echo '<b>';
@@ -279,7 +279,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
 			echo translate('cascade_permission_to_new_children');
 		}
-		
+
 
 		return ob_get_clean();
 
@@ -341,7 +341,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$user_map = unserialize($settings['user_map']);
 		if (empty($settings['userid']) && (empty($user_map))) {
 			return 'No user or group id provided';
-		}	
+		}
 
 		// dependants_only
 		$dependants_only = array_get_index($request_data, 'dependants_only', FALSE);
@@ -354,7 +354,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		// dependant_parents
 		$cascade_to_new = array_get_index($request_data, 'cascade_to_new', FALSE);
 		$settings['cascade_to_new'] = ($cascade_to_new == '1') ? TRUE : FALSE;
-		
+
 		return FALSE;
 
 	}//end processInterface()

@@ -309,12 +309,12 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 				foreach ($lock_types as $lock_type) {
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $lock_type, $parent_assetid, $this->_running_vars['forceably_acquire']);
 				}
-				$step_data['message'] = translate('hipo_acquire_lock', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				$step_data['message'] = sprintf(translate('hipo_acquire_lock'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_asset_not_exist', $assetid));
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$this->_addError(sprintf(translate('hipo_asset_not_exist'), $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again

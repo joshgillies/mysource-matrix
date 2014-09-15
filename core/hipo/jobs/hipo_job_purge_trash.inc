@@ -398,7 +398,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 
-				$step_data['message'] = translate('hipo_deleting', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
+				$step_data['message'] = sprintf(translate('hipo_deleting'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -443,7 +443,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		}
 
 		// We reverse the array to start deleting the assets with the highest sort-order.
-		// This is *much* faster because we don't have to update the sort order  
+		// This is *much* faster because we don't have to update the sort order
 		// of all the other assets under the trash each time
 		foreach (array_reverse($links) as $link) {
 			// Extra check to make sure the link is under trash exclusively before deleting the link itself

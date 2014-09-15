@@ -95,7 +95,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				case 'Asset_Attribute_Email_Format' :
 					if (Trigger_Action_Set_Attribute_Value::_safeToEval($value)) {
 						// set $value to be the contents of the array
-						
+
 						eval('$value = '.$value.';');
 					} else {
 						trigger_localised_error('TRIG0003', E_USER_WARNING);
@@ -103,21 +103,21 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 					}
 				break;
 			}
-			
+
 			//if the replace keywords checkbox is checked, do keyword replacement here before setting the value to attribute
 			if (array_get_index($settings, 'replace_keywords_in_set_value', 0)) {
 				// replace global keywords
 				$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
-				
+
 				replace_global_keywords($value);
-	
+
 				if (is_null($old_current_asset)) {
 					$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
 				} else {
 					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
 				}
-				
+
 				// replace broadcasting asset keywords
 				$keywords = retrieve_keywords_replacements($value);
 				$replacements = Array();
@@ -126,14 +126,14 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				}
 				replace_keywords($value, $replacements);
 			}
-			
+
 		}
 
 		// dont change anything if the attribute already has the required value
 		$current_value = $state['asset']->attr($settings['attribute']);
 		if ($current_value != $value) {
 			if (!$state['asset']->setAttrValue($settings['attribute'], $value)) {
-			
+
 				return FALSE;
 			}
 			if (!$state['asset']->saveAttributes()) return FALSE;
@@ -164,7 +164,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		// first check the value contains only allowable components
 		$allowed_expressions = Array('array', '(', ')', '=>', ',', ';');
 		$reduced_value = str_replace($allowed_expressions, '', strtolower($str));
-	
+
 		// digits are ok
 		$reduced_value = preg_replace('/\d/', '', $reduced_value);
 		// check for TRUE/FALSE/NULL (dependent on no white space, so trim() the string first)
@@ -257,20 +257,20 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			$basic_part_3 = ob_get_contents();
 		ob_end_clean();
 
-		$output = translate('trigger_set_attribute_value_basic', $basic_part_1, $basic_part_2, $basic_part_3);
+		$output = sprintf(translate('trigger_set_attribute_value_basic'), $basic_part_1, $basic_part_2, $basic_part_3);
 
 		if (!empty($selected_type) && isset($attrs[$attribute])) {
 			if (in_array($attrs[$attribute], Array('serialise', 'parameter_map'))) {
 				$output .= '<br /><i>'.translate('trigger_set_attribute_value_serialise_note').'</i>';
 			}
 		}
-		
+
 		// Replace keywords checkbox
 		ob_start();
 			check_box($prefix.'[replace_keywords_in_set_value]', '1', array_get_index($settings, 'replace_keywords_in_set_value', 0), NULL, ($write_access? '' : 'disabled="disabled"'));
 			label('Replace keywords in the set value', $prefix.'[replace_keywords_in_set_value]');
 		$basic_part_4 = '<br />'.ob_get_clean();
-		
+
 		$output .= $basic_part_4;
 
 		return $output;
@@ -328,9 +328,9 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				break;
 			}
 		}
-		
+
 		$settings['replace_keywords_in_set_value']	= array_get_index($request_data, 'replace_keywords_in_set_value', 0);
-		
+
 		return FALSE;
 
 	}//end processInterface()

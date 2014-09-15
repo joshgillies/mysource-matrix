@@ -94,7 +94,7 @@ class Asset_Status_Editing extends Asset_Status
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			if ($mm->allowsMetadata($this->owner->id)) {
                 $is_dependant =  $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
-				
+
 				$schemas = $wfm->getSchemas($this->owner->id, true);
                 if (($mm->requiredFieldsComplete($this->owner->id) && !$is_dependant) || $is_dependant) {
 					// metadata is complete
@@ -188,7 +188,7 @@ class Asset_Status_Editing extends Asset_Status
 	{
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if ($mm->allowsMetadata($this->owner->id) && !$mm->requiredFieldsComplete($this->owner->id)) {
-			return translate('cannot_approve_metadata_incomplete', '<a href="'.htmlspecialchars(replace_query_string_vars(Array('asset_ei_screen' => 'metadata'))).'">'.strtolower(translate('metadata')).'</a>');
+			return sprintf(translate('cannot_approve_metadata_incomplete'), '<a href="'.htmlspecialchars(replace_query_string_vars(Array('asset_ei_screen' => 'metadata'))).'">'.strtolower(translate('metadata')).'</a>');
 		}
 		return '';
 

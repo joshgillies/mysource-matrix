@@ -88,7 +88,7 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 		if (strlen(trim($condition_js))) {
 			$additional_condition = 'if (!'.$condition_js.') return true;';
 		}
-		
+
 		ob_start();			// buffer this please
 
 			if (!$printed_fn) {
@@ -213,7 +213,7 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	    	$use_accessible_string = $form->useAccessibleFormat();
 		if($use_accessible_string)
 		    $error_str = translate($string_code.'_accessible', $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
-		else 
+		else
 		    $error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
 
 		return $error_str;

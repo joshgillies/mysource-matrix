@@ -397,7 +397,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		} else {
 			echo '<div style="color: red"><b>Not connected</b></div>';
 		}
-		
+
 		if (isset($asset->_tmp['db_conection_exception'])) {
 			echo "<div>Connection failed: ".$asset->_tmp['db_conection_exception']->getMessage()."</div>";
 		}

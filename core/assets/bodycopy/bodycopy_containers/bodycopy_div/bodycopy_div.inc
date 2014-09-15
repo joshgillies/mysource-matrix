@@ -160,7 +160,7 @@ class Bodycopy_Div extends Bodycopy_Container
 			if (!empty($link)) {
 				$this->_tmp['content_type'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($this->_tmp['content_type'])) {
-					echo translate('content_type_not_found', $link['minorid']);
+					echo sprintf(translate('content_type_not_found'), $link['minorid']);
 				}
 			} else {
 				$null = NULL;

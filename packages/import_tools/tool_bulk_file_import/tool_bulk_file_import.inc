@@ -121,7 +121,7 @@ class Tool_Bulk_File_Import extends Tool
 											<td class="sq-backend-table-cell"><?php asset_finder('chunk_file_import_root_assetid', ''); ?></td>
 										</tr>
 										<tr>
-											<td class="sq-backend-table-cell" colspan="3"><?php echo translate('file_import_tools_file_chunk', '<b>'.$import_dir.'</b>') ?></td>
+											<td class="sq-backend-table-cell" colspan="3"><?php echo sprintf(translate('file_import_tools_file_chunk'), '<b>'.$import_dir.'</b>') ?></td>
 										</tr>
 										<?php
 									}
@@ -166,7 +166,7 @@ class Tool_Bulk_File_Import extends Tool
 					$o->openField(translate('file_import_tools_local_import'));
 
 						if (!is_writable($import_dir)) {
-							$o->note(translate('file_import_tools_local_import_permission_warning', $import_dir));
+							$o->note(sprintf(translate('file_import_tools_local_import_permission_warning'), $import_dir));
 						} else {
 							// Max File Size for local file upload
 							$max_size = Tool_Bulk_File_Import::_getMaxFileSize();
@@ -190,7 +190,7 @@ class Tool_Bulk_File_Import extends Tool
 							<div style='display: none;`' id='bulk_file_import_local_file_input_container'></div>
 							<div id='bulk_file_import_table_container'></div>
 
-							<span style="font-size: 11px;">&nbsp;<?php echo translate('core_cannot_upload_file_larger_than', '<b>'.strtoupper(easy_filesize($max_size)).'</b>'); ?></span>
+							<span style="font-size: 11px;">&nbsp;<?php echo sprintf(translate('core_cannot_upload_file_larger_than'), '<b>'.strtoupper(easy_filesize($max_size)).'</b>'); ?></span>
 							<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $max_size; ?>" />
 
 							<script type="text/javascript">
@@ -663,10 +663,10 @@ class Tool_Bulk_File_Import extends Tool
 
 						$result = commit_file_upload($id, $import_dir.'/'.$tmp_dir_name, TRUE);
 						if ($result === FALSE) {
-							trigger_error(translate('file_import_tools_local_file_upload_error', $file_info['name']), E_USER_WARNING);
+							trigger_error(sprintf(translate('file_import_tools_local_file_upload_error'), $file_info['name']), E_USER_WARNING);
 							$error = TRUE;
 						} else if ($result === '') {
-							trigger_error(translate('file_import_tools_local_file_cannot_upload', $file_info['name']), E_USER_WARNING);
+							trigger_error(sprintf(translate('file_import_tools_local_file_cannot_upload'), $file_info['name']), E_USER_WARNING);
 							$error = TRUE;
 						} else if ($result == $file_info['name']) {
 

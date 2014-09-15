@@ -248,52 +248,52 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 
 		// Process the list
 		$filelist = Array();
-		
+
 		// Replace '/' characters in filenames by '_'
-		foreach($files as $key => $value) {					
+		foreach($files as $key => $value) {
 			$filename = $value['name'];
 			$file_path = $value['path'];
 
 			if (strpos($filename, '/') !== FALSE) {
 				$value['name'] = str_replace('/' ,'_', $filename);
 				$value['path'] = substr($file_path, 0, strlen($file_path) - strlen($filename)).$value['name'];
-				
+
 				$files[$key] = $value;
 			}
 		}
 
 		$files_count = count($files);
-		
+
 		// Fix asset's name that are in same tree level with same name to prevent duplicate filename error
 		for($file_index = 1; $file_index <= $files_count; $file_index++) {
 			$file_val = $files[$file_index];
-			
+
 			$recheck_dups = FALSE;
 			for($file_index_check = 1; $file_index_check <= $files_count; $file_index_check++) {
 				if ($file_index == $file_index_check) {
 					continue;
 				}
 				$file_val_check = $files[$file_index_check];
-				
+
 				if ($file_val['root'] == $file_val_check['root'] && $file_val['name'] == $file_val_check['name']) {
 					// Append asset's webpath to the asset's name make the file name unique
 					$file_val_check['name'] .= '_'.$file_val_check['webpath'];
 					$file_val_check['path'] .= '_'.$file_val_check['webpath'];
-					
+
 					$files[$file_index_check] = $file_val_check;
-					
+
 					// Need to check for duplicates all again to see if this new name is conflicting with others previously checked
 					$recheck_dups = TRUE;
 				}
 			}
-			
+
 			if ($recheck_dups) {
 				$file_index = 1;
 			}
 		}
-		
+
 		foreach ($files as $key => $value) {
-			
+
 			// Build file list
 			$path_to = '';
 			if ($structure) {
@@ -303,7 +303,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 				$path_to = '/';
 			}
 			$filetmp = SQ_TEMP_PATH.'/export-'.$export_date.$path_to.$value['name'];
-			
+
 			if ($structure && $value['root'] == 0) {
 				// We only need the root files and folders here, because Archive Tar handles the structure
 				$filelist[] = '.'.$path_to.$value['name'];

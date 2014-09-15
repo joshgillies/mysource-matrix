@@ -190,7 +190,7 @@ class Tool_Clear_Squid_Cache extends Tool
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$edit_fns = $new_job->getEditFns();
 				$edit_fns->paintInLineBackend($new_job, $o, $type_code.'_repeating');
-				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+				$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
 			$o->closeField();
 
 		} else {
@@ -288,7 +288,7 @@ class Tool_Clear_Squid_Cache extends Tool
 				if (!empty($url)) $o->setRedirect($url);
 				return TRUE;
 			}
-			
+
 			// one off
 			$new_job = new Cron_Job_Squid_Cache_Purge();
 			$edit_fns = $new_job->getEditFns();
@@ -317,7 +317,7 @@ class Tool_Clear_Squid_Cache extends Tool
 
 
 		} else {
-			trigger_localised_error('SQUID0003', E_USER_NOTICE, translate('squid_cron_name', $owner->id));
+			trigger_localised_error('SQUID0003', E_USER_NOTICE, sprintf(translate('squid_cron_name'), $owner->id));
 		}//end if has write access
 
 		return FALSE; // we want to repaint the tool

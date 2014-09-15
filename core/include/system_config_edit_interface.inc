@@ -234,17 +234,17 @@ class System_Config_Edit_Interface extends MySource_Object
 								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 								$expires_in = easy_time_total(($lock['expires'] - $now), true);
 								if (!$expires_in) $expires_in = '1 second';
-								$expires_in = translate('due_to_expire', $expires_in);
+								$expires_in = sprintf(translate('due_to_expire'), $expires_in);
 								if ($have_lock) {
-									echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
+									echo sprintf(translate('release_lock'), translate('release_lock_button'), translate('user_preferences'));
 								}
 								if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-									echo translate('lock_held_by_user', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+									echo sprintf(translate('lock_held_by_user'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
 								}
 								echo ' '.$expires_in.'.';
 
 							} else {
-								echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));
+								echo sprintf(translate('acquire_lock'), translate('acquire_lock_button'), translate('user_preferences'));
 							}
 						echo '</p>';
 						?>
@@ -388,7 +388,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		try {
 			if (eval('return '.$class_name.'::supportsGetActiveLocks();') === FALSE) {
 				$o->openSection(translate('active_locks'));
-					$o->openField(translate('system_config_active_locks_no_support', SQ_CONF_LOCKING_METHOD));
+					$o->openField(sprintf(translate('system_config_active_locks_no_support'), SQ_CONF_LOCKING_METHOD));
 					$o->closeField();
 				$o->openSection();
 				return TRUE;
@@ -416,10 +416,10 @@ class System_Config_Edit_Interface extends MySource_Object
 			$lockid = substr($lockid, 6);
 			$lock_type = substr($lockid, strrpos($lockid, '.') + 1);
 			$assetid = substr($lockid, 0, strrpos($lockid, '.'));
-			
+
 			// Using assetExists() will not work for shadow assets to check if asset exists in system
 			if (!$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE)) continue;
-			
+
 			$active_locks[$lock['userid']]['locks'][$assetid][$lock_type] = $lock['expires'];
 
 			if (!isset($active_locks[$lock['userid']]['num_locks'])) $active_locks[$lock['userid']]['num_locks'] = 0;
@@ -493,7 +493,7 @@ class System_Config_Edit_Interface extends MySource_Object
 								</td>
 								<td class="sq-backend-table-cell">
 									<acronym title="<?php echo $type; ?> - <?php echo $assetid; ?>">
-										<?php sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type), 16, 16, '', NULL); ?> 
+										<?php sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type), 16, 16, '', NULL); ?>
 										<?php echo ucwords(str_replace('_', ' ', $type)); ?>
 									</acronym>
 								</td>
@@ -501,7 +501,7 @@ class System_Config_Edit_Interface extends MySource_Object
 									<?php
 									$expires_in = easy_time_total((strtotime($expires) - $current_time), true);
 									if (!$expires_in) $expires_in = '1 second';
-									echo translate('due_to_expire', $expires_in);
+									echo sprintf(translate('due_to_expire'), $expires_in);
 									?>
 								</td>
 							</tr>

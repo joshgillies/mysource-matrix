@@ -57,7 +57,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
-	
+
 	/**
 	* Paint Structureed file import directory path
 	*
@@ -72,8 +72,8 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		echo STRUCTURED_FILE_IMPORT_DIR;
 	}
-	
-	
+
+
 	/**
 	* Paint Headings
 	*

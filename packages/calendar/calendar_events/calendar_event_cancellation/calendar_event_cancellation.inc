@@ -98,7 +98,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		}//end if
 
 		if ($short_name) {
-			return translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date'))));
+			return sprintf(translate('cal_event_cancelled_date'), date('d M Y', iso8601_ts($this->attr('start_date'))));
 		}//end if
 
 		// Obtain the attribute value for Name from the specified Context
@@ -151,10 +151,10 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$this->setAttrValue('start_date', $sd.' '.$st.':00');
 		}
 		if ($duration = $parent->getDuration()) {
-			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));			
+			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));
 		}
 		// set our name based on the parent
-		$this->setAttrValue('name', translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))).': '.$parent->attr('name'));
+		$this->setAttrValue('name', sprintf(translate('cal_event_cancelled_date'), date('d M Y', iso8601_ts($this->attr('start_date')))).': '.$parent->attr('name'));
 
 		return TRUE;
 

@@ -198,7 +198,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$file_name = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
 		$keyword_name = 'keywords'.(($contextid === 0) ? '' : ('.'.$contextid));
-		
+
 		if (!string_to_file($content_file, $this->data_path.'/'.$file_name)) {
 			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
 			return FALSE;
@@ -210,7 +210,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
-		
+
 		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/conditional_keywords_to_eval')) {
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
@@ -389,7 +389,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			$required_keyword = parse_keyword($required_keyword, $modifiers);
 			$context_array = extract_context_modifier($modifiers, 'both');
 			$contextid = $context_array['id'];
-			
+
 			if ($contextid !== NULL) {
 				// Save the required keyword with the context name
 				$required_keyword .= '^context:'.$context_array['name'];
@@ -409,14 +409,14 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				}
 			} else if (substr($required_keyword, 0, 21) == 'asset_contents_paint_') {
 				$paint_layout_name = substr($required_keyword, 21);
-			
+
 				// If a paint layout name has been specified, change that to an id
 				if (assert_valid_assetid($paint_layout_name, '', TRUE, FALSE)) {
 					$paint_layout_id = $paint_layout_name;
 				} else {
 					$paint_layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getURL()), 'paint_layout::user::'.$paint_layout_name);
 				}
-			
+
 				if (assert_valid_assetid($paint_layout_id, 'Invalid paint layout specified in bodycopy #' . $this->id . ': ' . $paint_layout_name, FALSE, FALSE)) {
 					$paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_layout_id, 'paint_layout_page');
 					if (!empty($paint_layout)) {
@@ -431,7 +431,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 							ob_end_clean();
 						} else {
 							ob_start();
-							$contexted_asset->printAssetBody();	
+							$contexted_asset->printAssetBody();
 							$ret[$required_keyword] = ob_get_contents();
 							ob_end_clean();
 						}
@@ -453,9 +453,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 			}
-			
+
 			unset($contexted_asset);
-			
+
 		}//end foreach
 
 		// asset lineage
@@ -469,12 +469,12 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			// see if we need to process asset_lineage* keyword
 			// also process only once in this foreach loop
 			if (strpos($req_keyword, 'asset_lineage') !== FALSE && !$keywords_evaluated) {
-			
+
 				preg_match('|^([^:]*)://(.*)|', $asset->getURL(), $matches);
 				$url = !empty($matches[1]) ? $matches[1] : NULL;
 				$protocol = !empty($matches[2]) ? $matches[2] : NULL;
 				$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url, $protocol);
-			
+
 				$ret['asset_lineage'] = '';
 				$ret['asset_lineage_linked'] = '';
 				$lineage_separator = ' > ';
@@ -606,7 +606,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		parent::linksUpdated();
 		if(!$this->_updated()) return FALSE;
 		return TRUE;
-		
+
 	}// end linksUpdated()
 
 

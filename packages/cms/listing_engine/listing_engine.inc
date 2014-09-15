@@ -254,28 +254,28 @@ class Listing_Engine extends Page
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
 		if (!empty($folder_link)) {
 			if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return translate('cms_listing_cannot_delete_type_formats_link', str_replace('_',' ', $this->type()));
+				return sprintf(translate('cms_listing_cannot_delete_type_formats_link'), str_replace('_',' ', $this->type()));
 			}
 		}
 
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'position_formats');
 		if (!empty($asset_folder_link)) {
 			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
+				return sprintf(translate('cms_listing_cannot_delete_position_formats_link'), str_replace('_',' ', $this->type()));
 			}
 		}
 
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'group_formats');
 		if (!empty($asset_folder_link)) {
 			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return translate('cms_listing_cannot_delete_group_formats_link', str_replace('_',' ', $this->type()));
+				return sprintf(translate('cms_listing_cannot_delete_group_formats_link'), str_replace('_',' ', $this->type()));
 			}
 		}
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (!empty($bodycopy_link)) {
 			if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+				return sprintf(translate('cms_cannot_delete_link'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			}
 		}
 
@@ -285,7 +285,7 @@ class Listing_Engine extends Page
 			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'bodycopy', TRUE, 'no_results');
 		}
 		if (!empty($bodycopy_link) && $bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			return sprintf(translate('cms_cannot_delete_link'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -2927,7 +2927,7 @@ class Listing_Engine extends Page
 		$keywords['root_nodes'] = $this->getRootNodesKeywordReplacement();
 
 		$keywords += $this->getExtendedAssetKeywordReplacements();
-		
+
 		// Apply keyword modifiers
 		$this->applyKeywordModifier($keywords, $assetid);
 
@@ -3503,7 +3503,7 @@ class Listing_Engine extends Page
 							if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value)  {
 							    $new_value= preg_replace('/\\\;/', ';',  $metadata_field->getValueFromKey($new_value));
 							}
-								
+
 							// if it's multi-options field, we need to extract individual option
 							$individual_entry_grouping = array_get_index($group_level,'group_by_individual',  TRUE);
 							if($individual_entry_grouping) {
@@ -3518,7 +3518,7 @@ class Listing_Engine extends Page
 								    break;
 							    }
 							}
-							
+
 							if(!is_array($new_value)) {
 							    $value[] = $new_value;
 							}
@@ -3569,14 +3569,14 @@ class Listing_Engine extends Page
 					break;
 				}//end switch
 
-				
+
 				if(!is_array($value)) $value = Array($value);
 
 				foreach ($value as $sub_value) {
 					// should we allow empty group name?
 					$allow_blank_group_name = array_get_index($group_level, 'group_by_blank', TRUE);
 					if(!$allow_blank_group_name && empty($sub_value)) continue;
-					
+
 					// should we allow group name not matching search query?
 					$group_name_match_search_query = array_get_index($group_level, 'group_name_match_query', FALSE);
 					if($group_name_match_search_query) {
@@ -3591,8 +3591,8 @@ class Listing_Engine extends Page
 					    }
 					    if($is_filter) continue;
 					}
-					
-					
+
+
 					$group_data['group'][$group_key] = $sub_value;
 					$new_asset_groups[] = $group_data;
 				}
@@ -4252,7 +4252,7 @@ class Listing_Engine extends Page
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
-				$keywords[$name.'_asset_selection'] = translate('cms_listing_keyword_asset_selection', $name);
+				$keywords[$name.'_asset_selection'] = sprintf(translate('cms_listing_keyword_asset_selection'), $name);
 			}
 		}
 
@@ -4332,7 +4332,7 @@ class Listing_Engine extends Page
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
 				if (array_get_index($settings, 'type', '') == 'radio' && !empty($settings['options']['allow_multiple'])) {
-					$keywords[$name.'_check_all'] = translate('cms_listing_asset_selection_check_all', $name);
+					$keywords[$name.'_check_all'] = sprintf(translate('cms_listing_asset_selection_check_all'), $name);
 				}
 			}
 		}
@@ -4340,7 +4340,7 @@ class Listing_Engine extends Page
 		$targets = $this->attr('asset_targets');
 		if (is_array($targets) && !empty($targets)) {
 			foreach ($targets as $name => $settings) {
-				$keywords[$name.'_asset_target'] = translate('cms_listing_asset_target_button', $name);
+				$keywords[$name.'_asset_target'] = sprintf(translate('cms_listing_asset_target_button'), $name);
 			}
 		}
 
@@ -4373,7 +4373,7 @@ class Listing_Engine extends Page
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
-				$keywords[$name.'_asset_selection'] = translate('cms_listing_keyword_asset_selection', $name);
+				$keywords[$name.'_asset_selection'] = sprintf(translate('cms_listing_keyword_asset_selection'), $name);
 			}
 		}
 
@@ -4409,7 +4409,7 @@ class Listing_Engine extends Page
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
 				if (array_get_index($settings, 'type', '') == 'radio' && !empty($settings['options']['allow_multiple'])) {
-					$keywords[$name.'_check_all_in_group'] = translate('cms_listing_asset_selection_check_all_in_group', $name);
+					$keywords[$name.'_check_all_in_group'] = sprintf(translate('cms_listing_asset_selection_check_all_in_group'), $name);
 				}
 			}
 		}
@@ -5014,13 +5014,13 @@ class Listing_Engine extends Page
 
 	}//end setUseNoResultsBodycopy()
 
-	
+
 	/**
 	* Find and replace keyword modifiers in the listing page speical keyword replacements array
 	*
-	* @param array $replacements 
+	* @param array $replacements
 	* @param string $assetid        The assetid to replace modifiers against. This is used when keywords are nested in the modifier arguments
-	* 
+	*
 	* @return null
 	* @access public
 	*/
@@ -5049,7 +5049,7 @@ class Listing_Engine extends Page
 		}
 
 	}//end applyKeywordModifier()
-	
+
 
 }//end class
 ?>

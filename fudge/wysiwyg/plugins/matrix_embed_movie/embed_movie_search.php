@@ -171,7 +171,7 @@ if ($search_for != '') {
 	// build the results box
 	if (empty($results) && empty($found_asset_line)) {
 		$box_title = translate('search_failed');
-		$html = translate('failed_searching_for', addslashes($search_for));
+		$html = sprintf(translate('failed_searching_for'), addslashes($search_for));
 		$style_base = 'search-failed';
 	} else {
 		$box_title = translate('search_results');
@@ -241,7 +241,7 @@ if ($search_for != '') {
 		<title>Insert Link - Search</title>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
-		
+
 		<script type="text/javascript"><!--
 			/**
 			* Run when quick-search-for box is tabbed/clicked to

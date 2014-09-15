@@ -209,7 +209,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		$this->_running_vars['step_value']  = (int) (100 / $this->_running_vars['total_steps']);
 
 		if (empty($this->_running_vars['event_parameters'])) $this->_running_vars['event_parameters'] = NULL;
-		
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -241,7 +241,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['current_assetid']);
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent($current_event, $asset, $this->_running_vars['event_parameters']);
 
-		$step_data['message'] = translate('hipo_broadcast_event', $current_event, $this->_running_vars['current_assetid']);
+		$step_data['message'] = sprintf(translate('hipo_broadcast_event'), $current_event, $this->_running_vars['current_assetid']);
 		$step_data['percent_done'] += $this->_running_vars['step_value'];
 		$step_data['complete']     = false;
 

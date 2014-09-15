@@ -779,7 +779,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			</table>
 			<?php
 		} else if (!empty($current_choice) && !isset($collections[$current_choice])) {
-			echo translate('funnelback_missing_collection', $current_choice);
+			echo sprintf(translate('funnelback_missing_collection'), $current_choice);
 		}//end if
 
 		return TRUE;
@@ -931,7 +931,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		hidden_field($prefix.'_edit_feature_page_line', $line_id);
 		if (!empty($collection_id)) {
 			$collection_name = array_get_index(array_get_index($collections, $collection_id, Array()), 'name', '');
-			echo translate('funnelback_editing_collection', $collection_name);
+			echo sprintf(translate('funnelback_editing_collection'), $collection_name);
 			?>
 			<table class="sq-backend-table">
 			<tr>
@@ -1463,7 +1463,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					<td class="sq-backend-table-header" width="5%"><?php echo translate('delete'); ?></td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-row"><?php echo translate('fb_mclass', 'S'); ?></td>
+					<td class="sq-backend-table-row"><?php echo sprintf(translate('fb_mclass'), 'S'); ?></td>
 					<td class="sq-backend-table-row" colspan="5"><?php echo translate('funnelback_reserved_class'); ?></td>
 				</tr>
 				<?php

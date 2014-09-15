@@ -131,7 +131,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
+
 
 	/**
 	* Run this cron job
@@ -169,7 +169,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		} catch (DALException $e) {
 			throw new Exception ('Unable to get running workflows due to database error: '.$e->getMessage());
 		}
-	
+
 		$now = time();
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$last_run = $cm->attr('last_run');
@@ -178,7 +178,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 		foreach ($rows as $row) {
 			$ms->openQueue();
-			
+
 			$workflow = unserialize($row['wflow']);
 			$schemaid = $row['schemaid'];
 			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -189,7 +189,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 				if ($exp_time < $now) {
 					// workflow step has expired since the last cron run
-					
+
 					if ($step['escalate']) {
 						// Escalate the job, at any time
 						if (!$wfm->escalateWorkflow($row['assetid'], $schemaid)) {
@@ -205,7 +205,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 					//break;
 				}
 			}
-			
+
 			// Don't send escalation message for all dependants (See #5034)
 			$escalation_wf_msgs = Array();
 			foreach($ms->queueContents() as $queued_message) {
@@ -227,17 +227,17 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 						if (empty($dependant_workflows[$schemaid]['steps']) || (isset($dependant_workflows[$schemaid]['complete']) && $dependant_workflows[$schemaid]['complete'])) {
 							$escalation_wf_msgs[] = $queued_message;
 						}//end if
-				
+
 					}//end else
 				}//end if
 			}//end foreach
 
 			$ms->abortQueue();
-			
+
 			// Send all the relevant escalation workflow messages
 			$ms->send($escalation_wf_msgs);
 			unset($escalation_wf_msgs);
-		}	
+		}
 		unset($rows);
 
 		return SQ_CRON_JOB_COMPLETED;
@@ -267,7 +267,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		if ($wfm->silentWorkflowParty($assetid)) {
 			return;
 		}
-		
+
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$subject = 'Stale Workflow Step';
 		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'), FALSE);
@@ -292,14 +292,14 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 						'started_time'	=> easy_datetime($step_data['started']),
 						'expiry_time'	=> easy_time_total($step_data['expiry_time']),
 						'workflow_url'	=> $url,
-						'asset_url'		=> $asset->getDependantParentsURL(),						
+						'asset_url'		=> $asset->getDependantParentsURL(),
 					);
 
 		// If there are no admins, send it to system admins instead
 		if (empty($admins)) $admins = Array(0);
 		$msg = $ms->newMessage($admins, $type, $msg_reps);
 		$msg->parameters['assetid'] = $assetid;
-		
+
 		// Does this step have a custom message for stale workflow?
 		if (isset($step_data['message_stale']) && trim($step_data['message_stale']) !== '' ) {
 			$msg->body = trim($step_data['message_stale']);
@@ -324,7 +324,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 		$wfm->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 		$ms->enqueueMessage($msg);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 	}//end _processExpiredWorkflowStep()

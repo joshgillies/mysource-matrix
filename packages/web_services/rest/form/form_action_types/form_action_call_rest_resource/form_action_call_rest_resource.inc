@@ -417,7 +417,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 				$error_text = array_get_index($settings, 'validation_error_text', '');
 				$failed_URLs_text = implode(', ', $failed_URLs);
 				if (!strlen(trim($error_text))) {
-					$error_text = translate('form_action_call_rest_resource_false', $failed_URLs_text);
+					$error_text = sprintf(translate('form_action_call_rest_resource_false'), $failed_URLs_text);
 				}
 				$form->submission_errors[] = $error_text;
 

@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/funnelback/log_reports/funnelback_search_log_rep
 * Purpose
 *	A report that lists searches by month, week, or day
 *
-* @author  Benjamin Pearson <bpearson@squiz.com.au>	
+* @author  Benjamin Pearson <bpearson@squiz.com.au>
 * @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
@@ -225,7 +225,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 		}//end foreach
 
 		return TRUE;
-	
+
 	}//end _generateTotals()
 
 
@@ -246,7 +246,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 		}//end if
 		foreach ($total_entries as $total_date_entry) {
 			$period = basename($total_date_entry);
-			$report_date = $this->_generateReportDate($period);	
+			$report_date = $this->_generateReportDate($period);
 			$report_content = $this->_generateReportContents($job_vars, $total_date_entry);
 			file_put_contents($path.'report-'.date('d-m-Y', $report_date).'.html', $report_content);
 		}//end foreach
@@ -255,7 +255,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Generate Cache Entry 
+	* Generate Cache Entry
 	*
 	* @param string	$path	path to create the cache entry
 	* @param array	$cache	the data to cache
@@ -310,7 +310,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Process Totals 
+	* Process Totals
 	*
 	* Process the totals of a given query per collection
 	*
@@ -370,7 +370,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Combine Totals 
+	* Combine Totals
 	*
 	* Combine the totals of a each query in a collection
 	*
@@ -667,7 +667,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	 * Combine the overall results 
+	 * Combine the overall results
 	 *
 	 * @param array	$query_totals	The totals of the current query
 	 * @param array &$overall		The overall results
@@ -715,7 +715,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	 * Print the Collection Header 
+	 * Print the Collection Header
 	 *
 	 * @param string|boolean	$collection_id	The id of the collection to print
 	 *
@@ -858,7 +858,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Get Period returns the period of the current line 
+	* Get Period returns the period of the current line
 	*
 	* @param string	$date	The date of the current line (timestamp)
 	* @param array	$type	The rollover period type (daily, weekly, monthly)
@@ -890,7 +890,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Get Query Hash - Find a 2 level deep hash based on the current query 
+	* Get Query Hash - Find a 2 level deep hash based on the current query
 	*
 	* @param string	$query	The query
 	*
@@ -930,7 +930,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Maintain Report - runs any maintenance duties for the report, like cleaning up old entries, creating base directories etc 
+	* Maintain Report - runs any maintenance duties for the report, like cleaning up old entries, creating base directories etc
 	*
 	* @param array 	&$job_vars	The jobs vars of the hipo
 	*
@@ -1074,7 +1074,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 	{
 		$printed = FALSE;
 		$latest = $this->_getLatest($asset);
-		$all_reports_raw = glob($asset->data_path.'/report/report-*.html');	
+		$all_reports_raw = glob($asset->data_path.'/report/report-*.html');
 		$all_reports = Array();
 		foreach ($all_reports_raw as $report_path) {
 			$report_name = basename($report_path);
@@ -1082,9 +1082,9 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 			if ($report_date !== FALSE) {
 				if ($report_date == $latest) {
 					$all_reports[$report_date] = translate('current');
-					$all_reports[$report_date] = translate('fb_sch_log_report_report_item', date('d-m-Y', $report_date));
+					$all_reports[$report_date] = sprintf(translate('fb_sch_log_report_report_item'), date('d-m-Y', $report_date));
 				} else {
-					$all_reports[$report_date] = translate('fb_sch_log_report_report_item', date('d-m-Y', $report_date));
+					$all_reports[$report_date] = sprintf(translate('fb_sch_log_report_report_item'), date('d-m-Y', $report_date));
 				}//end if
 			}//end if
 		}//end foreach

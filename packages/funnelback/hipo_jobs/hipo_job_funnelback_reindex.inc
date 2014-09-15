@@ -251,7 +251,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 
 
 	/**
-	* Reindex using Funnelback 
+	* Reindex using Funnelback
 	*
 	* @param array	&$step_data	a reference to the array of information about the current step
 	* @param string	$prefix		prefix for form vars
@@ -279,10 +279,10 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 			$assetid = array_get_index($collection_info, 'asset', 0);
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 			unset($this->_running_vars['todo_collections'][$next]);
-		
+
 			if (!empty($url) && !is_null($asset)) {
 				// Let people know what you are thinking ;-)
-				$step_data['message'] = translate('fnb_hipo_reindexing_url', htmlspecialchars($asset->attr('name')));
+				$step_data['message'] = sprintf(translate('fnb_hipo_reindexing_url'), htmlspecialchars($asset->attr('name')));
 
 				// Build the parameters
 				$output = '';
@@ -362,13 +362,13 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 				// Forget some information
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
 			}//end if
-		
+
 			// add this assetid to the done array
 			$this->_running_vars['done_collections'][] = $collection_id;
 		}//end if
-	
+
 		$GLOBALS['SQ_SYSTEM']->restoreContext();
-	
+
 		if (empty($this->_running_vars['todo_collections'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;

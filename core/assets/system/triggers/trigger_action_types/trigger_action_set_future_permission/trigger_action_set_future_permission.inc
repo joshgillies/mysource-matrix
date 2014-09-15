@@ -277,7 +277,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			echo ($settings['add']) ? strtolower(translate('add')) : strtolower(translate('remove'));
 			echo '</b> ';
 		}
-		
+
 		// print the permission level selection
 		$permissions = self::_getPermissionList();
 		if ($write_access) {
@@ -286,7 +286,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			echo '<b>'.$permissions[$settings['permission']].'</b>';
 		}
 		echo ' permission to ';
-		
+
 		// print the grant/deny selection
 		if ($write_access) {
 			$permission_options = Array(
@@ -456,7 +456,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			return 'Add/Remove parameter is invalid';
 		}
 		$settings['add'] = ($add == '1') ? TRUE : FALSE;
-		
+
 		// process permission
 		$permission = array_get_index($_POST, $prefix.'_permission', '');
 		if ($permission === '') {

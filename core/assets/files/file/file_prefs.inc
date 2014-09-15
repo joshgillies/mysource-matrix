@@ -62,7 +62,7 @@ class File_Prefs extends Prefs
 																'default'		=> 'jpg,jpeg,gif,png,zip,tar,rar,mov,mkv,avi,flv,fla,psd,css,js,txt,html,pdf,xls,rtf,doc,docx,ppt',
 																'protected'		=> FALSE,
 															   ),
-						
+
 						'SQ_FILE_ASSET_SUMMARY'				=> Array(
 																'name'			=> 'file_asset_summary',
 																'description'	=> 'This preference allows user to customize the content for asset_summary_X keyword replacement',
@@ -133,13 +133,13 @@ class File_Prefs extends Prefs
 
 			if ($have_lock && $is_admin) {
 				text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);
-				echo $o->note(translate('warn_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
+				echo $o->note(sprintf(translate('warn_max_settable_file_size'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
 				if ($ini_size > $post_size) {
-					echo $o->note(translate('warn_max_settable_file_size_warning', '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
+					echo $o->note(sprintf(translate('warn_max_settable_file_size_warning'), '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
 				}
 			} else {
 				if (!$this->pref_vars['SQ_FILE_MAX_SIZE']['default']) {
-					echo translate('warn_set_max_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
+					echo sprintf(translate('warn_set_max_file_size'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
 				} else {
 					$max_file_size = strtolower($this->pref_vars['SQ_FILE_MAX_SIZE']['default']);
 					if (substr($max_file_size, -1) == 'k') {
@@ -149,12 +149,12 @@ class File_Prefs extends Prefs
 					}
 
 					if ($max_file_size > $php_max_file_size) {
-						echo translate('file_size_above_limit', '<b>'.strtoupper(easy_filesize($max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
+						echo sprintf(translate('file_size_above_limit'), '<b>'.strtoupper(easy_filesize($max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
 					} else {
 						echo strtoupper(easy_filesize($max_file_size));
 					}
 					if ($ini_size > $post_size) {
-						echo $o->note(translate('warn_max_settable_file_size_warning', '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
+						echo $o->note(sprintf(translate('warn_max_settable_file_size_warning'), '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
 					}
 				}
 			}
@@ -169,10 +169,10 @@ class File_Prefs extends Prefs
 
 			if ($have_lock && $is_admin) {
 				text_box('prefs[SQ_FILE_PREUPLOADED_MAX_SIZE]', $this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['default'], 10);
-				echo $o->note(translate('warn_preuploaded_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
+				echo $o->note(sprintf(translate('warn_preuploaded_max_settable_file_size'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
 			} else {
 				if (!$this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['default']) {
-					echo translate('warn_preuploaded_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
+					echo sprintf(translate('warn_preuploaded_max_settable_file_size'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
 				} else {
 					$max_file_size = strtolower($this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['default']);
 					if (substr($max_file_size, -1) == 'k') {
@@ -223,7 +223,7 @@ class File_Prefs extends Prefs
 					} else if ($num_exts > 1) {
 						$ext_str = implode(', ', array_slice($exts, 0, -1)).' and '.$exts[$num_exts - 1];
 					}
-					echo translate('allowed_file_extensions_list', (($num_exts > 1) ? 's are ' : ' is ').$ext_str);
+					echo sprintf(translate('allowed_file_extensions_list'), (($num_exts > 1) ? 's are ' : ' is ').$ext_str);
 				}
 			}
 			if (is_null($pref)) $o->closeField();
@@ -250,7 +250,7 @@ class File_Prefs extends Prefs
 					} else if ($num_exts > 1) {
 						$ext_str = implode(', ', array_slice($exts, 0, -1)).' and '.$exts[$num_exts - 1];
 					}
-					echo translate('allowed_file_extensions_list', (($num_exts > 1) ? 's are ' : ' is ').$ext_str);
+					echo sprintf(translate('allowed_file_extensions_list'), (($num_exts > 1) ? 's are ' : ' is ').$ext_str);
 				}
 			}
 			if (is_null($pref)) $o->closeField();

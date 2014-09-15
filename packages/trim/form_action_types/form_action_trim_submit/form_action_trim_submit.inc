@@ -391,7 +391,7 @@ class Form_Action_TRIM_Submit extends Form_Action
 												'trace'		=> TRUE,
 												'exceptions'=> TRUE,
 											  );
-			// add proxy 
+			// add proxy
 			$proxy = $trim_connector->getProxy();
 			$connection['authentication'] = array_merge($connection['authentication'], $proxy);
 		} else {

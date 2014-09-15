@@ -122,7 +122,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @access public
 	*/
 	function paintSubmissionList(&$asset, &$o, $prefix)
-	{	
+	{
 		$write_access = $asset->writeAccess('links');
 		$expand_list = isset($_POST[$prefix.'_expand']) ? $_POST[$prefix.'_expand'] : Array();
 		$num_subs = 0;
@@ -211,11 +211,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			?><p><i><?php echo translate('cms_form_no_submissions_during_period') ?></i></p><?php
 		} else {
 			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
+				$page_tag = sprintf(translate('page_number'), $page_num, $num_pages);
 			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_submissions_page');
+				$page_tag = sprintf(translate('page_number_with_pager'), $page_num, $num_pages, $prefix.'_submissions_page');
 			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $num_per_page + 1, min($asset_count, $page_num * $num_per_page), $asset_count, strtolower(translate('submissions')));
+			$asset_count_tag = sprintf(translate('item_range'), ($page_num - 1) * $num_per_page + 1, min($asset_count, $page_num * $num_per_page), $asset_count, strtolower(translate('submissions')));
 
 			$links = Array(
 						'first'		=> '&lt;&lt;',
@@ -329,7 +329,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					?></span><?php
 				}
 				?>
-				&nbsp; &nbsp; <?php echo translate('page_number', round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
+				&nbsp; &nbsp; <?php echo sprintf(translate('page_number'), round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
 				<?php
 				if (($submission_offset + $num_per_page) < $asset_count) {
 					?><a title="<?php echo translate('cms_form_submissions_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -360,7 +360,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}
 				?></b>
 			</td>
-			<td class="sq-form-sub-header" colspan="4" align="right"><?php echo translate('cms_form_submissions_during_period', $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
+			<td class="sq-form-sub-header" colspan="4" align="right"><?php echo sprintf(translate('cms_form_submissions_during_period'), $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
 			</td>
 			</tr> -->
 			<tr>
@@ -862,7 +862,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_time = ts_iso8601($to_ts);
 		$sub_folder = $asset->getSubmissionsFolder();
 		$assetids = Array($asset->id, $sub_folder->id);
-		
+
 		try {
 			$bind_vars = Array(
 							'assetids'	=> $assetids,
@@ -893,8 +893,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return TRUE;
 
 	}//end processExportXML()
-	
-	
+
+
 	/**
 	* Paints the interface for the existing "Send Submissions Email" jobs
 	*
@@ -907,15 +907,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	public function paintSendSubmissionsEmail(Form_Email $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		
-		$job_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'cron_job_send_submission_log', TRUE, 'minor');		
+
+		$job_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'cron_job_send_submission_log', TRUE, 'minor');
 
 		if (!empty($job_links)) {
 			?>
 			<table class="sq-backend-table">
 				<tr>
 					<td class="sq-backend-table-header"><?php echo translate('name'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>					
+					<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
 					<td class="sq-backend-table-header"><?php echo translate('run_as'); ?></td>
 					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete'); ?> ?</td>
 					<td align="center" class="sq-backend-table-header" style="text-align: center;"></td>
@@ -945,7 +945,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 								check_box($prefix.'_remove_job[]', $job->id, FALSE, '', 'disabled');
 							}
 						?>
-						</td>						
+						</td>
 						<td>[ <a href="<?php echo $job->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
 					</tr>
 					<?php
@@ -956,10 +956,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		} else {
 			echo "<i>".translate('cron_job_send_submission_log_no_jobs')."</i><br/><br/>";
-		}		
-		
+		}
+
 		// Add new job checkbox
-		if ($write_access) {			
+		if ($write_access) {
 			label(translate('cron_job_send_submission_log_add_new_job'), $prefix.'_new_job');
 			echo '&nbsp;';
 			text_box($prefix.'_new_job_name', '', 25);
@@ -968,13 +968,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$edit_fns = $cron_job->getEditFns();
 			$null_asset = NULL;
 			$edit_fns->paintScheduleInterface($null_asset, $o, $prefix);
-		}	
-	
+		}
+
 		return $write_access;
 
 	}//end paintSendSubmissionsEmail()
-	
-	
+
+
 	/**
 	* Processes the interface for the existing "Send Submissions Email" jobs
 	*
@@ -985,14 +985,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	*/
 	public function processSendSubmissionsEmail(Form_Email $asset, Backend_Outputter $o, $prefix)
-	{	
-		$write_access = $asset->writeAccess('attributes');		
-		
+	{
+		$write_access = $asset->writeAccess('attributes');
+
 		if ($write_access) {
-			
+
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_send_submission_log');
-			
+
 			// Delete selected jobs
 			if (isset($_POST[$prefix.'_remove_job'])) {
 				$jobs = Cron_Job_Send_Submission_Log::getActiveJobs($asset);
@@ -1001,7 +1001,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
 						for ($i = 0; $i < count($jobs); $i++) {
 							if (in_array($jobs[$i]->id, $_POST[$prefix.'_remove_job'])) {
-								$cron_mgr->removeJob($jobs[$i]); 
+								$cron_mgr->removeJob($jobs[$i]);
 							}// end if
 						}// end for
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
@@ -1010,13 +1010,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 					}// end if
 
-				}// end if			
+				}// end if
 			}//end if
-				
+
 			// Create new cron job
 			$new_job_name = isset($_POST[$prefix.'_new_job_name']) ? trim($_POST[$prefix.'_new_job_name']) : '';
-			if (!empty($new_job_name)) {				
-				
+			if (!empty($new_job_name)) {
+
 				$default_time = 'TI='.time().',7,86400';
 				$new_job = new Cron_Job_Send_Submission_Log();
 				$new_job->setAttrValue('display_name', $new_job_name);
@@ -1026,7 +1026,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				if (!$edit_fns->processScheduleInterface($new_job, $o, $prefix)) {
 					return FALSE;
 				}
-				
+
 				if ($new_job->setAssetToUpdate($asset)) {
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1038,22 +1038,22 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 								$GLOBALS['SQ_SYSTEM']->am->setPermission($new_job->id , $current_userid, SQ_PERMISSION_ADMIN, 1, FALSE);
 							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 						}
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');						
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					} else {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				}
 
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);		
-			}//end if			
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
+			}//end if
 		}//end if
-		
+
 		return $write_access;
 
 	}//end processSendSubmissionsEmail()
-	
-	
+
+
 	/**
 	* Get the submission log from the database
 	*
@@ -1744,7 +1744,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				if ($q_asset) {
 					echo get_asset_tag_line($q_asset->id);
 				} else {
-					echo '<i class="sq-backend-warning">'.translate('cms_form_deleted_question_cannot_edit', $rule['assetid']).'</i>';
+					echo '<i class="sq-backend-warning">'.sprintf(translate('cms_form_deleted_question_cannot_edit'), $rule['assetid']).'</i>';
 				}
 			$o->closeField();
 
@@ -1859,7 +1859,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$address_box = ob_get_contents();
 		ob_end_clean();
 
-		echo translate('cms_form_match_email_line', $require_box, $email_type_box, $address_box);
+		echo sprintf(translate('cms_form_match_email_line'), $require_box, $email_type_box, $address_box);
 
 
 		return TRUE;
@@ -2196,7 +2196,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	*/
 	public function paintSelectedAction(Form_Email $asset, Backend_Outputter $o, $prefix)
-	{	
+	{
 		$write_access = $asset->writeAccess('attributes');
 		$selected_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
 		if (!is_numeric($selected_action)) {
@@ -2261,7 +2261,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	*/
 	public function processSelectedAction(Form_Email $asset, Backend_Outputter $o, $prefix)
-	{	
+	{
 		$write_access = $asset->writeAccess('attributes');
 		$actions = $asset->attr('actions');
 		$result = FALSE;
@@ -2352,7 +2352,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return $name;
 
 	}//end _makeValidActionName()
-	
+
 
 }//end class
 ?>

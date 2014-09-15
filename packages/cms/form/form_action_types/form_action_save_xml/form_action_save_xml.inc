@@ -111,7 +111,7 @@ class Form_Action_Save_Xml extends Form_Action
 				<td>
 					<?php
 					$key = array_get_index($xml_settings, 'sort', '0');
-					check_box($prefix.'_sort', 1, $key); 
+					check_box($prefix.'_sort', 1, $key);
 					?>
 				</td>
 			</tr>
@@ -431,7 +431,7 @@ class Form_Action_Save_Xml extends Form_Action
 		if(strpos($location, '/') !== 0) {
 		    $location = SQ_SYSTEM_ROOT.'/'.$location;
 		}
-					
+
 		if (!is_dir($location) || !is_writable($location)) {
 			return FALSE;
 		}//end if

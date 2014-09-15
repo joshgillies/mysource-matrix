@@ -266,10 +266,10 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$link_value = ob_get_clean();
 
 
-		$contents = translate('trigger_link_exists_basic', $major_selector, $asset_type_option, $asset_type_selector, $asset_id_option, $asset_id_selector, $only_link_option, $current_link_enabler).
+		$contents = sprintf(translate('trigger_link_exists_basic'), $major_selector, $asset_type_option, $asset_type_selector, $asset_id_option, $asset_id_selector, $only_link_option, $current_link_enabler).
 					'<hr />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					translate('trigger_link_exists_advanced', $link_type_selector, $dependent_selector, $exclusive_selector, $link_value);
+					sprintf(translate('trigger_link_exists_advanced'), $link_type_selector, $dependent_selector, $exclusive_selector, $link_value);
 
 		return $contents;
 

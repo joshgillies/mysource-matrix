@@ -4938,7 +4938,7 @@ class Asset extends MySource_Object
 		}
 
 		if (!$asset->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $asset->name));
 			return;
 		}
 
@@ -7109,13 +7109,13 @@ class Asset extends MySource_Object
 	* Extract condition keywords from containers of asset and set those conditions into the condition attribute of asset
 	*
 	* @param bool	$current_asset_only	just get current asset's conditions
-	* 
+	*
 	* @return array
 	* @access public
 	*/
 	function extractConditionsFromBodycopy($bodycopy_array=Array())
 	{
-		$available_conditions = array_keys($this->getAvailableConditions());			
+		$available_conditions = array_keys($this->getAvailableConditions());
 		$conditions = Array();
 		$conditional_div = Array();
 		$conditional_keywords = Array();
@@ -7132,7 +7132,7 @@ class Asset extends MySource_Object
 			$attrs = $container->attr('attributes');
 		 	// get div conditions
 			if (isset($attrs['conditions']) && !empty($attrs['conditions'])) {
-				$condition_data = $attrs['conditions'];	
+				$condition_data = $attrs['conditions'];
 				// get conditions settings for each container and add it to the page's attribute
 				if (isset($condition_data['condition_rules_status']) && isset($condition_data['conditions']) && !empty($condition_data['conditions']) && $condition_data['condition_rules_status'] === 'enable') {
 			 		if (isset($condition_data['conditions'][0]['conditions']) && !empty($condition_data['conditions'][0]['conditions'])) {
@@ -7185,7 +7185,7 @@ class Asset extends MySource_Object
 		$used_conditions = array_merge($used_conditions, $conditional_keywords);
 		$used_conditions = array_unique($used_conditions);
 		$conditions['used_conditions'] = $used_conditions;
-		
+
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$this->setAttrValue('conditions', $conditions);
 		$this->saveAttributes(TRUE);

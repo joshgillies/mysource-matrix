@@ -300,7 +300,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							if (isset($schemas[$set_data['schemaid']])) {
 								$new_access     = ($set_data['granted']) ? translate('apply') : translate('deny');
 								$current_access = ($schemas[$set_data['schemaid']]) ? translate('applied') : translate('denied');
-								$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), TRUE);
+								$this->_addError(sprintf(translate('hipo_cannot_modify_schema'), $new_access, $schema_name, $asset->name, $current_access), TRUE);
 								continue;
 							}
 						} else {
@@ -311,7 +311,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							} else if ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
 								$new_access     = ($set_data['previous_access']) ? translate('revoke')  : translate('apply');
 								$current_access = ($set_data['previous_access']) ? translate('applied') : translate('denied');
-								$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), TRUE);
+								$this->_addError(sprintf(translate('hipo_cannot_modify_schema'), $new_access, $schema_name, $asset->name, $current_access), TRUE);
 								continue;
 							}
 						}
@@ -337,7 +337,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					if (count($schema_changes) > 1) {
 						$step_data['message'] = htmlentities('Making '.count($schema_changes).' schema changes to '.$asset->name.' (Id: #'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					} else if (count($schema_changes) == 0) {
-						$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
+						$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $asset->id);
 					}
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
@@ -348,8 +348,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					trigger_localised_error('SYS0100', E_USER_WARNING, 'metadata', $asset->name, ' skipping asset.');
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_cannot_edit_schema', $assetid));
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$this->_addError(sprintf(translate('hipo_cannot_edit_schema'), $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again

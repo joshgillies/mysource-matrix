@@ -189,7 +189,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$edit_fns = $new_job->getEditFns();
 				$edit_fns->paintInLineBackend($new_job, $o, $type_code.'_repeating');
-				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+				$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
 			$o->closeField();
 
 		} else {

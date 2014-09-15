@@ -51,7 +51,7 @@ class Trigger_Condition_Metadata_Field_Updated extends Trigger_Condition
 	{
 		if (!isset($settings['field'])) return FALSE;
 		if (empty($settings['field'])) return FALSE;
-		
+
 		// No event data set
 		if (!isset($state['event']['data']['fieldids'])) return FALSE;
 		if (empty($state['event']['data']['fieldids'])) return FALSE;
@@ -83,7 +83,7 @@ class Trigger_Condition_Metadata_Field_Updated extends Trigger_Condition
 		// Paint the interface
 		ob_start();
 			if ($write_access) {
-				echo translate('metadata_field').': '; 
+				echo translate('metadata_field').': ';
 				echo asset_finder($prefix.'[metadata_field]', $field, Array('metadata_field'=>'D'));
 				echo '<br /><br />';
 				echo translate('trigger_condition_metadata_field_updated_note');

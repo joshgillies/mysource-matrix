@@ -83,7 +83,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 				label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
 			echo '</span>';
 		echo '</span>';
-		
+
 		echo '<div id="warning_message_for_live_plus_cascade_fs" style="display:none" class="sq-warning-message top-margin">'.translate('asset_status_live_warning').'</div>';
 
 		return TRUE;

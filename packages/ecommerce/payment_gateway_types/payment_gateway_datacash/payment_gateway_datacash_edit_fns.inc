@@ -102,7 +102,7 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 
 	}//end processBodycopy()
 
-	
+
 	/**
 	* Paint the interface for Datacash API Path
 	*
@@ -116,7 +116,7 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 	function paintDatacashAPIPath(&$asset, &$o, $prefix)
 	{
 		$current_path = $asset->attr('datacash_api_path');
-		
+
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.'_datacash_api_path', $current_path, 80);
 		} else {
@@ -126,9 +126,9 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 				echo '<b>'.$current_path.'</b>';
 			}
 		}
-		
+
 		if (!is_file($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Datacash PHP API'); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('path_to_not_valid'), 'Datacash PHP API'); ?></span><?php
 		} else {
 			include_once $current_path;
 			if (!class_exists('DataCash_Document')) {
@@ -137,9 +137,9 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 				?><br /><span class="sq-backend-warning"><?php echo translate('datacash_api_no_required_method'); ?></span><?php
 			}
 		}//end if
-		
+
 		return TRUE;
-		
+
 	}//end paintDatacashAPIPath()
 
 
@@ -157,12 +157,12 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (!isset($_POST[$prefix.'_datacash_api_path'])) return FALSE;
-		
+
 		return $asset->setAttrValue('datacash_api_path', trim($_POST[$prefix.'_datacash_api_path']));
-		
+
 	}//end processDatacashAPIPath()
 
-	
+
 	/**
 	* Paint the interface for CardInfo Directory Path
 	*
@@ -176,7 +176,7 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 	function paintCardInfoDirPath(&$asset, &$o, $prefix)
 	{
 		$current_path = $asset->attr('cardinfo_dir_path');
-		
+
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.'_cardinfo_dir_path', $current_path, 80);
 		} else {
@@ -186,15 +186,15 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 				echo '<b>'.$current_path.'</b>';
 			}
 		}
-		
+
 		if (!is_dir($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Datacash CardInfo Directory'); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('path_to_not_valid'), 'Datacash CardInfo Directory'); ?></span><?php
 		} else if (!is_file($current_path.'/CardInfo1.bin') || !is_file($current_path.'/CardInfo2.bin')) {
 			?><br /><span class="sq-backend-warning"><?php echo translate('datacash_cardinfo_dir_no_required_files'); ?></span><?php
 		}
-		
+
 		return TRUE;
-		
+
 	}//end paintCardInfoDirPath()
 
 
@@ -212,11 +212,11 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (!isset($_POST[$prefix.'_cardinfo_dir_path'])) return FALSE;
-		
+
 		return $asset->setAttrValue('cardinfo_dir_path', trim($_POST[$prefix.'_cardinfo_dir_path']));
-		
+
 	}//end processCardInfoDirPath()
-	
+
 
 }//end class
 

@@ -126,8 +126,8 @@ class Cron_Job_Expired_Matrix_Cache extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
+
+
 	/**
 	* Run this cron job
 	*

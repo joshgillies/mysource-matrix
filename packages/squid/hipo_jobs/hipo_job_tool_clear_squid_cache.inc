@@ -153,7 +153,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 		} else if ($this->_running_vars['cascade'] === '0' || $this->_running_vars['cascade'] === FALSE ) {
 			$this->_running_vars['cascade'] = 'single';
 		}
-		
+
 
 		// if cascade option is enabled, get the children of the selected asset
 		$assetids = is_array($this->_running_vars['assetid']) ? $this->_running_vars['assetid'] : Array($this->_running_vars['assetid']);
@@ -289,7 +289,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			}
 
 			// add this url to the done array
-			$step_data['message'] = translate('squid_clearing_squid_cache', $url);
+			$step_data['message'] = sprintf(translate('squid_clearing_squid_cache'), $url);
 			$this->_running_vars['done_urls'][] = $url;
 
 			// clean up

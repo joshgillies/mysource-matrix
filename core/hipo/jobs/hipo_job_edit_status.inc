@@ -281,7 +281,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				unset($this->_running_vars['dependant_hipo_job']);
 			}
 		}
-	
+
 		// Refresh the asset map to reflect the asset status changes when using the HIPO server
 		if (SQ_HIPO_USE_SERVER && !empty($this->_running_vars['assetid'])) {
 			$o->addOnLoad('
@@ -448,7 +448,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					} else {
 						$asset->processStatusChange($new_status, FALSE, FALSE);
 					}
-					$step_data['message'] = translate('hipo_edit_status', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $asset->id);
+					$step_data['message'] = sprintf(translate('hipo_edit_status'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $asset->id);
 
 					// this asset has dependants, so we are going to spawn another edit_status hipo
 					// to take care of processing them
@@ -461,11 +461,11 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
-					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-					$this->_addError(translate('hipo_cannot_edit_status', $assetid));
+					$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+					$this->_addError(sprintf(translate('hipo_cannot_edit_status'), $assetid));
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
 			}
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;

@@ -47,7 +47,7 @@ class Data_Source_RSS extends Data_Source
 
 	}//end constructor
 
-	
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -69,8 +69,8 @@ class Data_Source_RSS extends Data_Source
 		return $links;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Returns an array of the result of xml parsing either from cache or by parsing the file again
 	*
@@ -217,7 +217,7 @@ class Data_Source_RSS extends Data_Source
 		$feed_reader = new RSS_Feed_Reader();
 		$feed_reader->delimiter = $this->attr('data_delimiter');
 		$this->reader = $feed_reader;
-		
+
 		if (!empty($url)) {
 			if ($feed_reader->setInputFile($url)) {
 				$result = $feed_reader->parse();

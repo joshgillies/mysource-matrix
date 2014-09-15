@@ -680,7 +680,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$create_types = $asset->attr('create_type');
 		// print the rules for each create type
 		foreach ($create_types as $create_type => $null) {
-			echo '<p><b>'.translate('cms_asset_builder_rules_for_asset_type', $create_type).'</b></p>';
+			echo '<p><b>'.sprintf(translate('cms_asset_builder_rules_for_asset_type'), $create_type).'</b></p>';
 
 			$attributes = Array();
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attrid', 'type'));
@@ -696,7 +696,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					$parent_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($rule['locations']);
 					?>
 					<table class="sq-backend-table" style="width: 90%; margin-left: 2em; margin-top: 1ex; "><tr><td class="sq-backend-table-header">
-					<b><?php echo translate('rule_number', $i) ?></b>
+					<b><?php echo sprintf(translate('rule_number'), $i) ?></b>
 					</td></tr>
 					<tr><td class="sq-backend-table-cell">
 
@@ -1062,7 +1062,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						} else {
 							$levels = array_get_index($data, 'depth', 0);
 							if ($levels == 0) $levels = translate('infinite');
-							echo '<p>'.translate('cms_asset_builder_num_levels', $levels).'</p>';
+							echo '<p>'.sprintf(translate('cms_asset_builder_num_levels'), $levels).'</p>';
 						}
 					?>
 				</td>
@@ -1612,7 +1612,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					if (($extension_index !== FALSE) && ($extension_index == strlen($filename)-4)) {
 						return $asset->setAttrValue('captcha_ttf', $ttf_file_id);
 					} else {
-						trigger_localised_error('CMS0109', E_USER_WARNING);	
+						trigger_localised_error('CMS0109', E_USER_WARNING);
 					}
 				} else {
 					return $asset->setAttrValue('captcha_ttf', NULL);
@@ -1656,8 +1656,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		return (count($asset->attr('create_type')) > 1);
 
 	}//end definesMultipleAssetTypes()
-	
-	
+
+
 //--         MOLLOM CAPTCHA          --//
 
 
@@ -1682,7 +1682,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		}
 
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
-			
+
 			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
 			$attributes = Array();
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name'));
@@ -1694,7 +1694,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$current[$create_type] = Array();
 			}
 			$type_prefix = $prefix.'_'.$create_type;
-			
+
 			if (empty($current[$create_type])) {
 				echo translate('cms_asset_builder_mollom_no_attr_to_check').'<br />';
 			} else {
@@ -1734,8 +1734,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								<?php
 								$content_types = Array();
 								if (file_exists(SQ_FUDGE_PATH.'/mollom/mollom.inc')) {
-									require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';								
-									$content_types = Mollom::getContentTypes();								
+									require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
+									$content_types = Mollom::getContentTypes();
 								}
 								if ($write_access) {
 									combo_box($type_prefix.'_content_type['.$attr.']', $content_types, FALSE, $content_type);
@@ -1846,12 +1846,12 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 		}
-		
-		
-		
+
+
+
 		return $asset->setAttrValue('mollom_attributes_to_check', $content_types);
 
-	}//end processMollomAttributeToCheck()	
+	}//end processMollomAttributeToCheck()
 
 }//end class
 

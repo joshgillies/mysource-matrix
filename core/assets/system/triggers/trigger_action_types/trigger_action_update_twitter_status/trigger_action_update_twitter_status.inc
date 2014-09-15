@@ -128,7 +128,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 			// Get the time that Twitter reported it as
 			$tweet_time = strtotime((string) $result['created_at']);
 		}
-		
+
 		return Array(
 				'status'	=> $tweet_format,
 				'time'		=> $tweet_time,
@@ -292,7 +292,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 					} else {
 						// We have a consumer key
 						if (empty($settings['access_token']) === FALSE) {
-							echo translate('trigger_action_update_twitter_status_client_credentials_status_yes', $settings['access_token_acct_for']);
+							echo sprintf(translate('trigger_action_update_twitter_status_client_credentials_status_yes'), $settings['access_token_acct_for']);
 							echo '<br/>';
 							check_box($prefix.'[deauthorise]');
 							?> <label for="<?php echo $prefix ?>[deauthorise]"><?php
@@ -300,7 +300,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 						} else if (empty($settings['request_token']) === FALSE) {
 							if ($write_access === TRUE) {
 								$url = 'https://api.twitter.com/oauth/authenticate?oauth_token='.$settings['request_token'].'&force_login=true';
-								echo translate('trigger_action_update_twitter_status_client_credentials_status_no', $url);
+								echo sprintf(translate('trigger_action_update_twitter_status_client_credentials_status_no'), $url);
 							} else {
 								echo translate('trigger_action_update_twitter_status_client_credentials_status_no_unlocked');
 							}
@@ -342,7 +342,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 					} else {
 						echo $settings['tweet_contents'];
 						hidden_field($prefix.'[tweet_contents]', $settings['tweet_contents']);
-					}?> <?php echo translate('trigger_action_update_twitter_status_tweet_format_char_count', $prefix, 140 - strlen($settings['tweet_contents']));
+					}?> <?php echo sprintf(translate('trigger_action_update_twitter_status_tweet_format_char_count'), $prefix, 140 - strlen($settings['tweet_contents']));
 					echo '</span>';
 					?>
 					</td>

@@ -55,7 +55,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 		if (empty($settings['asset_id'])) return FALSE;
 		if (!isset($settings['value']) || ($settings['value'] == '')) return FALSE;
 		if (!isset($state['asset']) || is_null($state['asset'])) $state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getasset($state['assetid']);
-		
+
 		$compared_value = $settings['value'];
 		replace_global_keywords($compared_value);
 
@@ -82,7 +82,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 					return (preg_match('/'.str_replace('/', '\/', $compared_value).'/', $metadata_value) > 0);
 			}
 		}
-		
+
 		return FALSE;
 
 	}//end evaluate()
@@ -158,7 +158,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 			$value_component = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_metadata_value', $asset_id_component, $match_component, $value_component);
+		return sprintf(translate('trigger_metadata_value'), $asset_id_component, $match_component, $value_component);
 
 	}//end getInterface()
 

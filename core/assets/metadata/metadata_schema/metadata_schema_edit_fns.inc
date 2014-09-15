@@ -414,11 +414,11 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$page_num = min($page_num, $num_pages);
 
 			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
+				$page_tag = sprintf(translate('page_number'), $page_num, $num_pages);
 			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+				$page_tag = sprintf(translate('page_number_with_pager'), $page_num, $num_pages, $prefix.'_usage_page');
 			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
+			$asset_count_tag = sprintf(translate('item_range'), ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
 
 			$tree_tops = array_slice($tree_tops, ($page_num - 1) * $page_size, $page_size);
 
@@ -476,7 +476,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 						$tag_line = get_asset_tag_line($tree_info['assetid'], 'details');
 
 						echo ($tree_info['depth'] === 0 ? '' : '<span style="padding-left: '.($tree_info['depth']*5).'ex">');
-						echo translate('asset_and_child_count_0', $tag_line);
+						echo sprintf(translate('asset_and_child_count_0'), $tag_line);
 						echo ($tree_info['depth'] === 0 ? '' : '</span>');
 
 						?></td>

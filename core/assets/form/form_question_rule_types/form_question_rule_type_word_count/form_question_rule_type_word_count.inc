@@ -88,7 +88,7 @@ class Form_Question_Rule_Type_Word_Count extends Form_Question_Rule
 		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
 		$condition_js = parent::generateConditionJSCode($rule_data);
 		if (strlen(trim($condition_js))) $condition_js = ' && '.$condition_js;
-		
+
 		ob_start();			// buffer this please
 
 			?>

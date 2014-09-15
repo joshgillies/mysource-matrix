@@ -139,7 +139,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 				ob_start();
 					combo_box($prefix.'[granted]', $options, FALSE, $granted);
 				$combo_box = ob_get_clean();
-				echo translate('trigger_schema_apply-deny_the_following_schema', $combo_box).' ';
+				echo sprintf(translate('trigger_schema_apply-deny_the_following_schema'), $combo_box).' ';
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('metadata_schema' => 'I'));
 				echo '<br />';
 				check_box($prefix.'[cascade]', '1', $cascade);
@@ -151,10 +151,10 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
-					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
+					echo sprintf(translate('trigger_schema_apply-deny_the_following_schema'), $options[$granted]).' ';
 					echo get_asset_tag_line($current_schemaid);
 				} else {
-					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
+					echo sprintf(translate('trigger_schema_apply-deny_the_following_schema'), $options[$granted]).' ';
 					echo '<em>'.translate('trigger_schema_no_schema_specified').'</em>';
 				}
 				echo '<br />';

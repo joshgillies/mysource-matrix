@@ -53,7 +53,7 @@ class Form_Question_Rule_Type_File_Virus_Check_Edit_Fns extends Form_Question_Ru
 
 		// display warning message if global virus checker is disabled or not configured
 		if(!SQ_TOOL_VIRUS_CHECKER_ENABLED || !file_exists(SQ_TOOL_VIRUS_CHECKER_PATH)) {
-				$warning = '<p class="sq-backend-warning">'.translate('core_form_rule_file_virus_check_warning').'</p>';	
+				$warning = '<p class="sq-backend-warning">'.translate('core_form_rule_file_virus_check_warning').'</p>';
 		}
 
 
@@ -102,10 +102,10 @@ class Form_Question_Rule_Type_File_Virus_Check_Edit_Fns extends Form_Question_Ru
 	{
 		if (!isset($_POST[$prefix])) return false;
 		parent::processRule($asset, $o, $prefix, $rule_data);
-		
+
 	 	$check_virus = array_get_index($_POST[$prefix], 'check_virus', null);
 		$rule_data['check_virus'] = $check_virus;
-		
+
 		$indicator_content = array_get_index($_POST[$prefix], 'indicator_content', null);
 		$rule_data['indicator_content'] = $indicator_content;
 

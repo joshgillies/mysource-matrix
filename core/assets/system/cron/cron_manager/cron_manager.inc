@@ -195,7 +195,7 @@ class Cron_Manager extends Asset
 
 	}//end moveLinkPos()
 
-	
+
 	/**
 	* Remove a link where this asset is the major player
 	*
@@ -213,17 +213,17 @@ class Cron_Manager extends Asset
 			trigger_localised_error('SYS0243', E_USER_NOTICE, $linkid);
 			return FALSE;
 		}
-		
+
 		if ($GLOBALS['SQ_SYSTEM']->am->isSystemAssetType($link['minor_type_code'])){
 			trigger_localised_error('CORE0118', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return FALSE;
 		}
-		
+
 		return parent::deleteLink($linkid, $check_locked);
 
 	}//end deleteLink()
-	
-	
+
+
 	/**
 	* Set the value for the passed variable to the passed value
 	*
@@ -362,7 +362,7 @@ class Cron_Manager extends Asset
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($trash);
 
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -815,7 +815,7 @@ class Cron_Manager extends Asset
 	public function getJobsToRun($start_ts, $end_ts, $ignore_jobs=Array())
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		
+
 		if ($end_ts < $start_ts) {
 			trigger_localised_error('CRON0014', E_USER_WARNING);
 			return Array();
@@ -874,10 +874,10 @@ class Cron_Manager extends Asset
 										AND ('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') <= '.MatrixDAL::quote('%B%59').'
 										OR ('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').')
 										BETWEEN '.MatrixDAL::quote('%C%00').' AND '.MatrixDAL::quote('%D%'.$end_f['minutes']);
-		
+
 		$build_up['hour']['all'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') > '.MatrixDAL::quote('%A%'.$start_f['minutes']).'
 									AND ('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') <= '.MatrixDAL::quote('%B%'.$end_f['minutes']);
-		
+
 		$build_up['day']['bridge'] = str_replace(Array('%A%', '%B%', '%C%', '%D%'), Array('%A%'.$start_f['hours'].':', '%B%23:', '%C%00:', '%D%'.$end_f['hours'].':'), $build_up['hour']['bridge']);
 		$build_up['day']['all'] = str_replace(Array('%A%', '%B%'), Array('%A%'.$start_f['hours'].':', '%B%'.$end_f['hours'].':'), $build_up['hour']['all']);
 
@@ -1098,7 +1098,7 @@ class Cron_Manager extends Asset
 
 	}//end _errorHandler()
 
-	
+
 	/**
 	* get an integer value in Last Run attribute
 	*

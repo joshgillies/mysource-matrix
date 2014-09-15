@@ -137,7 +137,7 @@ class User_Prefs extends Prefs
 			foreach ($session_settings as $id => $extra_setting) {
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
-				<strong><?php echo ($id == '0') ? translate('default').' '.translate('rule') : translate('rule_number', $id); ?>:</strong><br />
+				<strong><?php echo ($id == '0') ? translate('default').' '.translate('rule') : sprintf(translate('rule_number'), $id); ?>:</strong><br />
 				<?php echo translate('end_user_session'); ?>...
 				<ul id="user-prefs">
 					<li>
@@ -857,7 +857,7 @@ class User_Prefs extends Prefs
 				$asset_map_settings1 = $asset_map_settings2;
 				$asset_map_settings2 = '';
 			}
-			
+
 			if (is_array($res['SQ_USER_ASSET_MAP_LINEAGE'])) {
 				$res['SQ_USER_ASSET_MAP_LINEAGE']['default'] = $asset_map_settings1;
 			} else {

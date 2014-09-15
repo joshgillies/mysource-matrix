@@ -71,7 +71,7 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 			combo_box($prefix.'[multiplier]', $multiplier_map, false, array_get_index($rule_data, 'multiplier', ''));
 			$o->closeField();
 
-			$o->sectionNote(translate('core_form_rule_file_size_config_note', strtoupper(easy_filesize($this->_maxUploadSize()))));
+			$o->sectionNote(sprintf(translate('core_form_rule_file_size_config_note'), strtoupper(easy_filesize($this->_maxUploadSize()))));
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;

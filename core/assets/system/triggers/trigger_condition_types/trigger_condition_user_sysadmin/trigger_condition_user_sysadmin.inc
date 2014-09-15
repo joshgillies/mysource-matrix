@@ -76,7 +76,7 @@ class Trigger_Condition_User_Sysadmin extends Trigger_Condition
 			}
 			$var = ob_get_contents();
 		ob_end_clean();
-		return translate('trigger_asset_sysadmin', $var);
+		return sprintf(translate('trigger_asset_sysadmin'), $var);
 
 	}//end getInterface()
 

@@ -234,7 +234,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if ($value == 'default_format') continue;
 					if ($value == 'featured_format') continue;
 
-					$this->_paintDefaultFormatLink($folder->id, $value, translate('funnelback_custom_format_desc', strtoupper($value)), $write_access, $prefix);
+					$this->_paintDefaultFormatLink($folder->id, $value, sprintf(translate('funnelback_custom_format_desc'), strtoupper($value)), $write_access, $prefix);
 				}//end foreach
 				?>
 			</table>

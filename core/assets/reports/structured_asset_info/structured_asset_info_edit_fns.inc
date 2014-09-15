@@ -519,7 +519,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			$asset_treeids = $am->getAssetTreeids($root_id);
 			$root_treeid = reset($asset_treeids);
 			$root_treeid = $root_treeid === '-' ? '' : $root_treeid;
-			
+
 			try {
 				$bind_vars['treeid'] = $root_treeid.'_%';
 				$total = MatrixDAL::executeOne('structured_asset_info', 'linkTreeCount', $bind_vars);
@@ -1152,7 +1152,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 					preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches);
 					$design_type     = $matches[1];
 					$design_code     = $matches[2];
-					$display_name = translate('config_display_name', ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
+					$display_name = sprintf(translate('config_display_name'), ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
 					echo $display_name.': '.$this->_printAssetTagLine($design_id)."<br>\n";
 				}
 				echo '</fieldset><br>';

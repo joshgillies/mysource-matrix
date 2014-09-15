@@ -100,7 +100,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				asset_finder($prefix.'_major_assetid', ((is_null($major)) ? 0 : $major->id), Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
 			} else {
 				if (is_null($major)) {
-					echo '<a href="'.$major->getBackendHref().'">'.translate('asset_format', $major->name, $major->id).'</a>';
+					echo '<a href="'.$major->getBackendHref().'">'.sprintf(translate('asset_format'), $major->name, $major->id).'</a>';
 				} else {
 					echo translate('not_set');
 				}
@@ -110,7 +110,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$o->openField(translate('at'));
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 		$o->closeField();
 
 		$o->closeSection();
@@ -236,7 +236,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$o->note(translate('cron_manager_create_now_or_later'));
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 			$o->closeField();
 		}
 
@@ -486,7 +486,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$o->note(translate('cron_manager_delete_now_or_later'));
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 			$o->closeField();
 		}
 		$o->closeSection();
@@ -740,7 +740,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$o->note(translate('cron_manager_create_now_or_later'));
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 			$o->closeField();
 		}
 
@@ -972,7 +972,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$o->note(translate('cron_manager_delete_now_or_later'));
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 			$o->closeField();
 		}
 		$o->closeSection();

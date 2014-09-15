@@ -18,7 +18,7 @@
 * System Maintenance
 *
 * Purpose
-*	Manages System Maintenance Mode and generate system reports 
+*	Manages System Maintenance Mode and generate system reports
 *
 *
 * @package MySource_Matrix
@@ -143,9 +143,9 @@ class System_Maintenance_Config extends Config
 		$lock = $this->getLockInfo();
 		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
 		$write_access = $this->writeAccess();
-		$class = get_class_lower($this);		
+		$class = get_class_lower($this);
 
-		
+
 		parent::paintBackend($o);
 
 		if (isset($_GET['report_type_code'])) {
@@ -432,7 +432,7 @@ class System_Maintenance_Config extends Config
 		$_POST[$class]['SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE'] = $content;
 
 
-		
+
 		return parent::processBackend($o);
 
 	}//end processBackend()

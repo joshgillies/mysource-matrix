@@ -99,7 +99,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 <?php
 								$replacements_link = ob_get_contents();
 							ob_end_clean();
-							echo(translate('tagging_suggest_indexed', $replacements_link));
+							echo(sprintf(translate('tagging_suggest_indexed'), $replacements_link));
 						}
 						ob_end_flush();
 					}
@@ -132,7 +132,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 							// restricted; check whether there's any thesaurus to choose from
 							if ($tag_manager->attr('thesaurus')) {
 								multiple_asset_finder($prefix.'_tags', $current_tag_ids, Array('thesaurus_term'=>'D'));
-								$o->note(translate('tag_thesaurus_note', get_asset_tag_line($tag_manager->attr('thesaurus'), 'details')));
+								$o->note(sprintf(translate('tag_thesaurus_note'), get_asset_tag_line($tag_manager->attr('thesaurus'), 'details')));
 							} else {
 								$o->note(translate('tag_no_thesaurus_set_note'));
 							}
@@ -203,7 +203,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 
 							$o->openSection(translate('cascade_options'));
 								$o->openField('Note');
-									echo translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+									echo sprintf(translate('action_affects_assets_below_this'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 								$o->closeField();
 								$o->openField('&nbsp;');
 									check_box($prefix.'_tagging[cascade_changes]', '1', TRUE);

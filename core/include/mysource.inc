@@ -643,7 +643,7 @@ class MySource extends MySource_Object
 
 			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
 				$page_name = '"'.$asset->name.'"';
-				$this->paintPasswordChange(translate('change_password'), translate('must_change_password_to_access_asset', $page_name));
+				$this->paintPasswordChange(translate('change_password'), sprintf(translate('must_change_password_to_access_asset'), $page_name));
 				exit();
 			}
 
@@ -3919,7 +3919,7 @@ class MySource extends MySource_Object
 		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, TRUE);
 		$time_string .= (strpos($time_string, 'ago') !== FALSE) ? ')' : ' ago)';
 
-		$warning_message = translate('rollback_mode_warning_message', $time_string);
+		$warning_message = sprintf(translate('rollback_mode_warning_message'), $time_string);
 		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
 		if (!empty($_GET['assetid'])) {
 			$exit_url .= '&assetid='.$_GET['assetid'].'&am_section=edit_asset&asset_ei_screen='.array_get_index($_GET, 'asset_ei_screen', 'details');
@@ -4752,7 +4752,7 @@ class MySource extends MySource_Object
 					</th>
 				</tr>
 				<tr>
-					<td colspan="2" ><?php echo translate('asset_deprecated_note', ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
+					<td colspan="2" ><?php echo sprintf(translate('asset_deprecated_note'), ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
 					</td>
 				</tr>
 			</table>

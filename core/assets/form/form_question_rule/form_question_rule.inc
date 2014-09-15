@@ -176,13 +176,13 @@ class Form_Question_Rule extends Asset
 			   );
 
 	}//end getOperators()
-	
-	
+
+
 	/**
 	* Returns whehter validation needs to be executed or not
 	*
 	* If the validation condition is set, the validation should not be executed when the condition doesn't match.
-	* This function checks if the condition to run the validation is met or not. 
+	* This function checks if the condition to run the validation is met or not.
 	*
 	* @param array	$rule_data	the rule data
 	*
@@ -191,13 +191,13 @@ class Form_Question_Rule extends Asset
 	*/
 	public static function isValidationRequired($rule_data) {
 		$result = TRUE;
-		
-		// if the target question asset to evaluate the condition is not set, the validation is for all cases without a condition 
+
+		// if the target question asset to evaluate the condition is not set, the validation is for all cases without a condition
 		// and need to run the validation
 		if (!isset($rule_data['condition_asset']) || empty($rule_data['condition_asset'])) return $result;
 		$target_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($rule_data['condition_asset']);
 		if(empty($target_asset))  return $result;
-			
+
 		// get the data we need to evaluate the condition.
 		// not using getValue() here because it could cause infinate loop
 		$target_value = $target_asset->value;
@@ -222,20 +222,20 @@ class Form_Question_Rule extends Asset
 			default:
 				$result = TRUE;
 		}
-		
+
 		return $result;
 
 	}
 
-	
+
 	/**
 	* Writes JavaScript code for the validation condition part for client side validation
 	*
 	* The validation condition allows users to set a condition depending on the answer to another question.
 	* For example, if the submitted answer to Question1 is 'a', then the answer to Question2 needs to be either '1' or '2'.
 	* If such a validation condition is set, this function returns the JavaScript for determining if the condition has been
-	* met or not.      
-	* 
+	* met or not.
+	*
 	* @param array	$rule_data	the rule data
 	*
 	* @return boolean
@@ -246,11 +246,11 @@ class Form_Question_Rule extends Asset
 		$condition_asset    = isset($rule_data['condition_asset']) ? $rule_data['condition_asset'] : NULL;
 		$condition_operator = isset($rule_data['condition_operator']) ? $rule_data['condition_operator'] : NULL;
 		$condition_value    = isset($rule_data['condition_value']) ? $rule_data['condition_value'] : NULL;
-		
+
 		if (!$condition_asset) return '';
-		
+
 		$form_element = 'form.elements["q'.$condition_asset.'"].value';
-		
+
 		switch ($condition_operator) {
 			case '=':
 				$js_condition = $form_element.'.match(/'.$condition_value.'/)';
@@ -267,7 +267,7 @@ class Form_Question_Rule extends Asset
 			default:
 				$js_condition = '';
 		}
-		
+
 		return $js_condition;
 
 	}//end generateJSCode()

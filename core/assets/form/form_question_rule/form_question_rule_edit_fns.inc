@@ -48,7 +48,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	*
 	* New question rule type must call this function from its overridden function by 'parent::paintRule($asset, $o, $prefix, $rule_data, $write_access, $open_field)'
 	* in order to allow the new question rule type to set a condition to execute the validation.
-	* 
+	*
 	* @param object		&$asset			The asset to paint
 	* @param object		&$o				The backend outputter
 	* @param string		$prefix			String prefix for this interface/asset
@@ -63,7 +63,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 		// paint validation condition that is generic to every question rule type
 		$condition_operators = $asset->getConditionOperators();
 		$condition_exists = isset($rule_data['condition_asset']) && $rule_data['condition_asset'];
-		
+
 		if ($open_field) $o->openField(translate('core_form_rule_condition'));
 		if (!$write_access) {
 			if (!$condition_exists) {
@@ -74,13 +74,13 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 				$operators = $asset->getConditionOperators();
 				$operator = isset($rule_data['condition_operator']) && isset($operators[$rule_data['condition_operator']]) ? $operators[$rule_data['condition_operator']] : NULL;
 				$value = isset($rule_data['condition_value']) ? '/'.$rule_data['condition_value'].'/' : '';
-				echo translate('core_form_rule_condition_set', $target, $operator, $value);
+				echo sprintf(translate('core_form_rule_condition_set'), $target, $operator, $value);
 			}
 		} else {
 			$enabled = isset($_POST[$prefix]) ? array_get_index($_POST[$prefix], 'enable', 0) : FALSE;
 			label( translate('core_form_rule_condition_add_condition'), $prefix.'[enable]');
 			check_box($prefix.'[enable]', '1', $enabled || $condition_exists);
-			
+
 			// only display condition configuration interface when required
 			if($enabled || $condition_exists) {
 			    echo '<br>';
@@ -91,7 +91,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 		if ($open_field) $o->closeField();
-		
+
 		return $write_access;
 
 	}//end paintRule()
@@ -100,7 +100,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the rule's interface
 	*
-	* 
+	*
 	* New question rule type must call this function from its overridden function by 'parent::processRule($asset, $o, $prefix, $rule_data)'
 	* in order to allow the new question rule type to set a condition to execute the validation.
 	* @param object	&$asset		The asset to paint

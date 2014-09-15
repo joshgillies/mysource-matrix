@@ -110,7 +110,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 						$new_default[] = $idx;
 					}
 				}
-				
+
 				if (!empty($new_default)) {
 					$default = $new_default;
 				}
@@ -197,7 +197,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		if (!$read_only) {
 			?>
 				<div id="option-list-<?php echo $prefix; ?>" class="sq-option-list">
-					<label class="sq-option-list-header value" for="<?php echo $prefix; ?>_options_keys[0]"><?php echo translate('value'); ?></label><label class="sq-option-list-header text" for="<?php echo $prefix; ?>_options[0]"><?php echo translate('text'); ?></label> 
+					<label class="sq-option-list-header value" for="<?php echo $prefix; ?>_options_keys[0]"><?php echo translate('value'); ?></label><label class="sq-option-list-header text" for="<?php echo $prefix; ?>_options[0]"><?php echo translate('text'); ?></label>
 					<br/>
 					<?php
 					$order = 0;

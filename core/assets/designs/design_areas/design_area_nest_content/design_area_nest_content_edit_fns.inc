@@ -72,7 +72,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 				</tr>
 				<tr>
 					<td class="sq-backend-table-cell">
-					<?php 
+					<?php
 						asset_finder($prefix.'_assetid', $asset->_getNestAssetInfo('minorid'), $type_code_restrictions);
 					?>
 					</td>
@@ -82,10 +82,10 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 				</tr>
 				<tr>
 					<td class="sq-backend-table-cell">
-					<input name="<?php echo $prefix ?>_paint_with" id="<?php echo $prefix ?>_paint_with_0" type="radio" value="raw" <?php if ($paint_with == 'raw') { ?>checked="checked"<?php } ?>> 
+					<input name="<?php echo $prefix ?>_paint_with" id="<?php echo $prefix ?>_paint_with_0" type="radio" value="raw" <?php if ($paint_with == 'raw') { ?>checked="checked"<?php } ?>>
 					<?php label(translate('nest_content_menu_paint_raw'), $prefix.'_paint_with_0', 'style="display: inline-block; margin-bottom: 5px;"'); ?>
 					<br />
-					<input name="<?php echo $prefix ?>_paint_with" id="<?php echo $prefix ?>_paint_with_1" type="radio" value="default" <?php if ($paint_with == 'default') { ?>checked="checked"<?php } ?>> 
+					<input name="<?php echo $prefix ?>_paint_with" id="<?php echo $prefix ?>_paint_with_1" type="radio" value="default" <?php if ($paint_with == 'default') { ?>checked="checked"<?php } ?>>
 					<?php label(translate('nest_content_menu_paint_default'), $prefix.'_paint_with_1'); ?>
 					<br />
 					<input name="<?php echo $prefix ?>_paint_with" id="<?php echo $prefix ?>_paint_with_2" type="radio" value="arbitrary" <?php if ($paint_with == 'arbitrary') { ?>checked="checked"<?php } ?>>

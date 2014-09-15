@@ -93,9 +93,9 @@ class Cron_Job_Future_Status extends Cron_Job
 		if (is_null($asset)) {
 			return translate('cron_job_asset_less_future_status');
 		} else if ($short_name) {
-			return translate('cron_fs_for', translate('asset_format', $asset->short_name, $asset->id));
+			return sprintf(translate('cron_fs_for'), sprintf(translate('asset_format'), $asset->short_name, $asset->id));
 		} else {
-			return translate('cron_future_status_for', translate('asset_format', $asset->name, $asset->id));
+			return sprintf(translate('cron_future_status_for'), sprintf(translate('asset_format'), $asset->name, $asset->id));
 		}
 
 	}//end _getName()
@@ -329,7 +329,7 @@ class Cron_Job_Future_Status extends Cron_Job
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 			if (empty($status_errors)) {
 				// all OK, and we can be removed because we have done our one off task
-				$msg = translate('cron_altered_asset_status', translate('asset_format', $asset->name, $asset->id), get_status_description($old_status), $this->statusName());
+				$msg = sprintf(translate('cron_altered_asset_status'), sprintf(translate('asset_format'), $asset->name, $asset->id), get_status_description($old_status), $this->statusName());
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed

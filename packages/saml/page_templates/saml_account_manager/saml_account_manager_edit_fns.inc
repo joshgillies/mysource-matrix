@@ -39,9 +39,9 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		parent::__construct();
 	}//end constructor
-	
-	
-	
+
+
+
 	/**
 	* Paint the interface to display if simplesamlphp lib is installed
 	*
@@ -62,8 +62,8 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		}//end if
 
 	}//end paintSimplesamlphpInstall()
-	
-	
+
+
 	/**
 	* Paint the interface for choosing authSource defined in simplesamlphp library
 	*
@@ -83,17 +83,17 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			foreach ($config as $name => $value) {
 			    $options[$name] = $name;
 			}
-				
+
 			if (!$asset->writeAccess('attributes')) {
 			    echo $options[$asset->attr('auth_source')];
-			} else {	
+			} else {
 				combo_box($prefix.'_auth_source', $options, FALSE, $asset->attr('auth_source'));
 			}
-		} 
+		}
 
 	}//end paintAuthSource()
-	
-	
+
+
 	/**
 	* Process the interface of setting authSource
 	*
@@ -115,7 +115,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return FALSE;
 
 	}//end processAuthSource()
-	
+
 	/**
 	* Paint the SP metadata download URL
 	*
@@ -133,7 +133,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			 echo '<a href="'.$url.'?showMetadata">'.$url.'?showMetadata'.'</a>';
 		}
 	}
-	
+
 		/**
 	* Paint the SP metadata download URL
 	*
@@ -152,8 +152,8 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		       echo ($acs_asset->getUrl());
 		   }
 	}
-	
-	
+
+
 	/**
 	* Paint the SP metadata download URL
 	*
@@ -172,9 +172,9 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			echo ($sls_asset->getUrl());
 		   }
 	}
-	
-	
-	
+
+
+
 
 	/**
 	* Paint the interface for selecting the asset to redirect to
@@ -230,9 +230,9 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return $asset->setRedirectAsset($redirect_asset);
 
 	}//end processRedirectAssetid()
-	
-	
-	
+
+
+
 	/**
 	* Paint the interface for choosing the user type that is created
 	*
@@ -288,9 +288,9 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return FALSE;
 
 	}//end processAddCreateType()
-	
-	
-	
+
+
+
 	/**
 	* Paints the interface for choosing create types whose form should be customised
 	*
@@ -337,9 +337,9 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end processCreateFormCustomisation()
 
-	
-	
-	
+
+
+
 	/**
 	* A tool to parse IDP XML metadata to simplesamlphp config array
 	*
@@ -378,7 +378,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			    trigger_error($e->getMessage());
 			    return TRUE;
 			}
-			
+
 			// export the config array in the simplesamlphp format
 			echo "<pre>";
 			echo ('$metadata[\''.$entity_id.'\'] = ');
@@ -394,10 +394,10 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return TRUE;
 	}//end paintParseMetadata()
 
-	
-	
-	
-	
+
+
+
+
 	/**
 	* Use extensions elements in Auth Request?
 	*
@@ -412,7 +412,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	    $use_extensions = $asset->attr('use_extensions');
 	    return ($use_extensions);
 	} // end use_extensions()
-	
+
 	/**
 	* Does SAML user id exist in  returned user attributes?
 	*
@@ -427,9 +427,9 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	    $location = $asset->attr('saml_userid_location');
 	    return ($location == 'attribute');
 	} // end saml_userid_in_attribute()
-	
-	
-	
+
+
+
 
 
 	/**
@@ -617,7 +617,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end processPrefillFields()
 
-	
+
 
 	/**
 	* Paint the interface for syncing attributes from user profile api response

@@ -41,7 +41,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 		parent::__construct($assetid);
 	}//end constructor
 
-	
+
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
@@ -58,7 +58,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 		$type_codes = Array(
 								'user_group' => 'D',
 							);
-		
+
 		// buffer the user group asset chooser
 		ob_start();
 		$user_group_to_join = isset($settings['user_group_to_join']) ? $settings['user_group_to_join'] : '';
@@ -80,8 +80,8 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 				echo '<strong>'.htmlspecialchars($keyword_target_groupid).'</strong>';;
 			}
 		$keyword_target_groupid_input = ob_get_clean();
-		
-		
+
+
 		//  remove all other joined session groups
 		ob_start();
 			$leave_other_groups = isset($settings['leave_other_groups']) ? $settings['leave_other_groups'] : '';
@@ -96,12 +96,12 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 		$leave_other_groups_input = ob_get_clean();
 
 		// display both the asset chooser and the text box
-		$output = translate('trigger_join_user_for_session', $user_group_input, $keyword_target_groupid_input, $leave_other_groups_input);
+		$output = sprintf(translate('trigger_join_user_for_session'), $user_group_input, $keyword_target_groupid_input, $leave_other_groups_input);
 
 		return $output;
 
 	}//end getInterface()
-	
+
 
 	/**
 	* Function that handles the conversion of interface to settings
@@ -145,7 +145,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 
 		// the group id set in asset finder has the precedence
 		$value = @$settings['user_group_to_join'];
-		
+
 		// if we don't have a group id in asset finder, see if we have something in the text box
 		if (empty($value)) {
 			$value = @$settings['keyword_target_groupid'];
@@ -160,7 +160,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 					$replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
 				}
 				replace_keywords($value, $replacements);
-			
+
 				// we only allow an id of a User Group asset
 				if (!is_numeric($value)) return FALSE;
 				$user_group = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);

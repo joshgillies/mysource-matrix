@@ -93,9 +93,9 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 		if (is_null($asset)) {
 			return translate('cron_job_assetless_attempt_safe_trash');
 		} else if ($short_name) {
-			return translate('cron_safe_trash_for', translate('asset_format', $asset->short_name, $asset->id));
+			return sprintf(translate('cron_safe_trash_for'), sprintf(translate('asset_format'), $asset->short_name, $asset->id));
 		} else {
-			return translate('cron_attempt_safe_trash_for', translate('asset_format', $asset->name, $asset->id));
+			return sprintf(translate('cron_attempt_safe_trash_for'), sprintf(translate('asset_format'), $asset->name, $asset->id));
 		}
 
 	}//end _getName()

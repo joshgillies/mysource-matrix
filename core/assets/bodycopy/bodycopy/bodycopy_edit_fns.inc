@@ -86,7 +86,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			} else {
 				if (!$mute_errors) {
-					$o->note(translate('bodycopy_asset_has_no_design', $GLOBALS['sq_preview_url']));
+					$o->note(sprintf(translate('bodycopy_asset_has_no_design'), $GLOBALS['sq_preview_url']));
 				}
 			}
 		} else {

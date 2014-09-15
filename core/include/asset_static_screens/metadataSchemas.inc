@@ -133,7 +133,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 	ksort($direct);
 
 
-	
+
 	$o->openSection('Existing Schemas');
 		$o->openRaw();
 			if (empty($direct)) {
@@ -227,7 +227,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 		if (count($kiddies)) {
 			$o->openSection(translate('cascade_options'));
 				$o->openField(translate('cascade_options'));
-					echo '<p><strong>'.translate('note').':</strong> '.translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
+					echo '<p><strong>'.translate('note').':</strong> '.sprintf(translate('action_affects_assets_below_this'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
 					check_box($prefix.'_metadata[cascade_changes]', '1', TRUE);
 					label(translate('cascade_schema_changes'), $prefix.'_metadata[cascade_changes]');
 					echo '<br/>';
@@ -259,7 +259,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 {
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 		exit();
 	}
 
@@ -279,14 +279,14 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 
 	$schema_vars = Array();
 	$post_data = $_POST[$prefix.'_metadata'];
-	
+
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
 			trigger_localised_error('SYS0268', E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
 		} else {
 			// Only cascade changes to lower assets if "cascade to new assets"
-			// is set.			
+			// is set.
 			if ($cascade_changes && isset($post_data['new']['cascades'])) {
 				// cascading access of some kind, so queue it up for the HIPO
 				$schema_vars[] = Array(

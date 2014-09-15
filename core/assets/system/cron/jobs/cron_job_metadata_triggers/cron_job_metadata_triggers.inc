@@ -86,7 +86,7 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 
 	}//end create()
 
-	
+
 	/**
 	* Can this asset have its last significant link removed (putting it in the trash)?
 	*
@@ -100,8 +100,8 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
+
+
 	/**
 	* Returns name of the asset
 	*
@@ -155,7 +155,7 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 		$ret = SQ_CRON_JOB_COMPLETED;
 
 		$db = $GLOBALS['SQ_SYSTEM']->db;
-		
+
 		// work out min date - if 'use_cron_last_run' is true, use cron manager's last run as min date here
 		// otherwise use 'ignore_date' attribute value
 		if ($this->Attr('use_cron_last_run')) {
@@ -179,7 +179,7 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 		$triggers = $tm->getTriggerList();
 		foreach ($triggers as $trigger_info) {
 			$trigger = $tm->getTrigger($trigger_info['id']);
-			// we would like to know the field id of metadata specified in active triggers that use metadata time event 
+			// we would like to know the field id of metadata specified in active triggers that use metadata time event
 			if ($trigger['active'] && !empty($trigger['data']['events']['trigger_event_metadata_time'])) {
 				foreach ($trigger['data']['conditions'] as $trigger_condition) {
 					if ($trigger_condition['type'] == 'trigger_condition_metadata_time') {

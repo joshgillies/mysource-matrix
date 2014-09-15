@@ -1088,7 +1088,7 @@ class HIPO_Job extends MySource_Object
 
 			$o->openSection($this->getHipoName());
 				$o->openField('&nbsp;');
-				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], translate('hipo_progress', $this->getHipoName()).' - '.$status_msg);
+				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], sprintf(translate('hipo_progress'), $this->getHipoName()).' - '.$status_msg);
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -1542,8 +1542,8 @@ class HIPO_Job extends MySource_Object
 			<table class="sq-standalone-table">
 				<tr class="sq-standalone-header">
 					<td colspan="2">
-						<?php echo translate('hipo_error_report', $this->getHipoName());?> 
-						<span><?php echo translate('hipo_herder_completion', (!$this->complete()) ? translate('not') : ''); ?></span>
+						<?php echo sprintf(translate('hipo_error_report'), $this->getHipoName());?>
+						<span><?php echo sprintf(translate('hipo_herder_completion'), (!$this->complete()) ? translate('not') : ''); ?></span>
 					</td>
 				</tr>
 				<tr class="sq-standalone-body">

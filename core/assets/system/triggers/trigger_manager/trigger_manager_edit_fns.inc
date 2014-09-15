@@ -197,14 +197,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->openField(translate('trigger_ids'));
 			multiple_asset_finder($prefix.'[trigger_ids]', array_get_index($this->_tmp, 'trigger_ids', Array()), Array('trigger' => 'I'));
 			$o->note(translate('trigger_ids_note'));
-			
+
 			$o->openField(translate('target_node'));
 			asset_finder($prefix.'[target_node]', array_get_index($this->_tmp, 'target_id'));
-			
+
 			$o->openField(translate('children'));
 			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', TRUE));
 			label(translate('include_children_question'), $prefix.'[include_children]');
-			
+
 			$o->openField(translate('events'));
 			$event_type_list = $tm->_getEventList();
 			$events = array_get_index($this->_tmp, 'selected_events');
@@ -248,7 +248,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$target_node = array_get_index($request_data, 'target_node');
 		$target_id   = array_get_index($target_node,  'assetid');
-		
+
 		$triggers = array_get_index($request_data, 'trigger_ids');
 		$trigger_ids = Array();
 		foreach ($triggers as $trigger_id) {
@@ -256,7 +256,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				$trigger_ids[] = substr($trigger_id['assetid'], strpos($trigger_id['assetid'], ':') + 1);
 			}
 		}
-		
+
 		$events      = array_get_index($request_data, 'selected_events', Array());
 		$propagate   = isset($request_data['include_children']);
 

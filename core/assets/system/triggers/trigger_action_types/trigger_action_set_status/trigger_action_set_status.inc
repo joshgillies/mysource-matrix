@@ -176,7 +176,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 		ob_end_clean();
 
 
-		return '<div class="sq-break-line-inputs">'.translate('trigger_set_status', $basic_part_1).'</div>'.$basic_part_2.'<br/>'.translate('trigger_set_status_dependant_parents_note');
+		return '<div class="sq-break-line-inputs">'.sprintf(translate('trigger_set_status'), $basic_part_1).'</div>'.$basic_part_2.'<br/>'.translate('trigger_set_status_dependant_parents_note');
 
 	}//end getInterface()
 

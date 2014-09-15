@@ -177,8 +177,8 @@ class Form_Ecommerce extends Form_Email
 		}
 
 	}//end _isAllowedPassThroughQuestionType()
-	
-	
+
+
 	/**
 	* Return question rule for e-commerce form
 	*
@@ -259,7 +259,7 @@ class Form_Ecommerce extends Form_Email
 								if (!is_array($this->submission_errors)) $this->submission_errors = Array();
 								$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
 							}
-						}		
+						}
 					}
 
 				}
@@ -274,7 +274,7 @@ class Form_Ecommerce extends Form_Email
 			$this->extra_data = $order['submission_extra_data'];
 			$this->repopulate();
 		}
-		
+
 		$request_var_name = $this->attr('item_req_var');
 		if (empty($action) && isset($_REQUEST[$request_var_name])) {
 			$action = 'add_to_cart';
@@ -295,7 +295,7 @@ class Form_Ecommerce extends Form_Email
 					trigger_error('This item cannot be purchased', E_USER_NOTICE);
 					break;
 				}
-				
+
 				$promo_code_var_name = $this->attr('item_promo_code_req_var');
 				if (($promo_code_var_name != '') && isset($_REQUEST[$promo_code_var_name])) {
 					$this->_addAssetItemPromotionalCode($assetid, $_REQUEST[$promo_code_var_name]);
@@ -336,7 +336,7 @@ class Form_Ecommerce extends Form_Email
 				$_SESSION['SQ_ECOM_SUCCESS_URL'] = $this->getURL().'?'.$action_name.'='.$this->receipt_view;
 				$_SESSION['SQ_ECOM_CANCEL_URL'] = $this->getURL().'?'.$action_name.'='.$this->confirm_view;
 				$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
-				
+
 				//Add the pass through variables to SESSION variables
 				$pass_through_vars = $this->_getPassThroughVars();
 				if (!empty($pass_through_vars)) {
@@ -406,7 +406,7 @@ class Form_Ecommerce extends Form_Email
 					header('Location: '.$this->getUrl());
 					return TRUE;
 				}
-				
+
 
 
 				unset($_SESSION['SQ_ECOM_RESPONSE']);
@@ -422,8 +422,8 @@ class Form_Ecommerce extends Form_Email
 				// re-populate the active submissions
 				$this->repopulate();
 
-			
-				
+
+
 				// CREATE SUBMISSION
 				$this->_saveOrderAsset();
 
@@ -435,7 +435,7 @@ class Form_Ecommerce extends Form_Email
 
 				foreach ($file_uploads as $assetid => $file_upload) {
 					$extra_data = $file_upload->getExtraData();
-		
+
 					$create_location = $file_upload->attr('create_location');
 					if (empty($create_location)) {
 						if (!empty($extra_data['temp_filesystem_path'])) {
@@ -443,27 +443,27 @@ class Form_Ecommerce extends Form_Email
 							if(strpos($temp_file_path, '/') !== 0) $temp_file_path = SQ_SYSTEM_ROOT.'/'.$temp_file_path;
 							$filename   = $file_upload->getValue();
 							$perm_path  = $order_asset->data_path.'/attachments/'.str_replace(':', '_', $file_upload->id);
-		
+
 							// Move it using Fudge file_system function
 							create_directory($perm_path);
 							move_file($temp_file_path, $perm_path.'/'.$filename);
-		
+
 							// have to use relative path
 							$perm_path = str_replace(SQ_SYSTEM_ROOT.'/', '', $perm_path);
 							$extra_data = Array(
 											'filesystem_path'	=> $perm_path.'/'.$filename,
 										  );
-		
+
 							$file_upload->setExtraData($extra_data);
 							// update order asset with uploaded file path
 							$this->_saveOrderAsset();
 						}
 					} else {
-						// create a notice link so we can keep track of uploaded file						
+						// create a notice link so we can keep track of uploaded file
 						$uploaded_assetid = array_get_index($extra_data, 'existing_file_assetid', array_get_index($extra_data, 'new_file_assetid', NULL));
 						if (!empty($uploaded_assetid)) {
 							$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_assetid);
-		
+
 							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 							$order_asset->createLink($uploaded_file, SQ_LINK_NOTICE, 'file_submission');
 							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -472,9 +472,9 @@ class Form_Ecommerce extends Form_Email
 					// clean up tmp file path since it has been either imported to order asset dir or created as a file asset
 					$file_upload->cleanUp($this);
 				}
-		
-				
-		
+
+
+
 				// log order to file
 				if ($this->attr('log_to_file')) {
 					$this->_logOrderToFile();
@@ -486,7 +486,7 @@ class Form_Ecommerce extends Form_Email
 
 				// perform submission actions before showing the receipt
 				$this->performSubmissionActions(TRUE);
-				
+
 				$this->printReceiptView();
 
 				// clear the cart
@@ -497,7 +497,7 @@ class Form_Ecommerce extends Form_Email
 
 				// perform submission actions
 				$this->performSubmissionActions();
-				
+
 				return TRUE;
 
 		}//end switch
@@ -644,7 +644,7 @@ class Form_Ecommerce extends Form_Email
 		if (is_null($bodycopy)) return '';
 
 		$replacements = Array();
-		$keyword_list = $bodycopy->getKeywords();		
+		$keyword_list = $bodycopy->getKeywords();
 		if (!empty($keyword_list)) {
 			foreach ($keyword_list as $keyword) {
 				if (isset($replacements[$keyword])) continue;
@@ -658,7 +658,7 @@ class Form_Ecommerce extends Form_Email
 		// all the output is here
 		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.' '.$extra_attribute.' >';
 		echo $javascript;
-		echo hidden_field('SQ_FORM_'.$this->id.'_PAGE', 1);; 
+		echo hidden_field('SQ_FORM_'.$this->id.'_PAGE', 1);;
 		$bodycopy->printBody();
 		echo '</form>';
 
@@ -721,7 +721,7 @@ class Form_Ecommerce extends Form_Email
 				case 'response':
 					$value = $q_asset->getSummary();
 				break;
-				
+
 				case 'name':
 					$value = $q_asset->attr('name');
 				break;
@@ -1063,26 +1063,26 @@ class Form_Ecommerce extends Form_Email
 		$order->setAttrValue('billing_addr', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'BILLING_ADDR', ''));
 		$order->setAttrValue('delivery_name', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_NAME', ''));
 		$order->setAttrValue('delivery_addr', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_ADDR', ''));
-		
+
 		$order->saveAttributes();
 
 		// Link the applied promotions to the asset
-		$this->_linkPromotionAssets($order);		
-			
+		$this->_linkPromotionAssets($order);
+
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// fire trigger ecom order submitted
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order);
 
 	}//end _saveOrderAsset()
-	
-	
+
+
 	/**
 	* Link the applied promotions to the order asset
 	*
 	* @return boolean
 	* @access private
-	*/	
+	*/
 	function _linkPromotionAssets($order)
 	{
 		// Get the applied promotions
@@ -1092,7 +1092,7 @@ class Form_Ecommerce extends Form_Email
 			$order_promo_assetids = array_merge($order_promo_assetids, $promotion_assetids);
 		}
 		$order_promo_assetids = array_unique($order_promo_assetids);
-		
+
 		// Get the existing promotion links on the order
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($order->id, SQ_LINK_NOTICE, 'promotional_code', TRUE, 'minor', 'order');
 		$existing_promotions = Array();
@@ -1100,7 +1100,7 @@ class Form_Ecommerce extends Form_Email
 			$existing_promotions[$link['majorid']] = $link['linkid'];
 		}
 
-		// Link the promotions applied to the order asset		
+		// Link the promotions applied to the order asset
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
 		$success = TRUE;
 		$new_promotions = Array();
@@ -1136,7 +1136,7 @@ class Form_Ecommerce extends Form_Email
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-	
+
 	}//end _linkPromotionAssets()
 
 
@@ -1173,7 +1173,7 @@ class Form_Ecommerce extends Form_Email
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
             }
-			
+
 			// Deny public read access to the order folder by default
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			$success = $GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE, TRUE);
@@ -1183,7 +1183,7 @@ class Form_Ecommerce extends Form_Email
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-	
+
 		} else {
 			// folder already exists, get the reference
 			$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
@@ -1230,7 +1230,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		$order = $_SESSION[$this->getPrefix()]['order'];
 		if (empty($order)) return FALSE;
-		
+
 		$curr_sign = $this->attr('currency_sign');
 		if ($as_html) {
 			$receipt_fmt   = '<hr /><table class="sq_ecomTable">%s%s%s</table><hr />';
@@ -1252,7 +1252,7 @@ class Form_Ecommerce extends Form_Email
 		}
 
 		$rows .= $divider_row;
-		
+
 		$total_discount = '';
 		if ($order['total_discount'] > 0) {
 			$total_discount = sprintf($total_discount_row_fmt, translate('ecom_form_total_discount:'), $order['total_discount']);
@@ -1294,13 +1294,13 @@ class Form_Ecommerce extends Form_Email
 			$asset = $am->getAsset($asset_id);
 			$name = $this->_getPurchasableAssetName($asset);
 			$price = $this->_getPurchasableAssetPrice($asset);
-			
+
 			// process promotional codes
 			$discount = 0;
 			if (isset($promo_codes_in_cart[$asset_id])) {
 				$discount = Ecommerce_Common::getPromotionalDiscount($promo_codes_in_cart[$asset_id], $price, $count);
 			}
-			
+
 			if ($count > 1) {
 				$name = $count.' x '.$name.' @'.$price;
 				$price = $price * $count;
@@ -1722,8 +1722,8 @@ class Form_Ecommerce extends Form_Email
 		return $total;
 
 	}//end getOrderTotalKeywordReplacement()
-	
-	
+
+
 	/**
 	* Order Total Discount keyword replacement
 	*
@@ -1738,8 +1738,8 @@ class Form_Ecommerce extends Form_Email
 		return $total_discount;
 
 	}//end getOrderTotalDiscountKeywordReplacement()
-	
-	
+
+
 	/**
 	* Order Total Before Discount keyword replacement
 	*
@@ -1756,7 +1756,7 @@ class Form_Ecommerce extends Form_Email
 		return $total_before_discount;
 
 	}//end getOrderTotalBeforeDiscountKeywordReplacement()
-	
+
 
 
 	/**
@@ -1969,8 +1969,8 @@ class Form_Ecommerce extends Form_Email
 		return $this->attr('item_taxable_string');
 
 	}//end getTaxableItemStringKeywordReplacement()
-	
-	
+
+
 	/**
 	* Currency Sign keyword replacement
 	*
@@ -2061,8 +2061,8 @@ class Form_Ecommerce extends Form_Email
 		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'CARDNO', '');
 
 	}//end getTransactionCardNumberKeywordReplacement()
-	
-	
+
+
 	/**
 	* Transaction Billing Name keyword replacement
 	*
@@ -2074,8 +2074,8 @@ class Form_Ecommerce extends Form_Email
 		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'BILLING_NAME', '');
 
 	}//end getTransactionBillingNameKeywordReplacement()
-	
-	
+
+
 	/**
 	* Transaction Billing Address keyword replacement
 	*
@@ -2087,8 +2087,8 @@ class Form_Ecommerce extends Form_Email
 		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'BILLING_ADDR', '');
 
 	}//end getTransactionBillingAddressKeywordReplacement()
-	
-	
+
+
 	/**
 	* Transaction Delivery Name keyword replacement
 	*
@@ -2100,8 +2100,8 @@ class Form_Ecommerce extends Form_Email
 		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_NAME', '');
 
 	}//end getTransactionDeliveryNameKeywordReplacement()
-	
-	
+
+
 	/**
 	* Transaction Delivery Address keyword replacement
 	*
@@ -2223,8 +2223,8 @@ class Form_Ecommerce extends Form_Email
 		return TRUE;
 
 	}//end _addAssetItem()
-	
-	
+
+
 	/**
 	* Get the list of promotional code assets on order
 	*
@@ -2237,9 +2237,9 @@ class Form_Ecommerce extends Form_Email
 		if (is_null($promo_codes_in_cart)) {
 			$promo_codes_in_cart = Array();
 		}
-		
+
 		return $promo_codes_in_cart;
-		
+
 	}//end _getAssetItemPromotionalCodes()
 
 
@@ -2252,10 +2252,10 @@ class Form_Ecommerce extends Form_Email
 	function _clearAssetItemPromotionalCodes()
 	{
 		$_SESSION[$this->getPrefix()]['promo_code_assets'] = Array();
-		
+
 	}//end _clearAssetItemPromotionalCodes()
-	
-	
+
+
 	/**
 	* Adds a promotional code asset ID to a purchasable asset
 	*
@@ -2268,7 +2268,7 @@ class Form_Ecommerce extends Form_Email
 	function _addAssetItemPromotionalCode($assetid, $promo_code)
 	{
 		if (trim($promo_code) == '') return;
-		
+
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return;
 
@@ -2276,9 +2276,9 @@ class Form_Ecommerce extends Form_Email
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			return;
 		}
-		
+
 		$promo_code_assets = Ecommerce_Common::getPromotionalCodeAssetIds($asset->id, $promo_code);
-		
+
 		if (!empty($promo_code_assets)) {
 			// Reset the promo code asset list because _addAssetItem() method also reset the asset list
 			// A new array 'promo_code_assets' is created instead of using the 'assets' array
@@ -2286,12 +2286,12 @@ class Form_Ecommerce extends Form_Email
 			$_SESSION[$this->getPrefix()]['promo_code_assets'] = Array();
 			$_SESSION[$this->getPrefix()]['promo_code_assets'][$assetid] = $promo_code_assets;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-		
+
 	}//end _addAssetItemPromotionalCode()
-	
-	
+
+
 	/**
 	* Get the total in current order
 	*
@@ -2308,8 +2308,8 @@ class Form_Ecommerce extends Form_Email
 		return $total;
 
 	}//end _getTotal()
-	
-	
+
+
 	/**
 	* Get the total discount in current order
 	*
@@ -2319,11 +2319,11 @@ class Form_Ecommerce extends Form_Email
 	function _getTotalDiscount()
 	{
 		$total_discount = 0;
-		
+
 		if (isset($_SESSION[$this->getPrefix()]['order']['total_discount'])) {
 			$total_discount = $_SESSION[$this->getPrefix()]['order']['total_discount'];
 		}
-		
+
 		return $total_discount;
 
 	}//end _getTotalDiscount()
@@ -2454,7 +2454,7 @@ class Form_Ecommerce extends Form_Email
 		if (empty($var_rules)) {
 			return $key_val_arr;
 		}
-		
+
 		$questions =& $this->getAllQuestionAssets();
 		foreach ($questions as $q_id => $question) {
 			if (key_exists($q_id, $var_rules)) {
@@ -2463,7 +2463,7 @@ class Form_Ecommerce extends Form_Email
 				if (trim($key) == '') {
 					continue;
 				}
-				
+
 				$val = '';
 				if (!($question instanceof Form_Question_Type_Country) && $question->isSelection()) {
 					$options = array_get_index($var_rule, 'value', Array());
@@ -2477,16 +2477,16 @@ class Form_Ecommerce extends Form_Email
 				} else {
 					$val = $this->current_answers[$q_id];
 				}
-				
+
 				$key_val_arr[$key] = $val;
 			}//end if
 		}//end for
-		
+
 		return $key_val_arr;
 
 	}//end _getPassThroughVars()
-	
-	
+
+
 	/**
 	* True if passed asset is purchasable
 	*
@@ -2539,8 +2539,8 @@ class Form_Ecommerce extends Form_Email
 		return $check_string !== '';
 
 	}//end _isPurchasableAssetQuantityAllowed()
-	
-	
+
+
 	/**
 	* True if the passed asset is promotable
 	*
@@ -2557,8 +2557,8 @@ class Form_Ecommerce extends Form_Email
 		return (boolean) $check_string;
 
 	}//end _isPurchasableAssetPromotable()
-	
-	
+
+
 	/**
 	* Format price amount with 2 decimals
 	*

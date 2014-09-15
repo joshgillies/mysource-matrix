@@ -51,16 +51,16 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 	$sql = 'SELECT sq_rb_ast.sq_eff_from as efrom, sq_rb_ast.sq_eff_to as eto, sq_rb_ast.version, sq_ast.name as updated_username, sq_rb_ast.updated_userid as updated_userid
 			FROM
 			    sq_rb_ast
-			
+
 			LEFT JOIN sq_ast ON sq_rb_ast.updated_userid = sq_ast.assetid
 			WHERE
 			(
 			    sq_rb_ast.assetid = (:assetid)
 			)
-			
+
 			ORDER BY sq_rb_ast.sq_eff_from  DESC
 			';
-	
+
 	try {
 		$assetid = $owner->id;
 		$query = MatrixDAL::preparePdoQuery($sql);
@@ -74,7 +74,7 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 		$o->openRaw();
 
 			if (SQ_ROLLBACK_VIEW) {
-				?><p class="sq-backend-data"><b><i><?php echo translate('history_viewed_row', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></i></b></p>
+				?><p class="sq-backend-data"><b><i><?php echo sprintf(translate('history_viewed_row'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></i></b></p>
 				<?php
 			}
 
@@ -102,7 +102,7 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 					$to   = $data['eto'];
 					$updated_username = $data['updated_username'];
 					$updated_userid = $data['updated_userid'];
-					
+
 					$class = 'sq-backend-table-cell';
 					$show_view_btn = TRUE;
 					if (SQ_ROLLBACK_VIEW) {

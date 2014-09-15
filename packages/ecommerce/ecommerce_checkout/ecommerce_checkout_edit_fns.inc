@@ -416,7 +416,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return $this->_paintFieldSelector($asset, 'item_weight');
 
 	}//end paintProductWeightSource()
-	
+
 
 	/**
 	* Processes selector for a metadata field or an asset attribute
@@ -688,7 +688,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end paintCountryDeliveryWeightFees()
-	
+
 
 	/**
 	* Processes interface for specifying country delivery weight fees
@@ -743,7 +743,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end paintInternationalDeliveryFeeExempt()
-	
+
 
 	/**
 	* Processes country select box for international delivery fees
@@ -896,7 +896,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end paintConditionalDeliveryFee()
-	
+
 
 	/**
 	* Processes interface to add additional, conditional delivery fees
@@ -995,7 +995,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return $wa;
 
 	}//end processCustomiseReceipt()
-	
+
 
 	//--  CHECKOUT COMPLETION ACTIONS        --//
 
@@ -1261,7 +1261,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	*/
 	public function paintSelectedAction($asset, Backend_Outputter $o, $prefix)
-	{	
+	{
 		$write_access = $asset->writeAccess('attributes');
 		$selected_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
 		if (!is_numeric($selected_action)) {
@@ -1315,7 +1315,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 
 	}//end paintSelectedAction()
 
-	
+
 	/**
 	* Paints the interface for choosing an asset type.
 	*
@@ -1366,7 +1366,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	*/
 	public function processSelectedAction($asset, Backend_Outputter $o, $prefix)
-	{	
+	{
 		$write_access = $asset->writeAccess('attributes');
 		$actions = $asset->attr('actions');
 		$result = FALSE;
@@ -1456,7 +1456,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 
 		return $name;
 
-	}//end _makeValidActionName()	
+	}//end _makeValidActionName()
 
 
 }//end class

@@ -81,7 +81,7 @@ class Page_Remote_Content extends Page
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printFrontend');
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}
 

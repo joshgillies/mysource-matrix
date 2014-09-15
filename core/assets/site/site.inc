@@ -324,7 +324,7 @@ class Site extends Folder
 					return FALSE;
 				   }
 				}
-				
+
 				// we are a new one
 				$curr_urlid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_url_seq'));
 
@@ -533,7 +533,7 @@ class Site extends Folder
 		}
 		unset($link);
 		unset($our_layout_links);
-		
+
 		// edit layouts applied to the asset
 		$edit_layouts = Array();
 		foreach($our_edit_layouts as $layout_url => $layouts) {
@@ -543,7 +543,7 @@ class Site extends Folder
 				}//end if
 			}//end foreach
 		}//end foreach
-		unset($our_edit_layouts);		
+		unset($our_edit_layouts);
 
 		$urls = $this->getSiteURLs();
 		$current_urls = Array();
@@ -567,7 +567,7 @@ class Site extends Folder
 				// insert an entry so override paint layout values are also checked even if we don't have an override design set
 				$lookup_values[$urls[$urlid]['url'].'/'] = '';
 			}
-			
+
 			// merge in edit layout lookup values
 			foreach($edit_layouts as $layout_name => $value) {
 				if (!isset($lookup_values[$urls[$urlid]['url']][$layout_name])) {
@@ -611,13 +611,13 @@ class Site extends Folder
 
 			// merge in asset based paint layout values if they do not already exist
 			foreach ($lookup_values as $url => $data) {
-				
+
 				//Bug #5251, filter out lookup values for old urls
 				if (!in_array(rtrim($url, '/'), $current_urls)) {
 					unset($lookup_values[$url]);
 					continue;
 				}
-				
+
 				if (preg_match('/.+\/$/', $url)) {
 					// override layout
 					foreach ($override_paint_layouts as $name => $value) {
@@ -725,7 +725,7 @@ class Site extends Folder
 	{
 		// check that the user has read access to the site
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}
 
@@ -787,7 +787,7 @@ class Site extends Folder
 
 		// check that the user has read access to the index page
 		if (!$asset->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}
 
@@ -800,7 +800,7 @@ class Site extends Folder
 		if ($asset->languages) {
 			header("Content-language: $this->languages");
 		}
-		
+
 		// Validate the overriding design, if any
 		if (!is_null($design)) {
 			$design_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($design->id, Array('design'), FALSE);
@@ -863,7 +863,7 @@ class Site extends Folder
 		    $cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		    $cm->global_cache = TRUE;
 		}
-		
+
 		if (!is_null($design)) {
 			if (SQ_IN_LIMBO) {
 				$this->printFrontendAsset($this, $design);
@@ -889,7 +889,7 @@ class Site extends Folder
 			// we can't find a design, oh well let's just print out our body
 			$asset->printBody();
 		}
-		
+
 		if($this->attr('not_found_page_cache_globally') === TRUE) {
 		      $cm->global_cache = FALSE;
 		}

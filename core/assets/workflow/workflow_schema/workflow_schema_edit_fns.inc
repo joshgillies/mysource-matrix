@@ -91,7 +91,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			$string .= '<ul>';
 			foreach ($rules as $rule) {
 				$string .= '<li>';
-				$string .= translate('stream_selection_rule_description', $rule['keyword'], $rule['pattern']);
+				$string .= sprintf(translate('stream_selection_rule_description'), $rule['keyword'], $rule['pattern']);
 				$string .= '</li>';
 			}
 			$string .= '</ul>';
@@ -220,9 +220,9 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						if ($expiry > 0) {
 							if ($step_asset->attr('escalate')) {
 								$esc_links = array_reverse($GLOBALS['SQ_SYSTEM']->am->getLinks($step_assetid, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE));
-								echo translate('workflow_stream_escalation_msg', $expiry_text, count($esc_links));
+								echo sprintf(translate('workflow_stream_escalation_msg'), $expiry_text, count($esc_links));
 							} else {
-								echo translate('workflow_stream_reminder_sent_msg', $expiry_text);
+								echo sprintf(translate('workflow_stream_reminder_sent_msg'), $expiry_text);
 							}
 						}
 
@@ -518,7 +518,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						?>
 						<tr>
 							<td class="sq-backend-table-cell">
-								<?php 
+								<?php
 									get_asset_type_icon($asset_type);
 									echo ucfirst(str_replace('_', ' ', $asset_type));
 								?>
@@ -774,11 +774,11 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			$page_num = min($page_num, $num_pages);
 
 			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
+				$page_tag = sprintf(translate('page_number'), $page_num, $num_pages);
 			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+				$page_tag = sprintf(translate('page_number_with_pager'), $page_num, $num_pages, $prefix.'_usage_page');
 			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
+			$asset_count_tag = sprintf(translate('item_range'), ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
 
 			$tree_tops = array_slice($tree_tops, ($page_num - 1) * $page_size, $page_size);
 
@@ -836,7 +836,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						$tag_line = get_asset_tag_line($tree_info['assetid'], 'details');
 
 						echo ($tree_info['depth'] === 0 ? '' : '<span style="padding-left: '.($tree_info['depth']*5).'ex">');
-						echo translate('asset_and_child_count_0', $tag_line);
+						echo sprintf(translate('asset_and_child_count_0'), $tag_line);
 						echo ($tree_info['depth'] === 0 ? '' : '</span>');
 
 						?></td>

@@ -41,8 +41,8 @@ class Paypal_Configuration_Edit_Fns extends Asset_Edit_Fns
 		parent::__construct();
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Paint the interface for Paypal Encryption Library Path
 	*
@@ -56,7 +56,7 @@ class Paypal_Configuration_Edit_Fns extends Asset_Edit_Fns
 	function paintEncryptionLibPath(&$asset, &$o, $prefix)
 	{
 		$current_path = $asset->attr('encryption_lib_path');
-		
+
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.'_encryption_lib_path', $current_path, 80);
 		} else {
@@ -66,9 +66,9 @@ class Paypal_Configuration_Edit_Fns extends Asset_Edit_Fns
 				echo '<b>'.$current_path.'</b>';
 			}
 		}
-		
+
 		if (!is_file($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Paypal Encryption Library'); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('path_to_not_valid'), 'Paypal Encryption Library'); ?></span><?php
 		} else {
 			include_once $current_path;
 			if (!class_exists('PPCrypto')) {
@@ -79,9 +79,9 @@ class Paypal_Configuration_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 		}//end if
-		
+
 		return TRUE;
-		
+
 	}//end paintEncryptionLibPath()
 
 
@@ -99,9 +99,9 @@ class Paypal_Configuration_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (!isset($_POST[$prefix.'_encryption_lib_path'])) return FALSE;
-		
+
 		return $asset->setAttrValue('encryption_lib_path', trim($_POST[$prefix.'_encryption_lib_path']));
-		
+
 	}//end processEncryptionLibPath()
 
 

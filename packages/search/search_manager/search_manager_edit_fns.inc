@@ -1077,7 +1077,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @access private
 	*/
 	function _processMetadataWeights($prefix, &$weights)
-	{	
+	{
 		// information about already added metadata assets
 		$metadata_assets = array_get_index($_POST, $prefix.'_metadata_assets', Array());
 
@@ -1354,20 +1354,20 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $owner->attr('indexing');
 
 	}//end indexingOn()
-	
-	
+
+
 	/**
 	 * Determine whether we are using the interface "Go" buttons.
-	 * 
+	 *
 	 * @param string $prefix
 	 */
 	private function _usingGoButton($prefix)
 	{
 		$tree_type_go = array_get_index($_POST, $prefix.'_selected_tree_type_go', FALSE);
 		$type_code_go = array_get_index($_POST, $prefix.'_selected_type_code_go', FALSE);
-		
+
 		return ($tree_type_go !== FALSE || $type_code_go !== FALSE);
-	
+
 	}// end _usingGoButton()
 
 

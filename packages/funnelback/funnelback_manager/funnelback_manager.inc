@@ -18,9 +18,9 @@
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
-* Funnelback_Manager 
+* Funnelback_Manager
 *
-* Controls the OEM version of Funnelback. Also maintains a database of sitemap XML cache used so far exclusively for Funnelback. 
+* Controls the OEM version of Funnelback. Also maintains a database of sitemap XML cache used so far exclusively for Funnelback.
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
@@ -334,7 +334,7 @@ class Funnelback_Manager extends Asset
 
 
 	/**
-	* Asset has been changed in some way, update the funnelback table to suit 
+	* Asset has been changed in some way, update the funnelback table to suit
 	*
 	* @param object	&$asset	the asset to update
 	* @param array	$vars	the components to update
@@ -381,7 +381,7 @@ class Funnelback_Manager extends Asset
 		if (in_array($asset_type, $excluded_types)) {
 			return $this->_cleanupEntriesByAssetid($asset->id);
 		}//end if
-		
+
 		// Exclude By Root Node
 		if (!empty($excluded_nodes)) {
 			if ($GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($asset->id, $excluded_nodes)) {
@@ -799,7 +799,7 @@ class Funnelback_Manager extends Asset
 				$root_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($suburl);
 				$root_url = array_get_index($root_url_info, 'url', '');
 				$assetid = array_get_index($root_url_info, 'assetid', $assetid);
-				
+
 				// If the collection is not site, include the collection asset as well
 				$bind_vars['asset_url'.$index] = $single_url;
 				$include_collection_sql = ' OR f.url LIKE :asset_url'.$index;
@@ -835,16 +835,16 @@ class Funnelback_Manager extends Asset
 
 		$db = MatrixDAL::getDb();
 		try {
-			if (MatrixDAL::getDbType() == 'pgsql') { 
-				$sql = 'SELECT DISTINCT f.url, f.xml 
-						 FROM sq_fnb_idx f 
-						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
+			if (MatrixDAL::getDbType() == 'pgsql') {
+				$sql = 'SELECT DISTINCT f.url, f.xml
+						 FROM sq_fnb_idx f
+						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid
 							WHERE l.is_dependant=:dependant';
 			} else {
 				// Oracle fun n games
 				$sql = 'SELECT f.url, f.assetid, f.root_url, f.xml
-						 FROM sq_fnb_idx f 
-						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
+						 FROM sq_fnb_idx f
+						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid
 							WHERE l.is_dependant=:dependant';
 			}//end if
 
@@ -1116,7 +1116,7 @@ class Funnelback_Manager extends Asset
 			case 'fluster':
 			case 'fluster.cfg':
 			case 'contextual_navigation.cfg':
-				$default_file = $this->getFunnelbackPath().'/conf/contextual_navigation.cfg'; 
+				$default_file = $this->getFunnelbackPath().'/conf/contextual_navigation.cfg';
 				if (file_exists($default_file) && !file_exists($file)) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					copy_file($default_file, $file);
@@ -1173,7 +1173,7 @@ class Funnelback_Manager extends Asset
 
 
 	/**
-	* Get the indexing options 
+	* Get the indexing options
 	*
 	* @return array
 	* @access public
@@ -1645,68 +1645,68 @@ class Funnelback_Manager extends Asset
 	{
 		return Array(
 					// ''=> 'Anywhere',						// DISABLED until tested properly
-					'a'	=> translate('fb_mclass', 'a'),		// Author
-					'b'	=> translate('fb_mclass', 'b'),		// Rights
-					'c'	=> translate('fb_mclass', 'c'),		// Description
-					'd'	=> translate('fb_mclass', 'd'),		// Date
-					'e'	=> translate('fb_mclass', 'e'),		// Type
-					'f'	=> translate('fb_mclass', 'f'),		// Format
-					'g'	=> translate('fb_mclass', 'g'),		// Relation
-					'h'	=> translate('fb_mclass', 'h'),		// Outgoing Links
-					'i'	=> translate('fb_mclass', 'i'),		// Images
-					'j'	=> translate('fb_mclass', 'j'),		// Availability
-					'k'	=> translate('fb_mclass', 'k'),		// Anchor Text
-					'l'	=> translate('fb_mclass', 'l'),		// Language
-					'm'	=> translate('fb_mclass', 'm'),		// Mailto references
-					'n'	=> translate('fb_mclass', 'n'),		// Source
-					'o'	=> translate('fb_mclass', 'o'),		// Coverage
-					'p'	=> translate('fb_mclass', 'p'),		// Publisher
-					'q'	=> translate('fb_mclass', 'q'),		// Function
-					'r'	=> translate('fb_mclass', 'r'),		// Recipients
-					's'	=> translate('fb_mclass', 's'),		// Subject/Keywords
-					't'	=> translate('fb_mclass', 't'),		// Title
-					'u'	=> translate('fb_mclass', 'u'),		// Hostname part of URL
-					'v'	=> translate('fb_mclass', 'v'),		// Filename part of URL
-					'w'	=> translate('fb_mclass', 'w'),
-					'x'	=> translate('fb_mclass', 'x'),
-					'y'	=> translate('fb_mclass', 'y'),
-					'z'	=> translate('fb_mclass', 'z'),
-					'A'	=> translate('fb_mclass', 'A'),
-					'B'	=> translate('fb_mclass', 'B'),
-					'C'	=> translate('fb_mclass', 'C'),
-					'D'	=> translate('fb_mclass', 'D'),
-					'E'	=> translate('fb_mclass', 'E'),
-					'F'	=> translate('fb_mclass', 'F'),
-					'G'	=> translate('fb_mclass', 'G'),
-					'H'	=> translate('fb_mclass', 'H'),
-					'I'	=> translate('fb_mclass', 'I'),
-					'J'	=> translate('fb_mclass', 'J'),
-					'K'	=> translate('fb_mclass', 'K'),		// Click Data
-					'L'	=> translate('fb_mclass', 'L'),
-					'M'	=> translate('fb_mclass', 'M'),
-					'N'	=> translate('fb_mclass', 'N'),
-					'O'	=> translate('fb_mclass', 'O'),
-					'P'	=> translate('fb_mclass', 'P'),
-					'Q'	=> translate('fb_mclass', 'Q'),
-					'R'	=> translate('fb_mclass', 'R'),
-					'S'	=> translate('fb_mclass', 'S'),		// Squiz Access keys
-					'T'	=> translate('fb_mclass', 'T'),
-					'U'	=> translate('fb_mclass', 'U'),
-					'V'	=> translate('fb_mclass', 'V'),
-					'W'	=> translate('fb_mclass', 'W'),
-					'X'	=> translate('fb_mclass', 'X'),
-					'Y'	=> translate('fb_mclass', 'Y'),
-					'Z'	=> translate('fb_mclass', 'Z'),
-					'0'	=> translate('fb_mclass', '0'),
-					'1'	=> translate('fb_mclass', '1'),
-					'2'	=> translate('fb_mclass', '2'),
-					'3'	=> translate('fb_mclass', '3'),
-					'4'	=> translate('fb_mclass', '4'),
-					'5'	=> translate('fb_mclass', '5'),
-					'6'	=> translate('fb_mclass', '6'),
-					'7'	=> translate('fb_mclass', '7'),
-					'8'	=> translate('fb_mclass', '8'),
-					'9'	=> translate('fb_mclass', '9'),
+					'a'	=> sprintf(translate('fb_mclass'), 'a'),		// Author
+					'b'	=> sprintf(translate('fb_mclass'), 'b'),		// Rights
+					'c'	=> sprintf(translate('fb_mclass'), 'c'),		// Description
+					'd'	=> sprintf(translate('fb_mclass'), 'd'),		// Date
+					'e'	=> sprintf(translate('fb_mclass'), 'e'),		// Type
+					'f'	=> sprintf(translate('fb_mclass'), 'f'),		// Format
+					'g'	=> sprintf(translate('fb_mclass'), 'g'),		// Relation
+					'h'	=> sprintf(translate('fb_mclass'), 'h'),		// Outgoing Links
+					'i'	=> sprintf(translate('fb_mclass'), 'i'),		// Images
+					'j'	=> sprintf(translate('fb_mclass'), 'j'),		// Availability
+					'k'	=> sprintf(translate('fb_mclass'), 'k'),		// Anchor Text
+					'l'	=> sprintf(translate('fb_mclass'), 'l'),		// Language
+					'm'	=> sprintf(translate('fb_mclass'), 'm'),		// Mailto references
+					'n'	=> sprintf(translate('fb_mclass'), 'n'),		// Source
+					'o'	=> sprintf(translate('fb_mclass'), 'o'),		// Coverage
+					'p'	=> sprintf(translate('fb_mclass'), 'p'),		// Publisher
+					'q'	=> sprintf(translate('fb_mclass'), 'q'),		// Function
+					'r'	=> sprintf(translate('fb_mclass'), 'r'),		// Recipients
+					's'	=> sprintf(translate('fb_mclass'), 's'),		// Subject/Keywords
+					't'	=> sprintf(translate('fb_mclass'), 't'),		// Title
+					'u'	=> sprintf(translate('fb_mclass'), 'u'),		// Hostname part of URL
+					'v'	=> sprintf(translate('fb_mclass'), 'v'),		// Filename part of URL
+					'w'	=> sprintf(translate('fb_mclass'), 'w'),
+					'x'	=> sprintf(translate('fb_mclass'), 'x'),
+					'y'	=> sprintf(translate('fb_mclass'), 'y'),
+					'z'	=> sprintf(translate('fb_mclass'), 'z'),
+					'A'	=> sprintf(translate('fb_mclass'), 'A'),
+					'B'	=> sprintf(translate('fb_mclass'), 'B'),
+					'C'	=> sprintf(translate('fb_mclass'), 'C'),
+					'D'	=> sprintf(translate('fb_mclass'), 'D'),
+					'E'	=> sprintf(translate('fb_mclass'), 'E'),
+					'F'	=> sprintf(translate('fb_mclass'), 'F'),
+					'G'	=> sprintf(translate('fb_mclass'), 'G'),
+					'H'	=> sprintf(translate('fb_mclass'), 'H'),
+					'I'	=> sprintf(translate('fb_mclass'), 'I'),
+					'J'	=> sprintf(translate('fb_mclass'), 'J'),
+					'K'	=> sprintf(translate('fb_mclass'), 'K'),		// Click Data
+					'L'	=> sprintf(translate('fb_mclass'), 'L'),
+					'M'	=> sprintf(translate('fb_mclass'), 'M'),
+					'N'	=> sprintf(translate('fb_mclass'), 'N'),
+					'O'	=> sprintf(translate('fb_mclass'), 'O'),
+					'P'	=> sprintf(translate('fb_mclass'), 'P'),
+					'Q'	=> sprintf(translate('fb_mclass'), 'Q'),
+					'R'	=> sprintf(translate('fb_mclass'), 'R'),
+					'S'	=> sprintf(translate('fb_mclass'), 'S'),		// Squiz Access keys
+					'T'	=> sprintf(translate('fb_mclass'), 'T'),
+					'U'	=> sprintf(translate('fb_mclass'), 'U'),
+					'V'	=> sprintf(translate('fb_mclass'), 'V'),
+					'W'	=> sprintf(translate('fb_mclass'), 'W'),
+					'X'	=> sprintf(translate('fb_mclass'), 'X'),
+					'Y'	=> sprintf(translate('fb_mclass'), 'Y'),
+					'Z'	=> sprintf(translate('fb_mclass'), 'Z'),
+					'0'	=> sprintf(translate('fb_mclass'), '0'),
+					'1'	=> sprintf(translate('fb_mclass'), '1'),
+					'2'	=> sprintf(translate('fb_mclass'), '2'),
+					'3'	=> sprintf(translate('fb_mclass'), '3'),
+					'4'	=> sprintf(translate('fb_mclass'), '4'),
+					'5'	=> sprintf(translate('fb_mclass'), '5'),
+					'6'	=> sprintf(translate('fb_mclass'), '6'),
+					'7'	=> sprintf(translate('fb_mclass'), '7'),
+					'8'	=> sprintf(translate('fb_mclass'), '8'),
+					'9'	=> sprintf(translate('fb_mclass'), '9'),
 			   );
 
 	}//end getMetadataAliases()

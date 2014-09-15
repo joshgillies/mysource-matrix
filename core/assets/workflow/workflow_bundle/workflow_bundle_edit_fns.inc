@@ -97,7 +97,7 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 		// do it here; do it on the Workflow screen instead
 		if ((int)$asset->status === SQ_STATUS_PENDING_APPROVAL) {
 			$need_commit = FALSE;
-			$o->note(translate('asset_currently_in_workflow', $asset->getBackendHref('workflow')));
+			$o->note(sprintf(translate('asset_currently_in_workflow'), $asset->getBackendHref('workflow')));
 		} else {
 			require_once SQ_INCLUDE_PATH.'/asset_static_screens/details.inc';
 			ob_start();
@@ -163,7 +163,7 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 								combo_box($prefix.'_change_status_stream', $options['workflow'], FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_workflow"');
 								combo_box($prefix.'_change_status_stream', $options['bypass'],   FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_bypass"');
 							$cb = ob_get_clean();
-							echo translate('workflow_stream_using_workflow_stream', $cb);
+							echo sprintf(translate('workflow_stream_using_workflow_stream'), $cb);
 						} else {
 							// Only one option; hide the stream field and chuck it into a hidden field
 							$all_options = $options['bypass'] + $options['workflow'];
@@ -206,7 +206,7 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 					echo str_replace($cascade_box, $stream_box.$cascade_box, $status_output);
 					if (isset($this->_tmp['incomplete_metadata'])) {
 						$new_status = isset($_POST[$prefix.'_change_status']) ? ' to \''.get_status_description($_POST[$prefix.'_change_status']).'\'' : '';
-						echo "<p>".translate('cannot_change_bundle_status_metadata_incomplete', $new_status);
+						echo "<p>".sprintf(translate('cannot_change_bundle_status_metadata_incomplete'), $new_status);
 						foreach (array_keys($this->_tmp['incomplete_metadata']) as $incomplete_meta_assetid) {
 							$assetinfo = get_asset_tag_line($incomplete_meta_assetid, 'metadata');
 							echo "<br />$assetinfo";
@@ -254,7 +254,7 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 				} else if ($_POST[$prefix.'_change_status'] > 0) {
 					$new_status = $_POST[$prefix.'_change_status'];
 				}
-				// before we try to change the asset status lets see if the 
+				// before we try to change the asset status lets see if the
 				// required metadata fields are set or else notify user abt it
 				$this->_checkRequiredMetadataComplete($asset);
 
@@ -408,7 +408,7 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 					}
 					if (isset($this->_tmp['incomplete_metadata'])) {
 						$new_status = isset($_POST[$prefix.'_workflow_new_status']) ? ' to \''.get_status_description($_POST[$prefix.'_workflow_new_status']).'\'' : '';
-						echo "<p>".translate('cannot_change_bundle_status_metadata_incomplete', $new_status);
+						echo "<p>".sprintf(translate('cannot_change_bundle_status_metadata_incomplete'), $new_status);
 						foreach (array_keys($this->_tmp['incomplete_metadata']) as $incomplete_meta_assetid) {
 							$assetinfo = get_asset_tag_line($incomplete_meta_assetid, 'metadata');
 							echo "<br />$assetinfo";
@@ -457,7 +457,7 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 			$new_status = (int)$_POST[$prefix.'_workflow_new_status'];
 			$log_message = array_get_index($_POST, $prefix.'_workflow_new_log_message', '');
 
-			// before we try to change the asset status lets see if the 
+			// before we try to change the asset status lets see if the
 			// required metadata fields are set or else notify user abt it
 			// if we are rejecting the workflow then its alright but
 			// don't approve the changes if the metadata is gone missing

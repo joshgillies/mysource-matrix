@@ -31,10 +31,10 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 class SAML_Account_Manager extends Page_Asset_Builder
 {
 
-	
+
 	var $saml_auth_manager;
 	var $idp_entityid;
-	
+
 	/**
 	* Constructor
 	*
@@ -47,12 +47,12 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		parent::__construct($assetid);
 		if($this->isSimplesamlphpInstalled()) {
 		    require_once SQ_TOOL_SIMPLESAMLPHP_PATH.'/lib/_autoload.php';
-		    require_once SQ_PACKAGES_PATH.'/saml/lib/saml_auth_manager.inc';   
+		    require_once SQ_PACKAGES_PATH.'/saml/lib/saml_auth_manager.inc';
 		}
 
 	}//end constructor
 
-	
+
 	/**
 	* Wakeup.
 	*
@@ -61,15 +61,15 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	*
 	* @access public
 	*/
-	function __wakeup() 
+	function __wakeup()
 	{
 		// don't cache any config
 		$this->saml_auth_manager = null;
 		$this->idp_entityid = null;
 		$this->__construct();
-		
+
 	}//end __wakeup()
-	
+
 	/**
 	* Determine whether this asset should send cacheable header
 	*
@@ -81,9 +81,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	{
 		return FALSE;
 	}//end canSendCacheableHeader()
-	
-	
-	
+
+
+
 	/**
 	* Get SAML Auth Manager class
 	*
@@ -97,7 +97,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		 $this->saml_auth_manager = new SAML_Auth_Manager($this->attr('auth_source'));
 		 return $this->saml_auth_manager;
 	}//end _getAuthManager()
-	
+
 	/**
 	* Get entityid of the IDP
 	*
@@ -112,8 +112,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		 $this->idp_entityid = array_get_index($authConfig, 'idp');
 		 return $this->idp_entityid;
 	}//end _getEntityid()
-	
-	
+
+
 	/**
 	* Get unique saml id from authenticated saml user data
 	*
@@ -131,17 +131,17 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		$nameid_array = array_get_index($authData, 'saml:sp:NameID');
 		return (array_get_index($nameid_array, 'Value'));
 	    }
-	    else {	
+	    else {
 		// use attribute value as saml user id
 		$attribute = $this->attr('saml_userid_attribute');
 		$attributes_array = array_get_index($authData, 'Attributes');
 		return (array_get_index(array_get_index($attributes_array, $attribute), 0));
 	    }
-	   
+
 	}// end _getAuthenticatedSamlUserid()
-	
-	
-	
+
+
+
 	/**
 	* Is simplesamlphp librart installed?
 	*
@@ -152,7 +152,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	{
 		return (SQ_TOOL_SIMPLESAMLPHP_PATH && file_exists(SQ_TOOL_SIMPLESAMLPHP_PATH.'/lib/_autoload.php'));
 	}
-	
+
 	/**
 	* Create this asset - Force the value of the "type" attribute to thesaurus term
 	* @see asset::create()
@@ -165,7 +165,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		return parent::create($link);
 
 	}//end constructor
-	
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -178,9 +178,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	*/
 	function _createAdditional(&$link)
 	{
-		
+
 		if (!parent::_createAdditional($link)) return FALSE;
-		
+
 		// add bodycopies to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('saml2_acs');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('saml2_sls');
@@ -199,13 +199,13 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
-				
+
 		return TRUE;
 
 	}//end _createAdditional()
-		
-	
-	
+
+
+
 	/**
 	* Returns an array of all the permitted link types, the asset type and the cardinality
 	*
@@ -221,8 +221,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		return $page_links;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Prints out the Frontend for this asset
 	*
@@ -239,20 +239,20 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		}
 		require_once SQ_TOOL_SIMPLESAMLPHP_PATH.'/lib/_autoload.php';
 		require_once SQ_PACKAGES_PATH.'/saml/lib/saml_auth_manager.inc';
-		
+
 		$saml_auth_manager = $this->_getAuthManager();
 
 		// set global redirect URL
 		$redirect_url = $this->_getRedirectURL();
-		if(!empty($redirect_url)) 
+		if(!empty($redirect_url))
 			$_SESSION['sq_saml_account_manager_current_state_redirect_url'] = $redirect_url;
-	
-	
-			    
+
+
+
 		/*
 		 * SAML special actions
 		 */
-			
+
 		// print SP metadata file
 		if(isset($_GET['showMetadata'])) {
 		   // get ACS URL
@@ -262,13 +262,13 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    // get SLS URL
 		    $sls_asset = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'saml2_sls', TRUE, 'saml2_single_logout_service', 'major', '1');
 		    $sls_url = array_get_index( $GLOBALS['SQ_SYSTEM']->am->getAssetURL(Array($sls_asset['minorid'])), $sls_asset['minorid']);
-  
+
 		   $xml = $saml_auth_manager->printSPMetadataXML($acs_url, $sls_url);
 		    header('Content-Type: application/samlmetadata+xml');
 		    echo($xml);
 		    exit();
 		}
-		
+
 		// link current matrix user to the authenticated SAML acount
 		if(isset($_GET['linkAccounts'])) {
 		    $allow_create_link = $this->attr('allow_link');
@@ -281,7 +281,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			    if($current_user && !($current_user instanceof Public_User)) {
 				// link those 2 accounts
 				$this->_linkMatrixUserWithSAML($current_user->id, $samlUserid);
-				
+
 				// randomize user password, so user can no longer login with standard username and pw
 				if($this->attr('randomize_password'))  {
 				    $valid_password = random_user_password(Array($current_user->attr('username')));
@@ -296,7 +296,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 
 				// prefill user attributes
 				$this->_prefillUserAttributes($current_user, TRUE);
-				
+
 				// redirect after linking
 				if($this->attr('redirect_after_link')) {
 				    if(isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
@@ -309,14 +309,14 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				// stop further redirects
 				unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
 			    }
-			}  
+			}
 		    }
 		}
-		
+
 		/*
 		 * probably we don't really need this function because allow user to unlink itself to be able to create new local users could be pointless and annoying
 		 * it's rare to run into this situation and probaly best to inform sysadmin to unlink in backend.
-		 * 
+		 *
 		// unlink current matrix user to the authenticated SAML account
 		if(isset($_GET['unlinkAccounts'])) {
 		    // logged in saml user
@@ -334,16 +334,16 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				do_redirect($this->getURL());
 				return;
 			    }
-			}  
+			}
 		    }
 		}
 		 */
-		
+
 		// single logout  user
 		if(isset($_GET['logout'])) {
 		    // log out of matrix first
 		    $this->_logoutUser(FALSE);
-		    
+
 		    // start single logout of saml
 		    if($saml_auth_manager->isAuthenticated()) {
 			$options = Array();
@@ -355,15 +355,15 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    }
 
 		}
-		
-	
+
+
 		//  move on....
 		parent::printFrontend();
 
 	}//end printFrontend()
-	
-	
-	
+
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -371,8 +371,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	* @access public
 	*/
 	function printBody()
-	{	
-	    
+	{
+
 		$saml_auth_manager = $this->_getAuthManager();
 
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
@@ -405,7 +405,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
-		
+
 		// if a new asset is created, it will be stored in the tmp vars for use by other asset types
 		// that extend this one, but we wont need it any more - so chuck it out, but first, load up
 		// some replacements for the newly created asset
@@ -421,14 +421,14 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    if(!is_null($current_user) && !($current_user instanceof Public_User))
 			$this->_current_state = 'logged_in';
 		}
-		
+
 		if (empty($this->_current_state)) {
-			/* 
+			/*
 			 * SAML authentication starts here
 			 */
-			
+
 			if(!$saml_auth_manager->isAuthenticated()) {
-			
+
 			    $options = Array();
 			    // add saml extensions to request message
 			    if($this->attr('use_extensions')) {
@@ -452,12 +452,12 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			    $acs_asset = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'saml2_acs', TRUE, 'saml2_assertion_consumer_service', 'major', '1');
 			    $acs_url = array_get_index( $GLOBALS['SQ_SYSTEM']->am->getAssetURL(Array($acs_asset['minorid'])), $acs_asset['minorid']);
 			    $options['acs_url'] = $acs_url;
-			    
+
 			    // add other options
 			    $protocol_binding = $this->attr('protocol_binding');
 			    $nameid_policy = $this->attr('nameid_policy');
 			    $authn_context_class_ref = $this->attr('authn_context_class_ref');
-			    
+
 			    if(!empty($protocol_binding)) {
 				$options['ProtocolBinding'] = $protocol_binding;
 			    }
@@ -467,20 +467,20 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			   if(!empty($authn_context_class_ref)) {
 				$options['saml:AuthnContextClassRef'] = $authn_context_class_ref;
 			    }
-			   
+
 			    // remove all buffered content, so it won't interrupt the SAML redirect
 			    while (ob_get_level() > SQ_INIT_OB_LEVEL) {
 				ob_end_clean();
 			    }
-    
+
 			    // login saml, start the dance
 			   $saml_auth_manager->login($options);
 			   exit();
 			}
-			
-			
+
+
 			// SAML user should have been already authenticated at this point
-			
+
 			// store SAML user's attribute into global session keyword
 			$saml_auth_manager = $this->_getAuthManager();
 			$auth_data = $saml_auth_manager->getAuthDataArray();
@@ -489,12 +489,12 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			    $_SESSION[SQ_SESSION_SANDBOX_INDEX]['saml_attributes'] = json_encode_array($attributes_array);
 			    $this->_store_results($attributes_array);
 			}
-			 
-	
+
+
 			// try find linked Matrix user
 			$samlUserid = $this->_getAuthenticatedSamlUserid();
 			$matrixUserid = $this->_searchLinkedMatrixUser($samlUserid);
-			
+
 			// if the linked user doesn't exist, just remove it from DB
 			if($matrixUserid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($matrixUserid)) {
 				$this-> _unlinkMatrixUserWithSAML($matrixUserid, $samlUserid);
@@ -510,9 +510,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			    $this->_loginUser($matrixUserid);
 			    $current_user = $GLOBALS['SQ_SYSTEM']->user;
 			}
-			
-			
-			
+
+
+
 			// can't find a linked matrix user for the authenticated saml user, create a new matrix user
 			if (is_null($current_user) || ($current_user instanceof Public_User)) {
 				$auto_create = $this->attr('auto_create');
@@ -527,7 +527,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				    $this->_replacements['login_invite'] = $this->getKeywordReplacement('login_invite');
 				    $this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
 				}
-				
+
 			} else {
 			// if logged in as both Matrix user and SAML user
 			    	if($GLOBALS['SQ_SYSTEM']->currentUserId() == $matrixUserid) {
@@ -538,11 +538,11 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				    // the saml user is not linked to current logged in matrix user, create a link?
 				     $this->_current_state = 'create_link';
 				}
-			
-				
+
+
 			}
 		}
-		
+
 		// instead of displaying logged in body, do redirect
 		if( $this->_current_state == 'logged_in' && $this->attr('redirect_after_login') && isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
 		    $redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
@@ -550,18 +550,18 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    // the redirect here can happen immidiately
 		    do_redirect($redirect_url);
 		}
-				    
+
 
 		$fn = '_load'.$this->_default_state.'Replacements';
 		$this->_loadcreateReplacements();
 		$this->$fn();
-		
-		
-		
+
+
+
 		if($saml_auth_manager->isAuthenticated()) {
 		    $auth_data = $saml_auth_manager->getAuthDataArray();
 		    $attributes_array = array_get_index($auth_data, 'Attributes');
-		    
+
 		    // replace user attribute keyword
 		    if(!empty($attributes_array)) {
 			// get the bodycopy attached to us
@@ -583,27 +583,27 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			    }
 			}
 		    }
-		    
+
 		    // replace saml id keyword
 		    $this->_replacements['user_saml_id'] =  $this->_getAuthenticatedSamlUserid();
 		}
-		 
-		
+
+
 		$this->_printBody();
 
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printBody');
-		
+
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
 	}//end printBody()
 
-	
-	
-	
-	
+
+
+
+
 	/**
 	* Process any global Account Manager actions
 	*
@@ -616,10 +616,10 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	*/
 	function _processGlobalActions()
 	{
-	    
+
 		// set to live status once created
 		$this->vars['create_status']['value'] = SQ_STATUS_LIVE;
-		
+
 		$success = parent::_processGlobalActions();
 		if (!$success) return FALSE;
 
@@ -634,25 +634,25 @@ class SAML_Account_Manager extends Page_Asset_Builder
 
 			// prefill user attributes
 			$this->_prefillUserAttributes($this->_tmp['created_asset'], TRUE);
-		 
+
 		    $this->_loginUser($this->_tmp['created_asset']->id);
-		    
+
 		    $this->_current_state = 'logged_in';
 		}
-		
+
 
 		return TRUE;
 
 	}//end _processGlobalActions()
-	
-	
-	
-	
+
+
+
+
 	/**
 	* Search linked Matrix user by SAML user id
 	*
 	* @param varchar	$samlUserid	SAML userid string
-	* 
+	*
 	* @return int | null
 	* @access protected
 	*/
@@ -660,7 +660,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	{
 		if (empty($samlUserid))
 		    return NULL;
-		
+
 		// DAL query
 		$bind_vars = Array(
 						'samlid'      => $samlUserid,
@@ -668,17 +668,17 @@ class SAML_Account_Manager extends Page_Asset_Builder
 					    );
 		$result = MatrixDAL::executeAll('saml_package', 'getUserid', $bind_vars);
 		if(empty($result)) return NULL;
-		
+
 		return ($result[0]['assetid']);
 	}//end _searchLinkedMatrixUser()
-	
-	
+
+
 	/**
 	* Link Matrix user with specified SAML account
 	*
 	* @param varchar	$matrixUserid	Matrix userid  string
 	* @param varchar	$samlUserid	SAML userid string
-	* 
+	*
 	* @return int | null
 	* @access protected
 	*/
@@ -686,7 +686,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	{
 		if (empty($matrixUserid) || empty($samlUserid) )
 		    return NULL;
-		
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -704,12 +704,12 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		     return $result;
 		 }
-		
+
 		// insert new entry
 		$linkid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_saml_lnk_seq'));
 		$bind_vars = Array(
 						'linkid'	=>  $linkid,
-						'assetid'	=>  $matrixUserid,		    
+						'assetid'	=>  $matrixUserid,
 						'samlid'	=>  $samlUserid,
 						'entityid'	=> $this->_getEntityid(),
 						'created'	=>  ts_iso8601(time()),
@@ -720,14 +720,14 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		 return $result;
 	}//end _linkMatrixUserWithSAML()
-	
-	
+
+
 	/**
 	* Unlink Matrix user with specified SAML account
 	*
 	* @param varchar	$matrixUserid	Matrix userid  string
 	* @param varchar	$samlUserid	SAML userid string
-	* 
+	*
 	* @return int | null
 	* @access protected
 	*/
@@ -735,13 +735,13 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	{
 		if (empty($matrixUserid) || empty($samlUserid) )
 		    return NULL;
-		
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// delete entry
 		$bind_vars = Array(
-						'assetid'	=>  $matrixUserid,		    
+						'assetid'	=>  $matrixUserid,
 						'samlid'	=>  $samlUserid,
 						'entityid'	=> $this->_getEntityid(),
 					    );
@@ -750,10 +750,10 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		 return $result;
 	}//end _linkMatrixUserWithSAML()
-		
 
-	
-	
+
+
+
 	/**
 	* Returns the asset (if any) that we are redirecting to
 	*
@@ -835,9 +835,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		return TRUE;
 
 	}//end setRedirectAsset()
-	
-	
-	
+
+
+
 	/**
 	* get the URL that we will be redirecting to
 	*
@@ -882,10 +882,10 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		return $url;
 
 	}//end _getRedirectURL()
-	
-	
-	
-	
+
+
+
+
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
@@ -920,17 +920,17 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			break;
 
 		}
-		
+
 		$vars['keywords'] = array_merge($vars['keywords'], Array('user_attributes_xml' => translate('saml_account_manager_user_attributes_xml')));
 		$vars['keywords'] = array_merge($vars['keywords'], Array('user_saml_id' => translate('saml_account_manager_user_saml_id')));
 
 	}//end onRequestKeywords()
-	
-	
-		
-	
 
-	
+
+
+
+
+
 	/**
 	* Return an array of bodycopies that need to be created
 	*
@@ -959,18 +959,18 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		return $res;
 
 	}//end _getBodycopies()
-	
+
 	/**
 	* Log in the Matrix user (and do redirects if required)
-	* 
+	*
 	* @param string	$userid	matrix user id
-	* 
+	*
 	* @return null
 	* @access protected
 	*/
 	protected function _loginUser($userid)
 	{
-	    
+
 	    $user =  $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 	    if($user && $user->canLogin()) {
 		unset($_SESSION['SQ_RETURN_TO_HTTP']);
@@ -988,8 +988,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
 	    }
 	}// end _loginUser
-	
-	
+
+
 	/**
 	* This function recursively checks an object properties and store them in session
 	* The stored data can be printed via keywords %globals_session_oauth_profile_xx%
@@ -1014,9 +1014,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		}
 
 	}//end _store_results()
-	
-	
-	
+
+
+
 	/**
 	* Log out of the Matrix user
 	*
@@ -1025,7 +1025,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	* @access protected
 	*/
 	protected function _logoutUser($clear_saml_session = TRUE)
-	{			    
+	{
 	    $for_real = ( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User));
 	    $old_user = &$GLOBALS['SQ_SYSTEM']->user;
 	    if ($for_real) {
@@ -1033,12 +1033,12 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	    }
 	    foreach (array_keys($_SESSION) as $key) {
 		if ($key == 'SQ_RETURN_TO_HTTP') continue;
-		// do not reset the unsuccessful attempt, 
+		// do not reset the unsuccessful attempt,
 		// do not reset current saml session
 		if ($key == 'user_login_attempts') continue;
-		  
+
 		if( !$clear_saml_session && $key == 'SimpleSAMLphp_SESSION') continue;
-		
+
 		unset($_SESSION[$key]);
 	    }
 	    if ($for_real) {
@@ -1046,18 +1046,18 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	    }
 	    $GLOBALS['SQ_SYSTEM']->loginPublicUser();
 	    $GLOBALS['SQ_SYSTEM']->generateLoginKey(TRUE);
-	    
+
 	    if($clear_saml_session) {
 		$this->saml_auth_manager = null;
 	    }
-	}//end _logoutUser	    
-	
-	
+	}//end _logoutUser
+
+
 	/**
 	* Automatically create the local Matrix user
-	* 
+	*
 	* @param string	$create_type	matrix user type
-	* 
+	*
 	* @return null
 	* @access protected
 	*/
@@ -1065,7 +1065,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	{
 	    $_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'] = 'create';
 	    $_POST['AB_'.$this->id.'_ASSET_BUILDER_CREATE_TYPE'] = $create_type;
-	    
+
 	    $GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 	    $new_user = new $create_type();
 	    $prefix = $new_user->getPrefix();
@@ -1077,20 +1077,20 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	    $user_username_attr = $user->getAttribute('username', TRUE);
 	    $_POST['asset_action'] = 'create';
 	    $_REQUEST['asset_action'] = 'create';
-	    
+
 	    // generate username from samlid, and make up a random password
 	    $samlid = $this->_getAuthenticatedSamlUserid();
 	    $valid_username = $new_user->getValidUsername($user_username_attr->id, $samlid);
 	    $valid_password = random_user_password(Array($valid_username));
-	    
+
 	    $_REQUEST[$prefix.'_'.$username_attr->id] = $valid_username;
 	    $_REQUEST[$prefix.'_'.$password_attr->id.'_one'] = $valid_password;
 	    $_REQUEST[$prefix.'_'.$password_attr->id.'_two'] = $valid_password;
 
-	    
+
 	    $this->_processGlobalActions();
 
-	    // if we force random password, we mean blocking the user from using password to login. 
+	    // if we force random password, we mean blocking the user from using password to login.
 	    // have to enable this attribute of user to completely block password login, so he can't change password to bypass it
 	    if(!empty($this->_tmp['created_asset']) && $this->attr('randomize_password')) {
 	    		    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -1101,8 +1101,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 	    }
 
-	} // end _createUser	
-	
+	} // end _createUser
+
 
 
 	/**
@@ -1110,7 +1110,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	*
 	* @param object	$user	the user asset to prefill
 	* @param boolean $prefill  whether we are prefilling attributes or syncing attributes
-	* 
+	*
 	* @return bool
 	* @access protected
 	*/

@@ -200,7 +200,7 @@ class Page_RSS_Feed extends Page
 		if (!parent::readAccess()) {
 
 			ob_start();
-				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			$login = ob_get_clean();
 
 			// handle http authentication

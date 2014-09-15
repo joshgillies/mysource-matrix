@@ -299,7 +299,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 		$o->closeRaw();
 
 		foreach ($this->_running_vars['warn_assetids'] as $status => $warn_assetids) {
-			$o->openSection(translate('hipo_job_edit_bundled_assets_status_status_line', get_asset_status_icon($status), get_status_description($status)));
+			$o->openSection(sprintf(translate('hipo_job_edit_bundled_assets_status_status_line'), get_asset_status_icon($status), get_status_description($status)));
 			$o->openRaw();
 			?><ul><?php
 			foreach ($warn_assetids as $assetid) {
@@ -404,9 +404,9 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 
 				$this->_running_vars['sub_job'] = $code_name;
 				$sub_job = $hh->getJob($code_name);
-				$step_data['message'] = translate('hipo_edit_status', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
+				$step_data['message'] = sprintf(translate('hipo_edit_status'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
 			}
 		}
 

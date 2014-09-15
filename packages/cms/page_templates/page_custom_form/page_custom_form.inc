@@ -237,7 +237,7 @@ class Page_Custom_Form extends Page
 		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
 		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
 		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);
-		
+
 		if ($is_question_keyword || $is_response_keyword || $is_section_keyword || $is_form_keyword) {
 		    $form = $this->getForm();
 		    return $form->getDisplayKeywordReplacement($keyword);
@@ -259,10 +259,10 @@ class Page_Custom_Form extends Page
 	function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
-				
+
 		$form = $this->getForm();
 		if(empty($form)) return TRUE;
-		
+
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$bodycopy_array = Array();
 
@@ -276,7 +276,7 @@ class Page_Custom_Form extends Page
 			}
 		}
 
-	
+
 		// get all format bodycopies from sections and nested sections
 		$sections = $form->getSections();
 		foreach($sections as $section) {
@@ -285,7 +285,7 @@ class Page_Custom_Form extends Page
 
 
 		if(empty($bodycopy_array)) return TRUE;
-		
+
 		return ($this->extractConditionsFromBodycopy($bodycopy_array));
 	}//end _updated()
 
@@ -310,7 +310,7 @@ class Page_Custom_Form extends Page
 		if (array_get_index($link, 'is_exclusive', FALSE)) {
 			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
 			$minor_type_code = isset($link['minor_type_code']) ? ucwords(str_replace('_', ' ', $link['minor_type_code'])) : translate('unknown_asset_type');
-			return translate('core_cannot_delete_exclusive_link', $major_type_code, $minor_type_code);
+			return sprintf(translate('core_cannot_delete_exclusive_link'), $major_type_code, $minor_type_code);
 		}
 
 		return TRUE;

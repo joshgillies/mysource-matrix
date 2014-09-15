@@ -554,7 +554,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$value['http_auth_options']['password'] = (isset($_REQUEST[$prefix.'_http_auth_pass'])) ? $_REQUEST[$prefix.'_http_auth_pass'] : '';
 
 		$value['oauth_asset'] = (isset($_REQUEST[$prefix.'_oauth_asset'])) ? $_REQUEST[$prefix.'_oauth_asset'] : '';
-		
+
 		$value['oauth2_token'] = (isset($_REQUEST[$prefix.'_oauth2_token'])) ? $_REQUEST[$prefix.'_oauth2_token'] : '';
 
 		$this->processed = $this->setValue($value);
@@ -726,7 +726,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							    case 'GET':
 							    case 'HEAD':
 							    case 'DELETE':
-								foreach ($this->_res['request']['urls'] as $index => $url) {	
+								foreach ($this->_res['request']['urls'] as $index => $url) {
 								    $query = parse_url($url, PHP_URL_QUERY);
 								    // Returns a string if the URL has parameters or NULL if not
 								    if( $query ) {
@@ -735,7 +735,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 								    else {
 									$url .= '?'.$access_token_param_name.'='.$access_token;
 								    }
-								    $this->_res['request']['urls'][$index] = $url;	
+								    $this->_res['request']['urls'][$index] = $url;
 								 }
 								break;
 							    case 'POST':
@@ -747,9 +747,9 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 								     $this->_res['request']['body'] = '&'.$access_token_param_name.'='.$access_token;
 								}
 								break;
-					
+
 							}
-							
+
 							break;
 						case  'bearer':
 							$this->_res['request']['headers'][] = 'Authorization: Bearer '.$access_token;
@@ -757,7 +757,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					    	case  'oauth':
 							$this->_res['request']['headers'][] = 'Authorization: Oauth '.$access_token;
 							break;
-						    
+
 						}
 					}
 					break;
@@ -1124,7 +1124,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			}
 		}
 		curl_multi_close($mh);
-		
+
 		// Reset now that we've finished, since this can be run twice by paint layouts and the like.
 		$this->_urls_to_request = Array();
 

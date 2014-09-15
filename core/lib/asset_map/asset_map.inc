@@ -356,7 +356,7 @@ class Asset_Map
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
 		<?php
 	}
-	
+
 	/**
 	* To create the tags that embed the asset map into the matrix system
 	*
@@ -421,7 +421,7 @@ class Asset_Map
 			        $canAccessEdit  = TRUE;
 			    }
 			}
-			
+
 			if ($canAccessEdit === FALSE) {
 			?>
 				<b>You need Simple Edit access or higher to view the Asset Map</b>
@@ -609,7 +609,7 @@ class Asset_Map
 		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {
 			exit();
 		}
-		
+
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
 		if ($json === '1') {
 			$GLOBALS['SQ_OUTPUT_TYPE'] = 'json';
@@ -620,7 +620,7 @@ class Asset_Map
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$xml = file_get_contents("php://input");
-		
+
 		if ($json === '1') {
 			$xml = json_decode_array($xml, TRUE);
 			$xml = $this->_toXML($xml, 'xml');
@@ -707,7 +707,7 @@ class Asset_Map
 			echo "</translations>\n";
 			$out = ob_get_contents();
 		ob_end_clean();
-		
+
 		$this->_send($out);
 
 	}//end _getTranslations()
@@ -844,8 +844,8 @@ class Asset_Map
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
-		
-			// These parameter are expected by asset map	
+
+			// These parameter are expected by asset map
 			if (!isset($attrs['linkid'])) {
 				$attrs['linkid'] = '';
 			}
@@ -1073,8 +1073,8 @@ class Asset_Map
 		return $attrs;
 
 	}//end _getAssetInfo()
-	
-	
+
+
 	/**
 	 * Takes a database sort order and returns the zero-based 'real' order.
 	 *
@@ -1087,7 +1087,7 @@ class Asset_Map
 	 * Returns FALSE if the sort order can't be found.
 	 *
 	 * @param string  $parent_assetid The parent asset.
-	 * @param integer $sort_order     The database sort order to find. 
+	 * @param integer $sort_order     The database sort order to find.
 	 */
 	function _dbToRealSortOrder($parent_assetid, $sort_order)
 	{
@@ -1097,12 +1097,12 @@ class Asset_Map
 	            'ORDER BY sort_order';
 
         $retval = FALSE;
-        
+
 	    try {
 	        $query = MatrixDAL::preparePdoQuery($sql);
             MatrixDAL::bindValueToPdo($query, 'parent_assetid', $parent_assetid);
             $results = MatrixDAL::executePdoAssoc($query, 0);
-            
+
             // Now search the column of results we have.
             $retval = array_search($sort_order, $results);
 	    } catch (Exception $e) {
@@ -1113,9 +1113,9 @@ class Asset_Map
 	            )
 	        );
 	    }//end try
-	    
+
 	    return $retval;
-	    
+
 	}//end _dbToRealSortOrder()
 
 
@@ -1347,7 +1347,7 @@ class Asset_Map
 			foreach ($bind_vars as $key => $value) {
 				MatrixDAL::bindValueToPdo($query2, $key, $value);
 			}
-			
+
 			$db_result = MatrixDAL::executePdoAssoc($query2);
 			if (!empty($db_result))
 			{
@@ -1481,7 +1481,7 @@ class Asset_Map
 					$asset['short_name'] = $shdw_asset->short_name;
 					$asset['type_code']  = $shdw_asset->type();
 				} else {
-					$asset['short_name'] = translate('asset_not_found', $asset['assetid']);
+					$asset['short_name'] = sprintf(translate('asset_not_found'), $asset['assetid']);
 					$asset['type_code']  = '';
 				}
 				$asset['status']     = $bridge->status;
@@ -1594,7 +1594,7 @@ class Asset_Map
 			foreach ($v->attributes() as $a => $b) {
 				$tmp_info[$a] = urldecode((string)$b);
 			}
-			
+
 			$assetid = (string) $tmp_info['assetid'];
 			$linkid  = (string) $tmp_info['linkid'];
 			$start   = (integer) array_get_index($tmp_info, 'start', 0);
@@ -1611,7 +1611,7 @@ class Asset_Map
 			        $start = floor($tmp_info['sortorder'] / $limit) * $limit;
 			    }
 			}
-			
+
 			if (array_key_exists(urldecode($assetid), $done)) {
 				// Double check
 				$linkid_check = ($done[$assetid]['linkid'] == $linkid);
@@ -1641,17 +1641,17 @@ class Asset_Map
 				    $tmp_node->addAttribute($info_k, $info_v);
 				}
 			}//end foreach
-			
+
 			if ($real_order !== FALSE) {
 			    $tmp_node->addAttribute('real_order', $real_order);
 			}
-			
+
 			// add the children to the newly created node
 			$this->_getChildAssets($tmp_node, $assetid, FALSE, $start, $limit);
 			$previous_assetid = $assetid;
 			$previous_node    = $tmp_node;
 		}
-		
+
 		$this->_send($root);
 
 	}//end _getAssets()
@@ -2136,13 +2136,13 @@ class Asset_Map
 					$majwa = $old_parent->writeAccess('');
 					$minwa = $asset->writeAccess('');
 					if (!($majwa || $minwa)) {
-						$reordering_errors = translate('cannot_reorder_sig_link_no_perm_either', $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$reordering_errors = sprintf(translate('cannot_reorder_sig_link_no_perm_either'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
 						$this->_error('AMAP0045', $reordering_errors);
 					} else if (!$majwa) {
-						$reordering_errors = translate('cannot_reorder_sig_link_no_perm_major', $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$reordering_errors = sprintf(translate('cannot_reorder_sig_link_no_perm_major'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
 						$this->_error('AMAP0045', $reordering_errors);
 					} else if (!$minwa) {
-						$reordering_errors = translate('cannot_reorder_sig_link_no_perm_minor', $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$reordering_errors = sprintf(translate('cannot_reorder_sig_link_no_perm_minor'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
 						$this->_error('AMAP0045', $reordering_errors);
 					}
 
@@ -2277,7 +2277,7 @@ class Asset_Map
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$asset_node->attributes()->assetid);
 			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode((string)$asset_node->attributes()->parentid));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById((string)$asset_node->attributes()->linkid, $old_parent->id);
-			
+
 			if (!$asset->readAccess()) {
 				$this->_error('AMAP0012');
 				return;
@@ -2669,7 +2669,7 @@ class Asset_Map
 	}//end _translateToXML()
 
 
-	
+
 	/**
 	* Processes the get attributes request and outputs the xml to stardard out
 	* Only some attributes are allowed. Don't want to reveal all to user.
@@ -2700,7 +2700,7 @@ class Asset_Map
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($tmp_info['assetid']);
 			if(is_null($asset)) continue;
 			if(!$asset->readAccess()) continue;
-			
+
 			$attributes = Array();
 			foreach ($asset->vars as $name => $value) {
 			    // only get intended attributes
@@ -2708,23 +2708,23 @@ class Asset_Map
 			    // only get scalar attributes
 			    $real_value = array_get_index($value, 'value', '');
 			    if(!is_scalar($real_value)) continue;
-			    
+
 			    $attributes[$name] = $real_value;
 			}
-			
+
 			// create a new node and fill out the attributes
 			$tmp_node = $root->addChild('asset');
 			foreach ($attributes as $info_k => $info_v) {
 				if (strlen($info_v) == 0)  $tmp_node->addAttribute($info_k, '');
 				else $tmp_node->addAttribute($info_k, $info_v);
-			}	
+			}
 		}
 
 		$this->_send($root);
 
 	}//end _getAttributes()
-	
-	
+
+
 }//end class
 
 ?>

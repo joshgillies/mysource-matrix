@@ -60,15 +60,15 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	{
 		$clone_broadcaster   = array_get_index($settings, 'clone_broadcaster', 1);
 		$link_to_broadcaster = array_get_index($settings, 'link_to_broadcaster', 0);
-		
+
 		if (($clone_broadcaster == 0) && (empty($settings['clone_assetid']) || !$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['clone_assetid']))) {
 			return FALSE;
 		}
-		
+
 		if (($link_to_broadcaster == 0) && (empty($settings['assetid']) || !$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid']))) {
 			return FALSE;
 		}
-		
+
 		if (empty($settings['link_type'])) {
 			return FALSE;
 		}
@@ -95,7 +95,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		} else {
 			$major = $am->getAsset($settings['assetid']);
 		}
-		
+
 		$minor = NULL;
 		if ($clone_broadcaster == 1) {
 			$minor = $state['asset'];
@@ -197,7 +197,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$disallow_duplicates = array_get_index($settings, 'disallow_duplicates', 0);
 		$clone_broadcaster   = array_get_index($settings, 'clone_broadcaster', 1);
 		$link_to_broadcaster = array_get_index($settings, 'link_to_broadcaster', 0);
-		
+
 		// check if the cloned asset is valid
 		if ($clone_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($clone_assetid)) {
 			$clone_assetid = 0;
@@ -232,7 +232,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
-		
+
 		ob_start();
 			if ($write_access) {
 				asset_finder($prefix.'[assetid]', $selected_assetid);
@@ -289,19 +289,19 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			label(translate('clone_broadcasting_asset'), $prefix.'[clone_broadcaster]');
 			$advanced_part_5 = ob_get_contents();
 		ob_end_clean();
-		
+
 		ob_start();
 			check_box($prefix.'[link_to_broadcaster]', '1', $link_to_broadcaster, NULL, $form_element_extras);
 			label(translate('link_to_broadcasting_asset'), $prefix.'[link_to_broadcaster]');
 			$advanced_part_6 = ob_get_contents();
 		ob_end_clean();
-		
-		
+
+
 		// now patch together the output
-		$contents = translate('trigger_create_clone_basic', $basic_part_1, $basic_part_2, $basic_part_3).
+		$contents = sprintf(translate('trigger_create_clone_basic'), $basic_part_1, $basic_part_2, $basic_part_3).
 					'<br /><br />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					translate('trigger_create_clone_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4, $advanced_part_5, $advanced_part_6);
+					sprintf(translate('trigger_create_clone_advanced'), $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4, $advanced_part_5, $advanced_part_6);
 
 		return $contents;
 
@@ -325,12 +325,12 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		$clone_broadcaster   = array_get_index($request_data, 'clone_broadcaster', 0);
 		$link_to_broadcaster = array_get_index($request_data, 'link_to_broadcaster', 0);
-		
+
 		// make sure the clone assetid isn't blank if "Clone broadcasting asset" is not selected
 		if (($clone_broadcaster == 0) && empty($request_data['clone_assetid']['assetid'])) {
 			return translate('trigger_clone_asset_missing');
 		}
-		
+
 		// make sure the assetid isn't blank if "Link to broadcasting asset" is not selected
 		if (($link_to_broadcaster == 0) && empty($request_data['assetid']['assetid'])) {
 			return translate('trigger_clone_parent_missing');
@@ -349,7 +349,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$settings['disallow_duplicates']	= array_get_index($request_data, 'disallow_duplicates', 0);
 		$settings['clone_broadcaster']		= $clone_broadcaster;
 		$settings['link_to_broadcaster']	= $link_to_broadcaster;
-		
+
 		return FALSE;
 
 	}//end processInterface()

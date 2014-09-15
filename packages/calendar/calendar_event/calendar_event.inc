@@ -1085,7 +1085,7 @@ class Calendar_Event extends Asset
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event_asset);
 					}
 				}
-				
+
 				if (empty($replacement)) $replacement = parent::getKeywordReplacement($keyword);
 
 				break;
@@ -1142,7 +1142,7 @@ class Calendar_Event extends Asset
 				$event_asset->vars[$attr]['is_contextable'] = 0;
 			}
 		}
-		
+
 		return $event_asset;
 
 	}//end getAsset()
@@ -1216,11 +1216,11 @@ class Calendar_Event extends Asset
 
 	}//end getAssetInfo()
 
-	
+
 	/**
 	* Get the values of the attribute with the given name for the given assetids
 	*
-	* If the assetid is an event instance (shadow assetid), 
+	* If the assetid is an event instance (shadow assetid),
 	* get the attribute of the corresponding event asset instead
 	*
 	* @param string	$attr_name	The name of the attribute to get the values of
@@ -1235,7 +1235,7 @@ class Calendar_Event extends Asset
 	public function getAttributeValuesByName($attr_name, $asset_type, $assetids, $contextid=NULL)
 	{
 		if (empty($assetids)) return Array();
-		
+
 		$real_assetids = Array();
 		foreach($assetids as $full_assetid) {
 			if (strpos($full_assetid, ':') !== FALSE) {
@@ -1244,22 +1244,22 @@ class Calendar_Event extends Asset
 				$real_assetids[] = $full_assetid;
 			}
 		}//end foreach
-		
+
 		$real_res = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr_name, $asset_type, $real_assetids, $contextid);
-		
+
 		$res = Array();
 		foreach($assetids as $full_assetid) {
 			list($real_assetid) = explode(':', $full_assetid);
 			$res[$full_assetid] = isset($real_res[$real_assetid]) ? $real_res[$real_assetid] : '';
 		}//end foreach
-		
+
 		return $res;
-		
+
 	}//end getAttributeValuesByName()
 
-	
-	
-	
+
+
+
 	/**
 	* Get asset info for use by asset map
 	*
@@ -1274,7 +1274,7 @@ class Calendar_Event extends Asset
 
 	}//end getAssetMapAssetInfo()
 
-	
+
 	/**
 	* Return the number of links in the system that involve the specified asset
 	*
@@ -1300,8 +1300,8 @@ class Calendar_Event extends Asset
 		return 0;
 
 	}//end countLinks()
-	
-	
+
+
 	/**
 	* Return all links that this asset has to other assets
 	*
@@ -1331,8 +1331,8 @@ class Calendar_Event extends Asset
 	    if (isset($id_parts[0])) $assetid = $id_parts[0];
 	    return $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by, $dependant, $exclusive);
 	}
-	
-	
+
+
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
@@ -1354,8 +1354,8 @@ class Calendar_Event extends Asset
 	    if (isset($id_parts[0])) $assetid = $id_parts[0];
 	    return $GLOBALS['SQ_SYSTEM']->am->getParents($assetid, $type_code, $strict_type_code);
 	}
-	
-	
+
+
 		/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
@@ -1382,8 +1382,8 @@ class Calendar_Event extends Asset
 	    if (isset($id_parts[0])) $assetid = $id_parts[0];
 	    return $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 	}
-	
-	
+
+
 	/**
 	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
@@ -1398,7 +1398,7 @@ class Calendar_Event extends Asset
 	{
 	    return Array();
 	}
-	
+
 	/**
 	* Remove a link by id
 	*

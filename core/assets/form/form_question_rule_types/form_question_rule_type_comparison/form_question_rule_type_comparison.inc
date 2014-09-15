@@ -196,7 +196,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
-		
+
 		if (($value == '') && ($operator == '!=')) {
 			if (strlen($q_asset->attr('cust_required_error'))) {
 				$error_str = $q_asset->attr('cust_required_error');
@@ -204,7 +204,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 				if($use_accessible_string)
 				    $error_str = translate('core_form_rule_comparison_required_accessible');
 				 else
-				    $error_str = translate('core_form_rule_comparison_required', $q_asset->attr('name'));
+				    $error_str = sprintf(translate('core_form_rule_comparison_required'), $q_asset->attr('name'));
 			}
 		} else {
 			$operator_list = $this->getOperators();

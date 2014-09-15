@@ -541,7 +541,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 	}//end processNotFoundPage()
 
-	
+
 	/**
 	* Paint the interface for the design setting the not found page for this site
 	*
@@ -574,7 +574,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		return $this->processNoticeLinkedAsset($asset, 'not_found_design');
 
 	}//end processNotFoundPageDesign()
-	
+
 
 	/**
 	* Paint the interface for the paint layout setting the not found page for this site
@@ -608,8 +608,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		return $this->processNoticeLinkedAsset($asset, 'not_found_layout');
 
 	}//end processNotFoundPagePaintLayout()
-	
-	
+
+
 	/**
 	* Paint the interface for setting authentication redirects for the site
 	*

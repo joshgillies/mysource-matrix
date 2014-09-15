@@ -90,7 +90,7 @@ class Page_Site_Map extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'root' :
-				return translate('cms_root_node_link_desc', translate('cms_site_map_asset_name'));;
+				return sprintf(translate('cms_root_node_link_desc'), translate('cms_site_map_asset_name'));;
 			break;
 			default :
 				return parent::describeLink($linkid);

@@ -39,9 +39,9 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		parent::__construct();
 	}//end constructor
-	
-	
-	
+
+
+
 	/**
 	* Paint the interface for setting the oauth token
 	*
@@ -104,9 +104,9 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		return $this->processNoticeLinkedAsset($asset, 'redirect_asset');
 	}//end processRedirectAssetid()
-	
-	
-	
+
+
+
 	/**
 	* Paint the interface for choosing the user type that is created
 	*
@@ -162,9 +162,9 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return FALSE;
 
 	}//end processAddCreateType()
-	
-	
-	
+
+
+
 	/**
 	* Paints the interface for choosing create types whose form should be customised
 	*
@@ -211,8 +211,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end processCreateFormCustomisation()
 
-		
-	
+
+
 	public function paintLinkedAccounts(&$asset, &$o, $prefix)
 	{
 		$page_size = 100;
@@ -231,11 +231,11 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			$page_num = min($page_num, $num_pages);
 
 			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
+				$page_tag = sprintf(translate('page_number'), $page_num, $num_pages);
 			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+				$page_tag = sprintf(translate('page_number_with_pager'), $page_num, $num_pages, $prefix.'_usage_page');
 			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($result), $page_num * $page_size), count($result), strtolower(translate('links')));
+			$asset_count_tag = sprintf(translate('item_range'), ($page_num - 1) * $page_size + 1, min(count($result), $page_num * $page_size), count($result), strtolower(translate('links')));
 
 			$result = array_slice($result, ($page_num - 1) * $page_size, $page_size);
 
@@ -285,7 +285,7 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 						<?php
 
 						$tag_line = get_asset_tag_line($data['matrix_userid'], 'details');
-						echo translate('asset_and_child_count_0', $tag_line);
+						echo sprintf(translate('asset_and_child_count_0'), $tag_line);
 						?></td>
 						<td class="sq-backend-table-cell">
 							<?php echo htmlspecialchars($data['oauth_userid']); ?>
@@ -312,8 +312,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return FALSE;
 
 	}//end paintLinkedAccounts()
-	
-	
+
+
 
 
 	/**
@@ -501,7 +501,7 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end processPrefillFields()
 
-	
+
 
 	/**
 	* Paint the interface for syncing attributes from user profile api response
@@ -552,7 +552,7 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		$this->processPrefillSyncFields($asset, $o, $prefix, TRUE);
 	}//end processPrefillFields()
 
-	
+
 }//end class
 
 ?>

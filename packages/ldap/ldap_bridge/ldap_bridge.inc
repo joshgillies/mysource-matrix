@@ -134,7 +134,7 @@ class LDAP_Bridge extends Asset implements Bridge
 	function connectToLdap()
 	{
 		if (isset($this->_tmp['connectToLdap'])) return $this->_tmp['connectToLdap'];
-		
+
 		// If the bridge is archived, make no attempt to connect
 		if ($this->status == SQ_STATUS_ARCHIVED) {
 			return NULL;
@@ -175,9 +175,9 @@ class LDAP_Bridge extends Asset implements Bridge
 		if (!$ldap->bind($bind_dn, $password)) {
 			return NULL;
 		}
-		
+
 		$this->_tmp['connectToLdap'] = $ldap;
-		
+
 		return $ldap;
 
 	}//end connectToLdap()
@@ -807,7 +807,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		// the attribute mappings to the LDAP schemas
 		$attrs = $this->attr('attributes');
 		$assetid = $this->decodeString($assetid);
-			
+
 		$required_attrs = Array('objectclass');
 		if(isset($attrs['mo'])) $required_attrs[] = $attrs['mo'];
 		if(isset($attrs['uid'])) $required_attrs[] = $attrs['uid'];
@@ -909,10 +909,10 @@ class LDAP_Bridge extends Asset implements Bridge
 				// Add the valid parents to the list of all parents now to make them
 				// available in the recursive getParents() invocation below.
 				$this->_tmp['all_parents'] += $valid_parents;
-					
+
 				// should we get all recursive parents? this might be a slow process
 				$get_all_parents = $this->attr('recursive_parents');
-					
+
 				// Get the grandparents of the valid parents recursively.
 				$grandparents = Array();
 				foreach ($valid_parents as $parent_id => $parent_type_code) {
@@ -1052,7 +1052,7 @@ class LDAP_Bridge extends Asset implements Bridge
 								$user_uids[] = '('.$attrs['uid'].'='.$user_uid.')';
 							}
 						}//end foreach
-						
+
 						if (!empty($user_uids)) {
 							// Verify that the users are within the defined 'base dn' or 'auth dn' (if supplied)
 							$start_dns = Array();
@@ -1790,7 +1790,7 @@ class LDAP_Bridge extends Asset implements Bridge
 			     $user->vars['username']['value'] =$data[$name_lowercase][0];
 			}
 		}
-		
+
 		$user->vars['email']['value'] = '';
 		$user->vars['email']['type'] = 'email';
 		if (isset($attrs['email'])) {

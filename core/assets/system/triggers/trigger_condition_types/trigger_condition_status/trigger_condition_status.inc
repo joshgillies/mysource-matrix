@@ -113,7 +113,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_has_status_basic', $basic_part_1);
+		return sprintf(translate('trigger_has_status_basic'), $basic_part_1);
 
 	}//end getInterface()
 

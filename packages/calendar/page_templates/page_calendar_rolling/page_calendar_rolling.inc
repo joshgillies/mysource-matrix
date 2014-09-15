@@ -213,7 +213,7 @@ class Page_Calendar_Rolling extends Page
 				return TRUE;
 			break;
 			case 'time_unit':
-				$vars['keywords']['time_unit_event_list'] = translate('cal_rolling_keyword_time_unit_event_list', $this->attr('time_unit'));
+				$vars['keywords']['time_unit_event_list'] = sprintf(translate('cal_rolling_keyword_time_unit_event_list'), $this->attr('time_unit'));
 				$vars['keywords']['time_unit_start_datetime_xxxx'] = translate('cal_rolling_keyword_time_unit_start_datetime_xxxx');
 				$vars['keywords']['time_unit_end_datetime_xxxx'] = translate('cal_rolling_keyword_time_unit_end_datetime_xxxx');
 				return TRUE;

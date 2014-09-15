@@ -356,7 +356,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		parent::printExistingFileInfo($asset);
 		$existing = $asset->getExistingFile();
 		if (!empty($existing)) {
-			echo translate('core_dimensions', $existing['width'], $existing['height'])?><br/><?php
+			echo sprintf(translate('core_dimensions'), $existing['width'], $existing['height'])?><br/><?php
 		}
 
 	}//end printExistingFileInfo()

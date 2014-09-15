@@ -326,7 +326,7 @@ class Page_Multiple_Page extends Page
 
 		if($this->getURL() == '') {
 			// Bug fix #3659 'Multiple Page' cloning loses 'Multiple Page Page' web paths
-			// force assign the url to the newly cloned asset as next block will try to 
+			// force assign the url to the newly cloned asset as next block will try to
 			// assign webpath to child pages, but if there is no URL on the parent asset
 			// then child assets wont have current URL.
 			$valid_paths = make_valid_web_paths(Array(strtolower($this->name)));
@@ -334,9 +334,9 @@ class Page_Multiple_Page extends Page
 			$this->saveWebPaths($good_paths, FALSE);
 		}
 
-		// when trying to rearrange we specifically dont want to run the following code because of 
+		// when trying to rearrange we specifically dont want to run the following code because of
 		// bug #4845 'Multiple Page' asset throws MySource Warning when trying to re-arrange the pages
-		// after re-arranging the pages, adding or deleting new pages linksUpdate() is called again 
+		// after re-arranging the pages, adding or deleting new pages linksUpdate() is called again
 		// which is when the following block of code should be executed
 		if ((isset($this->_tmp['no_sort_order_paths']) && $this->_tmp['no_sort_order_paths'] ) && (isset($new_paths) && !empty($new_paths))) {
 			foreach ($new_paths as $pageid => $new_webpaths) {
@@ -755,7 +755,7 @@ class Page_Multiple_Page extends Page
 			if (is_null($page_asset)) {
 				continue;
 			}
-			
+
 			$name = $page_asset->_getName();
 			echo '<li>';
 			if ($assetid == $current_assetid && !$link_current) {
@@ -801,7 +801,7 @@ class Page_Multiple_Page extends Page
 			if (is_null($page_asset)) {
 				continue;
 			}
-			
+
 			$name = $page_asset->_getName();
 			if ($assetid == $current_assetid && !$link_current) {
 				echo '<option value="" selected="selected">'.$name;
@@ -879,8 +879,8 @@ class Page_Multiple_Page extends Page
 			$current_ids = Array();
 			// save the information
 			// Bug fix #3659 'Multiple Page' cloning loses 'Multiple Page Page' web paths
-			// do this because, page_multiple_page saves its current child page asset ids 
-			// is the attributes, if we dont make it empty, newly cloned asset takes 
+			// do this because, page_multiple_page saves its current child page asset ids
+			// is the attributes, if we dont make it empty, newly cloned asset takes
 			// child pages from the sorce as its own child
 			$clone->setAttrValue('current_page_ids', $current_ids);
 			$clone->saveAttributes();

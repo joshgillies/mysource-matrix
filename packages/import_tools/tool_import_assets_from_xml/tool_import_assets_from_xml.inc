@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * Purpose
 *
 *    Tool for importing assets into Matrix
-*    
+*
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @version $Revision: 1.6 $
@@ -68,7 +68,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 
 		$o->openField(translate('tool_import_assets_from_xml_file_upload'));
 			file_upload($type_code.'_file_upload');
-			$o->note(translate('tool_import_assets_from_xml_file_upload_note', sq_web_path('data').'/asset_types/tool_import_assets_from_xml/files/example.xml'));
+			$o->note(sprintf(translate('tool_import_assets_from_xml_file_upload_note'), sq_web_path('data').'/asset_types/tool_import_assets_from_xml/files/example.xml'));
 		$o->closeField();
 
 		$o->openField(translate('tool_import_assets_from_xml_create_under'));
@@ -104,7 +104,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 			trigger_localised_error('IMP0002', E_USER_NOTICE);
 			return FALSE;
 		} else {
-			
+
 			// make import directory, move xml files there
 			$import_dir = SQ_TEMP_PATH.'/import_assets/'.uniqid();
 
@@ -112,12 +112,12 @@ class Tool_Import_Assets_From_Xml extends Tool
 				trigger_error('Could not move uploaded file from tmp directory to data dir');
 				return FALSE;
 			}
-			
+
 			// set right permission
 			$om = umask(0000);
 			chmod($import_dir.'/'.$file_info['name'], 0774);
 			umask($om);
-			
+
 			// untar tarball if required
 			if (substr($file_info['name'], -7) == '.tar.gz' || substr($file_info['name'], -4) == '.tgz' || substr($file_info['name'], -4) == '.tar') {
 				require_once 'Archive/Tar.php';
@@ -138,7 +138,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 				trigger_error('Archive contains multiple xml files');
 				return FALSE;
 			}
-			$temp_filename = array_shift($xml_files);			
+			$temp_filename = array_shift($xml_files);
 		}
 
 		$root_node_id 	= $_POST[$type_code.'_create_under_assetid']['assetid'];
@@ -151,7 +151,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 				return FALSE;
 			}
 		}
-		
+
 		if (empty($temp_filename)) {
 			trigger_error('There is not xml file found');
 			return FALSE;
@@ -167,8 +167,8 @@ class Tool_Import_Assets_From_Xml extends Tool
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_import_assets_from_xml', $vars, '', SQ_PACKAGES_PATH.'/import_tools/hipo_jobs');
 		$url = $hh->runQueuedJobs();
-		
-		   
+
+
 		if (!empty($url)) $o->setRedirect($url);
 
 		return TRUE;

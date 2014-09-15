@@ -47,7 +47,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 
 	}//end constructor
 
-	
+
 	/**
 	* Paints backend of this job's configuration
 	*
@@ -89,7 +89,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 
 	}//end getConfigVars()
 
-	
+
 	/**
 	* Returns the current Threshold.
 	*
@@ -106,11 +106,11 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 			return 0;
 		}
 		$user_count = count($this->_running_vars['todo_asset_users']);
-		
+
 		return (($user_count / SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
-	
+
 
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
@@ -269,7 +269,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 						);
 				$status = $user->create($link);
 			}
-			$step_data['message'] = translate('bm_importing_bmail_user', $email);
+			$step_data['message'] = sprintf(translate('bm_importing_bmail_user'), $email);
 
 			// add this user to the done array
 			$this->_running_vars['done_asset_users'][] = $email;

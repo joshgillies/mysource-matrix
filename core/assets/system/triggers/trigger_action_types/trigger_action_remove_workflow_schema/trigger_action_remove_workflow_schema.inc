@@ -72,10 +72,10 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 		$schema = $am->getAsset($settings['schemaid']);
 		if (is_null($schema)) return FALSE;
 		if ($schema->type() != 'workflow_schema') return FALSE;
-		
+
 		$result = TRUE;
 		$assets = Array ($state['assetid']);
-		
+
 		if (!$cascade_to_children) {
 			//This part ensures schemas are removed from depedant children of a single targeted asset (cascade off).
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($state['assetid']);
@@ -83,7 +83,7 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 				$assets[] = $child_id;
 			}
 		}
-		
+
 		foreach ($assets as $assetid) {
 			$schema_info = $wfm->getAssetSchemaInfo($assetid, $schema->id);
 			if (!empty($schema_info)) {
@@ -94,7 +94,7 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 				}
 			}
 		}
-		
+
 		if ($cascade_to_children) {
 			$children = $am->getChildren($state['assetid']);
 			foreach (array_keys($children) as $child_id) {
@@ -114,7 +114,7 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 		} else {
 			return TRUE;
 		}
-		
+
 	}//end execute()
 
 
@@ -132,7 +132,7 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 	{
 		$current_schemaid      = array_get_index($settings, 'schemaid', 0);
 		$cascade_to_children = array_get_index($settings, 'cascade_to_children', FALSE);
-		
+
 		ob_start();
 			if ($write_access) {
 				echo '<div class="sq-break-line-inputs">';

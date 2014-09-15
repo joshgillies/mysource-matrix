@@ -33,7 +33,7 @@
 	}
 	// Make sure the current user has read access on this asset
 	if (!$asset->writeAccess()) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $asset->name));
 		exit;
 	}
 

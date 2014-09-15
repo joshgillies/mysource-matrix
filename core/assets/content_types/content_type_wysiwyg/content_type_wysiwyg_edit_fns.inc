@@ -51,7 +51,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @param string					$prefix	prefix for form elements
 	* @param array			$keywords   for keywords replacement plugin
 	* @param array			$snippets   for snippets replacement plugin
-	* 
+	*
 	* @return WYSIWYG
 	* @access private
 	*/
@@ -226,18 +226,18 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 					$wysiwyg->add_plugin('view_source');
 				}
 			$wysiwyg->close_group();
-			
+
 			$this->_tmp['wysiwg_object'] =& $wysiwyg;
 
 		}//end if WYSIWYG object doesn't already exist
 
 		// contents must be set AFTER all plugins are loaded
 		$this->_tmp['wysiwg_object']->set_contents($html);
-		
+
 		// set dir attribute to include in wysiwyg iframe
 		if(!empty($this->_tmp['dir_attr']))
 			$this->_tmp['wysiwg_object']->set_dir_attr($this->_tmp['dir_attr']);
-		
+
 		return $this->_tmp['wysiwg_object'];
 
 	}//end _createEditor()
@@ -266,14 +266,14 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			// get snippet replacements
 			$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 			$snippets_encoded = htmlentities(json_encode_array($snippets));
-			    
+
 			if(!is_null($o) && $o->isViperAvailable()) {
-			    
+
 			    $o->enableViperEditor();
 
 				// check to see what plugins are enabled/disabled for the Viper Editor
 				$viper_plugins = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_VIPER_PLUGINS'));
-				
+
 				if (in_array('MatrixLinkPlugin', $viper_plugins)) $viper_plugins[] = 'ViperLinkPlugin';
 
 				// if all the plugins are enabled then we need not worry about anything
@@ -436,7 +436,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	public function processBackend(Array $link, Content_Type_WYSIWYG $asset, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
-		
+
 		if(isset($_REQUEST[$prefix.'_contents_div_viper_input'])) {
 		    $html = $_REQUEST[$prefix.'_contents_div_viper_input'];
 		}
@@ -464,8 +464,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		return $asset->setAttrValue('html', $html);
 
 	}//end processBackend()
-	
-	
+
+
 	/**
 	* Sets the tmp var for dir attribute
 	*
@@ -477,9 +477,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	public function setDirAttr($dir_attribute)
 	{
 		$this->_tmp['dir_attr'] = $dir_attribute;
-		
+
 	}//end setDirAttr()
-	
+
 
 }//end class
 

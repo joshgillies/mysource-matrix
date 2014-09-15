@@ -134,7 +134,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo ' <em>('.translate('using_default_value').')</em>';
 				} else{
 
-				}	
+				}
 			echo '</span>';
 			echo '<div class="sq-metadata-multitext-wrapper">';
 				$attribute->paint($prefix, TRUE);

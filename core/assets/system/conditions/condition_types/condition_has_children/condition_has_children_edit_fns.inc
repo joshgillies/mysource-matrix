@@ -120,7 +120,7 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		    $link_type_list = Array('1', '2');
 		}
 
-		
+
 		if ($write_access) {
 			?>
 			<tr>
@@ -151,8 +151,8 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 			<?php
 		}
 		?></table><?php
-		
-		
+
+
 	}//end paintEditInterface()
 
 
@@ -170,7 +170,7 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		if (!isset($_POST[$prefix]['type_list']) || empty($_POST[$prefix]['type_list'])) {
 			return Array();
 		}
-		
+
 		$link_types = Array('1', '2');
 		if (isset($_POST[$prefix]['link_types']) && !empty($_POST[$prefix]['link_types'])) {
 			$link_types = $_POST[$prefix]['link_types'];

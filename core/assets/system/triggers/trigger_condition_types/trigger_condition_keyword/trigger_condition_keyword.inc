@@ -54,9 +54,9 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 	* <PRE>
 	* Array(
 	*       'keyword'		=> string   // keyword to apply (asset/globals)
-	*       'replacement_value'	=> boolean  // compare string > after the keyword above is replaced, the replacement value will be compared 
+	*       'replacement_value'	=> boolean  // compare string > after the keyword above is replaced, the replacement value will be compared
 	*						with this value
-	*	'match_type'		=> string   // how the values are compared - exact match, partial match or regex 
+	*	'match_type'		=> string   // how the values are compared - exact match, partial match or regex
 	*       );
 	* </PRE>
 	*
@@ -70,7 +70,7 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 	{
 		if (empty($settings['keyword'])) return FALSE;
 		if (empty($settings['match_type'])) return FALSE;
-		
+
 		if (empty($state['asset'])) {
 			if (empty($state['assetid'])) return FALSE;
 			$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
@@ -79,7 +79,7 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 		// try replacing the asset keyword
 		// if the keyword is a globals keyword, this function simply returns the globals keyword as it is
 		// note: we are currently allowing only one keyword to be specified here, so, we strip '%' from the
-		//       specified keyword, in case multiple keywords are set here 
+		//       specified keyword, in case multiple keywords are set here
 		$keyword = str_replace('%', '', $settings['keyword']);
 		$asset_keyword_replacement = $state['asset']->getKeywordReplacement($keyword);
 
@@ -155,7 +155,7 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 		// operator selector
 		ob_start();
 			$operator_options = Trigger_Condition_Keyword::getMatchOptions();
-			
+
 			if ($write_access) {
 				combo_box($prefix.'[match_type]', $operator_options, FALSE, $operator);
 			} else {
@@ -165,7 +165,7 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 		ob_end_clean();
 
 
-		return translate('trigger_condition_keyword', $keyword_component, $operator_component, $replacement_value_component);
+		return sprintf(translate('trigger_condition_keyword'), $keyword_component, $operator_component, $replacement_value_component);
 
 	}//end getInterface()
 

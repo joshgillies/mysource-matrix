@@ -299,8 +299,8 @@ class Page_Poll extends Page
 		}
 
 	}//end printBody()
-	
-	
+
+
 	/**
 	* Print a format bodycopy
 	* Add extra HTML if required (surround the question format with a form tag)
@@ -320,7 +320,7 @@ class Page_Poll extends Page
 		} else {
 			$format_bodycopy->printBody();
 		}
-	
+
 	}//end _printFormatAsset()
 
 

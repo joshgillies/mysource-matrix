@@ -100,7 +100,7 @@ class Comment_Prefs extends Prefs
 													'description'	=> 'Whether to replace the keywords in the comment.',
 													'default'		=> 1,
 													'protected'		=> FALSE,
-												   ),												   
+												   ),
 					 );
 
 	/**
@@ -175,7 +175,7 @@ class Comment_Prefs extends Prefs
 		$this->url_processor = new Asset_Attribute_Url();
 		$this->url_processor->_edit_params['protocols'] = Array('http','https');
 		$this->url_processor->_edit_params['width'] = '60';
-		
+
 		$this->disable_keyword_replacements = Array(
 												0 => "No",
 												1 => "Yes",
@@ -213,7 +213,7 @@ class Comment_Prefs extends Prefs
 		}
 
 		foreach ($prefs as $pref_value) {
-			$fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($pref_value)))).'Backend';			
+			$fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($pref_value)))).'Backend';
 			if (!method_exists($this, $fn)) continue;
 
 			// call individual paint function for each pref
@@ -387,7 +387,7 @@ class Comment_Prefs extends Prefs
 
 	}//end paintSqCommentDisableKeywordReplacementBackend()
 
-	
+
 	/**
 	* Paints the interface for allowing HTML in comments
 	*
@@ -560,14 +560,14 @@ class Comment_Prefs extends Prefs
 
 		if (!is_null($new_setting)) {
 			$this->pref_vars[$pref]['default'] = $new_setting;
-			
+
 			return TRUE;
 		}
 		return FALSE;
 
 	}//end processSqCommentDisableKeywordReplacementBackend()
 
-	
+
 	/**
 	* Processes the interface for configuring the maximum comment length
 	*

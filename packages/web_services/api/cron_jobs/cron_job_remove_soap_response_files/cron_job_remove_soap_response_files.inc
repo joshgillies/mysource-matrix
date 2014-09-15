@@ -128,8 +128,8 @@ class Cron_Job_Remove_SOAP_Response_Files extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
+
+
 	/**
 	* Run this cron job
 	*

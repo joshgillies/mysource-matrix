@@ -98,7 +98,7 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 				}
 			} else {
 				$result = $mm->deleteSchema($state['asset']->id, $schema->id);
-			
+
 			}//end if
 		} else {
 			if ($remove_all) {
@@ -186,7 +186,7 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 		$current_schemaid = array_get_index($settings, 'schemaid', 0);
 		$remove_all = array_get_index($settings, 'removeall', 0);
 		$cascade = array_get_index($settings, 'cascade', 0);
-	
+
 		ob_start();
 			if ($write_access) {
 				echo '<div class="sq-break-line-inputs">';

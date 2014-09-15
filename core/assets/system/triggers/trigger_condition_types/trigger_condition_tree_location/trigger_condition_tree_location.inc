@@ -159,16 +159,16 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 					echo '</span>';
 					echo '<br />';
 				}
-				
+
 				asset_finder($name.'['.count($selected_assetids).']', 0, Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
 				echo '<span id="trigger_condition_tree_location_check_box" style="margin-left:10px;">';
 				echo translate('immediate_child_only');
 				check_box($prefix.'[immed_child]['.count($selected_assetids).']', '1', FALSE, '', 'style="margin-left:10px;"');
 				echo '</span>';
-				
+
 				$map_frame_exp = trim('parent.frames["sq_sidenav"]', '.');
 				$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
-				
+
 				?>
 				<script type="text/javascript">
 				// insert target parent check box when clicking More button
@@ -183,7 +183,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 				}
 				</script>
 				<?php
-				
+
 				echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', \'null\', true); addParentNode(this);" style="margin-left:10px;"/>';
 				echo '<br />';
 				echo '</div>';
@@ -206,7 +206,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_tree_location_basic', $basic_part_1);
+		return sprintf(translate('trigger_tree_location_basic'), $basic_part_1);
 
 	}//end getInterface()
 
@@ -221,7 +221,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	* @access public
 	*/
 	public static function processInterface(&$settings, $request_data)
-	{	
+	{
 		$settings['assetids'] = $settings['propagate'] = $settings['immed_child'] = Array();
 		$immed_child = array_get_index($request_data, 'immed_child', Array());
 		$assetids = array_get_index($request_data, 'assetids', Array());

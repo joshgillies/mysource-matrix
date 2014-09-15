@@ -177,7 +177,7 @@ class TRIM_Saved_Search extends Data_Source
 			if(!$this->attr('accept_empty_response') && empty($new_object_list)) {
 			    return FALSE;
 			}
-			
+
 			$updated = FALSE;
 
 			$result_uris		= $this->resultUris($result);
@@ -233,7 +233,7 @@ class TRIM_Saved_Search extends Data_Source
 								// We have a file here, have to check whether it is still in the system
 								$final_file_path	= $this->data_path.'/'.$new_record_info['Uri'];
 								$files_stored		= glob($final_file_path.'/*');
-	
+
 								// If there is no file in there
 								if (empty($files_stored)) {
 									$this->storeDocumentList($connection, $new_record_info);
@@ -847,7 +847,7 @@ class TRIM_Saved_Search extends Data_Source
 			}//end else if
 		}//end if
 		else {
-		    	$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+		    	$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}
 	}//end printFrontend()

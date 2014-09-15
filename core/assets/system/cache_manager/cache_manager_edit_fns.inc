@@ -199,9 +199,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			// field opened by asset_edit_interface
 			if (isset($_REQUEST[$prefix.'_customise_root_node']) && in_array($_REQUEST[$prefix.'_customise_root_node'], array_keys($root_nodes))) {
 				if ($wa) {
-					echo translate('currently_customising', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
+					echo sprintf(translate('currently_customising'), get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
 				} else {
-					echo translate('currently_viewing', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
+					echo sprintf(translate('currently_viewing'), get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
 				}
 			} else {
 				unset($_REQUEST[$prefix.'_customise_root_node']);
@@ -301,7 +301,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					$accelerator_cache_expiry = $asset->attr('accelerator_cache_expiry');
 					if (empty($browser_cache_expiry)) {
 						echo $asset->attr('expiry').' seconds';
-						echo ' <em>('.translate('cache_manager_using_blank_default_value', 'the system Default Expiry').')</em>';
+						echo ' <em>('.sprintf(translate('cache_manager_using_blank_default_value'), 'the system Default Expiry').')</em>';
 					} else {
 						echo $accelerator_cache_expiry.' seconds';
 						echo ' <em>('.translate('using_default_value').')</em>';
@@ -330,7 +330,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					$browser_cache_expiry = $asset->attr('browser_cache_expiry');
 					if (empty($browser_cache_expiry)) {
 						echo $asset->attr('expiry').' seconds';
-						echo ' <em>('.translate('cache_manager_using_blank_default_value', 'the system Default Expiry').')</em>';
+						echo ' <em>('.sprintf(translate('cache_manager_using_blank_default_value'), 'the system Default Expiry').')</em>';
 					} else {
 						echo $browser_cache_expiry.' seconds';
 						echo ' <em>('.translate('using_default_value').')</em>';
@@ -563,7 +563,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					function customiseCheck(theCheckbox, targetID, checktoggle)
 					{
 						if (theCheckbox.checked) {
-						  	var checkboxes = new Array(); 
+						  	var checkboxes = new Array();
 						  	checkboxes = document.getElementById(targetID).getElementsByTagName('input');
 						  	for (var i=0; i<checkboxes.length; i++) {
 						    	if (checkboxes[i].type == 'checkbox') {
@@ -1065,7 +1065,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$cron_job = new Cron_Job_Refresh_Cache();
 				$edit_fns = $cron_job->getEditFns();
 				$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rc');
-				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+				$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
 
 			} else {
 				// Cron Manager is not configured yet.
@@ -1521,7 +1521,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
         $o->openField(translate('http_header_cacheable_field'));
             echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
-        	$o->note(translate('cache_manager_send_cacheable_headers_settings_node', 'href="'.$GLOBALS['SQ_SYSTEM']->backend->getBackendUrl('main').'&backend_section=config'.'" target="sq_main"'));
+        	$o->note(sprintf(translate('cache_manager_send_cacheable_headers_settings_node'), 'href="'.$GLOBALS['SQ_SYSTEM']->backend->getBackendUrl('main').'&backend_section=config'.'" target="sq_main"'));
         $o->closeField();
 	}
 

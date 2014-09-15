@@ -235,7 +235,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					if ($wf_email_link_updated) {
 						$o->openField('');
 						ob_start();
-						echo '<b class="sq-backend-warning">['.translate('workflow_email_link_updated', ($_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'))).']</b>';
+						echo '<b class="sq-backend-warning">['.sprintf(translate('workflow_email_link_updated'), ($_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'))).']</b>';
 						ob_end_flush();
 						$o->closeField();
 					}//end if
@@ -287,7 +287,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							}
 
 							$requires_comment = $wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id);
-							
+
 							// If userlog required, add a required class. Note that we
 							// also have to provide sq-form-field because that is
 							// overridden otherwise.
@@ -295,7 +295,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							if ($requires_comment === TRUE) {
 							    $extras = ' class="sq-form-field sq-requires-userlog"';
 							}
-							
+
 							text_area($prefix.'_workflow_new_log_message', '', 60, 6, 0, $extras);
 							echo '<br/>';
 
@@ -684,9 +684,9 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 									?>
 									<p class="sq-backend-data">
 										<span class="sq-backend-warning">
-											<b><?php echo translate('metadata_in_approval_requires_fields_completion', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></b>
+											<b><?php echo sprintf(translate('metadata_in_approval_requires_fields_completion'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></b>
 										</span>
-										<?php echo translate('metadata_fields_only_completed_by_administrator', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '<a href="'.$owner->getBackendHref('metadata').'">'.translate('metadata_screen').'</a>'); ?>
+										<?php echo sprintf(translate('metadata_fields_only_completed_by_administrator'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '<a href="'.$owner->getBackendHref('metadata').'">'.translate('metadata_screen').'</a>'); ?>
 									</p>
 									<?php
 
@@ -848,7 +848,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 							if (count($kiddies)) {
 
-								echo '<p><strong>'.translate('note').':</strong> '.translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
+								echo '<p><strong>'.translate('note').':</strong> '.sprintf(translate('action_affects_assets_below_this'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
 
 								check_box($prefix.'_workflow[cascade_changes]', '1', TRUE);
 								echo ' ';
@@ -946,7 +946,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 		_processStatusChange($owner, $o, $prefix);
 		$updated = TRUE;
 	}
-	
+
 	// if we dont have admin access, dont process anything
 	if (!$owner->adminAccess('workflow')) return $updated;
 

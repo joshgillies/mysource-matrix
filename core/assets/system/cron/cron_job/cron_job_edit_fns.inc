@@ -134,7 +134,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			} else if (!empty($when_arr['hour'])) {
 				$current_hours = $when_arr['hour'];
 				$current_time_unit = isset($time_unit['3600']) ? '3600' : $current_time_unit;
-			} else {	
+			} else {
 				if (!empty($when_arr['day']))
 				    $current_days = $when_arr['day'];
 				$current_time_unit = '86400';

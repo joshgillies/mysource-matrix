@@ -191,7 +191,7 @@ class Metadata_Manager extends MySource_Object
 		    $where = 'assetid = :assetid';
 		    $order_by = '';
 		}
-		
+
 		if (!is_null($schemaid)) {
 			$where .= ' AND schemaid = :schemaid';
 		}
@@ -360,7 +360,7 @@ class Metadata_Manager extends MySource_Object
 				}
 
 				$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-				
+
 				// Needs broadcast this event for all the "FastTracked" schemas
 				$fast_tracked_schemas = $asset->getFaskTrackedTaskAssetids('metadata_manager_generate_content_file');
 				if (!empty($fast_tracked_schemas)) {
@@ -737,7 +737,7 @@ class Metadata_Manager extends MySource_Object
 
 	}//end getSchemaDefaultValues()
 
-	
+
 	/**
 	 * Load metadata values, principally from $metadata_filename
 	 *
@@ -762,13 +762,13 @@ class Metadata_Manager extends MySource_Object
 		ob_start();
 			include $metadata_filename;
 		ob_end_clean();
-			
+
 		$metadata['values'] = $metadata_values;
 		$metadata['value_components'] = $metadata_value_components;
 		$metadata['warnings'] = $metadata_warnings;
-			
+
 		return $metadata;
-		
+
 	}//end loadMetadata
 
 
@@ -843,7 +843,7 @@ class Metadata_Manager extends MySource_Object
 
 		if (isset($metadata['values'])) {
 			$metadata_values = $metadata['values'];
-			
+
 			// if the field_names is not empty return the value asked
 			// else return all the values
 			if (!empty($field_names)) {
@@ -958,7 +958,7 @@ class Metadata_Manager extends MySource_Object
 			}
 
 		}//end foreach
-		
+
 		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 		// log a message for the asset - this wont get logged until we close the queue
@@ -981,7 +981,7 @@ class Metadata_Manager extends MySource_Object
 					$old_value = $old_val;
 				}
 			}
-			
+
 			// If the field is set to 'use default', it wouldn't be set to any value,
 			if (!isset($value[0]['value'])) {
 			    $value[0]['value'] = $this->getMetadataFieldDefaultValue($fieldid, $contextid);
@@ -1197,7 +1197,7 @@ class Metadata_Manager extends MySource_Object
 		$updated_fields = Array('fieldids' => array_keys($metadata_updated));
 		$em->broadcastEvent($asset, 'MetadataUpdate', $broadcast_all_fields ? Array('all') : Array('fieldids' => array_keys($metadata)));
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset, $updated_fields);
-                                                            
+
 		return TRUE;
 
 
@@ -1227,7 +1227,7 @@ class Metadata_Manager extends MySource_Object
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
 		$contextid = (Int) $contextid;
-		
+
 		if ($contextid === 0) {
 			$metadata_filename = 'metadata.php';
 		} else {
@@ -1364,7 +1364,7 @@ class Metadata_Manager extends MySource_Object
 								if ($part_keyword != $full_keyword && isset($field_replacements[$part_keyword])) {
 									$keyword_value = $field_replacements[$part_keyword];
 
-									// If the metadata field value referred by another metadata field has keyword(s), we cannot apply modifiers at this level 
+									// If the metadata field value referred by another metadata field has keyword(s), we cannot apply modifiers at this level
 									$mv_keywords = extract_keywords($keyword_value);
 									if (!empty($mv_keywords)) {
 										// Apply the modifiers dynamically when loading the metadata file
@@ -1394,7 +1394,7 @@ class Metadata_Manager extends MySource_Object
 
 				}//end foreach ($metadata_values)
 			} while ($fields_modified);
-	
+
 			echo 'if (!empty($modifier_applied_replacements)) {'."\n\t".
 					'foreach($modifier_applied_replacements as $key => $val) {'."\n\t\t".
 						'replace_keywords($val[\'replacement\'], $metadata_replacements);'."\n\t\t".
@@ -1997,7 +1997,7 @@ class Metadata_Manager extends MySource_Object
 			// we need to ensure search reindexing is "fast tracked".
 			//
 			// We ensure reindex tasks are fast tracked for all but the last context, so the reindex
-			// events will be handled correctly once at the end.	
+			// events will be handled correctly once at the end.
 			foreach ($all_contexts as $contextid => $context_data) {
 
 				// Get the asset in each context
@@ -2083,7 +2083,7 @@ class Metadata_Manager extends MySource_Object
 	function getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE, &$has_errors=FALSE, $contextid=NULL)
 	{
 		if (empty($assetid)) return NULL;
-		
+
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
 			$has_errors = TRUE;
@@ -2170,7 +2170,7 @@ class Metadata_Manager extends MySource_Object
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
 		$contextid = (Int) $contextid;
-		
+
 		if ($contextid === 0) {
 			$metadata_basename = 'metadata.php';
 		} else {
@@ -2197,7 +2197,7 @@ class Metadata_Manager extends MySource_Object
 					$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
 					if(isset($metadata_values[$field_names[$field_assetid]]))
 					    $value = $metadata_values[$field_names[$field_assetid]];
-				}	
+				}
 			}
 		}
 
@@ -2290,8 +2290,8 @@ class Metadata_Manager extends MySource_Object
 				if ($deja_vu) {
 					$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $field_assetid);
 				}
-			} 
-			
+			}
+
 			if (!empty($asset)) {
 				$is_contextable = (boolean)$asset->attr('is_contextable');
 			} else {
@@ -2372,8 +2372,8 @@ class Metadata_Manager extends MySource_Object
 				if ($deja_vu) {
 					$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $field_assetid);
 				}
-			} 
-			
+			}
+
 			if (!empty($asset)) {
 				$is_contextable = (boolean)$asset->attr('is_contextable');
 			} else {
@@ -2530,10 +2530,10 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-	 * For given asset with metadata schema(s) applied, this function returns 
+	 * For given asset with metadata schema(s) applied, this function returns
 	 * the value for all metadata fields of given type in following format:
 	 *
-	 * 	Array( 
+	 * 	Array(
 	 *		'<fieldname>' => '<metadata_value>'
 	 * 	)
 	 *
@@ -2544,17 +2544,17 @@ class Metadata_Manager extends MySource_Object
 	 * @return array
 	 * @access public
 	 */
-	public function getMetadataFieldTypeValues($assetid, $metadata_field_type, $contextid=NULL) 
+	public function getMetadataFieldTypeValues($assetid, $metadata_field_type, $contextid=NULL)
 	{
 		$schemas = $this->getSchemas($assetid, TRUE);
 		if (empty($schemas)) return Array();
 
 		$metadata_field_type = strtolower($metadata_field_type);
 		$field_values = Array();
-		
+
 		foreach($schemas as $schemaid) {
 			$fields = $this->getMetadataFields($schemaid);
-			
+
 			foreach($fields as $fieldid => $field_type) {
 				if ($field_type[0]['type_code'] != $metadata_field_type) continue;
 				$field_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($fieldid);

@@ -382,7 +382,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			$new_file->setAttrValue('allow_unrestricted', $this->_running_vars['allow_unrestricted']);
 
 			if (!$new_file->create($import_link, $temp_info)) {
-				$this->_addError(translate('file_import_tools_hipo_can_not_create_file', $todo['file_name'], $parent->id), TRUE);
+				$this->_addError(sprintf(translate('file_import_tools_hipo_can_not_create_file'), $todo['file_name'], $parent->id), TRUE);
 			}
 			$this->_running_vars['server_done_counts'][] = $todo;
 
@@ -490,7 +490,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			}
 
 			if (!$new_file->create($import_link, $temp_info)) {
-				$this->_addError(translate('file_import_tools_hipo_can_not_create_file', $todo['file_name'], $parent->id), TRUE);
+				$this->_addError(sprintf(translate('file_import_tools_hipo_can_not_create_file'), $todo['file_name'], $parent->id), TRUE);
 			}
 			$this->_running_vars['local_done_counts'][] = $todo;
 

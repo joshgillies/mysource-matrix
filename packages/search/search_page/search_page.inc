@@ -189,7 +189,7 @@ class Search_Page extends Listing_Engine
 			case 'initial':
 				return '<p>'.translate('sch_page_search_for').'</p><p>%submit_button%</p>';
 			case 'results':
-				return '<p>'.translate('sch_page_x_results_found', '%result_count%').'</p>%result_list%';
+				return '<p>'.sprintf(translate('sch_page_x_results_found'), '%result_count%').'</p>%result_list%';
 			case 'no_results':
 				return '<p>'.translate('sch_page_no_results_try_again').'</p>%initial_layout%';
 		}
@@ -726,9 +726,9 @@ class Search_Page extends Listing_Engine
 		if (empty($from_string) && empty($to_string)) {
 			return;
 		} else if (empty($from_string)) {
-			echo translate('sch_page_date_range_prior_to', $to_string);
+			echo sprintf(translate('sch_page_date_range_prior_to'), $to_string);
 		} else if (empty($to_string)) {
-			echo translate('sch_page_date_range_onwards', $from_string);
+			echo sprintf(translate('sch_page_date_range_onwards'), $from_string);
 		} else if ($from_string == $to_string) {
 			echo $from_string;
 		} else {
@@ -3161,9 +3161,9 @@ class Search_Page extends Listing_Engine
 				// work out the query field keywords
 				$fields = $this->attr('fields');
 				foreach ($fields as $field => $field_data) {
-					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
+					$keywords[$field.'_query'] = sprintf(translate('sch_page_keyword_search_field'), $field);
 					if ($bodycopy == 'initial') {
-						$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
+						$keywords[$field.'_query_logic'] = sprintf(translate('sch_page_keyword_search_field_logic'), $field);
 					}
 				}
 				// work out search category keywords

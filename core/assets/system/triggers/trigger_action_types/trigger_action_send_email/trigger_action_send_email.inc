@@ -103,7 +103,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 					unset($group_result[$member_id]);
 				}
 			}
-			
+
 			// strip out non-live users unless they are shadow assets (eg; LDAP Users) and add to the email attribute value
 			if (!empty($group_members)) {
 				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($group_members), Array(), TRUE, 'status');
@@ -130,12 +130,12 @@ class Trigger_Action_Send_Email extends Trigger_Action
 
 					 	// Get the role_member asset to check if its of type User
 						$role_member_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($role_member);
-						
+
 						// If asset does not belongs to User class then there is no point in sending email to it
 						if ($role_member_asset instanceof User || $role_member_asset->type() == 'user_group') {
 							$role_members[] = $role_member;
 						}
-						
+
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($role_memeber_asset);
 					}
 				}
@@ -170,17 +170,17 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$ast2send_atr_param_map = new Asset_Attribute_Parameter_Map(0, $ast2send_param_map_value);
 			$ast2send_id = $ast2send_atr_param_map->getParameterValue('ast2send_assetid');
 		}
-		
+
 		if (empty($ast2send_id) && array_get_index($settings, 'override_asset_to_send', FALSE)) {
 			$ast2send_id = $assetid;
 		}
-		
+
 		if (!empty($ast2send_id)) {
 			$unserialised = unserialize($email_format_value);
 			$unserialised['asset_to_send'] = $ast2send_id;
 			$email_format_value = serialize($unserialised);
 		}
-		
+
 		// create a new email format object and send emails
 		$email_format_attr = new Asset_Attribute_Email_Format(0, $email_format_value);
 		if (is_null($email_format_attr)) return FALSE;
@@ -217,7 +217,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		} else {
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
 		}
-		
+
 		return Array(
 				'assetid'	=> $assetid,
 			   );
@@ -263,7 +263,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$ast2send_atr_param_map = new Asset_Attribute_Parameter_Map(0, $ast2send_param_map_value);
 
 		$ast2send_atr_param_map->setParameter('ast2send_assetid', 'Asset To Send Asset ID');
-		
+
 		?>
 		<table class="sq-backend-table" border="1" style="width: auto">
 			<tr>
@@ -336,7 +336,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 						label('Override the Asset To Send with the asset that causes this trigger to fire.', $prefix.'[override_asset_to_send]');
 						echo '<br/><strong>Note:</strong> You do not need to check this option if you only want to override the asset with the parameter map below. The value in the parameter map will override this option.';
 						//parameter map for Asset To Send
-						echo $ast2send_atr_param_map->paint($new_prefix.'_ast2send_param', !$write_access); 
+						echo $ast2send_atr_param_map->paint($new_prefix.'_ast2send_param', !$write_access);
 					?>
 				</td>
 			</tr>
@@ -401,14 +401,14 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$atr_parameter_map->process($new_prefix.'_param');
 
 		$settings['email_recipient_map'] = $atr_parameter_map->value;
-		
+
 		//checkbox for Asset To Send
 		$settings['override_asset_to_send'] = array_get_index($request_data, 'override_asset_to_send', FALSE);
-		
+
 		//parameter map for Asset To Send
 		$ast2send_param_map = new Asset_Attribute_Parameter_Map();
 		$ast2send_param_map->process($new_prefix.'_ast2send_param');
-		
+
 		$settings['asset_to_send_map'] = $ast2send_param_map->value;
 
 		return FALSE;
@@ -430,13 +430,13 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		return Array($state['assetid'] => Array('lookups'));
 
 	}//end getLocks()
-	
-	
+
+
 	/**
 	 * Return a parsed array of substrings from a comma separated string. All spaces around the
 	 * commas and empty strings will be removed from the result.
-	 * For example, the string "1 , 2, ,3" will be parsed to the array Array(1,2,3) 
-	 * 
+	 * For example, the string "1 , 2, ,3" will be parsed to the array Array(1,2,3)
+	 *
 	 * @param string $str	The comma separated string to be parsed
 	 * @return array		The parsed array
 	 */
@@ -450,9 +450,9 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				$result[] = $item;
 			}
 		}
-		
+
 		return $result;
-		
+
 	}//end _parseCommaSeparatedString()
 
 

@@ -169,10 +169,10 @@ class Page_Redirect extends Page
 	*/
 	function printFrontend()
 	{
-		
+
 		// check that the user has read access to the site
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}//end if
 
@@ -303,7 +303,7 @@ class Page_Redirect extends Page
 		$replacement = NULL;
 		$original_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
-		
+
 		if (preg_match('|^referring\_(.*)|', $keyword, $matches)) {
 			$referring_asset = $this->getReferringAsset();
 			$replacement = empty($referring_asset) ? '' : $referring_asset->getKeywordReplacement($matches[1]);
@@ -315,11 +315,11 @@ class Page_Redirect extends Page
 		} else {
 			return parent::getKeywordReplacement($original_keyword);
 		}
-		
+
 		if (!is_null($replacement)) {
 			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		}
-		
+
 		return $replacement;
 
 	}//end getKeywordReplacement()

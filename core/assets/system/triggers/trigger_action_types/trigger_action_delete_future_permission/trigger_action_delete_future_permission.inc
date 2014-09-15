@@ -173,7 +173,7 @@ class Trigger_Action_Delete_Future_Permission extends Trigger_Action
 	protected static function _getPermissionList()
 	{
 		return Array(SQ_PERMISSION_READ => 'Read', SQ_PERMISSION_WRITE => 'Write', SQ_PERMISSION_ADMIN => 'Admin');
-		
+
 	}//end _getPermissionList()
 
 

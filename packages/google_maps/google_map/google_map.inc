@@ -850,7 +850,7 @@ class Google_Map extends Page_Asset_Listing
 		foreach ($assetids as $index => $id) {
 		    $assetids[$index] = MatrixDAL::quote($id);
 		}
-		
+
 		$assetids = implode(', ', $assetids);
 		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = '.MatrixDAL::quote($root_id).' AND minorid IN ('.$assetids.')';
 

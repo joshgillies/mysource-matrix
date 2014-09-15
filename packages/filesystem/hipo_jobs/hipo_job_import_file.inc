@@ -17,7 +17,7 @@
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
-* Highly Intensive Processing Object (HIPO) to import a file from the file bridge 
+* Highly Intensive Processing Object (HIPO) to import a file from the file bridge
 *
 * Initial Running Vars :
 *    root_assetid	-	the ID of the root asset of the tree that will be imported
@@ -87,7 +87,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 
 	}//end getConfigVars()
 
-	
+
 	/**
 	* Returns the current Threshold.
 	*
@@ -103,12 +103,12 @@ class HIPO_Job_Import_File extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids'])) {
 			return 0;
 		}
-		
+
 		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_IMPORT_FILE_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
-	
-	
+
+
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
@@ -193,13 +193,13 @@ class HIPO_Job_Import_File extends HIPO_Job
 	{
 		$allowable_file_types = Array('physical_file', 'physical_folder');
 		$allowable_root_nodes = Array('physical_file', 'physical_folder', 'file_bridge');
-		// Parent (where to put the files/folders) bail if none set 
+		// Parent (where to put the files/folders) bail if none set
 		if (empty($this->_running_vars['parent_assetid']) || is_null($GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['parent_assetid']))) {
 			trigger_localised_error('FIL0003', E_USER_WARNING);
 			return FALSE;
 		}//end if
 
-		// No root node is set, bail out... 
+		// No root node is set, bail out...
 		if (is_null($this->_running_vars['root_assetid']) || empty($this->_running_vars['root_assetid'])) {
 			trigger_localised_error('FIL0001', E_USER_WARNING);
 			return FALSE;
@@ -231,7 +231,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 			}//end if
 			$this->_running_vars['todo_assetids'] = $child_assets;
 			$this->_running_vars['done_assetids'] = Array();
-			
+
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
 			unset($asset);
 		}//end foreach
@@ -242,7 +242,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 
 
 	/**
-	* Import the file/folder from under the root node 
+	* Import the file/folder from under the root node
 	*
 	* @param array		&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
@@ -279,7 +279,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 
 		$allowable_file_types = Array('physical_file', 'physical_folder', 'file_bridge');
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			
+
 			// get next asset to import
 			$array_keys = array_keys($this->_running_vars['todo_assetids']);
 			$assetid = array_shift($array_keys);
@@ -289,7 +289,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 
 			if (!is_null($parent) && !is_null($asset) && in_array(strtolower($asset->type()), $allowable_file_types) && (!$this->_running_vars['index_file'] || $asset->name != 'index.html')) {
 				if (strtolower($asset->type()) == 'physical_file') {
-					$step_data['message'] = translate('file_importing_file', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('file_importing_file'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -321,7 +321,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				} else {
-					$step_data['message'] = translate('file_importing_folder', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('file_importing_folder'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -353,7 +353,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 						$file_path = $index_file->getFilePath();
 						$file_contents = file_get_contents($file_path);
 						if (!empty($file_contents)) {
-							
+
 							$bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($new->id+2);
 							$wysiwyg_content = $GLOBALS['SQ_SYSTEM']->am->getAsset($new->id+3);
 
@@ -393,7 +393,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 								);
 						$created = $new->create($link);
 					}
-					
+
 					// If folder is empty we needn't and shouldn't spawn new hipo job for it
 					if (!empty($folders_children) && $created && $this->_running_vars['recursive']) {
 						if ($code_name = $this->spawnDependantImportFileHipo($asset->id, $new->id)) {
@@ -478,7 +478,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$extension = get_file_type($filename);
-		
+
 		switch($extension) {
 			case 'css':
 				$type = 'CSS_File';

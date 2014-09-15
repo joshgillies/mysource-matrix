@@ -159,7 +159,7 @@ class Bulkmail_Post_Office extends Asset
 
 	}//end canMoveLink()
 
-	
+
 	/**
 	* Use tools config file for sendmail path
 	*
@@ -182,7 +182,7 @@ class Bulkmail_Post_Office extends Asset
 			}
 		    }
 		}
-		
+
 		return $value;
 
 	}//end attr()

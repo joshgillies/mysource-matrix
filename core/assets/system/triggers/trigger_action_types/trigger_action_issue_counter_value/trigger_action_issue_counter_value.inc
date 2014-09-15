@@ -298,7 +298,7 @@ class Trigger_Action_Issue_Counter_Value extends Trigger_Action
 		$current_counters_input = ob_get_clean();
 
 
-		$output = translate('trigger_issue_counter_value', $var_name_input, $parameter_map_input, $current_counters_input);
+		$output = sprintf(translate('trigger_issue_counter_value'), $var_name_input, $parameter_map_input, $current_counters_input);
 
 		return $output;
 

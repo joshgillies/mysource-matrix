@@ -135,7 +135,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		$root_node_asset_id = $assetid;
 
 		// Compile a list of candidate links which reside DIRECTLY under our Root Node (default operation)
-		$assets = 'SELECT DISTINCT 
+		$assets = 'SELECT DISTINCT
 						a.assetid
 					FROM
 						sq_ast a, sq_ast_lnk l
@@ -164,7 +164,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 
 			// Ok, any matching assets should be linked under the Broadcasting Asset back to underneath our Root Node (ie; share a common Tree ID)
 			// Let's climb the tree...
-			$assets = 'SELECT DISTINCT 
+			$assets = 'SELECT DISTINCT
 							a.assetid
 						FROM
 							sq_ast a, sq_ast_lnk l, sq_ast_lnk_tree t
@@ -226,7 +226,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		$vars = Array('assetids' => Array($minor->id));
 		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		$major->updateLookups();
-		
+
 		return Array();
 
 	}//end execute()
@@ -376,8 +376,8 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 			$advanced_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		$contents = '<div class="sq-break-line-inputs">'.translate('trigger_remove_link_basic', $basic_part_2).'<br />'.
-					translate('trigger_remove_link_advanced', $basic_part_3, $advanced_part_1).'</div><br />'.
+		$contents = '<div class="sq-break-line-inputs">'.sprintf(translate('trigger_remove_link_basic'), $basic_part_2).'<br />'.
+					sprintf(translate('trigger_remove_link_advanced'), $basic_part_3, $advanced_part_1).'</div><br />'.
 					$asset_types_combo_box.
 					$basic_part_4;
 

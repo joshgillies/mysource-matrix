@@ -165,9 +165,9 @@ class Data_Source_Record_Set extends Asset
 	* @access public
 	*/
 	public function getKeywordReplacement($keyword)
-	{	
+	{
 		$replacement = NULL;
-		
+
 		// Remove any modifiers from keyword
 		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
@@ -187,7 +187,7 @@ class Data_Source_Record_Set extends Asset
 
 				// Then apply the ones we had remaining, then return it
 				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
-				
+
 				unset($contexted_asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
@@ -195,7 +195,7 @@ class Data_Source_Record_Set extends Asset
 			}//end if contextid is not the currently active context
 
 		}//end if contextid is not NULL
-		
+
 
 		if (strpos($keyword, 'data_source_record_set_') !== FALSE) {
 			$keyword = substr($keyword, strlen('data_source_record_set_'));
@@ -239,13 +239,13 @@ class Data_Source_Record_Set extends Asset
 		else {
 					// we still have to ask parent to replace those unfamilier keyword
 					$replacement = parent::getKeywordReplacement($keyword);
-		} 
- 
-		
+		}
+
+
 		if (count($modifiers) > 0) {
 			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		}
-		
+
 		return $replacement;
 
 	}//end getKeywordReplacement()

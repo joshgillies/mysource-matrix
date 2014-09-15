@@ -228,7 +228,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						?></span><?php
 					}
 					?>
-					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					&nbsp; &nbsp; <?php echo sprintf(translate('page_number'), round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
 					<?php
 					if (($link_offset + $num_per_page) < $total_assets) {
 						?><a title="<?php echo translate('pagination_go_to_next') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -532,7 +532,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					<table border="0">
 						<tr>
 							<td class="sq-backend-data">
-								<?php echo translate('cron_deadlock_warning_section_1', $asset->attr('warn_after_num_run_checks')); ?>
+								<?php echo sprintf(translate('cron_deadlock_warning_section_1'), $asset->attr('warn_after_num_run_checks')); ?>
 								<ol class="sq-backend-data">
 									<li class="sq-backend-data"><?php echo translate('cron_deadlock_warning_list_item_1'); ?></li>
 									<li class="sq-backend-data"><?php echo translate('cron_deadlock_warning_list_item_2'); ?></li>
@@ -542,12 +542,12 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 								if (!empty($current_job_id)) {
 								?>
 								<p class="sq-backend-data">
-									<?php echo translate('cron_deadlock_warning_offending_job', get_asset_tag_line($current_job_id)); ?>
+									<?php echo sprintf(translate('cron_deadlock_warning_offending_job'), get_asset_tag_line($current_job_id)); ?>
 								</p>
 								<?php
 								}
 								?>
-								<?php echo translate('cron_deadlock_warning_check_error_log', hide_system_root(SQ_LOG_PATH).'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION); ?>
+								<?php echo sprintf(translate('cron_deadlock_warning_check_error_log'), hide_system_root(SQ_LOG_PATH).'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION); ?>
 								<p class="sq-backend-data"><?php echo translate('cron_deadlock_warning_section_2'); ?></p>
 								<p class="sq-backend-data">
 								<b><?php echo translate('cron_deadlock_warning_section_3'); ?></b>
@@ -711,8 +711,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				?><td class="sq-backend-table-cell sq-top-align-children">
 					<span class="sq-inline-fields-wrapper">
 					<?php
-					echo translate('cron_excluded_time_hour', $from, $to);
-					echo translate('cron_excluded_time_days', $days);
+					echo sprintf(translate('cron_excluded_time_hour'), $from, $to);
+					echo sprintf(translate('cron_excluded_time_days'), $days);
 					?>
 					</span>
 				</td><td class="sq-backend-table-cell" style="text-align:center;"><?php
@@ -721,7 +721,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<tr><td colspan="2">
-				<?php 
+				<?php
 					check_box($prefix.'_add_exclude_time', TRUE, FALSE);
 					label('Add new blackout period', $prefix.'_add_exclude_time');
 				?></tr>
@@ -744,12 +744,12 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						$days = implode(', ', $selected_days);
 					}
 					?><td class="sq-backend-table-cell" colspan="2"><?php
-						echo translate('cron_excluded_time_hour', $from, $to);
+						echo sprintf(translate('cron_excluded_time_hour'), $from, $to);
 						if (!empty($days)) {
 							if (count($selected_days) == 7) {
 								echo translate('cron_excluded_time_every_day');
 							} else {
-								echo translate('cron_excluded_time_days', $days);
+								echo sprintf(translate('cron_excluded_time_days'), $days);
 							}
 						}
 					?></td></tr><?php
@@ -928,7 +928,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			multiple_asset_finder($prefix.'_dead_lock_emails_to', $users, Array('user' => 'D', 'user_group' => 'D'));
 		} else {
 			?><ul><?php
-			
+
 				foreach ($users as $assetid) {
 					if ($assetid == '0') continue;
 					echo '<li>'.get_asset_tag_line($assetid).'</li>';

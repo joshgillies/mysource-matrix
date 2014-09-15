@@ -97,7 +97,7 @@ class Content_Type_Image_Prefs extends Prefs
 	*/
 	function Content_Type_Image_Prefs($pref_file='')
 	{
-		
+
 			$this->Prefs($pref_file);
 
 	}//end constructor

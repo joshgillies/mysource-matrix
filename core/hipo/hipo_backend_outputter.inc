@@ -291,10 +291,10 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 									<tr <?php echo $style; ?> <?php echo $id; ?>>
 										<td class="sq-backend-data">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
-											<?php if($field['name'] != '&nbsp;'){ 
+											<?php if($field['name'] != '&nbsp;'){
 												?>
 												<span class="sq-backend-field-label"><?php echo $field['name']; ?> </span>
-												<?php 
+												<?php
 											}
 												echo $field['contents'];
 												if ($field['note']) $this->note($field['note']);

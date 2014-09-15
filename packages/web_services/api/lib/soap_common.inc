@@ -1060,7 +1060,7 @@ class SOAP_Common
 					<th><?php echo $username_label; ?></th>
 					<td><?php
 						if ($write_access) {
-							text_box($login_field_name, array_get_index($settings, 'login', ''), 35); 
+							text_box($login_field_name, array_get_index($settings, 'login', ''), 35);
 						} else {
 							echo array_get_index($settings, 'login', '');
 						}

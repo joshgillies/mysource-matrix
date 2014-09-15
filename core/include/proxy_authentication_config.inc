@@ -190,7 +190,7 @@ class Proxy_Authentication_Config extends Config
 				}
 				$o->note(translate('ssl_accelerator_match_method_note'));
 			$o->closeField();
-			
+
 			$o->openField(translate('ssl_accelerator_ip_address'));
 				if ($write_access) {
 					text_box($class.'[SQ_SSLA_IP]', SQ_SSLA_IP, 15);
@@ -199,7 +199,7 @@ class Proxy_Authentication_Config extends Config
 				}
 				$o->note(translate('ssl_accelerator_ip_address_note'));
 			$o->closeField();
-			
+
 			$o->openField(translate('ssl_accelerator_header_name'));
 				if ($write_access) {
 					text_box($class.'[SQ_SSLA_HEADER_NAME]', SQ_SSLA_HEADER_NAME, 15);
@@ -208,7 +208,7 @@ class Proxy_Authentication_Config extends Config
 				}
 				$o->note(translate('ssl_accelerator_header_name_note'));
 			$o->closeField();
-			
+
 			$o->openField(translate('ssl_accelerator_header_value'));
 				if ($write_access) {
 					text_box($class.'[SQ_SSLA_HEADER_VALUE]', SQ_SSLA_HEADER_VALUE, 15);
@@ -217,7 +217,7 @@ class Proxy_Authentication_Config extends Config
 				}
 				$o->note(translate('ssl_accelerator_header_value_note'));
 			$o->closeField();
-			
+
 			$o->openField(translate('ssl_accelerator_force_secure'));
 				if ($write_access) {
 					combo_box($class.'[SQ_SSLA_FORCE_SECURE]', Array(translate('no'), translate('yes')), FALSE, SQ_SSLA_FORCE_SECURE);
@@ -410,7 +410,7 @@ class Proxy_Authentication_Config extends Config
 
 		$add = array_get_index($alt_post, 'add', 0);
 		if ($add) {
-			// stop Matrix from throwing PHP notice if the 
+			// stop Matrix from throwing PHP notice if the
 			// $all_proxies array is empty
 			if (!empty($all_proxies)) {
 				$new_key = max(array_keys($all_proxies)) + 1;

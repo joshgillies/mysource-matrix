@@ -201,8 +201,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 
 				$layout_name = empty($layout_name) ? 'paint_layout::system::frontend' : $layout_name;
 
-				$display_name = translate('defined_layout_display', empty($data['type']) ? translate('system') : ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
-				$display_override_name = translate('defined_override_layout_display', empty($data['type']) ? translate('system') : ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
+				$display_name = sprintf(translate('defined_layout_display'), empty($data['type']) ? translate('system') : ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
+				$display_override_name = sprintf(translate('defined_override_layout_display'), empty($data['type']) ? translate('system') : ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
 
 				// to prevent overwriting inherited values unless a valid change was made
 				hidden_field($prefix.'['.$url.']['.$layout_name.'][value][original]', $data['value']);

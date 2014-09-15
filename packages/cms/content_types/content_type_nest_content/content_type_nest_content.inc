@@ -173,7 +173,7 @@ class Content_Type_Nest_Content extends Content_Type
 		if (empty($asset_link)) {
 			$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 		}
-		$content = '<strong>'.translate('cms_ct_nest_content_nested_content', get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
+		$content = '<strong>'.sprintf(translate('cms_ct_nest_content_nested_content'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
 
 		return $content;
 

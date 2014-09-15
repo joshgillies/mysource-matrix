@@ -30,8 +30,8 @@ require_once dirname(__FILE__).'/../../promotional_rule/promotional_rule_edit_fn
 */
 class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 {
-	
-	
+
+
 	/**
 	 * Constructor
 	 */
@@ -40,8 +40,8 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 		parent::__construct();
 
 	}//end constructor
-	
-	
+
+
 	/**
 	 * Paints the promotional rule's interface
 	 *
@@ -62,7 +62,7 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 		if (is_null($rule_data)) {
 			$rule_data = $asset->getDefaultRuleData();
 		}
-		
+
 		// Paint the discount type selection
 		$o->openField(translate('ecom_promotional_rule_type_quantity_discount_type'));
 			$discount_types = $asset->getDiscountTypes();
@@ -73,7 +73,7 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 			}
 			$o->note(translate('ecom_promotional_rule_type_quantity_discount_type_note'));
 		$o->closeField();
-		
+
 		// Paint the new discount option if we have write access
 		if ($write_access) {
 			$o->openField(translate('ecom_promotional_rule_type_quantity_new_discount_option'));
@@ -84,7 +84,7 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 				text_box($prefix.'[new_discount_amount]');
 			$o->closeField();
 		}
-		
+
 		// Paint the discount options
 		$o->openField(translate('ecom_promotional_rule_type_quantity_discount_options'));
 			if (empty($rule_data['discount_options'])) {
@@ -146,15 +146,15 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 				<?php
 			}
 		$o->closeField();
-		
+
 		// Add section note
 		$o->sectionNote(translate('ecom_promotional_rule_type_quantity_section_note'));
-		
+
 		return $write_access;
-		
+
 	}//end paintRule()
-	
-	
+
+
 	/**
 	 * Process the promotional rule's interface
 	 *
@@ -169,27 +169,27 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
 		parent::processRule($asset, $o, $prefix, $rule_data);
-		
+
 		if (!isset($_POST[$prefix])) return FALSE;
-		
+
 		// Setup default values if there is no rule data
 		if (is_null($rule_data)) {
 			$rule_data = $asset->getDefaultRuleData();
 		}
-		
+
 		// Save discount type
 		$discount_type = array_get_index($_POST[$prefix], 'discount_type');
 		if (array_key_exists($discount_type, $asset->getDiscountTypes())) {
 			$rule_data['discount_type'] = $discount_type;
 		}
-		
+
 		// Save the current discount options
 		$discount_options = Array();
 		$post_discount_options = array_get_index($_POST[$prefix], 'discount_options', Array());
 		foreach ($post_discount_options as $i => $option) {
 			// Do not save the option if its delete checkbox is selected
 			if (isset($option['delete'])) continue;
-			
+
 			// Add the option to the option list if the inputs are valid
 			$asset_quantity = array_get_index($option, 'asset_quantity');
 			$discount_amount = array_get_index($option, 'discount_amount');
@@ -200,29 +200,29 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 				}
 			}
 		}
-		
+
 		// Add new discount option
 		$new_asset_quantity = array_get_index($_POST[$prefix], 'new_asset_quantity');
 		$new_discount_amount = array_get_index($_POST[$prefix], 'new_discount_amount');
-		
+
 		if (is_numeric($new_asset_quantity) && is_numeric($new_discount_amount)) {
 			$new_asset_quantity = (int) $new_asset_quantity;
 			if ($new_asset_quantity >= 0) {
 				$discount_options[$new_asset_quantity] = (float) $new_discount_amount;
 			}
 		}
-		
+
 		// Sort the asset quantiy ascendingly
 		if (!ksort($discount_options)) return FALSE;
-		
+
 		// Set the new discount options to rule data
 		$rule_data['discount_options'] = $discount_options;
-		
+
 		return TRUE;
-		
+
 	}//end processRule()
-	
-	
+
+
 }//end class
 
 ?>

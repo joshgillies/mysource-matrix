@@ -95,14 +95,14 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 					var variety_type = get_form_element_value("<?php echo $prefix; ?>_variety_type");
 					var constrain    = get_form_element_value("<?php echo $prefix; ?>_constrain");
-					
+
 					document.getElementById('<?php echo $prefix; ?>_field_constrain').style.display	= (variety_type == 'resize') ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_width').style.display		= (variety_type == 'resize' && (constrain == 'width' || constrain == 'none')) ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_height').style.display	= (variety_type == 'resize' && (constrain == 'height' || constrain == 'none'))  ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_dimension').style.display	= (variety_type == 'resize' && (constrain == 'dimension' || constrain == 'centre_weighted_square'))  ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_upload').style.display	= (variety_type == 'upload') ? '' : 'none';
 					return true;
-					
+
 				}// end <?php echo $prefix; ?>_update_visible_fields()
 
 				// -->

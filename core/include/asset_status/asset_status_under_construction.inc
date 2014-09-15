@@ -156,7 +156,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
-                    
+
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 					$is_dependant = $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
@@ -205,7 +205,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 										'assetid'           => $this->owner->id,
 									  );
 			$metadata_screen_url = htmlspecialchars(replace_query_string_vars($replace_string_vars));
-			return translate('cannot_make_live_metadata_incomplete', '<a href="'.$metadata_screen_url.'">'.strtolower(translate('metadata')).'</a>');
+			return sprintf(translate('cannot_make_live_metadata_incomplete'), '<a href="'.$metadata_screen_url.'">'.strtolower(translate('metadata')).'</a>');
 
 		}
 		return '';

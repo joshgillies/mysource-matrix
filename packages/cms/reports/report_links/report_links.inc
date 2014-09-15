@@ -351,7 +351,7 @@ class Report_Links extends Report
 
 		// update the report info, so that the user cannot send multiple notification to asset admin
 		// disable the 'Report Broken Links Now' button if already sent
-		$this->setAttrValue('report_info', translate('cms_report_links_broken_info', $this->attr('generated_date')));
+		$this->setAttrValue('report_info', sprintf(translate('cms_report_links_broken_info'), $this->attr('generated_date')));
 		$this->saveAttributes();
 
 		return TRUE;

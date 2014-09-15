@@ -127,8 +127,8 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
+
+
 	/**
 	* Run this cron job
 	*

@@ -631,8 +631,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		// Do we have any questions of our own?
 		$sort_order = $asset->attr('sort_order');
 		$output = '';
-		
-		
+
+
 
 		if (!empty($sort_order)) {
 
@@ -694,7 +694,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	}//end generateGenericSection()
 
 
-	
+
 	//--        FORM SECTION ACTIONS        --//
 
 
@@ -1077,7 +1077,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processSelectedAction()
 
-	
+
 	/**
 	* Make an action name valid by adding a numeric index to it if a duplicate
 	*
@@ -1116,7 +1116,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		return $name;
 
 	}//end _makeValidActionName()
-	
-	
+
+
 }//end class
 ?>

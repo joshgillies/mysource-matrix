@@ -194,9 +194,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				}
 				$max_size = min($ini_size, $post_size, $mem_limit_size);
 			}
-			?><br/><span style="font-size: 10px;"><?php echo translate('core_cannot_upload_file_larger_than', strtoupper(easy_filesize($max_size))); ?></span><?php
+			?><br/><span style="font-size: 10px;"><?php echo sprintf(translate('core_cannot_upload_file_larger_than'), strtoupper(easy_filesize($max_size))); ?></span><?php
 			if (!empty($asset->allowed_extensions)) {
-				$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions, strtolower(translate('and')))));
+				$o->note(sprintf(translate('core_only_upload_files_of_type'), make_readable_list($asset->allowed_extensions, strtolower(translate('and')))));
 			}
 			echo '</div>';
 		}//end if
@@ -529,14 +529,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if (!copy($info['tmp_name'], $asset->data_path.'/'.$name)) {
 				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
 				return FALSE;
-			}//end if			
+			}//end if
 		} else if (isset($info['created_file']) && $info['created_file'] === TRUE) {
-			// when empty file is created by matrix when no file is uploaded 
+			// when empty file is created by matrix when no file is uploaded
 			if (!rename($info['tmp_name'].'/'.$name, $asset->data_path.'/'.$name)) {
 				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
 				return FALSE;
 			}//end if
-		
+
 		} else {
 			trigger_localised_error('CORE0067', E_USER_ERROR);
 			return FALSE;

@@ -135,9 +135,9 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 	$admin_access = $owner->adminAccess('permissions');
 	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
-	
+
 	foreach ($perms as $title => $perm) {
-		$o->openSection(translate('permission_section', translate($title)));
+		$o->openSection(sprintf(translate('permission_section'), translate($title)));
 
 		$permissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm);
 
@@ -153,7 +153,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 		ksort($direct);
 
-		$o->openSection(translate('existing_permissions', translate($title)));
+		$o->openSection(sprintf(translate('existing_permissions'), translate($title)));
 			$o->openRaw();
 
 				if (!empty($direct)) {
@@ -206,14 +206,14 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					}//end foreach inherited
 
 				} else {
-					echo '<p><em>'.translate('no_access_permissions_set', strtolower($title)).'</em></p>';
+					echo '<p><em>'.sprintf(translate('no_access_permissions_set'), strtolower($title)).'</em></p>';
 				}//end if
 			$o->closeRaw();
 		$o->closeSection();
 
 		if ($admin_access) {
 
-			$o->openSection(translate('add_new_permissions', translate($title)));
+			$o->openSection(sprintf(translate('add_new_permissions'), translate($title)));
 				$o->openField(translate('new'));
 					?>
 					<table class="sq-simple-table">
@@ -226,7 +226,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 								<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
 								<?php
 								combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-								echo ' '.translate('public_type_permission', translate($title));
+								echo ' '.sprintf(translate('public_type_permission'), translate($title));
 								?>
 								</span>
 							</td>
@@ -239,7 +239,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 								<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
 								<?php
 								combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-								echo ' '.translate('specific_type_permission', translate($title)).' '.translate('to');
+								echo ' '.sprintf(translate('specific_type_permission'), translate($title)).' '.translate('to');
 								?>
 								</span>&nbsp;
 							</td>
@@ -266,7 +266,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				$o->openField(translate('cascade_permission_changes'));
 					check_box($prefix.'_permissions[cascade_changes]', '1', TRUE);
 					label(translate('cascade_permissions'), $prefix.'_permissions[cascade_changes]');
-					$o->note(translate('cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+					$o->note(sprintf(translate('cascade_permissions_note'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 				$o->closeField();
 			$o->closeSection();
 
@@ -274,15 +274,15 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				$o->openField(translate('manually_cascade_permissions'));
 					check_box($prefix.'_permissions[manual_cascade]');
 					label(translate('manually_cascade_permissions_option'), $prefix.'_permissions[manual_cascade]');
-					$o->note(translate('manually_cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+					$o->note(sprintf(translate('manually_cascade_permissions_note'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 				$o->closeField();
 			$o->closeSection();
 		}
 	}
-	
+
 	//FUTURE PERMISSION (SIMILAR TO FUTURE STATUS)
 	$o->openSection(translate('future_permission'));
-	
+
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
 	$fp_jobs = Cron_Job_Future_Permission::getActiveJobs($owner);
 	$o->openSection(translate('scheduled_future_permission_change'));
@@ -360,7 +360,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 							} else {
 								echo translate('yes');
 							}
-							
+
 							if ($admin_access) {
 						?>
 						</td>
@@ -380,7 +380,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				?>
 			</table>
 			<?php
-			
+
 			$o->closeRaw();
 		} else if (!$admin_access){
 			$o->openField('&nbsp;','wide_col');
@@ -403,7 +403,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					$edit_fns->paintInLineBackend($fp, $o, $prefix.'_new_fp');
 					echo '<br />';
 
-					$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+					$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
 
 					$print_commit_button = TRUE;
 				} else {
@@ -413,7 +413,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		$o->closeSection();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 	}//end if
-	
+
 	$o->closeSection();
 	//END FUTURE PERMISSION SECTION
 
@@ -436,7 +436,7 @@ function processPermissions(&$owner, &$o, &$ei)
 {
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 		exit();
 	}
 
@@ -499,9 +499,9 @@ function processPermissions(&$owner, &$o, &$ei)
 		}// end if
 
 	}//end if is NULL cron mgr
-	
+
 	//END PROCESS FUTURE PERMISSION
-	
+
 	foreach ($perms as $title => $perm) {
 		// we need to check for write access each time because
 		// we may actually be revoking write access and then
@@ -625,7 +625,7 @@ function _sortCronJobsByDate($cron_jobs) {
 	}
 	//sort the array by date but keep the keys associated with them
 	asort($assetid_date_arr);
-	
+
 	//the sorted cron jobs array
 	$sorted_cron_jobs = Array();
 	foreach ($assetid_date_arr as $assetid => $date) {
@@ -639,9 +639,9 @@ function _sortCronJobsByDate($cron_jobs) {
 		}
 		$sorted_cron_jobs[] = $matched;
 	}
-	
+
 	return $sorted_cron_jobs;
-	
+
 }//end _sortCronJobByDate()
 
 

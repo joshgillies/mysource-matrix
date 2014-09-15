@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 class Page_Decision_Tree extends Page
 {
 
-	
+
 	/**
 	* Constructor
 	*
@@ -42,11 +42,11 @@ class Page_Decision_Tree extends Page
 	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		parent::__construct($assetid);							 
+		parent::__construct($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -60,7 +60,7 @@ class Page_Decision_Tree extends Page
 	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
-		
+
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
@@ -80,21 +80,21 @@ class Page_Decision_Tree extends Page
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
-		
+
 		$asset = new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 		$args = Array('content' => $this->_getDefaultBodycopyContent('page_contents'));
 		if (!$asset->create($copy_link, $args)) return FALSE;
-		
+
 		if (!$this->_createTypeFormat('decision_tree_question_type_select')) return FALSE;
 		if (!$this->_createTypeFormat('decision_tree_question_type_numeric')) return FALSE;
 
 		return $this->createResultBodycopy('Default Result Bodycopy', 'default_result_bodycopy');
 
 	}//end _createAdditional()
-	
-	
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -112,8 +112,8 @@ class Page_Decision_Tree extends Page
 		return $page_links;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Returns TRUE if we can delete the passed link, or a string with the error msg
 	*
@@ -134,8 +134,8 @@ class Page_Decision_Tree extends Page
 		return parent::isDeletableLink($linkid);
 
 	}//end isDeletableLink()
-	
-	
+
+
 	/**
 	* Paint the passed asset on the frontend
 	* Override printFrontend() if you wish to pass a different asset to print
@@ -148,22 +148,22 @@ class Page_Decision_Tree extends Page
 	*/
 	public function printFrontendAsset(Asset $asset, $design=NULL)
 	{
-		
+
 		//we are getting an AJAX Request
 		if (isset($_GET['q_id']) && isset($_GET['a_id']) && isset($_GET['pts'])){
 			if (!$asset->readAccess()) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $asset->name));
 				return;
 			}
 			$this->printNextStep($_GET['q_id'], $_GET['a_id'], $_GET['pts']);
 			return;
 		}
-		
+
 		parent::printFrontendAsset($asset, $design);
-		
+
 	}//printFrontendAsset()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -174,14 +174,14 @@ class Page_Decision_Tree extends Page
 	*/
 	public function printBody()
 	{
-		
+
 		$replacements = Array();
-		
+
 		$page_contents = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents', 'major', TRUE);
 		if (empty($page_contents)) return;
-		
+
 		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents['minorid']);
-		
+
 		// check to see if the bodycopy attached to this form has any content
 		if ($bodycopy && !$bodycopy->isEmpty()) {
 			$keyword_list = $bodycopy->getKeywords();
@@ -190,7 +190,7 @@ class Page_Decision_Tree extends Page
 				foreach ($keyword_list as $keyword) {
 					// Question related keywords are found here
 					$replacement = $this->getPageContentsKeywordReplacement($keyword);
-					
+
 					if (is_null($replacement)) {
 						// If not picked up by first function, this will pick up
 						// replacements placed in separate functions - CAPTCHA,
@@ -208,10 +208,10 @@ class Page_Decision_Tree extends Page
 			$bodycopy->setKeywordReplacements($replacements);
 			$bodycopy->printBody();
 
-		} 
+		}
 	}//end printBody()
-	
-	
+
+
 	/**
 	* Called by printBody() everytime there is an AJAX request to get the next question
 	*
@@ -223,15 +223,15 @@ class Page_Decision_Tree extends Page
 	* @access public
 	*/
 	public function printNextStep($question_id, $answer, $total_points){
-		
+
 		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
 		if (is_null($question)) return;
-		
+
 		if ($question->type() == 'decision_tree_question_type_select' && $answer === $question->attr('empty_key')) return;
-		
+
 		$destinations = $question->attr('question_destinations');
 		if (empty($destinations)) return;
-		
+
 		if ($question->type() == 'decision_tree_question_type_numeric'){
 			$rules = $question->attr('rules');
 			foreach ($rules as $rule_index => $rule_details){
@@ -243,12 +243,12 @@ class Page_Decision_Tree extends Page
 			}
 			if (empty($valid)) return;
 		}
-		
+
 		$answer_dest = $destinations[$answer];
 		$answer_pts = (!empty($answer_dest['points_value'])) ? $answer_dest['points_value'] : 0;
 		//add the total points so far + the points of the answer to this question
 		$accumulated_pts = $total_points + $answer_pts;
-			
+
 		if (!empty($answer_dest['next_question'])) {
 			$new_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($answer_dest['next_question']);
 			$bodycopy = $this->getBodycopy($new_question->type(), 'type_formats');
@@ -262,18 +262,18 @@ class Page_Decision_Tree extends Page
 					break;
 				}
 			}
-			
+
 			if (!isset($bodycopy)){
 				//use default result bodycopy
 				$bodycopy = $this->getBodycopy('default_result_bodycopy', 'result_bodycopies');
 			}
 		}
-		
+
 		$replacements = Array();
 		// check to see if the bodycopy attached to this form has any content
 		if ($bodycopy && !$bodycopy->isEmpty()) {
 			$keyword_list = $bodycopy->getKeywords();
-			
+
 			if (!empty($keyword_list)) {
 				foreach ($keyword_list as $keyword) {
 					// Question related keywords are found here
@@ -282,7 +282,7 @@ class Page_Decision_Tree extends Page
 						$replacements[$keyword] = $accumulated_pts;
 						continue;
 					}
-					
+
 					if (isset($new_question)){
 						$replacement = $this->getTypeFormatKeywordReplacement($keyword, $new_question);
 					}
@@ -307,13 +307,13 @@ class Page_Decision_Tree extends Page
 			} else {
 				echo '<div class="sq_result_bodycopy">';
 			}
-			
+
 			$bodycopy->printBody();
 			echo '</div>';
 		}
 	}//end printNextStep()
-	
-	
+
+
 	/**
 	* Generated all the javascript code required to dynamically go through the decision path.
 	* Makes use of AJAX requests.
@@ -325,21 +325,21 @@ class Page_Decision_Tree extends Page
 	* @access public
 	*/
 	public function generateJS($question){
-		
+
 		$current_url = $this->getURL();
 		$default_val = ($question->type() == 'decision_tree_question_type_select') ? $question->attr('empty_key') : '';
 		// regex code - allow empty or leading plus or minute, digits, decimal point
 		$regex_code = '/(^$)|(^[-+]?\d*\.?\d+$)/';
-		
+
 		ob_start();
 		?>
 		<script type="text/javascript">
-		
+
 			var accum_points=new Array();
 			var curr_id = 1;
-				
-			function get_next_step(answer, question) 
-			{	
+
+			function get_next_step(answer, question)
+			{
 
 				if (document.getElementById("q"+question).type == 'text'){
 					var result = decision_tree_validate_numeric(answer);
@@ -355,7 +355,7 @@ class Page_Decision_Tree extends Page
 				curr_id = req_div.id;
 				curr_id = curr_id.substring(1);
 				curr_id = parseInt(curr_id);
-				  
+
 				try
 				{
 					xmlHttp=new XMLHttpRequest();
@@ -372,10 +372,10 @@ class Page_Decision_Tree extends Page
 						return;
 					}
 				}
-				
+
 				var points = calculate_points(question);
 				var url = "<?php echo $current_url ?>";
-				
+
 				xmlHttp.onreadystatechange = question_state_changed;
 				url=url+'?a_id='+answer+'&q_id='+question+'&pts='+points;
 				xmlHttp.open("GET", url, true);
@@ -385,38 +385,38 @@ class Page_Decision_Tree extends Page
 			function question_state_changed()
 			{
 				if (xmlHttp.readyState==4 && xmlHttp.status==200)
-				{ 		  
+				{
 				  var q_no = curr_id;
 				  q_no++;
-				  
+
 				  var nextdiv = document.getElementById("q"+q_no);
 				  var response = xmlHttp.responseText;
 				  nextdiv.innerHTML=response;
-				  
+
 				  //create another question DIV after this one ready to store the next answer.
 				  q_no++;
 				  var divIdName = "q"+q_no;
 				  var newdiv = document.createElement('div');
 				  newdiv.setAttribute("id",divIdName);
-				  nextdiv.appendChild(newdiv);								
+				  nextdiv.appendChild(newdiv);
 				}
 			}
-			
+
 			function calculate_points(question)
 			{
 				var points = 0;
 				var q_no = curr_id;
-				
+
 				var points_element = document.getElementById("q"+question+"_points");
 				var point_val = 0;
 				if (points_element != null) point_val = points_element.value;
 				accum_points[q_no] = parseFloat(point_val);
-				
-				
+
+
 				for (var i = 1; i <= q_no; i++) {
 					points = points + accum_points[i];
 				}
-				
+
 				return points;
 			}
 
@@ -451,7 +451,7 @@ class Page_Decision_Tree extends Page
 		ob_end_clean();
 
 		return $contents;
-		
+
 	}//end generateJS()
 
 
@@ -468,7 +468,7 @@ class Page_Decision_Tree extends Page
 		$edit_fns = $this->getEditFns();
 		$folder   = $this->getFolder('type_formats');
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('decision_tree_question');
-		
+
 		// check that the new type is valid
 		if ($new_type != '' && !in_array($new_type, $types)) {
 			trigger_localised_error('CMS0045', E_USER_WARNING, $new_type);
@@ -509,8 +509,8 @@ class Page_Decision_Tree extends Page
 		return TRUE;
 
 	}//end _createTypeFormat()
-	
-	
+
+
 	/**
 	* Return a reference to a folder linked to this asset determined by the passed in value on the link
 	*
@@ -531,8 +531,8 @@ class Page_Decision_Tree extends Page
 		return $folder;
 
 	}//end getFolder()
-	
-	
+
+
 	/**
 	* Get the default content for a bodycopy
 	*
@@ -554,8 +554,8 @@ class Page_Decision_Tree extends Page
 		return '';
 
 	}//end _getDefaultBodycopyContent()
-	
-	
+
+
 	/**
 	* returns a reference to a bodycopy based of the name of the bodycopy
 	* and the type (i.e the folder is type_formats or result_bodycopies)
@@ -575,7 +575,7 @@ class Page_Decision_Tree extends Page
 
 		$folder = $this->getFolder($type);
 		if (is_null($folder)) return $null;
-		
+
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
 		if (empty($bodycopy_link)) return $null;
 
@@ -584,8 +584,8 @@ class Page_Decision_Tree extends Page
 		return $bodycopy;
 
 	}//end getBodycopy()
-	
-	
+
+
 	/*
 	* Makes a call to getLinks() function to get all bodycopyies under the Result Bodycopies folder.
 	* Mainly used it Page_Decision_Tree_Edit_Fns.
@@ -595,18 +595,18 @@ class Page_Decision_Tree extends Page
 	*/
 	public function getResultBodycopies()
 	{
-		
+
 		$folder = $this->getFolder('result_bodycopies');
-		$bodycopies = (!empty($folder)) ? $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE) : Array();	
-			
+		$bodycopies = (!empty($folder)) ? $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE) : Array();
+
 		return $bodycopies;
-		
+
 	}//end getResultBodycopies()
-	
-	
+
+
 	/**
 	* Creates bodycopies for this asset under the Result Bodycopies folder.
-	* 
+	*
 	* @param string	$name		the name of the bodycopy
 	* @param string	$link_value	the required link value
 	*
@@ -617,12 +617,12 @@ class Page_Decision_Tree extends Page
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$asset = new Bodycopy();
 		$parent = $this->getFolder('result_bodycopies');
 		if (is_null($parent)) return FALSE;
-		
+
 		$copy_link = Array('asset' => $parent, 'value' => $link_value ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', $name);
 		if (!$asset->create($copy_link)) {
@@ -630,15 +630,15 @@ class Page_Decision_Tree extends Page
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		return TRUE;
 
 	}//end createResultBodycopy()
-	
-	
+
+
 	/**
 	* Get a replacement for a keyword used in the type format bodycopies
 	*
@@ -650,7 +650,7 @@ class Page_Decision_Tree extends Page
 	*/
 	public function getTypeFormatKeywordReplacement($keyword, $question_asset)
 	{
-		
+
 		$replacement = NULL;
 		if (empty($question_asset)) return $replacement;
 		$is_question_keyword = preg_match('/^question\_(.*)$/', $keyword, $question_matches);
@@ -662,27 +662,27 @@ class Page_Decision_Tree extends Page
 				case 'field' :
 					$replacement = $question_asset->getHtmlField();
 				break;
-	
+
 				case 'title' :
 					$replacement = $question_asset->attr('name');
 				break;
-	
+
 				case 'note' :
 					$replacement = $question_asset->attr('note');
 				break;
-				
+
 				case 'button' :
 					if ($question_asset->type() != 'decision_tree_question_type_numeric') break;
 					$replacement = $question_asset->getHtmlButton();
 				break;
 			}//end switch
-		} 
+		}
 
 		return $replacement;
 
 	}//end getTypeFormatKeywordReplacement()
-	
-	
+
+
 	/**
 	* Get a replacement for a keyword used in the Page Contents of this asset
 	*
@@ -693,33 +693,33 @@ class Page_Decision_Tree extends Page
 	* @return mixed string|NULL
 	*/
 	public function getPageContentsKeywordReplacement($keyword){
-		
+
 		$replacement = NULL;
 		$replacements = Array();
-		
+
 		if ($keyword == 'reset_button') {
 			ob_start();
 			reset_button('qReset', 'Reset', 'reset_questions()');
 			$replacement = ob_get_contents();
-			ob_end_clean();	
+			ob_end_clean();
 			return $replacement;
 		}
-		
+
 		if ($keyword != 'decision_tree_contents') return $replacement;
-		
+
 		$first_question = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'decision_tree_question', FALSE, 'first_question');
 		if (empty($first_question)) {
-			trigger_localised_error('CMS0118', E_USER_NOTICE, $this->id);	
+			trigger_localised_error('CMS0118', E_USER_NOTICE, $this->id);
 			return $replacement;
 		}
 
 		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($first_question['minorid']);
-		
+
 		$bodycopy = $this->getBodycopy($question->type(), 'type_formats');
 		// check to see if the bodycopy attached to this form has any content
 		if ($bodycopy && !$bodycopy->isEmpty()) {
 			$keyword_list = $bodycopy->getKeywords();
-			
+
 			if (!empty($keyword_list)) {
 				foreach ($keyword_list as $keyword) {
 					$replacement = NULL;
@@ -729,7 +729,7 @@ class Page_Decision_Tree extends Page
 					}
 					// Question related keywords are found here
 					$replacement = $this->getTypeFormatKeywordReplacement($keyword, $question);
-					
+
 					if (is_null($replacement)) {
 						// If not picked up by first function, this will pick up
 						// replacements placed in separate functions - CAPTCHA,
@@ -758,14 +758,14 @@ class Page_Decision_Tree extends Page
 			$ajax = $this->generateJS($question);
 			echo $ajax;
 			$replacement = ob_get_contents();
-			
+
 			ob_end_clean();
-		} 
-		
+		}
+
 		return $replacement;
-		
+
 	}//end getPageContentsKeywordReplacement()
-	
+
 	//--        KEYWORDS AVAILABLE        --//
 
 
@@ -781,11 +781,11 @@ class Page_Decision_Tree extends Page
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
-		
+
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = Array();
-		
+
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 		$page_contents = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents', 'major', TRUE);
 		if (empty($page_contents)) return FALSE;
@@ -799,14 +799,14 @@ class Page_Decision_Tree extends Page
 			}
 		} else {
 			//else for the keywords of the Type Format bodycopies
-			
+
 			$folder = $this->getFolder('type_formats');
 			if (is_null($folder)) return FALSE;
-	
+
 			// lets work out which bodycopy the WYSIWYG cell that wants our keywords
 			// is in so we can return the correct keywords for the screen
 			$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
-			
+
 			$bodycopy_code = NULL;
 			foreach ($bodycopy_links as $link_info) {
 				if (isset($parents[$link_info['minorid']])) {
@@ -814,31 +814,31 @@ class Page_Decision_Tree extends Page
 					break;
 				}
 			}
-	
+
 			if (is_null($bodycopy_code)) return;
-			
+
 			$keywords = @$this->_tmp['keywords'][$bodycopy_code];
-			
+
 			if (is_null($keywords) || !is_array($keywords)) {
 				$keywords = Array();
 				// note: if the value on the link is "decision_tree_question_type_select", the method providing the keywords should be _getQuestionTypeSelectBodycopyKeywords
-				
+
 				$keyword_provider_method = str_replace('decision_tree_', '', $bodycopy_code);
 				$keyword_provider_method = str_replace('_', ' ', $keyword_provider_method);
 				$keyword_provider_method = '_get'.str_replace(' ', '', ucwords($keyword_provider_method)).'BodycopyKeywords';
-				
+
 				if (method_exists($this, $keyword_provider_method)) {
 					$keywords = $this->$keyword_provider_method();
 					$this->_tmp['keywords'][$bodycopy_code] = $keywords;
 				}
-				
+
 			}
 		}
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
 
-	
+
 	/**
 	* Get an array of keywords for Question Type Select Bodycopy
 	*
@@ -847,17 +847,17 @@ class Page_Decision_Tree extends Page
 	*/
 	private function _getQuestionTypeSelectBodycopyKeywords()
 	{
-		
+
 		$keywords['question_title'] = 'Question Title';
 		$keywords['question_field'] = 'Question Input Field';
 		$keywords['question_note'] = 'Question Note';
 		$keywords['accumulated_points'] = 'Accumulated Points';
-		
+
 		return $keywords;
-		
+
 	}//end _getQuestionTypeSelectBodycopyKeywords()
-	
-	
+
+
 	/**
 	* Get an array of keywords for Question Type Numeric Bodycopy
 	*
@@ -866,18 +866,18 @@ class Page_Decision_Tree extends Page
 	*/
 	private function _getQuestionTypeNumericBodycopyKeywords()
 	{
-		
+
 		$keywords['question_title'] = 'Question Title';
 		$keywords['question_field'] = 'Question Input Field';
 		$keywords['question_note'] = 'Question Note';
 		$keywords['question_button'] = 'Question Button';
 		$keywords['accumulated_points'] = 'Accumulated Points';
-		
+
 		return $keywords;
-		
+
 	}//end _getQuestionTypeNumericBodycopyKeywords()
-	
-	
+
+
 	/**
 	* Get an array of keywords for Page Contents Bodycopy
 	*
@@ -886,7 +886,7 @@ class Page_Decision_Tree extends Page
 	*/
 	private function _getPageContentsBodycopyKeywords()
 	{
-		
+
 		$keywords['decision_tree_contents']  = 'Decision Tree Contents';
 		$keywords['reset_button'] = 'Reset Button';
 

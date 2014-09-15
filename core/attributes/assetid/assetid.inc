@@ -158,7 +158,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	function validateValue(&$value)
 	{
 		if ($value) {
-			$error_msg = translate('fail_setting_assetid', $this->name, $this->id);
+			$error_msg = sprintf(translate('fail_setting_assetid'), $this->name, $this->id);
 			if (!assert_valid_assetid($value, $error_msg, TRUE, FALSE)) {
 				return FALSE;
 			}

@@ -171,7 +171,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
 		// enable viper editor?
-		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {		
+		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {
 
 			if (is_null($pref)) {
 				$o->openField(translate($this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['name']));
@@ -190,8 +190,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 
 		}//end if show SQ_ENABLE_VIPER_EDITOR
-		
-		
+
+
 		if (is_null($pref) || $pref == 'SQ_VIPER_PLUGINS') {
 			if (is_null($pref)) {
 				$o->openField(translate($this->pref_vars['SQ_VIPER_PLUGINS']['name']));
@@ -307,12 +307,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		}//end if show SQ_WYSIWYG_STYLE
 
-		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {			
-						
+		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {
+
 			if (is_null($pref)) {
 				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['name']));
 			}
-						
+
 			$pref_var =& $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'];
 			if ($have_lock && $is_admin) {
 				$options = Array(1 => 'Yes', 0 => 'No');
@@ -321,11 +321,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			} else {
 				echo ($pref_var) ? translate('yes') : translate('no');
 			}
-						
+
 			if (is_null($pref)) $o->closeField();
-			
+
 		}//end if show SQ_WYSIWYG_APPLY_DESIGN_STYLE
-		
+
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
 			if (is_null($pref)) {
@@ -513,13 +513,13 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			$o->note(translate('core_ct_wysiwyg_link_type_templates_note'));
 			if (is_null($pref)) $o->closeField();
 		}// end if show SQ_WYSIWYG_LINK_TYPES
-		
-		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {			
-						
+
+		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {
+
 			if (is_null($pref)) {
 				$o->openField(translate($this->pref_vars['SQ_LIVE_LINK_ONLY']['name']));
 			}
-						
+
 			$pref_var =& $this->pref_vars['SQ_LIVE_LINK_ONLY']['default'];
 			if ($have_lock && $is_admin) {
 				$options = Array(1 => 'Yes', 0 => 'No');
@@ -528,10 +528,10 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			} else {
 				echo ($pref_var) ? translate('yes') : translate('no');
 			}
-						
+
 			if (is_null($pref)) $o->closeField();
-			
-		}//end if show SQ_LIVE_LINK_ONLY	
+
+		}//end if show SQ_LIVE_LINK_ONLY
 
 		return TRUE;
 
@@ -559,7 +559,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if (isset($_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'])) {
 				$this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'] = $_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'];
 			}
-		}		
+		}
 
 		// VIPER PLUGINS
 		if (is_null($pref) || $pref == 'SQ_VIPER_PLUGINS') {
@@ -602,7 +602,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'] = $_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE'];
 			}
 		}
-		
+
 
 		// WYSIWYG PLUGINS
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
@@ -677,14 +677,14 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'] = array_values($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default']);
 			}
 		}
-		
+
 		// LIVE LINK ONLY
 		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {
 			if (isset($_POST['prefs']['SQ_LIVE_LINK_ONLY'])) {
 				$this->pref_vars['SQ_LIVE_LINK_ONLY']['default'] = $_POST['prefs']['SQ_LIVE_LINK_ONLY'];
 			}
 		}
-		
+
 
 		return TRUE;
 

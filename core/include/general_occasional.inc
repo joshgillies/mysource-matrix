@@ -430,7 +430,7 @@ function make_valid_web_paths($paths, $fallback_path='')
 			trigger_localised_error('SYS0115', E_USER_WARNING);
 			continue;
 		}
-		
+
 		// no ampersands in web paths
 		$path = str_replace('&amp;', SQ_CONF_WEB_PATH_SEPARATOR.translate('web_path_ampersand_replacement').SQ_CONF_WEB_PATH_SEPARATOR, $path);
 		$path = preg_replace('|&[^;]+;|', '', $path);
@@ -673,7 +673,7 @@ function parse_self_links($content)
 	// get the current frontend asset url
 	$url = str_replace("/", "\/", $GLOBALS['SQ_SYSTEM']->frontend_asset->getURL());
 	$web_path = substr($url, strrpos($url, "/") + 1);
-	
+
 	// preg for every occurence of full url or just web path
     $href_pattern = "/<a [^<]*href=\"(".$url.")\/?\"[^>]*>(.*?)<\/a>/msi";
     $web_path_pattern = "/<a [^<]*href=\"(\.{0,2}\/{1})?".$web_path."\/?\"[^>]*>(.*?)<\/a>/msi";
@@ -688,13 +688,13 @@ function parse_self_links($content)
 * Returns the given file size value in bytes
 *
 * @param string $size	file size string (e.g. 10b, 2mb, 3k)
-* 
+*
 * @return string
 * @access public
 */
 function sizeInBytes($size)
 {
-	$size = strtolower(str_replace(' ', '', $size));	
+	$size = strtolower(str_replace(' ', '', $size));
 	preg_match('/^([0-9]+)([a-z]+)$/', $size, $matches);
 
 	$value = (int) array_get_index($matches, 1, $size);
@@ -705,7 +705,7 @@ function sizeInBytes($size)
 		case 'gb':
 			$value = $value * 1024 * 1024 * 1024;
 		break;
-		
+
 		case 'm':
 		case 'mb':
 			$value = $value * 1024 * 1024;
@@ -714,7 +714,7 @@ function sizeInBytes($size)
 		case 'k':
 		case 'kb':
 			$value = $value * 1024;
-		break;		
+		break;
 	}
 
 	return $value;

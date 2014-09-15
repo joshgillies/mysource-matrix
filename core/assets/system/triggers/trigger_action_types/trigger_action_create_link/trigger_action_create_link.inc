@@ -148,7 +148,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		$major->updateLookups();
 
-		
+
 
 		return Array(
 				'linkid'		=> $action_link['linkid'],
@@ -276,10 +276,10 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			$advanced_part_4 = ob_get_contents();
 		ob_end_clean();
 
-		$contents = translate('trigger_create_link_basic', $basic_part_1, $basic_part_2, $basic_part_3).
+		$contents = sprintf(translate('trigger_create_link_basic'), $basic_part_1, $basic_part_2, $basic_part_3).
 					'<br /><br />'.$basic_part_4.'<br />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					translate('trigger_create_link_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
+					sprintf(translate('trigger_create_link_advanced'), $advanced_part_1, $advanced_part_2, $advanced_part_3).
 					'<br />'.$advanced_part_4;
 
 		return $contents;

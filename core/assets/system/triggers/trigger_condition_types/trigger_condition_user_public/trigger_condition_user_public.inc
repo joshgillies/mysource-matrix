@@ -75,8 +75,8 @@ class Trigger_Condition_User_Public extends Trigger_Condition
 				echo '<b>'.$options[$value].'</b>';
 			}
 		$is_public_user_str = ob_get_clean();
-		
-		return translate('trigger_asset_public_user', $is_public_user_str);
+
+		return sprintf(translate('trigger_asset_public_user'), $is_public_user_str);
 
 	}//end getInterface()
 
@@ -98,7 +98,7 @@ class Trigger_Condition_User_Public extends Trigger_Condition
 		}
 
 		$settings['is_public_user'] = $request_data['is_public_user'];
-		
+
 		return FALSE;
 
 	}//end processInterface()

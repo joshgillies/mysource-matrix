@@ -109,7 +109,7 @@ class HIPO_Herder extends MySource_Object
 			}//end try catch
 
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			
+
 			if (!isset($hipo_vars['job_type']) || empty($hipo_vars['job_type'])) {
 				$null = NULL;
 				return $null;
@@ -165,7 +165,7 @@ class HIPO_Herder extends MySource_Object
 
 		unset($this->_jobs[$code_name]);
 		return TRUE;
- 
+
 	}//end uncacheJob()
 
 
@@ -311,7 +311,7 @@ class HIPO_Herder extends MySource_Object
 				$delay = ($source_job->getRunningMode() == 'server');
 				$onload = 'document.'.$form_name.'.submit();';
 			}
-			$status_msg = $source_job->complete() ? translate('hipo_complete', $source_job->getHipoName()) : translate('hipo_progress', $source_job->getHipoName());
+			$status_msg = $source_job->complete() ? sprintf(translate('hipo_complete'), $source_job->getHipoName()) : sprintf(translate('hipo_progress'), $source_job->getHipoName());
 		}
 
 		$o = $this->getBackendOutputter();
@@ -549,7 +549,7 @@ class HIPO_Herder extends MySource_Object
 		if (MatrixDAL::getDbType() === 'oci') {
 			MatrixDAL::setOciCommitOnSuccess(TRUE);
 		}
-		
+
 		if (empty($this->_tmp['prepared_server'])) {
 			return FALSE;
 		}
@@ -590,9 +590,9 @@ class HIPO_Herder extends MySource_Object
 		if (MatrixDAL::getDbType() === 'oci') {
 			MatrixDAL::setOciCommitOnSuccess(FALSE);
 		}
-		
+
 		return $ret_val;
-		
+
 	}//end processServer()
 
 
@@ -960,17 +960,17 @@ class HIPO_Herder extends MySource_Object
 								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 								$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 								if (!$expires_in) $expires_in = '1 second';
-								$expires_in = translate('due_to_expire', $expires_in);
+								$expires_in = sprintf(translate('due_to_expire'), $expires_in);
 								if ($have_lock) {
-									echo translate('release_lock', translate('release_lock_button'), translate('hipo_herder'));
+									echo sprintf(translate('release_lock'), translate('release_lock_button'), translate('hipo_herder'));
 								}
 								if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-									echo translate('lock_held_by_user', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+									echo sprintf(translate('lock_held_by_user'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
 								}
 								echo ' '.$expires_in.'.';
 
 							} else {
-								echo translate('acquire_lock', translate('acquire_lock_button'), translate('hipo_herder'));
+								echo sprintf(translate('acquire_lock'), translate('acquire_lock_button'), translate('hipo_herder'));
 							}
 						echo '</p>';
 						?>

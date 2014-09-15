@@ -506,7 +506,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				}
 			?></table><?php
 				if ($use_bm_threshold && !($asset instanceof Bulkmail_Manager)) {
-					$o->note(translate('bulkmail_threshold_override_note', get_asset_tag_line($bm->id)));
+					$o->note(sprintf(translate('bulkmail_threshold_override_note'), get_asset_tag_line($bm->id)));
 				}
 			$o->closeField();
 		}//end if
@@ -703,8 +703,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				$days = ob_get_contents();
 			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
-				echo translate('bulkmail_threshold_rule_excluded_time_hour', $from, $to);
-				echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
+				echo sprintf(translate('bulkmail_threshold_rule_excluded_time_hour'), $from, $to);
+				echo sprintf(translate('bulkmail_threshold_rule_excluded_time_days'), $days);
 			?></td><td class="sq-backend-table-cell"><?php
 				check_box($prefix.'_delete', TRUE, FALSE);?></td><?php
 		} else {
@@ -718,12 +718,12 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				$days = implode(', ', $selected_days);
 			}
 			?><td class="sq-backend-table-cell" colspan="2"><?php
-				echo translate('bulkmail_threshold_rule_excluded_time_hour', $from, $to);
+				echo sprintf(translate('bulkmail_threshold_rule_excluded_time_hour'), $from, $to);
 				if (!empty($days)) {
 					if (count($selected_days) == 7) {
 						echo translate('bulkmail_threshold_rule_excluded_time_every_day');
 					} else {
-						echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
+						echo sprintf(translate('bulkmail_threshold_rule_excluded_time_days'), $days);
 					}
 				}
 			?></td><?php
@@ -815,11 +815,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				$unit = ob_get_contents();
 			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
-				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
+				echo sprintf(translate('bulkmail_threshold_rule_send_rate_detail'), $value, $unit);
 				if ($send_rate < $min_send_rate) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_min', $min_send_rate); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('bm_warning_send_rate_min'), $min_send_rate); ?></span><?php
 				} else if ($send_rate > $max_send_rate) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_max', $max_send_rate); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('bm_warning_send_rate_max'), $max_send_rate); ?></span><?php
 				}
 			?></td><td class="sq-backend-table-cell"><?php
 				check_box($prefix.'_delete', TRUE, FALSE);?></td><?php
@@ -827,11 +827,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$value = $rule['params']['value'];
 			$unit = $time_unit[$rule['params']['unit']];
 			?><td class="sq-backend-table-cell" colspan="2"><?php
-				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
+				echo sprintf(translate('bulkmail_threshold_rule_send_rate_detail'), $value, $unit);
 				if ($send_rate < $min_send_rate) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_min', $min_send_rate); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('bm_warning_send_rate_min'), $min_send_rate); ?></span><?php
 				} else if ($send_rate > $max_send_rate) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_max', $max_send_rate); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('bm_warning_send_rate_max'), $max_send_rate); ?></span><?php
 				}
 			?></td><?php
 		}

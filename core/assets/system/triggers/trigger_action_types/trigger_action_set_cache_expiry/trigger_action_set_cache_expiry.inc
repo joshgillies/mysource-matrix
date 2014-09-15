@@ -243,7 +243,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			$output = ($value.' '.$unit.'(s)');
 		}
 
-		return translate('trigger_set_cache_expiry', $output);
+		return sprintf(translate('trigger_set_cache_expiry'), $output);
 
 	}//end _paintTimeUnit()
 
@@ -327,8 +327,8 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 				<?php
 				$alt_dsn_part = ob_get_contents();
 			ob_end_clean();
-			$output = translate('trigger_set_cache_expiry_default_db', '<b>dbcache</b><br />Use Alternative? '.$default);
-			$output .= '<br />'.translate('trigger_set_cache_expiry_alt_dsn', $alt_dsn_part);
+			$output = sprintf(translate('trigger_set_cache_expiry_default_db'), '<b>dbcache</b><br />Use Alternative? '.$default);
+			$output .= '<br />'.sprintf(translate('trigger_set_cache_expiry_alt_dsn'), $alt_dsn_part);
 
 		} else {
 			$output = 'Cache DSN: ';

@@ -168,7 +168,7 @@ class Trigger_Action_Clear_Session_Var extends Trigger_Action
 		combo_box($prefix.'[is_prefix]', Array('name', 'prefix'), FALSE, $is_prefix, 0, !$write_access ? 'disabled' : '');
 		$is_prefix_input = ob_get_clean();
 
-		$output = translate('trigger_clear_session_var_interface', $name_input, $is_prefix_input, $clear_all_input);
+		$output = sprintf(translate('trigger_clear_session_var_interface'), $name_input, $is_prefix_input, $clear_all_input);
 
 		return $output;
 

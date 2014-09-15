@@ -553,8 +553,8 @@ class Thesaurus extends Asset implements Bridge
 		if (!isset($term) || $term == '') {
 			return NULL;
 		}
-		
-		// remove leading and trailing spaces	
+
+		// remove leading and trailing spaces
 		$term = trim($term);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -836,8 +836,8 @@ class Thesaurus extends Asset implements Bridge
 	{
 
 		$term = $this->getTermById($termid);
-		
-		// remove leading and trailing spaces	
+
+		// remove leading and trailing spaces
 		$name = trim($name);
 
 		// if nothing has changed, no need to do any work

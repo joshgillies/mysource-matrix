@@ -193,8 +193,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
 								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
 							</select>
-						</td> 
-					</tr>				
+						</td>
+					</tr>
 				</table>
 			</fieldset>
 		</td>

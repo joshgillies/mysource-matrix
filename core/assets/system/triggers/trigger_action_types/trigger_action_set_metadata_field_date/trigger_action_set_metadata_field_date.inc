@@ -191,7 +191,7 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 			echo '|';
 			text_box($prefix.'[offset_mins]', array_get_index($settings, 'offset_mins', 0), 5, 2, FALSE, $disabled);
 			list($text_box_months, $text_box_days, $text_box_mins, $text_box_hours) = explode('|', ob_get_clean());
-			echo translate('trigger_metadata_date_offset', $text_box_months, $text_box_days, $text_box_mins, $text_box_hours);
+			echo sprintf(translate('trigger_metadata_date_offset'), $text_box_months, $text_box_days, $text_box_mins, $text_box_hours);
 			echo '</div>';
 		$output = ob_get_clean();
 

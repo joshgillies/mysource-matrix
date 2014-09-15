@@ -166,7 +166,7 @@ class Internal_Message extends MySource_Object
 	*
 	* @param boolean $user_inbox_only	If TRUE, sends internal message to User's Matrix inbox only
 	*									This will bypass the Message Service logs config settings
-	*									
+	*
 	*
 	* @return boolean
 	* @access public
@@ -410,7 +410,7 @@ class Internal_Message extends MySource_Object
 						if(empty($this->replacements)) $this->replacements = Array();
 						$this->replacements['user_name'] = $user->name;
 					}
-		
+
 					$subject = empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale) : replace_keywords($this->subject, $this->replacements);
 					$hdrs = Array(
 								'From'		=> $from_string,
@@ -721,7 +721,7 @@ class Internal_Message extends MySource_Object
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// Clear the current user's local cache for internal message
 		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
 			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();
@@ -752,7 +752,7 @@ class Internal_Message extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// Clear the current user's local cache for internal message
 		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
 			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();

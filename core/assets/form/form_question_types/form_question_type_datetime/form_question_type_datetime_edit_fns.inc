@@ -60,7 +60,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		$show_params = $asset->attr('show');
 		$text_params = $asset->attr('text');
 		$null_params = $asset->attr('null');
-		
+
 		$default_params = $asset->getDefaultParameters();
 
 		$edit = FALSE;				// editing flag
@@ -155,7 +155,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 					} else {
 						echo $show_params['a'] ? 'X' : '';
 					}
-				?></td>				
+				?></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="sq-backend-table-cell"><?php
@@ -302,7 +302,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		} else {
 			$show_params['c'] = '';
 		}
-		
+
 		if (isset($_POST[$prefix.'_a'])) {
 			$show_params['a'] = $_POST[$prefix.'_a'];
 		} else {

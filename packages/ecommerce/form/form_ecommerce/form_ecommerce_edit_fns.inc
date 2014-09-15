@@ -349,7 +349,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 	{
 		// process the new pass through variable rule list
 		$var_list = array_get_index($_REQUEST, $prefix.'_var_enabled', Array());
-		
+
 		$new_var_list = Array();
 		if (!empty($var_list)) {
 			$key_list = array_get_index($_REQUEST, $prefix.'_pass_through_key', Array());
@@ -361,14 +361,14 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 											'value'	=> array_get_index($value_list, $id, Array()));
 			}
 		}
-		
+
 		$asset->setAttrValue('key_val_rules', $new_var_list);
-		
+
 		return TRUE;
 
 	}//end processPassthroughVarQuestionLinks()
-	
-	
+
+
 	/**
 	* Paint export interface
 	*
@@ -483,7 +483,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 
 	}//end paintLogFileInfo()
 
-	
+
 	/**
 	* Paints the interface for creating a new action for ecommerce form
 	*
@@ -496,14 +496,14 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 	public function paintNewAction(Form_Email $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		
+
 		// Currently we only have this action available in eCommerce
-		// We may need to create a new ecom_submission_action sub class in the feature 
+		// We may need to create a new ecom_submission_action sub class in the feature
 		$types = Array('form_action_soap_call');
-		
+
 		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
 
-		
+
 
 		$o->openField('');
 			if ($write_access) {
@@ -525,8 +525,8 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		return $write_access;
 
 	}//end paintNewAction()
-	
-	
+
+
 	/**
 	* Paint the interface for selecting the Payment Gateways
 	*
@@ -585,7 +585,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 
 		return $asset->setAttrValue('gateway_assetids', $save_gateways);
 
-	}//end processPaymentGateways()		
+	}//end processPaymentGateways()
 
 }//end class
 ?>

@@ -246,10 +246,10 @@ class File extends Asset
 
 			// create some information so we know where to clone the file from
 			$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
-		
+
 			$o = NULL;
 			if(isset($GLOBALS['SQ_SYSTEM']->backend->out)) $o = $GLOBALS['SQ_SYSTEM']->backend->out;
-		
+
 			$edit_fns = $clone->getEditFns();
 			// fix for bug 3625:
 			// we make sure to tell the processFileChooser function that we are cloning and not creating new asset
@@ -354,7 +354,7 @@ class File extends Asset
 			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
-		
+
 		//  we need to save the current notice links
 		if(!$this->saveNoticeLinksForSystemVersion()) return FALSE;
 
@@ -592,10 +592,10 @@ class File extends Asset
 		if ($this->ignore_update == TRUE) {
 			return TRUE;
 		}
-		
+
 		if($this->status & SQ_SC_STATUS_SAFE_EDITING) {
 		    $this->updateLookups();
-		    return TRUE;	
+		    return TRUE;
 		}
 
 		return $this->_checkFileState();
@@ -815,7 +815,7 @@ class File extends Asset
 		if (!isset($this->_tmp['deleting_file'])) {
 			$this->_tmp['deleting_file'] = FALSE;
 		}
-		
+
 		if (!$this->usePublicPath() && !$this->_tmp['deleting_file']) {
 			// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
 			// so we just call parent to update urls, if the asset is safe edit, but unrestricted otherwise, we still want to insert the __data url
@@ -841,7 +841,7 @@ class File extends Asset
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete lookup information for asset: '.$this->id.' due to database error: '.$e->getMessage());
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		// insert __data URL
@@ -872,13 +872,13 @@ class File extends Asset
 
 	}//end updateLookups()
 
-	
+
 	/**
 	* Called to insert a __data url
 	*
 	* @return int
 	* @access protected
-	*/	
+	*/
 	protected function insertDataLookup()
 	{
 		// if the file is efffectively safe edit, we will only need to insert __data url pointing to the previous live version of it
@@ -895,12 +895,12 @@ class File extends Asset
 		    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 		    $this->reload();
 		}
-		
+
 		if (!isset($existing['filename'])) {
 			// there is no filename, so commit the removal of the current web paths and return
 			return 0;
 		}
-		
+
 		// noting to insert if asset's in trash
 		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)){
 		    return 0;
@@ -954,11 +954,11 @@ class File extends Asset
 			}//end foreach
 
 		}//end else - if SQ_CONF_STATIC_ROOT_URL is not empty
-		
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$result = 0;
 		foreach ($save_urls as $url => $url_data) {
 			try {
@@ -983,10 +983,10 @@ class File extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		return $result;
 	}//end insertDataLookup()
-	
+
 
 	/**
 	* Processes a backend submission from this asset, returns TRUE if all OK
@@ -1347,7 +1347,7 @@ class File extends Asset
 		}
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}
 
@@ -1389,7 +1389,7 @@ class File extends Asset
 					$browser_cache_expiry = $cm->getExpiry($this->type(), $this->id);
 				}
 				$level = $cm->cacheControlLevel();
-				
+
 				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
 				header('Pragma: cache');
@@ -1414,7 +1414,7 @@ class File extends Asset
 				header('Pragma: private');
 				header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 			}
-			
+
 			$disposition = 'inline';
 			// stop rendering a html file
 			if(strpos($type, 'html') !== FALSE) {

@@ -283,7 +283,7 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 				}//end else
 			}//end if
 
-			$step_data['message'] = translate('bm_deleting_bmail_user', $email);
+			$step_data['message'] = sprintf(translate('bm_deleting_bmail_user'), $email);
 
 			// add this user to the done array
 			$this->_running_vars['done_asset_users'][] = $email;

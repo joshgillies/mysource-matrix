@@ -37,15 +37,15 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 class Ecommerce_Cart extends Listing_Engine
 {
 
-	
+
 	/**
 	 * The ecommerce cart processor linked with this Ecommerce cart asset
-	 * 
+	 *
 	 * @var Ecommerce_Cart_Processor
 	 */
 	var $_cart = NULL;
-	
-	
+
+
 	/**
 	* Whether there are insufficient product quantities
 	* @var boolean
@@ -104,11 +104,11 @@ class Ecommerce_Cart extends Listing_Engine
 	{
 		if (is_null($this->_cart)) {
 			$cart = new Ecommerce_Cart_Processor($this->attr('ecommerce_checkout_id'));
-	
+
 			if ($this->attr('use_local_cart')) {
 				$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 			}
-			
+
 			$this->_cart = $cart;
 		}
 
@@ -224,7 +224,7 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function printFrontend()
 	{
-		
+
 		// Tie the process and following paint together using db2 in order to
 		// avoid possible replication slowdown on db1
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -528,7 +528,7 @@ class Ecommerce_Cart extends Listing_Engine
 						//if the asset is a Donation, remove the existing amount to use the update amount only. Do not confuse the users how much he has donated
 						$amount = 0;
 					}
-					
+
 					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount+$quantity, $assetid))) {
 						$this->_tmp['cart_updated'] = TRUE;
 					}
@@ -609,7 +609,7 @@ class Ecommerce_Cart extends Listing_Engine
 		if ($asset instanceof Donation) {
 			return $quantity;
 		}
-		
+
 		$selections     = $this->attr('asset_selections');
 		$final_quantity = $quantity;
 
@@ -725,12 +725,12 @@ class Ecommerce_Cart extends Listing_Engine
 
 		$keywords['product_count'] = translate('ecom_cart_keyword_product_count');
 		$keywords['total_value'] = translate('ecom_cart_keyword_total_value');
-		
+
 		return $keywords;
 
 	}//end getAvailableKeywords()
-	
-	
+
+
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
@@ -866,11 +866,11 @@ class Ecommerce_Cart extends Listing_Engine
 	function getProductCountKeywordReplacement()
 	{
 		$cart =& $this->_getCart();
-		
+
 		return (string)$cart->getCount();
 
 	}//end getProductCountKeywordReplacement()
-	
+
 
 	/**
 	* Total Value keyword replacement
@@ -881,12 +881,12 @@ class Ecommerce_Cart extends Listing_Engine
 	function getTotalValueKeywordReplacement()
 	{
 		$cart =& $this->_getCart();
-		
+
 		return sprintf("%.{$this->attr('float_precision')}f", $cart->getTotal());
 
 	}//end getTotalValueKeywordReplacement()
-	
-	
+
+
 	/**
 	* Get the current form submit method (always POST)
 	*

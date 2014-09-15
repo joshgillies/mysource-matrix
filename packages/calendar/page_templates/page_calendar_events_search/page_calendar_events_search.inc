@@ -34,29 +34,29 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @var array
 	*/
 	var $fuzzy_date_types = Array(
-								'today' => 1, 
-								'tomorrow'=> 1, 
-								'yesterday' => 1, 
-								'this_weekend' => 0, 
-								'next_weekend' => 0, 
-								'previous_weekend' => 0, 
-								'this_week' => 1, 
-								'next_week' => 1, 
-								'previous_week' => 1, 
-								'this_fortnight' => 0, 
-								'next_fortnight' => 0, 
-								'previous_fortnight' => 0, 
-								'this_month' => 1, 
-								'next_month' => 1, 
-								'previous_month' => 1, 
-								'this_year' => 0, 
-								'next_year' => 0, 
+								'today' => 1,
+								'tomorrow'=> 1,
+								'yesterday' => 1,
+								'this_weekend' => 0,
+								'next_weekend' => 0,
+								'previous_weekend' => 0,
+								'this_week' => 1,
+								'next_week' => 1,
+								'previous_week' => 1,
+								'this_fortnight' => 0,
+								'next_fortnight' => 0,
+								'previous_fortnight' => 0,
+								'this_month' => 1,
+								'next_month' => 1,
+								'previous_month' => 1,
+								'this_year' => 0,
+								'next_year' => 0,
 								'previous_year' => 0,
 								'upcoming_events' => 0,
 								'anytime' => 0
 							);
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -71,7 +71,7 @@ class Page_Calendar_Events_Search extends Search_Page
 		parent::__construct($assetid);
 
 	}//end constructor
-	
+
 
 	/**
 	* Called by the design to print the body of this asset
@@ -109,11 +109,11 @@ class Page_Calendar_Events_Search extends Search_Page
 				// preserve the previous query
 				$this->_tmp['potential_searched_fqueries'] = $_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id];
 		}
-		
+
 		parent::printContents();
-		
+
 	}//end printContents()
-	
+
 
 	/**
 	* Processes a search request
@@ -128,7 +128,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @see Search_Manager:processSearch()
 	*/
 	function processSearch($search=Array())
-	{	
+	{
 		// Get the stored search parameters relevant to the event filters
 		$event_search = Array();
 		foreach($search as $key => $val) {
@@ -137,19 +137,19 @@ class Page_Calendar_Events_Search extends Search_Page
 				$event_search[substr($key, 2)] = $val;
 			}
 		}
-		
+
 		$sm_result = parent::processSearch($search);
-		$sm_queries = $this->_getSearchedQueries();		
-		
+		$sm_queries = $this->_getSearchedQueries();
+
 		// Pick the multi-date assets from the root node
 		$multi_date_assets = Array();
 		$root_nodes = $this->getRootNodes(FALSE);
 		foreach($root_nodes as $root_node) {
 			$multi_date_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($root_node, 'calendar_event_multi_date', TRUE);
-		}		
-		
+		}
+
 		// Map the "single" and "recurring" events to their respective multi-date event asset
-		$multi_date_events = Array();		
+		$multi_date_events = Array();
 		foreach($multi_date_assets as $event_assetid => $val) {
 			// Include the events assoicated with the multi-date event into the search result
 			$multi_events = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($event_assetid, 'calendar_event', FALSE, TRUE));
@@ -160,19 +160,19 @@ class Page_Calendar_Events_Search extends Search_Page
 					}
 				}
 				$multi_date_events[$multi_event_id] = $event_assetid;
-			}//end foreach			
-		}//end foreach		
-		
-		$sm_result_assetids = array_keys($sm_result);		
-		
+			}//end foreach
+		}//end foreach
+
+		$sm_result_assetids = array_keys($sm_result);
+
 		$date_filter_result = $this->processEventSearch($event_search);
-		
-		// Grouping logic for combing date filters and search field results		
+
+		// Grouping logic for combing date filters and search field results
 		$result = Array();
 		if ($this->attr('main_logic') == 'AND') {
 			foreach($date_filter_result as $event => $start_ts) {
 				$assetid = substr($event, 0, strpos($event, ':'));
-				if (isset($multi_date_events[$assetid]) && strpos($event, '|type_code=') !== FALSE) {					
+				if (isset($multi_date_events[$assetid]) && strpos($event, '|type_code=') !== FALSE) {
 					$event = substr($event, 0, strpos($event, '|type_code=')).'|type_code=calendar_event_multi_date';
 				}
 				if (!isset($result[$event]) && (empty($sm_queries) || in_array($assetid, $sm_result_assetids)))  {
@@ -185,18 +185,18 @@ class Page_Calendar_Events_Search extends Search_Page
 			$combined_result = array_merge($sm_fields_result, $date_filter_result);
 			foreach($combined_result as $event => $start_ts) {
 				$assetid = substr($event, 0, strpos($event, ':'));
-				if (isset($multi_date_events[$assetid]) && strpos($event, '|type_code=') !== FALSE) {					
+				if (isset($multi_date_events[$assetid]) && strpos($event, '|type_code=') !== FALSE) {
 					$event = substr($event, 0, strpos($event, '|type_code=')).'|type_code=calendar_event_multi_date';
 				}
 				$result[$event] = array_get_index($sm_result, $assetid, 1);
 			}//end foreach
 		}
-		
+
 		return $result;
 
 	}//end processSearch()
-	
-	
+
+
 	/*
 	* Get all the instances for supplied events
 	*
@@ -204,12 +204,12 @@ class Page_Calendar_Events_Search extends Search_Page
 	*
 	* @return array
 	* @access public
-	*/		
+	*/
 	function getEventInstances($event_assetids)
 	{
 		$query = $this->_getEventSearchQuery();
 		$events = $this->_getEvents();
-		
+
 		$relevant_events = Array();
 		foreach($events as $event) {
 			if (isset($event['assetid']) && in_array($event['assetid'], $event_assetids)) {
@@ -219,9 +219,9 @@ class Page_Calendar_Events_Search extends Search_Page
 		if (empty($relevant_events)) {
 			return Array();
 		}
-		
+
 		$grouping_logic = $this->attr('events_filter_logic');
-		$result = FALSE;		
+		$result = FALSE;
 		$instances = FALSE;
 		if ($this->isEmptyQuery($query)) {
 			$instances = Calendar_Common::getWholeEventInstances($relevant_events, '1970-01-01', '2030-12-31');
@@ -229,30 +229,30 @@ class Page_Calendar_Events_Search extends Search_Page
 			foreach($query as $query_field => $query_data) {
 				if (empty($query_data)) {
 					continue;
-				}				
+				}
 				// Get event result for each filter
-				$field_result = Array();			
+				$field_result = Array();
 				foreach($query_data as $query_date) {
 					if (empty($query_date['from']) || empty($query_date['to'])) {
 						continue 2;
 					}
-					$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($relevant_events, $query_date['from'], $query_date['to']));				
-				}//end foreach				
+					$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($relevant_events, $query_date['from'], $query_date['to']));
+				}//end foreach
 
 				// Combine the submitted field result based on the selected logical grouping
 				if ($instances === FALSE) {
 					$instances = $field_result;
 				} else {
 					$instances = $grouping_logic == 'AND' ? array_intersect($result, $field_result) : array_merge($result, $field_result);
-				}			
+				}
 			}//end foreach
 		}
-		
+
 		return $instances ? $instances : Array();
-	
+
 	}//end getEventInstances()
-	
-	
+
+
 	/*
 	* Process events search
 	*
@@ -260,80 +260,80 @@ class Page_Calendar_Events_Search extends Search_Page
 	*
 	* @return array
 	* @access public
-	*/	
+	*/
 	function processEventSearch($search=Array())
-	{	
+	{
 		$query = $this->_getEventSearchQuery($search);
-		
+
 		// See if we have result in the cache
 		$cache_key = md5(serialize($query).$this->attr('main_logic').$this->attr('events_filter_logic'));
-		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');		
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		if ($result !== FALSE) {
 			return unserialize($result);
 		}
-		
+
 		// Get all the relevant events for the searching
 		$events = $this->_getEvents();
-		
+
 		// Save the search terms into the session so that we can use them for
 		// search within search results
 		$_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id] = $query;
-		
-		// If empty Date search is allowed then search needs to be carried out 
+
+		// If empty Date search is allowed then search needs to be carried out
 		// in all the event instances, regardless of date filter query submitted
 		if ($this->attr('events_filter_allow_empty_search') && $this->isEmptyQuery($query)) {
 			$query = Array(
 						'default_field' => Array(
-											0 => Array(													
+											0 => Array(
 													'from' => '1970-01-01',
 													'to' => '2030-12-31',
 												)
 											)
 				);
-		}//end if		
-		
+		}//end if
+
 		if (empty($events) || empty($query)) {
 			return Array();
 		}
-		
+
 		// Grouping logic for the filters, AND/OR
 		$grouping_logic = $this->attr('events_filter_logic');
-		
+
 		$result = FALSE;
-		
+
 		foreach($query as $query_field => $query_data) {
 			if (empty($query_data)) {
 				continue;
 			}
-			
+
 			// Get event result for each filter
-			$field_result = Array();			
+			$field_result = Array();
 			foreach($query_data as $query_date) {
 				if (empty($query_date['from']) || empty($query_date['to'])) {
 					continue 2;
 				}
-				$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($events, $query_date['from'], $query_date['to']));				
-			}//end foreach			
-			
-			
+				$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($events, $query_date['from'], $query_date['to']));
+			}//end foreach
+
+
 
 			// Combine the submitted field result based on the selected logical grouping
 			if ($result === FALSE) {
 				$result = $field_result;
 			} else {
 				$result = $grouping_logic == 'AND' ? array_intersect($result, $field_result) : array_merge($result, $field_result);
-			}			
+			}
 		}//end foreach
-		
+
 		if (is_array($result)) {
 			$cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
 		}
-		
+
 		return $result ? $result : Array();
-	
+
 	}//end processEventSearch()
-	
+
 
 	/*
 	* Check if the submitted date filter query is empty
@@ -347,7 +347,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	{
 		// Date filter queries grouping logic
 		$grouping_logic = $this->attr('events_filter_logic');
-		
+
 		$empty = $grouping_logic == 'AND' ? TRUE : FALSE;
 		foreach($query as $field => $val) {
 			if ($grouping_logic == 'OR' && empty($val)) {
@@ -364,30 +364,30 @@ class Page_Calendar_Events_Search extends Search_Page
 				}
 			}
 		}
-			
+
 		return $empty;
-		
+
 	}//end isEmptyQuery()
-	
-	
+
+
 	/*
 	* Get "date" query data submitted in Event Search page
-	*	
+	*
 	* @return array
 	* @access private
-	*/	
+	*/
 	function _getEventSearchQuery($search=Array())
-	{	
+	{
 		if (isset($this->_tmp['searched_fqueries'])) {
 			return $this->_tmp['searched_fqueries'];
-		}		
-		
-		$filters = $this->attr('events_filters');		
+		}
+
+		$filters = $this->attr('events_filters');
 		$queries = Array();
-		
+
 		$pmap = $this->getAttribute('stored_query_session');
-		$pmap_params = $pmap->getParameters();		
-		
+		$pmap_params = $pmap->getParameters();
+
 		foreach ($filters as $field_name => $field_details) {
 			$queries[$field_name] = Array();
 			$query_var = 'queries_'.$field_name.'_fquery';
@@ -399,31 +399,31 @@ class Page_Calendar_Events_Search extends Search_Page
 			}
 
 		}//end foreach fields
-		
+
 		// if it seems that nothing is submitted, check if there was a previous query
 		// and use its details
 		if (empty($queries) && !empty($this->_tmp['potential_searched_fqueries'])) {
 			$queries = $this->_tmp['potential_searched_fqueries'];
 		}
-		
+
 		return $queries;
-	
-	}//end _getEventSearchQuery()	
-	
-	
+
+	}//end _getEventSearchQuery()
+
+
 	/*
 	* Get all the "Single" and "Recurring" events under the root node(s)
-	*	
+	*
 	* @return array
 	* @access private
 	*/
 	function _getEvents()
 	{
 		$root_nodes = $this->getRootNodes();
-		
+
 		// Get single calendar events
 		$bind_vars = Array();
-		$sql = Calendar_Common::getSingleEventQueryBase($root_nodes, 'calendar_event_single', TRUE, $bind_vars);		
+		$sql = Calendar_Common::getSingleEventQueryBase($root_nodes, 'calendar_event_single', TRUE, $bind_vars);
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
@@ -436,7 +436,7 @@ class Page_Calendar_Events_Search extends Search_Page
 				throw new Exception($e->getMessage());
 		}
 		$single_result = Calendar_Common::condenseResultTreeids($single_result);
-	
+
 		// Get recurring calendar events
 		$bind_vars = Array();
 		$sql = Calendar_Common::getSingleEventQueryBase($root_nodes, 'calendar_event_recurring', TRUE, $bind_vars);
@@ -451,15 +451,15 @@ class Page_Calendar_Events_Search extends Search_Page
 				throw new Exception($e->getMessage());
 		}
 		$recurring_result = Calendar_Common::condenseResultTreeids($recurring_result);
-		
-		return array_merge($single_result, $recurring_result);	
-	
-	}//end _getEvents()	
-	
-	
+
+		return array_merge($single_result, $recurring_result);
+
+	}//end _getEvents()
+
+
 	/**
 	* Returns replacements for keywords that are not replaced by the parent
-	* This includes event filter keywords and keywords common to the search 
+	* This includes event filter keywords and keywords common to the search
 	* page bodycopies
 	*
 	* @param string	$keyword	the keyword of the wanted replacement
@@ -469,7 +469,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	*/
 	function getGeneralReplacement($keyword)
 	{
-		if (strpos($keyword, 'event_filter_') !== FALSE) {			
+		if (strpos($keyword, 'event_filter_') !== FALSE) {
 			$replacement = $this->getEventFilterField(substr($keyword, strlen('event_filter_')));
 		} else {
 			$replacement = parent::getGeneralReplacement($keyword);
@@ -477,10 +477,10 @@ class Page_Calendar_Events_Search extends Search_Page
 
 		return $replacement;
 
-	}//end getGeneralReplacement()	
-	
+	}//end getGeneralReplacement()
+
 	/*
-	* Get the value of a stored stored session variable 
+	* Get the value of a stored stored session variable
 	* for the given field, if any
 	*
 	* @param string $filter_name
@@ -488,22 +488,22 @@ class Page_Calendar_Events_Search extends Search_Page
 	*
 	* @return array
 	* @access private
-	*/	
+	*/
 	function _getStoredQueryValue($filter_name, $details)
 	{
-		$query = Array();		
+		$query = Array();
 
 		// Don't touch it if there was some SESSION var already set
 		$pmap = $this->getAttribute('stored_query_session');
 		$pmap_params = $pmap->getParameters();
-		
+
 		$filter_type = $details['type'];
 		if (is_array($pmap_params) && !empty($pmap_params)) {
 			// Check for current field
 			if (in_array('f:'.$filter_name, $pmap_params)) {
 				$key_field = array_search('f:'.$filter_name, $pmap_params);
 				$raw_val = $pmap->getParameterValue($pmap_params[$key_field]);
-				replace_global_keywords($raw_val);	
+				replace_global_keywords($raw_val);
 				// Values are expected to be in following format:
 				//
 				// Single date: [DATE]
@@ -511,7 +511,7 @@ class Page_Calendar_Events_Search extends Search_Page
 				// Fuzzy dropdown: fuzzy_type
 				// Fuzzy checkbox: fuzzy_type1,fuzzy_type2,...
 				// where date are in YYYY-MM-DD format
-				
+
 				switch ($filter_type) {
 					case 'single_date':
 						$query[] = Array(
@@ -519,16 +519,16 @@ class Page_Calendar_Events_Search extends Search_Page
 									'to' => trim($raw_val),
 								);
 					break;
-					
+
 					case 'date_range':
-						$pq_data = explode(',', $raw_val);						
+						$pq_data = explode(',', $raw_val);
 						list($from, $to) = $pq_data;
 						$query[] = Array(
 									'from' => trim($from),
 									'to' => trim($to),
 								);
 					break;
-			
+
 					case 'fuzzy_dropdown':
 					$raw_val = trim($raw_val);
 					if (isset($this->fuzzy_date_types[$raw_val])) {
@@ -536,7 +536,7 @@ class Page_Calendar_Events_Search extends Search_Page
 						$query[] = $this->_processFuzzyDate($raw_val, $event_horizon);
 					}
 					break;
-			
+
 					case 'fuzzy_checkboxes':
 						$fuzzy_types = explode(',', $raw_val);
 						$event_horizon = array_get_index($details, 'event_horizon', 180);
@@ -550,11 +550,11 @@ class Page_Calendar_Events_Search extends Search_Page
 				}
 			}
 		}
-		
+
 		return $query;
-	
+
 	}//end _getStoredQueryValue()
-	
+
 
 	/**
 	* Get the html content for the given event filter field
@@ -565,7 +565,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @access public
 	*/
 	function getEventFilterField($filter_name)
-	{		
+	{
 		$query_var = $filter_name.'_fquery';
 		$filters = $this->attr('events_filters');
 		if (!isset($filters[$filter_name]['type'])) {
@@ -578,7 +578,7 @@ class Page_Calendar_Events_Search extends Search_Page
 			$query = array_get_index($_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id], $filter_name, Array());
 		}
 		$read_only = FALSE;
-		
+
 		$current_value = $this->_processDateFilter('queries_'.$query_var, $filters[$filter_name]);
 		if (!isset($current_value[0]['from'])) {
 			$current_value = $this->_getStoredQueryValue($filter_name, $filters[$filter_name]);
@@ -589,38 +589,38 @@ class Page_Calendar_Events_Search extends Search_Page
 			$fuzzy_date_options[$val] = str_replace('_', ' ', ucfirst($val));
 			unset($fuzzy_date_options[$key]);
 		}
-		
+
 		ob_start();
-			
+
 			switch($filters[$filter_name]['type']) {
-				case 'single_date':	
+				case 'single_date':
 					$this->_printDateRange('queries_'.$query_var, array_get_index($current_value, 0, Array()), TRUE, $filters[$filter_name]['use_picker']);
 				break;
-				
-				case 'date_range':				
+
+				case 'date_range':
 					$this->_printDateRange('queries_'.$query_var, array_get_index($current_value, 0, Array()), FALSE, $filters[$filter_name]['use_picker']);
 				break;
-				
+
 				case 'fuzzy_dropdown':
 					$fuzzy_date_options = array_reverse($fuzzy_date_options, TRUE);
 					$fuzzy_date_options['none'] = '';
 					$fuzzy_date_options = array_reverse($fuzzy_date_options, TRUE);
 					combo_box('queries_'.$query_var, $fuzzy_date_options, FALSE, isset($current_value[0]) ? array_get_index($current_value[0], 'fuzzy_type', '') : '');
 				break;
-				
+
 				case 'fuzzy_checkboxes':
 					$selected_opts = Array();
 					foreach($current_value as $selected_val) {
 						if (isset($selected_val['fuzzy_type'])) {
 							$selected_opts[] = $selected_val['fuzzy_type'];
-						}//end if						
+						}//end if
 					}//end foreach
 					foreach($fuzzy_date_options as $key => $val) {
 						echo "<br />";
 						check_box('queries_'.$query_var.'_raw[]', $key, in_array($key, $selected_opts));
 						echo "&nbsp;$val";
 					}//end foreach
-				
+
 				break;
 			}//end switch
 
@@ -634,9 +634,9 @@ class Page_Calendar_Events_Search extends Search_Page
 
 		return $replacement;
 
-	}//end getGeneralReplacement()	
-	
-	
+	}//end getGeneralReplacement()
+
+
 	/**
 	* Print a date range selection
 	*
@@ -650,7 +650,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @access private
 	*/
 	function _printDateRange($field_name, $current_value=Array(), $single_field=TRUE, $use_picker=TRUE, $read_only=FALSE)
-	{		
+	{
 		if (!isset($current_value['from'])) {
 			$current_value['from'] = '---------- --:--:--';
 		}
@@ -661,8 +661,8 @@ class Page_Calendar_Events_Search extends Search_Page
 
 		if ($use_picker) {
 			require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
-			
-			if (!JS_Calendar::isInit()) {			
+
+			if (!JS_Calendar::isInit()) {
 				?><script src="<?php echo sq_web_path('lib'); ?>/html_form/html_form.js"
 				type="text/javascript"></script><?php
 			}
@@ -671,7 +671,7 @@ class Page_Calendar_Events_Search extends Search_Page
 		?>
 		<table border="0" cellspacing="0" cellpadding="0">
 			<tr>
-				<?php 
+				<?php
 				if (!$single_field) {
 					echo '<td align="right">'.ucfirst(translate('from')).':</td>';
 				}
@@ -684,9 +684,9 @@ class Page_Calendar_Events_Search extends Search_Page
 					} else {
 						$field = $this->_getDateField($field_name.'_from');
 						if (!$field->processField() || $field->value == '---------- --:--:--') {
-							$field->setValue($current_value['from']);							
+							$field->setValue($current_value['from']);
 						} else {
-						
+
 						}
 						$field->printField();
 					}
@@ -709,7 +709,7 @@ class Page_Calendar_Events_Search extends Search_Page
 				?>
 			</tr>
 			<?php
-				if (!$single_field) {				
+				if (!$single_field) {
 			?>
 			<tr>
 				<td align="right"><?php echo ucfirst(translate('to')) ?>:</td>
@@ -816,9 +816,9 @@ class Page_Calendar_Events_Search extends Search_Page
 		if (empty($from_string) && empty($to_string)) {
 			return;
 		} else if (empty($from_string)) {
-			echo translate('sch_page_date_range_prior_to', $to_string);
+			echo sprintf(translate('sch_page_date_range_prior_to'), $to_string);
 		} else if (empty($to_string)) {
-			echo translate('sch_page_date_range_onwards', $from_string);
+			echo sprintf(translate('sch_page_date_range_onwards'), $from_string);
 		} else if ($from_string == $to_string) {
 			echo $from_string;
 		} else {
@@ -826,8 +826,8 @@ class Page_Calendar_Events_Search extends Search_Page
 		}
 
 	}//end _printDateRangeDescription()
-	
-	
+
+
 	/**
 	* Process the date range selection
 	*
@@ -840,7 +840,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	function _processDateFilter($field_name, $details)
 	{
 		$result = Array();
-		
+
 		$type = $details['type'];
 		switch ($type) {
 			case 'single_date':
@@ -854,20 +854,20 @@ class Page_Calendar_Events_Search extends Search_Page
 				if ($field->processField()) {
 					$result[0]['to'] = rtrim($field->value, "-: ");
 				}
-			
+
 				if (isset($result[0]['from']) && !isset($result[0]['to'])) {
 					$result[0]['to'] = $result[0]['from'];
 				}
 			break;
-			
+
 			case 'fuzzy_dropdown':
 				if (isset($_REQUEST[$field_name])) {
 					$event_horizon = array_get_index($details, 'event_horizon', 180);
 					$result[0] = $this->_processFuzzyDate($_REQUEST[$field_name], $event_horizon);
 				}
 			break;
-			
-			case 'fuzzy_checkboxes':			
+
+			case 'fuzzy_checkboxes':
 				$fuzzy_types = Array();
 				if (isset($_REQUEST[$field_name.'_raw'])) {
 					// submitted via form
@@ -876,7 +876,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					// submitted via stored search
 					$fuzzy_types = explode(',', $_REQUEST[$field_name]);
 				}
-				
+
 				if (!empty($fuzzy_types)) {
 					$event_horizon = array_get_index($details, 'event_horizon', 180);
 					foreach($fuzzy_types as $index => $selected_date_type) {
@@ -884,14 +884,14 @@ class Page_Calendar_Events_Search extends Search_Page
 					}//end foreach
 				}
 			break;
-		
-		}//end switch			
+
+		}//end switch
 
 		return $result;
 
 	}//end _processDateFilter()
-	
-	
+
+
 	/**
 	* Returns the date range for given fuzzy date type
 	*
@@ -905,28 +905,28 @@ class Page_Calendar_Events_Search extends Search_Page
 	{
 		// Current date
 		$today = date("Y-m-d");
-		
+
 		switch ($type) {
-			case 'today':				
+			case 'today':
 				$from = $today;
 				$to = $today;
 			break;
-			
+
 			case 'tomorrow':
 				$from = date("Y-m-d", strtotime($today. " +1 day"));
 				$to = date("Y-m-d", strtotime($today. " +1 day"));
 			break;
-			
+
 			case 'yesterday':
 				$from = date("Y-m-d", strtotime($today. " -1 day"));
 				$to = date("Y-m-d", strtotime($today. " -1 day"));
 			break;
-			
+
 			case 'this_weekend':
 				$from = date("N") == 7 ? $today : date("Y-m-d", strtotime('next Saturday'));
 				$to = date("N") == 7 ? $today : date("Y-m-d", strtotime('next Sunday'));
 			break;
-			
+
 			case 'next_weekend':
 				$from = date("N") == 7 ? date("Y-m-d", strtotime('next Saturday')) : date("Y-m-d", strtotime('next Saturday +1 week'));
 				$to = date("Y-m-d", strtotime('this Sunday +1 week'));
@@ -936,38 +936,38 @@ class Page_Calendar_Events_Search extends Search_Page
 				$from = date("N") == 7 ? date("Y-m-d", strtotime('last Saturday -1 week')) : date("Y-m-d", strtotime('last Saturday'));
 				$to = date("Y-m-d", strtotime('last Sunday -1 week'));
 			break;
-			
+
 			case 'this_week':
 				// "2" for Day week means its first day of the week i.e. Monday
 				$from = date("N") == 2 ? $today : date("Y-m-d", strtotime('last Monday'));
 				$to = date("Y-m-d", strtotime($from. " +1 week"));
 			break;
-			
+
 			case 'next_week':
 				$from = date("Y-m-d", strtotime('next Monday'));
 				$to = date("Y-m-d", strtotime($from. " +1 week"));
 			break;
-			
+
 			case 'previous_week':
 				$from = date("N") == 2 ? date("Y-m-d", strtotime('last Monday')) : date("Y-m-d", strtotime('last Monday -1 week'));
 				$to = date("Y-m-d", strtotime($from. " +1 week"));
 			break;
-			
+
 			case 'this_fortnight':
 				$from = date("N") == 2 ? $today : date("Y-m-d", strtotime('last Monday'));
-				$to = date("Y-m-d", strtotime($from. " +2 weeks"));			
+				$to = date("Y-m-d", strtotime($from. " +2 weeks"));
 			break;
-			
+
 			case 'next_fortnight':
 				$from = date("Y-m-d", strtotime('next Monday +1 week'));
 				$to = date("Y-m-d", strtotime($from. " +2 weeks"));
 			break;
-			
+
 			case 'previous_fortnight':
 				$from = date("N") == 2 ? date("Y-m-d", strtotime('last Monday -1 week')) : date("Y-m-d", strtotime('last Monday -2 weeks'));
 				$to = date("Y-m-d", strtotime($from. " +2 weeks"));
 			break;
-			
+
 			case 'this_month':
 				$from = date("Y-m-d", strtotime(date('m').'/01/'.date('Y')));
 				if (date('m') == 12) {
@@ -976,7 +976,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					$to = date("Y-m-d", strtotime((date('m')+1).'/01/'.date('Y'))-86400); // 86400 = 24*60*60
 				}
 			break;
-			
+
 			case 'next_month':
 				if (date('m') == 12) {
 					$month = 1;
@@ -992,7 +992,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					$to = date("Y-m-d", strtotime(($month+1).'/01/'.$year)-86400);
 				}
 			break;
-			
+
 			case 'previous_month':
 				if (date('m') == 1) {
 					$month = 12;
@@ -1008,23 +1008,23 @@ class Page_Calendar_Events_Search extends Search_Page
 					$to = date("Y-m-d", strtotime(($month+1).'/01/'.$year)-86400);
 				}
 			break;
-			
+
 			case 'this_year':
 				$year = date('Y');
 				$from = date("Y-m-d", strtotime('01/01/'.$year));
 				$to = date("Y-m-d", strtotime('12/31/'.$year));
 			break;
-			
+
 			case 'next_year':
 				$year = date('Y')+1;
 				$from = date("Y-m-d", strtotime('01/01/'.$year));
-				$to = date("Y-m-d", strtotime('12/31/'.$year));			
+				$to = date("Y-m-d", strtotime('12/31/'.$year));
 			break;
-			
+
 			case 'previous_year':
 				$year = date('Y')-1;
 				$from = date("Y-m-d", strtotime('01/01/'.$year));
-				$to = date("Y-m-d", strtotime('12/31/'.$year));			
+				$to = date("Y-m-d", strtotime('12/31/'.$year));
 			break;
 
 			case 'upcoming_events':
@@ -1045,19 +1045,19 @@ class Page_Calendar_Events_Search extends Search_Page
 				$from = '';
 				$to = '';
 			break;
-		
-		}//end switch		
-		
+
+		}//end switch
+
 		return Array (
 				"from" => $from,
 				"to" => $to,
 				"fuzzy_type" => $type,
 			) ;
-	
-	}//end _processFuzzyDate()
-	
 
-	
+	}//end _processFuzzyDate()
+
+
+
 	//--        KEYWORD DESCRIPTION        --//
 
 
@@ -1120,18 +1120,18 @@ class Page_Calendar_Events_Search extends Search_Page
 				// work out the query field keywords
 				$fields = $this->attr('fields');
 				foreach ($fields as $field => $field_data) {
-					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
+					$keywords[$field.'_query'] = sprintf(translate('sch_page_keyword_search_field'), $field);
 					if ($bodycopy == 'initial') {
-						$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
+						$keywords[$field.'_query_logic'] = sprintf(translate('sch_page_keyword_search_field_logic'), $field);
 					}
 				}
 				// work out the calendar events filter keywords
 				$filters = $this->attr('events_filters');
 				foreach ($filters as $filter => $filter_data) {
 					if (isset($filter_data['type'])) {
-						$keywords['event_filter_'.$filter] = translate('page_events_search_filter_field', $filter);
+						$keywords['event_filter_'.$filter] = sprintf(translate('page_events_search_filter_field'), $filter);
 					}
-				}				
+				}
 				// work out search category keywords
 				foreach ($this->attr('categories') as $cat_name => $cat_details) {
 					$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
@@ -1166,6 +1166,6 @@ class Page_Calendar_Events_Search extends Search_Page
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
-	
+
 }//end class
 ?>

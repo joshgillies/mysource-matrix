@@ -112,7 +112,7 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 				echo '<b>"'.$file_path.'"</b>';
 			}
 		$value = ob_get_clean();
-		$res = '<div class="sq-break-line-inputs">'.translate('trigger_replace_file', $value).'</div>';
+		$res = '<div class="sq-break-line-inputs">'.sprintf(translate('trigger_replace_file'), $value).'</div>';
 		if ($write_access) {
 			$res .= '<p>'.translate('trigger_replace_file_type_warning').'</p>';
 		}

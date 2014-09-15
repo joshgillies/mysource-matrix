@@ -192,10 +192,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				?>
 			</tr>
 			<?php
-			
+
 			foreach ($fields as $field_name => $field_data) {
 				if ($field_data['exclude_field']) continue;
-				
+
 				$field_datasources = $field_data['data_sources'];
 				if ((!empty($field_datasources)) && ($field_datasources[0]['type'] == 'exclude')) {
 					continue;
@@ -228,7 +228,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							if ($field_datasource != 'new') {
 								switch ($type) {
 
-									case 'asset_attrib':									
+									case 'asset_attrib':
 										if (!isset($field_datasource['params'])) {
 											$field_datasources[$index]['params'] = Array();
 										}
@@ -273,7 +273,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										}
 
 										if (!empty($selected_attr)) {
-				
+
 											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
 											$attr_info = $attr_info[$selected_attr];
 
@@ -464,8 +464,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processFields(&$asset, &$o, $prefix)
 	{
 		$old_fields = $asset->attr('fields');
-		
-		$new_fields = Array();		
+
+		$new_fields = Array();
 
 		if (isset($_POST[$prefix.'_fields'])) {
 			foreach ($_POST[$prefix.'_fields'] as $field_name => $field) {
@@ -497,12 +497,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			}
 		}
 
-		if (!empty($_POST[$prefix.'_new_field_name'])) {			
+		if (!empty($_POST[$prefix.'_new_field_name'])) {
 			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_field_name']));
-			
+
 			// If field already, don't overwrite it
-			if (!isset($old_fields[$safe_name])) {			
-				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];				
+			if (!isset($old_fields[$safe_name])) {
+				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];
 				$new_fields[$safe_name]['data_sources'] = Array();
 				$new_fields[$safe_name]['exclude_field'] = FALSE;
 			}
@@ -513,7 +513,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$new_fields[$field_name] = $field;
 			}
 		}//end foreach
-		
+
 		return $asset->setAttrValue('fields', $new_fields);
 
 	}//end processFields()
@@ -530,7 +530,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @access public
 	*/
 	function paintExcludeFields(&$asset, &$o, $prefix)	{
-		
+
 		$write_access = $asset->writeAccess('all');
 		$fields = $asset->attr('fields');
 		$query_types = Array(
@@ -601,7 +601,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							if ($field_datasource != 'new') {
 								switch ($type) {
 
-									case 'asset_attrib':									
+									case 'asset_attrib':
 										if (!isset($field_datasource['params'])) {
 											$field_datasources[$index]['params'] = Array();
 										}
@@ -639,7 +639,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										}
 
 										if (!empty($selected_attr)) {
-				
+
 											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
 											$attr_info = $attr_info[$selected_attr];
 
@@ -805,14 +805,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				?>
 			</tr>
 
-		</table>		
+		</table>
 		<?php
 		if ($write_access) {
 			label(translate('sch_page_new_exclude_field').':', $prefix.'_new_exclude_field_name');
 			echo '&nbsp;';
 			text_box($prefix.'_new_exclude_field_name', '', 20);
 		}
-		
+
 		return TRUE;
 
 	}//end paintExcludeFields()
@@ -829,10 +829,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @access public
 	*/
 	function processExcludeFields(&$asset, &$o, $prefix)
-	{	
+	{
 		//return true;
 		$old_fields = $asset->attr('fields');
-		
+
 		$new_fields = Array();
 		if (isset($_POST[$prefix.'_exclude_fields'])) {
 			foreach ($_POST[$prefix.'_exclude_fields'] as $field_name => $field) {
@@ -863,14 +863,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 		}
-		
-		
 
-		if (!empty($_POST[$prefix.'_new_exclude_field_name'])) {						
+
+
+		if (!empty($_POST[$prefix.'_new_exclude_field_name'])) {
 			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_exclude_field_name']));
 			// If field already, don't overwrite it
 			if (!isset($old_fields[$safe_name])) {
-				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field_name'];				
+				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field_name'];
 				$new_fields[$safe_name]['data_sources'] = Array();
 				$new_fields[$safe_name]['exclude_field'] = TRUE;
 			}
@@ -881,7 +881,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$new_fields[$field_name] = $field;
 			}
 		}//end foreach
-		
+
 		return $asset->setAttrValue('fields', $new_fields);
 
 	}//end processExcludeFields()
@@ -1315,17 +1315,17 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					foreach ($cats[$delete_name]['options'] as $option_delete_name => $option_content) {
 						$old_link_value = 'root_'.$delete_name.'_'.$option_delete_name;
 						$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', $old_link_value);
-						
+
 						$ok = TRUE;
 						foreach ($root_links as $root_link) {
 							if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 								$ok = FALSE;
 							}
 						}
-				
+
 					}
 				// bug fix for #3884 Search page category - unable to delete
-				// if the option attribute in empty that doesnt mean we cannot 
+				// if the option attribute in empty that doesnt mean we cannot
 				// delete the search category for it
 				} else if (isset($cats[$delete_name]['options']) && empty($cats[$delete_name]['options'])){
 					$ok = TRUE;
@@ -1813,7 +1813,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (empty($field)) {
 				echo translate('sch_auto_syn_not_enabled');
 			} else {
-				echo translate('sch_auto_syn_enabled_using_field', $field);
+				echo sprintf(translate('sch_auto_syn_enabled_using_field'), $field);
 			}
 		}
 
@@ -1922,7 +1922,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$asset->setAttrValue('enable_multi_word_synonym_lookups', FALSE);
 		} else {
 			$asset->setAttrValue('enable_multi_word_synonym_lookups', TRUE);
-			
+
 		}
 
 		return TRUE;

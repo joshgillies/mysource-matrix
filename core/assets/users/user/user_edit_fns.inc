@@ -130,7 +130,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 			// if user has restrictions related to this group
 			if (!array_get_index($restrictions, $group_assetid, FALSE)) {
-				echo translate('no_membership_conditions', $group['name']);
+				echo sprintf(translate('no_membership_conditions'), $group['name']);
 			} else {
 				?>
 				This user is part of this group when...
@@ -278,9 +278,9 @@ class User_Edit_Fns extends Asset_Edit_Fns
 				echo $standards_lists_locales[$current_locale];
 			} else if ($current_locale == '') {
 				// add system default to this message when it is determined
-				echo translate('no_locale_set_for_user', $standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE]);
+				echo sprintf(translate('no_locale_set_for_user'), $standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE]);
 			} else {
-				echo translate('unknown_locale', $current_locale);
+				echo sprintf(translate('unknown_locale'), $current_locale);
 			}
 		}
 
@@ -374,7 +374,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		$num_locks = count($current_locks);
 		$write_access = $asset->writeAccess('attributes');
 		$o->openField(translate('current_locks'));
-			echo translate('user_held_locks', htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $num_locks);
+			echo sprintf(translate('user_held_locks'), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $num_locks);
 			?>
 			<script type="text/javascript">
 			function sq_user_held_locks_info()
@@ -395,7 +395,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			$restricted_locks = array_slice($current_locks, 0, 100);
 			echo '<br /><b class="clickable" onclick="sq_user_held_locks_info();" id="sq_user_held_locks_toggle">'.translate('show_user_held_locks_details').'</b><br />';
 			echo '<div id="sq_user_held_locks_details" style="display:none;">';
-			echo translate('showing_first', count($restricted_locks), $num_locks);
+			echo sprintf(translate('showing_first'), count($restricted_locks), $num_locks);
 			echo '<table class="sq-backend-table">';
 			echo '<tr>';
 			echo '<td class="sq-backend-table-header">Asset</td>';

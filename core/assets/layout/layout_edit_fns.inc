@@ -168,7 +168,7 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 
 			// With checkboxes, default to unset unless it is set, in which case set the value. Now we're all set
 			$layout_display_options['show_cascade_metadata_field'] = FALSE;
-			
+
 			if (isset($_POST[$prefix]['show_cascade_metadata_field'])) {
 				$layout_display_options['show_cascade_metadata_field'] = (bool) $_POST[$prefix]['show_cascade_metadata_field'];
 			}

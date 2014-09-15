@@ -194,7 +194,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					}
 
 					//Bug #5143: Commiting from "approved to go live" causes some attributes on some assets to be cleared.
-					//To safeguard against this, there is no point of having locks if we are Archived/Safe Edit Approved as write access will be blocked.	
+					//To safeguard against this, there is no point of having locks if we are Archived/Safe Edit Approved as write access will be blocked.
 					if ($do_process_backend && !$asset->accessEffective()){
 						if (!$this->am->releaseLock($asset->id, 'attributes')) {
 							trigger_localised_error('SYS0182', E_USER_WARNING, 'attributes', $asset->name);
@@ -268,7 +268,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				// the security key entered is wrong
 				$o->openSection(translate('security_key_incorrect'));
 				$o->openField('&nbsp;');
-				echo '<b><i>'.translate('security_key_incorrect_message', $asset->name).'</i></b>';
+				echo '<b><i>'.sprintf(translate('security_key_incorrect_message'), $asset->name).'</i></b>';
 				$o->closeSection();
 			} else {
 				$o->addOnLoad('window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire_by_force\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_type\', \''.addslashes($_GET['sq_lock_type']).'\'); window.opener.parent.frames["sq_main"].submit_form(); window.close();');
@@ -301,7 +301,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 		$o->openSection(translate('forcibly_acquire'));
 			$o->openField('');
-				$o->note(translate('forcibly_acquire_lock_can_cause_losses', htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+				$o->note(sprintf(translate('forcibly_acquire_lock_can_cause_losses'), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 			$o->openField('');
 		?>
 		<table border="0">
@@ -361,7 +361,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						if (!$expires_in) {
 							$expires_in = '1 '.translate('second');
 						}
-						$expires_in = translate('due_to_expire', $expires_in);
+						$expires_in = sprintf(translate('due_to_expire'), $expires_in);
 					}
 
 					?>

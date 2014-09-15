@@ -46,7 +46,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 	$created = FALSE;
 
 	if (count($root->children()) == 0) {
-		$o->openSection(translate('no_asset_settings', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+		$o->openSection(sprintf(translate('no_asset_settings'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 		$o->closeSection();
 	}
 
@@ -324,7 +324,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 						?></table><?php
 					} else {
-						echo translate('no_language_set', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						echo sprintf(translate('no_language_set'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					}
 
 					if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
@@ -351,7 +351,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						ob_start();
 					}
 
-		
+
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
@@ -507,7 +507,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 
 						if (!$new_user_design) {
-							$display_name = translate('config_display_name', ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
+							$display_name = sprintf(translate('config_display_name'), ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
 						} else {
 							$display_name = translate('create_new_user_defined_design');
 						}

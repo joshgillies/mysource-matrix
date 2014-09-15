@@ -94,9 +94,9 @@ class Cron_Job_Future_Permission extends Cron_Job
 		if (is_null($asset)) {
 			return translate('cron_job_asset_less_future_permission');
 		} else if ($short_name) {
-			return translate('cron_fp_for', translate('asset_format', $asset->short_name, $asset->id));
+			return sprintf(translate('cron_fp_for'), sprintf(translate('asset_format'), $asset->short_name, $asset->id));
 		} else {
-			return translate('cron_future_permission_for', translate('asset_format', $asset->name, $asset->id));
+			return sprintf(translate('cron_future_permission_for'), sprintf(translate('asset_format'), $asset->name, $asset->id));
 		}
 
 	}//end _getName()
@@ -188,7 +188,7 @@ class Cron_Job_Future_Permission extends Cron_Job
 	protected static function _getAllPermissions()
 	{
 		return Array('read' => SQ_PERMISSION_READ, 'write' => SQ_PERMISSION_WRITE, 'admin' => SQ_PERMISSION_ADMIN);
-		
+
 	}//end _getAllPermissions()
 
 
@@ -227,7 +227,7 @@ class Cron_Job_Future_Permission extends Cron_Job
 	{
 		$descs = self::getAllPermissionDescs();
 		return $descs[$this->attr('permission')];
-		
+
 	}//end permissionName()
 
 
@@ -235,7 +235,7 @@ class Cron_Job_Future_Permission extends Cron_Job
 	* Return the list of userids that will be granted permissions
 	*
 	* @param boolean	$grant	TRUE to get grant list, FALSE to get deny list
-	* 
+	*
 	* @return array
 	* @access public
 	*/
@@ -249,23 +249,23 @@ class Cron_Job_Future_Permission extends Cron_Job
 				$userids[] = $userid;
 			}
 		}
-		
+
 		return $userids;
-		
+
 	}//end getGrantedUsers()
-	
+
 	/**
 	 * Return the name of the action of the cron job. It is either 'Add' or 'Remove'.
-	 * 
+	 *
 	 * @return string
 	 * @access public
 	 */
 	public function actionName()
 	{
 		return ($this->attr('add')? translate('add') : translate('remove'));
-		
+
 	}//end actionName()
-	
+
 	/**
 	* Sets the asset that this cron job will be altering the permission on
 	*
@@ -404,16 +404,16 @@ class Cron_Job_Future_Permission extends Cron_Job
 		foreach ($links as $link) {
 			$assetids[] = $link['majorid'];
 		}
-		
+
 		sort($assetids);
-		
+
 		$fp_jobs = Array();
 		foreach ($assetids as $assetid) {
 			$fp_jobs[] = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, 'cron_job_future_permission');
 		}
-		
+
 		return $fp_jobs;
-		
+
 	}//end getActiveJobs()
 
 

@@ -67,7 +67,7 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 		//get all data we need from either current submission or incomplete submission
 		if (!empty($_FILES['q'.$q_asset->id]['tmp_name'])) {
 			$temp_file = $_FILES['q'.$q_asset->id]['tmp_name'];
-			$answer_name = $_FILES['q'.$q_asset->id]['name'];			
+			$answer_name = $_FILES['q'.$q_asset->id]['name'];
 		}
 		else {
 			$extra_data = $q_asset->getExtraData();
@@ -75,14 +75,14 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 			if(!empty($temp_file) && strpos($temp_file, '/') !== 0) $temp_file = SQ_SYSTEM_ROOT.'/'.$temp_file;
 			$answer_name = basename($temp_file);
 		}
-		
+
 		// if no file uploaded, no need to scan virus
 		if ((empty($answer_name) || $answer_name == 'No file uploaded') && !isset($temp_file)) return TRUE;
-		
+
 		// if disabled, no need to proceed
 		if(isset($rule_data['check_virus']) && $rule_data['check_virus'] == 2) return TRUE;
-		
-		$report;	
+
+		$report;
 		$status = Antivirus::scan_file($temp_file,$report);
 		// If infected, remove and warn the user
 		if (!$status) {
@@ -109,13 +109,13 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 	function generateJSCode(&$q_asset, $rule_data)
 	{
 		// Generate a customisable indicator DIV
-		
+
 		// if disabled
 		if(isset($rule_data['check_virus']) && $rule_data['check_virus'] == 2) return '';
-		
+
 		$content = isset($rule_data['indicator_content']) && !empty ($rule_data['indicator_content']) ? $rule_data['indicator_content'] : translate('core_form_rule_file_virus_check_indicator_content_default');
 		$class = isset($rule_data['indicator_class']) && !empty ($rule_data['indicator_class']) ? $rule_data['indicator_class'] : translate('core_form_rule_file_virus_check_indicator_class_default');
-		
+
 		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
 		$condition_js = parent::generateConditionJSCode($rule_data);
 		$additional_condition = '';
@@ -157,9 +157,9 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 	    	$use_accessible_string = $form->useAccessibleFormat();
 		if($use_accessible_string)
-		    return translate('core_form_rule_file_virus_check_error_true_accessible', $q_asset->getValue());
+		    return sprintf(translate('core_form_rule_file_virus_check_error_true_accessible'), $q_asset->getValue());
 		else
-		    return translate('core_form_rule_file_virus_check_error_true', $q_asset->getValue(), $q_asset->attr('name'));
+		    return sprintf(translate('core_form_rule_file_virus_check_error_true'), $q_asset->getValue(), $q_asset->attr('name'));
 	}//end defaultError()
 
 

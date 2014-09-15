@@ -409,7 +409,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						?></span><?php
 					}
 					?>
-					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					&nbsp; &nbsp; <?php echo sprintf(translate('page_number'), round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
 					<?php
 					if (($link_offset + $num_per_page) < $total_assets) {
 						?><a title="<?php echo translate('pagination_go_to_next') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php

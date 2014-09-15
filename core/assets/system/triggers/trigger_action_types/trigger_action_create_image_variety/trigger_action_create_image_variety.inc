@@ -198,7 +198,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		// Painting the interface
 		ob_start();
 			echo '<div class="sq-break-line-inputs">';
-			echo translate('trigger_create_image_variety_basic', $basic_part_1);
+			echo sprintf(translate('trigger_create_image_variety_basic'), $basic_part_1);
 			echo '<br />';
 
 			$js_prefix = preg_replace('/[^a-z0-9_]/', '_', $prefix);
@@ -241,7 +241,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "inline-block";
 					}//end if
 					return true;
-					
+
 				}// end <?php echo $prefix; ?>_update_visible_fields()
 
 				// -->
@@ -255,7 +255,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 						'none'						=> translate('neither'),
 						'centre_weighted_square'	=> translate('square_center_weighted'),
 					   );
-			
+
 			echo translate('constrain_by').': ';
 			if ($write_access) {
 				combo_box($prefix.'[constrain]', $options, FALSE, $settings['constrain'], 0, $javascript);
@@ -333,22 +333,22 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		// name
 		if (!$variety->setAttrValue('name', $request_data['name'])) {
-			return translate('trigger_cannot_set_variety_value', translate('name'));
+			return sprintf(translate('trigger_cannot_set_variety_value'), translate('name'));
 		}
 
 		// constrain
 		if (!$variety->setAttrValue('constrain', $request_data['constrain'])) {
-			return translate('trigger_cannot_set_variety_value', translate('constrain'));
+			return sprintf(translate('trigger_cannot_set_variety_value'), translate('constrain'));
 		}
 
 		// width
 		if (!$variety->setAttrValue('width', $request_data['width'])) {
-			return translate('trigger_cannot_set_variety_value', translate('width'));
+			return sprintf(translate('trigger_cannot_set_variety_value'), translate('width'));
 		}
 
 		// height
 		if (!$variety->setAttrValue('height', $request_data['height'])) {
-			return translate('trigger_cannot_set_variety_value', translate('height'));
+			return sprintf(translate('trigger_cannot_set_variety_value'), translate('height'));
 		}
 
 		unset($variety);

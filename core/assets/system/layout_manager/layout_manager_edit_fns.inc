@@ -141,7 +141,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 					$o->openField('');
 
 					check_box($prefix.'_remove_type_code['.$type_code.']');
-					label(translate('remove_customisations_for', $uc_type_code), $prefix.'_remove_type_code['.$type_code.']');
+					label(sprintf(translate('remove_customisations_for'), $uc_type_code), $prefix.'_remove_type_code['.$type_code.']');
 
 					$o->closeField();
 				}
@@ -149,7 +149,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 				$o->openField('');
 
 				if (empty($screens)) {
-					$o->note(translate('no_layouts_for_screens', $uc_type_code));
+					$o->note(sprintf(translate('no_layouts_for_screens'), $uc_type_code));
 				} else {
 					?>
 					<table class="sq-backend-table">

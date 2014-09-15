@@ -106,7 +106,7 @@ class Physical_File extends Asset
 		}
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}
 
@@ -194,13 +194,13 @@ class Physical_File extends Asset
 			require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
 			$location = FILE_BRIDGE_PATH;
 			$location = rtrim($location, '/');
-			if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;			
+			if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 			$full_path = $location.'/'.$this->_shadowid;
 
 			$full_path = realpath($full_path);
 			if(strpos(dirname($full_path), $location) !== 0)
 			    return FALSE;
-		
+
 			$content = file_get_contents($full_path);
 			$content = nl2br($content);
 			echo $content;
@@ -210,7 +210,7 @@ class Physical_File extends Asset
 
 
 	/**
-	 * Get the file path of the current asset 
+	 * Get the file path of the current asset
 	 *
 	 * @return void
 	 * @access public
@@ -233,14 +233,14 @@ class Physical_File extends Asset
 		$full_path = realpath($full_path);
 		if(strpos(dirname($full_path), $location) !== 0)
 		    exit(1);
-		
+
 		return $full_path;
 
 	}//end getFilePath()
 
 
 	/**
-	 * Get the mime type of the current asset 
+	 * Get the mime type of the current asset
 	 *
 	 * @return void
 	 * @access public

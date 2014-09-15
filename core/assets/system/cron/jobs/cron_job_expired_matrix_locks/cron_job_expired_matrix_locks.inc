@@ -122,8 +122,8 @@ class Cron_Job_Expired_Matrix_Locks extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
+
+
 	/**
 	* Run this cron job
 	*

@@ -82,7 +82,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	*/
 	function valueTest($answer, $operator, &$comparison)
 	{
-	
+
 		if (strrpos($answer, '.') === false) {
 			$extension = '';
 		} else {
@@ -118,25 +118,25 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	*/
 	function evaluate($answer, $rule_data, &$q_asset)
 	{
-		
+
 
 		include (SQ_FUDGE_PATH.'/standards_lists/mime_types.inc');
 		//get all data we need from either current submission or incomplete submission
 		if (!empty($_FILES['q'.$q_asset->id]['tmp_name'])) {
 			$temp_file = $_FILES['q'.$q_asset->id]['tmp_name'];
-			$answer_name = $_FILES['q'.$q_asset->id]['name'];		
+			$answer_name = $_FILES['q'.$q_asset->id]['name'];
 		}
 		else {
-			$extra_data = $q_asset->getExtraData();	
+			$extra_data = $q_asset->getExtraData();
 			$temp_file = array_get_index($extra_data, 'temp_filesystem_path','');
 			if(!empty($temp_file) && strpos($temp_file, '/') !== 0) $temp_file = SQ_SYSTEM_ROOT.'/'.$temp_file;
 			$answer_name = basename($temp_file);
 		}
-		
+
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$comparison = array_get_index($rule_data, 'value', '');
 		$check_mime = array_get_index($rule_data, 'check_mime', FALSE);
-		
+
 		if (strrpos($answer_name, '.') === false) {
 			$extension = '';
 		} else {
@@ -146,7 +146,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 
 		//skip test if no file is uploaded
 		if ((empty($answer_name) || $answer_name == 'No file uploaded') && empty($temp_file)) return TRUE;
-		
+
 
 		//check MIME type conistency for the temp uploaded file
 		//file MIME, extension MIME should be consistent, we can't rely on browser MIME type
@@ -159,10 +159,10 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 				if(empty($MIME_type_extension)|| $MIME_type_extension != $MIME_type) return FALSE;
 			}
 		}
-		
-				
 
-		// If the extension is empty, return as invalid, otherwise strpos will not take empty argument. 
+
+
+		// If the extension is empty, return as invalid, otherwise strpos will not take empty argument.
 		if (empty($extension) && !empty($comparison)) {
 			$valid = 0;
 		} else {

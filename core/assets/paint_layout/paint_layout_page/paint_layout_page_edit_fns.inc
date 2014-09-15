@@ -269,7 +269,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 			if ($current_page_no > 0) {
 				echo '<a href="'.htmlspecialchars(replace_query_string_vars(Array('usage_page_no' => $current_page_no-1))).'">'.translate('previous_page').'</a> &nbsp; ';
 			}
-			echo translate('page_number', $current_page_no + 1, $total_pages);
+			echo sprintf(translate('page_number'), $current_page_no + 1, $total_pages);
 			if ($current_page_no < ($total_pages-1)) {
 				echo ' &nbsp; <a href="'.htmlspecialchars(replace_query_string_vars(Array('usage_page_no' => $current_page_no+1))).'">'.translate('next_page').'</a> ';
 			}

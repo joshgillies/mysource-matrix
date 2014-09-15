@@ -101,7 +101,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paint the interface for selecting the session variables 
+	* Paint the interface for selecting the session variables
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class

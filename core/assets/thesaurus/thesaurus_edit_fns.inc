@@ -38,7 +38,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*
 	*/
 	function Thesaurus_Edit_Fns()
-	{	
+	{
 		$this->Asset_Edit_Fns();
 		unset($this->static_screens['tagging']);
 
@@ -124,7 +124,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintExampleXMLFile(&$asset, &$o, $prefix)
 	{
-		echo translate('thesaurus_example_xml_file', sq_web_path('data').'/asset_types/thesaurus/files/example.xml');
+		echo sprintf(translate('thesaurus_example_xml_file'), sq_web_path('data').'/asset_types/thesaurus/files/example.xml');
 
 		// don't ever need a commit button
 		return FALSE;

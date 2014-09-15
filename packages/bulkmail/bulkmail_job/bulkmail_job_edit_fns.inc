@@ -555,9 +555,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 					echo translate('enabled').'<br/>';
 					echo translate('bulkmail_job_filter_explanation').'<br/>';
 					if ($match) {
-						echo translate('bulkmail_job_filter_enabled_format_true', $filter_text);
+						echo sprintf(translate('bulkmail_job_filter_enabled_format_true'), $filter_text);
 					} else {
-						echo translate('bulkmail_job_filter_enabled_format_false', $filter_text);
+						echo sprintf(translate('bulkmail_job_filter_enabled_format_false'), $filter_text);
 					}
 				} else {
 					echo '<span class="sq-backend-warning">';

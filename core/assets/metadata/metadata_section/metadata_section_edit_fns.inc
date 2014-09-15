@@ -98,7 +98,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell">
-									<?php 
+									<?php
 										get_asset_type_icon($asset_type);
 										echo ucfirst(str_replace('_', ' ', $asset_type));
 									?>
@@ -447,11 +447,11 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 												   ),
 										  );
 				if ($field_cascade_value) $section_cascade_value_asset_ids[$field->id] = 1;
-				
+
 				$res = TRUE;
 			}
 		}
-		
+
 		return $res;
 
 	}//end processInlineValueInterface()

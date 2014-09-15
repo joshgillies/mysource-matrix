@@ -238,14 +238,14 @@ class Bodycopy_Container_Prefs extends Prefs
 			}
 		}
 
-		// Div DISABLE CREATE 
+		// Div DISABLE CREATE
 		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_CREATE') {
 			if (isset($_POST['prefs']['SQ_DIV_DISABLE_CREATE'])) {
 				$this->pref_vars['SQ_DIV_DISABLE_CREATE']['default'] = $_POST['prefs']['SQ_DIV_DISABLE_CREATE']['default'];
 			}
 		}
 
-		// Div DISABLE DELETE 
+		// Div DISABLE DELETE
 		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_DELETE') {
 			if (isset($_POST['prefs']['SQ_DIV_DISABLE_DELETE'])) {
 				$this->pref_vars['SQ_DIV_DISABLE_DELETE']['default'] = $_POST['prefs']['SQ_DIV_DISABLE_DELETE']['default'];

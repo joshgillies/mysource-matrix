@@ -105,7 +105,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// regenerate the design_file.php and css_file.php here (because the processBackend function
 		// doesn't do it automatically any more
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();

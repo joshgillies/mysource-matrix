@@ -127,7 +127,7 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_set_thumbnail', $basic_part_1);
+		return sprintf(translate('trigger_set_thumbnail'), $basic_part_1);
 
 	}//end getInterface()
 

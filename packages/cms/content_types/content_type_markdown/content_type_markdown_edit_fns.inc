@@ -100,7 +100,7 @@ class Content_Type_Markdown_Edit_Fns extends Content_Type_Edit_Fns
 
 				}//end if (trim($html) != '')
 			}//end if ($markdown == '')
-			
+
 
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$keywords = Array();

@@ -218,7 +218,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 												   ),
 										  );
 
-				// getChildren is not supposed to return any assets that are 
+				// getChildren is not supposed to return any assets that are
 				// linked by notice links but at time of writing it did, resulting in
 				// tags getting tagged. Check for assets returned that have no type
 				$child_assets = array_filter($child_assets);	//TODO: Running array_filter wouldnt have any effect, since it's multi-dimensional array now.
@@ -276,7 +276,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 							break;
 						}
 					}
-					$step_data['message'] = translate('hipo_editing_tags', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('hipo_editing_tags'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'links');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
@@ -285,8 +285,8 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 					trigger_localised_error('SYS0100', E_USER_WARNING, 'links', $asset->name, ' skipping asset.');
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_cannot_edit_tags', $assetid));
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$this->_addError(sprintf(translate('hipo_cannot_edit_tags'), $assetid));
 			}
 
 			// add this assetid to the done array so we don't do it again
@@ -361,7 +361,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+		$step_data['message'] = sprintf(translate('hipo_release_locks'), $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

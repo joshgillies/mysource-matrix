@@ -374,7 +374,7 @@ class Online_Quiz_Question extends Asset
 				  );
 
 		if (empty($value)) {
-			$errors['warnings'][] = translate('online_quiz_question_warning_empty_question', $this->getPosition());
+			$errors['warnings'][] = sprintf(translate('online_quiz_question_warning_empty_question'), $this->getPosition());
 		}
 
 		return $errors;

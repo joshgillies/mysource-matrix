@@ -380,21 +380,21 @@ class Funnelback_Search_Page extends Listing_Engine
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_format');
 		if (!empty($folder_link)) {
 			if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return translate('cms_listing_cannot_delete_type_formats_link', str_replace('_',' ', $this->type()));
+				return sprintf(translate('cms_listing_cannot_delete_type_formats_link'), str_replace('_',' ', $this->type()));
 			}
 		}
 
 		$fluster_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'fluster_format');
 		if (!empty($fluster_folder_link)) {
 			if ($fluster_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return translate('funnelback_cannot_delete_fluster_format_link', str_replace('_',' ', $this->type()));
+				return sprintf(translate('funnelback_cannot_delete_fluster_format_link'), str_replace('_',' ', $this->type()));
 			}
 		}
 
 		$spelling_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'spell_format');
 		if (!empty($spelling_folder_link)) {
 			if ($spelling_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return translate('funnelback_cannot_delete_spelling_format_link', str_replace('_',' ', $this->type()));
+				return sprintf(translate('funnelback_cannot_delete_spelling_format_link'), str_replace('_',' ', $this->type()));
 			}
 		}
 
@@ -402,7 +402,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && array_key_exists($bodycopy_link['value'], $this->bodycopies) && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('funnelback_cannot_delete_bodycopy_link', str_replace('_', ' ', ucwords($bodycopy_link['value'])), str_replace('_',' ', ucwords($this->type())));
+			return sprintf(translate('funnelback_cannot_delete_bodycopy_link'), str_replace('_', ' ', ucwords($bodycopy_link['value'])), str_replace('_',' ', ucwords($this->type())));
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -430,7 +430,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 
 	/**
-	* Returns the search URL 
+	* Returns the search URL
 	*
 	* @return string
 	* @access public
@@ -544,7 +544,7 @@ class Funnelback_Search_Page extends Listing_Engine
 							$search_vars['scope'] = $dynamic_scope;
 						}//end if
 					break;
-					
+
 					case 'sort_order':
 						$dynamic_sort = $pmap->getParameterValue($params);
 						if (!empty($dynamic_sort) && empty($search_vars['sort'])) {
@@ -566,7 +566,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		if (empty($search_vars['sort'])) {
 			$search_vars['sort'] = $this->attr('sort_order');
 		}
-		
+
 		// If Stored Query is to be used, then jump to the results page directly
 		if ($this->attr('stored_query_show_results') && $mode == 'initial' && $jump_to_result) {
 			$mode = 'results';
@@ -744,7 +744,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			// So try and guess the correct bodycopy!
 			$bc_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', TRUE);
 			$folder_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'folder');
-			
+
 			foreach ($folder_links as $link_info) {
 				if (isset($bc_parents[$link_info['minorid']])) {
 					$bc_folder = $GLOBALS['SQ_SYSTEM']->am->getLinks($link_info['minorid'], SQ_LINK_TYPE_2, 'bodycopy');
@@ -788,7 +788,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	function getInitialBodyReplacements($extra=Array())
 	{
 		$bodycopy =& $this->getBodycopy('initial');
-	
+
 		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
 
@@ -1357,7 +1357,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				case 'navigation_url':
 					$replacement = '';
 					$navigation = array_get_index($summary['fluster'], 'navigation', Array());
-					
+
 					$current_element = array_get_index($navigation, $index, Array());
 					// Process the URL to Matrix format
 					$url = array_get_index($current_element, 'url', '');
@@ -1581,14 +1581,14 @@ class Funnelback_Search_Page extends Listing_Engine
 						" value="'.$this->attr('submit_button_text').'" />';
 					}
 					// We add an extra hidden text field here to workaround an IE bug i.e.
-					// if form has only one text field then submit button is not sent along 
+					// if form has only one text field then submit button is not sent along
 					// with other input fields in form when enter key is pressed in the text box.
 					// See bug #4559
-					$replacement = '<input type="text" name="'.$prefix.'_extra_field" id="'.$prefix.'_extra_field" style="display:none" />'.$replacement;			
+					$replacement = '<input type="text" name="'.$prefix.'_extra_field" id="'.$prefix.'_extra_field" style="display:none" />'.$replacement;
 				break;
 
 				case 'results_per_page':
-					
+
 					$field_name = 'results_per_page';
 					$results_per_page = htmlspecialchars(array_get_index($_REQUEST, $field_name, $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$this->registerFormField($field_name);
@@ -1627,7 +1627,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 
 	/**
-	* Returns replacements for the sliding page index 
+	* Returns replacements for the sliding page index
 	*
 	* @param string	$mode					The mode of the page
 	* @param int	$current_result_page	The current result page
@@ -1804,7 +1804,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 
 	/**
-	* Prints the result list 
+	* Prints the result list
 	*
 	* This method ensures the list is printed in columns if required, and keeps
 	* track of what position in the list we are printing
@@ -2151,7 +2151,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$type_max = array_get_index($search, 'type_max', 0);
 		$topic_max = array_get_index($search, 'topic_max', 0);
 		$site_max = array_get_index($search, 'site_max', 0);
-		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');	
+		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');
 		$sort = array_get_index($search, 'sort', 'rank');
 
 		// Check for required information
@@ -2170,7 +2170,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		}//end if
 		if (!empty($scope) && $scope != 'ALL') {
 			$url .= '&scope='.urlencode($scope);
-		}//end if		
+		}//end if
 
 		// Add in the paging commands
 		if ($current_result_page != 1) {
@@ -2226,7 +2226,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			$url .= '&site.max_clusters='.$this->attr('less_site_num');
 		}//end if
 
-		
+
 		// Add in sorting
 		if (!empty($sort) && $sort !== 'rank' && in_array($sort, $valid_sort)) {
 			$url .= '&sort='.$sort;
@@ -2296,7 +2296,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 
 	/**
-	* Search the OEM version of Funnelback 
+	* Search the OEM version of Funnelback
 	*
 	* @param array $params	The search params
 	*
@@ -2318,7 +2318,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$collection_id = $this->attr('collection');
 		$bin_path = $fm->getFunnelbackPath().'/bin/';
 		if (!$fm->isCollectionValid($collection_id)) {
-			
+
 			// Collection is not valid, stop the search...
 			return FALSE;
 		}//end if
@@ -2330,7 +2330,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$scope = array_get_index($params, 'scope', '');
 		$page = array_get_index($params, 'page', 1);
 		$num_per_page = intval(array_get_index($params, 'num_per_page', $this->_getNumPerPage()));
-		
+
 		$sort = array_get_index($params, 'sort', $this->attr('sort_order'));
 		$metadata_scope = $this->_getMetadataScope();
 		if (empty($scope)) {
@@ -2413,7 +2413,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		// Get the other vars
 		$current_result_page = array_get_index($search, 'page', 1);
 		$num_per_page = array_get_index($search, 'num_per_page', $this->_getNumPerPage());
-		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');	
+		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');
 		$sort = array_get_index($search, 'sort', 'rank');
 		$scope = array_get_index($search, 'scope', '');
 		$type_max = array_get_index($search, 'type_max', 0);
@@ -2425,7 +2425,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$options['num_per_page']                  = $num_per_page;
 		$options['contextual_navigation_enabled'] = TRUE;
 		$options['userkeys']                      = $this->_getUserKeys(TRUE);
-		
+
 		// Check for required information
 		if (empty($systemid) || empty($collection)) {
 			// No server set
@@ -2439,7 +2439,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		}//end if
 		if (!empty($scope) && $scope != 'ALL') {
 			$options['scope'] = $scope;
-		}//end if		
+		}//end if
 
 		// Add in the paging commands
 		if ($current_result_page != 1) {
@@ -2547,7 +2547,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 
 	/**
-	 * Get the flustering options 
+	 * Get the flustering options
 	 *
 	 * @param array	$params	The search parameters
 	 *
@@ -2621,14 +2621,14 @@ class Funnelback_Search_Page extends Listing_Engine
 	 * @access private
 	 */
 	private function _getMetadataScope()
-	{	
+	{
 		$group_scope = '';
 		$scope = '';
 
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 		$all_metadata_config = array_get_index($fm->attr('metamap'), $this->attr('collection'), Array());
 		$metadata_scope = array_get_index($_GET, $this->getPrefix().'_metadata_scope', Array());
-		
+
 		$default_metadata_logic = Array();
 		foreach($all_metadata_config as $metamap) {
 			if (array_get_index($metadata_scope, $metamap['alias'], FALSE) !== FALSE) {
@@ -2647,7 +2647,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				}
 			}
 			$logic = array_get_index($metadata_logic, $index, array_get_index($default_metadata_logic, $index, 2));
-			foreach($keywords as $value) {			
+			foreach($keywords as $value) {
 				$value = trim($value);
 				if (!empty($value)) {
 					if ($contains_op) {
@@ -2658,7 +2658,7 @@ class Funnelback_Search_Page extends Listing_Engine
     	                $group_scope .= ' '.$index.':'.$value;
 	                } else {
                     	$scope .= ' +'.$index.':'.$value;
-                	}				
+                	}
 				}//end if
 			}//end foreach $keywords
 		}//end foreach
@@ -2671,7 +2671,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 
 	/**
-	 * Get the search query 
+	 * Get the search query
 	 *
 	 * @parm string $search_term
 	 *
@@ -2679,7 +2679,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	 * @access private
 	 */
 	private function _getSearchQuery($search_term)
-	{	
+	{
 		$keywords = preg_split('/([\s\+\-\|\*]*"[^"]+")[\s]*|'.'([\s\+\-\|\*]*`[^`]+`)[\s]*|'.'[\s]+/', $search_term, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
 		// Query having search operator overrides the word logic settings
@@ -2690,7 +2690,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		}
 
 		$logic = array_get_index($_GET, $this->getPrefix().'_search_logic', $this->attr('word_logic'));
-		
+
 		$search_query = '';
 		foreach ($keywords as $keyword) {
 			$keyword = trim($keyword);
@@ -2702,15 +2702,15 @@ class Funnelback_Search_Page extends Listing_Engine
                     $search_query .= ' '.$keyword;
                 } else {
                     $search_query .= ' +'.$keyword;
-                }				
+                }
 			}//end if
 		}//end foreach
-		
+
 		return trim($search_query);
 
 	}//end _getSearchQuery()
 
-	
+
 	/**
 	* Output the event javascript
 	*
@@ -2778,7 +2778,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 
 	/**
-	* Strip URL ( this de-funnelbacks urls ) ;) 
+	* Strip URL ( this de-funnelbacks urls ) ;)
 	*
 	* @param string $url	The URL to strip
 	*
@@ -2851,7 +2851,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 
 		/**
-		 * 
+		 *
 		 * <best_bets>
 		 * 	<bb>
 		 * 		<bb_trigger>matrix</bb_trigger>
@@ -2874,12 +2874,12 @@ class Funnelback_Search_Page extends Listing_Engine
         }
 		// before FB v9.1, we call it featured_pages
 		if($feature_pages->length == 0) $feature_pages = $xml->getElementsByTagName('featured_pages');
-		
+
 		if ($feature_pages->length >= 1) {
             $tag_name = ($adv_hosted_search) ? 'com.funnelback.publicui.search.model.padre.BestBet' : 'bb';
 			$featured_pages = $feature_pages->item(0)->getElementsByTagName('bb');
 			// before FB v9.1, we call it fp
-			if($featured_pages->length == 0) 
+			if($featured_pages->length == 0)
 				$featured_pages = $feature_pages->item(0)->getElementsByTagName('fp');
 			for ($j=0; $j<$featured_pages->length; $j++) {
 				$bb = Array();
@@ -2893,13 +2893,13 @@ class Funnelback_Search_Page extends Listing_Engine
 								break;
 							case 'bb_link':
 								$name = 'fp_link';
-								break;	
+								break;
 							case 'bb_title':
 								$name = 'fp_title';
 								break;
 							case 'bb_desc':
 								$name = 'fp_desc';
-								break;		
+								break;
 							default:
 								break;
 						}
@@ -2943,7 +2943,7 @@ class Funnelback_Search_Page extends Listing_Engine
         }
 		// before FB v9.1, we call it fluster
 		if($fluster->length == 0) $fluster = $xml->getElementsByTagName('fluster');
-			
+
 		for ($l=0; $l<$fluster->length; $l++) {
 			// Process the cluster_nav elements
             $tag_name =  $adv_hosted_search ? 'clusterNav' : 'cluster_nav';
@@ -3105,7 +3105,7 @@ class Funnelback_Search_Page extends Listing_Engine
                                 if ($nodeName == 'md' && $value->hasAttribute('f')) {
                                     $nodeName = 'meta_'.$value->getAttribute('f');
                                 }
-                                if ($adv_hosted_search) 
+                                if ($adv_hosted_search)
                                     $nodeName = (isset($mapping_array[$nodeName])) ? $mapping_array[$nodeName] : $nodeName;
                                 $each_result[$nodeName] = utf8_decode($value->nodeValue);
                             }//end foreach

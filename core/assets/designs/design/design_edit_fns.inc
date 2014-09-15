@@ -157,7 +157,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$new_version = FALSE;
 
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		
+
 		$info = get_file_upload_info($prefix.'_parse_file');
 		if(!isset($info['tmp_name'])) {
 		    trigger_error('Design parse file is not found', E_USER_WARNING);
@@ -168,7 +168,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		     trigger_error('Empty design parse file is not allowed', E_USER_WARNING);
 		     return FALSE;
 		}
-		
+
 		// delete existing parse file if it exists
 		if (is_file($parse_file)) {
 			$new_version = TRUE;
@@ -433,7 +433,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			    trigger_error('Empty design parse file is not allowed', E_USER_WARNING);
 			    return;
 			}
-			
+
 			// copy over the uploaded file
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (string_to_file($new_file, $parse_file)) {
@@ -687,7 +687,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (!$asset->writeAccess('all')) {
 			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
-			echo translate('core_design_must_acquire_locks_new_customisation', strtolower($type_name));
+			echo sprintf(translate('core_design_must_acquire_locks_new_customisation'), strtolower($type_name));
 			return FALSE;
 		}
 
@@ -817,7 +817,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}
 		$am->forgetAsset($minor);
-		
+
 		// we skipped this step in cloneComponentsAdditional(), now we since got all design areas linked, it's time to generate a design file
 		$cloned->generateDesignFile();
 
@@ -902,18 +902,18 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// Let's place an print operation after the head tag
 		// to allow us to print the default header stuff like
 		// style sheets, JS files and meta tag stuff
-		if(strpos($file_contents, '</head>') !== FALSE) {  
+		if(strpos($file_contents, '</head>') !== FALSE) {
 		    $file_contents = str_replace('</head>', "\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n</head>", $file_contents);
 		}
 
 		// Let's place an print operation after the termination body tag
 		// to allow us to print the anything that has come to our attention
 		// like image rollovers
-		if(strpos($file_contents, '</body>') !== FALSE) {  
+		if(strpos($file_contents, '</body>') !== FALSE) {
 		    $file_contents = str_replace('</body>', "\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>", $file_contents);
 		}
 
-		
+
 		return parent::_parseString($file_contents);
 
 	}//end _parseString()
@@ -1476,7 +1476,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 						$info = Array('name' => basename($full_path), 'tmp_name' => $full_path);
 						$info['non_uploaded_file'] = TRUE;
 						if (!$this->_processUploadedFile($asset, $info)) {
-							trigger_error(translate('core_design_export_associated_file_problem', basename($full_path)), E_USER_WARNING);
+							trigger_error(sprintf(translate('core_design_export_associated_file_problem'), basename($full_path)), E_USER_WARNING);
 						}
 					}
 				}
@@ -1484,7 +1484,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				delete_directory($files_dir);
 			}//end if copy successful
 		} else {
-			trigger_error(translate('core_design_export_opening_problem', $file_info['name']), E_USER_WARNING);
+			trigger_error(sprintf(translate('core_design_export_opening_problem'), $file_info['name']), E_USER_WARNING);
 		}
 		return $write_access;
 
@@ -1518,11 +1518,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$page_num = min($page_num, $num_pages);
 
 			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
+				$page_tag = sprintf(translate('page_number'), $page_num, $num_pages);
 			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+				$page_tag = sprintf(translate('page_number_with_pager'), $page_num, $num_pages, $prefix.'_usage_page');
 			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('assets')));
+			$asset_count_tag = sprintf(translate('item_range'), ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('assets')));
 
 			$tree_tops = array_slice($tree_tops, ($page_num - 1) * $page_size, $page_size);
 

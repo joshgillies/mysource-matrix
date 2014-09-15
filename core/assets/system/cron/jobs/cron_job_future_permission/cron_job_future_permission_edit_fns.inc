@@ -76,7 +76,7 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 			echo $descs[$asset->attr('permission')];
 		}
 		echo '&nbsp;'.translate('permission').'</span><br /><br />';
-		
+
 		if ($write_access) {
 				?>
 				<table class="sq-simple-table">
@@ -103,15 +103,15 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 					</tr>
 				</table>
 				<?php
-	
+
 			echo '<br /><span class="sq-inline-fields-wrapper">'.translate('at').'&nbsp;';
 			$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 			echo '</span>';
-	
+
 			echo '<br /><br />';
 			check_box($prefix.'_cascade_to_new', '1', $cascade_to_new);
 			label(translate('cascade_permission_to_new_children'), $prefix.'_cascade_to_new');
-			
+
 			echo '<br />';
 			check_box($prefix.'_cascade_permission_changes', '1', !$dependants_only);
 			label(translate('update_permission_to_current_children'), $prefix.'_cascade_permission_changes', '1');
@@ -137,13 +137,13 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 		if (!$asset->writeAccess('attributes')) {
 			return FALSE;
 		}
-		
+
 		if (!empty($_POST[$prefix.'_future_permission']) && $asset->setAttrValue('permission', $_POST[$prefix.'_future_permission'])) {
 			$add_permissions = (!isset($_POST[$prefix.'_add_future_permissions']) || $_POST[$prefix.'_add_future_permissions']) ? TRUE : FALSE;
 			if (!$asset->setAttrValue('add', $add_permissions)) {
 				return FALSE;
 			}
-			
+
 			$userids = Array();
 			$permission_access = $_POST[$prefix.'_future_permissions_access'];
 			$permission_set = FALSE; //FLAG TO MARK IF PERMISSION IS GRANTED OR DENIED TO AT LEAST ONE USER OR NOT
@@ -163,13 +163,13 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 			if (!$permission_set || !$asset->setAttrValue('userids', $userids)) {
 				return FALSE;
 			}
-			
+
 			$cascade_to_new = (isset($_POST[$prefix.'_cascade_to_new']) && $_POST[$prefix.'_cascade_to_new']) ? TRUE : FALSE;
 			$dependants_only = (isset($_POST[$prefix.'_cascade_permission_changes']) && $_POST[$prefix.'_cascade_permission_changes']) ? FALSE : TRUE;
 			if (!$asset->setAttrValue('cascade_to_new', $cascade_to_new) || !$asset->setAttrValue('dependants_only', $dependants_only)) {
 				return FALSE;
 			}
-			
+
 			if ($when = $this->_processWhenBox($asset, $o, $prefix)) {
 				return ($asset->setAttrValue('when', $when));
 			} else {

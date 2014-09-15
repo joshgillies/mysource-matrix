@@ -126,7 +126,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 			if ($current_id) {
 				if (!isset($snippets[$current_id])) {
 					// no read access or snippet deleted
-					$current_content = translate('cms_ct_snippet_warning', get_asset_tag_line($current_id));
+					$current_content = sprintf(translate('cms_ct_snippet_warning'), get_asset_tag_line($current_id));
 				} else {
 					$current_content = $snippets[$current_id]['content'];
 					$source_safe = TRUE;
@@ -229,7 +229,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 				// prevent accidental overwrite
 				return FALSE;
 			}
-			
+
 			if ($new_id) {
 				// user selected a different snippet
 				if ($new_id != $current_id) {

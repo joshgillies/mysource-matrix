@@ -87,7 +87,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 		// If we're OK to edit, get our selection attribute, and paint it
 		if ($write_access) {
-			
+
 			echo '<span class="sq-metadata-settings-wrapper">';
 				if ($enable_default) {
 					echo '<span class="sq-metadata-default-wrapper">';
@@ -154,7 +154,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 						echo ' <em>('.translate('using_default_value').')</em>';
 					} else{
 
-					}	
+					}
 				echo '</span>';
 			}
 		}

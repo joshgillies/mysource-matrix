@@ -52,7 +52,7 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 			$o->openField(translate('core_form_rule_details'));
 			echo translate('core_form_rule_file_type_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $rule_data['value']);
 			$o->closeField();
-			
+
 		} else {
 
 			$o->openField(translate('operator'));
@@ -66,7 +66,7 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 			$option_list->paint($prefix.'_value');
 
 			$o->closeField();
-			// check mime type?	
+			// check mime type?
 			$o->openField(translate('core_form_rule_file_type_enforce_check_mime'));
 			check_box($prefix.'[check_mime]', TRUE, array_get_index($rule_data, 'check_mime', FALSE));
 			$o->closeField();

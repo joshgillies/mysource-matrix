@@ -293,7 +293,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 			trigger_localised_error('LDAP0001', E_USER_WARNING);
 			return;
 		}
-		
+
 		$user_type = $asset->attr('user_type');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
 		$ldap_asset = new $user_type();

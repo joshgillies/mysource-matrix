@@ -103,7 +103,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 
 			if (is_null($pref)) $o->closeField();
 		}//end if
-		
+
 		// Allows Turn Off Keywords Permission Check
 		if (is_null($pref) || $pref == 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK') {
 			if (is_null($pref)) {
@@ -121,7 +121,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 			echo $o->note(translate('cms_ct_snippet_pref_keywords_note'));
 			if (is_null($pref)) $o->closeField();
 		}
-		
+
 
 		return TRUE;
 
@@ -149,7 +149,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 				$this->pref_vars['SQ_SNIPPET_ROOT']['default'] = $_POST['prefs']['SQ_SNIPPET_ROOT']['assetid'];
 			}
 		}
-		
+
 		// Allows Turn Off Keywords Permission Check
 		if (is_null($pref) || $pref == 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK') {
 			if (isset($_POST['prefs']['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK'])) {

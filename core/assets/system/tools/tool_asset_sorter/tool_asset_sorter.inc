@@ -191,7 +191,7 @@ class Tool_Asset_Sorter extends Tool
 			return FALSE;
 		if(!empty($sort_asset_type) && !preg_match('/^[a-z_]+$/i', $sort_asset_type))
 			return FALSE;
-		
+
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 

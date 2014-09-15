@@ -139,7 +139,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			$interface = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_asset_type', $interface);
+		return sprintf(translate('trigger_asset_type'), $interface);
 
 	}//end getInterface()
 

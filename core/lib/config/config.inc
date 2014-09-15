@@ -365,17 +365,17 @@ class Config extends MySource_Object
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 									$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 									if (!$expires_in) $expires_in = '1 second';
-									$expires_in = translate('due_to_expire', $expires_in);
+									$expires_in = sprintf(translate('due_to_expire'), $expires_in);
 									if ($have_lock) {
-										echo translate('release_lock', translate('release_lock_button'), translate($config_screen));
+										echo sprintf(translate('release_lock'), translate('release_lock_button'), translate($config_screen));
 									}
 									if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-										echo translate('lock_held_by_user', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+										echo sprintf(translate('lock_held_by_user'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
 									}
 									echo ' '.$expires_in.'.';
 
 								} else {
-									echo translate('acquire_lock', translate('acquire_lock_button'), translate($config_screen));
+									echo sprintf(translate('acquire_lock'), translate('acquire_lock_button'), translate($config_screen));
 								}
 							echo '</p>';
 							?>
@@ -418,8 +418,8 @@ class Config extends MySource_Object
 		if (!empty($_POST['sq_lock_acquire'])) {
 			$this->acquireLock();
 		}
-		
-		
+
+
 		// if the save was successful, we need to redirect because the constants
 		// that are already defined cannot be redefined in this script execution
 		if ($saved) $o->setRedirect($o->getCurrentLocation());

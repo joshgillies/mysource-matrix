@@ -436,7 +436,7 @@ class System_Config extends Config
 			} else {
 				echo nl2br(SQ_CONF_RECACHE_SUFFIX);
 			}
-			
+
 			$o->openField(translate('system_performance_suffix'));
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_PERFORMANCE_SUFFIX]', SQ_CONF_PERFORMANCE_SUFFIX, 15);
@@ -458,7 +458,7 @@ class System_Config extends Config
 			} else {
 				echo (SQ_CONF_DISABLE_ATTRIBUTION) ? translate('yes') : translate('no');
 			}
-			
+
 			$o->openField(translate('enforce_frame_sameorigin'));
 			if ($write_access) {
 				combo_box($class.'[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENFORCE_FRAME_SAMEORIGIN);
@@ -547,7 +547,7 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_WEB_PATH_SEPARATOR);
 			}
 			$o->closeField();
-			
+
 			$o->openField(translate('system_redirect_url_with_trailing_slash'));
 				if ($write_access && $is_root) {
 					combo_box($class.'[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH);
@@ -741,7 +741,7 @@ class System_Config extends Config
 			} else {
 				echo (SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH) ? translate('true') : translate('false');
 			}
-			$o->note(translate('choose_session_save_path_note', session_save_path()));
+			$o->note(sprintf(translate('choose_session_save_path_note'), session_save_path()));
 
 		$o->closeSection();
 
@@ -821,14 +821,14 @@ class System_Config extends Config
 			// We only provide the common
 			$options = Array(
 						'user'		=> translate('syslog_facility_user'),
-						'local0'	=> translate('syslog_facility_local', 0),
-						'local1'	=> translate('syslog_facility_local', 1),
-						'local2'	=> translate('syslog_facility_local', 2),
-						'local3'	=> translate('syslog_facility_local', 3),
-						'local4'	=> translate('syslog_facility_local', 4),
-						'local5'	=> translate('syslog_facility_local', 5),
-						'local6'	=> translate('syslog_facility_local', 6),
-						'local7'	=> translate('syslog_facility_local', 7),
+						'local0'	=> sprintf(translate('syslog_facility_local'), 0),
+						'local1'	=> sprintf(translate('syslog_facility_local'), 1),
+						'local2'	=> sprintf(translate('syslog_facility_local'), 2),
+						'local3'	=> sprintf(translate('syslog_facility_local'), 3),
+						'local4'	=> sprintf(translate('syslog_facility_local'), 4),
+						'local5'	=> sprintf(translate('syslog_facility_local'), 5),
+						'local6'	=> sprintf(translate('syslog_facility_local'), 6),
+						'local7'	=> sprintf(translate('syslog_facility_local'), 7),
 					   );
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_ERRORS_SYSLOG_FACILITY]', $options, FALSE, SQ_CONF_ERRORS_SYSLOG_FACILITY);
@@ -1015,15 +1015,15 @@ class System_Config extends Config
 				}
 				$o->note(translate('http_header_send_404_cacheable_header_field_note'));
 			$o->closeField();
-			
+
 			$o->openField(translate('http_header_use_http_x_forwarded_for'));
 				if ($write_access && $is_root) {
 					combo_box($class.'[SQ_CONF_USE_HTTP_X_FORWARDED_FOR]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_USE_HTTP_X_FORWARDED_FOR);
-				} else {	
+				} else {
 					echo (SQ_CONF_USE_HTTP_X_FORWARDED_FOR) ? translate('yes') : translate('no');
 				}
 				$o->note(translate('http_header_use_http_x_forwarded_for_note'));
-			
+
 				$option_list->setEditParam('width', 30);
 				if ($write_access) {
 					$option_list->value = SQ_CONF_FORWARDED_IP_PROXY_LIST;
@@ -1040,24 +1040,24 @@ class System_Config extends Config
 			$o->openField(translate('http_header_cookie_http_only_field_name'));
 				if ($write_access && $is_root) {
 					combo_box($class.'[SQ_CONF_COOKIE_OPTION_HTTP_ONLY]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_COOKIE_OPTION_HTTP_ONLY);
-				} else {	
+				} else {
 					echo (SQ_CONF_COOKIE_OPTION_HTTP_ONLY) ? translate('yes') : translate('no');
 				}
 				$o->note(translate('http_header_cookie_http_only_note'));
-			
+
 			$o->closeField();
 
 			$o->openField(translate('http_header_cookie_secure_option_field_name'));
 				if ($write_access && $is_root) {
 					combo_box($class.'[SQ_CONF_COOKIE_OPTION_SECURE]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_COOKIE_OPTION_SECURE);
-				} else {	
+				} else {
 					echo (SQ_CONF_COOKIE_OPTION_SECURE) ? translate('yes') : translate('no');
 				}
 				$o->note(translate('http_header_cookie_secure_option_note'));
-			
+
 			$o->closeField();
 
-		
+
 		$o->closeSection();
 
 
@@ -1183,7 +1183,7 @@ class System_Config extends Config
 
 		$roles_changed = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM']) || isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_WF_SYSTEM']) || isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']));
 
-		$enable_roles_perm_system_setting = SQ_CONF_ENABLE_ROLES_PERM_SYSTEM; 
+		$enable_roles_perm_system_setting = SQ_CONF_ENABLE_ROLES_PERM_SYSTEM;
 		$enable_roles_wf_system_setting = SQ_CONF_ENABLE_ROLES_WF_SYSTEM;
 		$enable_global_roles_setting = SQ_CONF_ENABLE_GLOBAL_ROLES;
 

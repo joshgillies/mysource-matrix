@@ -1145,8 +1145,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		return ($asset->setAttrValue('dynamic_vars', $var_list));
 
 	}//end processResultFields()
-	
-	
+
+
 	/**
 	* Paints the interface for setting up the download file name
 	*
@@ -1161,23 +1161,23 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_value = $asset->attr('filename_field');
-		
-		$var_list = $asset->attr('dynamic_vars');		
+
+		$var_list = $asset->attr('dynamic_vars');
 		$result_fields = isset($var_list['result_fields']) ? $var_list['result_fields'] : Array();
 		// Append an empty option
 		array_unshift($result_fields, '');
-		
+
 		if ($write_access) {
 			combo_box($prefix.'_filename_field', $result_fields, FALSE, $current_value);
 		} else {
-			echo array_get_index($result_fields, $current_value, ''); 
+			echo array_get_index($result_fields, $current_value, '');
 		}
 
 		return TRUE;
 
 	}//end paintDownloadedFileName()
-	
-	
+
+
 	/**
 	* Process the interface for setting up the download file name
 	*
@@ -1193,17 +1193,17 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		if (!$asset->writeAccess('attributes')) {
 			return FALSE;
 		}
-		
-		$new_value = isset($_POST[$prefix.'_filename_field']) ? $_POST[$prefix.'_filename_field'] : FALSE;		
+
+		$new_value = isset($_POST[$prefix.'_filename_field']) ? $_POST[$prefix.'_filename_field'] : FALSE;
 		if ($new_value === FALSE) {
 			return FALSE;
 		}
-		
-		$current_value = $asset->attr('filename_field');		
+
+		$current_value = $asset->attr('filename_field');
 		if ($current_value == $new_value) {
 			return TRUE;
-		}		
-		
+		}
+
 		return $asset->setAttrValue('filename_field', $new_value);
 
 	}//end processDownloadedFileName()

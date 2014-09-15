@@ -61,7 +61,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			$replacements_link = ob_get_contents();
 		ob_end_clean();
 
-		$o->note(translate('metadata_date_object_keys', $replacements_link));
+		$o->note(sprintf(translate('metadata_date_object_keys'), $replacements_link));
 
 	}//end paintDateFormat()
 
@@ -179,12 +179,12 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				$default = $default[$assetid];
 			}
 
-			$field_cascade_value=FALSE;			
+			$field_cascade_value=FALSE;
 			$processed = FALSE;
 
 			$prefix = $asset->getPrefix();
 			$value = array_get_index($_POST, $prefix.'_repkeys', '');
-			
+
 			if (!empty($value)) {
 				$default = '%'.trim($value).'%';
 				$processed = TRUE;
@@ -202,8 +202,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 
 			if (isset($_POST[$prefix.'_cascade_value'])) {
-				$field_cascade_value = TRUE;				
-			}			
+				$field_cascade_value = TRUE;
+			}
 
 			if ($is_contextable === FALSE) {
 				$GLOBALS['SQ_SYSTEM']->changeContext(0);
@@ -218,7 +218,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			}
-			
+
 			return $processed;
 		}
 		return FALSE;
@@ -424,7 +424,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 						echo ' <em>('.translate('using_default_value').')</em>';
 					} else{
 
-					}	
+					}
 				echo '</span>';
 			}
 			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[trim($value, '%')];
@@ -435,7 +435,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 						echo ' <em>('.translate('using_default_value').')</em>';
 					} else{
 
-					}	
+					}
 				echo '</span>';
 			}
 			echo $field->format();

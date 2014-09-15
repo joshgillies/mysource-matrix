@@ -50,7 +50,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 					<td valign="top"><?php $asset->printImageTag('Click CURRENT FILE to view the latest version of this thumbnail'); ?></td>
 					<td valign="top">
 					<?php File_Edit_Fns::printExistingFileInfo($asset);
-					echo translate('core_dimensions', $existing['width'], $existing['height']); ?><br/>
+					echo sprintf(translate('core_dimensions'), $existing['width'], $existing['height']); ?><br/>
 					</td>
 				</tr>
 			</table>

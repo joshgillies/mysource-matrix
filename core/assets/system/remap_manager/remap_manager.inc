@@ -217,11 +217,11 @@ class Remap_Manager extends Asset
 			trigger_localised_error('CORE0024', E_USER_WARNING, $old_url);
 			return -1;
 		}
-		
+
 		if ($never_delete === NULL){
 			$never_delete = ($this->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -237,7 +237,7 @@ class Remap_Manager extends Asset
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete old remap URLs for URL: '.$new_url.' due to database error: '.$e->getMessage());
 		}
-		
+
 		try {
 			$bind_vars	= Array (
 							'url'		=> $old_url,
@@ -344,7 +344,7 @@ class Remap_Manager extends Asset
 
 		$protocols = Array ( 'https' => FALSE, 'http' => FALSE );
 		$never_delete = ($this->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
-		
+
 		foreach ($urls as $url_data) {
 			if ($url_data['http']) {
 				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires, $never_delete, FALSE);
@@ -367,7 +367,7 @@ class Remap_Manager extends Asset
 				$protocols['https'] = TRUE;
 			}
 		}
-		
+
 		//Feature #4759: Asset ID to URL remaps.
 		foreach ($protocols as $protocol => $enabled){
 			if ($enabled){
@@ -396,7 +396,7 @@ class Remap_Manager extends Asset
 
 	/**
 	* Attempts to redirect user from current URL
-	* 
+	*
 	*
 	*
 	* @return boolean
@@ -441,7 +441,7 @@ class Remap_Manager extends Asset
 				return TRUE;
 			}
 		}
-	
+
 		return FALSE;
 	}
 
@@ -452,7 +452,7 @@ class Remap_Manager extends Asset
 	* @param string	$protocol	the protocol that the url is using
 	* @param string	$url		the url to remap from
 	* @param string	$parameters	paramters string to preserve
-	 * 
+	 *
 	* @return boolean
 	* @access public
 	*/
@@ -465,12 +465,12 @@ class Remap_Manager extends Asset
 
 		$url = $protocol.'://'.$url;
 		$time      = ts_iso8601(time());
-		
+
 		// there is URL parameters to pass
 		if(!empty($parameters)) {
 		    // Try URL + ?, if match is found, this URL is marked as an exception that no need of  preserving parameters
 		    try {
-			    
+
 			    $bind_vars = Array(
 							    'url'  => $url,
 							    'url_with_trailing_question_mark'  => $url.'?',
@@ -480,11 +480,11 @@ class Remap_Manager extends Asset
 		    } catch (DALException $e) {
 			    throw new Exception('Unable to get current remap URL for "'.$url.'" due to database error: '.$e->getMessage());
 		    }
-		    
+
 		    if(empty($results)) return FALSE;
-		    
+
 		    $remap_url = $results[0]['remap_url'];
-		    
+
 		    // if this query returns us a plain url (not with trailing '?'), we should pass URL parameters to remapped url
 		    if($results[0]['url'] === $url) {
 			// preserve parameters to remapped url
@@ -493,13 +493,13 @@ class Remap_Manager extends Asset
 			}
 			else {
 			    $remap_url = $remap_url.'?'.$parameters;
-			}	
+			}
 		    }
 		}
 		else {
 		    // no URL parameters to pass
 		    try {
-			    
+
 			    $bind_vars = Array(
 							    'url'  => $url,
 							    'time' => $time,
@@ -512,7 +512,7 @@ class Remap_Manager extends Asset
 
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
-			
+
 			header('HTTP/1.1 301 Moved Permanently');
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			// Send Cacheable Header based on cache manager default setting
@@ -525,7 +525,7 @@ class Remap_Manager extends Asset
 				}
 				$level = $cm->cacheControlLevel();
 				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$level);
-				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');			
+				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 			}
 			header('Location: '.$remap_url);
 
@@ -565,12 +565,12 @@ class Remap_Manager extends Asset
 			throw new Exception('Unable to get current remap URL for "'.$url.'" due to database error: '.$e->getMessage());
 		}
 
-		// if remap is found, keeping finding its remap until the final remap 
+		// if remap is found, keeping finding its remap until the final remap
 		if (!empty($remap_url)) {
-			$protocol = parse_url($remap_url, PHP_URL_SCHEME);	
-			$search = '#'.$protocol.'\\://#';		
+			$protocol = parse_url($remap_url, PHP_URL_SCHEME);
+			$search = '#'.$protocol.'\\://#';
 			$url = preg_replace($search, '', $remap_url);
-			
+
 			// find the final remap url recursively
 			$final_url = $this->getRemapFromURL($protocol, $url);
 			if ($final_url !== FALSE) $remap_url = $final_url;

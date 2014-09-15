@@ -296,12 +296,12 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		$asset->saveAttributes();
-		
+
 		$wanted_asset_types_parents = $asset->attr('wanted_asset_types');
 		if (!empty($wanted_asset_types_parents)) {
 			$sub->setAttrValue('wanted_asset_types', $wanted_asset_types_parents);
 		}
-		
+
 		if (!$sub->saveAttributes()) {
 			return FALSE;
 		}

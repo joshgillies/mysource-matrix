@@ -224,7 +224,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		echo ">\n";
 
 		if (is_null($content_type)) {
-			echo translate('content_type_not_found', $link['minorid']);
+			echo sprintf(translate('content_type_not_found'), $link['minorid']);
 		} else {
 			$content_edit = $content_type->getEditFns();
 			if (!empty($prefix)) {

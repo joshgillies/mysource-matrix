@@ -62,7 +62,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib')?>/web/popups/keywords.php?assetid=<?php echo $asset->id; ?>&all=1', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('metadata_keywords_list_link_text'); ?></a></b>.<?php
 			$replacements_link = ob_get_contents();
 		ob_end_clean();
-		$o->note(translate('metadata_keyword_replacements_usage', $replacements_link));
+		$o->note(sprintf(translate('metadata_keyword_replacements_usage'), $replacements_link));
 
 	}//end paintKeywordInstructions()
 

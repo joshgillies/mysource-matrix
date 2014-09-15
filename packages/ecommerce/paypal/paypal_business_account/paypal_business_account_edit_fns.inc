@@ -40,7 +40,7 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	{
 		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
-		
+
 	}//end constructor
 
 
@@ -57,9 +57,9 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	function paintPublicCertPath(&$asset, &$o, $prefix)
 	{
 		$this->_paintPath($asset, $prefix, 'public_cert_path', 'Public Certificate Path');
-		
+
 		return TRUE;
-		
+
 	}//end paintPublicCertPath()
 
 
@@ -76,10 +76,10 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	function processPublicCertPath(&$asset, &$o, $prefix)
 	{
 		return $this->_processPath($asset, $prefix, 'public_cert_path');
-		
+
 	}//end processPublicCertPath()
-	
-	
+
+
 	/**
 	* Paint the interface for Private Key Path
 	*
@@ -93,9 +93,9 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	function paintPrivateKeyPath(&$asset, &$o, $prefix)
 	{
 		$this->_paintPath($asset, $prefix, 'private_key_path', 'Private Key Path');
-		
+
 		return TRUE;
-		
+
 	}//end paintPrivateKeyPath()
 
 
@@ -112,10 +112,10 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	function processPrivateKeyPath(&$asset, &$o, $prefix)
 	{
 		return $this->_processPath($asset, $prefix, 'private_key_path');
-		
+
 	}//end processPrivateKeyPath()
-	
-	
+
+
 	/**
 	* Paint the interface for Paypal Certificate Path
 	*
@@ -129,9 +129,9 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	function paintPaypalCertPath(&$asset, &$o, $prefix)
 	{
 		$this->_paintPath($asset, $prefix, 'paypal_cert_path', 'Paypal Certificate Path');
-		
+
 		return TRUE;
-		
+
 	}//end paintPaypalCertPath()
 
 
@@ -148,10 +148,10 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	function processPaypalCertPath(&$asset, &$o, $prefix)
 	{
 		return $this->_processPath($asset, $prefix, 'paypal_cert_path');
-		
+
 	}//end processPaypalCertPath()
-	
-	
+
+
 	/**
 	* Common method to paint the interface for all paths
 	*
@@ -166,7 +166,7 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	private function _paintPath(&$asset, $prefix, $attr_name, $full_name)
 	{
 		$current_path = $asset->attr($attr_name);
-		
+
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.'_'.$attr_name, $current_path, 80);
 		} else {
@@ -176,14 +176,14 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 				echo '<b>'.$current_path.'</b>';
 			}
 		}
-		
+
 		if (!is_file($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', $full_name); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('path_to_not_valid'), $full_name); ?></span><?php
 		}//end if
-		
+
 	}//end _paintPath()
-	
-	
+
+
 	/**
 	* Common method to process the interface for all paths
 	*
@@ -198,11 +198,11 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (!isset($_POST[$prefix.'_'.$attr_name])) return FALSE;
-		
+
 		return $asset->setAttrValue($attr_name, trim($_POST[$prefix.'_'.$attr_name]));
-		
+
 	}//end _processPath()
-	
-	
+
+
 }//end class
 ?>

@@ -34,7 +34,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	var $follow_redirect = FALSE;
 	var $redirect_counter = 0;
 	var $max_redirect = 10;
-	
+
 
 	/**
 	* Constructor
@@ -66,8 +66,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_links');
 
 		$this->follow_redirect = $owner->attr('follow_link_redirect');
-			
-			
+
+
 		if (!isset($job->_running_vars['results'])) {
 			$list_content_types = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', FALSE);
 			$list_page_redirects = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'page_redirect', FALSE);
@@ -103,11 +103,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if ($asset_type == 'content_type_nest_content') {
-				$step_data['message'] = translate('cms_report_links_skipping_nest_content', $assetid);
+				$step_data['message'] = sprintf(translate('cms_report_links_skipping_nest_content'), $assetid);
 			}
 			// skip thoese with unwanted status
 			else if (isset($asset->status) && !in_array($asset->status,$owner->attr('statuses'))) {
-				 $step_data['message'] = translate('cms_report_links_skipping_unwanted_status', $assetid);
+				 $step_data['message'] = sprintf(translate('cms_report_links_skipping_unwanted_status'), $assetid);
 			}
 			else {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
@@ -133,7 +133,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 								$match = './?a='.$confirm_internal->id;
 							} else {
 								$link_type = 'internal';
-								$validated_results = Array('valid' => '1', 'description' => translate('cms_report_links_asset_not_exist', $confirm_internal->id));
+								$validated_results = Array('valid' => '1', 'description' => sprintf(translate('cms_report_links_asset_not_exist'), $confirm_internal->id));
 								$match = './?a='.$confirm_internal->id;
 							}
 						} else {
@@ -235,8 +235,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						unset($asset);
 					}//end else
 				} else {
-					$step_data['message'] = translate('cms_report_links_skipping_asset', $assetid);
-					$job->_addError(translate('cms_report_links_asset_not_exist', $assetid));
+					$step_data['message'] = sprintf(translate('cms_report_links_skipping_asset'), $assetid);
+					$job->_addError(sprintf(translate('cms_report_links_asset_not_exist'), $assetid));
 				}
 
 			}//end else nest content cell
@@ -365,7 +365,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			if (!$anchorExists) {
 				$valid = '0';
-				$description = translate('cms_report_links_anchor_not_exist', $link[2]);
+				$description = sprintf(translate('cms_report_links_anchor_not_exist'), $link[2]);
 			} else {
 				$valid = '1';
 				$description = '';
@@ -522,7 +522,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
-				$description = translate('cms_report_links_301_with_new_link', $matches[1]);
+				$description = sprintf(translate('cms_report_links_301_with_new_link'), $matches[1]);
 			} else {
 				$description = translate('cms_report_links_301');
 			}
@@ -531,7 +531,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
-				$description = translate('cms_report_links_302_with_new_link', $matches[1]);
+				$description = sprintf(translate('cms_report_links_302_with_new_link'), $matches[1]);
 			} else {
 				$description = translate('cms_report_links_302');
 			}
@@ -543,7 +543,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
-				$description = translate('cms_report_links_301_with_new_link', $matches[1]);
+				$description = sprintf(translate('cms_report_links_301_with_new_link'), $matches[1]);
 			} else {
 				$description = translate('cms_report_links_301');
 			}
@@ -551,7 +551,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
-				$description = translate('cms_report_links_301_with_new_link', $matches[1]);
+				$description = sprintf(translate('cms_report_links_301_with_new_link'), $matches[1]);
 			} else {
 				$description = translate('cms_report_links_301');
 			}
@@ -560,7 +560,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
-				$description = translate('cms_report_links_302_with_new_link', $matches[1]);
+				$description = sprintf(translate('cms_report_links_302_with_new_link'), $matches[1]);
 			} else {
 				$description = translate('cms_report_links_302');
 			}
@@ -568,7 +568,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
-				$description = translate('cms_report_links_307_with_new_link', $matches[1]);
+				$description = sprintf(translate('cms_report_links_307_with_new_link'), $matches[1]);
 			} else {
 				$description = translate('cms_report_links_307');
 			}
@@ -605,7 +605,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		} else {
 			//remove non ascii chars from response
 			$response = preg_replace('/[^(\x20-\x7F)]*/','',$response);
-			$description = translate('cms_report_links_unknown_response', $response);
+			$description = sprintf(translate('cms_report_links_unknown_response'), $response);
 			$valid = '0';
 		}
 
@@ -690,7 +690,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 								}
 								if (is_null($to)) {
 									$to_type = '';
-									$to_string = translate('unknown_asset_id', $link['data']);
+									$to_string = sprintf(translate('unknown_asset_id'), $link['data']);
 									$to_bg = '';
 									$to_status = '';
 									$to_name = '';
@@ -1029,7 +1029,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_internal_links'); ?></th>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'Internal'); ?></td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo sprintf(translate('cms_report_links_display_section'), 'Internal'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['internal_section'];
@@ -1077,7 +1077,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_external_links'); ?></th>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'External'); ?></td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo sprintf(translate('cms_report_links_display_section'), 'External'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['external_section'];
@@ -1125,7 +1125,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_email_links'); ?></th>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'Email'); ?></td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo sprintf(translate('cms_report_links_display_section'), 'Email'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['email_section'];
@@ -1539,7 +1539,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<tr>
 						<td class="sq-backend-table-cell">
-							<?php echo translate('cms_report_links_future_regen_cron_info', $rl_job->id, $rl_job->readableWhen()); ?>
+							<?php echo sprintf(translate('cms_report_links_future_regen_cron_info'), $rl_job->id, $rl_job->readableWhen()); ?>
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
@@ -1584,7 +1584,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$cron_refresh = (int)$cron_mgr->attr('refresh_time');
 				if ($cron_epoc > 0 && $cron_refresh > 0) {
 					$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rl');
-					$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+					$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
 				} else {
 					echo translate('cron_manager_not_configured_regen');
 				}

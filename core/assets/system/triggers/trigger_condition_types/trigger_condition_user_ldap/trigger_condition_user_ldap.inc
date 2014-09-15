@@ -78,8 +78,8 @@ class Trigger_Condition_User_LDAP extends Trigger_Condition
 				echo '<b>'.$options[$value].'</b>';
 			}
 		$is_ldap_user_str = ob_get_clean();
-		
-		return translate('trigger_asset_ldap_user', $is_ldap_user_str);
+
+		return sprintf(translate('trigger_asset_ldap_user'), $is_ldap_user_str);
 
 	}//end getInterface()
 
@@ -101,7 +101,7 @@ class Trigger_Condition_User_LDAP extends Trigger_Condition
 		}
 
 		$settings['is_ldap_user'] = $request_data['is_ldap_user'];
-		
+
 		return FALSE;
 
 	}//end processInterface()

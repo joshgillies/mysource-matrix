@@ -96,7 +96,7 @@ class Trigger_Action_Remove_Remaps extends Trigger_Action
 			}
 
 			if (!empty($address)) {
-	
+
 				// Process removing remaps (from-to) ie. remapping to this address (remap_url is this address)
 				if ($remove_from_to) {
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -149,7 +149,7 @@ class Trigger_Action_Remove_Remaps extends Trigger_Action
 	{
 		$remove_from_to = array_get_index($settings, 'removefromto', 1);
 		$remove_to_from = array_get_index($settings, 'removetofrom', 0);
-	
+
 		ob_start();
 			echo translate('trigger_schema_remove_remaps_message').'.';
 			echo '<br />';

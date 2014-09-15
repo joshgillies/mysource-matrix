@@ -93,7 +93,7 @@ class Page_Tag_Listing extends Page_Asset_Listing
 		$bind_vars = Array();
 
 		$root_asset_ids = $this->getRootNodes();
-		
+
 		foreach ($root_asset_ids as $root_asset_id) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 
@@ -108,24 +108,24 @@ class Page_Tag_Listing extends Page_Asset_Listing
 
 			$query_links['sql_array']['select'] = '(SELECT DISTINCT l.minorid ';
 
-			// remove shadow children from this search as the query would be too complex and slower			
+			// remove shadow children from this search as the query would be too complex and slower
 			$query_links['sql_array']['union_select'] = '';
 			$query_links['sql_array']['union_from'] = '';
 			$query_links['sql_array']['union_where'] = '';
-			
+
 			if (isset($bind_vars['gc_union_majorid'])) {
 				unset($bind_vars['gc_union_majorid']);
 			}
 
 			$query_links = implode(' ', $query_links['sql_array']);
-			
+
 			// no support for multiple root nodes; only the first one is processed
 			break;
 		}
 
 		// thesaurus filtering
 		$thesaurus_filters = $this->_getThesaurusFilters();
-		
+
 		$thesaurus_filter_clause = '';
 		if (!empty($thesaurus_filters)) {
 			// assume there is only filtering thesaurus
@@ -159,7 +159,7 @@ class Page_Tag_Listing extends Page_Asset_Listing
 						score DESC
 				';
 
-		try  {			
+		try  {
 			$query = MatrixDAL::preparePdoQuery($query);
 			foreach ($bind_vars as $bind_var => $bind_value) {
 				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
@@ -181,7 +181,7 @@ class Page_Tag_Listing extends Page_Asset_Listing
 			$this->_tmp['tag_freq'][$row['minorid']] = $row['score'];
 			$assets_to_list[$row['minorid']] = Array(Array('type_code' => 'thesaurus_term'));
 		}
-		
+
 		return $assets_to_list;
 
 	}//end getAssetList()

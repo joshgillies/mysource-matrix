@@ -53,7 +53,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 	*/
 	public static function paintInlineInterface(Form $form, $settings, Backend_Outputter $o, $prefix)
 	{
-        
+
 		$settings['consumer_key']    = array_get_index($settings, 'consumer_key');
 		$settings['consumer_secret'] = array_get_index($settings, 'consumer_secret');
 		$settings['request_token']   = array_get_index($settings, 'request_token');
@@ -71,11 +71,11 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		$settings['video_question_id'] = array_get_index($settings, 'video_question_id', 0);
 		$settings['delete_video_file'] = array_get_index($settings, 'delete_video_file', 1);
 		$settings['upload_timeout'] = array_get_index($settings, 'upload_timeout', 300);
-	
+
 		$consumer_details_locked = (!empty($settings['request_token'])) ? TRUE : FALSE;
 
 		ob_start();
-		
+
 		if (!empty($_REQUEST['oauth_verifier'])) hidden_field('oauth_verifier', $_REQUEST['oauth_verifier']);
 
 		?>
@@ -124,7 +124,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 					} else if (empty($settings['access_token']) && !empty($_REQUEST['oauth_verifier'])){
 						$value = translate('form_action_upload_youtube_video_client_credentials_access_token');
 						submit_button($prefix.'[get_access_token]', $value, 'main_form.submit()');
-						if (!empty($settings['access_token_errors'])){	
+						if (!empty($settings['access_token_errors'])){
 							?><br /><strong style="color: #f00">Error: failed to gain access token</strong><?php
 							foreach ($settings['access_token_errors'] as $error) {
 								?><br/><?php echo $error ?><?php
@@ -137,7 +137,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 					} else {
 						$value = translate('form_action_upload_youtube_video_client_credentials_request_token');
 						submit_button($prefix.'[get_request_token]', $value, 'main_form.submit()');
-						if (!empty($settings['request_token_errors'])){	
+						if (!empty($settings['request_token_errors'])){
 							?><br /><strong style="color: #f00">Error: failed to gain request token</strong><?php
 							foreach ($settings['request_token_errors'] as $error) {
 								?><br/><?php echo $error ?><?php
@@ -158,7 +158,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		<div style="padding: 5px">
 		<?php echo translate('form_action_upload_youtube_video_client_credentials_note') ?>
 		</div>
-        
+
         <div style="padding: 5px">
 		<p class="sq-backend-section-subheading"><?php echo translate('form_action_upload_youtube_video_settings_header') ?></p>
 
@@ -186,8 +186,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				<td><?php
 					text_box($prefix.'[title]', $settings['title'], 50, 100);
 				?> </td>
-				<td><?php					
-					$type_codes = Array ( 
+				<td><?php
+					$type_codes = Array (
 									  'form_question_type_text' => 'I',
 									);
 					asset_finder($prefix.'[title_question_id]', $settings['title_question_id'], $type_codes);
@@ -198,8 +198,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				<td><?php
 					text_area($prefix.'[description]', $settings['description'], 46, 10, 5000);
 				?> </td>
-				<td><?php					
-					$type_codes = Array ( 
+				<td><?php
+					$type_codes = Array (
 									  'form_question_type_text' => 'I',
 									);
 					asset_finder($prefix.'[description_question_id]', $settings['description_question_id'], $type_codes);
@@ -210,8 +210,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				<td><?php
 					text_box($prefix.'[category]', $settings['category'], 50);
 				?> </td>
-				<td><?php					
-					$type_codes = Array ( 
+				<td><?php
+					$type_codes = Array (
 									  'form_question_type_text' => 'I',
 									  'form_question_type_select' => 'I',
 									);
@@ -221,8 +221,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 			<tr>
 				<th><?php echo translate('form_action_upload_youtube_video_settings_file') ?></th>
 				<td>&nbsp;</td>
-				<td><?php					
-					$type_codes = Array ( 
+				<td><?php
+					$type_codes = Array (
 									  'form_question_type_file_upload' => 'I',
 									);
 					asset_finder($prefix.'[video_question_id]', $settings['video_question_id'], $type_codes);
@@ -251,7 +251,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		<div style="padding: 5px">
 		<?php echo translate('form_action_upload_youtube_video_settings_note') ?>
 		</div>
-		
+
         <?php
 
 		$contents = ob_get_clean();
@@ -260,7 +260,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 
 	}//end paintInlineInterface()
 
-	
+
 	/**
 	* Process inline interface
 	*
@@ -269,7 +269,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 	public static function processInlineInterface(Form $form, &$settings, Backend_Outputter $o, $prefix)
 	{
 		$settings['before_submit'] = TRUE;
-		
+
         $request_data = $_REQUEST[$prefix];
 		$deauthorise = (boolean)array_get_index($request_data, 'deauthorise', FALSE);
 
@@ -278,22 +278,22 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 			$settings['request_token'] = NULL;
 			$settings['request_token_secret'] = NULL;
 			$settings['request_token_errors'] = NULL;
-		
+
 			$settings['access_token'] = NULL;
 			$settings['access_token_secret'] = NULL;
 			$settings['access_token_errors'] = NULL;
-			
+
 			unset($_REQUEST['oauth_verifier']);
-			
+
 			return TRUE;
 		}
-		
+
 		$settings['consumer_key'] = array_get_index($request_data, 'consumer_key');
 		$settings['consumer_secret'] = array_get_index($request_data, 'consumer_secret');
 		$settings['developer_key'] = array_get_index($request_data, 'developer_key');
 		$settings['request_token_errors'] = NULL;
 		$settings['access_token_errors'] = NULL;
-		
+
 		if (isset($request_data['get_request_token'])) {
 			self::processRequestToken($settings ,$prefix);
 		} else if (isset($request_data['get_access_token'])) {
@@ -312,20 +312,20 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		$settings['upload_timeout'] = (!empty($request_data['upload_timeout'])) ? $request_data['upload_timeout'] : 300;
 
         return TRUE;
-        
+
 	}//end processInlineInterface()
-	
-	
+
+
 	/**
 	* Get Callback URL
-	* 
+	*
 	* @param string $prefix
-	* 
+	*
 	* @return string
 	* @access private
 	*/
     private function _getCallbackURL($prefix){
-    	
+
     	$callback_url = replace_query_string_vars(Array(), NULL, NULL, TRUE);
         $additional_params = 'SQ_BACKEND_PAGE=frames';
         $action_id = array_get_index($_REQUEST, $prefix.'_new_selected_action', '');
@@ -338,10 +338,10 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
         }
 
 		return $callback_url;
-		
+
     }//end _getCallbackURL()
 
-    
+
     /**
 	* Process Request Token
 	*
@@ -355,7 +355,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 	{
 
         $callback_url = self::_getCallbackURL($prefix);
-		
+
 		$oauth_attr = new Asset_Attribute_OAuth();
 		$oauth_attr_values = Array(
 								'consumer_key'		=> $settings['consumer_key'],
@@ -391,7 +391,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 
 	}//end processRequestToken()
 
-	
+
     /**
 	* Process Access Token
 	*
@@ -491,7 +491,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 			$form->submission_errors[] = 'Failed to upload video file to Youtube';
 			return FALSE;
 		}
-		
+
 		if (!empty($settings['video_question_id'])){
 			if (!empty($submission['answers'][$settings['video_question_id']]['extra_data']['filesystem_path'])){
 				$video_path = $submission['answers'][$settings['video_question_id']]['extra_data']['filesystem_path'];
@@ -500,32 +500,32 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				$video_path = $submission['answers'][$settings['video_question_id']]['extra_data']['temp_filesystem_path'];
 				$temp_path = TRUE; //the case when using create locations.
 			}
-		} 
-		
+		}
+
 		if (empty($video_path)){
 			trigger_error("Unable to locate video source from ".$form->type()." (Id: #$form->id)", E_USER_WARNING);
 			$form->submission_errors[] = 'Failed to upload video file to Youtube';
-			return FALSE;	
+			return FALSE;
 		}
-		
+
 		if (!empty($settings['category_question_id']) && !empty($submission['answers'][$settings['category_question_id']]['answer'])){
 			$settings['category'] = $submission['answers'][$settings['category_question_id']]['answer'];
 		}
 		if (!empty($settings['title_question_id']) && !empty($submission['answers'][$settings['title_question_id']]['answer'])){
 			$settings['title'] = $submission['answers'][$settings['title_question_id']]['answer'];
 		}
-		
+
 		if (empty($settings['title'])) $settings['title'] = basename($video_path);
-		
+
 		if (!empty($settings['description_question_id']) && !empty($submission['answers'][$settings['description_question_id']]['answer'])){
 			$settings['description'] = $submission['answers'][$settings['description_question_id']]['answer'];
 		}
-		
+
 		// convert relative path to absulute path
 		if(strpos($video_path, '/') !== 0) {
 		    $video_path = SQ_SYSTEM_ROOT.'/'.$video_path;
 		}
-			
+
 		$keywords = Array();
 		if (self::processUploadVideo($settings, $video_path, $keywords) === TRUE){
 			$form->form_action_keywords = $keywords;
@@ -542,11 +542,11 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		} else {
 			trigger_error("Failed to upload video file to Youtube for ".$form->type()." (Id: #$form->id)", E_USER_WARNING);
 			$form->submission_errors[] = 'Failed to upload video file to Youtube';
-			return FALSE;	
+			return FALSE;
 		}
-		
+
 		return TRUE;
-		
+
 	}//end execute()
 
 
@@ -560,7 +560,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		if (empty($settings['developer_key'])) return FALSE;
 		if (empty($settings['video_question_id'])) return FALSE;
 		if (empty($settings['category']) && empty($settings['category_question_id'])) return FALSE;
-		
+
 		return TRUE;
 
 	}//end isValid()
@@ -588,7 +588,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		if (!empty($settings['description'])) $xml_api .= '<media:description type="plain">'.$settings['description'].'</media:description>';
 		if (!empty($settings['category'])) $xml_api .= '<media:category scheme="http://gdata.youtube.com/schemas/2007/categories.cat">'.$settings['category'].'</media:category>';
 		$xml_api .=	'</media:group></entry>';
-		
+
 		$oauth_attr = new Asset_Attribute_OAuth();
 		$oauth_attr_values = Array(
 								'consumer_key'		=> $settings['consumer_key'],
@@ -602,10 +602,10 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 								'follow_redirect'	=> FALSE,
 							 );
 		$oauth_attr->setValue($oauth_attr_values);
-		
+
 		$auth_header = $oauth_attr->getUserDataAuthHeader($url, $settings['access_token'], $settings['access_token_secret'], FALSE);
 		$request = self::_HTTPUploadRequest($url, $xml_api, $video_path, $auth_header, $settings);
-		
+
 		if($request['status'] == 'ok'){
 			try {
 				$xml = new SimpleXMLElement($request['content']);
@@ -617,7 +617,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 			$video_id = (isset($xml->id)) ? (string)$xml->id : '';
 			if ($video_id){
 				$video_id = (strpos($video_id, 'video:') !== FALSE) ? substr($video_id, strpos($video_id, 'video:') + strlen('video:')) : $video_id;
-				
+
 				$published_date = (isset($xml->published)) ? substr((string)$xml->published, 0, strpos((string)$xml->published, 'T')) : '';
 				$video_link = '';
 				if (isset($xml->link)){
@@ -625,86 +625,86 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 						$attr = $link->attributes();
 						if (isset($attr['rel']) && $attr['rel'] == 'alternate'){
 							$video_link = (string)$attr['href'];
-							break;	
+							break;
 						}
 					}
 				}
-					
+
 				$keywords = Array(
 								'youtube_video_id' => $video_id,
 								'youtube_video_published_date' => $published_date,
 								'youtube_video_link'	=> $video_link
 								);
 				return TRUE;
-				
+
 			} else if (isset($xml->error)){
 				foreach($xml->error as $error){
 					$errors[] = (Array)$error;
 				}
 				trigger_error("Youtube API Error:\n".print_r($errors, TRUE)."\n", E_USER_WARNING);
-				return FALSE;	
+				return FALSE;
 			}
-			
+
 		} else if($request['status'] == 'err'){
 			trigger_error('Youtube File Upload Fail: '.$request['error'], E_USER_WARNING);
 			return FALSE;
 		}
-		
+
 		return FALSE;
-		
+
 	}//end processUploadVideo()
-	
+
 
 	/**
 	* HTTP Upload Request
-	* 
+	*
 	* @param string $url
 	* @param string $api_xml
 	* @param string $video_path
 	* @param string $auth_header
 	* @param string $settings
-	* 
+	*
 	* @return array
 	* @access private
 	*/
 	private function _HTTPUploadRequest($url, $api_xml, $video_path, $auth_header, $settings) {
-	 
+
 		$vide_h = fopen($video_path, "rb");
 		if ($vide_h === FALSE) return Array(
-							            'status' => 'err', 
+							            'status' => 'err',
 							            'error' => "Unable to open video file: $video_path"
 							        	);
-									
+
 		$video_size = filesize($video_path);
 		$video = fread($vide_h, $video_size);
 		fclose($vide_h);
-		
+
 		$file_name = basename($video_path);
-		
+
 	    $url = parse_url($url);
 	    $host = $url['host'];
 	    $path = $url['path'];
 
 	    $fp = fsockopen($host, 80, $errno, $errstr, $settings['upload_timeout']);
-	 
+
 	    if ($fp){
-	    	
+
 	        $boundary_string = uniqid();
 	    	$post_body = '';
-	    	
+
 	    	$post_body .= "--$boundary_string\r\n";
 	        $post_body .= "Content-Type: application/atom+xml; charset=UTF-8\r\n\r\n";
 	        $post_body .= $api_xml;
 	 		$post_body .= "\r\n--$boundary_string\r\n";
 	 		$post_body .= "Content-Type: application/octet-stream\r\n";
 	 		$post_body .= "Content-Transfer-Encoding: binary\r\n\r\n";
-	
+
 	 		$post_end = "\r\n--$boundary_string--\r\n";
-	 		
+
 	 		$size = strlen($post_body) + $video_size + strlen($post_end);
 	 		$post_body .= $video;
 	 		$post_body .= $post_end;
-	
+
 	        // send the request headers:
 	        $header = "POST $path HTTP/1.1\r\n";
 	        $header .= "Host: $host\r\n";
@@ -715,28 +715,28 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 	        $header .= "Content-Type: multipart/related; boundary=$boundary_string\r\n";
 	        $header .= "Content-Length: ". $size ."\r\n";
 	        $header .= "Connection: close\r\n\r\n";
-	
+
 	        fwrite($fp, $header.$post_body);
 	        $result = '';
 	        while (!feof($fp)) {
         		$result .= fgets($fp);
     		}
-	        
+
 	    } else {
 	        return array(
-	            'status' => 'err', 
+	            'status' => 'err',
 	            'error' => "$errstr ($errno)"
 	        );
 	    }
-	
+
 	    // close the socket connection:
 	    fclose($fp);
-	    
+
 	    // split the result header from the content
 	    $result = explode("\r\n\r\n", $result, 2);
 	    $header = isset($result[0]) ? $result[0] : '';
 	    $content = isset($result[1]) ? $result[1] : '';
-	 
+
 	    // return as structured array:
 	    return array(
 	        'status' => 'ok',

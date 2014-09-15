@@ -140,7 +140,7 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 	public static function processInlineInterface(Form $form, &$settings, Backend_Outputter $o, $prefix)
 	{
 		$settings['connector_assetid']	= $_POST[$prefix.'_connector']['assetid'];
-		
+
 
 		if (isset($_POST[$prefix.'_attribute_remove'])) {
 			$remove_field_names	= $_POST[$prefix.'_attribute_remove'];
@@ -212,11 +212,11 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 	*/
 	public static function execute(Form $form, $settings)
 	{
-		
+
 		$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['connector_assetid']);
 		$attributes	= array_get_index($settings, 'attributes_mapping', Array());
-		
-		
+
+
 		// replace form keywords
 		foreach ($attributes as $name => $value) {
 			self::getKeywordReplacementsFromForm($name, $value, $attributes, $form);
@@ -240,7 +240,7 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 		}
 
 		$bridge->syncLead($user_identifier, $attributes);
-		
+
 		return TRUE;
 
 	}//end execute()

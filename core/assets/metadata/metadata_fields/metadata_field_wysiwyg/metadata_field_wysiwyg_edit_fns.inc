@@ -94,7 +94,7 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 				echo '</div>';
 			} else{
 
-			}	
+			}
 		}
 
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);

@@ -78,8 +78,8 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				trigger_localised_error('CORE0201', E_USER_WARNING);
 				return FALSE;
 			}
-			
-			
+
+
 			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
 			fwrite($temp_file, "<assets>\n");
 		} else {
@@ -101,7 +101,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				// If asset type list is empty, then none were set and therefore we do all asset
 				// types. If set, then it needs to be a key in the $asset_types
 				if (empty($asset_types) || isset($asset_types[$asset->type()])) {
-					$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
+					$step_data['message'] = sprintf(translate('core_checking_for_metadata'), $asset->name);
 
 					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					$field_values = $mm->getMetadataFieldValues($asset->id);
@@ -123,11 +123,11 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
-					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+					$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$job->_addError(translate('core_cannot_generate_incomplete_metadata_report', $assetid));
+				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$job->_addError(sprintf(translate('core_cannot_generate_incomplete_metadata_report'), $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again

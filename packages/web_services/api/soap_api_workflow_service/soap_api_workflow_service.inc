@@ -550,11 +550,11 @@ class Soap_Api_Workflow_Service extends Soap_Api
 															'schemaid'			=> $schemaid,
 															'cascades'			=> $auto_cascade,
 															'previous_access'	=> NULL,
-															'dependants_only'	=> (!($cascade && $auto_cascade) && $has_dependants) || (!$has_dependants && !$cascade), 
+															'dependants_only'	=> (!($cascade && $auto_cascade) && $has_dependants) || (!$has_dependants && !$cascade),
 														),
 													   ),
 							  );
-							  
+
 			$errors	= $hh->freestyleHipo('hipo_job_edit_workflow_schemas', $running_vars);
 			if (empty($errors)) {
 				return Array (

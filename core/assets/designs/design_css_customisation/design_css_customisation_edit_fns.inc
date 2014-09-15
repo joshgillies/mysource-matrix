@@ -105,7 +105,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// regenerate the design_file.php and css_file.php here (because the processBackend function
 		// doesn't do it automatically any more
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -114,7 +114,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 		    'parentid'	=> $parent_design->id,
 		);
 		$hh->queueHipo('hipo_job_regenerate_design', $vars);
-		
+
 		return TRUE;
 
 	}//end processCustomisedDesignAreas()

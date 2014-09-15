@@ -104,7 +104,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	$set_conditions = $target_asset->getConditions();
 	$used_conditions = isset($set_conditions['used_conditions']) && !empty($set_conditions['used_conditions']) ? $set_conditions['used_conditions'] : Array();
 
-	
+
 	if (empty($url_data)) {
 		// there is no URL with lookup values for this asset
 		// so just do a straight call for lookups
@@ -143,14 +143,14 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		    $primary_url_data = parse_url($primary_url);
 		    $primary_url_no_protocol = array_get_index($primary_url_data, 'host',  '').array_get_index($primary_url_data, 'path', '');
 		     if(strpos($primary_url_no_protocol, $current_root_url) !== 0) {
-			$open_in_new_window = TRUE; 
+			$open_in_new_window = TRUE;
 		     }
 		}
 		foreach ($url_data as $url_info) {
 			$protocol_list = Array();
 
 
-			
+
 			if ($url_info['https']) {
 				$protocol_list['https'] = 'https://';
 			}
@@ -197,13 +197,13 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		$add_nocache = TRUE;
 		$root_url_array = $GLOBALS['SQ_SYSTEM']->am->getRootURL(strip_url($owner->getURL(), TRUE));
 		$root_url = trim($root_url_array['url']);
-		
+
 		if (strpos($primary_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && ($root_url == SQ_CONF_STATIC_ROOT_URL || strpos($root_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE || strpos($primary_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE))) {
 			$add_nocache = FALSE;
 		}
 		//Bug #4708 openRaw and closeRaw incompatible in LIMBO mode with buffering OFF as they behave as sections (creating tables).
 		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->openRaw();
-		
+
 			?>
 			<script type="text/javascript">
 
@@ -215,7 +215,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				if(open_new_window) {
 				    window.open(preview_url);
 				}
-				
+
 				function update_preview_url()
 				{
 					var url = document.getElementById('preview_url').value;
@@ -327,7 +327,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					url_calculate = url_calculate+"&sid="+Math.random();
 					console.log(url_calculate);
 
-			
+
 					xmlHttp.onreadystatechange = stateChanged;
 					xmlHttp.open("GET",url_calculate,true);
 					xmlHttp.send(null);
@@ -343,7 +343,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						document.getElementById("size_button").disabled = false;
 					}
 				}
-				
+
 				function toggleConditionViewOptions(link)
 				{
 					if(link.innerHTML.match(/View /g)) {
@@ -353,7 +353,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					else {
 					    document.getElementById('sq-preview-conditions').style.display='none';
 					    link.innerHTML = 'View conditions preview options';
-					}	
+					}
 				}
 
 			</script>
@@ -420,7 +420,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					echo '<td>';
 					echo '<span class="sq-condition-name">'.$condition_name.' (#'.$assetid.')</span>';
 					echo '</td>';
-					
+
 					echo '<td width="270px;">';
 					echo '<div class="sq-preview-condition-radio-group">';
 					echo '<label id="'.'conditions_'.$condition_full_name.'_3" >';
@@ -443,7 +443,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				    echo '</div>';
 			    $o->closeField();
 			}
-			
+
 
 			$o->openField(translate('use_cache'));
 				check_box('use_cache', '1', FALSE, 'if (this.checked && document.getElementById(\'show_diff\') !== null) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
@@ -462,11 +462,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					echo translate('different_domain_preview_new_window');
 				    }
 				    else if (!$owner->effectiveUnrestricted()) {
-					echo translate('different_domain_login', $current_url['host']);
+					echo sprintf(translate('different_domain_login'), $current_url['host']);
 				    }
 				}
 			$o->closeField();
-		
+
 			$o->openField('<span id="size_title"></span>');
 			?>
 				<span id="size_elements"></span>
@@ -489,7 +489,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				ob_end_clean();
 				?>
 				<p>
-					<?php echo translate('currently_previewing', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
+					<?php echo sprintf(translate('currently_previewing'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
 				</p>
 				<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
 				<?php

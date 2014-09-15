@@ -326,7 +326,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('sch_tool_global_sr_releasing_locks', $asset_info[$assetid]['name']);
+		$step_data['message'] = sprintf(translate('sch_tool_global_sr_releasing_locks'), $asset_info[$assetid]['name']);
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 
@@ -369,7 +369,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 							$value = $value['value'];
 						}
 						if(is_array($value)) continue;
-						
+
 						$matches = Array();
 						preg_match_all("/$search_string/i", $value, $matches);
 						$search_count[$assetid] += count($matches[0]);
@@ -439,7 +439,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 					<tr>
 						<th onclick="toggleTBodyDisplay(this)">
 							<?php echo get_asset_tag_line($assetid); ?>
-							- <?php echo translate('sch_tool_global_sr_file_match(es)', $search_count[$assetid]); ?>
+							- <?php echo sprintf(translate('sch_tool_global_sr_file_match(es)'), $search_count[$assetid]); ?>
 						</th>
 						<th class="all-asset-checkbox">
 							<?php check_box($prefix.'_asset_'.$assetid.'_all', 1, FALSE, 'toggleTBodyCheckboxes(this)'); ?>
@@ -798,7 +798,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$match_case = $this->_running_vars['match_case'];
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset[$assetid]['name']);
+		$step_data['message'] = sprintf(translate('sch_tool_global_sr_replacing_with_in'), $search_string, $replace_string, $asset[$assetid]['name']);
 
 		$asset_contents = $this->_running_vars['search_data'][$assetid]['contents'];
 		foreach ($asset_contents as $contents_id => $contents_value) {
@@ -849,7 +849,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$match_case = $this->_running_vars['match_case'];
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset[$assetid]['name']);
+		$step_data['message'] = sprintf(translate('sch_tool_global_sr_replacing_with_in'), $search_string, $replace_string, $asset[$assetid]['name']);
 
 		foreach ($this->_running_vars['schema_replacements'][$assetid] as $fieldid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
@@ -903,7 +903,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset = $am->getAsset($assetid);
 
-		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
+		$step_data['message'] = sprintf(translate('sch_tool_global_sr_replacing_with_in'), $search_string, $replace_string, $asset->name);
 
 		foreach ($this->_running_vars['attribute_replacements'][$assetid] as $attrid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
@@ -955,7 +955,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset[$assetid]['name']);
+		$step_data['message'] = sprintf(translate('sch_tool_global_sr_replacing_with_in'), $search_string, $replace_string, $asset[$assetid]['name']);
 
 		$metadata = $mm->getMetadata($assetid);
 		// All context metadata files need to be regenerated if there is a non-contextable field changed

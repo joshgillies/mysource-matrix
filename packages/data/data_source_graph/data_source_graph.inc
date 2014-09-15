@@ -814,7 +814,7 @@ class Data_Source_Graph extends Image
 		if (SQ_IN_LIMBO) return parent::printFrontend();
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}
 
@@ -1067,7 +1067,7 @@ class Data_Source_Graph extends Image
 	function _checkFileState()
 	{
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
-		
+
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$existing = $this->getExistingFile();

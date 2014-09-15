@@ -422,7 +422,7 @@ class Conditions_List
 					}
 					$o->closeField();
 				}
-				
+
 				if ($write_access) {
 					$o->openField(translate('delete').'?');
 					check_box($condition_prefix.'_delete', $value='1', $checked=FALSE);

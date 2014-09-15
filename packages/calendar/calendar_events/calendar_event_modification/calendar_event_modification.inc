@@ -66,9 +66,9 @@ class Calendar_Event_Modification extends Calendar_Event
 		if (!$this->synchronizeWithParent($parent)) {
 			return FALSE;
 		}
-		
+
 		if (!parent::_preCreateCheck($link)) return FALSE;
-		
+
 		if (!($link['value'] = $this->getStartDate())) {
 			trigger_localised_error('CAL0049', E_USER_ERROR);
 			return FALSE;
@@ -97,7 +97,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		}//end if
 
 		if ($short_name) {
-			return translate('cal_event_modified_date', date('d M Y', iso8601_ts($this->attr('start_date'))));
+			return sprintf(translate('cal_event_modified_date'), date('d M Y', iso8601_ts($this->attr('start_date'))));
 		}//end if
 
 		// Obtain the attribute value for Name from the specified Context
@@ -244,11 +244,11 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$res = Array();
 		$res['start'] = $date;
-		
+
 		if ($this->getStartTime()) {
 			$res['start'] .= ' '.$this->getStartTime();
 		}
-		
+
 		$res['end'] = date('Y-m-d', iso8601_ts($res['start']) + $this->getDuration());
 
 		if ($this->getEndTime()) {
@@ -302,7 +302,7 @@ class Calendar_Event_Modification extends Calendar_Event
 			$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
 			$replacement = date($matches[1], iso8601_ts($instance_dates['end']));
 		}
-	
+
 		if (empty($replacement)) {
 			$replacement = parent::getKeywordReplacement($keyword);
 		}

@@ -343,7 +343,7 @@ class Ecommerce_Checkout extends Page
 
 		$success = TRUE;
 
-		$this->_logOrderAction(translate('ecom_order_history_action', ucwords(str_replace('_',' ', $action))));
+		$this->_logOrderAction(sprintf(translate('ecom_order_history_action'), ucwords(str_replace('_',' ', $action))));
 
 		switch ($action) {
 			case 'apply_promotional_code':
@@ -360,7 +360,7 @@ class Ecommerce_Checkout extends Page
 					// Pending order is not created yet. So create the pending order
 					$order = $this->_createPendingOrder();
 					// Since we are just creating the order, the above "action" log obviously didnt got logged
-					$this->_logOrderAction(translate('ecom_order_history_action', ucwords(str_replace('_',' ', $action))));
+					$this->_logOrderAction(sprintf(translate('ecom_order_history_action'), ucwords(str_replace('_',' ', $action))));
 				}
 
 				// Apply promotion to the items in the cart
@@ -384,7 +384,7 @@ class Ecommerce_Checkout extends Page
 						break;
 					}
 				}
-				
+
 				// if no delivery method is specified, we just use default one
 				if(empty($delivery_method_id)) {
 				    // get delivery method links
@@ -453,7 +453,7 @@ class Ecommerce_Checkout extends Page
 								}
 							}
 						}//end if
-					
+
 						// record the item weight source
 						$selector_type = $this->attr('item_weight_selector');
 						switch ($selector_type) {
@@ -471,14 +471,14 @@ class Ecommerce_Checkout extends Page
 								}
 							break;
 						}
-						
+
 						//if there is no custom fee, use the default fee
 						if (!isset($_SESSION['sq_region_specific']['delivery_weight_fee']['fee'])) {
 							// use default value price per weight metric
 							$default_price_weight = $this->attr('default_delivery_weight_fee');
 							$_SESSION['sq_region_specific']['delivery_weight_fee']['fee'] = $default_price_weight;
 						}
-						
+
 						//if there is default maximum number of product quantity, add it to the session variable
 						$default_max_product_quantity = $this->attr('default_max_product_quantity');
 						if (!empty($default_max_product_quantity)) {
@@ -513,13 +513,13 @@ class Ecommerce_Checkout extends Page
 								}
 							}
 						}//end if
-						
+
 						//if maximum delivery fee is set (!= 0), add it to the session variable
 						$max_delivery_fee = $this->attr('max_delivery_fee');
 						if ($max_delivery_fee != 0) {
 							$_SESSION['sq_region_specific']['max_delivery_fee'] = $max_delivery_fee;
 						}
-						
+
 					} else if (isset($_SESSION['sq_region_specific'])) {
 						unset($_SESSION['sq_region_specific']);
 					}//end if
@@ -651,7 +651,7 @@ class Ecommerce_Checkout extends Page
 
 		//prepare the addresses XML to write to the Ecommerce Order asset
 		$payment_gateway_xml = '';
-		
+
 		// does this order need to be reviewed, i.e. placed in the Orders To Review folder
 		$review_order = FALSE;
 
@@ -714,7 +714,7 @@ class Ecommerce_Checkout extends Page
 						$grand_total = 0;
 					}
 
-					// For '0' amount the payment gateway will mark the order as 'has no amount' and then redirect back to the "success" url 
+					// For '0' amount the payment gateway will mark the order as 'has no amount' and then redirect back to the "success" url
 					// without setting the response 'SQ_ECOM_RESPONSE'. So basically we will get back here again for '0' order amount
 					if ($grand_total != 0 || array_get_index($_REQUEST, $this->getPrefix().'_action', '') != 'payment_gateway_successful') {
 						// customer pays here!
@@ -729,7 +729,7 @@ class Ecommerce_Checkout extends Page
 					return;
 				}
 			}
-			
+
 			// we only come here if customer has just paid for this order
 			// complete the order whatever happens and flag if quantity was incorrect in the end
 			// e.g. customer pays for order, in the meantime quantity changes, by the time payment goes through, the quantity may be incorrect
@@ -762,7 +762,7 @@ class Ecommerce_Checkout extends Page
 			if (!is_null($pending_order_id)) {
 				$order_asset = $this->_moveOrder($pending_order_id, $review_order);
 
-				$this->_logOrderAction(translate('ecom_order_history_order_moved', $dest_folder_name), $order_asset);
+				$this->_logOrderAction(sprintf(translate('ecom_order_history_order_moved'), $dest_folder_name), $order_asset);
 
 				// Record the reference number returned from the Gateway
 				if (isset($_SESSION['SQ_ECOM_REF_NO']) && !empty($_SESSION['SQ_ECOM_REF_NO'])) {
@@ -771,7 +771,7 @@ class Ecommerce_Checkout extends Page
 				} else {
 					$this->_logOrderAction(translate('ecom_order_history_ecom_ref_not_recorded'), $order_asset);
 				}
-				
+
 				//customer has just paid for this order
 				if ($payment_response) {
 					//set ecommerce order's details
@@ -782,11 +782,11 @@ class Ecommerce_Checkout extends Page
 					$order_asset->setAttrValue('delivery_addr', array_get_index($payment_response, 'DELIVERY_ADDR', ''));
 					$payment_gateway_xml = array_get_index($payment_response, 'PAYMENT_GATEWAY_XML', '');
 				}
-				
+
 			}
 
 			if (!isset($order_asset) || is_null($order_asset)) {
-				$this->_tmp['delivery_method_errors'][] = translate('ecom_checkout_error_unable_to_move_order', $dest_folder_name);
+				$this->_tmp['delivery_method_errors'][] = sprintf(translate('ecom_checkout_error_unable_to_move_order'), $dest_folder_name);
 				$this->print_context = 'failure';
 				return;
 			} else {
@@ -850,7 +850,7 @@ class Ecommerce_Checkout extends Page
 			$this->_tmp['delete_all_orders_after_printing'] = TRUE;
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order_asset);
 		}
-		
+
 		// Anything else that needs to be done after the order is processed
 		$this->finishCheckout($order_asset);
 
@@ -971,16 +971,16 @@ class Ecommerce_Checkout extends Page
 		}
 
 		$form_req = $this->_isFormRequired();
-		
+
 		if ($form_req) {
-			
+
 			$active_delivery_method_id = $this->_getActiveDeliveryMethodId();
 
 			if (is_null($active_delivery_method_id )) {
 				$delivery_ids = $this->_getDeliveryAssetIds();
 				$active_delivery_method_id = array_shift($delivery_ids);
 			}
-			
+
 			if ($active_delivery_method_id) {
 				$delivery_method = $GLOBALS['SQ_SYSTEM']->am->getAsset($active_delivery_method_id);
 				$delivery_form = $delivery_method ? $delivery_method->getForm() : NULL;
@@ -989,10 +989,10 @@ class Ecommerce_Checkout extends Page
 			} else {
 				$onsubmit = '';
 			}
-			
+
 			echo '<form action="'.current_url(TRUE, TRUE, FALSE).'" method="post" '.$onsubmit.'>';
 		}
-		
+
 		$content_bodycopy->setKeywordReplacements($replacements);
 		$content_bodycopy->printBody();
 
@@ -1411,8 +1411,8 @@ class Ecommerce_Checkout extends Page
 		return  $cart_summary;
 
 	}//end _getCartSummary()
-	
-	
+
+
 	/**
 	* Get the XML representation of the cart to store in the order_xml attribute of Ecommerce Order asset
 	*
@@ -1427,7 +1427,7 @@ class Ecommerce_Checkout extends Page
 		// if products are taxed, remove tax from final amount
 		$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 		$promo_code = $this->_getPromotionCodeUsed();
-		
+
 		return $cart->getCartXml($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('apply_tax_on_delivery'), $this->attr('delivery_includes_tax'), $promo_code);
 
 	}//end _getCartXml()
@@ -1490,7 +1490,7 @@ class Ecommerce_Checkout extends Page
 	function getKeywordReplacement($keyword)
 	{
 		$keyword_replaced = FALSE;
-		
+
 		if (isset($_SESSION['sq_local_cart_contents']['editing_order']) && !empty($_SESSION['sq_local_cart_contents']['editing_order'])) {
 			$orderid = $_SESSION['sq_local_cart_contents']['order_id'];
 			$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($orderid);
@@ -1673,7 +1673,7 @@ class Ecommerce_Checkout extends Page
 		$keywords['receipt_summary']	= translate('ecom_checkout_keyword_receipt_summary');
 		$keywords['cart_summary']		= translate('ecom_checkout_keyword_cart_summary');
 		$keywords['order_xml']			= translate('ecom_checkout_keyword_order_xml');
-		
+
 		return $keywords;
 
 	}//end _getReceiptContextKeywords()
@@ -2066,12 +2066,12 @@ class Ecommerce_Checkout extends Page
 		if (isset($_SESSION['sq_local_cart_contents']['success_order_id'])) {
 			$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['success_order_id']);
 		}
-		
+
 		return is_null($order)? '' : $order->attr('order_xml');
-		
+
 	}//end getOrderXmlKeywordReplacement()
-	
-	
+
+
 	/**
 	* Get Keyword Replacement for 'error_messages' keyword
 	*
@@ -2194,9 +2194,9 @@ class Ecommerce_Checkout extends Page
 
 	}//end getCustomisedReceiptKeywordReplacement()
 
-	
+
 	/**
-	* Get Keyword Replacement for promotional code field 
+	* Get Keyword Replacement for promotional code field
 	*
 	* @return string
 	* @access public
@@ -2387,11 +2387,11 @@ class Ecommerce_Checkout extends Page
 		$order_summary .= $this->_getCartSummary();
 		//get cart XML
 		$cart_xml = $this->_getCartXml();
-		
+
 		$order_summary .= $delivery_method->getReceipt();
 		//get delivery method XML
 		$delivery_method_xml = $delivery_method->getDeliveryMethodXML();
-		
+
 		//get the default character set of Matrix System
 		$default_char_set = SQ_CONF_DEFAULT_CHARACTER_SET;
 
@@ -2403,7 +2403,7 @@ class Ecommerce_Checkout extends Page
 			$payment_response_xml .= '  	<payment_date>'.array_get_index($payment_response, 'TIME', date('r')).'</payment_date>'."\n";
 			$payment_response_xml .= '  	<gateway_assetid>'.array_get_index($_SESSION, 'SQ_ECOM_PAYMENT_GATEWAY_ASSETID', '').'</gateway_assetid>'."\n";
 		}
-		
+
 		//create order xml
 		$order_xml = '<'.'?xml version="1.0" encoding="'.$default_char_set.'"?'.">\n".
 					 "<order>\n".
@@ -2446,7 +2446,7 @@ class Ecommerce_Checkout extends Page
 		unset($_SESSION['SQ_ECOM_PAYMENT_GATEWAY_ASSETID']);
 
 		return $success;
-		
+
 	}// end finishCheckout()
 
 
@@ -2470,7 +2470,7 @@ class Ecommerce_Checkout extends Page
 				$success &= call_user_func(Array($action_type, 'execute'), $this, $order_asset, $action['settings']);
 			}
 		}
-		
+
 		return $success;
 
 	}//end _performCheckoutCompletionActions()

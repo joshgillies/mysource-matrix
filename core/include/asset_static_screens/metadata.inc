@@ -158,14 +158,14 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 
 						// construct example keywords link
 						$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keywords.php?assetid='.$owner->id.'&amp;all=0" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('metadata_keywords_list_link_text').'</a>';
-						echo '<p>'.translate('metadata_keyword_replacements_usage', $replacements_link).'.</p>';
+						echo '<p>'.sprintf(translate('metadata_keyword_replacements_usage'), $replacements_link).'.</p>';
 
 						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
 						if (!empty($sm) && $sm->attr('indexing')) {
 						?>
 							<?php
 							$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keyword_extraction.php?assetid='.$owner->id.'" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>.';
-							echo '<p>'.translate('metadata_indexed_keywords', $replacements_link).'</p>';
+							echo '<p>'.sprintf(translate('metadata_indexed_keywords'), $replacements_link).'</p>';
 
 						}
 
@@ -176,7 +176,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 						echo '<p>'.translate('metadata_explain_cascade_value').'</p>';
 
 						// paint required field
-						echo '<p> '.translate('denotes_required_field', '<span class="sq-backend-warning">*</span>').'</p>';
+						echo '<p> '.sprintf(translate('denotes_required_field'), '<span class="sq-backend-warning">*</span>').'</p>';
 
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) {
@@ -412,19 +412,19 @@ function processMetadata(&$owner, &$o, $ei)
  		// broadcast update event for all fields to refresh search index
  		// we are updating most fields here anyway (except non-editable fields), but those non-editable fields might contain keywords, so reindex them all together
  		$mm->setMetadata($owner->id, $new_values, NULL, TRUE, TRUE);
-		
+
 		// All context metadata files need to be regenerated if there is a non-contextable field changed
 		$regen_all_contexts = FALSE;
 		foreach ($new_values as $fieldid => $field_data) {
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
 			if (!$field) continue;
-			
+
 			if ((boolean)$field->attr('is_contextable') === FALSE || $field instanceof Metadata_Field_Select) {
 				$regen_all_contexts = TRUE;
 				break;
 			}
 		}
-		
+
 		if ($regen_all_contexts) {
 			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			foreach ($all_contexts as $contextid => $context_data) {

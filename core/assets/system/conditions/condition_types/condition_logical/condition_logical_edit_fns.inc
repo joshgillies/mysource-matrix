@@ -66,7 +66,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		    // we don't know the type of the asset here so we add the keywords of the generic Asset object
 		    $dummy_asset = new Asset();
 		    $allowed_keywords =     array_keys($dummy_asset->getAvailableKeywords());
-		} 
+		}
 		$allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));
 
 		?>
@@ -78,14 +78,14 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 			}
 			if ($write_access) {
 			    $selected_keywords['-- none --'] = '-- '.strtolower(translate('none')).' --';
-			}						
+			}
 
 			$keyword_options = Array();
 			foreach ($allowed_keywords as $keyword) {
 				$keyword_options[$keyword] = $keyword;
 			}
 
-			$i = 0;		
+			$i = 0;
 			?>
 
 			<tr>
@@ -96,14 +96,14 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 					if(isset($condition_data['operator'])) {
 					   $operator = $condition_data['operator'];
 					}
-					if ($write_access) {		    
+					if ($write_access) {
 						combo_box($prefix.'[operator]', Array('ALL' => translate('condition_match_on_following_keywords',strtoupper(translate('all'))), 'ANY' => translate('condition_match_on_following_keywords',strtoupper(translate('any')))), FALSE, $operator);
 					} else {
-						echo translate('condition_match_on_following_keywords', $operator);
+						echo sprintf(translate('condition_match_on_following_keywords'), $operator);
 					}
 					?>
 				</td>
-			</tr>		
+			</tr>
 
 			<?php
 			if (!empty($allowed_keywords)) {
@@ -167,9 +167,9 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	        // we don't know the type of the asset here so we add the keywords of the generic Asset object
 	        $dummy_asset = new Asset();
 	        $allowed_keywords = array_keys($dummy_asset->getAvailableKeywords());
-	    } 
-        $allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));	    
-    	    
+	    }
+        $allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));
+
 		$logical_keywords = Array();
 
 		for ($i = 0; $i < 100; $i++) {
@@ -178,8 +178,8 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 				if ($keyword_name != 'none') {
 					$keyword_info = self::_getKeywordInfo($keyword_name, $allowed_keywords);
 					if ($keyword_info['is_variable']) {
-						if (!empty($_POST[$prefix]['name_extension_'.$i])) {						    
-							$name_extension = trim($_POST[$prefix]['name_extension_'.$i]);							
+						if (!empty($_POST[$prefix]['name_extension_'.$i])) {
+							$name_extension = trim($_POST[$prefix]['name_extension_'.$i]);
 							if (!empty($name_extension)) {
 								$keyword_name = $keyword_info['constant_part'].$name_extension;
 							}
@@ -198,7 +198,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 					'logical_keywords'	=> $logical_keywords,
 					'operator'			=> $_POST[$prefix]['operator'],
 				   );
-				   
+
 		return $results;
 
 	}//end processEditInterface()

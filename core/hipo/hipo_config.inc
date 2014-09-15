@@ -66,10 +66,10 @@ class HIPO_Config extends Config
 	{
 		// if our config file doesn't exist then we can't load the job's because they require it
 		if (!file_exists($this->config_file)) return;
-		
+
 		// ask each of the jobs for their config vars
 		$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-		
+
 		foreach($packages as $package) {
 			if ($package['code_name'] == '__core__') {
 				$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';

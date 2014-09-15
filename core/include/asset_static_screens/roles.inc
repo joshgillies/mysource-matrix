@@ -207,7 +207,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 										</td>
 									<?php
 									if (SQ_CONF_ENABLE_GLOBAL_ROLES == '1') {
-									?>								
+									?>
 										<td class="sq-backend-table-cell-alt">
 											<?php echo check_box($prefix.'_globally_assign_'.$roleid, 1, $global_role); ?>
 										</td>
@@ -287,7 +287,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			if (count($kiddies)) {
 				$o->openSection(translate('cascade_roles'));
 					$o->openField(translate('note'));
-						$o->note(translate('cascade_roles_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+						$o->note(sprintf(translate('cascade_roles_note'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 					$o->closeField();
 					$o->openField('&nbsp;');
 						check_box($prefix.'_cascade_roles', TRUE, TRUE);
@@ -297,7 +297,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 
 				$o->openSection(translate('manually_cascade_roles'));
 					$o->openField(translate('note'));
-						$o->note(translate('manually_cascade_roles_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+						$o->note(sprintf(translate('manually_cascade_roles_note'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 					$o->closeField();
 					$o->openField('&nbsp;');
 						check_box($prefix.'_manually_cascade_roles', TRUE);

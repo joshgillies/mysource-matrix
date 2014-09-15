@@ -26,7 +26,7 @@ define('SQ_BO_MSG_ERROR',   4);
 
 
 /**
-* 
+*
 *
 * Purpose
 *
@@ -141,12 +141,12 @@ class Backend_Outputter
 	* @var integer
 	*/
 	var $_nb_section_count = 0;
-	
+
 	/*
 	 * Load viper editor
 	 */
 	var $_load_viper = FALSE;
-	
+
 	/*
 	 * viper toolbar section
 	 */
@@ -671,7 +671,7 @@ class Backend_Outputter
 				<?php
 			}//endif
 		}//endif
-		
+
 
 		?>
 			<tr>
@@ -708,7 +708,7 @@ class Backend_Outputter
 	*/
 	function _nbCloseSection()
 	{
-		// The counter "_nb_section_count" needs be > 1 to print the closing tags because 
+		// The counter "_nb_section_count" needs be > 1 to print the closing tags because
 		// the opening <tr><td> tags are printed only if _nb_section_count > 0, and then the counter is incremented
 		if ($this->_nb_section_count > 1) echo '</td></tr>';
 
@@ -1018,7 +1018,7 @@ class Backend_Outputter
 				$this->addCssInclude($this->filesPath('css/print.css'));
 				$this->addOnLoad('pagePrint()');
 			}
-			
+
 			$this->loadViperEditor();
 
 			foreach ($this->_css_includes as $file) {
@@ -1039,13 +1039,13 @@ class Backend_Outputter
 			$this->addJsInclude(sq_web_path('lib').'/js/state.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
 			$this->addOnLoad('fixIcons(\''.sq_web_path('lib').'/web/images/blank.gif\');');
-			
+
 
 			// and paint them all out
 			foreach ($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
 			}
-			
+
 			?>
 			<script type="text/javascript"><!--
 			//<![CDATA[
@@ -1199,11 +1199,11 @@ class Backend_Outputter
 				preload_image('<?php echo $file;?>');
 				<?php
 			}//end foreach
-						
-			    
+
+
 			?>
-			    
-			
+
+
 
 			//]]> -->
 			</script>
@@ -1326,7 +1326,7 @@ class Backend_Outputter
 											sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, htmlspecialchars($nav_asset->short_name));
 											?>
 											<span>
-												<?php echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?> 
+												<?php echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>
 												[<?php echo ($i + 1); ?>]
 											</span>
 										</a>&nbsp;
@@ -1412,7 +1412,7 @@ class Backend_Outputter
 				    <?php
 				}
 				?>
-				
+
 				<tr>
 					<td class="sq-backend-section-inner-table-wrapper">
 						<table class="sq-backend-section-table-inner">
@@ -1947,7 +1947,7 @@ class Backend_Outputter
 	}//end getCurrentSectionNumber()
 
 
-	
+
 	/**
 	* Is Viper available for us?
 	*
@@ -1963,8 +1963,8 @@ class Backend_Outputter
 		}
 		return FALSE;
 	}//end isViperAvailable()
-	
-	
+
+
 	/**
 	* Enable Viper editor on this div
 	*
@@ -1980,8 +1980,8 @@ class Backend_Outputter
 		}
 		$this->_load_viper = TRUE;
 	}//end enableViperEditor()
-	
-	
+
+
 	/**
 	* Load the Viper editor js and css files
 	*
@@ -2004,8 +2004,8 @@ class Backend_Outputter
 		    }
 		}
 	}//end loadViperEditor()
-	
-	
+
+
 }//end class
 
 ?>

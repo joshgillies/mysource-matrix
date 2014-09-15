@@ -122,7 +122,7 @@ class Page_User_Group_Manager extends Page
 	{
 		switch ($code) {
 			case 'logged_in':
-				return '<h2>'.translate('cms_user_group_manager_title', '%user_name%').'</h2>'."\n".
+				return '<h2>'.sprintf(translate('cms_user_group_manager_title'), '%user_name%').'</h2>'."\n".
 						'%error_messages_list%%success_messages_list%'."\n".
 						'<p>%location_picker%%commit_button%</p>';
 			case 'not_logged_in':

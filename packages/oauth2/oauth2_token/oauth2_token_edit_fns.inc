@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
@@ -39,7 +39,7 @@ class Oauth2_Token_Edit_Fns extends Page_Edit_Fns
 
 	}//end constructor
 
-	
+
 	/**
 	* Paints the stored access token
 	*
@@ -53,7 +53,7 @@ class Oauth2_Token_Edit_Fns extends Page_Edit_Fns
 	function paintAccessToken(&$asset, &$o, $prefix)
 	{
 	    $token = $asset->loadTokenFromStorage();
-	    
+
 		?>
 		<table border="0" class="sq-backend-table">
 			    <th width="20%"><?php echo translate('oauth2_access_token'); ?></th>
@@ -82,11 +82,11 @@ class Oauth2_Token_Edit_Fns extends Page_Edit_Fns
 			</tr>
 		</table>
 	<?php
-	    
+
 
 	}//end paintAccessToken()
 
-	
+
 	/**
 	* Process access token interface
 	*
@@ -106,7 +106,7 @@ class Oauth2_Token_Edit_Fns extends Page_Edit_Fns
 		    $value .= $asset->attr('scope');
 		    $value .= $asset->attr('client_id');
 		    $new_config_hash = hash('md5', $value);
-		    
+
 		    $old_config_hash = $asset->attr('configuration_hash');
 		    if($old_config_hash !== $new_config_hash) {
 			$asset->removeAllStoredToken();
@@ -115,7 +115,7 @@ class Oauth2_Token_Edit_Fns extends Page_Edit_Fns
 		    }
 		}
 	}//end processAccessToken()
-	
-	
+
+
 }//end class
 ?>

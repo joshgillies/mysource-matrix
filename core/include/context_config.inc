@@ -75,7 +75,7 @@ class Context_Config extends Config
 	*/
 	function __construct()
 	{
-		$this->config_vars['SQ_CONTEXT_DEFINITIONS']['default'] = serialize(Array('0' => Array('name' => 'Default Context'))); 
+		$this->config_vars['SQ_CONTEXT_DEFINITIONS']['default'] = serialize(Array('0' => Array('name' => 'Default Context')));
 
 		parent::__construct();
 		$this->config_file = NULL;
@@ -183,7 +183,7 @@ class Context_Config extends Config
 		// Keep a running tally of number of alternate
 		// contexts, so we can offer a default name to it
 		$alt_context_num = 0;
-		
+
 		// Make sure default context is up top, sort the
 		// rest by sort order
 		$default_context = Array(0 => $contexts[0]);
@@ -195,7 +195,7 @@ class Context_Config extends Config
 			$context_name = array_get_index($context, 'name', '');
 			$context_errors = $this->_getContextErrors($context);
 			$condition_err_count = 0;
-			
+
 			if ($alt_context_num === 0) {
 
 				?>
@@ -287,7 +287,7 @@ class Context_Config extends Config
 				} else {
 					$valid = ((count($context['conditions']) - $condition_err_count) >= $context['at_least']) ? TRUE : FALSE;
 				}
-				
+
 				if ($condition_err_count > 0) {
 					if ($valid === TRUE) {
 						?><p><?php
@@ -318,16 +318,16 @@ class Context_Config extends Config
 		<td class="sq-backend-table-cell" align="center"><?php
 			// reorder link
 			if ($write_access === TRUE) {
-				if ($alt_context_num > 1) {				
-					?><a href="#" onclick="return false;" class="reorder-up"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/up_arrow.png', 15, 15, translate($this->prefix.'reorder_up_alt_text', $context_name), NULL, ' border="0"')); ?></a><?php				
+				if ($alt_context_num > 1) {
+					?><a href="#" onclick="return false;" class="reorder-up"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/up_arrow.png', 15, 15, translate($this->prefix.'reorder_up_alt_text', $context_name), NULL, ' border="0"')); ?></a><?php
 				} else {
-					//no need to print anything			
+					//no need to print anything
 				}
 				?> <?php
 				if (($contextid !== 0) && ($alt_context_num < count($contexts) - 1)) {
 					?><a href="#" onclick="return false;" class="reorder-down"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/down_arrow.png', 15, 15, translate($this->prefix.'reorder_down_alt_text', $context_name), NULL, ' border="0"')); ?></a><?php
 				} else {
-					//no need to print anything					
+					//no need to print anything
 				}
 			}
 		?>
@@ -336,7 +336,7 @@ class Context_Config extends Config
 			// delete link
 			if (($write_access === TRUE) && ($contextid !== 0) && (($contextid !== $current_context))) {
 				?><p><a href="#" onclick="if (confirm('<?php echo str_replace("\n", '\\n', translate($this->prefix.'delete_warning', $context_name)); ?>') == true) { document.getElementById('<?php echo $this->prefix; ?>deleted').value = <?php echo $contextid ?>; document.main_form.submit(); } return false;"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/delete.png', 15, 15, translate($this->prefix.'delete_alt_text', $context_name), NULL, ' border="0"')); ?></a></p><?php
-				
+
 			}
 		?>
 		</td>
@@ -352,8 +352,8 @@ class Context_Config extends Config
 				echo translate($this->prefix.'alternate_contexts'); ?>
 		</th>
 	</tr><?php
-				if (count($contexts) > 1) { 
-					// print second header row for alternate contexts 
+				if (count($contexts) > 1) {
+					// print second header row for alternate contexts
 		?>
 	<tr class="sq-table-row">
 		<th><?php echo translate('edit_question'); ?></th>
@@ -399,12 +399,12 @@ class Context_Config extends Config
 				echo translate($this->prefix.'new_alternate_context_line', $check_box, $text_box);
 			} else {
 				?><br/><?php
-				echo translate($this->prefix.'lock_to_add_alternate');				
+				echo translate($this->prefix.'lock_to_add_alternate');
 			}
 			?>
 			</td>
 			<td colspan="3"></td>
-		</tr><?php			
+		</tr><?php
 		}
 		?>
 	</tbody>
@@ -455,7 +455,7 @@ class Context_Config extends Config
 										if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) swap_tds = true;
 									}
 
-									// Only reorder when it's not the "reorder" column 
+									// Only reorder when it's not the "reorder" column
 									if (swap_tds) {
 										var temp = switch_row_tds[i].innerHTML;
 										switch_row_tds[i].innerHTML = row_tds[i].innerHTML;
@@ -489,7 +489,7 @@ class Context_Config extends Config
 										if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) swap_tds = true;
 									}
 
-									// Only reorder when it's not the "reorder" column 
+									// Only reorder when it's not the "reorder" column
 									if (swap_tds) {
 										var temp = switch_row_tds[i].innerHTML;
 										switch_row_tds[i].innerHTML = row_tds[i].innerHTML;
@@ -501,7 +501,7 @@ class Context_Config extends Config
 								row.className = switch_row.className;
 								switch_row.className = temp_style;
 							},
-			
+
 				setup:		function() {
 								var self = this;
 								var a_tags = document.getElementsByTagName('a');
@@ -646,7 +646,7 @@ class Context_Config extends Config
 							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_header_no_match_value');
 						}
 					break;
-					
+
 					case 'get':
 					case 'post':
 						if ($condition_options['var_name'] === '') {
@@ -688,13 +688,13 @@ class Context_Config extends Config
 		if ($current_context !== 0) {
 			if (empty($contexts[$current_context]['at_least']) === FALSE) {
 				$at_least = $contexts[$current_context]['at_least'];
-			} else { 
+			} else {
 				$at_least = NULL;
 			}
 
 			if (empty($contexts[$current_context]['conditions']) === FALSE) {
 				$conditions = $contexts[$current_context]['conditions'];
-			} else { 
+			} else {
 				$conditions = Array();
 			}
 
@@ -703,7 +703,7 @@ class Context_Config extends Config
 							'at_least'	=> translate('at_least'),
 							'all'		=> translate('all'),
 						   );
-				
+
 				if ($at_least === NULL) {
 					$default_option = 'all';
 					$at_least = '';
@@ -785,16 +785,16 @@ class Context_Config extends Config
 			?>
 			<td><p><strong><?php echo translate($this->prefix.'type_'.$condition_type); ?></strong></p></td><?php
 			?>
-			<td><?php			
+			<td><?php
 				$this->_paintCondition($o, $conditions, $condition_id);
 			?></td>
 			<td align="center"><p><strong><?php check_box($this->prefix.'condition_delete['.$condition_id.']', '1', FALSE); ?></strong></p></td><?php
 		?>
 		</tr><?php
 		}
-			
+
 	?>
-	</tbody>	
+	</tbody>
 	</table>
 		<?php
 
@@ -842,7 +842,7 @@ class Context_Config extends Config
 						}
 						text_box($this->prefix.$condition_id.'_min_q', $min_q, 5, 0, FALSE, ' onblur="val = parseFloat(this.value); if (isNaN(val)) {this.value = \'\'; } else {val = Math.min(Math.max(val, 0), 1); if (val == parseInt(this.value)) {this.value = parseInt(this.value) + \'.0\'; } }"');
 					$min_q_box = ob_get_clean();
-					echo translate($this->prefix.'type_accept-language_param_min_q', $min_q_box);					
+					echo translate($this->prefix.'type_accept-language_param_min_q', $min_q_box);
 				?>
 				</li>
 				</ul>
@@ -860,12 +860,12 @@ class Context_Config extends Config
 				$match_type     = $condition_details['match_type'];
 				$match_value    = $condition_details['match_value'];
 				$case_sensitive = $condition_details['case_sensitive'];
-		
+
 				$logic_options = Array(
 									1	=> translate($this->prefix.'type_header_option_1'),
 									0	=> translate($this->prefix.'type_header_option_0'),
 							     );
-		
+
 				$type_options = Array(
 									'exists'	=> translate($this->prefix.'type_header_option_exists'),
 									'exact'		=> translate($this->prefix.'type_header_option_exact'),
@@ -908,12 +908,12 @@ class Context_Config extends Config
 				$match_type     = $condition_details['match_type'];
 				$match_value    = $condition_details['match_value'];
 				$case_sensitive = $condition_details['case_sensitive'];
-		
+
 				$logic_options = Array(
 									1	=> translate($this->prefix.'type_header_option_1'),
 									0	=> translate($this->prefix.'type_header_option_0'),
 							     );
-		
+
 				$type_options = Array(
 									'exists'	=> translate($this->prefix.'type_header_option_exists'),
 									'exact'		=> translate($this->prefix.'type_header_option_exact'),
@@ -953,12 +953,12 @@ class Context_Config extends Config
 				$match_logic = $condition_details['match_logic'];
 				$match_type  = $condition_details['match_type'];
 				$match_value = $condition_details['match_value'];
-		
+
 				$logic_options = Array(
 									1	=> translate($this->prefix.'type_url_option_1'),
 									0	=> translate($this->prefix.'type_url_option_0'),
 							     );
-		
+
 				$type_options = Array(
 									'exact'		=> translate($this->prefix.'type_url_option_exact'),
 									'begins'	=> translate($this->prefix.'type_url_option_begins'),
@@ -1049,7 +1049,7 @@ class Context_Config extends Config
 
 	}//end processSelectedContext()
 
-	
+
 	/**
 	* Paints the edit interface for changing the context matching order
 	*
@@ -1101,7 +1101,7 @@ class Context_Config extends Config
 		foreach ($contexts as $key => $value){
 			$context_names[] = $value['name'];
 		}
-		
+
 		$save_required = FALSE;
 		$saved = FALSE;
 
@@ -1111,10 +1111,10 @@ class Context_Config extends Config
 
 		// Don't release the lock unless we tell you to
 		unset($_POST['sq_lock_release']);
-		
+
 		if ($this->writeAccess() === TRUE) {
 			$class = get_class_lower($this);
-			
+
 			// Post variables
 			$deleted_context = array_get_index($_POST, $this->prefix.'deleted');
 			if (is_numeric($deleted_context) === TRUE) {
@@ -1140,7 +1140,7 @@ class Context_Config extends Config
 				} else {
 					$current_context = (int)$current_context;
 				}
-				
+
 				if ($current_context === NULL) {
 					// We can only be editing a context if we haven't selected one
 					// in the same page request.
@@ -1194,7 +1194,7 @@ class Context_Config extends Config
 					}
 				}
 				}
-				
+
 				if (($current_context === NULL) && ($editing_context !== NULL)) {
 					// Editing a currently selected context
 					$new_name = trim(array_get_index($_POST, $this->prefix.'name', ''));
@@ -1231,7 +1231,7 @@ class Context_Config extends Config
 							$new_condition = Array(
 												'type'	=> $new_condition_type,
 											 );
-							
+
 							switch ($new_condition_type) {
 								case 'accept-language':
 									// Defaults for accept-language header:
@@ -1290,7 +1290,7 @@ class Context_Config extends Config
 								break;
 
 								case 'secure':
-									// Match on secure: defaults to force secure 
+									// Match on secure: defaults to force secure
 									$new_condition['options'] = Array(
 																	'match_value'	=> 1,
 																);
@@ -1301,23 +1301,23 @@ class Context_Config extends Config
 							$contexts[$editing_context]['conditions'][] = $new_condition;
 
 						}//end if new condition is being created
-					
+
 					}//end if context being edited is not default
 
 					$save_required = TRUE;
-				
+
 				}//end if editing context is not null
 
 			}//end if deleted context is not null
 
-		
+
 			// This page cannot work properly with the default behaviour
 			// of redirecting on save (usually done since define()'d constants
 			// cannot be redefined). So we save a copy of the new vars
 			// in save() and re-use them in paintBackend().
 			//
 			// The copied code (from parent::processBackend()) exists so we can
-			// still give a correct TRUE/FALSE indication from save(), since 
+			// still give a correct TRUE/FALSE indication from save(), since
 			// this normally determines whether it redirects or not.
 			if (empty($_POST['process_form']) === FALSE) {
 				if ($save_required === TRUE) {
@@ -1396,7 +1396,7 @@ class Context_Config extends Config
 				$condition_options['case_sensitive'] = array_get_index($_POST, $this->prefix.$condition_id.'_case_sensitive', 0);
 				$condition_options['match_logic'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_logic', 1);
 				$condition_options['match_type']  = array_get_index($_POST, $this->prefix.$condition_id.'_match_type',  'exact');
-				$condition_options['match_value'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_value', ''); 
+				$condition_options['match_value'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_value', '');
 			break;
 
 			case 'get':
@@ -1405,13 +1405,13 @@ class Context_Config extends Config
 				$condition_options['case_sensitive'] = array_get_index($_POST, $this->prefix.$condition_id.'_case_sensitive', 0);
 				$condition_options['match_logic'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_logic', 1);
 				$condition_options['match_type']  = array_get_index($_POST, $this->prefix.$condition_id.'_match_type',  'exact');
-				$condition_options['match_value'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_value', ''); 
+				$condition_options['match_value'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_value', '');
 			break;
-			
+
 			case 'url':
 				$condition_options['match_logic'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_logic', 1);
 				$condition_options['match_type']  = array_get_index($_POST, $this->prefix.$condition_id.'_match_type',  'exact');
-				$condition_options['match_value'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_value', ''); 
+				$condition_options['match_value'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_value', '');
 			break;
 
 			case 'port':
@@ -1422,7 +1422,7 @@ class Context_Config extends Config
 			case 'secure':
 				$condition_options['match_value'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_value', 0);
 			break;
-			
+
 		}//end switch on condition type
 
 	}//end _processCondition()
@@ -1485,8 +1485,8 @@ class Context_Config extends Config
 		$updated_contextids = array_intersect($current_contextids, $existing_contextids);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');		
-	
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$ok = TRUE;
 
 		foreach ($new_contextids as $new_contextid) {
@@ -1558,7 +1558,7 @@ class Context_Config extends Config
 					trigger_localised_error('CTX0004', E_USER_ERROR, count($deleted_contextids), $e->getMessage());
 				}
 				exit(1);
-				
+
 			}//end try
 
 		}//end if
@@ -1608,13 +1608,13 @@ class Context_Config extends Config
 				$matches = preg_match('/^([a-zA-Z\_\-]+)$/', $locale_code);
 				if ($matches === 0) {
 					unset($standards_lists_locales[$locale_code]);
-				}			
+				}
 			}
 			$overlap = array_intersect($standards_lists_languages, $standards_lists_locales);
 
 			foreach ($overlap as $code => $language) {
 				if(isset($standards_lists_languages[$code])) {
-					$standards_lists_languages[$code] = translate('non_localised_variation', $language);
+					$standards_lists_languages[$code] = sprintf(translate('non_localised_variation'), $language);
 				}
 			}
 

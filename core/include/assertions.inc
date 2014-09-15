@@ -139,7 +139,7 @@ function assert_empty($value, $msg='', $silent=false, $fatal=true)
 {
 	if (!empty($value)) {
 		if (empty($msg)) {
-			$msg = translate('assert_not_empty', gettype($value), $value);
+			$msg = sprintf(translate('assert_not_empty'), gettype($value), $value);
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -164,7 +164,7 @@ function assert_not_empty($value, $msg='', $silent=false, $fatal=true)
 {
 	if (empty($value)) {
 		if (empty($msg)) {
-			$msg = translate('assert_empty', gettype($value), $value);
+			$msg = sprintf(translate('assert_empty'), gettype($value), $value);
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -194,7 +194,7 @@ function assert_equals($test, $expected, $msg='', $silent=false, $fatal=true)
 {
 	if ($test != $expected) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= translate('assert_equals', gettype($expected), $expected, gettype($test), $test);
+		$msg .= sprintf(translate('assert_equals'), gettype($expected), $expected, gettype($test), $test);
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -250,7 +250,7 @@ function assert_array_contains($test, $expected, $msg='', $silent=false, $fatal=
 	$diff = array_diff($expected, $test);
 	if (!empty($diff)) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= translate('assert_contains', print_r($expected,true), print_r($test,true));
+		$msg .= sprintf(translate('assert_contains'), print_r($expected,true), print_r($test,true));
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -280,7 +280,7 @@ function assert_array_equals($test, $expected, $msg='', $silent=false, $fatal=tr
 {
 	if ($test != $expected) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= translate('assert_contains', print_r($expected,true), print_r($test,true));
+		$msg .= sprintf(translate('assert_contains'), print_r($expected,true), print_r($test,true));
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -339,7 +339,7 @@ function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=
 
 	if (!isset($test[$index])) {
 		if (empty($msg)) {
-			$msg = translate('assert_isset_array', $index);
+			$msg = sprintf(translate('assert_isset_array'), $index);
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -365,7 +365,7 @@ function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 {
 	if (!($obj instanceof $class)) {
 		if (empty($msg)) {
-			$msg = translate('assert_object', strtoupper($class));
+			$msg = sprintf(translate('assert_object'), strtoupper($class));
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -391,7 +391,7 @@ function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 {
 	if (strtolower(gettype($obj)) != strtolower($type)) {
 		if (empty($msg)) {
-			$msg = translate('assert_type', gettype($obj), $obj, strtoupper($type));
+			$msg = sprintf(translate('assert_type'), gettype($obj), $obj, strtoupper($type));
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -475,7 +475,7 @@ function assert_valid_assetid($assetids, $msg='', $silent=false, $fatal=true)
 
 	if (!$valid) {
 		if (empty($msg)) {
-			$msg = translate('assert_assetid', gettype($current_id), htmlspecialchars($current_id));
+			$msg = sprintf(translate('assert_assetid'), gettype($current_id), htmlspecialchars($current_id));
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;

@@ -709,7 +709,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$mf = new Mail();
 		$mail_object = $mf->factory($driver, $details_info['server_details']);
 		if ($mail_object instanceof PEAR_Error) {
-			$errors[] = translate('bm_warning_server_details_error', $mail_object->getMessage());
+			$errors[] = sprintf(translate('bm_warning_server_details_error'), $mail_object->getMessage());
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($mail_object);
 
@@ -727,7 +727,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			// page is not live
 			$content_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
 			if ($content_page->status != SQ_STATUS_LIVE) {
-				$errors[] = translate('bm_warning_asset_to_send_not_live', $content_page->name, $content_page->id);
+				$errors[] = sprintf(translate('bm_warning_asset_to_send_not_live'), $content_page->name, $content_page->id);
 			} else {
 				// no pre-selected user
 				if (empty($details_info['content_gen_as'])) {
@@ -736,7 +736,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 					// cannot login as pre-selected user, is in trash or not live
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_gen_as']);
 					if (!($user instanceof Public_User) && !$user->canLogin()) {
-						$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
+						$errors[] = sprintf(translate('bm_warning_generate_as_login_error'), $user->name, $user->id);
 					}
 					// pre-selected user does not have (effective) read permission for content page
 					$ids = $GLOBALS['SQ_SYSTEM']->am->getParents($user->id, 'user_group', FALSE);
@@ -744,7 +744,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 					$content_gen_as_read_access = $content_page->readAccess(array_keys($ids));
 					$public_read_access = $content_page->readAccess(Array($public_user->id));
 					if (!$content_gen_as_read_access && !$public_read_access) {
-						$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
+						$errors[] = sprintf(translate('bm_warning_generate_as_no_read_access'), $user->name, $user->id, $content_page->name, $content_page->id);
 					}
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 				}
@@ -775,7 +775,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			}//end foreach
 			if (!empty($problematic_list)) {
 				asort($problematic_list);
-				$errors[] = translate('bm_warning_recipient_no_read_access', $content_page->name, $content_page->id, implode(', ', $problematic_list));
+				$errors[] = sprintf(translate('bm_warning_recipient_no_read_access'), $content_page->name, $content_page->id, implode(', ', $problematic_list));
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
@@ -786,7 +786,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_design']);
 			$public_read_access = $design->readAccess(Array($public_user->id));
 			if (!$public_read_access) {
-				$errors[] = translate('bm_warning_no_public_read_access', $design->name, $design->id);
+				$errors[] = sprintf(translate('bm_warning_no_public_read_access'), $design->name, $design->id);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
 		}
@@ -796,7 +796,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_layout']);
 			$public_read_access = $layout->readAccess(Array($public_user->id));
 			if (!$public_read_access) {
-				$errors[] = translate('bm_warning_no_public_read_access', $layout->name, $layout->id);
+				$errors[] = sprintf(translate('bm_warning_no_public_read_access'), $layout->name, $layout->id);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($layout);
 		}

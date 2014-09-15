@@ -130,8 +130,8 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
+
+
 	/**
 	* Run this cron job
 	*

@@ -220,7 +220,7 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function paint($prefix, $read_only=FALSE)
 	{
-		echo translate('interface_not_created', ucwords(str_replace('_', ' ', $this->type())));
+		echo sprintf(translate('interface_not_created'), ucwords(str_replace('_', ' ', $this->type())));
 
 	}//end paint()
 

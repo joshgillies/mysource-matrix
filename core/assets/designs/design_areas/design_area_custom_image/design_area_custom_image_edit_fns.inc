@@ -58,8 +58,8 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		file_upload($prefix);
-		$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions)));
-		$o->note(translate('core_image_size_restricted', $asset->attr('max_width'), $asset->attr('max_height')));
+		$o->note(sprintf(translate('core_only_upload_files_of_type'), make_readable_list($asset->allowed_extensions)));
+		$o->note(sprintf(translate('core_image_size_restricted'), $asset->attr('max_width'), $asset->attr('max_height')));
 
 		return TRUE;
 

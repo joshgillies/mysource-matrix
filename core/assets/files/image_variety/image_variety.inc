@@ -65,7 +65,7 @@ class Image_Variety extends Asset
 		$this->data_path        = $image->data_path.'/varieties';
 		$this->data_path_suffix = $image->data_path_suffix.'/varieties';
 		$this->data_path_public = $image->data_path_public.'/varieties';
-		
+
 		// use image's alt attribute
 		if(!isset($data['alt'])) {
 		    $data['alt'] = $image->attr('alt');
@@ -458,7 +458,7 @@ class Image_Variety extends Asset
 	function checkFileState($public)
 	{
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
-		
+
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -575,7 +575,7 @@ class Image_Variety extends Asset
 		}
 
 		if (!$public && !$safe_edit) return parent::updateLookups();
-		
+
 		// if safe edit status, we still want to insert standard matrix urls
 		if($safe_edit) parent::updateLookups();
 
@@ -587,7 +587,7 @@ class Image_Variety extends Asset
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
-		
+
 		if($safe_edit) {
 		    // If it's safe edit status, we just want to remove those __data urls because we will insert proper ones later
 		    try {
@@ -615,11 +615,11 @@ class Image_Variety extends Asset
 		    $GLOBALS['SQ_SYSTEM']->setCurrentUser($public_user);
 		    $variety = $image->getAsset($this->id);
 		    $filename = $variety->attr('filename');
-		    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();	    
+		    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 		}
 
-		
-		// if the public version of the file doesn't even exist in __data, it means this variety is just created, don't bother insert __data urls for it	
+
+		// if the public version of the file doesn't even exist in __data, it means this variety is just created, don't bother insert __data urls for it
 		// if there is no filename there is nothing more for us to do
 		if (!$filename || ($safe_edit && !is_file($this->data_path_public.'/'.$filename))) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -810,7 +810,7 @@ class Image_Variety extends Asset
 		}
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
 			return;
 		}
 

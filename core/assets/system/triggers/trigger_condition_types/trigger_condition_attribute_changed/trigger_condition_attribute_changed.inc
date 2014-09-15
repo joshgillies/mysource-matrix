@@ -151,7 +151,7 @@ class Trigger_Condition_Attribute_Changed extends Trigger_Condition_Asset_Type
 			$attribute_component = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_attribute_changed', $asset_type_component, $attribute_component);
+		return sprintf(translate('trigger_attribute_changed'), $asset_type_component, $attribute_component);
 
 	}//end getInterface()
 

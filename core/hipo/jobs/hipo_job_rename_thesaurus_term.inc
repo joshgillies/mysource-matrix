@@ -401,7 +401,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 						}
 					}
 				}
-				
+
 				// Run the Query against the current assetid
 				if (MatrixDAL::getDbType() === 'oci') {
 					$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_term WHERE TO_CHAR(value)=:old_term AND fieldid IN ('.implode(',', $field_chunk).')';
@@ -486,7 +486,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 
 				// No fields, so don't worry about this schema
 				if (count($this->_running_vars['schemas'][$schemaid]) == 0) {
-					unset($this->_running_vars['schemas'][$schemaid]);	
+					unset($this->_running_vars['schemas'][$schemaid]);
 				}//end if
 			}//end if
 		}//end foreach

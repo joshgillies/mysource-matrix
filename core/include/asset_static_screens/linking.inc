@@ -191,7 +191,7 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 					?></span><?php
 				}
 				?>
-				&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+				&nbsp; &nbsp; <?php echo sprintf(translate('page_number'), round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
 				<?php
 				if (($link_offset + $num_per_page) < $total_assets) {
 					?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -352,7 +352,7 @@ function processLinking(&$owner, &$o, &$ei)
 
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->writeAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 		exit();
 	}
 

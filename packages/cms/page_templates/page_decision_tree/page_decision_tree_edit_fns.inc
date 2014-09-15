@@ -42,8 +42,8 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Paint the first question selector
 	*
@@ -60,7 +60,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('links');
 		$first_question = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'decision_tree_question', FALSE, 'first_question');
-		
+
 		if ($write_access) {
 			$assetid = (!empty($first_question['minorid'])) ? $first_question['minorid'] : 0;
 			asset_finder($prefix.'_first_question', $assetid, $type_codes = Array ('decision_tree_question' => 'D'));
@@ -72,7 +72,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 				echo "<i>".translate('first_question_not_selected')."</i>";
 			}
 		}
-		
+
 		return TRUE;
 
 	}//end paintFirstQuestion()
@@ -91,11 +91,11 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	function processFirstQuestion(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return FALSE;
-		
+
 		$asset_finder = array_get_index($_POST, $prefix.'_first_question');
 		$new_first_id = array_get_index($asset_finder, 'assetid');
 		$existing_first = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'decision_tree_question', FALSE, 'first_question');
-		
+
 		//make sure the selected question is a child of this asset.
 		if (!empty($new_first_id)){
 			$child_questions = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'decision_tree_question', FALSE);
@@ -104,10 +104,10 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 				return FALSE;
 			}
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$ok = TRUE;
 		//delete removed/changed selection
 		if (!empty($existing_first) && (empty($new_first_id) || ($new_first_id != $existing_first['minorid']))){
@@ -115,15 +115,15 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 				$ok = FALSE;
 			}
 		}
-		
+
 		//create new selection
 		if (!empty($new_first_id) && (empty($existing_first) || ($new_first_id != $existing_first['minorid']))){
 			$first_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_first_id);
 			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $first_question, SQ_LINK_NOTICE, 'first_question')){
 				$ok = FALSE;
 			}
-		}		
-		
+		}
+
 		if ($ok){
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -132,12 +132,12 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
-		
+
 		return $ok;
 
 	}//end processFirstQuestion()
-	
-	
+
+
 	/**
 	* Paint the dropdowns to add questions under the page
 	*
@@ -169,7 +169,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 		echo '&nbsp;';
 
 		text_box($prefix.'question_name', '', '25');
-		
+
 		return TRUE;
 
 	}//end paintAddQuestions()
@@ -188,14 +188,14 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	function processAddQuestions(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return FALSE;
-		
+
 		$type   = (isset($_POST[$prefix.'question_type'])) ? $_POST[$prefix.'question_type'] : '';
 		$name = (isset($_POST[$prefix.'question_name'])) ? $_POST[$prefix.'question_name'] : '';
-		
+
 		if ($type && $name) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			
+
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
 			$type = ucwords($type);
 			$new_asset = new $type;
@@ -209,24 +209,24 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 						'is_dependant'	=> TRUE,
 						'is_exclusive'	=> FALSE,
 					);
-	
+
 			if(!$new_asset->create($link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-			
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}//end if
-		
+
 		return TRUE;
 
 	}//end processAddQuestions()
-	
-	
+
+
 	/**
-	* Paints a list of the Result Bodycopies under the Result Bodycopies folder 
+	* Paints a list of the Result Bodycopies under the Result Bodycopies folder
 	* with their min - max points range.
 	*
 	* @param object	&$asset	the asset whose interface we are painting
@@ -238,7 +238,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintResultBodycopies(&$asset, &$o, $prefix)
 	{
-	
+
 		$admin_access = $asset->writeAccess('attributes');
 		$bodycopy_points = $asset->attr('bodycopy_points');
 		$bodycopies = $asset->getResultBodycopies();
@@ -254,7 +254,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 						</td>
 					</tr>
 				<?php
-				
+
 				foreach ($bodycopies as $b_link) {
 					if ($b_link['value'] == 'default_result_bodycopy') continue;
 					$assetid = $b_link['minorid'];
@@ -299,41 +299,41 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processResultBodycopies(&$asset, &$o, $prefix)
 	{
-		
+
 		if (!$asset->writeAccess('attributes')) return FALSE;
-		
+
 		$bodycopy_points = Array();
 		$bodycopies = $asset->getResultBodycopies();
-		
+
 		foreach ($bodycopies as $b_link) {
 			if ($b_link['value'] == 'default_result_bodycopy') continue;
 			$assetid = $b_link['minorid'];
-			
+
 			$max = (isset($_POST[$prefix.'_bodycopy_points_max_'.$assetid])) ? $_POST[$prefix.'_bodycopy_points_max_'.$assetid] : 0;
 			$min = (isset($_POST[$prefix.'_bodycopy_points_min_'.$assetid])) ? $_POST[$prefix.'_bodycopy_points_min_'.$assetid] : 0;
-			
+
 			if (!is_numeric($max) || !is_numeric($min)) {
 				trigger_localised_error('CMS0115', E_USER_WARNING);
 				return FALSE;
 			}
-			
+
 			if ($min > $max){
-				trigger_localised_error('CMS0116', E_USER_WARNING);	
+				trigger_localised_error('CMS0116', E_USER_WARNING);
 				return FALSE;
 			}
-			
+
 			$bodycopy_points[$assetid]['max'] = $max;
 			$bodycopy_points[$assetid]['min'] = $min;
 		}
-		
+
 		$asset->setAttrValue('bodycopy_points', $bodycopy_points);
 		$asset->saveAttributes();
-		
+
 		return TRUE;
 
 	}//end processResultBodycopies()
-	
-	
+
+
 	/**
 	* Provides a dropdown to add 0-10 bodycopies under the Result Bodycopies folder.
 	*
@@ -347,19 +347,19 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	function paintAddResultBodycopies(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return FALSE;
-		
+
 		$num = Array();
 		for ($i = 0; $i <= 10; $i++) {
 			$num[$i] = $i;
 		}
-		
+
 		combo_box($prefix.'num_bodycopies', $num, FALSE, '');
-		
+
 		return TRUE;
-			
+
 	}//end paintAddResultBodycopies()
-	
-	
+
+
 	/**
 	* Process the addition of bodycopies under the Result Bodycopies folder.
 	*
@@ -373,21 +373,21 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	function processAddResultBodycopies(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return FALSE;
-		
+
 		$to_create = (isset($_POST[$prefix.'num_bodycopies'])) ? $_POST[$prefix.'num_bodycopies'] : 0;
 		$bodycopies = $asset->getResultBodycopies();
-		$no_bodycopies = count($bodycopies) - 1; 
+		$no_bodycopies = count($bodycopies) - 1;
 		for ($i = 0; $i < $to_create; $i++){
 			$no_bodycopies++;
 			if (!$asset->createResultBodycopy('Result Bodycopy '.$no_bodycopies, '')){
 				trigger_localised_error('CMS0117', E_USER_WARNING);
-				return FALSE;	
+				return FALSE;
 			}
 		}
-		
-		return TRUE;	
+
+		return TRUE;
 	}//end processAddResultBodycopies()
-		
+
 
 
 }//end class

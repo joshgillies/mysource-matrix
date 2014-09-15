@@ -157,7 +157,7 @@ class Page_Asset_Builder extends Page
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
 				foreach ($types_needing_layouts as $type_code) {
 					$layout = new Layout();
-					$layout->setAttrValue('name', translate('cms_asset_builder_create_form_layout_for_type', $type_names[$type_code]));
+					$layout->setAttrValue('name', sprintf(translate('cms_asset_builder_create_form_layout_for_type'), $type_names[$type_code]));
 					$link = Array(
 								'asset'			=> &$this,
 								'link_type'		=> SQ_LINK_TYPE_2,
@@ -229,8 +229,8 @@ class Page_Asset_Builder extends Page
 
 		if ($minor_type_code == 'bodycopy' && $is_exclusive) {
 			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
-			
-			return translate('core_cannot_delete_exclusive_link', $major_type_code, ucwords(str_replace('_', ' ', $value)).' Bodycopy');
+
+			return sprintf(translate('core_cannot_delete_exclusive_link'), $major_type_code, ucwords(str_replace('_', ' ', $value)).' Bodycopy');
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -321,7 +321,7 @@ class Page_Asset_Builder extends Page
 
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		}		
+		}
 
 	}//end printBody()
 
@@ -562,7 +562,7 @@ class Page_Asset_Builder extends Page
 						trigger_error($this->attr('time_requirement_error_message'), E_USER_NOTICE);
 						$required_error = TRUE;
 					}//end if
-				
+
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
 					$create_type = $_POST['AB_'.$this->id.'_ASSET_BUILDER_CREATE_TYPE'];
@@ -638,13 +638,13 @@ class Page_Asset_Builder extends Page
 
 									if (!$valid_value) {
 										if (empty($error_text)) {
-											$error_text = translate('cms_asset_builder_invalid_attr_value', $mf_asset->name);
+											$error_text = sprintf(translate('cms_asset_builder_invalid_attr_value'), $mf_asset->name);
 										}
 										trigger_error($error_text, E_USER_NOTICE);
 										$required_error = TRUE;
 									} else if (!$empty_value) {
 										if (empty($error_text)) {
-											$error_text = translate('cms_asset_builder_missing_attr', $mf_asset->name);
+											$error_text = sprintf(translate('cms_asset_builder_missing_attr'), $mf_asset->name);
 										}
 										trigger_error($error_text, E_USER_NOTICE);
 										$required_error = TRUE;
@@ -685,13 +685,13 @@ class Page_Asset_Builder extends Page
 
 								if (!$attribute->processed) {
 									if (empty($error_text)) {
-										$error_text = translate('cms_asset_builder_invalid_attr_value', $attribute->name);
+										$error_text = sprintf(translate('cms_asset_builder_invalid_attr_value'), $attribute->name);
 									}
 									trigger_error($error_text, E_USER_NOTICE);
 									$required_error = TRUE;
 								} else if (empty($attribute->value)) {
 									if (empty($error_text)) {
-										$error_text = translate('cms_asset_builder_missing_attr', $attribute->name);
+										$error_text = sprintf(translate('cms_asset_builder_missing_attr'), $attribute->name);
 									}
 									trigger_error($error_text, E_USER_NOTICE);
 									$required_error = TRUE;
@@ -981,7 +981,7 @@ class Page_Asset_Builder extends Page
 								$valid_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link_parent, $valid_paths, $new_asset->id, TRUE);
 
 								if (!$new_asset->saveWebPaths($valid_paths, FALSE)) {
-									$this->_errors[] = translate('cms_asset_builder_cannot_save_web_path', $new_asset->name, $link_parent->name);
+									$this->_errors[] = sprintf(translate('cms_asset_builder_cannot_save_web_path'), $new_asset->name, $link_parent->name);
 								}
 								// if there is no difference in the arrays
 								// we have to update lookups mannualy, otherwise it would have be done in saveWebPath already
@@ -1074,9 +1074,9 @@ class Page_Asset_Builder extends Page
 
 			if (!empty($treeid)) {
 				$sql = '
-					SELECT t.linkid 
+					SELECT t.linkid
 					FROM sq_ast_lnk_tree t
-					WHERE 
+					WHERE
 						t.treeid LIKE :treeid';
 
 				try {
@@ -1561,7 +1561,7 @@ class Page_Asset_Builder extends Page
 		  /////////////////////////
 		 // CREATE FORM KEYWORD //
 		////////////////////////
-		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');		
+		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');
 
 		  //////////////////////////////////////////
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
@@ -1624,7 +1624,7 @@ class Page_Asset_Builder extends Page
 					break;
 
 					default:
-						echo '('.translate('cms_asset_builder_undefined_input_style', $data['input_style']).')';
+						echo '('.sprintf(translate('cms_asset_builder_undefined_input_style'), $data['input_style']).')';
 					break;
 				}//end switch
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
@@ -1981,7 +1981,7 @@ class Page_Asset_Builder extends Page
 		$keywords = Array();
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$keyword_name = $this->_sanitiseLocationSetName($name).'_field';
-			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
+			$keywords[$keyword_name] = sprintf(translate('cms_asset_builder_field_keyword'), $name);
 		}
 		return $keywords;
 
@@ -1999,7 +1999,7 @@ class Page_Asset_Builder extends Page
 		$keywords = Array();
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
 			$keyword_name = $this->_sanitiseLocationSetName($name).'_field';
-			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
+			$keywords[$keyword_name] = sprintf(translate('cms_asset_builder_field_keyword'), $name);
 		}
 		return $keywords;
 

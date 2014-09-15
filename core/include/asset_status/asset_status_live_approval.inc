@@ -103,7 +103,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$is_dependant = $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
-				
+
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 					if ($wf_complete && ((!$is_dependant && $m_complete) || $is_dependant)) {
@@ -126,7 +126,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 			$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
 			if ($this->owner->adminAccess('')) {
 				$statii[SQ_STATUS_ARCHIVED] = translate('status_change_archive');
-			}		
+			}
 
 		}//end if workflow running
 
