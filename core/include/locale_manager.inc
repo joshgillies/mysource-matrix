@@ -315,16 +315,6 @@ class Locale_Manager extends MySource_Object
 	{
         $locale = $this->getCurrentLocale();
 
-        // if second parameter is an array, use that as our list of params
-        if (func_num_args() > 1) {
-            if (!is_array($func_args = func_get_arg(1))) {
-                $func_args = func_get_args();
-                $func_args = array_slice($func_args,1);
-            }
-        } else {
-            $func_args = Array();
-        }
-
 	    $return_array = TRUE;
 	    if (is_array($strings) === FALSE) {
 	        $return_array = FALSE;
@@ -338,10 +328,6 @@ class Locale_Manager extends MySource_Object
                 $retval[$index] = $string;
             } else {
                 $retval[$index] = array_get_index($this->_strings[$locale], $string, $string);
-            }
-
-            if (count($func_args) > 0) {
-                $retval[$index] = vsprintf($retval[$index], $func_args);
             }
         }
 
