@@ -183,33 +183,27 @@ class Calendar_Event extends Asset
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$our_keywords = Array();
-		$our_keywords[] = 'asset_attribute_start_date'; // = translate('start_date_iso'); //'Start date (iso8601)';
-		$our_keywords[] = 'asset_attribute_end_date'; // = translate('end_date_iso'); //'End date (iso8601)';
-		$our_keywords[] = 'event_start_date'; // = translate('start_date_only_readable'); //'Event Start Date';
-		$our_keywords[] = 'event_end_date'; // = tralsate('end_date_only_readable'); //'Event End Date';
-		$our_keywords[] = 'event_start_datetime'; // = translate('Event start date/time';
-		$our_keywords[] = 'event_end_datetime'; // = 'Event end date/time';
-		$our_keywords[] = 'event_start_time_12h'; // = 'Start time (12 hour)';
-		$our_keywords[] = 'event_end_time_12h'; // = 'End time (12 hour)';
-		$our_keywords[] = 'event_start_time_24h'; // = 'Start time (24 hour)';
-		$our_keywords[] = 'event_end_time_24h'; // = 'End time (24 hour)';
-		$our_keywords[] = 'event_short_start_time'; // = 'Short start time (12 hour)';
-		$our_keywords[] = 'event_short_end_time'; // = 'Short end time (12 hour)';
-		$our_keywords[] = 'event_start_time_ical'; // = 'Start time (iCalendar)';
-		$our_keywords[] = 'event_end_time_ical'; // = 'End time (iCalendar)';
-		$our_keywords[] = 'event_datetime_summary'; // = 'Friendly description of event dates and times';
-		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
-		$our_keywords[] = 'edit_link'; // = 'Link to edit this event in Limbo (if user has permission)';
-		$our_keywords[] = 'delete_link'; // = 'Link to delete this event altogether (if user has permission)';
-		$our_keywords[] = 'event_start_datetime_'; // = dynamic keyword to print start date and time
-		$our_keywords[] = 'event_end_datetime_'; // = dynamic keyword to print end date and time
-		$our_keywords[] = 'event_calendar_date_'; // = dynamic keyword to print calendar date
-
-
-		foreach ($our_keywords as $keyword) {
-			$keywords[$keyword] = translate('cal_evt_keyword_'.$keyword);
-		}
+		$keywords['asset_attribute_start_date'] = translate('cal_evt_keyword_asset_attribute_start_date');
+		$keywords['asset_attribute_end_date']   = translate('cal_evt_keyword_asset_attribute_end_date'); // = 'End date (iso8601)';
+		$keywords['event_start_date']           = translate('cal_evt_keyword_event_start_date'); // = 'Event Start Date';
+		$keywords['event_end_date']             = translate('cal_evt_keyword_event_end_date'); // = 'Event End Date';
+		$keywords['event_start_datetime']       = translate('cal_evt_keyword_event_start_datetime'); // = 'Event start date/time';
+		$keywords['event_end_datetime']         = translate('cal_evt_keyword_event_end_datetime'); // = 'Event end date/time';
+		$keywords['event_start_time_12h']       = translate('cal_evt_keyword_event_start_time_12h'); // = 'Start time (12 hour)';
+		$keywords['event_end_time_12h']         = translate('cal_evt_keyword_event_end_time_12h'); // = 'End time (12 hour)';
+		$keywords['event_start_time_24h']       = translate('cal_evt_keyword_event_start_time_24h'); // = 'Start time (24 hour)';
+		$keywords['event_end_time_24h']         = translate('cal_evt_keyword_event_end_time_24h'); // = 'End time (24 hour)';
+		$keywords['event_short_start_time']     = translate('cal_evt_keyword_event_short_start_time'); // = 'Short start time (12 hour)';
+		$keywords['event_short_end_time']       = translate('cal_evt_keyword_event_short_end_time'); // = 'Short end time (12 hour)';
+		$keywords['event_start_time_ical']      = translate('cal_evt_keyword_event_start_time_ical'); // = 'Start time (iCalendar)';
+		$keywords['event_end_time_ical']        = translate('cal_evt_keyword_event_end_time_ical'); // = 'End time (iCalendar)';
+		$keywords['event_datetime_summary']     = translate('cal_evt_keyword_event_datetime_summary'); // = 'Friendly description of event dates and times';
+		$keywords['event_duration']             = translate('cal_evt_keyword_event_duration'); // = 'Duration of the Event';
+		$keywords['edit_link']                  = translate('cal_evt_keyword_edit_link'); // = 'Link to edit this event in Limbo (if user has permission)';
+		$keywords['delete_link']                = translate('cal_evt_keyword_delete_link'); // = 'Link to delete this event altogether (if user has permission)';
+		$keywords['event_start_datetime_']      = translate('cal_evt_keyword_event_start_datetime_'); // = dynamic keyword to print start date and time
+		$keywords['event_end_datetime_']        = translate('cal_evt_keyword_event_end_datetime_'); // = dynamic keyword to print end date and time
+		$keywords['event_calendar_date_']       = translate('cal_evt_keyword_event_calendar_date_'); // = dynamic keyword to print calendar date
 
 		return $keywords;
 

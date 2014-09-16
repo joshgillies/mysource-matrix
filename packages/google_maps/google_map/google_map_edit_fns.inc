@@ -68,8 +68,6 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
         $map->paint($prefix.'_parameter_map', !$write_access);
         $o->closeRaw();
 
-        $o->sectionNote(translate('trim_ds_search_default_options_note'));
-
         return $write_access;
 
     }//end paintDataMapping()

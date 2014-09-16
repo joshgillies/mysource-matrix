@@ -1248,7 +1248,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			combo_box($name, $options, TRUE, $current_values, '', 'style="'.$style.'"');
 		} else {
 			if (empty($current_values)) {
-				echo translate('sch_page_no_status_selected');
+				echo translate('cms_listing_no_status_selected');
 			} else {
 				?><ul style="margin: 1px 15px;"><?php
 				foreach ($current_values as $status) {

@@ -149,18 +149,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 					}
 				}
 			}
-				/*
 
-				case 'all':
-					echo translate('page_remote_content_tunneling_rule_all'); // 'All URLs may be tunneled';
-				break;
-				case 'none':
-					echo translate('page_remote_content_tunneling_rule_'.$overall);'No URLs may be tunneled';
-				break;
-				case 'some':
-					echo 'Only the following URLs may be tunneled:';
-				break;
-				*/
 			return FALSE;
 		}
 

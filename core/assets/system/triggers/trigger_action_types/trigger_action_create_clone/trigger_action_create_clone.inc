@@ -272,7 +272,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		ob_start();
 			$is_exclusive_list = Array(
 									0	=> translate('non_exclusively'),
-									1	=> translate('exclusivly'),
+									1	=> translate('exclusively'),
 								 );
 			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive, NULL, $form_element_extras);
 			$advanced_part_3 = ob_get_contents();

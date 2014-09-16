@@ -67,6 +67,6 @@
 	<string source="default_gd_font_4">Built in font 4</string>
 	<string source="default_gd_font_5">Built in font 5</string>
 	<string source="using_default_font">Size is fixed for Built in font</string>
-
+	<string source="no_valid_font">No valid font</string>
 	<string source="showing_first">Showing %1$s out of %2$s locks</string>
 </strings>

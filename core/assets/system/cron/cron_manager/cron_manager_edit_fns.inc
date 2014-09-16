@@ -578,7 +578,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		// else everything is OK
 		} else {
-			$o->openField(translate(''), 'wide_col');
+			$o->openField('', 'wide_col');
 			echo '<em>'.translate('cron_manager_appears_to_be_fine').'</em>';
 
 		}//end if run_check

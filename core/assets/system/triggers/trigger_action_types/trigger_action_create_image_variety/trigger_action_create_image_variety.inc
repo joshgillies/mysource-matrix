@@ -253,7 +253,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 						'height'					=> translate('height'),
 						'dimension'					=> translate('both'),
 						'none'						=> translate('neither'),
-						'centre_weighted_square'	=> translate('square_center_weighted'),
+						'centre_weighted_square'	=> translate('square_centre_weighted'),
 					   );
 
 			echo translate('constrain_by').': ';

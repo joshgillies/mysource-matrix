@@ -1595,44 +1595,41 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		$res = parent::getAvailableKeywords();
 
-		$our_keywords[] = 'asset_attribute_start_date'; // = translate('start_date_iso'); //'Start date (iso8601)';
-		$our_keywords[] = 'asset_attribute_end_date'; // = translate('end_date_iso'); //'End date (iso8601)';
-		$our_keywords[] = 'event_start_date'; // = translate('start_date_only_readable'); //'Event Start Date';
-		$our_keywords[] = 'event_end_date'; // = tralsate('end_date_only_readable'); //'Event End Date';
-		$our_keywords[] = 'event_start_datetime'; // = translate('Event start date/time';
-		$our_keywords[] = 'event_end_datetime'; // = 'Event end date/time';
-		$our_keywords[] = 'event_start_time_12h'; // = 'Start time (12 hour)';
-		$our_keywords[] = 'event_end_time_12h'; // = 'End time (12 hour)';
-		$our_keywords[] = 'event_start_time_24h'; // = 'Start time (24 hour)';
-		$our_keywords[] = 'event_end_time_24h'; // = 'End time (24 hour)';
-		$our_keywords[] = 'event_start_time_ical'; // = 'Start time (iCalendar)';
-		$our_keywords[] = 'event_end_time_ical'; // = 'End time (iCalendar)';
-		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
-		$our_keywords[] = 'event_start_datetime_'; // = dynamic keyword to print start date and time
-		$our_keywords[] = 'event_end_datetime_'; // = dynamic keyword to print end date and time
-		$our_keywords[] = 'event_frequency';
-		$our_keywords[] = 'instance_end_datetime';
-		$our_keywords[] = 'instance_end_datetime_ical';
-		$our_keywords[] = 'instance_end_datetime_';
-		$our_keywords[] = 'instance_end_date';
-		$our_keywords[] = 'instance_end_time';
-		$our_keywords[] = 'instance_end_time_12h';
-		$our_keywords[] = 'instance_end_time_24h';
-		$our_keywords[] = 'instance_start_datetime';
-		$our_keywords[] = 'instance_start_datetime_ical';
-		$our_keywords[] = 'instance_start_datetime_';
-		$our_keywords[] = 'instance_start_date';
-		$our_keywords[] = 'instance_start_time';
-		$our_keywords[] = 'instance_start_time_12h';
-		$our_keywords[] = 'instance_start_time_24h';
-		$our_keywords[] = 'event_stop_date_';
-		$our_keywords[] = 'event_ical_frequency';
-		$our_keywords[] = 'event_ical_exceptions';
-		$our_keywords[] = 'event_frequency_summary';
+		$res['asset_attribute_start_date'] = translate('cal_evt_recur_keyword_asset_attribute_start_date'); // = 'Start date (iso8601)';
+		$res['asset_attribute_end_date']   = translate('cal_evt_recur_keyword_asset_attribute_end_date'); // = 'End date (iso8601)';
+		$res['event_start_date']           = translate('cal_evt_recur_keyword_event_start_date'); // = 'Event Start Date';
+		$res['event_end_date']             = translate('cal_evt_recur_keyword_event_end_date'); // = 'Event End Date';
+		$res['event_start_datetime']       = translate('cal_evt_recur_keyword_event_start_datetime'); // = 'Event start date/time';
+		$res['event_end_datetime']         = translate('cal_evt_recur_keyword_event_end_datetime'); // = 'Event end date/time';
+		$res['event_start_time_12h']       = translate('cal_evt_recur_keyword_event_start_time_12h'); // = 'Start time (12 hour)';
+		$res['event_end_time_12h']         = translate('cal_evt_recur_keyword_event_end_time_12h'); // = 'End time (12 hour)';
+		$res['event_start_time_24h']       = translate('cal_evt_recur_keyword_event_start_time_24h'); // = 'Start time (24 hour)';
+		$res['event_end_time_24h']         = translate('cal_evt_recur_keyword_event_end_time_24h'); // = 'End time (24 hour)';
+		$res['event_start_time_ical']      = translate('cal_evt_recur_keyword_event_start_time_ical'); // = 'Start time (iCalendar)';
+		$res['event_end_time_ical']        = translate('cal_evt_recur_keyword_event_end_time_ical'); // = 'End time (iCalendar)';
+		$res['event_duration']             = translate('cal_evt_recur_keyword_event_duration'); // = 'Duration of the Event';
+		$res['event_start_datetime_']      = translate('cal_evt_recur_keyword_event_start_datetime_'); // = dynamic keyword to print start date and time
+		$res['event_end_datetime_']        = translate('cal_evt_recur_keyword_event_end_datetime_'); // = dynamic keyword to print end date and time
+		$res['event_frequency']            = translate('cal_evt_recur_keyword_event_frequency');
+		$res['instance_end_datetime']      = translate('cal_evt_recur_keyword_instance_end_datetime');
+		$res['instance_end_datetime_ical'] = translate('cal_evt_recur_keyword_instance_end_datetime_ical');
+		$res['instance_end_datetime_']     = translate('cal_evt_recur_keyword_instance_end_datetime_');
+		$res['instance_end_date']          = translate('cal_evt_recur_keyword_instance_end_date');
+		$res['instance_end_time']          = translate('cal_evt_recur_keyword_instance_end_time');
+		$res['instance_end_time_12h']      = translate('cal_evt_recur_keyword_instance_end_time_12h');
+		$res['instance_end_time_24h']      = translate('cal_evt_recur_keyword_instance_end_time_24h');
+		$res['instance_start_datetime']    = translate('cal_evt_recur_keyword_instance_start_datetime');
+		$res['instance_start_datetime_ical'] = translate('cal_evt_recur_keyword_instance_start_datetime_ical');
+		$res['instance_start_datetime_']   = translate('cal_evt_recur_keyword_instance_start_datetime_');
+		$res['instance_start_date']        = translate('cal_evt_recur_keyword_instance_start_date');
+		$res['instance_start_time']        = translate('cal_evt_recur_keyword_instance_start_time');
+		$res['instance_start_time_12h']    = translate('cal_evt_recur_keyword_instance_start_time_12h');
+		$res['instance_start_time_24h']    = translate('cal_evt_recur_keyword_instance_start_time_24h');
+		$res['event_stop_date_']           = translate('cal_evt_recur_keyword_event_stop_date_');
+		$res['event_ical_frequency']       = translate('cal_evt_recur_keyword_event_ical_frequency');
+		$res['event_ical_exceptions']      = translate('cal_evt_recur_keyword_event_ical_exceptions');
+		$res['event_frequency_summary']    = translate('cal_evt_recur_keyword_event_frequency_summary');
 
-		foreach ($our_keywords as $keyword) {
-			$res[$keyword] = translate('cal_evt_recur_keyword_'.$keyword);
-		}
 		ksort($res);
 		return $res;
 
