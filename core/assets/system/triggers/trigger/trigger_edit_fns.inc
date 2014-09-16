@@ -49,6 +49,89 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Paints the trigger's "Active" status field
+	*
+	* @param object	&$asset	trigger
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function paintActiveStatus(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$active = $asset->attr('active');
+		$options = Array(
+						1 => translate('enabled'),
+						0 => translate('disabled'),
+					);
+
+		if ($write_access) {
+			combo_box($prefix.'_active', $options, FALSE, $active);
+		} else {
+			echo $options[$active];
+		}
+
+		return $write_access;
+
+	}//end paintActiveStatus()
+
+
+	/**
+	* Process the trigger's "Active" status field
+	*
+	* @param object	&$asset	trigger
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function processActiveStatus(&$asset, &$o, $prefix)
+	{
+		$updated = FALSE;
+
+		// Update the trigger status
+		$new_status = array_get_index($_POST, $prefix.'_active', NULL);
+		if (!is_null($new_status)) {
+			$write_access = $asset->writeAccess('attributes');
+			if ($write_access) {
+				$current_status = $asset->attr('active');
+				if ($current_status != $new_status) {
+					$asset->setAttrValue('active', $new_status);
+					$updated = TRUE;
+				}
+			}//end if
+		}//end if
+
+		// Only check if the trigger name has been updated
+		$name_attr = $asset->getAttribute('name');
+		if (!empty($name_attr->id)) {
+			$new_name = array_get_index($_POST, $prefix.'_'.$name_attr->id, NULL);
+			if (!is_null($new_name)) {
+				if ($new_name != $asset->attr('name')) {
+					$updated = TRUE;
+				}
+			}//end if
+		}//end if
+
+		// If trigger name or status changes, refresh the asset map
+		if ($updated) {
+			list($tm_id) = explode(':', $asset->id);
+			$o->addOnLoad('
+							if (top.frames.sq_sidenav != null && top.frames.sq_sidenav.JS_Asset_Map) {
+								top.frames.sq_sidenav.JS_Asset_Map.refreshTree("'.$tm_id.'");
+							}
+					');
+		}//end if
+
+		return TRUE;
+
+	}//end processActiveStatus()
+
+
+	/**
 	* Paints the edit interface for selecting/displaying a list of events
 	*
 	* @param object	&$asset	trigger
