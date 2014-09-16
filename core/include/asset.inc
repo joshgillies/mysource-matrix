@@ -402,20 +402,6 @@ class Asset extends MySource_Object
 				}
 			}
 
-			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-				// Cascade various components from parent asset to new child
-				// unless the parent is the root folder or system management folder
-				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
-				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-
-					if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
-							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-							return $this->_abortCreate($trigger_level_changed);
-					}
-
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
-			}
 
 			// Create the link to the parent asset
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive'], FALSE, $link['is_locked']);
@@ -466,6 +452,23 @@ class Asset extends MySource_Object
 			}//end if locking subsystem enabled
 
 		}//end if creating link
+
+
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+				// Cascade various components from parent asset to new child
+				// unless the parent is the root folder or system management folder
+			$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+
+			if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				return $this->_abortCreate($trigger_level_changed);
+			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
+		}
+		
 
 		// Re-enable the triggers, if they were disabled here
 		if ($trigger_level_changed) {
