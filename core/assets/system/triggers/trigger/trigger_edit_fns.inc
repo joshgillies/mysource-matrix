@@ -106,7 +106,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			}//end if
 		}//end if
 
-		// Only check if the trigger name has been updated
+		// We just need to check if the trigger name and/or category has been updated
 		$name_attr = $asset->getAttribute('name');
 		if (!empty($name_attr->id)) {
 			$new_name = array_get_index($_POST, $prefix.'_'.$name_attr->id, NULL);
@@ -116,6 +116,16 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				}
 			}//end if
 		}//end if
+
+		$cat_attr = $asset->getAttribute('category');
+		if (!empty($cat_attr->id)) {
+			$new_cat = array_get_index($_POST, $prefix.'_'.$cat_attr->id, NULL);
+			if (!is_null($new_cat)) {
+				if ($new_cat != $asset->attr('category')) {
+					$updated = TRUE;
+				}
+			}//end if
+		}
 
 		// If trigger name or status changes, refresh the asset map
 		if ($updated) {
