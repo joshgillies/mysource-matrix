@@ -19,5 +19,5 @@
 <strings>
 	<string source="core_site_add_redirect">Add Redirect</string>
 	<string source="core_site_current_redirects">Current Redirects</string>
-	<string source="core_site_archived_page">Page to act as a "Not Found" page when archived assets are accessed</string>
+	<string source="core_site_archive_page">Page to act as a "Not Found" page when archived assets are accessed</string>
 </strings>
