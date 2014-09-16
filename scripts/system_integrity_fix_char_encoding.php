@@ -379,9 +379,15 @@ function fix_db($root_node, $tables, $rollback)
 	$sql = "SELECT attrid FROM sq_ast_attr WHERE type IN ('".implode("','", $serialsed_attrs)."')";
 	$serialise_attrids = array_keys(MatrixDAL::executeSqlGrouped($sql));
 
-	$target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
-	// Since we include the root node, target assetids will always contain atleast one asset id
-	array_unshift($target_assetids, $root_node);
+	if ($root_node == 1) {
+		// Run script system wide. Get the asset list from "ast" table directly
+		$sql = "SELECT DISTINCT assetid FROM ".($rollback ? 'sq_rb_' : 'sq_')."ast";
+		$target_assetids = array_keys(MatrixDAL::executeSqlGrouped($sql));
+	} else {
+		$target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
+		// Since we include the root node, target assetids will always contain atleast one asset id
+		array_unshift($target_assetids, $root_node);
+	}
 
 	echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
 
