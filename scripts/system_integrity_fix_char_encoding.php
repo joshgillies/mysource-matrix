@@ -403,6 +403,7 @@ function fix_db($root_node, $tables, $rollback)
 
 	// Go through 50 assets at a time. Applicable to asset specific tables only
     $chunks = array_chunk($target_assetids, 50);
+	$chunks_count = count($chunks);
 
 	// Counter to count the number of records accessed/processed
 	$count = 0;
@@ -447,11 +448,16 @@ function fix_db($root_node, $tables, $rollback)
 		echo "\nChecking ".$table." .";
 
 		// For non-asset specific table, this loop will break at end of the very first iteration
-		foreach ($chunks as $assetids) {
+		foreach ($chunks as $chunk_index => $assetids) {
 			$sql  = 'SELECT '.implode(',', $select_fields).' FROM '.$table;
 			// For non-asset specific table, "where" condition not is required. We get the whole table in a single go
 			if ($asste_specific_table) {
 				$sql .= ' WHERE assetid IN (\''.implode('\',\'', $assetids).'\')';
+
+				// In the last chunk include all the assetids that does not exist in ast table
+				if (($chunk_index == ($chunks_count-1)) && $table != 'sq_ast' && $table != 'sq_rb_ast') {
+					$sql .= ' OR assetid NOT IN (SELECT DISTINCT assetid FROM '.(!$rollback ? 'sq_ast' : 'sq_rb_ast').')';		
+				}
 			} else if ($table == 'sq_internal_msg') {
 				// Special case for non-asset specific records for 'interal_msg' table
 				// Internal message has 'assetid' field but messages not associated with the asset will have empty assetid
