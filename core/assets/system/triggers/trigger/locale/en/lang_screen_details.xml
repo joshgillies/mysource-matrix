@@ -17,8 +17,12 @@
 
 <contents>
 	<section name="Details">
-		<field attribute="active">
+		<field>
 			<display_name>Status</display_name>
+			<function_call>
+				<paint_function   name="paintActiveStatus" />
+				<process_function name="processActiveStatus" />
+			</function_call>
 		</field>
 		<field attribute="blocking">
 			<display_name>Blocking</display_name>
