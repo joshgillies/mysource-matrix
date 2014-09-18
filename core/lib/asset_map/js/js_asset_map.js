@@ -3630,7 +3630,7 @@ var JS_Asset_Map = new function() {
 
 						var nextAssetid = allAssetids[i];
 						assetLine       = dfx.find(container, 'div[data-assetid="' + nextAssetid + '"]')[0];
-
+						if(!assetLine) continue;
 						if (i < (response.asset.length - 1)) {
 							dfx.addClass(assetLine, 'located');
 						} else {
