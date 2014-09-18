@@ -1957,7 +1957,7 @@ class Backend_Outputter
 	function isViperAvailable()
 	{
 		if(SQ_IN_BACKEND || SQ_IN_LIMBO) {
-		    $viper_installed = is_file(SQ_DATA_PATH.'/public/ees/Plus/Libs/Viper/viper.js');
+		    $viper_installed = is_file(SQ_DATA_PATH.'/public/ees/Viper/viper.js');
 		    $viper_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_ENABLE_VIPER_EDITOR');
 		    return $viper_enabled && $viper_installed;
 		}
@@ -1997,8 +1997,8 @@ class Backend_Outputter
 		    if(strpos($buffer_content, 'viper.js' ) === FALSE) {
 			$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.js');
 			$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.ui.js');
-			$this->addJsInclude(sq_web_path('data').'/ees/Plus/Libs/Viper/viper.js');
-			$this->addCssInclude(sq_web_path('data').'/ees/Plus/Libs/Viper/viper.css');
+			$this->addJsInclude(sq_web_path('data').'/ees/Viper/viper.js');
+			$this->addCssInclude(sq_web_path('data').'/ees/Viper/viper.css');
 			$this->addCssInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.css');
 			$this->addJsInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.js');
 		    }
