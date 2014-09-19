@@ -379,17 +379,18 @@ function fix_db($root_node, $tables, $rollback)
 	$sql = "SELECT attrid FROM sq_ast_attr WHERE type IN ('".implode("','", $serialsed_attrs)."')";
 	$serialise_attrids = array_keys(MatrixDAL::executeSqlGrouped($sql));
 
-	if ($root_node == 1) {
-		// Run script system wide. Get the asset list from "ast" table directly
-		$sql = "SELECT DISTINCT assetid FROM ".($rollback ? 'sq_rb_' : 'sq_')."ast";
-		$target_assetids = array_keys(MatrixDAL::executeSqlGrouped($sql));
-	} else {
+	if ($root_node != 1) {
+		// Get the targetted asset list
 		$target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
 		// Since we include the root node, target assetids will always contain atleast one asset id
 		array_unshift($target_assetids, $root_node);
+		echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
+	
+		// Go through 50 assets at a time. Applicable to asset specific tables only
+	    $chunks = array_chunk($target_assetids, 50);
+		$chunks_count = count($chunks);
 	}
 
-	echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
 
 	$errors_count = 0;
 	$warnings_count = 0;
@@ -400,10 +401,6 @@ function fix_db($root_node, $tables, $rollback)
 	$affected_assetids = Array();
 
 	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-
-	// Go through 50 assets at a time. Applicable to asset specific tables only
-    $chunks = array_chunk($target_assetids, 50);
-	$chunks_count = count($chunks);
 
 	// Counter to count the number of records accessed/processed
 	$count = 0;
@@ -444,6 +441,16 @@ function fix_db($root_node, $tables, $rollback)
 		if ($asste_specific_table && !in_array('assetid', $select_fields)) {
 			$select_fields[] = 'assetid';
 		}
+		
+		if ($root_node == 1 && $asste_specific_table) {
+			// When running system wide, get the asset list from the respective db table
+			$sql = "SELECT DISTINCT assetid FROM ".$table;
+			$target_assetids = array_keys(MatrixDAL::executeSqlGrouped($sql));
+
+			// Go through 50 assets at a time. Applicable to asset specific tables only
+	    	$chunks = array_chunk($target_assetids, 50);
+			$chunks_count = count($chunks);
+		}
 
 		echo "\nChecking ".$table." .";
 
@@ -456,7 +463,6 @@ function fix_db($root_node, $tables, $rollback)
 
 				// In the last chunk include all the assetids that does not exist in ast table
 				if (($chunk_index == ($chunks_count-1)) && $table != 'sq_ast' && $table != 'sq_rb_ast') {
-					$sql .= ' OR assetid NOT IN (SELECT DISTINCT assetid FROM '.(!$rollback ? 'sq_ast' : 'sq_rb_ast').')';		
 				}
 			} else if ($table == 'sq_internal_msg') {
 				// Special case for non-asset specific records for 'interal_msg' table
