@@ -123,7 +123,7 @@ class Image extends File implements Bridge
 				}
 			}
 		}//end if attributes|all
-		
+
 		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		return parent::cloneComponents($clone, $components, $override);
@@ -467,7 +467,7 @@ class Image extends File implements Bridge
 		if (strpos($varietyid, ':') !== FALSE) {
 			list($assetid, $varietyid) = explode(':', $varietyid, 2);
 			if ($assetid != $this->id) {
-				trigger_localised_error('CORE088', E_USER_WARNING);
+				trigger_localised_error('CORE0088', E_USER_WARNING);
 				return FALSE;
 			}
 		}

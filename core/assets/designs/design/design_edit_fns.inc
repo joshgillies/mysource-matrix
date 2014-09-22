@@ -199,7 +199,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			} else {
 				// attempt to add the parse file to the repository
 				if (!$fv->add($asset->data_path_suffix, $parse_file, '')) {
-					trigger_localised_error('CORE1057', E_USER_WARNING);
+					trigger_localised_error('CORE0157', E_USER_WARNING);
 				}
 			}
 		}//end if file uploaded
@@ -1464,7 +1464,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				} else {
 					// attempt to add the parse file to the repository
 					if (!$fv->add($asset->data_path_suffix, $current_parse_file, '')) {
-						trigger_localised_error('CORE1057', E_USER_WARNING);
+						trigger_localised_error('CORE0157', E_USER_WARNING);
 					}
 				}
 

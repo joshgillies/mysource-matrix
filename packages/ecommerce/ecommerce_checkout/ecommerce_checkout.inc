@@ -915,7 +915,7 @@ class Ecommerce_Checkout extends Page
 											);
 								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 								if (!$mm->setMetadata($assetid, $metadata) || !$mm->generateContentFile($assetid)) {
-									trigger_localised_error('ECOM024', E_USER_WARNING, $assetid);
+									trigger_localised_error('ECOM0024', E_USER_WARNING, $assetid);
 									$this->print_context = 'failure';
 								}
 								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -940,7 +940,7 @@ class Ecommerce_Checkout extends Page
 								$asset->setAttrValue($quantity_attribute, $new_quantity);
 								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 								if (!$asset->saveAttributes()) {
-									trigger_localised_error('ECOM024', E_USER_WARNING, $assetid);
+									trigger_localised_error('ECOM0024', E_USER_WARNING, $assetid);
 									$this->print_context = 'failure';
 								}
 								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();

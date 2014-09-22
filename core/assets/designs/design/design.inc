@@ -68,7 +68,7 @@ class Design extends Design_Area
 		$parse_file = $this->data_path.'/parse.txt';
 		touch($parse_file);
 		if (!$fv->add($this->data_path_suffix, $parse_file, '')) {
-			trigger_localised_error('CORE1057', E_USER_WARNING);
+			trigger_localised_error('CORE0157', E_USER_WARNING);
 		}
 		if (!$fv->checkOut($this->data_path_suffix.'/parse.txt', $this->data_path)) {
 			trigger_localised_error('CORE0158', E_USER_WARNING);
@@ -135,7 +135,7 @@ class Design extends Design_Area
 
 				// attempt to add the parse file to the repository
 				if (!$fv->add($clone->data_path_suffix, $clone_parse, '')) {
-					trigger_localised_error('CORE1057', E_USER_WARNING);
+					trigger_localised_error('CORE0157', E_USER_WARNING);
 				}
 
 				// make sure we have the latest version of our file
@@ -432,7 +432,7 @@ class Design extends Design_Area
 					if ($link['minorid'] == $delete_link['minorid']) {
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_localised_error('CORE1065', E_USER_WARNING);
+							trigger_localised_error('CORE0165', E_USER_WARNING);
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1371,7 +1371,7 @@ echo '/*
 		$query = MatrixDAL::preparePdoQuery($sql);
 		MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 		MatrixDAL::execPdoQuery($query);
-		
+
 
 		if (!parent::delete($release_lock, $check_locked)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

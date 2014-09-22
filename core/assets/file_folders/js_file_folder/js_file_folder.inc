@@ -251,7 +251,7 @@ class Js_File_Folder extends File_Folder
 				}
 
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path)) {
-					trigger_localised_error('COR0103', E_USER_WARNING);
+					trigger_localised_error('CORE0103', E_USER_WARNING);
 					$success = FALSE;
 					continue;
 				}

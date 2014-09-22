@@ -352,7 +352,7 @@ class Image_Variety extends Asset
 					$up_to_date = $fv->upToDate($d_new_file);
 					if ($up_to_date & FUDGE_FV_OLD_VERSION) {
 						if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-							trigger_localised_error('COR0103', E_USER_WARNING);
+							trigger_localised_error('CORE0103', E_USER_WARNING);
 							return FALSE;
 						}
 					}
@@ -373,7 +373,7 @@ class Image_Variety extends Asset
 					$fv->add($this->data_path_suffix, $d_new_file, '');
 
 					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-						trigger_localised_error('COR0103', E_USER_WARNING);
+						trigger_localised_error('CORE0103', E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -478,7 +478,7 @@ class Image_Variety extends Asset
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
-					trigger_localised_error('COR0103', E_USER_WARNING);
+					trigger_localised_error('CORE0103', E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -486,7 +486,7 @@ class Image_Variety extends Asset
 			// need to make sure our file is in the NOT in the public data directory
 			if (is_file($unrestricted)) {
 				if (!$fv->clearOut($unrestricted) & FUDGE_FV_OK) {
-					trigger_localised_error('COR0104', E_USER_WARNING);
+					trigger_localised_error('CORE0104', E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -513,7 +513,7 @@ class Image_Variety extends Asset
 		if (is_file($unrestricted)) {
 			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			if (!$fv->clearOut($unrestricted) & FUDGE_FV_OK) {
-				trigger_localised_error('COR0104', E_USER_WARNING);
+				trigger_localised_error('CORE0104', E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -548,7 +548,7 @@ class Image_Variety extends Asset
 		// if there is no current file or if the current file is out of date, check out a fresh copy
 		if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 			if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
-				trigger_localised_error('COR0103', E_USER_WARNING);
+				trigger_localised_error('CORE0103', E_USER_WARNING);
 				return FALSE;
 			}
 		}

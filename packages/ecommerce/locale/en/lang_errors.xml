@@ -34,6 +34,7 @@
 	<error code="ECOM0012">Invalid quantity entered</error>
 	<error code="ECOM0014">Ecommerce Order can not be created without products</error>
 	<error code="ECOM0017">Ecommerce Checkout Bodycopy Folder is missing</error>
+	<error code="ECOM0018">Unable to create Ecommerce Order</error>
 	<error code="ECOM0019">Ecommerce Order can not create Notice link to Product</error>
 	<error code="ECOM0020">Ecommerce Order can not be created without processing data</error>
 	<error code="ECOM0021">Ecommerce Order creation failed during saving attributes</error>

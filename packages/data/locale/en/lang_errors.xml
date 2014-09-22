@@ -25,5 +25,4 @@
 	<error code="DATA0001"><![CDATA[SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s]]></error>
 	<error code="DATA0005">Cannot create LDAP Bridge asset for LDAP datasoruce asset</error>
 	<error code="DATA0006">Cannot acquire locks on datasource's LDAP bridge asset #%1$s</error>
-	<error code="DATA0007">Specified string "%1$s" is not a valid regular expression</error>
 </errors>

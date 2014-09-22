@@ -24,9 +24,6 @@
 		<!-- packages/cms/form/form/popups/thank_you_keywords.php:32: -->
 		<!-- packages/cms/form/form/popups/page_contents_keywords.php:32: -->
 
-	<error code="CMS0003">Comparison size exceeds maximum file upload limit of %s, setting to this maximum</error>
-		<!-- packages/cms/form/form_question_rule_types/form_question_rule_type_file_size/form_question_rule_type_file_size_edit_fns.inc:122: -->
-
 	<error code="CMS0004">You do not have permission to save the attributes of "%1$s" (Id: #%2$s)</error>
 		<!-- packages/cms/form/form_question/form_question.inc:166: -->
 
@@ -226,13 +223,13 @@
 
 	<!-- remote content -->
 	<error code="CMS0111">You cannot include or redirect to one of your own urls.</error>
-	
+
 	<error code="CMS0112">Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access.</error>
 	<!-- packages/cms/page_templates/page_online_quiz/page_online_quiz.inc:loadQuestionPagination() -->
-		
+
 	<error code="CMS0113">Not enough questions in the pool for pool root node (Id: #%s).</error>
 	<!-- packages/cms/page_templates/page_online_quiz/page_online_quiz_edit_fns.inc:processQuestionPoolSetup() -->
-	
+
 	<!-- Decision Tree -->
 	<error code="CMS0114">The Points Value field must be numeric for Answer Destinations.</error>
 	<error code="CMS0115">Min and Max values must be numeric for the bodycopy points range.</error>
@@ -245,5 +242,5 @@
 	<error code="CMS0120">Cannot find form asset to get the submission log from</error>
 	<error code="CMS0121">Submission log "start" date not configured</error>
 	<error code="CMS0122">To schedule a job you must specify the date at which the logs should be sent</error>
-	
+
 </errors>

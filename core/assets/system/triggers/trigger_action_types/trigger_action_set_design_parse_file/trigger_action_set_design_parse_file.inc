@@ -116,7 +116,7 @@ class Trigger_Action_Set_Design_Parse_File extends Trigger_Action
 			} else {
 				// attempt to add the parse file to the repository
 				if (!$fv->add($asset->data_path_suffix, $parse_file, '')) {
-					trigger_localised_error('CORE1057', E_USER_WARNING);
+					trigger_localised_error('CORE0157', E_USER_WARNING);
 				}
 			}
 		}//end if file uploaded

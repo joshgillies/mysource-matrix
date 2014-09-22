@@ -257,6 +257,12 @@
 	<error code="HIPO0092">Unable to run HIPO job; this job requires a bundle asset ID</error>
 		<!-- core/hipo/jobs/hipo_job_edit_bundled_assets_status.inc: -->
 
+	<error code="HIPO0093">Unable to run HIPO job; the passed bundle asset ID (#%s) does not exist</error>
+		<!-- core/hipo/jobs/hipo_job_edit_bundled_assets_status.inc: -->
+
+	<error code="HIPO0094">Unable to run HIPO job; the passed bundle asset ID (#%s) is not a Workflow Bundle asset</error>
+		<!-- core/hipo/jobs/hipo_job_edit_bundled_assets_status.inc: -->
+
 	<!-- CRON MANAGER -->
 
 	<error code="CRON0001">"%s" is not an asset type that inherits from "cron_job"</error>
@@ -1905,4 +1911,16 @@ Full Node Contents :
 
 	<!-- XSL Transformation Errors -->
 	<error code="XSL0001">XSL Module is not installed. Feature is not available</error>
+
+	<!-- Data Source errors taken from Data package -->
+	<error code="DATA0007">Specified string "%1$s" is not a valid regular expression</error>
+
+    <!-- Form Question errors taken from CMS package -->
+	<error code="CMS0003">Comparison size exceeds maximum file upload limit of %s, setting to this maximum</error>
+		<!-- packages/cms/form/form_question_rule_types/form_question_rule_type_file_size/form_question_rule_type_file_size_edit_fns.inc:122: -->
+
+	<!-- Export Asset from XML Tool -->
+	<error code="EXP0001">Could not compress the exported file for download. System Exit Status Code %1$d</error>
+	<error code="EXP0002">Invalid filesize detected</error>
+	<error code="EXP0003">Can not acquire lock of Import Tools Manager. Probably someone else is doing export right now.</error>
 </errors>

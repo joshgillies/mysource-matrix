@@ -27,13 +27,8 @@
 	<!-- Import Assets from XML Tool -->
 	<error code="IMP0002">No file selected to use</error>
 	<error code="IMP0003">Provided Assetid is not for a valid Asset</error>
-	
+
 	<!-- Import Assets from XML Tool -->
 	<error code="HIPO0095">No file selected to use</error>
 	<error code="HIPO0096">Provided Assetid is not for a valid Asset</error>
-
-	<!-- Export Asset from XML Tool -->
-	<error code="EXP0001">Could not compress the exported file for download. System Exit Status Code %1$d</error>
-	<error code="EXP0002">Invalid filesize detected</error>
-	<error code="EXP0003">Can not acquire lock of Import Tools Manager. Probably someone else is doing export right now.</error>
 </errors>
