@@ -1,5 +1,0 @@
-<errors>
-	<error code="DATA0002">Failed updating the cache for graph image</error>
-	<error code="DATA0003">Failed reading "%s" image into string</error>
-	<error code="DATA0004">Failed removing "%s" from data directory</error>
-</errors>
