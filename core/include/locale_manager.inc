@@ -535,54 +535,6 @@ class Locale_Manager extends MySource_Object
 
 
 	/**
-	* fetches an error translation for the current locale
-	*
-	* @param string	$code	the error code
-	*
-	* @return void
-	* @access public
-	*/
-	public function getErrorMessage($code)
-	{
-		$locale = $this->getCurrentLocale();
-
-		// if second parameter is an array, use that as our list of params
-		// otherwise, everything after 1st param is our list of params that we
-		// will pump into the error, sprintf() style
-		if (func_num_args() == 1) {
-			$func_args = Array();
-		} else if (!is_array($func_args = func_get_arg(1))) {
-			$func_args = func_get_args();
-			$func_args = array_slice($func_args,1);
-		}
-
-		$valid_code = TRUE;
-		if (!isset($this->_errors[$locale])) {
-			$valid_code = FALSE;
-		}
-
-		if (!isset($this->_errors[$locale][$code])) {
-			$valid_code = FALSE;
-		}
-
-		// do not dump array data here
-		foreach ($func_args as $index => $arg) {
-		    if(!is_scalar($arg)) {
-			$func_args[$index] = '';
-		    }
-		}
-		if ($valid_code) {
-			$error_msg = vsprintf($this->_errors[$locale][$code], $func_args).' ['.$code.']';
-		} else {
-			$error_msg = 'Error text not found for this code and locale ['.$code.']';
-		}
-
-		return $error_msg;
-
-	}//end getErrorMessage()
-
-
-	/**
 	* fetches an internal message subject translation for the current locale
 	*
 	* @param string	$type		the internal message type

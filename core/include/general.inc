@@ -1499,24 +1499,6 @@ function translate($string)
 
 
 /**
-* Provides a 'shorthand' interface to the Locale Manager's getErrorMessage() method
-* for the current locale
-*
-* @param string	$code	the error code (eg. SYS0013)
-*
-* @return string
-* @access public
-*/
-function translate_error($code)
-{
-	$args = array_slice(func_get_args(),1);
-	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
-	return $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $args);
-
-}//end translate_error()
-
-
-/**
 * Provides a 'shorthand' interface to the Locale Manager's raiseError() method
 * (for the current locale)
 *

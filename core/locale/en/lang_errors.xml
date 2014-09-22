@@ -624,13 +624,7 @@
 
 	<!-- ASSET MAP ERRORS -->
 
-	<error code="AMAP0001">Could not process command: %1$s
-%2$s</error>
-	<error code="AMAP0002">No action was defined, or the root node is not "command"</error>
 	<error code="AMAP0003">Action "%s" not defined</error>
-	<error code="AMAP0004">Could not load asset #%1$s (%2$s)</error>
-	<error code="AMAP0005">Could not load child assets for assetid #%1$s (%2$s)</error>
-	<error code="AMAP0006">No assets were returned for loading</error>
 	<error code="AMAP0007">Parent Asset Id, Relative Position and Asset Type need to be passed</error>
 	<error code="AMAP0008">Parent Asset #%s not found</error>
 	<error code="AMAP0009">Unable to Add Asset, new parent (Asset #%s) is in the trash</error>

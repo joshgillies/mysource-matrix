@@ -620,7 +620,14 @@ class Metadata_Manager extends MySource_Object
 			$metadata = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			// SYS0338 = Unable to get current metadata values due to DB error
-			throw new Exception(translate_error('SYS0338', $asset->id, $contextid, $e->getMessage()));
+			throw new Exception(
+			    sprintf(
+			        translate('Cannot get default value of metadata field ID #%1$s in context ID #%2$s, DB error while getting: "%3$s"'),
+			        $asset->id,
+			        $contextid,
+			        $e->getMessage()
+			    ).' [SYS0338]'
+			);
 		}//end try catch
 
 		return $metadata;
@@ -672,7 +679,13 @@ class Metadata_Manager extends MySource_Object
 			}
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
-			throw new Exception(translate_error('SYS0342', $assetid, $e->getMessage()));
+			throw new Exception(
+			    sprintf(
+			        translate('Cannot clean up metadata values of asset ID #%1$s, DB error while deleting: "%2$s"'),
+			        $assetid,
+			        $e->getMessage()
+			    ).' [SYS0342]'
+			);
 		}
 
 
@@ -1049,7 +1062,15 @@ class Metadata_Manager extends MySource_Object
 				}
 			} catch (Exception $e) {
 				// SYS0341 = Unable to revert fields to default due to DB error on delete
-				throw new Exception(translate_error('SYS0341', implode(', ', $delete_fieldids), $asset->id, $contextid, $e->getMessage()));
+                throw new Exception(
+				    sprintf(
+                        translate('Cannot revert metadata fields (%1$s) to default for asset ID #%2$s in context #%3$s, DB error while deleting current values: "%4$s"'),
+                        implode(', ', $delete_fieldids),
+                        $asset->id,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0341]'
+			    );
 			}//end try catch
 		}
 
@@ -1068,7 +1089,14 @@ class Metadata_Manager extends MySource_Object
                 $updates = MatrixDAL::executePdoAll($query);
             } catch (Exception $e) {
                 // SYS0338 = Unable to get current values due to DB error
-                throw new Exception(translate_error('SYS0338', $asset->id, $contextid, $e->getMessage()));
+                throw new Exception(
+                    sprintf(
+                        translate('Cannot get default value of metadata field ID #%1$s in context ID #%2$s, DB error while getting: "%3$s"'),
+                        $asset->id,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0338]'
+                );
             }
 
             // Group the existing contexted entries by contextid
@@ -1105,7 +1133,15 @@ class Metadata_Manager extends MySource_Object
 							$bind_vars['contextid'] = NULL;
 							$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
 						} catch (Exception $e) {
-							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+							throw new Exception(
+                                sprintf(
+                                    translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                    $fieldid,
+                                    $metadata[$fieldid][0]['value'],
+                                    $asset->id,
+                                    $contextid
+                                ).' [SYS0339]'
+                            );
 						}
 
 						// insert values of non-contextable for all contexts
@@ -1115,7 +1151,15 @@ class Metadata_Manager extends MySource_Object
 							$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 						} catch (Exception $e) {
 							// SYS0339 = Cannot set new value of metadata due to DB error
-							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+							throw new Exception(
+                                sprintf(
+                                    translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                    $fieldid,
+                                    $metadata[$fieldid][0]['value'],
+                                    $asset->id,
+                                    $contextid
+                                ).' [SYS0339]'
+                            );
 						}//end try catch
 					} else {
 						// insert values to this context
@@ -1125,7 +1169,15 @@ class Metadata_Manager extends MySource_Object
 							$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 						} catch (Exception $e) {
 							// SYS0339 = Cannot set new value of metadata due to DB error
-							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+							throw new Exception(
+                                sprintf(
+                                    translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                    $fieldid,
+                                    $metadata[$fieldid][0]['value'],
+                                    $asset->id,
+                                    $contextid
+                                ).' [SYS0339]'
+                            );
 						}
 
 						// Also copy the default context values to other contexts which are using default context values
@@ -1143,7 +1195,15 @@ class Metadata_Manager extends MySource_Object
 										$bind_vars['contextid'] = $ctxid;
 										$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
 									} catch (Exception $e) {
-										throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+										throw new Exception(
+                                            sprintf(
+                                                translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                                $fieldid,
+                                                $metadata[$fieldid][0]['value'],
+                                                $asset->id,
+                                                $contextid
+                                            ).' [SYS0339]'
+                                        );
 									}
 									$copy_entry = TRUE;
 								} else if (!isset($existing_fieldids[$ctxid][$fieldid])) {
@@ -1158,7 +1218,15 @@ class Metadata_Manager extends MySource_Object
 										$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 									} catch (Exception $e) {
 										// SYS0339 = Cannot set new value of metadata due to DB error
-										throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+										throw new Exception(
+                                            sprintf(
+                                                translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                                $fieldid,
+                                                $metadata[$fieldid][0]['value'],
+                                                $asset->id,
+                                                $contextid
+                                            ).' [SYS0339]'
+                                        );
 									}
 								}//end if
 							}//end foreach
@@ -1177,7 +1245,15 @@ class Metadata_Manager extends MySource_Object
 						$result = MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 					} catch (Exception $e) {
 						// SYS0340 = Cannot update value of metadata due to DB error
-						throw new Exception(translate_error('SYS0340', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+						throw new Exception(
+                            sprintf(
+                                translate('Cannot update metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while updating: "%5$s"'),
+                                $fieldid,
+                                $metadata[$fieldid][0]['value'],
+                                $asset->id,
+                                $contextid
+                            ).' [SYS0340]'
+                        );
 					}//end try catch
 
 				}//end if
@@ -2133,7 +2209,15 @@ class Metadata_Manager extends MySource_Object
 			$value = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			// Unable to get metadata interface value due to DB error
-			throw new Exception(translate_error('SYS0343', $field_assetid, $assetid, $contextid, $e->getMessage()));
+			throw new Exception(
+                sprintf(
+                    translate('Cannot get interface value of metadata field ID #%1$s for asset ID #%2$s in context ID #%3$s, DB error while getting: "%4$s"'),
+                    $field_assetid,
+                    $assetid,
+                    $contextid,
+                    $e->getMessage()
+                ).' [SYS0343]'
+            );
 		}//end try catch
 
 
@@ -2331,7 +2415,14 @@ class Metadata_Manager extends MySource_Object
 				MatrixDAL::bindValueToPdo($query, 'contextid', $contextid);
 				$default_val = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
-				throw new Exception(translate_error('SYS0335', $field_assetid, $contextid, $e->getMessage()));
+				throw new Exception(
+				    sprintf(
+                        translate('Cannot get default value of metadata field ID #%1$s in context ID #%2$s, DB error while getting: "%3$s"'),
+                        $field_assetid,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0335]'
+			    );
 			}//end try catch
 
 			$cached_defaults[$contextid][$field_assetid] = $default_val;
@@ -2408,36 +2499,62 @@ class Metadata_Manager extends MySource_Object
 			}
 		} catch (Exception $e) {
 			// "Cannot get default value of field in context, DB error"
-			throw new Exception(translate_error('SYS0336', $field_assetid, $contextid, $e->getMessage()));
+			throw new Exception(
+                sprintf(
+                    translate('Cannot set default value of metadata field ID #%1$s in context ID #%2$s, DB error while inserting new defaults: "%3$s"'),
+                    $field_assetid,
+                    $contextid,
+                    $e->getMessage()
+                ).' [SYS0336]'
+            );
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		try {
-			// does the default value exist yet, then?
-			if (is_null($row) || empty($row)) {
-				// "Cannot set default value of field in context, DB error"
-				$message = 'SYS0336';
-				$bind_vars	= Array (
-								'field_assetid'	=> $field_assetid,
-								'contextid'		=> $contextid,
-								'value'			=> $value,
-							  );
-				$value = MatrixDAL::executeQuery('core', 'setMetadataFieldDefaultValue', $bind_vars);
-			} else {
-				// "Cannot update default value of field in context, DB error"
-				$message = 'SYS0337';
-				$bind_vars	= Array (
-								'field_assetid'	=> $field_assetid,
-								'contextid'		=> $contextid,
-								'default_val'	=> $value,
-							  );
-				$value = MatrixDAL::executeQuery('core', 'updateMetadataFieldDefaultValue', $bind_vars);
-			}
-		} catch (Exception $e) {
-			throw new Exception(translate_error($message, $field_assetid, $contextid, $e->getMessage()));
-		}//end try catch
+        // does the default value exist yet, then?
+        if (is_null($row) || empty($row)) {
+            // "Cannot set default value of field in context, DB error"
+            $message = 'SYS0336';
+            $bind_vars	= Array (
+                            'field_assetid'	=> $field_assetid,
+                            'contextid'		=> $contextid,
+                            'value'			=> $value,
+                          );
+            try {
+                $value = MatrixDAL::executeQuery('core', 'setMetadataFieldDefaultValue', $bind_vars);
+            } catch (Exception $e) {
+                throw new Exception(
+                    sprintf(
+                        translate('Cannot set default value of metadata field ID #%1$s in context ID #%2$s, DB error while inserting new defaults: "%3$s"'),
+                        $field_assetid,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0336]'
+                );
+            }//end try
+        } else {
+            // "Cannot update default value of field in context, DB error"
+            $message = 'SYS0337';
+            $bind_vars	= Array (
+                            'field_assetid'	=> $field_assetid,
+                            'contextid'		=> $contextid,
+                            'default_val'	=> $value,
+                          );
+
+            try {
+                $value = MatrixDAL::executeQuery('core', 'updateMetadataFieldDefaultValue', $bind_vars);
+            } catch (Exception $e) {
+                throw new Exception(
+                    sprintf(
+                        translate('Cannot update default value of metadata field ID #%1$s in context #%2$s, DB error while updating: "%3$s"'),
+                        $field_assetid,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0337]'
+                );
+            }//end try
+        }//end if
 
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
