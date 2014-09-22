@@ -1162,8 +1162,10 @@ class Funnelback_Manager extends Asset
 	function _getCollectionTypes()
 	{
 		return Array(
-					'web'	=> translate('funnelback_collection_type_web'),
-					'meta'	=> translate('funnelback_collection_type_meta'),
+					'web'	=> translate('Web Collection'),
+
+					'meta'	=> translate('Meta Collection'),
+
 			   );
 
 	}//end _getCollectionTypes()
@@ -1645,68 +1647,130 @@ class Funnelback_Manager extends Asset
 	{
 		return Array(
 					// ''=> 'Anywhere',						// DISABLED until tested properly
-					'a'	=> sprintf(translate('fb_mclass'), 'a'),		// Author
-					'b'	=> sprintf(translate('fb_mclass'), 'b'),		// Rights
-					'c'	=> sprintf(translate('fb_mclass'), 'c'),		// Description
-					'd'	=> sprintf(translate('fb_mclass'), 'd'),		// Date
-					'e'	=> sprintf(translate('fb_mclass'), 'e'),		// Type
-					'f'	=> sprintf(translate('fb_mclass'), 'f'),		// Format
-					'g'	=> sprintf(translate('fb_mclass'), 'g'),		// Relation
-					'h'	=> sprintf(translate('fb_mclass'), 'h'),		// Outgoing Links
-					'i'	=> sprintf(translate('fb_mclass'), 'i'),		// Images
-					'j'	=> sprintf(translate('fb_mclass'), 'j'),		// Availability
-					'k'	=> sprintf(translate('fb_mclass'), 'k'),		// Anchor Text
-					'l'	=> sprintf(translate('fb_mclass'), 'l'),		// Language
-					'm'	=> sprintf(translate('fb_mclass'), 'm'),		// Mailto references
-					'n'	=> sprintf(translate('fb_mclass'), 'n'),		// Source
-					'o'	=> sprintf(translate('fb_mclass'), 'o'),		// Coverage
-					'p'	=> sprintf(translate('fb_mclass'), 'p'),		// Publisher
-					'q'	=> sprintf(translate('fb_mclass'), 'q'),		// Function
-					'r'	=> sprintf(translate('fb_mclass'), 'r'),		// Recipients
-					's'	=> sprintf(translate('fb_mclass'), 's'),		// Subject/Keywords
-					't'	=> sprintf(translate('fb_mclass'), 't'),		// Title
-					'u'	=> sprintf(translate('fb_mclass'), 'u'),		// Hostname part of URL
-					'v'	=> sprintf(translate('fb_mclass'), 'v'),		// Filename part of URL
-					'w'	=> sprintf(translate('fb_mclass'), 'w'),
-					'x'	=> sprintf(translate('fb_mclass'), 'x'),
-					'y'	=> sprintf(translate('fb_mclass'), 'y'),
-					'z'	=> sprintf(translate('fb_mclass'), 'z'),
-					'A'	=> sprintf(translate('fb_mclass'), 'A'),
-					'B'	=> sprintf(translate('fb_mclass'), 'B'),
-					'C'	=> sprintf(translate('fb_mclass'), 'C'),
-					'D'	=> sprintf(translate('fb_mclass'), 'D'),
-					'E'	=> sprintf(translate('fb_mclass'), 'E'),
-					'F'	=> sprintf(translate('fb_mclass'), 'F'),
-					'G'	=> sprintf(translate('fb_mclass'), 'G'),
-					'H'	=> sprintf(translate('fb_mclass'), 'H'),
-					'I'	=> sprintf(translate('fb_mclass'), 'I'),
-					'J'	=> sprintf(translate('fb_mclass'), 'J'),
-					'K'	=> sprintf(translate('fb_mclass'), 'K'),		// Click Data
-					'L'	=> sprintf(translate('fb_mclass'), 'L'),
-					'M'	=> sprintf(translate('fb_mclass'), 'M'),
-					'N'	=> sprintf(translate('fb_mclass'), 'N'),
-					'O'	=> sprintf(translate('fb_mclass'), 'O'),
-					'P'	=> sprintf(translate('fb_mclass'), 'P'),
-					'Q'	=> sprintf(translate('fb_mclass'), 'Q'),
-					'R'	=> sprintf(translate('fb_mclass'), 'R'),
-					'S'	=> sprintf(translate('fb_mclass'), 'S'),		// Squiz Access keys
-					'T'	=> sprintf(translate('fb_mclass'), 'T'),
-					'U'	=> sprintf(translate('fb_mclass'), 'U'),
-					'V'	=> sprintf(translate('fb_mclass'), 'V'),
-					'W'	=> sprintf(translate('fb_mclass'), 'W'),
-					'X'	=> sprintf(translate('fb_mclass'), 'X'),
-					'Y'	=> sprintf(translate('fb_mclass'), 'Y'),
-					'Z'	=> sprintf(translate('fb_mclass'), 'Z'),
-					'0'	=> sprintf(translate('fb_mclass'), '0'),
-					'1'	=> sprintf(translate('fb_mclass'), '1'),
-					'2'	=> sprintf(translate('fb_mclass'), '2'),
-					'3'	=> sprintf(translate('fb_mclass'), '3'),
-					'4'	=> sprintf(translate('fb_mclass'), '4'),
-					'5'	=> sprintf(translate('fb_mclass'), '5'),
-					'6'	=> sprintf(translate('fb_mclass'), '6'),
-					'7'	=> sprintf(translate('fb_mclass'), '7'),
-					'8'	=> sprintf(translate('fb_mclass'), '8'),
-					'9'	=> sprintf(translate('fb_mclass'), '9'),
+					'a'	=> sprintf(translate('Metadata Class %s'), 'a'),		// Author
+
+					'b'	=> sprintf(translate('Metadata Class %s'), 'b'),		// Rights
+
+					'c'	=> sprintf(translate('Metadata Class %s'), 'c'),		// Description
+
+					'd'	=> sprintf(translate('Metadata Class %s'), 'd'),		// Date
+
+					'e'	=> sprintf(translate('Metadata Class %s'), 'e'),		// Type
+
+					'f'	=> sprintf(translate('Metadata Class %s'), 'f'),		// Format
+
+					'g'	=> sprintf(translate('Metadata Class %s'), 'g'),		// Relation
+
+					'h'	=> sprintf(translate('Metadata Class %s'), 'h'),		// Outgoing Links
+
+					'i'	=> sprintf(translate('Metadata Class %s'), 'i'),		// Images
+
+					'j'	=> sprintf(translate('Metadata Class %s'), 'j'),		// Availability
+
+					'k'	=> sprintf(translate('Metadata Class %s'), 'k'),		// Anchor Text
+
+					'l'	=> sprintf(translate('Metadata Class %s'), 'l'),		// Language
+
+					'm'	=> sprintf(translate('Metadata Class %s'), 'm'),		// Mailto references
+
+					'n'	=> sprintf(translate('Metadata Class %s'), 'n'),		// Source
+
+					'o'	=> sprintf(translate('Metadata Class %s'), 'o'),		// Coverage
+
+					'p'	=> sprintf(translate('Metadata Class %s'), 'p'),		// Publisher
+
+					'q'	=> sprintf(translate('Metadata Class %s'), 'q'),		// Function
+
+					'r'	=> sprintf(translate('Metadata Class %s'), 'r'),		// Recipients
+
+					's'	=> sprintf(translate('Metadata Class %s'), 's'),		// Subject/Keywords
+
+					't'	=> sprintf(translate('Metadata Class %s'), 't'),		// Title
+
+					'u'	=> sprintf(translate('Metadata Class %s'), 'u'),		// Hostname part of URL
+
+					'v'	=> sprintf(translate('Metadata Class %s'), 'v'),		// Filename part of URL
+
+					'w'	=> sprintf(translate('Metadata Class %s'), 'w'),
+
+					'x'	=> sprintf(translate('Metadata Class %s'), 'x'),
+
+					'y'	=> sprintf(translate('Metadata Class %s'), 'y'),
+
+					'z'	=> sprintf(translate('Metadata Class %s'), 'z'),
+
+					'A'	=> sprintf(translate('Metadata Class %s'), 'A'),
+
+					'B'	=> sprintf(translate('Metadata Class %s'), 'B'),
+
+					'C'	=> sprintf(translate('Metadata Class %s'), 'C'),
+
+					'D'	=> sprintf(translate('Metadata Class %s'), 'D'),
+
+					'E'	=> sprintf(translate('Metadata Class %s'), 'E'),
+
+					'F'	=> sprintf(translate('Metadata Class %s'), 'F'),
+
+					'G'	=> sprintf(translate('Metadata Class %s'), 'G'),
+
+					'H'	=> sprintf(translate('Metadata Class %s'), 'H'),
+
+					'I'	=> sprintf(translate('Metadata Class %s'), 'I'),
+
+					'J'	=> sprintf(translate('Metadata Class %s'), 'J'),
+
+					'K'	=> sprintf(translate('Metadata Class %s'), 'K'),		// Click Data
+
+					'L'	=> sprintf(translate('Metadata Class %s'), 'L'),
+
+					'M'	=> sprintf(translate('Metadata Class %s'), 'M'),
+
+					'N'	=> sprintf(translate('Metadata Class %s'), 'N'),
+
+					'O'	=> sprintf(translate('Metadata Class %s'), 'O'),
+
+					'P'	=> sprintf(translate('Metadata Class %s'), 'P'),
+
+					'Q'	=> sprintf(translate('Metadata Class %s'), 'Q'),
+
+					'R'	=> sprintf(translate('Metadata Class %s'), 'R'),
+
+					'S'	=> sprintf(translate('Metadata Class %s'), 'S'),		// Squiz Access keys
+
+					'T'	=> sprintf(translate('Metadata Class %s'), 'T'),
+
+					'U'	=> sprintf(translate('Metadata Class %s'), 'U'),
+
+					'V'	=> sprintf(translate('Metadata Class %s'), 'V'),
+
+					'W'	=> sprintf(translate('Metadata Class %s'), 'W'),
+
+					'X'	=> sprintf(translate('Metadata Class %s'), 'X'),
+
+					'Y'	=> sprintf(translate('Metadata Class %s'), 'Y'),
+
+					'Z'	=> sprintf(translate('Metadata Class %s'), 'Z'),
+
+					'0'	=> sprintf(translate('Metadata Class %s'), '0'),
+
+					'1'	=> sprintf(translate('Metadata Class %s'), '1'),
+
+					'2'	=> sprintf(translate('Metadata Class %s'), '2'),
+
+					'3'	=> sprintf(translate('Metadata Class %s'), '3'),
+
+					'4'	=> sprintf(translate('Metadata Class %s'), '4'),
+
+					'5'	=> sprintf(translate('Metadata Class %s'), '5'),
+
+					'6'	=> sprintf(translate('Metadata Class %s'), '6'),
+
+					'7'	=> sprintf(translate('Metadata Class %s'), '7'),
+
+					'8'	=> sprintf(translate('Metadata Class %s'), '8'),
+
+					'9'	=> sprintf(translate('Metadata Class %s'), '9'),
+
 			   );
 
 	}//end getMetadataAliases()

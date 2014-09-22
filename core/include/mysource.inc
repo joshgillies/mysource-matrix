@@ -549,7 +549,9 @@ class MySource extends MySource_Object
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 
 			if ($require_password_change) {
-				$this->paintPasswordChange(translate('change_password'), translate('must_change_password_to_access_backend'));
+				$this->paintPasswordChange(translate('Change Password'), translate('You need to change your password before you can access the backend'));
+
+
 				exit();
 			}
 
@@ -587,11 +589,15 @@ class MySource extends MySource_Object
 					$backend->paint();
 				ob_end_flush();
 			} else {
-				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
+				$this->paintLogin(translate('Login'), translate('You need to login before you can access the backend'));
+
+
 			}
 
 		} else if (SQ_IN_LOGIN) {
-			$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
+			$this->paintLogin(translate('Login'), translate('You need to login before you can access the backend'));
+
+
 
 		} else {
 			// we are on the frontend
@@ -643,7 +649,9 @@ class MySource extends MySource_Object
 
 			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
 				$page_name = '"'.$asset->name.'"';
-				$this->paintPasswordChange(translate('change_password'), sprintf(translate('must_change_password_to_access_asset'), $page_name));
+				$this->paintPasswordChange(translate('Change Password'), sprintf(translate('You need to change your password before you can access <%s>'), $page_name));
+
+
 				exit();
 			}
 
@@ -755,7 +763,9 @@ class MySource extends MySource_Object
 			// In _performance view mode
 			if (SQ_IN_PERFORMANCE) {
 				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || !$asset->writeAccess()) {
-					$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
+					$this->paintLogin(translate('Login'), translate('You need to login before you can access the backend'));
+
+
 				} else {
 					$this->pm->printFrames($asset);
 				}
@@ -1601,16 +1611,21 @@ class MySource extends MySource_Object
 						}
 					}
 
-					$display_message = $failure_reason = translate('user_not_found');
+					$display_message = $failure_reason = translate('Invalid username or password entered');
+
 					if (!is_null($user_status)) {
 						if ($disallowed_user) {
-							$display_message = $failure_reason = translate('user_password_login_disallowed');
+							$display_message = $failure_reason = translate('User asset is not allowed to login via standard username and password. Only an external login system such as SAML or Oauth2 can authenticate this user.');
+
 						} else if ($login_username === 'root') {
-							$display_message = $failure_reason = translate('root_user_disabled');
+							$display_message = $failure_reason = translate('Root User account is disabled in this system');
+
 						} else if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
-							$failure_reason = translate('user_status_not_live');
+							$failure_reason = translate('User asset status not live');
+
 						} else {
-							$failure_reason = translate('user_asset_in_trash');
+							$failure_reason = translate('User asset is in trash');
+
 						}
 					}
 
@@ -1621,7 +1636,8 @@ class MySource extends MySource_Object
 				} else {
 
 					// incorrect login key
-					$this->addMessage(translate('login_key_incorrect'));
+					$this->addMessage(translate('Login Key incorrect'));
+
 				}
 
 				// deliberately don't have a break here so if the
@@ -2023,7 +2039,8 @@ class MySource extends MySource_Object
 			// Try each auth system in order to see if we can load a user asset
 			$secondary_user = NULL;
 			$user_status = NULL;
-			$failure_reason = translate('user_not_found');
+			$failure_reason = translate('Invalid username or password entered');
+
 
 			foreach ($auth_systems as $systemid) {
 				$system = $this->am->getAsset($systemid);
@@ -2036,7 +2053,8 @@ class MySource extends MySource_Object
 					// are certain that we are logging back in to the correct account type
 					if ($resuming_session && ($secondary_user->id != $resuming_user_id_match)) {
 						// No go
-						$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('user_switching_access_denied')), TRUE);
+						$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('User cannot be accessed when user switching')), TRUE);
+
 						return FALSE;
 					}
 
@@ -2079,7 +2097,8 @@ class MySource extends MySource_Object
 								// Ok all is good - login as the user we are after
 								return $this->loginUser($secondary_user, $old_user->name, TRUE);
 							} else {
-								$failure_reason = translate('user_switching_access_denied');
+								$failure_reason = translate('User cannot be accessed when user switching');
+
 								$user_status = NULL;
 							}
 
@@ -2092,13 +2111,16 @@ class MySource extends MySource_Object
 
 			if (!is_null($user_status)) {
 				if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
-					$failure_reason = translate('user_status_not_live');
+					$failure_reason = translate('User asset status not live');
+
 				} else {
-					$failure_reason = translate('user_asset_in_trash');
+					$failure_reason = translate('User asset is in trash');
+
 				}
 			}
 
-			$this->addMessage(translate('user_not_found'));
+			$this->addMessage(translate('Invalid username or password entered'));
+
 
 			// Log failed attempt
 			$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => $failure_reason), TRUE);
@@ -3919,7 +3941,8 @@ class MySource extends MySource_Object
 		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, TRUE);
 		$time_string .= (strpos($time_string, 'ago') !== FALSE) ? ')' : ' ago)';
 
-		$warning_message = sprintf(translate('rollback_mode_warning_message'), $time_string);
+		$warning_message = sprintf(translate('The system is as it appeared on <strong>%s</strong>.<br />While viewing in rollback mode you cannot make any changes to the system.'), $time_string);
+
 		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
 		if (!empty($_GET['assetid'])) {
 			$exit_url .= '&assetid='.$_GET['assetid'].'&am_section=edit_asset&asset_ei_screen='.array_get_index($_GET, 'asset_ei_screen', 'details');
@@ -3930,13 +3953,16 @@ class MySource extends MySource_Object
 			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo translate('in_rollback_mode'); ?>
+						<?php echo translate('You are currently viewing the system in ROLLBACK MODE'); ?>
+
 					</th>
 					<th style="text-align:right;">
 						<a href="#" onclick="window.top.location='<?php echo $exit_url; ?>'; return false;" >
 							<?php
-								echo translate('exit_rollback_mode').' ';
-								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('exit_rollback_view'), NULL);
+								echo translate('Exit Rollback Mode').' ';
+
+								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('Exit Rollback View'), NULL);
+
 							?>
 						</a>
 					</th>
@@ -4703,7 +4729,9 @@ class MySource extends MySource_Object
 			<table class="sq-backend-table sq-backend-warning-table <?php echo SQ_MAINTENANCE_MODE == '2' ? 'sq-maintenance-enabled' : 'sq-maintenance-notify'; ?>">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo SQ_MAINTENANCE_MODE == '2' ? translate('maintenance_mode_enabled') : translate('maintenance_mode_notify'); ?>
+						<?php echo SQ_MAINTENANCE_MODE == '2' ? translate('Maintenance Mode Enabled') : translate('Maintenance Mode Will Soon Be Enabled'); ?>
+
+
 					</th>
 				</tr>
 				<tr>
@@ -4748,11 +4776,13 @@ class MySource extends MySource_Object
 			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo translate('asset_deprecated_header'); ?>
+						<?php echo translate('Asset Deprecated'); ?>
+
 					</th>
 				</tr>
 				<tr>
-					<td colspan="2" ><?php echo sprintf(translate('asset_deprecated_note'), ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
+					<td colspan="2" ><?php echo sprintf(translate('Asset of type "%1$s" has been deprecated since Matrix version %2$s. This type of asset won\'t be available for use in future MINOR Matrix releases. It is strongly recommended that you replace this asset with a different implementation and delete all assets of this type in your Matrix system.'), ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
+
 					</td>
 				</tr>
 			</table>

@@ -90,9 +90,11 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$conn = @$asset->connectToLdap();
 		if (is_null($conn) || is_null($conn->ptr)) {
 			// the conncection failed
-			echo '<span style="color: red"><b>'.translate('ldap_unable_to_connect').'</b></span>';
+			echo '<span style="color: red"><b>'.translate('Unable to connect').'</b></span>';
+
 		} else {
-			echo '<span style="color: green"><b>'.translate('ldap_connected').'</b></span>';
+			echo '<span style="color: green"><b>'.translate('Connected').'</b></span>';
+
 		}
 
 		return FALSE;
@@ -205,16 +207,24 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$current = $asset->attr('attributes');
 		$required = Array(
 						'user'	=> Array(
-									'uid'	=> translate('ldap_user_id'),
-									'cn'	=> translate('ldap_common_name'),
-									'fn'	=> translate('ldap_first_name'),
-									'sn'	=> translate('ldap_last_name'),
-									'email'	=> translate('ldap_email_address'),
+									'uid'	=> translate('User Id'),
+
+									'cn'	=> translate('Common Name'),
+
+									'fn'	=> translate('First Name'),
+
+									'sn'	=> translate('Last Name'),
+
+									'email'	=> translate('Email Address'),
+
 								   ),
 						'group'	=> Array(
-									'mo'	=> translate('ldap_group_membership'),
-									'gm'	=> translate('ldap_group_members_attribute'),
-									'ou'	=> translate('ldap_group_name'),
+									'mo'	=> translate('Group Membership'),
+
+									'gm'	=> translate('Group Members'),
+
+									'ou'	=> translate('Group Name'),
+
 								   ),
 					);
 
@@ -302,10 +312,14 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('ldap_attribute_name'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('ldap_common_name'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('display_question'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('ldap_use_for_sorting_question'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('LDAP Attribute Name'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Common Name'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Display?'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Use for Sorting ?'); ?></td>
+
 			</tr>
 		<?php
 
@@ -335,7 +349,8 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 					if ($write_access) {
 						check_box($prefix.'_user_attribute_fields['.$field_name.'][show]', 1, $show);
 					} else {
-						echo ($show) ? translate('yes') : '';
+						echo ($show) ? translate('Yes') : '';
+
 					}
 					?>
 				</td>
@@ -346,7 +361,8 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 							radio_button($prefix.'_sort_by', $field_name, ($field_name == $sort_by));
 						}
 					} else {
-						echo ($sort_by == $field_name) ? translate('yes') : '';
+						echo ($sort_by == $field_name) ? translate('Yes') : '';
+
 					}
 					?>
 				</td>
@@ -402,8 +418,10 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	function paintLDAPNotAvailable(&$asset, &$o, $prefix)
 	{
 		?>
-		<p class="sq-backend-warning"><strong><?php echo translate('ldap_not_available_line_1'); ?></strong></p>
-		<p><?php echo translate('ldap_not_available_line_2'); ?></p>
+		<p class="sq-backend-warning"><strong><?php echo translate('The LDAP extension has not been enabled on this PHP installation.'); ?></strong></p>
+
+		<p><?php echo translate('LDAP support needs to be compiled into/enabled in PHP, before the LDAP Bridge can work. For further information, please contact your system administrator.'); ?></p>
+
 		<?php
 		return FALSE;
 

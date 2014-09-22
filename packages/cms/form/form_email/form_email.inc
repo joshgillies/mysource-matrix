@@ -183,11 +183,13 @@ class Form_Email extends Form
 		}
 		// add form submission time
 		$now = date('d M Y g:i a', time());
-		$information .= ($html) ? '<tr><td valign="top">'.translate('cms_form_submission_time').'</td>' : translate('cms_form_submission_time').' : ';
+		$information .= ($html) ? '<tr><td valign="top">'.translate('Submission Time').'</td>' : translate('Submission Time').' : ';
+
 		$information .= ($html) ? '<td valign="top">'.$now.'</td></tr>' : $now."\n";
 		// add submission ip address
 		$ip_address = $_SERVER['REMOTE_ADDR'];
-		$information .= ($html) ? '<tr><td valign="top">'.translate('cms_form_submission_ip_address').'</td>' : translate('cms_form_submission_ip_address').' : ';
+		$information .= ($html) ? '<tr><td valign="top">'.translate('Submission IP Address').'</td>' : translate('Submission IP Address').' : ';
+
 		$information .= ($html) ? '<td valign="top">'.$ip_address.'</td></tr>' : $ip_address."\n";
 
 		$information .= ($html) ? '</table>' : '';

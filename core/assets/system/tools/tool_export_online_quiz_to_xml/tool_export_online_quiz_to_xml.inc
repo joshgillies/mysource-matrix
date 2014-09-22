@@ -80,7 +80,8 @@ class Tool_Export_Online_Quiz_To_XML extends Tool
 
     	if (!$hasLock) {
 			$o->openRaw();
-			echo (sprintf(translate('tool_export_online_quiz_to_xml_can_not_acquire_lock'), $userHasLockId));
+			echo (sprintf(translate('The locks on the Import Tools Manager are currently held by user #%s. Only one user is allowed use of this screen at a time.'), $userHasLockId));
+
 			$o->closeRaw();
 			return FALSE;
 		}
@@ -138,25 +139,33 @@ class Tool_Export_Online_Quiz_To_XML extends Tool
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
-		$o->openField(translate('tool_export_online_quiz_to_xml_root_node'));
+		$o->openField(translate('Root Node'));
+
 			asset_finder($type_code.'_root_node');
-			$o->note(translate('tool_export_online_quiz_to_xml_root_node_note'));
+			$o->note(translate('Select the Root Node to export from.'));
+
 		$o->closeField();
 
-		$o->openField(translate('tool_export_online_quiz_to_xml_type_codes'));
+		$o->openField(translate('Asset Types'));
+
 			$available_types = Array (
 									'page_standard' => 'Standard Page',
 									'page_online_quiz' => 'Online Quiz'
 									);
 			combo_box($type_code.'_type_codes', $available_types, TRUE);
-			$o->note(translate('tool_export_online_quiz_to_xml_type_codes_note'));
+			$o->note(translate('The Online Quiz export includes Online Quiz Multi-choice Questions and Online Quiz Question Groups. See the manual for details of the export format. <br />
+	Standard Pages may be additionally exported and can be configured in the section below.<br />
+	The XML will reflect the asset map hierarchy so atleast the asset name will be exported for every asset under the Root Node (excluding dependant assets).'));
+
 		$o->closeField();
 
 		if ($show_download) {
-			$o->openField(translate('download'));
+			$o->openField(translate('Download'));
+
 			$backend_url = $GLOBALS['SQ_SYSTEM']->backend->getBackendUrl();
 			$download_url = $backend_url.'&backend_section=tools&tool_type_code='.$type_code.'&download=1';
-			echo '<a href="'.$download_url.'" >'.translate('download').'</a>';
+			echo '<a href="'.$download_url.'" >'.translate('Download').'</a>';
+
 			$o->closeField();
 		}
 
@@ -237,9 +246,11 @@ class Tool_Export_Online_Quiz_To_XML extends Tool
 	*/
 	public static function paintStandardPageSettings(&$o, $type_code)
 	{
-		$o->openSection(translate('tool_export_online_quiz_to_xml_standard_page_settings'));
+		$o->openSection(translate('Standard Page Export Settings'));
 
-		$o->openField(translate('tool_export_online_quiz_to_xml_paint_method'));
+
+		$o->openField(translate('Paint Method'));
+
 		radio_button($type_code.'_paint_method', 'raw', TRUE);
 		label('Raw (no Paint Layout)', $type_code.'_page_standard_paint_method_raw');
 		echo '<br / >';
@@ -247,15 +258,19 @@ class Tool_Export_Online_Quiz_To_XML extends Tool
 		label('Using default Paint Layout (based on lookup rules)', $type_code.'_page_standard_paint_method_default_layout');
 		$o->closeField();
 
-		$o->openField(translate('tool_export_online_quiz_to_xml_start_tag'));
+		$o->openField(translate('Start Tag'));
+
 		text_box($type_code.'_start_tag', '<!-- START TAG -->');
 		$o->closeField();
 
-		$o->openField(translate('tool_export_online_quiz_to_xml_end_tag'));
+		$o->openField(translate('End Tag'));
+
 		text_box($type_code.'_end_tag', '<!-- END TAG -->');
 		$o->closeField();
 
-		$o->sectionNote(translate('tool_export_online_quiz_to_xml_standard_page_settings_note'));
+		$o->sectionNote(translate('These settings control what will be placed
+	in the contents tag for Standard Page assets. You may optionally extract the contents between the start and end tags.'));
+
 
 		$o->closeSection();
 

@@ -65,7 +65,8 @@ class Page_Custom_Form extends Page
 		$form = new Form_Email();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-		$form->setAttrValue('name', translate('cms_form_contents'));
+		$form->setAttrValue('name', translate('Form Contents'));
+
 		return $form->create($copy_link);
 
 	}//end _createAdditional()
@@ -308,9 +309,12 @@ class Page_Custom_Form extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
 		if (array_get_index($link, 'is_exclusive', FALSE)) {
-			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
-			$minor_type_code = isset($link['minor_type_code']) ? ucwords(str_replace('_', ' ', $link['minor_type_code'])) : translate('unknown_asset_type');
-			return sprintf(translate('core_cannot_delete_exclusive_link'), $major_type_code, $minor_type_code);
+			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('Unknown Asset Type');
+
+			$minor_type_code = isset($link['minor_type_code']) ? ucwords(str_replace('_', ' ', $link['minor_type_code'])) : translate('Unknown Asset Type');
+
+			return sprintf(translate('Cannot delete exclusive link between %1$s and %2$s'), $major_type_code, $minor_type_code);
+
 		}
 
 		return TRUE;

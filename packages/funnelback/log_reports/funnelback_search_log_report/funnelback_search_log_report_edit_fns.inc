@@ -807,22 +807,32 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 		<br />
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px"><?php echo translate('fnb_log_popular_queries'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fnb_log_total_queries'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fnb_log_total_results'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fnb_log_avg_results'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('lowest'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('highest'); ?></td>
+				<td class="sq-backend-table-header" style="width: 200px"><?php echo translate('Popular Search Queries'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Total Queries'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Total Results'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Average Results'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Lowest'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Highest'); ?></td>
+
 			</tr>
-			<?php echo (!empty($good) ? implode("\n", $good) : '<td class="sq-backend-table-cell" colspan="6">'.translate('fnb_log_no_successful_queries').'</td>'); ?>
+			<?php echo (!empty($good) ? implode("\n", $good) : '<td class="sq-backend-table-cell" colspan="6">'.translate('No successful queries found').'</td>'); ?>
+
 		</table>
 
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px"><?php echo translate('fnb_log_failed_queries'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fnb_log_total_failed_queries'); ?></td>
+				<td class="sq-backend-table-header" style="width: 200px"><?php echo translate('Failed Queries'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Total Failed Queries'); ?></td>
+
 			</tr>
-			<?php echo (!empty($fail) ? implode("\n", $fail) : '<td class="sq-backend-table-cell" colspan="2">'.translate('fnb_log_no_failed_queries').'</td>'); ?>
+			<?php echo (!empty($fail) ? implode("\n", $fail) : '<td class="sq-backend-table-cell" colspan="2">'.translate('No failed queries found').'</td>'); ?>
+
 		</table>
 		<br />
 		<?php
@@ -1081,10 +1091,13 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 			$report_date = strtotime(str_replace('.html', '', str_replace('report-', '', str_replace('_', '-', $report_name))));
 			if ($report_date !== FALSE) {
 				if ($report_date == $latest) {
-					$all_reports[$report_date] = translate('current');
-					$all_reports[$report_date] = sprintf(translate('fb_sch_log_report_report_item'), date('d-m-Y', $report_date));
+					$all_reports[$report_date] = translate('Current');
+
+					$all_reports[$report_date] = sprintf(translate('Report Generated %1s'), date('d-m-Y', $report_date));
+
 				} else {
-					$all_reports[$report_date] = sprintf(translate('fb_sch_log_report_report_item'), date('d-m-Y', $report_date));
+					$all_reports[$report_date] = sprintf(translate('Report Generated %1s'), date('d-m-Y', $report_date));
+
 				}//end if
 			}//end if
 		}//end foreach
@@ -1094,7 +1107,8 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 		if (!empty($all_reports)) {
 			krsort($all_reports);
 			combo_box($prefix.'_select_report', $all_reports, FALSE, $selected);
-			submit_button($prefix.'submit_report', translate('select_report'));
+			submit_button($prefix.'submit_report', translate('Select Report'));
+
 			echo '<br />';
 		}//end if
 
@@ -1114,7 +1128,8 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 		// No reports printed... show something
 		if ($printed === FALSE) {
-			echo translate('fb_sch_log_report_generate_at_next_rotation');
+			echo translate('This report has not been generated - it will be generated at the next log rotation');
+
 		}//end if
 
 	}//end paintReport()
@@ -1134,13 +1149,17 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 	{
 		$generated_user = $asset->attr('generated_user');
 		if (empty($generated_user)) {
-			echo translate('report_not_generated').'<br />';
+			echo translate('This report has not been generated').'<br />';
+
 		} else {
 			echo '<p>';
-			echo '    <b>'.translate('report_generated').'</b><br />';
-			echo '    '.translate('date').': '.$asset->attr('generated_date');
+			echo '    <b>'.translate('This report has been generated').'</b><br />';
+
+			echo '    '.translate('Date').': '.$asset->attr('generated_date');
+
 			echo '    <br />';
-			echo '    '.translate('user').': '.$asset->attr('generated_user');
+			echo '    '.translate('User').': '.$asset->attr('generated_user');
+
 			echo '</p>';
 		}
 

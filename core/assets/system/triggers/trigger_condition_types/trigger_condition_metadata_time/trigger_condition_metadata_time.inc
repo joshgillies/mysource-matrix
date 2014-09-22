@@ -79,7 +79,8 @@ class Trigger_Condition_Metadata_Time extends Trigger_Condition
 
 		// mdata field
 		ob_start();
-			echo translate('trigger_metadata_date_fieldid');
+			echo translate('Metadata Date Field with expired value:');
+
 			$fieldid = array_get_index($settings, 'trigger_metadata_date_fieldid', 0);
 			if ($write_access) {
 				asset_finder($prefix.'[trigger_metadata_date_fieldid]', $fieldid, Array('metadata_field_date' => 'D'));
@@ -111,7 +112,8 @@ class Trigger_Condition_Metadata_Time extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$settings['trigger_metadata_date_fieldid'] = empty($request_data['trigger_metadata_date_fieldid']['assetid']) ? 0 : $request_data['trigger_metadata_date_fieldid']['assetid'];

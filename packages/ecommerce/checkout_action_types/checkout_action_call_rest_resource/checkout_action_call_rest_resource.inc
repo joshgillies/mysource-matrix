@@ -199,7 +199,8 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 				text_box($prefix.'_new_param', '', 21);
 				hidden_field($prefix.'_asset_type_submitted', $current_customisation);
 				echo '&nbsp;';
-				submit_button($prefix.'_new_param_button', translate('go'), 'document.getElementById(\''.$dropdown_field.'\').value = \''.$current_customisation.'\'; main_form.submit()');
+				submit_button($prefix.'_new_param_button', translate('Go'), 'document.getElementById(\''.$dropdown_field.'\').value = \''.$current_customisation.'\'; main_form.submit()');
+
 				echo '</td></tr>';
 			}
 			?>
@@ -326,7 +327,8 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 		echo "Add Product asset type to customise: ";
 		combo_box($field_name, $asset_types_info, FALSE, $selected_type_code);
 		echo '&nbsp;';
-		submit_button($field_name.'_go', translate('go'), 'main_form.submit()');
+		submit_button($field_name.'_go', translate('Go'), 'main_form.submit()');
+
 
 	}//end _paintAssetTypeChooser()
 
@@ -475,7 +477,8 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 			</colgroup>
 			<tbody>
 				<tr>
-				<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('http_request_method'); ?></strong></p></td>
+				<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('Method'); ?></strong></p></td>
+
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 
 					// Get manually-entered "method" settings.
@@ -487,7 +490,8 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 					?></p></td>
 				</tr>
 				<tr>
-				<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('http_request_urls'); ?></strong></p></td>
+				<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('URL(s)'); ?></strong></p></td>
+
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 					if (!empty($req_settings['urls'])) {
 						foreach ($req_settings['urls'] as $url) {

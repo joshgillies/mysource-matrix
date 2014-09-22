@@ -69,7 +69,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	$selected_key = NULL;
 	$selected_based_url = '';
 	$selected_types = Array();
-	$o->openSection(translate('logged_messages'));
+	$o->openSection(translate('Logged Messages'));
+
 
 	$type_options = Array();
 	foreach ($log_types as $type) {
@@ -131,18 +132,21 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 	if (!( empty($type_options) && empty($selected_types) )) {
 
-		$o->openField(translate('log_type'));
+		$o->openField(translate('Log Type'));
+
 
 		combo_box($_combo_box_name, $type_options, TRUE, $selected_types, 10);
 		echo '&nbsp;';
 
 		$o->closeField();
 
-		$o->openField(translate('from'));
+		$o->openField(translate('From'));
+
 		$from_field->printField();
 		$o->closeField();
 
-		$o->openField(translate('to'));
+		$o->openField(translate('To'));
+
 		$to_field->printField();
 		echo "<br>";
 		// okie dont let the user confuse you with wrong dates
@@ -153,7 +157,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		$o->closeField();
 
 		$o->openField('&nbsp;');
-			normal_button($prefix.'_go', translate('view'), 'this.form.submit()');
+			normal_button($prefix.'_go', translate('View'), 'this.form.submit()');
+
 		$o->closeField();
 	}
 
@@ -226,9 +231,11 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	if (empty($all_logs) || !$invalid_dates) {
 		$o->openField('');
 			if (!( empty($type_options) && empty($selected_base_url) )) {
-				echo '<strong>'.sprintf(translate('no_logged_messages'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
+				echo '<strong>'.sprintf(translate('There are no logged messages of this type for "%s"'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
+
 			} else {
-				echo '<strong>'.sprintf(translate('no_logged_messages_found'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
+				echo '<strong>'.sprintf(translate('There are no logged messages for this Asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
+
 			}
 		$o->closeField();
 	} else {
@@ -237,9 +244,12 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header" nowrap width="120"><?php echo translate('log_time'); ?></th>
-					<th class="sq-backend-table-header" nowrap width="120"><?php echo translate('logged_by'); ?></th>
-					<th class="sq-backend-table-header" width="100%"><?php echo translate('message'); ?></th>
+					<th class="sq-backend-table-header" nowrap width="120"><?php echo translate('Log Time'); ?></th>
+
+					<th class="sq-backend-table-header" nowrap width="120"><?php echo translate('Logged By'); ?></th>
+
+					<th class="sq-backend-table-header" width="100%"><?php echo translate('Message'); ?></th>
+
 				</tr>
 				<?php
 				$num_printed  = 0;
@@ -278,7 +288,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						?><span style="color: #84848F"><?php
 					}
 					?>
-					&lt;&lt; <?php echo translate('previous_page');
+					&lt;&lt; <?php echo translate('Previous Page');
+
 
 					if ($start_printing_at > 0) {
 						echo '</a>';
@@ -286,7 +297,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						echo '</span>';
 					}
 					?>
-					&nbsp;<b><?php echo sprintf(translate('page_number'), (floor($start_printing_at / $num_per_page) + 1), ceil($num_logs / $num_per_page)); ?></b>&nbsp;
+					&nbsp;<b><?php echo sprintf(translate('Page %1$s of %2$s'), (floor($start_printing_at / $num_per_page) + 1), ceil($num_logs / $num_per_page)); ?></b>&nbsp;
+
 
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_logs) {
@@ -300,7 +312,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						?><span style="color: #84848F"><?php
 					}
 
-					echo translate('next_page'); ?> &gt;&gt;
+					echo translate('Next Page'); ?> &gt;&gt;
+
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_logs) {
 						echo '</a>';

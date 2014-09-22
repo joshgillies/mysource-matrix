@@ -90,7 +90,8 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 				if (!empty($assetid)) {
 					?><li><?php echo get_asset_tag_line($assetid) ?></li><?php
 				} else {
-					echo translate('sch_folder_no_search_root');
+					echo translate('No search root has been selected. The whole system will be searched.');
+
 				}
 			}
 			?></ul><?php
@@ -153,7 +154,8 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 			text_box($prefix.'_phrase', $current, 50);
 		} else {
 			if (empty($current)) {
-				echo translate('sch_folder_no_search_phrase');
+				echo translate('No search terms have been entered. All assets will be searched.');
+
 			} else {
 				echo $current;
 			}
@@ -210,7 +212,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		$current = (isset($settings['logic'])) ? $settings['logic'] : 'and';
 
 		if ($write_access) {
-			combo_box($prefix.'_logic', Array('and' => translate('sch_folder_logic_and'), 'or' => translate('sch_folder_logic_or')), FALSE, $current);
+			combo_box($prefix.'_logic', Array('and' => translate('Results include all terms'), 'or' => translate('Results include any terms')), FALSE, $current);
+
+
 		} else {
 			echo translate('sch_folder_logic_'.$current);
 		}
@@ -278,7 +282,8 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 			combo_box($prefix.'_statuses', $options, TRUE, $current);
 		} else {
 			if (empty($current)) {
-				echo translate('no_status_selected');
+				echo translate('No statuses are selected');
+
 			} else {
 				?><ul style="margin: 1px 15px"><?php
 				foreach ($current as $status) {
@@ -354,20 +359,25 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('sch_no_asset_types_selected').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('No asset types are selected').'</p>';
+
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('type'); ?></th>
-							<th><?php echo translate('inherit_question'); ?></th>
+							<th><?php echo translate('Type'); ?></th>
+
+							<th><?php echo translate('Inherit?'); ?></th>
+
 						</tr>
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
 					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
-					$inherit_alt = $inherit ? translate('yes') : translate('no');
+					$inherit_alt = $inherit ? translate('Yes') : translate('No');
+
+
 					?>
 						<tr>
 							<td><?php echo get_asset_type_icon($type).$type_names[$type]; ?></td>

@@ -211,8 +211,10 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		if ($write_access) {
 			text_box($prefix.'[expire_time]', $expire_time, 10);
 			echo ' '.translate('seconds');
+
 		} else {
 			echo '<b>'.$expire_time.' '.translate('seconds').'</b>';
+
 		}
 		$expire_time_input = ob_get_clean();
 
@@ -240,9 +242,13 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		ob_start();
 		$secure = array_get_index($settings, 'secure', FALSE);
 		if ($write_access) {
-			combo_box($prefix.'[secure]', Array('0' => translate('no'), '1' => translate('yes')), FALSE , ($secure ? '1' : '0'));
+			combo_box($prefix.'[secure]', Array('0' => translate('No'), '1' => translate('Yes')), FALSE , ($secure ? '1' : '0'));
+
+
 		} else {
-			echo '<b>'.($secure ? translate('yes') : translate('no')).'</b>';
+			echo '<b>'.($secure ? translate('Yes') : translate('No')).'</b>';
+
+
 		}
 		$secure_input = ob_get_clean();
 
@@ -250,9 +256,13 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		ob_start();
 		$http_only = array_get_index($settings, 'http_only', FALSE);
 		if ($write_access) {
-			combo_box($prefix.'[http_only]', Array('0' => translate('no'), '1' => translate('yes')), FALSE , ($http_only ? '1' : '0'));
+			combo_box($prefix.'[http_only]', Array('0' => translate('No'), '1' => translate('Yes')), FALSE , ($http_only ? '1' : '0'));
+
+
 		} else {
-			echo '<b>'.($http_only ? translate('yes') : translate('no')).'</b>';
+			echo '<b>'.($http_only ? translate('Yes') : translate('No')).'</b>';
+
+
 		}
 		$http_only_input = ob_get_clean();
 
@@ -271,13 +281,25 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		$parameter_map_input = ob_get_clean();
 
 		$output = '<table class="sq-backend-table with-bottom-margin">';
-		$output .= '<tr><th>'.translate('trigger_action_set_cookie_name').'</th><td>'.$name_input.'</td></tr>';
-		$output .= '<tr><th>'.translate('trigger_action_set_cookie_value').'</th><td>'.$value_input.'</td></tr>';
-		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_expire_time_label').'</th><td><span class="sq-inline-fields-wrapper">'.$expire_time_input.'</span><br/>'.translate('trigger_action_set_cookie_expire_time_note').'</td></tr>';
-		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_path_label').'</th><td>'.$path_input.'<br/>'.translate('trigger_action_set_cookie_path_note').'</td></tr>';
-		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_domain_label').'</th><td>'.$domain_input.'<br/>'.translate('trigger_action_set_cookie_domain_note').'</td></tr>';
-		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_secure_label').'</th><td>'.$secure_input.'<br/>'.translate('trigger_action_set_cookie_secure_note').'</td></tr>';
-		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_http_only_label').'</th><td>'.$http_only_input.'<br/>'.translate('trigger_action_set_cookie_http_only_note').'</td></tr>';
+		$output .= '<tr><th>'.translate('Cookie name').'</th><td>'.$name_input.'</td></tr>';
+
+		$output .= '<tr><th>'.translate('Cookie value').'</th><td>'.$value_input.'</td></tr>';
+
+		$output .= '<tr><th>'.translate('Expire time').'</th><td><span class="sq-inline-fields-wrapper">'.$expire_time_input.'</span><br/>'.translate('<strong>Note:</strong> How long before the cookie will expire since this trigger is fired (the default value of 0 means the cookie expires when the client browser is closed).').'</td></tr>';
+
+
+		$output .= '<tr><th>'.translate('Path').'</th><td>'.$path_input.'<br/>'.translate('<strong>Note:</strong> An empty string will set the cookie path to the path that Matrix uses for the session cookie.').'</td></tr>';
+
+
+		$output .= '<tr><th>'.translate('Domain').'</th><td>'.$domain_input.'<br/>'.translate('<strong>Note:</strong> An empty string will set the cookie domain to the domain that Matrix uses for the session cookie.').'</td></tr>';
+
+
+		$output .= '<tr><th>'.translate('Secure?').'</th><td>'.$secure_input.'<br/>'.translate('<strong>Note:</strong> If set to Yes, the cookie will only be sent to the client when there is a secure HTTPS connection.').'</td></tr>';
+
+
+		$output .= '<tr><th>'.translate('HTTP only?').'</th><td>'.$http_only_input.'<br/>'.translate('<strong>Note:</strong> If set to Yes, the cookie will only be accessible through a HTTP protocol, but not scripting language like Javascript.').'</td></tr>';
+
+
 		$output .= '</table>';
 
 		$output .= $parameter_map_input;

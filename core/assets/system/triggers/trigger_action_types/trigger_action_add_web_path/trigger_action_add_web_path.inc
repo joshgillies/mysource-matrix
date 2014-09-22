@@ -168,32 +168,38 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		ob_start();
 
 		$web_path = array_get_index($settings, 'path', '');
-		echo translate('add_web_path').' ';
+		echo translate('Add the web path').' ';
+
 		if ($write_access) {
 			text_box($prefix.'[path]', $web_path, 40, '', false, 'style="margin-bottom: 5px;"');
 		} else {
 			echo '"<strong>'.$web_path.'</strong>"';
 		}
 		echo '<br />';
-		echo translate('trigger_add_web_path_note');
+		echo translate('<strong>Note:</strong> You can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.');
+
 		echo '<br />';
 		echo '<br />';
 		echo '<ul class="sq-checkbox-list" style="margin-bottom: 0;">';
 			echo '<li>';
 				check_box($prefix.'[remove_all]', '1', array_get_index($settings, 'remove_all', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-				echo '<label for='.$prefix.'[remove_all]'.'>'.translate('trigger_add_web_path_remove_all').'</label>';
+				echo '<label for='.$prefix.'[remove_all]'.'>'.translate('Delete all other webpaths').'</label>';
+
 			echo '</li>';
 			echo '<li>';
 				check_box($prefix.'[make_lowercase]', '1', array_get_index($settings, 'make_lowercase', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-				echo '<label for='.$prefix.'[make_lowercase]'.'>'.translate('trigger_add_web_path_make_lowercase').'</label>';
+				echo '<label for='.$prefix.'[make_lowercase]'.'>'.translate('Make the new webpath in lowercase').'</label>';
+
 			echo '</li>';
 			echo '<li>';
 				check_box($prefix.'[update_children]', '1', array_get_index($settings, 'update_children', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-				echo '<label for='.$prefix.'[update_children]'.'>'.translate('trigger_add_web_path_update_children').'</label>';
+				echo '<label for='.$prefix.'[update_children]'.'>'.translate('Update lookups for children').'</label>';
+
 			echo '</li>';
 			echo '<li>';
 				check_box($prefix.'[dont_add_remap]', '1', array_get_index($settings, 'dont_add_remap', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-				echo '<label for='.$prefix.'[dont_add_remap]'.'>'.translate('trigger_add_web_path_dont_add_remap').'</label>';
+				echo '<label for='.$prefix.'[dont_add_remap]'.'>'.translate('Don\'t add remap').'</label>';
+
 			echo '</li>';
 		echo '</ul>';
 		return ob_get_clean();
@@ -217,7 +223,8 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		$web_path = array_get_index($request_data, 'path', '');
 		$web_path = trim($web_path);
 		if ($web_path == '') {
-			return translate('web_path_not_specified');
+			return translate('Web Path not specified');
+
 		}
 		$settings['path'] = $web_path;
 		$settings['remove_all'] = array_get_index($request_data, 'remove_all', '');

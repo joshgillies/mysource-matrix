@@ -187,7 +187,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			echo ' ';
 			check_box($prefix.'[delete_link_all]', 1, $settings['delete_link_all']);
 			echo ' ';
-			label(translate('cron_fl_delete_all_existing_links_long'), $prefix.'[delete_link_all]');
+			label(translate('Delete all existing links'), $prefix.'[delete_link_all]');
+
 		$output['new_link_parent'] = ob_get_clean();
 
 		// We'll use the cron job we're going to create to print the 'when' part of the interface.
@@ -211,12 +212,14 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			echo ' attribute ';
 
 			if ($selected_type == '') {
-				echo '<b>['.translate('asset_type_not_selected').']</b';
+				echo '<b>['.translate('asset type not selected').']</b';
+
 			} else {
 				$attribute = array_get_index($settings, 'attribute', '');
 				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type);
 				if (empty($attrs)) {
-					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+					echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 				} else {
 					if ($write_access) {
 						$attr_options = Array();
@@ -228,7 +231,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 						if (count($attr_options) > 0) {
 							combo_box($prefix.'[attribute]', $attr_options, FALSE, $attribute);
 						} else {
-							echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+							echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 						}
 					} else {
 						echo '<b>'.$attribute.'</b>';

@@ -57,11 +57,13 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$attr = $asset->getAttribute('format');
 		$attr->paint($prefix.'_format', !$asset->writeAccess('attributes'));
 		ob_start();
-			?><a href="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/popups/keywords.html" onClick="var win = window.open(this.href, 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;"><?php echo translate('metadata_date_object_keys_list_link_text'); ?></a>.<?php
+			?><a href="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/popups/keywords.html" onClick="var win = window.open(this.href, 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;"><?php echo translate('View all the formatting keywords that can be used in this field'); ?></a>.<?php
+
 			$replacements_link = ob_get_contents();
 		ob_end_clean();
 
-		$o->note(sprintf(translate('metadata_date_object_keys'), $replacements_link));
+		$o->note(sprintf(translate('%s Note that you cannot use a tilde (~) to separate date fields.'), $replacements_link));
+
 
 	}//end paintDateFormat()
 
@@ -249,7 +251,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			echo $field->format();
 		}
 
-		$o->note(translate('metadata_setup_table_explanation'));
+		$o->note(translate('Note that this setup table only affects how the field looks to the metadata editor, NOT how it is displayed in META tags on the frontend.'));
+
 
 	}//end paintSetupParams()
 
@@ -311,10 +314,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
 		$select_options = Array(
-							''					=> '-- '.strtolower(translate('keywords')).' --',
-							'asset_created'		=> translate('creation_date'),
-							'asset_updated'		=> translate('last_updated_date'),
-							'asset_published'	=> translate('last_published_date'),
+							''					=> '-- '.strtolower(translate('Keywords')).' --',
+
+							'asset_created'		=> translate('Creation date'),
+
+							'asset_updated'		=> translate('Last updated date'),
+
+							'asset_published'	=> translate('Last published date'),
+
 						  );
 
 		// checking if the value is a keyword replacement
@@ -365,7 +372,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 						}
 
 						check_box($prefix.'_default', '1', $is_default, 'handleMetadataDatetimeDefaultClick(this, \''.$prefix.'\', '.$default_date_exp.', '.$default_kw_exp.')');
-						label(translate('use_default'), $prefix.'_default');
+						label(translate('Use default'), $prefix.'_default');
+
 						?>
 						<?php
 					echo '</span>';
@@ -374,7 +382,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($write_access && $print_cascade_values_option) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
-						label(translate('cascade_value'), $prefix.'_cascade_value');
+						label(translate('Cascade value'), $prefix.'_cascade_value');
+
 					echo '</span>';
 				}
 			echo '</span>';
@@ -383,25 +392,33 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				echo '<span class="sq-inline-fields-wrapper bottom-margin">';
 					$field->printField();
 				echo '</span>';
-				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 47px">-'.strtoupper(translate('or_in')).'- </b>';
+				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 47px">-'.strtoupper(translate('or in')).'- </b>';
+
 				preg_match('/([0-9]+)\s([i|h|d|w|m|y])/', $value, $matches);
 				text_box($prefix.'_duration', '0', 2, '', TRUE);
 				echo ' ';
 				$periods = Array(
 							'-'	=> '--Select One --',
 							'minutes'	=> translate('minutes'),
+
 							'hours'		=> translate('hours'),
+
 							'days'		=> translate('days'),
+
 							'weeks'		=> translate('weeks'),
+
 							'months'	=> translate('months'),
+
 							'years'		=> translate('years'),
+
 						   );
 
 				combo_box($prefix.'_period', $periods, FALSE, '-', NULL);
 				echo '<b> from now</b></span>';
 
 				if ($asset->attr('show_keywords')) {
-					echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 44px">-'.strtoupper(translate('or')).'-</b> ';
+					echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 44px">-'.strtoupper(translate('Or')).'-</b> ';
+
 					combo_box($prefix.'_repkeys', $select_options, FALSE, trim($value, '%'), 0, '');
 					echo '</span>';
 				}
@@ -421,18 +438,21 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			if ($is_default && $enable_default) {
 				echo '<span class="sq-metadata-settings-wrapper">';
 					if ($is_default) {
-						echo ' <em>('.translate('using_default_value').')</em>';
+						echo ' <em>('.translate('Using default value').')</em>';
+
 					} else{
 
 					}
 				echo '</span>';
 			}
-			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[trim($value, '%')];
+			echo '<i>'.translate('Keyword Replacement').': </i>', $select_options[trim($value, '%')];
+
 		} else {
 			if ($is_default && $enable_default) {
 				echo '<span class="sq-metadata-settings-wrapper">';
 					if ($is_default) {
-						echo ' <em>('.translate('using_default_value').')</em>';
+						echo ' <em>('.translate('Using default value').')</em>';
+
 					} else{
 
 					}

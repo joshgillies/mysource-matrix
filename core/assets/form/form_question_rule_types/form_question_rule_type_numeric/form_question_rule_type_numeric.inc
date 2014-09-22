@@ -59,8 +59,10 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_numeric_true'),
-				0	=> translate('core_form_rule_numeric_false'),
+				1	=> translate('Must be numeric'),
+
+				0	=> translate('Must NOT be numeric'),
+
 			   );
 
 	}//end getOperators()

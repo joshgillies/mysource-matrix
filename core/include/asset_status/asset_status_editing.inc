@@ -59,7 +59,8 @@ class Asset_Status_Editing extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_editing');
+		return translate('Safe Editing');
+
 
 	}//end getDescription()
 
@@ -79,7 +80,8 @@ class Asset_Status_Editing extends Asset_Status
 		if (!$this->owner->writeAccess('')) return $statii;
 
 		// any editor can cancel the safe edit
-		$statii[SQ_STATUS_LIVE] = translate('status_change_cancel_safe_edit');
+		$statii[SQ_STATUS_LIVE] = translate('Cancel Safe Edit');
+
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
@@ -101,7 +103,8 @@ class Asset_Status_Editing extends Asset_Status
 					if (empty($schemas)) {
 						// no workflow schemas applied, so any admin can make this live
 						if ($this->owner->adminAccess('')) {
-							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+							$statii[SQ_STATUS_EDITING_APPROVED] = translate('Approve');
+
 						}
 					} else {
 
@@ -151,25 +154,30 @@ class Asset_Status_Editing extends Asset_Status
 						// if some streams can be approved straight off and
 						// some must go through workflow
 						if ($wf_complete === TRUE) {
-							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+							$statii[SQ_STATUS_EDITING_APPROVED] = translate('Approve');
+
 						}
 						if ($needs_workflow === TRUE) {
-							$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+							$statii[SQ_STATUS_EDITING_APPROVAL] = translate('Apply for Approval');
+
 						}
 					}
 				} else {
 					// can't grant approval yet because owner is a independent asset with incomplete metadata
 					// but if workflow is applied we can at least start the process
 					if (!empty($schemas)) {
-					    $statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+					    $statii[SQ_STATUS_EDITING_APPROVAL] = translate('Apply for Approval');
+
 					}
 				}
 
 			} else {
 				// this asset needs to allow both statuses because it cant check metadata requirements
 				// due to it not allowing metadata
-				$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
-				$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+				$statii[SQ_STATUS_EDITING_APPROVED] = translate('Approve');
+
+				$statii[SQ_STATUS_EDITING_APPROVAL] = translate('Apply for Approval');
+
 			}
 		}//end if workflow running
 
@@ -188,7 +196,9 @@ class Asset_Status_Editing extends Asset_Status
 	{
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if ($mm->allowsMetadata($this->owner->id) && !$mm->requiredFieldsComplete($this->owner->id)) {
-			return sprintf(translate('cannot_approve_metadata_incomplete'), '<a href="'.htmlspecialchars(replace_query_string_vars(Array('asset_ei_screen' => 'metadata'))).'">'.strtolower(translate('metadata')).'</a>');
+			return sprintf(translate('This asset cannot be approved to go live because some mandatory %s fields are empty'), '<a href="'.htmlspecialchars(replace_query_string_vars(Array('asset_ei_screen' => 'Metadata'))).'">'.strtolower(translate('Metadata')).'</a>');
+
+
 		}
 		return '';
 

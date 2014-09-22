@@ -42,7 +42,8 @@ class Physical_Folder_Edit_Fns extends Asset_Edit_Fns
 		// override static screens - only display details because the others don't apply
 		$this->static_screens = Array(
 									'details'	=> Array(
-													'name'			=> translate('details'),
+													'name'			=> translate('Details'),
+
 													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'none',
 												   ),

@@ -56,8 +56,10 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	public static function getOperators()
 	{
 		$operators = Array(
-						'<='	=> translate('core_form_rule_file_size_<='),
-						'>='	=> translate('core_form_rule_file_size_>='),
+						'<='	=> translate('Must be no larger than'),
+
+						'>='	=> translate('Must be no smaller than'),
+
 					 );
 		return $operators;
 

@@ -228,8 +228,10 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$write_access = $asset->writeAccess('attributes') && $asset->writeAccess('links');
 
 		$attr = $asset->getAttribute('can_retake');
-		$attr->setEditParam('true_text', translate('yes'));
-		$attr->setEditParam('false_text', translate('no'));
+		$attr->setEditParam('true_text', translate('Yes'));
+
+		$attr->setEditParam('false_text', translate('No'));
+
 		$attr->paint($prefix.'_'.$attr->id, !$write_access);
 
 		if ($attr->value == FALSE) {
@@ -260,8 +262,10 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('edit_format') ?></th>
-				<th><?php echo translate('note') ?></th>
+				<th><?php echo translate('Edit Format') ?></th>
+
+				<th><?php echo translate('Note') ?></th>
+
 			</tr>
 			<?php
 			$bodycopies = $asset->_bodycopies;
@@ -269,16 +273,20 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			// manually print page_contents and no_results
 			unset($bodycopies['page_contents']);
 			unset($bodycopies['no_results']);
-			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('cms_listing_page_contents_desc'));
-			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('cms_listing_no_results_bodycopy_desc'));
+			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %%asset_listing%% keyword to include the list of assets on the page.'));
+
+			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('This format defines the layout of the page when the <b>Customise No Results Bodycopy</b> option is turned on, and there are no assets to list.'));
+
 
 			foreach ($bodycopies as $bodycopy_code => $bodycopy_name) {
 				$this->_paintDefaultFormatLink($asset->id, $bodycopy_code, translate('online_quiz_bodycopy_'.$bodycopy_code.'_desc'));
 			}
-			$this->_paintDefaultFormatLink($asset->id, 'user_details', translate('online_quiz_form_user_details_desc'), 'simple_form', 'details');
+			$this->_paintDefaultFormatLink($asset->id, 'user_details', translate('This form defines which questions can/must be filled out before the quiz can be taken. Note that this form will be displayed to non-logged-in users regardless of the "User Details Source" setting.'), 'simple_form', 'details');
+
 
 			$folder = $asset->getFolder('type_formats');
-			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('cms_listing_default_asset_desc'));
+			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('This is the default format for all assets in the list if they do not have a customised format for their asset type or position.'));
+
 			?>
 		</table>
 		<?php
@@ -322,7 +330,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$to = new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
 
 		$from->printField();
-		echo ' '.translate('to').' ';
+		echo ' '.translate('To').' ';
+
 		$to->printField();
 
 	}//end paintDownloadDateRange()
@@ -341,9 +350,12 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintDownloadFormat(&$asset, &$o, $prefix)
 	{
 		$options = Array(
-					''			=> '------- '.translate('please_select').' -------',
-					'csv'		=> translate('online_quiz_download_csv'),
-					'csv_nhr'	=> translate('online_quiz_download_csv_nhr'),
+					''			=> '------- '.translate('Please Select').' -------',
+
+					'csv'		=> translate('Comma Separated Values (CSV)'),
+
+					'csv_nhr'	=> translate('Comma Separated Values (CSV) - No Header Row'),
+
 				   );
 
 		echo combo_box($prefix.'_export_format', $options, FALSE, '');
@@ -373,14 +385,19 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$user_details_form_questions = $user_details_form->getQuestions();
 		$quiz_questions = $asset->getQuestions(TRUE, TRUE);
 
-		echo check_box($prefix.'_export_fields_select_all', '1', '', 'sq_set_check_all(this.form, "'.$prefix.'_export_fields[]", this.checked);').'<b>'.translate('select_all').'</b>';
+		echo check_box($prefix.'_export_fields_select_all', '1', '', 'sq_set_check_all(this.form, "'.$prefix.'_export_fields[]", this.checked);').'<b>'.translate('Select All').'</b>';
+
 		echo '<br><br>';
 
 		echo '<p><b>Submission Details</b><br>';
-		echo check_box($prefix.'_export_fields[]', '__time__', '1').translate('submission_time').'<br/>';
-		echo check_box($prefix.'_export_fields[]', '__user__', '1').translate('online_quiz_user_id').'<br/>';
-		echo check_box($prefix.'_export_fields[]', '__ipaddress__', '1').translate('online_quiz_ip_address').'<br/>';
-		echo check_box($prefix.'_export_fields[]', '__score__', '1').translate('online_quiz_score').'<br/>';
+		echo check_box($prefix.'_export_fields[]', '__time__', '1').translate('Submission Time').'<br/>';
+
+		echo check_box($prefix.'_export_fields[]', '__user__', '1').translate('User ID').'<br/>';
+
+		echo check_box($prefix.'_export_fields[]', '__ipaddress__', '1').translate('IP Address').'<br/>';
+
+		echo check_box($prefix.'_export_fields[]', '__score__', '1').translate('Score').'<br/>';
+
 		echo '</p>';
 
 
@@ -430,7 +447,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintDownloadButton(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			$o->note(translate('online_quiz_form_submission_lock_required'));
+			$o->note(translate('Please acquire the lock before exporting.'));
+
 			return FALSE;
 		}
 
@@ -443,7 +461,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		// - set export switch to 0 = "OFF" so Commit doesn't try to save a file either
 		// - return true for the event as per JS standard
 
-		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+		echo normal_button($prefix.'_export', translate('Download File'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+
 
 	}//end paintDownloadButton()
 
@@ -482,7 +501,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
 		$from->printField();
-		echo ' '.translate('to').' ';
+		echo ' '.translate('To').' ';
+
 		$to->printField();
 
 		return TRUE;
@@ -607,7 +627,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(),$num_per_page, $submission_offset);
 		if ($asset_count == 0) {
-			?><p><i><?php echo translate('online_quiz_no_submissions_during_period') ?></i></p><?php
+			?><p><i><?php echo translate('There are no submissions during the time period specified above') ?></i></p><?php
+
 		} else {
 			?><style type="text/css">
 				td.sq-form-sub {
@@ -664,9 +685,11 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			<td class="sq-form-sub-header" colspan="2"><b><?php
 				hidden_field($prefix.'_submission_offset', $submission_offset);
 				if ($submission_offset > 0) {
-					?><a title="<?php echo translate('online_quiz_submissions_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the first page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('online_quiz_cannot_go_further_back') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&lt;&lt;
@@ -678,9 +701,11 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				}
 				?> &nbsp; &nbsp; <?php
 				if ($submission_offset > 0) {
-					?><a title="<?php echo translate('online_quiz_submissions_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the previous page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('online_quiz_cannot_go_further_back') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&lt;
@@ -691,12 +716,15 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					?></span><?php
 				}
 				?>
-				&nbsp; &nbsp; <?php echo sprintf(translate('page_number'), round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
+				&nbsp; &nbsp; <?php echo sprintf(translate('Page %1$s of %2$s'), round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
+
 				<?php
 				if (($submission_offset + $num_per_page) < $asset_count) {
-					?><a title="<?php echo translate('online_quiz_submissions_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the next page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('online_quiz_cannot_go_further_forward') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&gt;
@@ -708,9 +736,11 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				}
 				?> &nbsp; &nbsp; <?php
 				if (($submission_offset + $num_per_page) < $asset_count) {
-					?><a title="<?php echo translate('online_quiz_submissions_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the last page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('online_quiz_cannot_go_further_forward') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&gt;&gt;
@@ -722,30 +752,37 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				}
 				?></b>
 			</td>
-			<td class="sq-form-sub-header" colspan="5" align="right"><?php echo sprintf(translate('online_quiz_submissions_during_period'), $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
+			<td class="sq-form-sub-header" colspan="5" align="right"><?php echo sprintf(translate('Displaying submissions <b>%1$s</b> to <b>%2$s</b>, out of <b>%3$s</b    > total submissions'), $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
+
 			</td>
 			</tr>
 			<tr>
 				<th>
-					<?php echo translate('asset_id') ?>
+					<?php echo translate('Asset ID') ?>
+
 				</th>
 				<th>
-					<?php echo translate('submission_time') ?>
+					<?php echo translate('Submission Time') ?>
+
 				</th>
 				<th>
-					<?php echo translate('user') ?>
+					<?php echo translate('User') ?>
+
 				</th>
 				<th>
-					<?php echo translate('online_quiz_score') ?>
+					<?php echo translate('Score') ?>
+
 				</th>
 				<th>
-					<input type="checkbox" name="<?php echo $prefix ?>_expand_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_expand[]', this.checked);"> <?php echo translate('expand_question') ?>
+					<input type="checkbox" name="<?php echo $prefix ?>_expand_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_expand[]', this.checked);"> <?php echo translate('Expand?') ?>
+
 				</th>
 			<?php
 			if ($write_access) {
 				?>
 				<th>
-					<input type="checkbox" name="<?php echo $prefix ?>_delete_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_delete[]', this.checked);"> <?php echo translate('delete_question') ?>
+					<input type="checkbox" name="<?php echo $prefix ?>_delete_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_delete[]', this.checked);"> <?php echo translate('Delete?') ?>
+
 				</th>
 				<?php
 			}
@@ -800,7 +837,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 							}
 						}
 						if (!$valid_user) {
-							?><i><?php echo translate('online_quiz_no_logged_in_user'); ?></i><?php
+							?><i><?php echo translate('No logged in user'); ?></i><?php
+
 						}
 						?>
 					</td>
@@ -817,7 +855,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					<?php
 				}
 				?>
-					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('view') ?></a> ]</td>
+					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('View') ?></a> ]</td>
+
 				</tr>
 				<?php
 				// display only if expanded
@@ -1032,16 +1071,20 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$export_score_field = in_array('__score__', $export_fields);
 
 		if ($export_time_field) {
-			$headers['__time__'] = translate('submission_time');
+			$headers['__time__'] = translate('Submission Time');
+
 		}
 		if ($export_user_field) {
-			$headers['__user__'] = translate('online_quiz_user_id');
+			$headers['__user__'] = translate('User ID');
+
 		}
 		if ($export_ipaddress_field) {
-			$headers['__ipaddress__'] = translate('online_quiz_ip_address');
+			$headers['__ipaddress__'] = translate('IP Address');
+
 		}
 		if ($export_score_field) {
-			$headers['__score__'] = translate('online_quiz_score');
+			$headers['__score__'] = translate('Score');
+
 		}
 
 		$sub_folder = $asset->getSubmissionsFolder();
@@ -1158,16 +1201,20 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header" >
-					<?php echo translate('online_quiz_pool_node'); ?>
+					<?php echo translate('Pool Node'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('online_quiz_pool_size'); ?>
+					<?php echo translate('Pool Size'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('online_quiz_pool_retries_per_q'); ?>
+					<?php echo translate('Retries per Question'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('online_quiz_pool_order'); ?>
+					<?php echo translate('Pool Order'); ?>
+
 				</td>
 			</tr>
 		<?php

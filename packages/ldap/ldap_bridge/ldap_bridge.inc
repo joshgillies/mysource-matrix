@@ -1740,7 +1740,8 @@ class LDAP_Bridge extends Asset implements Bridge
 			}
 		}
 		if (empty($user->name)) {
-			$user->name = translate('ldap_unknown_user');
+			$user->name = translate('Unknown LDAP User');
+
 		}
 
 		$user->name = $this->decodeString($user->name);

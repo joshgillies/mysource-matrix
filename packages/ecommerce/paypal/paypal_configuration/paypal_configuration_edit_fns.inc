@@ -68,14 +68,17 @@ class Paypal_Configuration_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if (!is_file($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('path_to_not_valid'), 'Paypal Encryption Library'); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not valid'), 'Paypal Encryption Library'); ?></span><?php
+
 		} else {
 			include_once $current_path;
 			if (!class_exists('PPCrypto')) {
-				?><br /><span class="sq-backend-warning"><?php echo translate('paypal_configuration_encryption_lib_no_required_class'); ?></span><?php
+				?><br /><span class="sq-backend-warning"><?php echo translate('The Paypal Encryption Library file does not have the required class'); ?></span><?php
+
 			} else {
 				if (!method_exists('PPCrypto', 'signAndEncrypt')) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('paypal_configuration_encryption_lib_no_required_method'); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo translate('The Paypal Encryption class PPCrypto does not contain the required method'); ?></span><?php
+
 				}
 			}
 		}//end if

@@ -114,7 +114,8 @@ function assert_not_null($value, $msg='', $silent=false, $fatal=true)
 {
 	if (is_null($value)) {
 		if (empty($msg)) {
-			$msg = translate('passed_value_was_null');
+			$msg = translate('passed value was NULL');
+
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -139,7 +140,8 @@ function assert_empty($value, $msg='', $silent=false, $fatal=true)
 {
 	if (!empty($value)) {
 		if (empty($msg)) {
-			$msg = sprintf(translate('assert_not_empty'), gettype($value), $value);
+			$msg = sprintf(translate('[%1$s] "%2$s" was not EMPTY'), gettype($value), $value);
+
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -164,7 +166,8 @@ function assert_not_empty($value, $msg='', $silent=false, $fatal=true)
 {
 	if (empty($value)) {
 		if (empty($msg)) {
-			$msg = sprintf(translate('assert_empty'), gettype($value), $value);
+			$msg = sprintf(translate('[%1$s] "%2$s" was EMPTY'), gettype($value), $value);
+
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -194,7 +197,8 @@ function assert_equals($test, $expected, $msg='', $silent=false, $fatal=true)
 {
 	if ($test != $expected) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= sprintf(translate('assert_equals'), gettype($expected), $expected, gettype($test), $test);
+		$msg .= sprintf(translate('expected [%1$s] "%2$s" but got [%3$s] "%4$s"'), gettype($expected), $expected, gettype($test), $test);
+
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -218,7 +222,8 @@ function assert_equals($test, $expected, $msg='', $silent=false, $fatal=true)
 function assert_not_equals($value1, $value2, $msg='', $silent=false, $fatal=true)
 {
 	if ($value1 == $value2) {
-		if (empty($msg)) $msg = translate('assert_not_equal');
+		if (empty($msg)) $msg = translate('expected not equal values but values were EQUAL');
+
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -250,7 +255,8 @@ function assert_array_contains($test, $expected, $msg='', $silent=false, $fatal=
 	$diff = array_diff($expected, $test);
 	if (!empty($diff)) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= sprintf(translate('assert_contains'), print_r($expected,true), print_r($test,true));
+		$msg .= sprintf(translate('expected %1$s but got %2$s'), print_r($expected,true), print_r($test,true));
+
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -280,7 +286,8 @@ function assert_array_equals($test, $expected, $msg='', $silent=false, $fatal=tr
 {
 	if ($test != $expected) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= sprintf(translate('assert_contains'), print_r($expected,true), print_r($test,true));
+		$msg .= sprintf(translate('expected %1$s but got %2$s'), print_r($expected,true), print_r($test,true));
+
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -307,7 +314,8 @@ function assert_array_equals($test, $expected, $msg='', $silent=false, $fatal=tr
 function assert_isset($test, $msg='', $silent=false, $fatal=true)
 {
 	if (!isset($test)) {
-		if (empty($msg)) $msg = translate('assert_isset');
+		if (empty($msg)) $msg = translate('expected value was NOT SET');
+
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -339,7 +347,8 @@ function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=
 
 	if (!isset($test[$index])) {
 		if (empty($msg)) {
-			$msg = sprintf(translate('assert_isset_array'), $index);
+			$msg = sprintf(translate('expected array index %s was NOT SET'), $index);
+
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -365,7 +374,8 @@ function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 {
 	if (!($obj instanceof $class)) {
 		if (empty($msg)) {
-			$msg = sprintf(translate('assert_object'), strtoupper($class));
+			$msg = sprintf(translate('passed object was not of type %s'), strtoupper($class));
+
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -391,7 +401,8 @@ function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 {
 	if (strtolower(gettype($obj)) != strtolower($type)) {
 		if (empty($msg)) {
-			$msg = sprintf(translate('assert_type'), gettype($obj), $obj, strtoupper($type));
+			$msg = sprintf(translate('[%1$s] "%2$s" was not of type %3$s'), gettype($obj), $obj, strtoupper($type));
+
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
@@ -475,7 +486,8 @@ function assert_valid_assetid($assetids, $msg='', $silent=false, $fatal=true)
 
 	if (!$valid) {
 		if (empty($msg)) {
-			$msg = sprintf(translate('assert_assetid'), gettype($current_id), htmlspecialchars($current_id));
+			$msg = sprintf(translate('[%1$s] "%2$s" is not a valid asset ID'), gettype($current_id), htmlspecialchars($current_id));
+
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;

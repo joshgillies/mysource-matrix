@@ -195,21 +195,28 @@ class HIPO_Config extends Config
 		$write_access = $this->writeAccess();
 		$class = get_class_lower($this);
 
-		$o->openSection(translate('hipo_server_configuration'));
+		$o->openSection(translate('HIPO Server Configuration'));
+
 
 			// writing out standard fields, which are not specific to any single job
-			$o->openField(translate('run_on_squiz_server'));
+			$o->openField(translate('Run on Squiz Server'));
+
 			echo '<span class="sq-inline-fields-wrapper">';
 				if ($write_access) {
-					combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_HIPO_USE_SERVER);
+					combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_HIPO_USE_SERVER);
+
+
 				} else {
-					echo (SQ_HIPO_USE_SERVER) ? translate('yes') : translate('no');
+					echo (SQ_HIPO_USE_SERVER) ? translate('Yes') : translate('No');
+
+
 				}
 			echo '</span>';
 			$o->closeField();
 
 			// server check threshold config entry
-			$o->openField(translate('hipo_status_check_threshold'));
+			$o->openField(translate('Squiz Server Status Check Threshold'));
+
 			echo '<span class="sq-inline-fields-wrapper">';
 				if ($write_access) {
 					text_box($class.'[SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD]', SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD, 1);
@@ -218,12 +225,15 @@ class HIPO_Config extends Config
 					echo SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD;
 				}
 				echo translate('seconds');
-				$o->note(translate('hipo_status_check_threshold_note'));
+
+				$o->note(translate('Seconds to wait before querying the server as to the job\'s status.'));
+
 			echo '</span>';
 			$o->closeField();
 
 			// total threshold HIPO config entry
-			$o->openField(translate('hipo_freestyle_threashold'));
+			$o->openField(translate('Freestyle threshold'));
+
 			echo '<span class="sq-inline-fields-wrapper">';
 				if ($write_access) {
 					text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 1);
@@ -232,7 +242,9 @@ class HIPO_Config extends Config
 					echo SQ_HIPO_TOTAL_THRESHOLD;
 				}
 				echo translate('percent');
-				$o->note(translate('hipo_threshold_note'));
+
+				$o->note(translate('Percent of the sum of the queued jobs\' thresholds.'));
+
 			echo '</span>';
 			$o->closeField();
 

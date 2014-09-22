@@ -128,7 +128,8 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 		}
 
 		ob_start();
-			echo translate('trigger_delete_future_status');
+			echo translate('Delete all future status Scheduled Jobs that would change the asset\'s status to');
+
 			if ($write_access) {
 				combo_box($prefix.'[status]', $status_list, FALSE, $selected_status, NULL, $form_element_extras);
 			} else {

@@ -476,7 +476,8 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 							<td class="sq-backend-table-cell" style="width:118px;padding-left:15px">Type Name</td>
 							<td class="sq-backend-table-cell">Listing Root Node Options</td>
 							<?php if ($wa) { ?>
-								<td class="sq-backend-table-cell"><?php echo translate('delete_question'); ?>
+								<td class="sq-backend-table-cell"><?php echo translate('Delete?'); ?>
+
 							<?php }//end if ?>
 
 						<?php

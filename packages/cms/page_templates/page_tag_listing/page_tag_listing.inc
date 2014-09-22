@@ -298,8 +298,10 @@ class Page_Tag_Listing extends Page_Asset_Listing
 	{
 		$ret = parent::_getAdditionalSingleAssetFormatKeywords();
 
-		$ret['tag_count'] = translate('page_tag_listing_keyword_tag_count');
-		$ret['tag_size'] = translate('page_tag_listing_keyword_tag_size');
+		$ret['tag_count'] = translate('Number of assets tagged with this term');
+
+		$ret['tag_size'] = translate('Size of this tag in a cloud');
+
 
 		return $ret;
 

@@ -75,17 +75,23 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 		$posts = $ipb->getListOfPosts(0, $tmp[1], 10);
 
 		if (empty($posts)) {
-			$o->openField(translate('list_of_recent_posts'));
-				echo translate('no_post_in_forum');
+			$o->openField(translate('List of Recent Posts'));
+
+				echo translate('Currently there is no posts in IPB');
+
 			$o->closeField();
 		} else {
-			$o->openField(translate('list_of_recent_posts'));
+			$o->openField(translate('List of Recent Posts'));
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th style="width: 35%"><?php echo translate('topic'); ?></th>
-						<th style="width: 45%"><?php echo translate('post'); ?></th>
-						<th style="width: 20%"><?php echo translate('author'); ?></th>
+						<th style="width: 35%"><?php echo translate('Topic'); ?></th>
+
+						<th style="width: 45%"><?php echo translate('Post'); ?></th>
+
+						<th style="width: 20%"><?php echo translate('Author'); ?></th>
+
 					</tr>
 				<?php
 				foreach ($posts as $post) {
@@ -142,15 +148,18 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 			$ipb =& $ipb_bridge->getIpbConn();
 			$result = $ipb->getMemberInfoByName($asset->attr('last_poster_name'));
 
-			$o->openField(translate('last_posted_by'));
+			$o->openField(translate('Last posted by'));
+
 				$author_tag_line = get_asset_tag_line($asset->_ipbid.':'.'u_'.$result['id']);
 				echo $author_tag_line;
 			$o->closeField();
 
 		} else {
 
-			$o->openField(translate('last_posted_by'));
-				echo translate('none');
+			$o->openField(translate('Last posted by'));
+
+				echo translate('None');
+
 			$o->closeField();
 
 		}
@@ -177,16 +186,21 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 		$root_forums = $ipb->getListOfRootForums();
 
 		if (empty($root_forums)) {
-			$o->openField(translate('list_of_root_forums'));
-				echo translate('no_forums_in_ipb');
+			$o->openField(translate('List of Root Forums'));
+
+				echo translate('Currently there is no forums in IPB');
+
 			$o->closeField();
 		} else {
-			$o->openField(translate('list_of_forums'));
+			$o->openField(translate('List of Forums'));
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th style="width: 50%"><?php echo translate('name'); ?></th>
-						<th style="width: 50%"><?php echo translate('asset'); ?></th>
+						<th style="width: 50%"><?php echo translate('Name'); ?></th>
+
+						<th style="width: 50%"><?php echo translate('Asset'); ?></th>
+
 					</tr>
 				<?php
 				foreach ($root_forums as $root_forum) {

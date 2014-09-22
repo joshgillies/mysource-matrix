@@ -55,8 +55,10 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_contain_true'),
-				0	=> translate('core_form_rule_contain_false'),
+				1	=> translate('Must contain'),
+
+				0	=> translate('Must NOT contain'),
+
 			   );
 
 	}//end getOperators()

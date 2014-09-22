@@ -94,11 +94,16 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		$asset = $this->attr('reverse_mode') ? $this->getAssetInLink('major') : $this->getAssetInLink('minor');
 		if (is_null($asset)) {
-			return translate('cron_job_asset-less_future_linking');
+			return translate('Asset-less Future Linking Scheduled Job');
+
 		} else if ($short_name) {
-			return sprintf(translate('cron_fl_for'), sprintf(translate('asset_format'), $asset->short_name, $asset->id));
+			return sprintf(translate('FL for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->short_name, $asset->id));
+
+
 		} else {
-			return sprintf(translate('cron_future_linking_for'), sprintf(translate('asset_format'), $asset->name, $asset->id));
+			return sprintf(translate('Future Linking for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->name, $asset->id));
+
+
 		}//end if
 
 	}//end _getName()
@@ -253,20 +258,24 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 
 		if (is_null($minor)) {
-			return translate('no_minor_asset_found');
+			return translate('No Minor Asset Found');
+
 		}
 
 
 		$str = '';
 
 		if ($this->attr('delete_linkid')) {
-			$str .= sprintf(translate('deleting_link_id'), $this->attr('delete_linkid'));
+			$str .= sprintf(translate('Deleting Link Id #%s'), $this->attr('delete_linkid'));
+
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 
 			if (!empty($link)) {
 				$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				if (!is_null($old_major)) {
-					$str = sprintf(translate('delete_link_for'), sprintf(translate('asset_format'), $minor->name, $minor->id), sprintf(translate('asset_format'), $old_major->name, $old_major->id));
+					$str = sprintf(translate('Delete link for %1$s under %2$s'), sprintf(translate('"%1$s" [#%2$s]'), $minor->name, $minor->id), sprintf(translate('"%1$s" [#%2$s]'), $old_major->name, $old_major->id));
+
+
 				}
 			}
 		}
@@ -278,7 +287,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 
 		if (!is_null($new_major)) {
-			$str .= sprintf(translate('create_new_link_for'), sprintf(translate('asset_format'), $minor->name, $minor->id), sprintf(translate('asset_format'), $new_major->name, $new_major->id));
+			$str .= sprintf(translate('Creating a new link for %1$s under %2$s'), sprintf(translate('"%1$s" [#%2$s]'), $minor->name, $minor->id), sprintf(translate('"%1$s" [#%2$s]'), $new_major->name, $new_major->id));
+
+
 		}
 
 		return $str;
@@ -297,19 +308,23 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		$new_minor =  $this->getAssetInLink('minor');
 
 		if(is_null($major)){
-			return translate('no_major_asset_found');
+			return translate('No Major Asset Found');
+
 		}
 
 		$str = '';
 
 		if ($this->attr('delete_linkid')) {
-			$str .= sprintf(translate('deleting_link_id'), $this->attr('delete_linkid'));
+			$str .= sprintf(translate('Deleting Link Id #%s'), $this->attr('delete_linkid'));
+
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 
 			if (!empty($link)) {
 				$old_minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (!is_null($old_minor)) {
-					$str = sprintf(translate('delete_link_for'), sprintf(translate('asset_format'), $old_minor->name, $old_minor->id), sprintf(translate('asset_format'), $major->name, $major->id));
+					$str = sprintf(translate('Delete link for %1$s under %2$s'), sprintf(translate('"%1$s" [#%2$s]'), $old_minor->name, $old_minor->id), sprintf(translate('"%1$s" [#%2$s]'), $major->name, $major->id));
+
+
 				}
 
 			}
@@ -321,7 +336,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 
 		if (!is_null($new_minor)) {
-			$str .= sprintf(translate('create_new_link_for'), sprintf(translate('asset_format'), $new_minor->name, $new_minor->id), sprintf(translate('asset_format'), $major->name, $major->id));
+			$str .= sprintf(translate('Creating a new link for %1$s under %2$s'), sprintf(translate('"%1$s" [#%2$s]'), $new_minor->name, $new_minor->id), sprintf(translate('"%1$s" [#%2$s]'), $major->name, $major->id));
+
+
 		}
 
 		return $str;

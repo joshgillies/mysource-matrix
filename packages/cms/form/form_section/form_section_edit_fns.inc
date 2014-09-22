@@ -68,7 +68,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		<script type="text/javascript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
-				  alert('<?php echo translate('cms_form_no_getelementbyid') ?>');
+				  alert('<?php echo translate('Browser cannot support script - Get Element By ID is not defined') ?>');
+
 				  return;
 			  }
 			  // move a question up a row
@@ -81,7 +82,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			  if (!nextElement) return;
 
 			  if (!currentElement.innerHTML) {
-				  alert('<?php echo translate('cms_form_no_innerhtml') ?>');
+				  alert('<?php echo translate('Browser cannot support script - Inner HTML is not defined') ?>');
+
 				  return;
 			  }
 
@@ -115,7 +117,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			function sortOrderMoveUp(currentOrder) {
 			  // move a question up a row
 			  if (!document.getElementById) {
-				  alert('<?php echo translate('cms_form_no_getelementbyid') ?>');
+				  alert('<?php echo translate('Browser cannot support script - Get Element By ID is not defined') ?>');
+
 				  return;
 			  }
 
@@ -127,7 +130,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder - 1));
 
 			  if (!currentElement.innerHTML) {
-				  alert('<?php echo translate('cms_form_no_innerhtml') ?>');
+				  alert('<?php echo translate('Browser cannot support script - Inner HTML is not defined') ?>');
+
 				  return;
 			  }
 
@@ -168,10 +172,12 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
-							<?php echo translate('question') ?>
+							<?php echo translate('Question') ?>
+
 						</td>
 						<td class="sq-backend-table-header">
-							<?php echo translate('type') ?>
+							<?php echo translate('Type') ?>
+
 						</td>
 						<?php
 						if ($admin_access) {
@@ -182,9 +188,11 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 								} else {
 									$delete_all = '';
 								}
-								echo translate('delete_question').$delete_all; ?>
+								echo translate('Delete?').$delete_all; ?>
+
 							</td>
-							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('move') ?></td>
+							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('Move') ?></td>
+
 							<?php
 						}
 						?>
@@ -381,13 +389,15 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$section_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, 'form_section', FALSE);
 
 		if (empty($section_links)) {
-			echo translate('cms_form_section_no_nested_sections');
+			echo translate('There are no Form Sections nested underneath the current asset.');
+
 		} else {
 			for (reset($section_links); NULL !== ($k = key($section_links)); next($section_links)) {
 				$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_links[$k]['minorid']);
 				echo get_asset_tag_line($s->id, 'details').'<br />';
 			}
-			$o->note(translate('cms_form_section_nested_sections_note'));
+			$o->note(translate('To re-order sections in the default display of the form, or to delete a nested section, please use the asset map. You can use the binoculars icon next to a section name to jump to its location in the asset tree.'));
+
 		}
 
 		return $write_access;
@@ -432,14 +442,18 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 
 		if ($write_access) {
 			$options = Array(
-						'1'	=> translate('yes'),
-						'0'	=> translate('no'),
+						'1'	=> translate('Yes'),
+
+						'0'	=> translate('No'),
+
 					   );
 
 			combo_box($prefix.'_use_bodycopy', $options, FALSE, Array($enabled));
 
 		} else {
-			echo $enabled ? translate('on') : translate('off');
+			echo $enabled ? translate('On') : translate('Off');
+
+
 		}
 
 		return $write_access;

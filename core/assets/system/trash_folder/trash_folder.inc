@@ -214,7 +214,8 @@ class Trash_Folder extends Folder
 	{
 		if (!$this->id) return FALSE;
 		if (!($minor instanceof Asset)) {
-			return translate('minor_not_asset');
+			return translate('Minor is not an asset');
+
 		}
 		return TRUE;
 

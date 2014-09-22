@@ -381,14 +381,22 @@ class Cron_Job extends Asset
 	public static function whenTypeName($type)
 	{
 		switch ($type) {
-			case 'ET' : return translate('every_time');
-			case 'OO' : return translate('one_off');
-			case 'HR' : return translate('hourly');
-			case 'DL' : return translate('daily');
-			case 'WK' : return translate('weekly');
-			case 'MT' : return translate('monthly');
-			case 'YR' : return translate('yearly');
-			case 'TI' : return translate('repeating');
+			case 'ET' : return translate('Every Time');
+
+			case 'OO' : return translate('One Off');
+
+			case 'HR' : return translate('Hourly');
+
+			case 'DL' : return translate('Daily');
+
+			case 'WK' : return translate('Weekly');
+
+			case 'MT' : return translate('Monthly');
+
+			case 'YR' : return translate('Yearly');
+
+			case 'TI' : return translate('Repeating');
+
 			default :
 				trigger_localised_error('CRON0005', $type, E_USER_NOTICE);
 			return '';
@@ -409,13 +417,20 @@ class Cron_Job extends Asset
 	public static function whenWeekDayName($wday)
 	{
 		switch ((int) $wday) {
-			case 0 : return translate('sunday');
-			case 1 : return translate('monday');
-			case 2 : return translate('tuesday');
-			case 3 : return translate('wednesday');
-			case 4 : return translate('thursday');
-			case 5 : return translate('friday');
-			case 6 : return translate('saturday');
+			case 0 : return translate('Sunday');
+
+			case 1 : return translate('Monday');
+
+			case 2 : return translate('Tuesday');
+
+			case 3 : return translate('Wednesday');
+
+			case 4 : return translate('Thursday');
+
+			case 5 : return translate('Friday');
+
+			case 6 : return translate('Saturday');
+
 			default :
 				trigger_localised_error('CRON0034', E_USER_NOTICE, $wday);
 				return '';
@@ -435,7 +450,8 @@ class Cron_Job extends Asset
 	public function readableWhen($inc_type=TRUE)
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
-		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('at')).' ' : '';
+		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('At')).' ' : '';
+
 		if ($when_arr['type'] != 'TI') {
 			// do not do padding for repeating time interval cron job  (TI)
 			if (intval($when_arr['minute']) < 10 && strlen($when_arr['minute']) == 1) {
@@ -445,11 +461,13 @@ class Cron_Job extends Asset
 		$when_arr['hour'] = str_replace(':', '', $when_arr['hour']);
 		switch ($when_arr['type']) {
 			case 'OO' :
-				$ret_val .= sprintf(translate('cron_run_other'), $when_arr['hour'].':'.$when_arr['minute'], ltrim($when_arr['day'], '0').' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
+				$ret_val .= sprintf(translate('%1$s on %2$s'), $when_arr['hour'].':'.$when_arr['minute'], ltrim($when_arr['day'], '0').' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
+
 			break;
 
 			case 'YR' :
-				$ret_val .= sprintf(translate('cron_run_other'), $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)));
+				$ret_val .= sprintf(translate('%1$s on %2$s'), $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)));
+
 			break;
 
 			case 'MT' :
@@ -457,7 +475,8 @@ class Cron_Job extends Asset
 			break;
 
 			case 'WK' :
-				$ret_val .= sprintf(translate('cron_run_other'), $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'s');
+				$ret_val .= sprintf(translate('%1$s on %2$s'), $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'s');
+
 			break;
 
 			case 'DL' :
@@ -465,11 +484,13 @@ class Cron_Job extends Asset
 			break;
 
 			case 'HR' :
-				$ret_val .= sprintf(translate('cron_run_hourly'), $when_arr['minute']);
+				$ret_val .= sprintf(translate('%s minutes past the hour'), $when_arr['minute']);
+
 			break;
 
 			case 'ET' :
-				$ret_val = translate('cron_run_always');
+				$ret_val = translate('Every time the Scheduled Jobs Manager runs');
+
 			break;
 
 			case 'TI' :

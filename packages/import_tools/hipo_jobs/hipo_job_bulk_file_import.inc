@@ -62,6 +62,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			echo SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -117,7 +118,8 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('file_import_tools_bulk_file_import_hipo_name');
+		return translate('Hipo Job Bulk File Import');
+
 
 	}//end getHipoName()
 
@@ -382,7 +384,8 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			$new_file->setAttrValue('allow_unrestricted', $this->_running_vars['allow_unrestricted']);
 
 			if (!$new_file->create($import_link, $temp_info)) {
-				$this->_addError(sprintf(translate('file_import_tools_hipo_can_not_create_file'), $todo['file_name'], $parent->id), TRUE);
+				$this->_addError(sprintf(translate('File Import failed to create "%s" asset under Assetid : %d'), $todo['file_name'], $parent->id), TRUE);
+
 			}
 			$this->_running_vars['server_done_counts'][] = $todo;
 
@@ -490,7 +493,8 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			}
 
 			if (!$new_file->create($import_link, $temp_info)) {
-				$this->_addError(sprintf(translate('file_import_tools_hipo_can_not_create_file'), $todo['file_name'], $parent->id), TRUE);
+				$this->_addError(sprintf(translate('File Import failed to create "%s" asset under Assetid : %d'), $todo['file_name'], $parent->id), TRUE);
+
 			}
 			$this->_running_vars['local_done_counts'][] = $todo;
 

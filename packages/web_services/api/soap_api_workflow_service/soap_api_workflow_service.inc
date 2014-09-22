@@ -449,7 +449,8 @@ class Soap_Api_Workflow_Service extends Soap_Api
 						} else if ($asset_status == SQ_STATUS_EDITING_APPROVAL) {
 							$new_status	= SQ_STATUS_EDITING_APPROVED;
 						}//end else
-                        $statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
+                        $statii[SQ_STATUS_APPROVED] = translate('Approve');
+
                     } else if (in_array($userid, $publishers)) {
 						if ($asset_status == SQ_STATUS_PENDING_APPROVAL) {
 							$new_status	= SQ_STATUS_PENDING_APPROVAL;

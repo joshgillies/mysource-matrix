@@ -73,7 +73,8 @@ class Trigger_Action_Leave_User_Group_For_Session extends Trigger_Action
 		$user_group_input = ob_get_clean();
 
 		// display both the asset chooser and the text box
-		$output = sprintf(translate('trigger_leave_user_for_session'), $user_group_input);
+		$output = sprintf(translate('<p>Temporarily remove current user from specified user groups for current session.</p>Select user groups %1$s'), $user_group_input);
+
 
 		return $output;
 

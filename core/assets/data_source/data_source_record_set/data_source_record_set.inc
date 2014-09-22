@@ -139,14 +139,21 @@ class Data_Source_Record_Set extends Asset
 			return $keywords;
 		}
 		$columns = array_keys($this->vars);
-		$keywords['asset_assetid'] = translate('record_set_id');
-		$keywords['asset_version'] = translate('record_set_version');
-		$keywords['asset_status'] = translate('record_set_status');
-		$keywords['asset_name'] = translate('record_set_name');
-		$keywords['asset_short_name'] = translate('record_set_short_name');
-		$keywords['asset_data_source_id'] = translate('data_source_id');
+		$keywords['asset_assetid'] = translate('ID of the Record Set');
 
-		$attr_string = translate('record_set_attribute');
+		$keywords['asset_version'] = translate('Version of the Record Set');
+
+		$keywords['asset_status'] = translate('Status of the Record Set');
+
+		$keywords['asset_name'] = translate('Name of the Record Set');
+
+		$keywords['asset_short_name'] = translate('Short Name of the Record Set');
+
+		$keywords['asset_data_source_id'] = translate('ID of the Data Source For The Record Set');
+
+
+		$attr_string = translate('Record Set Attribute');
+
 		foreach ($columns as $column) {
 			$keywords['data_source_record_set_'.$column] = $attr_string.' : '.$column;
 			$keywords['ds__'.$column] = $attr_string.' : '.$column;

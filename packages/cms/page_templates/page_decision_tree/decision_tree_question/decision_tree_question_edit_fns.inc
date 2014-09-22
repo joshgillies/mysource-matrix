@@ -70,10 +70,12 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
-							<?php echo translate('question'); ?>
+							<?php echo translate('Question'); ?>
+
 						</td>
 						<td class="sq-backend-table-header">
-							<?php echo translate('type'); ?>
+							<?php echo translate('Type'); ?>
+
 						</td>
 					</tr>
 				<?php

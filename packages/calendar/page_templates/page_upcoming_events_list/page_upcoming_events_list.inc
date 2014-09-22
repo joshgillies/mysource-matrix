@@ -143,7 +143,8 @@ class Page_Upcoming_Events_List extends Page
 		} else if (isset($broadcaster_parents[$this->id])) {
 			// it's the contents BC
 			$vars['keywords']['event_list'] = 'List of Events';
-			$vars['keywords']['root_nodes'] = translate('root_node');
+			$vars['keywords']['root_nodes'] = translate('Root Node');
+
 			return TRUE;
 		}
 		return FALSE;

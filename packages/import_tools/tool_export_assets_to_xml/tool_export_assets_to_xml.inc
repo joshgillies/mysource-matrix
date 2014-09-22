@@ -81,7 +81,8 @@ class Tool_Export_Assets_To_Xml extends Tool
 
 	    	if(!$hasLock) {
 			$o->openRaw();
-			echo (sprintf(translate('tool_export_assets_to_xml_can_not_acquire_lock'), $userHasLockId));
+			echo (sprintf(translate('The locks on the Import Tools Manager are currently held by user #%s Only one user is allowed use of this screen at a time.'), $userHasLockId));
+
 			$o->closeRaw();
 			return FALSE;
 
@@ -165,11 +166,13 @@ class Tool_Export_Assets_To_Xml extends Tool
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
-		$o->openField(translate('tool_export_assets_to_xml_root_node'));
+		$o->openField(translate('Root Node'));
+
 
 			asset_finder($type_code.'_root_node[0]', 0, Array('asset' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 			echo '<span id ="tool_export_assets_to_xml_mapping" style="margin-left:10px;">';
-			echo translate('tool_export_assets_to_xml_target_parent');
+			echo translate('links to target parent asset id');
+
 			text_box($type_code.'_target_parent[0]', '1', '1', '', '', 'style="margin-left:10px;"');
 			echo '</span>';
 			$map_frame_exp = trim('parent.frames["sq_sidenav"]', '.');
@@ -188,15 +191,21 @@ class Tool_Export_Assets_To_Xml extends Tool
 		}
 		</script>
 		<?php
-			echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', \'null\', true); addParentNode(this);" style="margin-left:10px;"/>';
-			$o->note(translate('tool_export_assets_to_xml_root_node_note'));
+			echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('More').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', \'null\', true); addParentNode(this);" style="margin-left:10px;"/>';
+
+			$o->note(translate('Export all assets underneath root node to target parent node. Design, permission, linking can be maintained only if all involved assets are exported together. Use More button to select multiple root nodes.
+<br/>
+<strong>Note:</strong> Export of large number of assets should be performed by sysadmin using scripts. See <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/import-scripts#export_to_xml.php" target="_blank">manual</a> for details.'));
+
 		$o->closeField();
 
 		if($show_download) {
-			$o->openField(translate('download'));
+			$o->openField(translate('Download'));
+
 			$backend_url = $GLOBALS['SQ_SYSTEM']->backend->getBackendUrl();
 			$download_url = $backend_url.'&backend_section=tools&tool_type_code='.$type_code.'&download=1';
-				echo '<a href="'.$download_url.'" >'.translate('download').'</a>';
+				echo '<a href="'.$download_url.'" >'.translate('Download').'</a>';
+
 			$o->closeField();
 		}
 

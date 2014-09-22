@@ -95,7 +95,8 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	{
 		if ($read_only) {
 			if (!$this->value) {
-				echo translate('no_asset_selected');
+				echo translate('No asset selected');
+
 			} else {
 				echo get_asset_tag_line($this->value);
 			}
@@ -158,7 +159,8 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	function validateValue(&$value)
 	{
 		if ($value) {
-			$error_msg = sprintf(translate('fail_setting_assetid'), $this->name, $this->id);
+			$error_msg = sprintf(translate('Attempted to set value of attribute "%1$s" [#%2$s] to an invalid asset ID'), $this->name, $this->id);
+
 			if (!assert_valid_assetid($value, $error_msg, TRUE, FALSE)) {
 				return FALSE;
 			}

@@ -45,7 +45,8 @@ class Report_Management extends Asset_Management
 
 		$this->vars['generated_date']['added']   = '0.1';
 		$this->vars['generated_date']['type']    = 'text';
-		$this->vars['generated_date']['default'] = '-- '.translate('never').' --';
+		$this->vars['generated_date']['default'] = '-- '.translate('Never').' --';
+
 
 		$this->vars['generated_user']['added']   = '0.1';
 		$this->vars['generated_user']['type']    = 'text';

@@ -314,7 +314,8 @@ class Limbo_Outputter extends Backend_Outputter
 			function form_on_submit()
 			{
 				if (SQ_FORM_SUBMITTED) {
-					alert(js_translate('form_already_submitted'));
+					alert(js_translate('The form has already been submitted, please wait ...'));
+
 					return;
 				}
 

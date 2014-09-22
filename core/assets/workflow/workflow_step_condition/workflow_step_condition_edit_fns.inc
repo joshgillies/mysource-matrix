@@ -81,7 +81,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			$notify = $asset->attr('notify');
 			if (!$write_access) {
-				echo ($notify) ? translate('yes') : translate('no');
+				echo ($notify) ? translate('Yes') : translate('No');
+
+
 			} else {
 				check_box($prefix.'_notify', '1', $notify);
 			}
@@ -91,7 +93,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			$require_comment = $asset->attr('require_comment');
 			if (!$write_access) {
-				echo ($require_comment) ? translate('yes') : translate('no');
+				echo ($require_comment) ? translate('Yes') : translate('No');
+
+
 			} else {
 				check_box($prefix.'_require_comment', '1', $require_comment);
 			}
@@ -134,7 +138,8 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 						text_box($prefix.'_logic_num', $cond_logic_num, 4);
 						$text_box = ob_get_contents();
 					ob_end_clean();
-					echo sprintf(translate('members_must_approve'), $text_box);
+					echo sprintf(translate('%s member(s) must approve'), $text_box);
+
 				}
 			}
 			?>

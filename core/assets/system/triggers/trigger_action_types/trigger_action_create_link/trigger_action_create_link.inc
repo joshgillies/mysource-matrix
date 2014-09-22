@@ -214,7 +214,8 @@ class Trigger_Action_Create_Link extends Trigger_Action
 				if ($selected_assetid) {
 					echo get_asset_tag_line($selected_assetid);
 				} else {
-					echo '<b>['.translate('no_parent_selected').']</b>';
+					echo '<b>['.translate('no parent selected').']</b>';
+
 				}
 			}
 
@@ -249,8 +250,10 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 		ob_start();
 			$is_dependant_list = Array(
-									0	=> translate('non_dependently'),
-									1	=> translate('dependently'),
+									0	=> translate('Non-dependently'),
+
+									1	=> translate('Dependently'),
+
 								 );
 			combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant, NULL, $form_element_extras);
 			$advanced_part_2 = ob_get_contents();
@@ -258,8 +261,10 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 		ob_start();
 			$is_exclusive_list = Array(
-									0	=> translate('non_exclusively'),
-									1	=> translate('exclusively'),
+									0	=> translate('Non-exclusively'),
+
+									1	=> translate('Exclusively'),
+
 								 );
 			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive, NULL, $form_element_extras);
 			$advanced_part_3 = ob_get_contents();
@@ -268,18 +273,23 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		ob_start();
 			if ($write_access) {
 				check_box($prefix.'[link_exclusively]', '1', $link_exclusively, '', 'id="'.$prefix.'_link_exclusively"');
-				label(translate('trigger_create_link_remove_others'), $prefix.'_link_exclusively');
+				label(translate('Unlink this asset from all its existing parents'), $prefix.'_link_exclusively');
+
 			} else {
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($link_exclusively ? 'tick' : 'cross').'.gif" />';
-				echo translate('trigger_create_link_remove_others');
+				echo translate('Unlink this asset from all its existing parents');
+
 			}
 			$advanced_part_4 = ob_get_contents();
 		ob_end_clean();
 
-		$contents = sprintf(translate('trigger_create_link_basic'), $basic_part_1, $basic_part_2, $basic_part_3).
+		$contents = sprintf(translate('Link as the %1$s of asset %2$s using a %3$s link.'), $basic_part_1, $basic_part_2, $basic_part_3).
+
 					'<br /><br />'.$basic_part_4.'<br />'.
-					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					sprintf(translate('trigger_create_link_advanced'), $advanced_part_1, $advanced_part_2, $advanced_part_3).
+					'<b>'.translate('Optional items for Advanced users').'</b><br />'.
+
+					sprintf(translate('Use the link value %1$s and link the asset %2$s and %3$s to the child/parent asset.'), $advanced_part_1, $advanced_part_2, $advanced_part_3).
+
 					'<br />'.$advanced_part_4;
 
 		return $contents;

@@ -76,7 +76,32 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content_pg_sagepay')) && $this->_createBodycopy('card_holder_verification', translate('card_holder_verification_bodycopy_content')));
+		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
+<div style="background-color: #CCC; padding: 5px"><strong>&pound;%%transaction_amount%%</strong> Pounds Sterling (GBP) are about to be debited from your card</div>
+<table cellpadding="5">
+	<tr>
+		<td align="right">Name on Card</td>
+		<td>%%card_name%%</td>
+	</tr>
+	<tr>
+		<td align="right">Card Number</td>
+		<td>%%card_number%%</td>
+	</tr>
+	<tr>
+		<td align="right">Expiry Date (MM/YY)</td>
+		<td>%%card_expiry_month%% / %%card_expiry_year%%</td>
+	</tr>
+	<tr>
+		<td align="right">Card Type</td>
+		<td>%%card_type%%</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>')) && $this->_createBodycopy('card_holder_verification', translate('%%card_holder_verification_form%%')));
+
+
 
 	}//end _createAdditional()
 
@@ -305,12 +330,14 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 					unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 				}
 
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+				$this->appendPendingOrderAuditLog(translate('Payment has no amount'));
+
 
 				$this->returnToCaller('SUCCESS');
 
 			} else if ($card_info) {
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+				$this->appendPendingOrderAuditLog(translate('Payment Attempted (gateway contacted)'));
+
 
 				$success = $this->processPayment($card_info);
 				//if success = 2, redirect to the Access Control Server (ACS) for Card Holder Verification
@@ -342,12 +369,14 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 			}
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+			$this->appendPendingOrderAuditLog(translate('Payment is successful'));
+
 
 			$this->returnToCaller('SUCCESS', $is_in_frame);
 		} else {
 			if ($card_info) {
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+				$this->appendPendingOrderAuditLog(translate('Payment Declined'));
+
 			}
 		}
 
@@ -437,7 +466,8 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 
 		//SET AMOUNT
 		if (empty($amount)) {
-			$this->_setError(translate('sagepay_amount_not_specified'));
+			$this->_setError(translate('No amount is specified for the payment'));
+
 		} else {
 			$processor->setAmount($amount, $this->attr('currency'));
 		}
@@ -457,14 +487,16 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 
 		//SET CARD NAME
 		if (empty($card_info['name'])) {
-			$this->_setError(translate('sagepay_card_name_not_specified'));
+			$this->_setError(translate('No name on card is specified for the payment'));
+
 		} else {
 			$processor->setCardName($card_info['name']);
 		}
 
 		//SET CARD NUMBER
 		if (empty($card_info['number'])) {
-			$this->_setError(translate('sagepay_card_number_not_specified'));
+			$this->_setError(translate('No card number is specified for the payment'));
+
 		} else {
 			$card_info['number'] = str_replace(Array(' ', "\t"), '', $card_info['number']);
 			$processor->setCardNumber($card_info['number']);
@@ -474,7 +506,8 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		if ($this->_isValidDate(array_get_index($card_info, 'expiry_month', ''), array_get_index($card_info, 'expiry_year', ''))) {
 			$processor->setCardExpiryDate($card_info['expiry_month'], $card_info['expiry_year']);
 		} else {
-			$this->_setError(translate('sagepay_expiry_date_invalid'));
+			$this->_setError(translate('The expiry date (MM/YY) is not valid'));
+
 		}
 
 		//SET CARD START DATE IF SPECIFIED BECAUSE START DATE IS ONLY REQUIRED FOR SOME CARD TYPES, E.G. SOLO
@@ -482,7 +515,8 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			if ($this->_isValidDate(array_get_index($card_info, 'start_month', ''), array_get_index($card_info, 'start_year', ''))) {
 				$processor->setCardStartDate($card_info['start_month'], $card_info['start_year']);
 			} else {
-				$this->_setError(translate('sagepay_start_date_invalid'));
+				$this->_setError(translate('The start date (MM/YY) is not valid'));
+
 			}
 		}
 
@@ -491,7 +525,8 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			if ($this->_isValidIssueNumber($card_info['issue_number'])) {
 				$processor->setCardIssueNumber($card_info['issue_number']);
 			} else {
-				$this->_setError(translate('sagepay_issue_number_invalid'));
+				$this->_setError(translate('The issue number is invalid (must be one or two digits long)'));
+
 			}
 		}
 
@@ -500,13 +535,15 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			if ($this->_isValidCV2($card_info['cv2'], $card_info['type'])) {
 				$processor->setCardCV2($card_info['cv2']);
 			} else {
-				$this->_setError(translate('sagepay_card_cv2_invalid'));
+				$this->_setError(translate('The card CV2 is invalid (must be three or four (only American Express Card) digits long)'));
+
 			}
 		}
 
 		//SET CARD TYPE
 		if (empty($card_info['type'])) {
-			$this->_setError(translate('sagepay_card_type_not_specified'));
+			$this->_setError(translate('No card type is specified for the payment'));
+
 		} else {
 			$processor->setCardType($card_info['type']);
 		}
@@ -690,52 +727,67 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			$processor->setAVSCV2();
 
 			if (empty($card_info['cv2'])) {
-				$this->_setError(translate('sagepay_card_cv2_not_specified'));
+				$this->_setError(translate('No CV2 is specified for the card'));
+
 			}
 
 			if ($billing_first_names == '') {
-				$this->_setError(translate('sagepay_billing_first_names_not_specified'));
+				$this->_setError(translate('No billing first names are specified'));
+
 			}
 			if ($billing_surname == '') {
-				$this->_setError(translate('sagepay_billing_surname_not_specified'));
+				$this->_setError(translate('No billing surname is specified'));
+
 			}
 			if ($billing_address1 == '') {
-				$this->_setError(translate('sagepay_billing_address1_not_specified'));
+				$this->_setError(translate('The first line of the billing address is not specified'));
+
 			}
 			if ($billing_city == '') {
-				$this->_setError(translate('sagepay_billing_city_not_specified'));
+				$this->_setError(translate('No billing city is specified'));
+
 			}
 			if ($billing_postcode == '') {
-				$this->_setError(translate('sagepay_billing_postcode_not_specified'));
+				$this->_setError(translate('No billing postcode is specified'));
+
 			}
 			if ($billing_country_code == '') {
-				$this->_setError(translate('sagepay_billing_country_not_specified'));
+				$this->_setError(translate('No billing country is specified'));
+
 			}
 			if (($billing_country_code == 'us') && ($billing_state == '')) {
-				$this->_setError(translate('sagepay_billing_state_not_specified'));
+				$this->_setError(translate('No billing state is specified for the United States address'));
+
 			}
 
 			if (!$this->attr('delivery_addr_is_billing_addr')) {
 				if ($delivery_first_names == '') {
-					$this->_setError(translate('sagepay_delivery_first_names_not_specified'));
+					$this->_setError(translate('No delivery first names are specified'));
+
 				}
 				if ($delivery_surname == '') {
-					$this->_setError(translate('sagepay_delivery_surname_not_specified'));
+					$this->_setError(translate('No delivery surname is specified'));
+
 				}
 				if ($delivery_address1 == '') {
-					$this->_setError(translate('sagepay_delivery_address1_not_specified'));
+					$this->_setError(translate('The first line of the delivery address is not specified'));
+
 				}
 				if ($delivery_city == '') {
-					$this->_setError(translate('sagepay_delivery_city_not_specified'));
+					$this->_setError(translate('No delivery city is specified'));
+
 				}
 				if ($delivery_postcode == '') {
-					$this->_setError(translate('sagepay_delivery_postcode_not_specified'));
+					$this->_setError(translate('No delivery postcode is specified'));
+
 				}
 				if ($delivery_country_code == '') {
-					$this->_setError(translate('sagepay_delivery_country_not_specified'));
+					$this->_setError(translate('No delivery country is specified'));
+
 				}
 				if (($delivery_country_code == 'us') && ($delivery_state == '')) {
-					$this->_setError(translate('sagepay_delivery_state_not_specified'));
+					$this->_setError(translate('No delivery state is specified for the United States address'));
+
 				}
 			}
 		}

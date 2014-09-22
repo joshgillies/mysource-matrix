@@ -229,7 +229,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					Soap_Common::paintSoapAuthenticationFields($prefix, $settings, $o, $write_access, FALSE, TRUE);
 				?>
 				<tr>
-					<th><?php echo translate('mute_exception'); ?></th>
+					<th><?php echo translate('Mute SOAP Exceptions'); ?></th>
+
 					<td>
 					<?php
 						$mute_exp = array_get_index($settings, 'mute_exceptions', 0);
@@ -243,7 +244,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('service_address'); ?></th>
+					<th><?php echo translate('Service Address'); ?></th>
+
 					<td><?php combo_box($prefix.'[service_address]', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address, 0, $write_access ? '' : 'disabled'); ?></td>
 				</tr>
 				<tr>
@@ -251,7 +253,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					<td><?php combo_box($prefix.'[cache_wsdl]', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type, 0, $write_access ? '' : 'disabled'); ?></td>
 				</tr>
 				<tr>
-					<th><?php echo translate('local_cert'); ?></th>
+					<th><?php echo translate('Local Certificate'); ?></th>
+
 					<td>
 					<?php
 						$local_cert = array_get_index($settings, 'local_cert', 0);
@@ -264,7 +267,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('passphrase'); ?></th>
+					<th><?php echo translate('Passphrase'); ?></th>
+
 					<td>
 					<?php
 						if ($write_access) password_box($prefix.'[passphrase]', array_get_index($settings, 'passphrase', ''), 35);
@@ -272,7 +276,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2"><?php echo translate('use_https'); ?></td>
+					<td colspan="2"><?php echo translate('For HTTPS client certificate authentication use local certificate and passphrase options.'); ?></td>
+
 				</tr>
 			</table>
 
@@ -280,7 +285,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		<div id="<?php echo $prefix ?>_test_request_response">
 			<table class="sq-backend-table" >
 				<tr>
-					<th style="width: 130px;"><?php echo translate('run_test'); ?></th>
+					<th style="width: 130px;"><?php echo translate('Run Test'); ?></th>
+
 					<td>
 					<?php
 						$run_test = array_get_index($settings, 'run_test', 0);
@@ -294,7 +300,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2"><?php echo translate('run_test_note'); ?>.</td>
+					<td colspan="2"><?php echo translate('The test will be based on the request content in the "SOAP Request Message" below'); ?>.</td>
+
 				</tr>
 			</table>
 		</div>
@@ -319,11 +326,13 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 
 		<?php if (isset($settings['actions']) && !empty($settings['actions'])) { ?>
-			<p class="sq-backend-section-subheading"><?php echo translate('request_message'); ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('SOAP Request Message'); ?></p>
+
 
 				<table class="sq-backend-table with-bottom-margin" >
 					<tr>
-						<th><?php echo translate('action');?></strong></th>
+						<th><?php echo translate('Action');?></strong></th>
+
 						<td>
 							<?php
 								$action_selected = array_get_index($settings, 'action', '');
@@ -340,7 +349,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						</td>
 					</tr>
 					<tr>
-						<th><?php echo translate('params');?></th>
+						<th><?php echo translate('Parameters');?></th>
+
 						<td>
 							<?php
 								$i = 0;
@@ -358,13 +368,15 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					<tr>
 						<td colspan="2">
 							<?php
-								echo translate('keyword_usable_note');
+								echo translate('Asset based and Globals keywords can be used. Asset based keywords will be replaced with respect to the Asset firing the Trigger.');
+
 							?>
 						</td>
 					</tr>
 				</table>
 
-			<p class="sq-backend-section-subheading"><?php echo translate('response_message'); ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('SOAP Response Message'); ?></p>
+
 
 				<table class="sq-backend-table with-bottom-margin" >
 					<tr>
@@ -380,14 +392,16 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					</tr>
 					<tr>
 						<td>
-							<?php echo translate('response_message_note'); ?>
+							<?php echo translate('Response will be stored in global session vars.They can be printed using keywords as below.'); ?>
+
 						</td>
 					</tr>
 					<tr>
 					</tr>
 				</table>
 
-				<p class="sq-backend-section-subheading"><?php echo translate('response_keywords'); ?></p>
+				<p class="sq-backend-section-subheading"><?php echo translate('Keywords Available'); ?></p>
+
 
 				<table class="sq-backend-table with-bottom-margin" >
 					<tr>
@@ -405,7 +419,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					</tr>
 				</table>
 
-			<p class="sq-backend-section-subheading"><?php echo translate('check_response')?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('Check Response')?></p>
+
 
 			<table class="sq-backend-table with-bottom-margin" >
 				<tr>
@@ -414,14 +429,18 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						$selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
 						$selected_field_names = Array();
 						if (empty($selected_fields)) {
-							echo translate('no_field_selected');
+							echo translate('No SOAP response fields selected');
+
 						} else {
 							?>
 							<table class="sq-backend-table">
 								<tr>
-									<td class="sq-backend-table-header"><?php echo translate('field_name'); ?></td>
-									<td class="sq-backend-table-header"><?php echo translate('error_text'); ?></td>
-									<td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td>
+									<td class="sq-backend-table-header"><?php echo translate('Field Name'); ?></td>
+
+									<td class="sq-backend-table-header"><?php echo translate('Error Text'); ?></td>
+
+									<td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td>
+
 								</tr>
 								<?php
 								foreach ($selected_fields as $selected_field => $error_msg) {
@@ -455,7 +474,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						}//end else
 
 						if ($write_access) {
-							echo translate('add_new_field');
+							echo translate('New field to check?');
+
 							$response_fields = Array('' => '-- Select Field --');
 							if (isset($settings['response_keywords'][$settings['action']])) {
 								$response_keywords = explode('<br/>', $settings['response_keywords'][$settings['action']]);
@@ -483,23 +503,27 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 								$treat_fatal_status = ($treating_fatal == '1') ? 'tick' : 'cross';
 								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$treat_fatal_status.'.gif" alt="" style="border: 0;" />';
 							}
-							echo translate('treat_as_fatal_note');
+							echo translate('Tick the box if the error is to be treated as Fatal, i.e. Stops the script execution. <br />NOTE :By Default the error will be treated as <i>E_USER_WARNING</i> which means the eror will be lodged but the scrit execution will continue');
+
 						?>
 						</td>
 					</tr>
 					<tr>
 						<td>
 						<?php
-							echo translate('check_response_note');
+							echo translate('If the specified field is non-empty in the SOAP respose, the step action will treat it as a regular error.');
+
 						?>
 						</td>
 					</tr>
 			</table>
 
-			<p class="sq-backend-section-subheading"><?php echo translate('response_to_download_as_file'); ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('Response to download as file'); ?></p>
+
 			<table class="sq-backend-table with-bottom-margin">
 				<tr>
-					<td><?php echo translate('field_keyword_tags'); ?></td>
+					<td><?php echo translate('Field Keyword (Tag)'); ?></td>
+
 				</tr>
 				<?php
 					$response_to_file = array_get_index($settings, $settings['action'].'_file_response_to_save', Array());
@@ -533,7 +557,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<td><?php echo translate('response_to_download_as_file_note'); ?></td>
+					<td><?php echo translate('If a file is expected in the SOAP Response, you can configure the keywords above. This will ensure the file is temporary downloaded on the server and a relative link is provided to view that file in the replacement for above keyword.'); ?></td>
+
 				</tr>
 			</table>
 		<?php

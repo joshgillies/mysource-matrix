@@ -128,7 +128,8 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 							echo get_asset_type_icon($type);
 							echo '<strong>'.$type.'</strong>';
 							if ($descendant_flags[$key]) {
-								echo '&nbsp;('.translate('or_decendant_types').')';
+								echo '&nbsp;('.translate('or descendant types').')';
+
 							}
 						echo '</li>';
 					}
@@ -139,7 +140,8 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			$interface = ob_get_contents();
 		ob_end_clean();
 
-		return sprintf(translate('trigger_asset_type'), $interface);
+		return sprintf(translate('Match any one of these types:<br />%1$s'), $interface);
+
 
 	}//end getInterface()
 
@@ -157,12 +159,14 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$asset_type = array_get_index($request_data, 'type_code', FALSE);
 		if (!$asset_type) {
-			return translate('trigger_type_code_not_supplied');
+			return translate('Asset type code has not been supplied');
+
 		}
 
 		// descendants is set to either '1' or not at all

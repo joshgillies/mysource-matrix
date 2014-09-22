@@ -117,11 +117,15 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$success = $write_access;
 
-		$o->openField(translate('cal_rolling_time_frame_time_unit'));
+		$o->openField(translate('Time Unit'));
+
 			$dt_select_contents = Array(
 									'days'		=> translate('days'),
+
 									'weeks'		=> translate('weeks'),
+
 									'months'	=> translate('months'),
+
 								  );
 			if ($write_access) {
 				?>
@@ -140,12 +144,15 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 			}
 		$o->closeField();
 
-		$o->openField(translate('cal_rolling_time_frame_from'));
+		$o->openField(translate('From'));
+
 			$success = $this->_paintDaySelect($asset, $prefix, 'duration_from') && $success;
 		$o->closeField();
-		$o->openField(translate('cal_rolling_time_frame_to'));
+		$o->openField(translate('To'));
+
 			$success = $this->_paintDaySelect($asset, $prefix, 'duration_to') && $success;
-			$o->note(translate('cal_rolling_duration_from_to_note'));
+			$o->note(translate('If \'From\' set to a value later than \'To\', the two will be reversed.'));
+
 		$o->closeField();
 
 		return $success;
@@ -260,13 +267,18 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 
 		$dt_select_contents = 	Array (
 									'days'		=> translate('days'),
+
 									'weeks'		=> translate('weeks'),
+
 									'months'	=> translate('months'),
+
 								);
 
 		$pf_select_contents = Array(
-								'duration_past'		=> translate('cal_rolling_duration_past_combo'),
-								'duration_future'	=> translate('cal_rolling_duration_future_combo'),
+								'duration_past'		=> translate('in the past'),
+
+								'duration_future'	=> translate('in the future'),
+
 							  );
 
 		// take the single attribute, break it out into a (positive) textbox value,
@@ -328,12 +340,16 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('edit_format') ?></th>
-				<th><?php echo translate('note') ?></th>
+				<th><?php echo translate('Edit Format') ?></th>
+
+				<th><?php echo translate('Note') ?></th>
+
 			</tr>
 			<?php
-			$this->_paintDefaultFormatLink($asset->id, '', translate('calendar_rolling_page_contents_desc'));
-			$this->_paintDefaultFormatLink($asset->id, 'time_unit', translate('calendar_rolling_time_formats_desc'));
+			$this->_paintDefaultFormatLink($asset->id, '', translate('This format defines the layout of the page. Ensure you use the %%event_list%% keyword to include the list of events on the page.'));
+
+			$this->_paintDefaultFormatLink($asset->id, 'time_unit', translate('This format defines the display of date/time details on this page.'));
+
 			?>
 		</table>
 		<?php
@@ -395,12 +411,15 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('asset_type') ?></th>
-					<th><?php echo translate('edit_format') ?></th>
+					<th><?php echo translate('Asset Type') ?></th>
+
+					<th><?php echo translate('Edit Format') ?></th>
+
 					<?php
 					if ($write_access) {
 						?>
-						<th><?php echo translate('delete_question') ?></th>
+						<th><?php echo translate('Delete?') ?></th>
+
 						<?php
 					}
 					?>
@@ -443,7 +462,8 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		} else {
-			echo translate('calendar_rolling_no_type_formats');
+			echo translate('There are no custom type formats defined');
+
 		}//end if cutomised formats
 
 		if ($write_access) {
@@ -453,7 +473,8 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 				$new_format_options[$type] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
 			}
 			if (count($new_format_options) > 0) {
-				echo '<p><b>'.translate('calendar_rolling_new_type_format').'</b> ';
+				echo '<p><b>'.translate('New Type Format:').'</b> ';
+
 				combo_box($prefix.'_new_type', $new_format_options, FALSE, '');
 				echo '</p>';
 			}
@@ -559,17 +580,21 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 
 		if ($write_access) {
 			$options = Array(
-						'1'	=> translate('yes'),
-						'0'	=> translate('no'),
+						'1'	=> translate('Yes'),
+
+						'0'	=> translate('No'),
+
 					   );
 
 			combo_box($prefix.'_use_bodycopy', $options, FALSE, Array($enabled));
 
 		} else {
 			if ($enabled) {
-				echo translate('yes').' - '.get_asset_tag_line($bodycopy_link['minorid'], 'contents');
+				echo translate('Yes').' - '.get_asset_tag_line($bodycopy_link['minorid'], 'contents');
+
 			} else {
-				echo translate('no');
+				echo translate('No');
+
 			}
 		}
 

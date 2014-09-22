@@ -63,7 +63,8 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 			$this->printDateChooser($prefix.'_start', $ts);
 			hidden_field($prefix.'_start_end_chooser_printed', 1);
 			?>
-			<br /><?php translate('cal_event_cancel_must_be_date'); ?>
+			<br /><?php translate('This must be a date on which the recurring event occurs'); ?>
+
 			<?php
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
@@ -111,7 +112,8 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 		if (!is_null($modified_event_asset)) {
 			echo get_asset_tag_line($modified_event_asset->id);
 		} else {
-			echo translate('cal_event_cancel_no_event_selected');
+			echo translate('No event has been selected for cancellation');
+
 		}
 
 	}//end paintRecurringEventChooser()

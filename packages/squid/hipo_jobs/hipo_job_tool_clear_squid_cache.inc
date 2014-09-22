@@ -73,7 +73,8 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	*/
 	public function getHipoName()
 	{
-		return translate('squid_hipo_name_clear_squid_cache');
+		return translate('Clear Squid Cache');
+
 
 	}//end getHipoName()
 
@@ -89,7 +90,8 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('squid_hipo_clearing_squid_cache'),
+					'name'			=> translate('Clearing Squid Cache'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processClearCache',
 									   ),
@@ -256,9 +258,13 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 							$msg->from = 0; // a system message
 
 							$command_str = $system_log_command;
-							$repopulate = ($this->_running_vars['repopulate']) ? translate('yes') : translate('no');
+							$repopulate = ($this->_running_vars['repopulate']) ? translate('Yes') : translate('No');
+
+
 							$command_str .= "\nRepopulate Cache: ".$repopulate;
-							$cascade = ($this->_running_vars['cascade']) ? translate('yes') : translate('no');
+							$cascade = ($this->_running_vars['cascade']) ? translate('Yes') : translate('No');
+
+
 							$command_str .= ', Cascade: '.$cascade;
 							$system_log_output = "Output : \n";
 							foreach ($output as $key=>$line) {
@@ -289,7 +295,8 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			}
 
 			// add this url to the done array
-			$step_data['message'] = sprintf(translate('squid_clearing_squid_cache'), $url);
+			$step_data['message'] = sprintf(translate('Clearing %s'), $url);
+
 			$this->_running_vars['done_urls'][] = $url;
 
 			// clean up

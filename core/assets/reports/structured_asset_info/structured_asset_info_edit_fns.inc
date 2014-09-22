@@ -73,20 +73,25 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('no_types_chosen').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('No types have been selected').'</p>';
+
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('type') ?></th>
-							<th><?php echo translate('inherit_question') ?></th>
+							<th><?php echo translate('Type') ?></th>
+
+							<th><?php echo translate('Inherit?') ?></th>
+
 						</tr>
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
 					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
-					$inherit_alt = $inherit ? translate('yes') : translate('no');
+					$inherit_alt = $inherit ? translate('Yes') : translate('No');
+
+
 					?>
 						<tr>
 							<td><?php echo $type_names[$type]; ?></td>
@@ -1152,7 +1157,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 					preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches);
 					$design_type     = $matches[1];
 					$design_code     = $matches[2];
-					$display_name = sprintf(translate('config_display_name'), ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
+					$display_name = sprintf(translate('%1$s Defined %2$s Design'), ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
+
 					echo $display_name.': '.$this->_printAssetTagLine($design_id)."<br>\n";
 				}
 				echo '</fieldset><br>';

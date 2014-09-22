@@ -80,7 +80,8 @@ class Trigger_Condition_Request_Method extends Trigger_Condition
 			$var = ob_get_contents();
 		ob_end_clean();
 
-		return sprintf(translate('trigger_request_method'), $var);
+		return sprintf(translate('HTTP Request Method: %s'), $var);
+
 
 	}//end getInterface()
 
@@ -97,7 +98,8 @@ class Trigger_Condition_Request_Method extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$settings['request_method'] = $request_data['request_method'];

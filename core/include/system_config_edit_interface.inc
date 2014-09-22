@@ -54,14 +54,18 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		// if we dont have access, go away
 		if (!$is_admin) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset'));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), translate('You do not have permission to access the asset'));
+
+
 			exit();
 		}
 
 		$o = $backend->out;
 
-		$o->setHeading(translate('system_configuration'), sq_get_icon($o->filesPath('/images/icons/header/system_config.png'), '', '', 'System Configuration'));
-		$o->setPageTitle(translate('system_configuration'));
+		$o->setHeading(translate('System Configuration'), sq_get_icon($o->filesPath('/images/icons/header/system_config.png'), '', '', 'System Configuration'));
+
+		$o->setPageTitle(translate('System Configuration'));
+
 		$o->addHiddenField('config_posted', '1');
 
 
@@ -86,17 +90,28 @@ class System_Config_Edit_Interface extends MySource_Object
 		$current_location = $o->getCurrentLocation();
 		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 		$config_screens = Array(
-							'system_config'					=> translate('system_configuration'),
-							'squiz_server_config'			=> translate('squiz_server_configuration'),
-							'apache_config'					=> translate('apache_configuration'),
-							'hipo_config'					=> translate('hipo_configuration'),
-							'external_tools_config'			=> translate('external_tools_configuration'),
-							'user_prefs'					=> translate('global_preferences'),
-							'password_rules_config'			=> translate('password_rules_configuration'),
-							'messaging_service_config'		=> translate('messaging_service_configuration'),
-							'proxy_authentication_config'	=> translate('proxy_configuration'),
-							'context_config'				=> translate('context_configuration'),
-							'locks'							=> translate('active_locks'),
+							'system_config'					=> translate('System Configuration'),
+
+							'squiz_server_config'			=> translate('Squiz Server Configuration'),
+
+							'apache_config'					=> translate('Apache Configuration'),
+
+							'hipo_config'					=> translate('HIPO Configuration'),
+
+							'external_tools_config'			=> translate('External Tools Configuration'),
+
+							'user_prefs'					=> translate('Global Preferences'),
+
+							'password_rules_config'			=> translate('Password Rules Configuration'),
+
+							'messaging_service_config'		=> translate('Messaging Service Configuration'),
+
+							'proxy_authentication_config'	=> translate('Proxy Configuration'),
+
+							'context_config'				=> translate('Context Configuration'),
+
+							'locks'							=> translate('Active Locks'),
+
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
@@ -217,10 +232,12 @@ class System_Config_Edit_Interface extends MySource_Object
 						echo '<div class="sq-locks-button-wrapper">';
 							if (!empty($lock)) {
 								if ($have_lock) {
-									submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+									submit_button('sq_lock_release_manual', translate('Release Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+
 								}
 							} else {
-								submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+								submit_button('sq_lock_acquire', translate('Acquire Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+
 							}
 						echo '</div>';
 						echo '<p class="sq-lock-message">';
@@ -234,17 +251,25 @@ class System_Config_Edit_Interface extends MySource_Object
 								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 								$expires_in = easy_time_total(($lock['expires'] - $now), true);
 								if (!$expires_in) $expires_in = '1 second';
-								$expires_in = sprintf(translate('due_to_expire'), $expires_in);
+								$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
+
 								if ($have_lock) {
-									echo sprintf(translate('release_lock'), translate('release_lock_button'), translate('user_preferences'));
+									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), translate('User Preferences'));
+
+
+
 								}
 								if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-									echo sprintf(translate('lock_held_by_user'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+									echo sprintf(translate('Held by user "%s"'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+
 								}
 								echo ' '.$expires_in.'.';
 
 							} else {
-								echo sprintf(translate('acquire_lock'), translate('acquire_lock_button'), translate('user_preferences'));
+								echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), translate('User Preferences'));
+
+
+
 							}
 						echo '</p>';
 						?>
@@ -262,7 +287,8 @@ class System_Config_Edit_Interface extends MySource_Object
 		include SQ_DATA_PATH.'/private/conf/preferences.inc';
 
 		foreach ($preferences as $type_code => $pref_vars) {
-			$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name').' '.translate('preferences'));
+			$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name').' '.translate('Preferences'));
+
 
 				// We need to include the asset the prefs are for to make sure all locales are imported for it
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
@@ -387,8 +413,10 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		try {
 			if (eval('return '.$class_name.'::supportsGetActiveLocks();') === FALSE) {
-				$o->openSection(translate('active_locks'));
-					$o->openField(sprintf(translate('system_config_active_locks_no_support'), SQ_CONF_LOCKING_METHOD));
+				$o->openSection(translate('Active Locks'));
+
+					$o->openField(sprintf(translate('Retrieving Active Locks information is not suppported by "%s" locking method.'), SQ_CONF_LOCKING_METHOD));
+
 					$o->closeField();
 				$o->openSection();
 				return TRUE;
@@ -400,9 +428,11 @@ class System_Config_Edit_Interface extends MySource_Object
 		}
 
 		if (empty($db_locks)) {
-			$o->openSection(translate('active_locks'));
+			$o->openSection(translate('Active Locks'));
+
 				$o->openField('','wide_col');
-					echo '<em>'.translate('no_active_locks').'.</em>';
+					echo '<em>'.translate('There are no active locks in the system').'.</em>';
+
 				$o->closeField();
 			$o->openSection();
 			return true;
@@ -433,16 +463,22 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
-		$o->openSection(translate('active_locks'));
+		$o->openSection(translate('Active Locks'));
+
 			$o->openField('', 'wide_col');
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th class="sq-backend-table-header"><?php echo translate('user'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('lock_type'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('maps_held_at'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('asset_type'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('expires'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('User'); ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Lock Type'); ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Held At'); ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Asset Type'); ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Expires'); ?></th>
+
 					</tr>
 				<?php
 				foreach ($active_locks as $userid => $locks) {
@@ -501,7 +537,8 @@ class System_Config_Edit_Interface extends MySource_Object
 									<?php
 									$expires_in = easy_time_total((strtotime($expires) - $current_time), true);
 									if (!$expires_in) $expires_in = '1 second';
-									echo sprintf(translate('due_to_expire'), $expires_in);
+									echo sprintf(translate('The lock is due to expire in %s'), $expires_in);
+
 									?>
 								</td>
 							</tr>

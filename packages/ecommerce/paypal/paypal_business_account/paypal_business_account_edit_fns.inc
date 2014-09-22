@@ -178,7 +178,8 @@ class Paypal_Business_Account_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if (!is_file($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('path_to_not_valid'), $full_name); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not valid'), $full_name); ?></span><?php
+
 		}//end if
 
 	}//end _paintPath()

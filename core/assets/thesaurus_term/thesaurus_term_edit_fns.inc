@@ -44,7 +44,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array();
 
 		// enable just the details
-		$this->static_screens['details']['name'] = translate('details');
+		$this->static_screens['details']['name'] = translate('Details');
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -67,7 +67,8 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 		// Paint the name
 		if ($write) {
 			check_box($prefix.'_rename', '1');
-			label(translate('rename_thesaurus_term_sys_wide'), $prefix.'_rename');
+			label(translate('Update this term system wide'), $prefix.'_rename');
+
 			echo '<input type="hidden" name="'.$prefix.'_old_name" value="'.$asset->attr('name').'" />';
 		}
 
@@ -132,14 +133,17 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 			$parent_assetid = array_get_index($_REQUEST, 'parent_assetid');
 			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
 			if ($parent_asset->type() == 'thesaurus') {
-				echo translate('thesaurus_creating_top_level_term');
+				echo translate('Creating a top level term. No options to set.');
+
 			} else {
 				$relations = (property_exists($parent_asset, '_thesaurus')) ? $parent_asset->_thesaurus->getActiveRelations() : NULL;
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th class="sq-backend-table-header"><strong><?php echo translate('parent'); ?></strong></th>
-						<th class="sq-backend-table-header"><strong><?php echo translate('relation'); ?></strong></th>
+						<th class="sq-backend-table-header"><strong><?php echo translate('Parent'); ?></strong></th>
+
+						<th class="sq-backend-table-header"><strong><?php echo translate('Relation'); ?></strong></th>
+
 					</tr>
 					<tr>
 						<td><?php echo get_asset_tag_line($parent_assetid); ?></td>
@@ -165,8 +169,10 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><strong><?php echo translate('parent'); ?></strong></th>
-					<th class="sq-backend-table-header"><strong><?php echo translate('relation'); ?></strong></th>
+					<th class="sq-backend-table-header"><strong><?php echo translate('Parent'); ?></strong></th>
+
+					<th class="sq-backend-table-header"><strong><?php echo translate('Relation'); ?></strong></th>
+
 				</tr>
 			<?php
 			if (empty($relations)) {

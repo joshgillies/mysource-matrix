@@ -40,7 +40,8 @@ class Lookup_Value extends Asset
 	*/
 	public static function lookupValueName()
 	{
-		return translate('core_default_layout_name');
+		return translate('Default Layout Name');
+
 
 	}//end lookupValueName()
 
@@ -103,22 +104,29 @@ class Lookup_Value extends Asset
 			foreach ($lookup_values[$url] as $value_name => $data) {
 				$o->openSection(($value_name == '') ? 'New' : $value_name);
 
-					$o->openField(translate('current'));
+					$o->openField(translate('Current'));
+
 						echo '<i>';
 						if ($data['value'] == '') {
-							echo translate('none');
+							echo translate('None');
+
 						} else {
 							echo $data['value'];
-							echo '<br><b>'.translate('inherited_question').' </b>', $data['inhd'];
+							echo '<br><b>'.translate('Inherited?').' </b>', $data['inhd'];
+
 						}
 						echo '</i>';
 					$o->closeField();
 
 					if ($wa) {
-						$o->openField(($data['value'] == '') ? translate('change_question') : translate('new_question'));
-							echo ''.translate('core_value_name').': ';
+						$o->openField(($data['value'] == '') ? translate('Change?') : translate('New?'));
+
+
+							echo ''.translate('Value Name').': ';
+
 							text_box($prefix.'['.$url.']['.$i.'][value_name]', $value_name, 50);
-							echo '<br>'.translate('value').': ';
+							echo '<br>'.translate('Value').': ';
+
 							text_box($prefix.'['.$url.']['.$i.'][value]', $data['value'], 50);
 						$o->closeField();
 					}

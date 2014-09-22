@@ -58,7 +58,8 @@ class Asset_Status_Under_Construction extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_under_construction');
+		return translate('Under Construction');
+
 
 	}//end getDescription()
 
@@ -79,7 +80,8 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 		// any admin can change the status to ARCHIVED
 		if ($this->owner->adminAccess('')) {
-			$statii[SQ_STATUS_ARCHIVED] = translate('status_change_archive');
+			$statii[SQ_STATUS_ARCHIVED] = translate('Archive');
+
 		}
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -105,7 +107,8 @@ class Asset_Status_Under_Construction extends Asset_Status
 							$this->_tmp['metadata_complete'] = TRUE;
 					}
 					if ($this->_tmp['metadata_complete']) {
-						$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+						$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
+
 					}
 				}
 			} else {
@@ -164,18 +167,22 @@ class Asset_Status_Under_Construction extends Asset_Status
 					// BOTH 'approve' and 'apply for approval' if some streams
 					// can be approved bypassing workflow, and some can't.
 					if ($wf_complete === TRUE && (($m_complete === TRUE && !$is_dependant) || $is_dependant)) {
-						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
+						$statii[SQ_STATUS_APPROVED] = translate('Approve');
+
 					}
 					if (($needs_workflow === TRUE) || ($m_complete === FALSE && !$is_dependant)) {
-						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
+						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Apply for Approval');
+
 					}
 				} else {
 					// this asset needs to allow status "apply for approval" and "approve change" (if workflow is complete),
 					// because asset does not allows metadata
 					if ($wf_complete) {
-						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
+						$statii[SQ_STATUS_APPROVED] = translate('Approve');
+
 					}
-					$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
+					$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Apply for Approval');
+
 				}
 			}
 
@@ -205,7 +212,9 @@ class Asset_Status_Under_Construction extends Asset_Status
 										'assetid'           => $this->owner->id,
 									  );
 			$metadata_screen_url = htmlspecialchars(replace_query_string_vars($replace_string_vars));
-			return sprintf(translate('cannot_make_live_metadata_incomplete'), '<a href="'.$metadata_screen_url.'">'.strtolower(translate('metadata')).'</a>');
+			return sprintf(translate('This asset cannot be made live because some mandatory %s fields are empty'), '<a href="'.$metadata_screen_url.'">'.strtolower(translate('Metadata')).'</a>');
+
+
 
 		}
 		return '';

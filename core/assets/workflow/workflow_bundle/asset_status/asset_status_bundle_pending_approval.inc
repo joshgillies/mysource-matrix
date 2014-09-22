@@ -64,7 +64,8 @@ class Asset_Status_Bundle_Pending_Approval extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('core_workflow_bundle_approving');
+		return translate('Approving');
+
 
 	}//end getDescription()
 
@@ -136,14 +137,17 @@ class Asset_Status_Bundle_Pending_Approval extends Asset_Status
 		// Either the workflow can be completed, or it can't but workflow
 		// can progress, or we can't progress workflow at all
 		if ($can_complete === TRUE) {
-			$available_statuses[SQ_STATUS_APPROVED] = translate('status_change_approve');
+			$available_statuses[SQ_STATUS_APPROVED] = translate('Approve');
+
 		} else if ($can_approve === TRUE) {
-			$available_statuses[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
+			$available_statuses[SQ_STATUS_PENDING_APPROVAL] = translate('Approve Changes');
+
 		}
 
 		// But may be allowed to reject regardless
 		if ($can_reject === TRUE) {
-			$available_statuses[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
+			$available_statuses[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Reject Changes');
+
 		}
 
 		return $available_statuses;

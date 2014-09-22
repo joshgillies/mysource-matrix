@@ -92,12 +92,14 @@ class Content_Type_Snippet_Prefs extends Prefs
 				if (!empty($this->pref_vars['SQ_SNIPPET_ROOT']['default'])) {
 					echo get_asset_tag_line($this->pref_vars['SQ_SNIPPET_ROOT']['default']);
 				} else {
-					echo translate('root_folder');
+					echo translate('Root Folder');
+
 				}
 			}
 			?>
 			<?php
-			$o->note(translate('cms_ct_snippet_pref_note'));
+			$o->note(translate('All content types found under this asset will be available in the snippet content type dropdown.'));
+
 			?>
 			<?php
 
@@ -116,9 +118,12 @@ class Content_Type_Snippet_Prefs extends Prefs
 				$options = Array(1 => 'Yes', 0 => 'No');
 				combo_box('prefs[SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK]', $options, FALSE, $value);
 			} else {
-				echo ($value) ? translate('yes') : translate('no');
+				echo ($value) ? translate('Yes') : translate('No');
+
+
 			}
-			echo $o->note(translate('cms_ct_snippet_pref_keywords_note'));
+			echo $o->note(translate('Turn off WYSIWYG snippet keywords permission check to improve performance.'));
+
 			if (is_null($pref)) $o->closeField();
 		}
 

@@ -61,16 +61,20 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('answer_rule'); ?>
+					<?php echo translate('Answer Rule'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('next_question'); ?>
+					<?php echo translate('Next Question'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('result_bodycopy'); ?>
+					<?php echo translate('Result Bodycopy'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('points_value'); ?>
+					<?php echo translate('Points Value'); ?>
+
 				</td>
 			</tr>
 		<?php
@@ -198,9 +202,12 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 
 			?><table class="sq-backend-table" style="width:auto">
 			<tr>
-				<th><?php echo translate('range_type'); ?></th>
-				<th><?php echo translate('range_values'); ?></th>
-				<th><?php echo translate('delete'); ?></th>
+				<th><?php echo translate('Range Type'); ?></th>
+
+				<th><?php echo translate('Range Values (min to max)'); ?></th>
+
+				<th><?php echo translate('Delete'); ?></th>
+
 			</tr><?php
 			foreach ($rules as $key => $item) {
 				?><tr><?php

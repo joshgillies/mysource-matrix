@@ -625,7 +625,8 @@ class Form_Ecommerce extends Form_Email
 				i = 0;
 				<?php echo $this->generateJSCode(); ?>
 					if (submission_errors.length > 0) {
-					var errors_list = "<?php echo translate('cms_form_submission_errors'); ?>\n";
+					var errors_list = "<?php echo translate('The following errors must be corrected before the form can be submitted:'); ?>\n";
+
 					for(x in submission_errors) {
 						errors_list += submission_errors[x] + "\n";
 					}
@@ -952,28 +953,35 @@ class Form_Ecommerce extends Form_Email
 						<td colspan="2"><h2>Receipt</h2></td>
 					</tr>
 					<tr>
-						<td>'.translate('ecom_form_transaction_number:').'</td>
+						<td>'.translate('Transaction Number:').'</td>
+
 						<td>'.$response['TRANSACTION'].'</td>
 					</tr>
 					<tr>
-						<td>'.translate('ecom_form_transaction_status:').'</td>
+						<td>'.translate('Transaction Status:').'</td>
+
 						<td>'.$response['STATUS'].'</td>
 					</tr>
 					<tr>
-						<td>'.translate('ecom_form_credit_card:').'</td>
+						<td>'.translate('Credit Card:').'</td>
+
 						<td>'.$response['CARDNO'].'</td>
 					</tr>
 					<tr>
-						<td>'.translate('ecom_form_date:').'</td>
+						<td>'.translate('Date:').'</td>
+
 						<td>'.$date.'</td>
 					</tr>
 				</table>
 			';
 
 		} else {
-			$header .= translate('ecom_form_transaction_number:').' '.$response['TRANSACTION']."\n";
-			$header .= translate('ecom_form_transaction_status:').' '.$response['STATUS']."\n";
-			$header .= translate('ecom_form_date:').' '.$date."\n";
+			$header .= translate('Transaction Number:').' '.$response['TRANSACTION']."\n";
+
+			$header .= translate('Transaction Status:').' '.$response['STATUS']."\n";
+
+			$header .= translate('Date:').' '.$date."\n";
+
 		}
 
 		return $header;
@@ -1239,7 +1247,8 @@ class Form_Ecommerce extends Form_Email
 			$total_discount_row_fmt = '<tr class="sq_ecomTableTotalDiscountRow"><td class="sq_ecomTableTotalDiscountName" align="right">%s</td><td class="sq_ecomTableTotalDiscountValue" align="right">'.$curr_sign.'%01.2f</td></tr>';
 			$total_row_fmt = '<tr class="sq_ecomTableTotalRow"><td class="sq_ecomTableTotalName" align="right">%s</td><td class="sq_ecomTableTotalValue" align="right">'.$curr_sign.'%01.2f</td></tr>';
 		} else {
-			$receipt_fmt   = strtoupper(translate('ecom_form_receipt:'))."\n############################\n%s\n%s\n%s\n############################";
+			$receipt_fmt   = strtoupper(translate('Receipt:'))."\n############################\n%s\n%s\n%s\n############################";
+
 			$order_row_fmt = "%s: %01.2f\n";
 			$divider_row = "----------------------------\n";
 			$total_discount_row_fmt = "*** %s $curr_sign%01.2f ***\n";
@@ -1255,11 +1264,13 @@ class Form_Ecommerce extends Form_Email
 
 		$total_discount = '';
 		if ($order['total_discount'] > 0) {
-			$total_discount = sprintf($total_discount_row_fmt, translate('ecom_form_total_discount:'), $order['total_discount']);
+			$total_discount = sprintf($total_discount_row_fmt, translate('Total discount:'), $order['total_discount']);
+
 			$total_discount .= $divider_row;
 		}
 
-		$total   = sprintf($total_row_fmt, translate('ecom_form_total:'), $order['total']);
+		$total   = sprintf($total_row_fmt, translate('Total:'), $order['total']);
+
 		$receipt = sprintf($receipt_fmt, $rows, $total_discount, $total);
 
 		return $receipt;

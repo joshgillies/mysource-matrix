@@ -197,7 +197,9 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		if (!$read_only) {
 			?>
 				<div id="option-list-<?php echo $prefix; ?>" class="sq-option-list">
-					<label class="sq-option-list-header value" for="<?php echo $prefix; ?>_options_keys[0]"><?php echo translate('value'); ?></label><label class="sq-option-list-header text" for="<?php echo $prefix; ?>_options[0]"><?php echo translate('text'); ?></label>
+					<label class="sq-option-list-header value" for="<?php echo $prefix; ?>_options_keys[0]"><?php echo translate('Value'); ?></label><label class="sq-option-list-header text" for="<?php echo $prefix; ?>_options[0]"><?php echo translate('Text'); ?></label>
+
+
 					<br/>
 					<?php
 					$order = 0;
@@ -503,8 +505,10 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 			?>
 			<table class="sq-backend-table compact" style="width: auto;">
 				<tr>
-					<th><?php echo translate('value'); ?></th>
-					<th><?php echo translate('text'); ?></th>
+					<th><?php echo translate('Value'); ?></th>
+
+					<th><?php echo translate('Text'); ?></th>
+
 				</tr>
 				<?php
 				foreach ($value as $k => $v) {
@@ -521,7 +525,8 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 			</table>
 			<?php
 		} else {
-			echo '<em>'.translate('no_options_entered').'</em>';
+			echo '<em>'.translate('No options entered').'</em>';
+
 		}
 	}
 

@@ -361,8 +361,10 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		//Bug #4708 openRaw and closeRaw incompatible in LIMBO mode with buffering OFF as they behave as sections (creating tables).
 		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->closeRaw();
 
-		$o->openSection(translate('preview_options'));
-			$o->openField(translate('preview_url'));
+		$o->openSection(translate('Preview Options'));
+
+			$o->openField(translate('Preview URL'));
+
 				if (count($preview_urls) > 1) {
 					combo_box('preview_url', $preview_urls, FALSE, $primary_url, 1, 'onchange="update_preview_url()"');
 					echo '<div class="sq-preview-available-urls-show"><a href="#" onclick="document.getElementById(\'sq-preview-available-urls\').style.display=\'block\'; this.style.display=\'none\'" >View a list of available URLs ('.count($preview_urls).' available)</a></div>';
@@ -379,7 +381,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			$o->closeField();
 
-			$o->openField(translate('design'));
+			$o->openField(translate('Design'));
+
 				if (count($preview_designs) > 1) {
 					combo_box('preview_design', $preview_designs, FALSE, '', 1, 'onchange="update_preview_url()"');
 				} else {
@@ -387,12 +390,14 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			$o->closeField();
 
-			$o->openField(translate('context'));
+			$o->openField(translate('Context'));
+
 				$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 				$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
 				if (count($contexts) > 1) {
 					$context_list = Array(
-										'-default-' => translate('use_normal_context_for_this_url'),
+										'-default-' => translate('Use normal context for this URL'),
+
 										'-sep-'		=> '----------------------',
 									);
 					foreach ($contexts as $context_item_id => $context_item) {
@@ -407,7 +412,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->closeField();
 
 			if(!empty($used_conditions)) {
-			    $o->openField(translate('conditions'));
+			    $o->openField(translate('Conditions'));
+
 				    echo '<div class="sq-preview-conditions-show"><a href="#" onclick="toggleConditionViewOptions(this)" >View conditions preview options</a></div>';
 				    echo '<div id="sq-preview-conditions" class="sq-preview-conditions" >';
 				    echo '<table class="sq-backend-table">';
@@ -425,15 +431,18 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					echo '<div class="sq-preview-condition-radio-group">';
 					echo '<label id="'.'conditions_'.$condition_full_name.'_3" >';
 					radio_button('conditions_'.$condition_full_name.'', '3', TRUE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
-					echo(translate('automatic'));
+					echo(translate('Automatic'));
+
 					echo '</label>';
 					echo '<label id="'.'conditions_'.$condition_full_name.'_1">';
 					radio_button('conditions_'.$condition_full_name.'', '1', FALSE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
-					echo(translate('true'));
+					echo(translate('True'));
+
 					echo '</label>';
 					echo '<label id="'.'conditions_'.$condition_full_name.'_0">';
 					radio_button('conditions_'.$condition_full_name.'', '0', FALSE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
-					echo(translate('false'));
+					echo(translate('False'));
+
 					echo '</label>';
 					echo '</div>';
 					echo '</td>';
@@ -445,24 +454,30 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 
 
-			$o->openField(translate('use_cache'));
+			$o->openField(translate('Use Cache'));
+
 				check_box('use_cache', '1', FALSE, 'if (this.checked && document.getElementById(\'show_diff\') !== null) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
-				label(translate('show_cached_asset'), 'use_cache');
+				label(translate('Show the cached version of this asset'), 'use_cache');
+
 			$o->closeField();
 
 			if ($owner->status & SQ_SC_STATUS_SAFE_EDITING) {
-				$o->openField(translate('show_diff'));
+				$o->openField(translate('Show Diff'));
+
 					check_box('show_diff', '1', FALSE, 'if (this.checked) { document.getElementById(\'use_cache\').checked = false; } update_preview_url()');
-					label(translate('show_safe_edit_difference'), 'show_diff');
+					label(translate('Show the differences between the system version and the edited version'), 'show_diff');
+
 				$o->closeField();
 			}
 			$o->openField('');
 				if($contains_diff_domain) {
 				    if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) {
-					echo translate('different_domain_preview_new_window');
+					echo translate('As the Same Origin Frame setting is enabled, URLs using a different domain than the system\'s current domain will be opened in a new window.');
+
 				    }
 				    else if (!$owner->effectiveUnrestricted()) {
-					echo sprintf(translate('different_domain_login'), $current_url['host']);
+					echo sprintf(translate('You may be presented with a Login screen if you choose a URL from a domain different to <b>%s</b>.'), $current_url['host']);
+
 				    }
 				}
 			$o->closeField();
@@ -471,25 +486,30 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			?>
 				<span id="size_elements"></span>
 				<p>
-					<?php normal_button('preview_button', translate('preview'), 'do_preview()'); echo ' ';
-					normal_button('size_button', translate('calculate'), 'get_size()');?>
+					<?php normal_button('preview_button', translate('Preview'), 'do_preview()'); echo ' ';
+
+					normal_button('size_button', translate('Calculate Size'), 'get_size()');?>
+
 				</p>
 				<?php
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection(translate('preview'));
+		$o->openSection(translate('Preview'));
+
 			$o->openRaw('');
 				if ($add_nocache) {
 					$primary_url .= '/'.SQ_CONF_NOCACHE_SUFFIX;
 				}
 				ob_start();
-					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('open_preview_in_new_window'); ?></a><?php
+					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('Open preview in new window'); ?></a><?php
+
 					$replacements_link = ob_get_contents();
 				ob_end_clean();
 				?>
 				<p>
-					<?php echo sprintf(translate('currently_previewing'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
+					<?php echo sprintf(translate('Currently previewing <strong>"%1$s"</strong> (%2$s)'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
+
 				</p>
 				<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
 				<?php
@@ -499,9 +519,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	} else {
 
 		// there is no preview URL available for this asset
-		$o->openSection(translate('no_preview_available'));
+		$o->openSection(translate('No preview available'));
+
 			$o->openField('');
-				echo translate('asset_cannot_preview');
+				echo translate('This asset cannot be previewed or does not have a URL assigned to it.');
+
 			$o->closeField();
 		$o->closeSection();
 

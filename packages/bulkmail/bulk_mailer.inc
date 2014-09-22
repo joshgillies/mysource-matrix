@@ -1087,7 +1087,8 @@ class Bulk_Mailer
 	{
 		$mpm = 0;
 		foreach ($thresholds as $threshold) {
-			if ($threshold['type'] == translate('bulkmail_threshold_rule_send_rate')) {
+			if ($threshold['type'] == translate('Send Rate')) {
+
 				$value = $threshold['params']['value'];
 				$unit = $threshold['params']['unit'];
 				$mpm = ceil(($value/$unit) * 60);
@@ -1223,7 +1224,8 @@ class Bulk_Mailer
 					  );
 
 		foreach ($thresholds as $threshold) {
-			if ($threshold['type'] == translate('bulkmail_threshold_rule_excluded_time')) {
+			if ($threshold['type'] == translate('Excluded Time')) {
+
 				$excluded_days = Array();
 				foreach ($threshold['params']['days'] as $excluded_day) {
 					$excluded_days[] = $days_array[$excluded_day];

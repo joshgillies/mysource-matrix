@@ -86,7 +86,8 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	function paint($prefix, $read_only=false)
 	{
 		if ($read_only) {
-			echo translate('password_not_shown');
+			echo translate('Password not shown');
+
 			return;
 		}
 

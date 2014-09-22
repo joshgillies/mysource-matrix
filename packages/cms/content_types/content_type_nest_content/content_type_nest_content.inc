@@ -93,7 +93,8 @@ class Content_Type_Nest_Content extends Content_Type
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if ($link['value'] == 'nested_asset') {
-			return translate('cms_ct_nest_content_link_desc');
+			return translate('The asset being nested in a nest content cell');
+
 		}
 
 	}//end describeLink()
@@ -173,7 +174,9 @@ class Content_Type_Nest_Content extends Content_Type
 		if (empty($asset_link)) {
 			$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 		}
-		$content = '<strong>'.sprintf(translate('cms_ct_nest_content_nested_content'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
+		$content = '<strong>'.sprintf(translate('Nested Content - %s'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('Click to preview in a new window').'</a>.';
+
+
 
 		return $content;
 

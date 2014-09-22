@@ -40,8 +40,10 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	protected static function getOperatorOptions()
 	{
 		return Array(
-				'='		=> strtolower(translate('equals')),
-				'!='	=> strtolower(translate('does_not_equal')),
+				'='		=> strtolower(translate('Equals')),
+
+				'!='	=> strtolower(translate('Does Not Equal')),
+
 			   );
 
 	}//end getOperatorOptions()
@@ -120,12 +122,14 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 				echo ' ( ';
 				check_box($prefix.'[inherit]', 1, array_get_index($settings, 'inherit'), '', 'id="'.$prefix.'_inherit" style="margin: 0px"');
 				echo ' ';
-				label(translate('or_inherited_types'), $prefix.'_inherit');
+				label(translate('or inherited types'), $prefix.'_inherit');
+
 				echo ') ';
 			} else {
 				echo '<b>'.$selected_type.'</b>';
 				if (array_get_index($settings, 'inherit')) {
-					echo ' '.translate('or_inherited_types').' ';
+					echo ' '.translate('or inherited types').' ';
+
 				}
 			}
 			$asset_type_component = ob_get_contents();
@@ -135,11 +139,13 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		ob_start();
 			$attribute = array_get_index($settings, 'attribute', '');
 			if ($selected_type == '') {
-				echo '<b>['.translate('asset_type_not_selected').']</b>';
+				echo '<b>['.translate('asset type not selected').']</b>';
+
 			} else {
 				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type, Array('name'));
 				if (empty($attrs)) {
-					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+					echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 				} else {
 					if ($write_access) {
 						$attr_options = Array('' => '');
@@ -180,7 +186,8 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 			$value_component = ob_get_contents();
 		ob_end_clean();
 
-		return sprintf(translate('trigger_attribute_value'), $asset_type_component, $attribute_component, $operator_component, $value_component);
+		return sprintf(translate('If the value of the %1$s attribute %2$s %3$s %4$s'), $asset_type_component, $attribute_component, $operator_component, $value_component);
+
 
 	}//end getInterface()
 
@@ -198,12 +205,14 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$asset_type = array_get_index($request_data, 'type_code', FALSE);
 		if (!$asset_type) {
-			return translate('trigger_type_code_not_supplied');
+			return translate('Asset type code has not been supplied');
+
 		}
 
 		$settings['asset_type'] = $asset_type;

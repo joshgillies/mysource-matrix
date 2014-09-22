@@ -124,14 +124,17 @@ class Backend extends MySource_Object
 			}
 			// lets ask the asset itself if we are allowed access to its backend interface
 			if (!$printing_asset->backendAccess()) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $printing_asset->name));
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $printing_asset->name));
+
+
 				return;
 			}
 		} else {
 			// we are not looking at any asset in particular - probably just trying to get into the
 			// backend to do some editing - so need a user with backend access
 			if (!$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', translate('must_be_backend_user'));
+				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', translate('You need to be a backend user in order to access the backend'));
+
 				return;
 			}
 		}
@@ -284,9 +287,11 @@ class Backend extends MySource_Object
 
 		// Give the page the appropriate title based on whether we are in limbo or backend
 		if (SQ_IN_LIMBO) {
-			$page_title = sprintf(translate('page_title_simple_edit_mode'), SQ_SYSTEM_LONG_NAME);
+			$page_title = sprintf(translate('%s : Simple Edit Mode'), SQ_SYSTEM_LONG_NAME);
+
 		} else {
-			$page_title = sprintf(translate('page_title_admin_mode'), SQ_SYSTEM_LONG_NAME);
+			$page_title = sprintf(translate('%s : Admin Mode'), SQ_SYSTEM_LONG_NAME);
+
 		}
 
 		$body_class = '';
@@ -477,9 +482,11 @@ class Backend extends MySource_Object
 		$dhtml_messages = Array();
 
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('search_manager')) {
-			$asset_search_default = translate('asset_search_default_keyword');
+			$asset_search_default = translate('Enter keywords, asset ID or URL');
+
 		} else {
-			$asset_search_default = translate('asset_search_default');
+			$asset_search_default = translate('Enter asset ID or URL');
+
 		}
 
 		$this->out->openRaw();
@@ -664,12 +671,15 @@ class Backend extends MySource_Object
 			} else {
 			    if (empty($results) === TRUE) {
 					if ($error_msg !== NULL) {
-						$msg = sprintf(translate('failed_searching_for_error'), htmlspecialchars($search_string));
+						$msg = sprintf(translate('Search for "%s" failed due to system error. Check error log and contact your system administrator.'), htmlspecialchars($search_string));
+
 					} else {
-						$msg = sprintf(translate('failed_searching_for'), htmlspecialchars($search_string));
+						$msg = sprintf(translate('Search for "%s" found nothing. Try Again'), htmlspecialchars($search_string));
+
 					}
 
-					$html = $this->_getDHTMLMessage(translate('search_failed'), $msg, 'search-failed', 'info');
+					$html = $this->_getDHTMLMessage(translate('Search Failed'), $msg, 'search-failed', 'info');
+
 					$html = str_replace("\n", '', $html);
 					$dhtml_messages['search_failed'] = Array(
 														'html'    => $html,
@@ -871,7 +881,8 @@ class Backend extends MySource_Object
                         $detail_lines[] = $keyword_lines;
                     }//end if (no keyword results)
 
-					$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
+					$html = $this->_getDHTMLMessage(translate('Search Results'), $detail_lines, 'search-results');
+
 					$html = preg_replace('/>\s+</', '> <', str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)));
 					$dhtml_messages['search_results'] = Array(
 														 'html'    => $html,
@@ -891,7 +902,9 @@ class Backend extends MySource_Object
 			//////////////////////////////
 
 			if ($popups_blocked) {
-				$html = $this->_getDHTMLMessage(translate('popups_blocked'), translate('disable_popup_blocking'), 'popups-blocked', 'stop', 32, 32);
+				$html = $this->_getDHTMLMessage(translate('Popups are Blocked'), translate('Squiz Matrix requires popup blocking to be disabled for certain functions to work correctly.'), 'popups-blocked', 'stop', 32, 32);
+
+
 				$dhtml_messages['popups_blocked'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
 
@@ -915,7 +928,10 @@ class Backend extends MySource_Object
 			}
 
 			if ($stalledjobs != 0) {
-				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), sprintf(translate('hipo_jobs_count'), $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs).'</br><a href="'.$this->getBackendUrl('main').'&backend_section=hipo_herder" target="sq_main">'.translate('hipo_herder').'</a>', 'new-message', 'hipo', 32, 32);
+				$html = $this->_getDHTMLMessage(translate('Stalled HIPO job(s)'), sprintf(translate('"%1$s" has %2$d stalled HIPO job(s)'), $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs).'</br><a href="'.$this->getBackendUrl('main').'&backend_section=hipo_herder" target="sq_main">'.translate('HIPO Herder').'</a>', 'new-message', 'hipo', 32, 32);
+
+
+
 				$dhtml_messages['hipo_jobs_stalled'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
 
@@ -1107,7 +1123,8 @@ class Backend extends MySource_Object
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar-matrix.png" alt="Squiz Matrix" title="Squiz Matrix"/>
 					<span class="sq-logged-in-as-text">
-						<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main" onclick="Javascript: reloadHeader();"><?php echo sprintf(translate('logged_in_as'), htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
+						<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main" onclick="Javascript: reloadHeader();"><?php echo sprintf(translate('Logged in as: <strong>%s</strong>'), htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
+
 					</span>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
@@ -1139,9 +1156,11 @@ class Backend extends MySource_Object
 									}
 								</script>
 								<?php
-								echo '<label for="user" class="sq-backend-header-item">'.translate('login_as').'</label>';
+								echo '<label for="user" class="sq-backend-header-item">'.translate('Login As').'</label>';
+
 								echo '<span class="sq-text-field-wrapper login">';
-								text_box('user', translate('login_as_default'),  22, 0, TRUE, 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
+								text_box('user', translate('Enter username'),  22, 0, TRUE, 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
+
 								echo '</span>';
 								?>
 								<input type="button" class="sq-btn-blue" value="Login" onclick="submit_login_as();" />
@@ -1156,7 +1175,8 @@ class Backend extends MySource_Object
 						<tr>
 							<td class="sq-backend-header-search-wrapper" nowrap valign="middle">
 							<?php
-								echo '<label for="asset_search" class="sq-backend-header-item">'.translate('quick_search').'</label>';
+								echo '<label for="asset_search" class="sq-backend-header-item">'.translate('Quick Search').'</label>';
+
 								echo '<span class="sq-text-field-wrapper">';
 								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) form.submit();"');
 
@@ -1172,7 +1192,8 @@ class Backend extends MySource_Object
 							$options[] = Array(
 											'url'		=> $this->getBackendUrl('main').'&backend_section=config',
 											'target'	=> 'sq_main',
-											'title'		=> translate('system_configuration'),
+											'title'		=> translate('System Configuration'),
+
 											'icon'		=> 'system_config_white.png',
 										 );
 						}
@@ -1180,14 +1201,16 @@ class Backend extends MySource_Object
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=tools',
 										'target'	=> 'sq_main',
-										'title'		=> translate('tools'),
+										'title'		=> translate('Tools'),
+
 										'icon'		=> 'whereami_white.png',
 									 );
 
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=hipo_herder',
 										'target'	=> 'sq_main',
-										'title'		=> translate('hipo_herder'),
+										'title'		=> translate('HIPO Herder'),
+
 										'icon'		=> 'hipo_herder_white.png',
 									 );
 
@@ -1195,7 +1218,8 @@ class Backend extends MySource_Object
 								$options[] = Array(
 												'url'		=> $this->getBackendUrl('main').'&backend_section=sys_maintenance',
 												'target'	=> 'sq_main',
-												'title'		=> translate('system_maintenance'),
+												'title'		=> translate('System Maintenance'),
+
 												'icon'		=> 'system_maintenance_white.png',
 											 );
 						}
@@ -1203,25 +1227,29 @@ class Backend extends MySource_Object
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=am',
 										'target'	=> 'sq_main',
-										'title'		=> translate('asset_tree'),
+										'title'		=> translate('Asset Tree'),
+
 										'icon'		=> 'asset_tree_white.png',
 									 );
 
 						if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
 							$options[] = Array(
 											'target'	=> '_top',
-											'title'		=> translate('login_as'),
+											'title'		=> translate('Login As'),
+
 											'icon'		=> 'login_as_white.png',
 											'onclick'	=> 'document.getElementById("tool_buttons").style.display = "none"; document.getElementById("login_as_form").style.display = "block"; document.getElementById("user").focus();',
 										 );
 						}
 
-						$logout_button_tooltip = translate('logout');
+						$logout_button_tooltip = translate('Logout');
+
 						$logout_icon = 'logout_white.png';
 
 						// Change the "Logout" button to a "Logout and resume as ..." button when we are temporarily logged in as another user
 						if (isset($_SESSION['login_as_invoker_username'])) {
-							$logout_button_tooltip = sprintf(translate('logout_and_resume'), htmlentities($_SESSION['login_as_invoker_username'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+							$logout_button_tooltip = sprintf(translate('Logout and resume as %1$s'), htmlentities($_SESSION['login_as_invoker_username'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 							$logout_icon = 'logout_and_resume.png';
 						}
 
@@ -1237,7 +1265,8 @@ class Backend extends MySource_Object
 						if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
 							$options[] = Array(
 											'target'	=> '_top',
-											'title'		=> translate('login_as'),
+											'title'		=> translate('Login As'),
+
 											'icon'		=> 'login_as.png',
 											'onclick'	=> 'show_login_as_form();',
 										 );
@@ -1246,7 +1275,8 @@ class Backend extends MySource_Object
 						if (isset($_SESSION['login_as_invoker_username'])) {
 							$options[] = Array(
 											'target'	=> '_top',
-											'title'		=> sprintf(translate('logout_and_resume'), $_SESSION['login_as_invoker_username']),
+											'title'		=> sprintf(translate('Logout and resume as %1$s'), $_SESSION['login_as_invoker_username']),
+
 											'icon'		=> 'logout_and_resume.png',
 										 );
 						}
@@ -1367,7 +1397,8 @@ class Backend extends MySource_Object
 							function(response) {
 								if (response !== null) {
 									document.getElementById("my-account-held-locks-count").innerHTML = response;
-									document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> ("+response+")";
+									document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('Release all of my current locks'); ?> ("+response+")";
+
 								}
 								document.getElementById("my-account-held-locks-count-wrapper").className = '';
 							}
@@ -1411,11 +1442,13 @@ class Backend extends MySource_Object
 								<span class="" id="sq-sidenav-menu-tabs-wrapper">
 									<a class="sq-menu-tab selected" id="sq-menu-tab-asset_map" href="#" onClick="Javascript: switchSideNav('asset_map'); return false;">
 										<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png"/>
-										<?php echo translate('asset_map'); ?>
+										<?php echo translate('Asset Map'); ?>
+
 									</a>
 									<a class="sq-menu-tab" id="sq-menu-tab-my_space" href="#" onClick="Javascript: switchSideNav('my_space'); return false;">
 										<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png"/>
-										<?php echo translate('my_account'); ?>
+										<?php echo translate('My Account'); ?>
+
 									</a>
 								</span>
 							</td>
@@ -1423,16 +1456,21 @@ class Backend extends MySource_Object
 					</table>
 
 					<div id="system_version" class="sq-system-note">
-						<a href="<?php echo translate('url_matrix_version_history');?>" class="sq-backend-header-item" target="_blank" title="<?php
+						<a href="<?php echo translate('http://manuals.matrix.squizsuite.net/patches');?>" class="sq-backend-header-item" target="_blank" title="<?php
+
 							if (defined('SQ_LICENCE_INSTALL_KEY')) {
 								echo 'Install Key: '.SQ_LICENCE_INSTALL_KEY.' - ';
 							}
-						?><?php echo translate('url_matrix_version_history_title');?> "><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+						?><?php echo translate('Click to view the Release Information page on the Squiz Matrix User Manual Website');?> "><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+
 					</div>
 
 					<div id="help_link" class="sq-system-note help-link">
-						<a href="<?php echo translate('url_matrix_manuals_homepage');?>" class="sq-backend-header-item" target="_blank" title="<?php echo translate('url_matrix_manuals_homepage_title');?>">
-							<?php echo translate('help');?>
+						<a href="<?php echo translate('http://manuals.matrix.squizsuite.net/');?>" class="sq-backend-header-item" target="_blank" title="<?php echo translate('Click to visit the Squiz Matrix User Manual Website');?>">
+
+
+							<?php echo translate('Help');?>
+
 						</a>
 					</div>
 
@@ -1469,7 +1507,8 @@ class Backend extends MySource_Object
 									function(response) {
 										if (response !== null && response == '1') {
 											document.getElementById("my-account-held-locks-count").innerHTML = "0";
-											document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> (0)";
+											document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('Release all of my current locks'); ?> (0)";
+
 										}
 										document.getElementById("my-account-held-locks-count-wrapper").className = '';
 									}
@@ -1481,9 +1520,11 @@ class Backend extends MySource_Object
 								<?php
 								if ($show_release_locks_button) {
 								?>
-									<input type="button" name="" value="Release Locks" onclick="return onReleaseAllClick(); " class="sq-btn-small sq-btn-no-shadow" id="my-account-release-locks-btn" title="<?php echo translate('locks_release_my_locks'); ?> ()">
+									<input type="button" name="" value="Release Locks" onclick="return onReleaseAllClick(); " class="sq-btn-small sq-btn-no-shadow" id="my-account-release-locks-btn" title="<?php echo translate('Release all of my current locks'); ?> ()">
+
 									<span id="my-account-held-locks-count-wrapper">
-										<span>(<strong><span id="my-account-held-locks-count"></span></strong> <?php echo translate('locks'); ?>)</span>
+										<span>(<strong><span id="my-account-held-locks-count"></span></strong> <?php echo translate('Locks'); ?>)</span>
+
 									</span>
 								<?php
 								}
@@ -1503,20 +1544,26 @@ class Backend extends MySource_Object
 										<td>
 											<p>
 												<span class="myspace-section-header">
-													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><?php echo translate('my_inbox'); ?></a>
+													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><?php echo translate('My Inbox'); ?></a>
+
 												</span>
 											</p>
 											<p>
 												<span class="myspace-section-header">
 													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">
-														<?php echo translate('inbox_actions'); ?>
+														<?php echo translate('Inbox Actions'); ?>
+
 													</a>
 												</span>
-												<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a>
+												<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('View your inbox'); ?></a>
+
 												<br />
-												<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
-												<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a><br />
-												<a href="<?php echo $_SERVER['PHP_SELF'].$trash_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_trash'); ?></a></p>
+												<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('Send a new message'); ?></a><br />
+
+												<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('View sent messages'); ?></a><br />
+
+												<a href="<?php echo $_SERVER['PHP_SELF'].$trash_url; ?>" target="sq_main">+ <?php echo translate('View trashed messages'); ?></a></p>
+
 										</td>
 									</tr>
 								</table>
@@ -1531,9 +1578,11 @@ class Backend extends MySource_Object
 									</td>
 									<td width="100%">
 										<span class="myspace-section-header">
-											<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('my_details'); ?></a>
+											<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('My Details'); ?></a>
+
 										</span>
-										<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('details_edit'); ?></a>
+										<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('Edit the details of your account'); ?></a>
+
 									</td>
 								</tr>
 							</table>

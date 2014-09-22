@@ -52,7 +52,8 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('edit_tag_threshold'));
+		$o->openField(translate('Edit Tag Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -61,7 +62,9 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 			echo SQ_HIPO_TAG_THRESHOLD;
 		}
 		echo ' '.translate('assets');
-		$o->note(translate('hipo_value_divided_by_tag'));
+
+		$o->note(translate('Value will be divided by number of affected tags.'));
+
 		echo '</span>';
 
 		$o->closeField();
@@ -110,7 +113,8 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_tags');
+		return translate('Edit Tags');
+
 
 	}//end getHipoName()
 
@@ -126,7 +130,8 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_updating_tags'),
+					'name'			=> translate('Updating Tags'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processTags',
 									   ),
@@ -276,7 +281,8 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 							break;
 						}
 					}
-					$step_data['message'] = sprintf(translate('hipo_editing_tags'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('Editing Tags for "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'links');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
@@ -285,8 +291,10 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 					trigger_localised_error('SYS0100', E_USER_WARNING, 'links', $asset->name, ' skipping asset.');
 				}
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
-				$this->_addError(sprintf(translate('hipo_cannot_edit_tags'), $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not edit tags for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we don't do it again
@@ -361,7 +369,9 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = sprintf(translate('hipo_release_locks'), $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+		$step_data['message'] = sprintf(translate('Releasing locks on %s'), $asset_info[$assetid]['name']).translate('and its dependent assets');
+
+
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

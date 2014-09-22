@@ -49,29 +49,34 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('core_form_rule_details'));
+			$o->openField(translate('Rule Details'));
+
 			echo translate('core_form_rule_file_type_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $rule_data['value']);
 			$o->closeField();
 
 		} else {
 
-			$o->openField(translate('operator'));
+			$o->openField(translate('Operator'));
+
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
 			$o->closeField();
 
-			$o->openField(translate('core_form_rule_file_type_ext_list'));
+			$o->openField(translate('Extension List'));
+
 			// give a text box to write the comparison value in
 			$option_list = new Asset_Attribute_Option_List(0, array_get_index($rule_data, 'value', ''));
 			$option_list->paint($prefix.'_value');
 
 			$o->closeField();
 			// check mime type?
-			$o->openField(translate('core_form_rule_file_type_enforce_check_mime'));
+			$o->openField(translate('Enforce MIME Check'));
+
 			check_box($prefix.'[check_mime]', TRUE, array_get_index($rule_data, 'check_mime', FALSE));
 			$o->closeField();
 
-			$o->sectionNote(translate('core_form_rule_file_type_note'));
+			$o->sectionNote(translate('Enter a list of extensions to include or exclude - the list will expand as necessary.  To remove an extension, click the delete button next to it. Do not include the full stop as part of the extension. MIME check is optional but recommended. It will make sure the file is what they say it is.'));
+
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;

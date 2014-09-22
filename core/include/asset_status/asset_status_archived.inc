@@ -55,7 +55,8 @@ class Asset_Status_Archived extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_archived');
+		return translate('Archived');
+
 
 	}//end getDescription()
 
@@ -73,7 +74,8 @@ class Asset_Status_Archived extends Asset_Status
 
 		// cant do anything without admin access
 		if (!$this->owner->adminAccess('')) return $statii;
-		$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_place_under_construction');
+		$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Place Under Construction');
+
 
 		return $statii;
 

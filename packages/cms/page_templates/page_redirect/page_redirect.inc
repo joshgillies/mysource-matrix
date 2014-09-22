@@ -172,7 +172,8 @@ class Page_Redirect extends Page
 
 		// check that the user has read access to the site
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', sprintf(translate('cannot_access_asset'), $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', sprintf(translate('You do not have permission to access the asset'), $this->name));
+
 			return;
 		}//end if
 

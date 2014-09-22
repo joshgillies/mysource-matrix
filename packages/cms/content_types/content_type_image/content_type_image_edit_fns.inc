@@ -205,7 +205,8 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				</td>
 			</tr>
 			<tr <?php echo (!$display_fields['caption_options']) ? 'style="display:none;"' : ''; ?>>
-				<td class="sq-backend-table-header" style="width: 250px;"><?php echo translate('caption'); ?>:</td>
+				<td class="sq-backend-table-header" style="width: 250px;"><?php echo translate('Caption'); ?>:</td>
+
 				<td class="sq-backend-table-cell">
 					<?php radio_button($prefix.'_caption_options', '0', !$current_settings['use_caption_attr'], $prefix.'_change_caption(\'original\');'); ?>
 					<?php hidden_field($prefix.'_caption_hidden', $current_settings['caption']); ?>

@@ -84,7 +84,9 @@ class Search_Manager_Prefs extends Prefs
 			}
 			echo ' '.translate('asset(s)');
 
-			echo $o->note(translate('sch_pref_backend_page_size_note'));
+
+			echo $o->note(translate('Sets how many assets will be shown per page when a keyword search is peformed through the Quick Search box.'));
+
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
@@ -98,14 +100,17 @@ class Search_Manager_Prefs extends Prefs
 			} else {
 				$result_limit = array_get_index($this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT'], 'default', 0);
 				if ($result_limit == '0') {
-					echo translate('unlimited');
+					echo translate('Unlimited');
+
 				} else {
 					echo $result_limit.' '.translate('asset(s)');
+
 				}
 			}
 
 
-			echo $o->note(translate('sch_pref_backend_result_limit_note'));
+			echo $o->note(translate('The maximum number of results displayed in backend search (0 = no limit).'));
+
 			if (is_null($pref)) $o->closeField();
 		}//end if
 

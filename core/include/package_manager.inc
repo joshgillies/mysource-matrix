@@ -573,7 +573,7 @@ class Package_Manager extends MySource_Object
 
 			// Ensure that the Details screen is first
 			if (!empty($ef->static_screens['details'])) {
-				$screen_node = $type_node->addChild('screen', $ef->static_screens['details']['name']);
+			    $screen_node = $type_node->addChild('screen', $ef->static_screens['details']['name']);
 				$screen_node->addAttribute('code_name', 'details');
 			}
 

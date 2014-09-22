@@ -57,7 +57,8 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	public function paintNewSection(Metadata_Schema $asset, Backend_Outputter $o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$o->openField(translate('section_name'));
+		$o->openField(translate('Section Name'));
+
 			text_box($prefix.'_new_section', '', 30);
 		$o->closeField();
 		return TRUE;
@@ -108,13 +109,17 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
-			$o->openField(translate('metadata_regenerate'));
+			$o->openField(translate('Regenerate metadata'));
+
 				check_box($prefix.'_regenerate');
-				label(translate('metadata_regenerate_files'), $prefix.'_regenerate');
-				$o->note(translate('metadata_regenerate_for_currently_applied'));
+				label(translate('Regenerate metadata files'), $prefix.'_regenerate');
+
+				$o->note(translate('Check the box below to regenerate the metadata for all assets that have currently applied this schema.'));
+
 			$o->closeField();
 		} else {
-			$o->note(translate('metadata_cannot_regenerate'));
+			$o->note(translate('Permission Denied to regenerate the metadata'));
+
 		}
 
 		return TRUE;
@@ -170,9 +175,11 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 			$o->openSection($section->name);
 				if ($write_access) {
-					$o->openField(translate('delete_question'));
+					$o->openField(translate('Delete?'));
+
 						check_box($prefix.'_delete_sections['.$link_data['linkid'].']');
-						label(translate('delete_section-field_question'), $prefix.'_delete_sections['.$link_data['linkid'].']');
+						label(translate('Delete this section and all its fields?'), $prefix.'_delete_sections['.$link_data['linkid'].']');
+
 					$o->closeField();
 				}
 				$edit_fns = $section->getEditFns();
@@ -414,11 +421,15 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$page_num = min($page_num, $num_pages);
 
 			if ($num_pages == 1) {
-				$page_tag = sprintf(translate('page_number'), $page_num, $num_pages);
+				$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
+
 			} else {
-				$page_tag = sprintf(translate('page_number_with_pager'), $page_num, $num_pages, $prefix.'_usage_page');
+				$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_usage_page');
+
 			}
-			$asset_count_tag = sprintf(translate('item_range'), ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
+			$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
+
+
 
 			$tree_tops = array_slice($tree_tops, ($page_num - 1) * $page_size, $page_size);
 
@@ -431,19 +442,27 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 					);
 
 			if ($page_num > 1) {
-				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
-				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+				$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
+
+				$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+
 			} else {
-				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
-				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+				$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
+
+				$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
+
 			}
 
 			if ($page_num < $num_pages) {
-				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
-				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+				$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
+
+				$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+
 			} else {
-				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
-				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+				$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
+
+				$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
+
 			}
 
 			hidden_field($prefix.'_usage_page', $page_num); ?>
@@ -454,9 +473,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 				<td class="sq-backend-table-header-header" colspan="2" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
 			</tr>
 			<tr class="sq-backend-table-row">
-				<th class="sq-backend-table-cell"><?php echo translate('asset'); ?></th>
-				<th style="width: 15%" class="sq-backend-table-cell"><?php echo translate('granted_question') ?></th>
-				<th style="width: 15ex" class="sq-backend-table-cell"><?php echo translate('cascade_question') ?></th>
+				<th class="sq-backend-table-cell"><?php echo translate('Asset'); ?></th>
+
+				<th style="width: 15%" class="sq-backend-table-cell"><?php echo translate('Granted?') ?></th>
+
+				<th style="width: 15ex" class="sq-backend-table-cell"><?php echo translate('Cascade?') ?></th>
+
 			</tr>
 			</thead>
 			<tbody>
@@ -476,12 +498,15 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 						$tag_line = get_asset_tag_line($tree_info['assetid'], 'details');
 
 						echo ($tree_info['depth'] === 0 ? '' : '<span style="padding-left: '.($tree_info['depth']*5).'ex">');
-						echo sprintf(translate('asset_and_child_count_0'), $tag_line);
+						echo sprintf(translate('%1$s'), $tag_line);
+
 						echo ($tree_info['depth'] === 0 ? '' : '</span>');
 
 						?></td>
 						<td class="sq-backend-table-cell">
-							<strong><span style="color: <?php echo (($tree_info['granted'] == '0') ? 'red' : 'green'); ?>"><?php echo (($tree_info['granted'] == '0') ? translate('denied') : translate('applied')) ?></span></strong>
+							<strong><span style="color: <?php echo (($tree_info['granted'] == '0') ? 'red' : 'green'); ?>"><?php echo (($tree_info['granted'] == '0') ? translate('Denied') : translate('Applied')) ?></span></strong>
+
+
 						</td>
 						<td class="sq-backend-table-cell">
 							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo translate($tree_info['cascades'] === '1' ? 'yes' : 'no'); ?>" />
@@ -499,10 +524,14 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			</table>
 			<?php
 
-			$o->note(translate('core_schema_usage_explanation'));
+			$o->note(translate('<p>This screen shows which assets have this schema either applied or denied.</p>
+
+	<p>Where the applying or denying of the schema is cascaded unaffected through a tree of assets, only the top asset of that tree will be displayed. However, if any children underneath the asset do anything different to its parent - such as denying the schema where its parent had applied (or vice-versa), or it no longer cascades to new assets - a child entry in the table is created.</p>'));
+
 
 		} else {
-			$o->note(translate('core_schema_usage_no_assets'));
+			$o->note(translate('<p>This schema is not applied to any assets.</p>'));
+
 		}
 
 		$o->closeRaw();

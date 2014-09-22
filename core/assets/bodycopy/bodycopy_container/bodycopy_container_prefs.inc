@@ -111,7 +111,8 @@ class Bodycopy_Container_Prefs extends Prefs
 
 					$content_type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($all_content_types, 'name');
 					combo_box('prefs[SQ_DEFAULT_CONTENT_TYPE]', $content_type_names, FALSE, $default_content_type);
-					echo '<div class="sq-backend-note">'.translate('default_content_type_note').'</div>';
+					echo '<div class="sq-backend-note">'.translate('When new bodycopy containers are created they will use this content type.').'</div>';
+
 				} else {
 					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($default_content_type, 'name');
 				}
@@ -126,14 +127,18 @@ class Bodycopy_Container_Prefs extends Prefs
 
 				$default_pres_type = $this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['default'];
 				$possible_types = Array(
-									'div'	=> translate('block-level'),
-									'span'	=> translate('inline'),
-									'none'	=> translate('raw_html'),
+									'div'	=> translate('Block (div)'),
+
+									'span'	=> translate('Inline (span)'),
+
+									'none'	=> translate('Raw (no formatting)'),
+
 								  );
 
 				if ($have_lock) {
 					combo_box('prefs[SQ_DEFAULT_PRESENTATION_TYPE]', $possible_types, FALSE, $default_pres_type);
-					echo '<div class="sq-backend-note">'.translate('default_presentation_type_note').'</div>';
+					echo '<div class="sq-backend-note">'.translate('When new bodycopy Divs are created they will use this presentation type by default. This can be changed for a particular Div container at any time.').'</div>';
+
 				} else {
 					echo $possible_types[$default_pres_type];
 				}
@@ -152,7 +157,8 @@ class Bodycopy_Container_Prefs extends Prefs
 					<tr>
 						<td class="sq-backend-table-header" nowrap="nowrap">
 						<?php
-							echo translate('disable');
+							echo translate('Disable');
+
 						?>
 						</td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
@@ -167,7 +173,8 @@ class Bodycopy_Container_Prefs extends Prefs
 					</tr>
 				</table>
 				<?php
-			$o->note(translate('div_disable_create_note'));
+			$o->note(translate('Allows you to stop users from being able to create Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.'));
+
 
 			if (is_null($pref)) $o->closeField();
 
@@ -183,7 +190,8 @@ class Bodycopy_Container_Prefs extends Prefs
 					<tr>
 						<td class="sq-backend-table-header" nowrap="nowrap">
 						<?php
-							echo translate('disable');
+							echo translate('Disable');
+
 						?>
 						</td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
@@ -198,7 +206,8 @@ class Bodycopy_Container_Prefs extends Prefs
 					</tr>
 				</table>
 				<?php
-			$o->note(translate('div_disable_delete_note'));
+			$o->note(translate('Allows you to stop users from being able to delete Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.'));
+
 
 			if (is_null($pref)) $o->closeField();
 

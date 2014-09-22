@@ -57,27 +57,33 @@ class Tool_Mass_Clone extends Tool
 	*/
 	public static function paintTool(&$o, $type_code)
 	{
-		$o->openSection(translate('mass_clone'));
-			$o->openField(translate('mass_clone_asset_to_clone'));
+		$o->openSection(translate('Mass Clone'));
+
+			$o->openField(translate('Asset to clone'));
+
 				asset_finder('asset_to_clone', 0, call_user_func(Array($type_code, 'getClonableTypes')));
-				$err_msg = str_replace("'", "\'", translate('mass_clone_must_choose_asset'));
+				$err_msg = str_replace("'", "\'", translate('An asset to clone must be chosen'));
+
 				$o->addOnSubmit("if (document.getElementById('asset_to_clone[assetid]').value == 0) {
 					alert('$err_msg');
 					return false;
 				}");
 			$o->closeField();
-			$o->openField(translate('mass_clone_num_clones'));
+			$o->openField(translate('Number of clones to create'));
+
 				int_text_box('number_of_clones', 1, FALSE, 3, 1, 128);
 			$o->closeField();
 			$o->openField('Parent for new clones');
 				asset_finder('clone_parent');
-				$err_msg = str_replace("'", "\'", translate('mass_clone_must_choose_parent'));
+				$err_msg = str_replace("'", "\'", translate('A parent for the new clones must be chosen'));
+
 				$o->addOnSubmit("if (document.getElementById('clone_parent[assetid]').value == 0) {
 					alert('$err_msg');
 					return false;
 				}");
 			$o->closeField();
-			$o->openField(translate('mass_clone_type_of_link'));
+			$o->openField(translate('Type of link between parent and clones'));
+
 				$link_types = get_link_type_names();
 				unset($link_types[SQ_LINK_NOTICE]);
 				combo_box('link_type', $link_types, FALSE, '');

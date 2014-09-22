@@ -95,11 +95,13 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 							ob_start();
 								?>
 <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib'); ?>/tag_suggestion/tag_suggestion.php?assetid=<?php echo $owner->id; ?>&prefix=<?php echo $prefix; ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return FALSE;">
-	<?php echo translate('tag_suggestion') ?></a>
+	<?php echo translate('Tag Suggestion') ?></a>
+
 <?php
 								$replacements_link = ob_get_contents();
 							ob_end_clean();
-							echo(sprintf(translate('tagging_suggest_indexed'), $replacements_link));
+							echo(sprintf(translate('If indexing is enabled in the Search Manager, you can generate a list of tags from the index using %s'), $replacements_link));
+
 						}
 						ob_end_flush();
 					}
@@ -132,9 +134,11 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 							// restricted; check whether there's any thesaurus to choose from
 							if ($tag_manager->attr('thesaurus')) {
 								multiple_asset_finder($prefix.'_tags', $current_tag_ids, Array('thesaurus_term'=>'D'));
-								$o->note(sprintf(translate('tag_thesaurus_note'), get_asset_tag_line($tag_manager->attr('thesaurus'), 'details')));
+								$o->note(sprintf(translate('Note: You can only select tags from %s'), get_asset_tag_line($tag_manager->attr('thesaurus'), 'details')));
+
 							} else {
-								$o->note(translate('tag_no_thesaurus_set_note'));
+								$o->note(translate('Note: You can only select tags from the tagging thesaurus. Please set a tagging thesaurus in the tag manager'));
+
 							}
 						} else {
 							// unrestricted; just print the asset finder
@@ -175,7 +179,8 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 					} else {
 						foreach ($current_tag_links as $key => $current_tag_link) {
-							echo get_asset_tag_line($current_tag_link['minorid']).' '.translate('weight').': '.$current_tag_link['value'].'<br>';
+							echo get_asset_tag_line($current_tag_link['minorid']).' '.translate('Weight').': '.$current_tag_link['value'].'<br>';
+
 						}
 					}
 
@@ -201,21 +206,27 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 								ob_start();
 							}
 
-							$o->openSection(translate('cascade_options'));
+							$o->openSection(translate('Cascade Options'));
+
 								$o->openField('Note');
-									echo sprintf(translate('action_affects_assets_below_this'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+									echo sprintf(translate('These actions will affect <strong>%1$s</strong> other assets below "<strong>%2$s</strong>"'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 								$o->closeField();
 								$o->openField('&nbsp;');
 									check_box($prefix.'_tagging[cascade_changes]', '1', TRUE);
-									label(translate('cascade_tag_changes'), $prefix.'_tagging[cascade_changes]');
+									label(translate('Cascade tag changes'), $prefix.'_tagging[cascade_changes]');
+
 									echo '<br/>';
 
-										$o->note(translate('tagging_cascade_changes_note'));
+										$o->note(translate('Apply all the tag changes made to this asset to all its children'));
+
 									check_box($prefix.'_tagging[manual_cascade]');
-									label(translate('manually_cascade_all_tags'), $prefix.'_tagging[manual_cascade]');
+									label(translate('Manually cascade all tags'), $prefix.'_tagging[manual_cascade]');
+
 									echo '<br/>';
 
-									$o->note(translate('tagging_manual_cascade_note'));
+									$o->note(translate('Applies all of this asset\'s tags to all of its children'));
+
 
 								$o->closeField();
 
@@ -266,16 +277,19 @@ function paintInlineTagging(&$owner, &$o, &$ei)
 
 	if (empty($current_tag_links)) return FALSE;
 
-		$o->openSection(translate('content_tags'));
+		$o->openSection(translate('Content Tags'));
+
 		$o->openField('&nbsp;');
 		?>
 		<table class="sq-backend-table">
 		<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('content_tag'); ?>
+					<?php echo translate('Content Tag'); ?>
+
 				</td>
 				<td class="sq-backend-table-header" align="right">
-					<?php echo translate('weight'); ?>
+					<?php echo translate('Weight'); ?>
+
 				</td>
 			</tr>
 

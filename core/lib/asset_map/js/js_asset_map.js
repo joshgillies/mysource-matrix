@@ -362,7 +362,8 @@ var JS_Asset_Map = new function() {
 	 * @returns {String}
 	 */
 	var _statusClass = function(statusNum) {
-		var retval = js_translate('unknown');
+		var retval = js_translate('Unknown');
+
 		for (var x in Status) {
 			if (Status[x] === statusNum) {
 				retval = x;
@@ -442,7 +443,8 @@ var JS_Asset_Map = new function() {
 		if (assetTypeCache[typeCode]) {
 			assetLine.setAttribute('title', js_translate('asset_type_id', assetTypeCache[typeCode].name, assetid));
 		} else {
-			assetLine.setAttribute('title', js_translate('asset_type_id', js_translate('unknown_asset_type'), assetid));
+			assetLine.setAttribute('title', js_translate('asset_type_id', js_translate('Unknown Asset Type'), assetid));
+
 		}
 
 		var leafSpan = _createEl('span');
@@ -695,7 +697,8 @@ var JS_Asset_Map = new function() {
 
 		this.resizeTree();
 
-		this.message(js_translate('asset_map_status_bar_init'), true);
+		this.message(js_translate('Initialising...'), true);
+
 		this.doRequest({
 			_attributes: {
 				action: 'initialise'
@@ -756,7 +759,8 @@ var JS_Asset_Map = new function() {
 			self.selectTree(0);
 			self.initEvents();
 
-			self.message(js_translate('asset_map_status_bar_success'), false, 2000);
+			self.message(js_translate('Success!'), false, 2000);
+
 		});
 
 		return true;
@@ -814,7 +818,8 @@ var JS_Asset_Map = new function() {
 
 		this.resizeTree();
 
-		this.message(js_translate('asset_map_status_bar_init'), true);
+		this.message(js_translate('Initialising...'), true);
+
 		this.doRequest({
 			_attributes: {
 				action: 'initialise'
@@ -873,7 +878,8 @@ var JS_Asset_Map = new function() {
 			self.selectTree(0);
 			self.initEvents();
 
-			self.message(js_translate('asset_map_status_bar_success'), false, 2000);
+			self.message(js_translate('Success!'), false, 2000);
+
 		});
 
 		return true;
@@ -1185,10 +1191,12 @@ var JS_Asset_Map = new function() {
 						if (selection.length !== 0) {
 							if (selection.length > 1) {
 								msg   = js_translate('asset_map_confirm_move_children', selection.length);
-								title = js_translate('trash_assets');
+								title = js_translate('Trash Assets');
+
 							} else if (selection.length === 1) {
 								msg   = js_translate('asset_map_confirm_move_child', dfx.getNodeTextContent(dfx.getClass('assetName', selection[0])[0]));
-								title = js_translate('trash_asset');
+								title = js_translate('Trash Asset');
+
 							}
 
 							self.confirmPopup(msg, title, function() {
@@ -1842,11 +1850,13 @@ var JS_Asset_Map = new function() {
 			container.setAttribute('data-offset', 0);
 
 			dfx.addClass(container, 'loading');
-			container.innerHTML = js_translate('asset_map_loading_node');
+			container.innerHTML = js_translate('Loading...');
+
 			branchTarget.parentNode.insertBefore(container, branchTarget.nextSibling);
 
 			// Loading.
-			this.message(js_translate('asset_map_status_bar_requesting'), true);
+			this.message(js_translate('Requesting...'), true);
+
 
 			this.doRequest({
 				_attributes: {
@@ -1881,7 +1891,8 @@ var JS_Asset_Map = new function() {
 
 					switch (assetCount) {
 						case 1:
-							self.message(js_translate('asset_map_status_bar_loaded_child'), false, 2000);
+							self.message(js_translate('Loaded one child'), false, 2000);
+
 						break;
 
 						default:
@@ -2443,7 +2454,8 @@ var JS_Asset_Map = new function() {
 
 					switch (assetCount) {
 						case 1:
-							self.message(js_translate('asset_map_status_bar_loaded_child'), false, 2000);
+							self.message(js_translate('Loaded one child'), false, 2000);
+
 						break;
 
 						default:
@@ -2711,10 +2723,12 @@ var JS_Asset_Map = new function() {
 
 		var buttonYesDiv = _createEl('button');
 		dfx.addClass(buttonYesDiv, 'sq-btn-blue');
-		buttonYesDiv.innerHTML = js_translate('yes');
+		buttonYesDiv.innerHTML = js_translate('Yes');
+
 
 		var buttonNoDiv = _createEl('button');
-		buttonNoDiv.innerHTML = js_translate('no');
+		buttonNoDiv.innerHTML = js_translate('No');
+
 
 		bottomDiv.appendChild(buttonYesDiv);
 		bottomDiv.appendChild(buttonNoDiv);
@@ -2750,7 +2764,8 @@ var JS_Asset_Map = new function() {
 	 */
 	this.raiseError = function(message) {
 		var codeRegexp = / \[([A-Z]{1,4}\d{4})\]$/;
-		var title = js_translate('error');
+		var title = js_translate('Error');
+
 		if (codeRegexp.test(message) === true) {
 			var matches = codeRegexp.exec(message);
 			title   = js_translate('asset_map_matrix_error', matches[1]);
@@ -2777,7 +2792,8 @@ var JS_Asset_Map = new function() {
 
 		var buttonDiv = _createEl('button');
 		dfx.addClass(buttonDiv, 'sq-btn-blue');
-		buttonDiv.innerHTML = js_translate('ok');
+		buttonDiv.innerHTML = js_translate('Ok');
+
 
 		bottomDiv.appendChild(buttonDiv);
 		errorDiv.appendChild(titleDiv);
@@ -2884,7 +2900,8 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(tbButton, 'tbButton');
 		dfx.addClass(tbButton, 'refresh');
 		tbButton.innerHTML = '&nbsp;';
-		tbButton.setAttribute('title', js_translate('asset_map_tooltip_refresh_all'));
+		tbButton.setAttribute('title', js_translate('Refresh all assets'));
+
 		tbButtons.appendChild(tbButton);
 		dfx.addEvent(tbButton, 'click', function(e) {
 			self.refreshTree();
@@ -2895,7 +2912,8 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(tbButton, 'tbButton');
 		dfx.addClass(tbButton, 'restore');
 		tbButton.innerHTML = '&nbsp;';
-		tbButton.setAttribute('title', js_translate('asset_map_tooltip_restore_root'));
+		tbButton.setAttribute('title', js_translate('Restore the root folder'));
+
 		tbButtons.appendChild(tbButton);
 
 		var tbButton = _createEl('span');
@@ -2903,7 +2921,8 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(tbButton, 'tbButton');
 		dfx.addClass(tbButton, 'collapse');
 		tbButton.innerHTML = '&nbsp;';
-		tbButton.setAttribute('title', js_translate('asset_map_tooltip_collapse_all'));
+		tbButton.setAttribute('title', js_translate('Collapse all'));
+
 		tbButtons.appendChild(tbButton);
 
 		var tbButton = _createEl('span');
@@ -2911,7 +2930,8 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(tbButton, 'tbButton');
 		dfx.addClass(tbButton, 'statuses');
 		tbButton.innerHTML = '&nbsp;';
-		tbButton.setAttribute('title', js_translate('asset_map_tooltip_toggle_status'));
+		tbButton.setAttribute('title', js_translate('Show status colours'));
+
 		tbButtons.appendChild(tbButton);
 	};
 
@@ -2980,40 +3000,49 @@ var JS_Asset_Map = new function() {
 		if (direction === 'up') {
 			var tb1Button = _createEl('div');
 			dfx.addClass(tb1Button, 'page-button previous-page');
-			tb1Button.setAttribute('title', js_translate('asset_map_tooltip_previous_node'));
+			tb1Button.setAttribute('title', js_translate('View Previous Set of Assets'));
+
 			dfx.addEvent(tb1Button, 'click', function() {
-				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+				textSpan.innerHTML = js_translate('Requesting...');
+
 				self.pageContainer(pageDiv.parentNode, Math.max(0, (offset - options.assetsPerPage)), totalAssets);
 			});
 
 			var tb2Button = _createEl('div');
 			dfx.addClass(tb2Button, 'page-button first-page');
-			tb2Button.setAttribute('title', js_translate('asset_map_tooltip_first_node'));
+			tb2Button.setAttribute('title', js_translate('View First Set of Assets'));
+
 			dfx.addEvent(tb2Button, 'click', function() {
-				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+				textSpan.innerHTML = js_translate('Requesting...');
+
 				self.pageContainer(pageDiv.parentNode, 0, totalAssets);
 			});
 		} else {
 			var tb1Button = _createEl('div');
 			dfx.addClass(tb1Button, 'page-button next-page');
-			tb1Button.setAttribute('title', js_translate('asset_map_tooltip_next_node'));
+			tb1Button.setAttribute('title', js_translate('View Next Set of Assets'));
+
 			dfx.addEvent(tb1Button, 'click', function() {
-				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+				textSpan.innerHTML = js_translate('Requesting...');
+
 				self.pageContainer(pageDiv.parentNode, Math.min(lastPageStart, (offset + options.assetsPerPage)), totalAssets);
 			});
 
 			var tb2Button = _createEl('div');
 			if (totalAssets > -1) {
 				dfx.addClass(tb2Button, 'page-button last-page');
-				tb2Button.setAttribute('title', js_translate('asset_map_tooltip_last_node'));
+				tb2Button.setAttribute('title', js_translate('View Last Set of Assets'));
+
 				dfx.addEvent(tb2Button, 'click', function() {
-					textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+					textSpan.innerHTML = js_translate('Requesting...');
+
 					self.pageContainer(pageDiv.parentNode, lastPageStart, totalAssets);
 				});
 			} else {
 				// Don't show last page button if shadow asset.
 				dfx.addClass(tb2Button, 'page-button last-page disabled');
-				tb2Button.setAttribute('title', js_translate('asset_map_tooltip_last_node_bridge'));
+				tb2Button.setAttribute('title', js_translate('Last Set is not available on Bridge assets'));
+
 			}
 		}
 
@@ -3037,7 +3066,8 @@ var JS_Asset_Map = new function() {
 
 		var divider = _createEl('div');
 		divider.id  = 'asset_map_status_list_divider';
-		divider.title = 'Toggle ' + js_translate('asset_map_status_colour_key');
+		divider.title = 'Toggle ' + js_translate('Status colour key');
+
 		dfx.addClass(divider, 'statusDivider');
 		container.appendChild(divider);
 
@@ -3047,7 +3077,8 @@ var JS_Asset_Map = new function() {
 
 		var dividerText = _createEl('span');
 		dfx.addClass(dividerText, 'text');
-		dividerText.innerHTML = js_translate('asset_map_status_colour_key');
+		dividerText.innerHTML = js_translate('Status colour key');
+
 		divider.appendChild(dividerText);
 		
 		var containerInner = _createEl('div');
@@ -3112,7 +3143,8 @@ var JS_Asset_Map = new function() {
 		var tree1 = _createEl('span');
 		dfx.addClass(tree1, 'tab sq-menu-tab vertical');
 		tree1.setAttribute('data-treeid', 0);
-		tree1.innerHTML = js_translate('asset_map_tree1_name');
+		tree1.innerHTML = js_translate('Tree One');
+
 		treeList.appendChild(tree1);
 		dfx.addEvent(tree1, 'click', function() {
 			if (self.isModalActive() === false) {
@@ -3123,7 +3155,8 @@ var JS_Asset_Map = new function() {
 		var tree2 = _createEl('span');
 		dfx.addClass(tree2, 'tab sq-menu-tab vertical');
 		tree2.setAttribute('data-treeid', 1);
-		tree2.innerHTML = js_translate('asset_map_tree2_name');
+		tree2.innerHTML = js_translate('Tree Two');
+
 		treeList.appendChild(tree2);
 		dfx.addEvent(tree2, 'click', function() {
 			if (self.isModalActive() === false) {
@@ -3317,7 +3350,8 @@ var JS_Asset_Map = new function() {
 					self.refreshTree(treeRefresh[j]);
 				}
 			}
-			self.message(js_translate('asset_map_status_bar_success'), false, 2000);
+			self.message(js_translate('Success!'), false, 2000);
+
 		};
 
 		this.doRequest({
@@ -3352,7 +3386,8 @@ var JS_Asset_Map = new function() {
 			self.drawTree(childNode.previousSibling, thisAsset, childNode, offset, totalAssets);
 			childNode.setAttribute('data-offset', offset);
 
-			self.message(js_translate('asset_map_status_bar_success'), false, 2000);
+			self.message(js_translate('Success!'), false, 2000);
+
 		};
 
 		this.doRequest({
@@ -3511,7 +3546,8 @@ var JS_Asset_Map = new function() {
 					self.drawTree(assetNode, thisAsset, container, assetRequests[reqIndex]._attributes.start, Number(thisAsset._attributes.num_kids));
 				}//end for
 
-				self.message(js_translate('asset_map_status_bar_success'), false, 2000);
+				self.message(js_translate('Success!'), false, 2000);
+
 			};
 
 			this.doRequest({
@@ -3640,7 +3676,8 @@ var JS_Asset_Map = new function() {
 					}
 				}
 
-				self.message(js_translate('asset_map_status_bar_success'), false, 2000);
+				self.message(js_translate('Success!'), false, 2000);
+
 			};
 
 			this.doRequest({
@@ -4006,7 +4043,8 @@ var JS_Asset_Map = new function() {
 		var self = this;
 
 		if (this.isInUseMeMode() === true) {
-			alert(js_translate('asset_finder_in_use'));
+			alert(js_translate('The asset finder is currently in use'));
+
 		} else {
 			// Make sure typeFilter gets our own array functions.
 			if (typeFilter) {
@@ -4109,7 +4147,8 @@ var JS_Asset_Map = new function() {
 			e.preventDefault();
 		});
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_useme'));
+		var menuItem = this.drawMenuItem(js_translate('Use Me'));
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			var sourceFrame = self.getUseMeFrame().document;
 			self.clearMenus();
@@ -4143,7 +4182,8 @@ var JS_Asset_Map = new function() {
 
 			var changeButton = dfx.getId(useMeStatus.idPrefix + '_change_btn', sourceFrame);
 			if(changeButton !== null) {
-				changeButton.value = js_translate('change');
+				changeButton.value = js_translate('Change');
+
 			}
 
 			document.cookie = 'lastSelectedLinkId=' + escape(linkid);
@@ -4263,7 +4303,8 @@ var JS_Asset_Map = new function() {
 		var sep = this.drawMenuSeparator();
 		container.appendChild(sep);
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_teleport'), null);
+		var menuItem = this.drawMenuItem(js_translate('Teleport'), null);
+
 		container.appendChild(menuItem);
 		if (options.simple === false) {
 			dfx.addEvent(menuItem, 'click', function(e) {
@@ -4274,7 +4315,8 @@ var JS_Asset_Map = new function() {
 			dfx.addClass(menuItem, 'disabled');
 		}
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_refresh'), null);
+		var menuItem = this.drawMenuItem(js_translate('Refresh'), null);
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 			self.refreshTree(assetid);
@@ -4286,7 +4328,8 @@ var JS_Asset_Map = new function() {
 		//       (needs additional handling in asset_map.inc).
 		if (assetType !== 'trash_folder') {
 			if (lastCreatedType === null) {
-				var menuItem = this.drawMenuItem(js_translate('asset_map_menu_no_previous_child'), null);
+				var menuItem = this.drawMenuItem(js_translate('No Previous Child'), null);
+
 				dfx.addClass(menuItem, 'disabled');
 			} else {
 				var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_previous', assetTypeCache[lastCreatedType].name), lastCreatedType);
@@ -4297,7 +4340,8 @@ var JS_Asset_Map = new function() {
 			}
 			container.appendChild(menuItem);
 
-			var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_child'), null, true);
+			var menuItem = this.drawMenuItem(js_translate('New Child'), null, true);
+
 			container.appendChild(menuItem);
 
 			dfx.addEvent(menuItem, 'mouseover', function(e) {
@@ -4344,7 +4388,8 @@ var JS_Asset_Map = new function() {
 		});
 
 		// Create Here.
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_create_here'), null);
+		var menuItem = this.drawMenuItem(js_translate('Create here'), null);
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 			if (dfx.isFn(callbackFn) === true) {
@@ -4354,7 +4399,8 @@ var JS_Asset_Map = new function() {
 		container.appendChild(menuItem);
 
 		// Cancel.
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_cancel'), null);
+		var menuItem = this.drawMenuItem(js_translate('Cancel'), null);
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 		});
@@ -4390,7 +4436,8 @@ var JS_Asset_Map = new function() {
 			e.preventDefault();
 		});
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_move_here'), null);
+		var menuItem = this.drawMenuItem(js_translate('Move here'), null);
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 			self.moveAsset(AssetActions.Move, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
@@ -4398,7 +4445,8 @@ var JS_Asset_Map = new function() {
 
 		container.appendChild(menuItem);
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_link_here'), null);
+		var menuItem = this.drawMenuItem(js_translate('New Link here'), null);
+
 
 		// Determine if all of the sources are of the same parent as the selection.
 		// If they are, disable New Link Here as it is not possible.
@@ -4426,7 +4474,8 @@ var JS_Asset_Map = new function() {
 		}
 		container.appendChild(menuItem);
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_clone_here'), null);
+		var menuItem = this.drawMenuItem(js_translate('Clone here'), null);
+
 		if (moveTarget.selection.parentid === trashFolder) {
 			dfx.addClass(menuItem, 'disabled');
 		} else {
@@ -4440,7 +4489,8 @@ var JS_Asset_Map = new function() {
 		var sep = this.drawMenuSeparator();
 		container.appendChild(sep);
 
-		var menuItem = this.drawMenuItem(js_translate('cancel'), null);
+		var menuItem = this.drawMenuItem(js_translate('Cancel'), null);
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 		});
@@ -4470,7 +4520,8 @@ var JS_Asset_Map = new function() {
 			e.preventDefault();
 		});
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_move'), null);
+		var menuItem = this.drawMenuItem(js_translate('Move'), null);
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 			self.moveMe.enable(assetNodes, function(source, selection) {
@@ -4479,7 +4530,8 @@ var JS_Asset_Map = new function() {
 		});
 		container.appendChild(menuItem);
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_link'), null);
+		var menuItem = this.drawMenuItem(js_translate('New Link'), null);
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 			self.moveMe.enable(assetNodes, function(source, selection) {
@@ -4488,7 +4540,8 @@ var JS_Asset_Map = new function() {
 		});
 		container.appendChild(menuItem);
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_clone'), null);
+		var menuItem = this.drawMenuItem(js_translate('Clone'), null);
+
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 			self.moveMe.enable(assetNodes, function(source, selection) {
@@ -4756,7 +4809,8 @@ var JS_Asset_Map = new function() {
 		var str = JSON.stringify(command);
 		var self = this;
 		var readyStateCb = function() {
-			self.message(js_translate('asset_map_status_bar_requesting'), true);
+			self.message(js_translate('Requesting...'), true);
+
 			if (xhr.readyState === 4) {
 				var response = xhr.responseText;
 				if (response !== null) {
@@ -4765,7 +4819,8 @@ var JS_Asset_Map = new function() {
 						self.message('', false);
 					} catch (ex) {
 						// That we made it here means it couldn't be handled.
-						self.message(js_translate('asset_map_status_bar_error_requesting'), false, 2000);
+						self.message(js_translate('Error While Requesting'), false, 2000);
+
 						if (dfx.isFn(failedCallback) === true) {
 							failedCallback(ex);
 						} else {
@@ -4785,7 +4840,8 @@ var JS_Asset_Map = new function() {
 		   url
 		);
 
-		self.message(js_translate('asset_map_status_bar_requesting'), true);
+		self.message(js_translate('Requesting...'), true);
+
 
 		xhr.setRequestHeader('Content-type', 'application/json');
 		xhr.onreadystatechange = readyStateCb;
@@ -4875,9 +4931,11 @@ var JS_Asset_Map = new function() {
 				var mainWin      = JS_Asset_Map.getUseMeFrame();
 				var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
 				if (JS_Asset_Map.isInUseMeMode(name) === true) {
-					alert(js_translate('asset_finder_in_use'));
+					alert(js_translate('The asset finder is currently in use'));
+
 				} else if (JS_Asset_Map.isInUseMeMode() === true) {
-					changeButton.setAttribute('value', js_translate('change'));
+					changeButton.setAttribute('value', js_translate('Change'));
+
 					closeOnExit();
 					JS_Asset_Map.cancelUseMeMode();
 				} else {
@@ -4887,7 +4945,8 @@ var JS_Asset_Map = new function() {
 						resizer_frame.toggleFrame();
 					}
 		
-					changeButton.setAttribute('value', js_translate('cancel'));
+					changeButton.setAttribute('value', js_translate('Cancel'));
+
 					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, false, function() {
 							closeOnExit();
 							if (dfx.isFn(doneCallback) === true) {

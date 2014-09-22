@@ -62,7 +62,8 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($assetid)) {
 			echo get_asset_tag_line($assetid, 'details');
 		} else {
-			echo translate('none');
+			echo translate('None');
+
 		}
 
 	}

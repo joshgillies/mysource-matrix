@@ -132,7 +132,8 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('ipb_path_to_ipbsdk'); ?></th>
+				<th><?php echo translate('Path to the IPB SDK Installation'); ?></th>
+
 				<td><?php
 					// level
 					if ($write_access) {

@@ -305,7 +305,8 @@ class Comment extends Page
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['comment_max_length'] = translate('news_comment_max_length');
+		$keywords['comment_max_length'] = translate('Number of allowed characters in comment body');
+
 		$keywords['comment_max_rating'] = 'Max Rating Value';
 		$keywords['comment_rating'] = 'Rating Assigned to the comment (possibly a decimal)';
 		$keywords['comment_rating_integer'] = 'Rating Assigned to the comment as integer';

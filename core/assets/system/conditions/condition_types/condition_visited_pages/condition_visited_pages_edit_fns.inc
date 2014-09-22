@@ -73,7 +73,8 @@ class Condition_Visited_Pages_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('url_patterns'); ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('URL Patterns'); ?></th>
+
 				<td>
 				<?php
 				if (!$write_access && empty($condition_data['url_patterns'])) {
@@ -87,10 +88,12 @@ class Condition_Visited_Pages_Edit_Fns extends Condition_Edit_Fns
 							echo '<th></th>';
 						}
 						?>
-						<th><?php echo translate('pattern'); ?></th>
+						<th><?php echo translate('Pattern'); ?></th>
+
 						<?php if ($write_access) {
 						?>
-							<th style="text-align: center;"><?php echo translate('delete_question'); ?></th>
+							<th style="text-align: center;"><?php echo translate('Delete?'); ?></th>
+
 						<?php
 						}
 						?>
@@ -103,7 +106,8 @@ class Condition_Visited_Pages_Edit_Fns extends Condition_Edit_Fns
 								<td>
 									<?php
 									if ($index === 'new') {
-										echo '<strong>'.translate('new_question').'</strong>';
+										echo '<strong>'.translate('New?').'</strong>';
+
 									}
 									?>
 								</td>
@@ -138,14 +142,16 @@ class Condition_Visited_Pages_Edit_Fns extends Condition_Edit_Fns
 				?>
 				</td>
 			<tr>
-				<th><?php echo translate('asset_ids'); ?></th>
+				<th><?php echo translate('Asset IDs'); ?></th>
+
 				<td>
 				<?php
 				if ( $write_access) {
 					multiple_asset_finder($prefix.'[assetids]', $condition_data['assetids']);
 				} else {
 					if (empty($condition_data['assetids'])) {
-						echo '<em>'.translate('condition_no_assetids_selected').'</em>';
+						echo '<em>'.translate('No asset ids selected.').'</em>';
+
 					} else {
 						echo '<ul class="sq-asset-id-list">';
 						foreach ($condition_data['assetids'] as $assetid) {
@@ -159,7 +165,8 @@ class Condition_Visited_Pages_Edit_Fns extends Condition_Edit_Fns
 			</tr>
 		</table>
 		<?php
-		$o->note(sprintf(translate('condition_site_referrer_note'), SQ_CONF_VISITED_PAGES_MAX_ENTRIES));
+		$o->note(sprintf(translate('This condition will only evaluate on the last <strong>%s</strong> visisted pages. This limit can be changed on the System Configuration screen.'), SQ_CONF_VISITED_PAGES_MAX_ENTRIES));
+
 
 	}//end paintEditInterface()
 

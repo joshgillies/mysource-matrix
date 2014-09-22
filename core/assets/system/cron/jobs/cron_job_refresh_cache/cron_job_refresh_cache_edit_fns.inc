@@ -80,11 +80,13 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 						// paint the start time using a one off job's edit fns
 						$cron_job = new Cron_Job();
 						$edit_fns = $cron_job->getEditFns();
-						echo translate('cron_job_refresh_cache_at');
+						echo translate('Refresh cache at');
+
 						$edit_fns->_paintWhenBox($cron_job, $o, $prefix);
 
 						// paint the repeat frequency using repeating time interval job's edit fns
-						echo '<br />'.translate('cron_job_regenerate_report_repeat');
+						echo '<br />'.translate('and repeat this process every');
+
 						$this->_paintWhenBox($asset, $o, $prefix);
 					?>
 					</span>

@@ -44,7 +44,8 @@ class Tag_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array();
 
 		// enable just the details
-		$this->static_screens['details']['name']         =translate('details');
+		$this->static_screens['details']['name']         =translate('Details');
+
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type']    = 'attributes';
 

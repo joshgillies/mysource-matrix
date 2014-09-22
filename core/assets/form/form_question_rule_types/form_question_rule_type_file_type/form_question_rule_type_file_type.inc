@@ -54,8 +54,10 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_file_type_true'),
-				0	=> translate('core_form_rule_file_type_false'),
+				1	=> translate('Must match one of these extensions'),
+
+				0	=> translate('Must not match one of these extensions'),
+
 			   );
 
 	}//end getOperators()

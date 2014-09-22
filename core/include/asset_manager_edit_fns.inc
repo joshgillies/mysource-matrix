@@ -266,9 +266,11 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			// check that they entered the correct security key
 			if (!validate_security_key()) {
 				// the security key entered is wrong
-				$o->openSection(translate('security_key_incorrect'));
+				$o->openSection(translate('Security Key Incorrect'));
+
 				$o->openField('&nbsp;');
-				echo '<b><i>'.sprintf(translate('security_key_incorrect_message'), $asset->name).'</i></b>';
+				echo '<b><i>'.sprintf(translate('The security key entered was incorrect. The lock on "%s" has not been forcibly acquired. You may try again using the new security key displayed below.'), $asset->name).'</i></b>';
+
 				$o->closeSection();
 			} else {
 				$o->addOnLoad('window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire_by_force\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_type\', \''.addslashes($_GET['sq_lock_type']).'\'); window.opener.parent.frames["sq_main"].submit_form(); window.close();');
@@ -299,15 +301,18 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			return;
 		}
 
-		$o->openSection(translate('forcibly_acquire'));
+		$o->openSection(translate('Forcibly Acquire'));
+
 			$o->openField('');
-				$o->note(sprintf(translate('forcibly_acquire_lock_can_cause_losses'), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+				$o->note(sprintf(translate('You are about to forcibly acquire the following locks on "%1$s"<br><b>Any changes being made to "%2$s" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>'), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+
 			$o->openField('');
 		?>
 		<table border="0">
 			<tr>
 				<td>
-					<?php echo translate('enter_character_security_string'); ?>
+					<?php echo translate('To confirm the acquiring of the lock, enter the character string you see below into the box supplied, then press the Commit button.'); ?>
+
 				</td>
 			</tr>
 			<tr>
@@ -317,13 +322,15 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		<table class="sq-backend-table" style="width: auto;">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('lock_type'); ?>
+					<?php echo translate('Lock Type'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
 					&nbsp;
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('other_assets_in_chain'); ?>
+					<?php echo translate('Other Assets in Chain'); ?>
+
 				</td>
 			</tr>
 		<?php
@@ -354,14 +361,17 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					}
 
 					if (is_null($lock['expires'])) {
-						$expires_in = translate('lock_held_indefinitely');
+						$expires_in = translate('The lock is being held indefinitely and will not expire. The lock must be released manually or be forcibly acquired by a System Administrator.');
+
 					} else {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 						if (!$expires_in) {
 							$expires_in = '1 '.translate('second');
+
 						}
-						$expires_in = sprintf(translate('due_to_expire'), $expires_in);
+						$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
+
 					}
 
 					?>
@@ -398,7 +408,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->closeSection();
 
 		$o->openField('', 'commit');
-		normal_button('cancel', translate('cancel'), 'window.close()');
+		normal_button('Cancel', translate('Cancel'), 'window.close()');
+
 		echo '&nbsp;';
 		submit_button('commit', SQ_CONF_COMMIT_BUTTON_TEXT);
 
@@ -421,7 +432,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
 
-		$o->openSection(translate('asset_types'));
+		$o->openSection(translate('Asset Types'));
+
 		$o->openField('', 'wide_col');
 
 

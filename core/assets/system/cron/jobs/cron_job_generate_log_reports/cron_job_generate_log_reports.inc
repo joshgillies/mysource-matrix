@@ -99,7 +99,8 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		return translate('cron_job_generate_log_reports');
+		return translate('Generate Log Reports Scheduled Job');
+
 
 	}//end _getName()
 

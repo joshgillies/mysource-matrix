@@ -124,7 +124,8 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintExampleXMLFile(&$asset, &$o, $prefix)
 	{
-		echo sprintf(translate('thesaurus_example_xml_file'), sq_web_path('data').'/asset_types/thesaurus/files/example.xml');
+		echo sprintf(translate('To demonstrate the expected structure of the imported XML file, an <a href="%s" target="_blank">example file</a> is available.'), sq_web_path('data').'/asset_types/thesaurus/files/example.xml');
+
 
 		// don't ever need a commit button
 		return FALSE;
@@ -153,20 +154,24 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			}
 			// download
 			echo hidden_field($prefix.'_process_export', '0');
-			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
+			echo normal_button($prefix.'_export', translate('Download File'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
+
 			echo ' Generated on '.date ('r', filectime($asset->getXmlFilePath()));
 			echo '<br />';
 		}
 
 
 		if ($asset->countTerms()==0) {
-			echo translate('thesaurus_thesaurus_disabled');
+			echo translate('The thesaurus currently has no terms.');
+
 		} else if ($write_access_allowed) {
 			echo hidden_field($prefix.'_process_generate', '0');
-			echo normal_button($prefix.'_regenerate', translate('thesaurus_generate_file'), 'this.form.'.$prefix.'_process_generate.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_generate.value = 0; return true;');
+			echo normal_button($prefix.'_regenerate', translate('Generate XML file'), 'this.form.'.$prefix.'_process_generate.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_generate.value = 0; return true;');
+
 		} else if ($asset->attr('contents_changed')) {
 			// a new file needs to be generated and we don't have a lock
-			echo translate('thesaurus_thesaurus_not_generated');
+			echo translate('XML file is not in sync with thesaurus. Thesaurus contents have been changed. Please acquire lock to generate a new file.');
+
 		}
 
 		return $write_access_allowed;
@@ -253,7 +258,8 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		$relations[NULL] = '-- SELECT Relation to Rename --';
 		$relations += $asset->getActiveRelations();
 		combo_box($prefix.'_relation', $relations, FALSE, NULL);
-		label(translate('thesaurus_new_relation'),$prefix.'_new_relation');
+		label(translate('New Relation'),$prefix.'_new_relation');
+
 		text_box($prefix.'_new_relation', NULL, $size='30', $max='255');
 
 		return $write_access_allowed;

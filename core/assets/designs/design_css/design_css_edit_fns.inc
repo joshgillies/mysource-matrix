@@ -269,7 +269,8 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			}
 
 		} else {
-			echo translate('core_no_customisation_created');
+			echo translate('No Customisations Created');
+
 		}
 
 	}//end paintCurrentCustomisations()

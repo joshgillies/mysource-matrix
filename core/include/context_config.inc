@@ -206,7 +206,8 @@ class Context_Config extends Config
 		</th>
 	</tr>
 	<tr>
-		<th><?php echo translate('edit_question'); ?></th>
+		<th><?php echo translate('Edit?'); ?></th>
+
 		<th><?php echo translate($this->prefix.'context_name'); ?></th>
 		<th colspan="4"></th>
 	</tr>
@@ -356,12 +357,16 @@ class Context_Config extends Config
 					// print second header row for alternate contexts
 		?>
 	<tr class="sq-table-row">
-		<th><?php echo translate('edit_question'); ?></th>
+		<th><?php echo translate('Edit?'); ?></th>
+
 		<th><?php echo translate($this->prefix.'context_name'); ?></th>
 		<th><?php echo translate($this->prefix.'context_details'); ?></th>
-		<th style="text-align: center"><?php echo translate('valid_question'); ?></th>
-		<th style="text-align: center"><?php echo translate('reorder_question'); ?></th>
-		<th style="text-align: center"><?php echo translate('delete_question'); ?></th>
+		<th style="text-align: center"><?php echo translate('Valid?'); ?></th>
+
+		<th style="text-align: center"><?php echo translate('Reorder?'); ?></th>
+
+		<th style="text-align: center"><?php echo translate('Delete?'); ?></th>
+
 	</tr><?php
 				} else {
 					// No alternate contexts - don't print header; instead print message
@@ -680,7 +685,8 @@ class Context_Config extends Config
 	*/
 	public function paintSelectedContext(Backend_Outputter $o, Array $contexts, $current_context)
 	{
-		$o->openField(translate('name'));
+		$o->openField(translate('Name'));
+
 			text_box($this->prefix.'name', array_get_index($contexts[$current_context], 'name', ''));
 			hidden_field($this->prefix.'editing', (string)$current_context);
 		$o->closeField();
@@ -700,8 +706,10 @@ class Context_Config extends Config
 
 			$o->openField(translate($this->prefix.'minimum_matches'));
 				$list_options = Array(
-							'at_least'	=> translate('at_least'),
-							'all'		=> translate('all'),
+							'At least'	=> translate('At least'),
+
+							'All'		=> translate('All'),
+
 						   );
 
 				if ($at_least === NULL) {
@@ -725,7 +733,8 @@ class Context_Config extends Config
 				<?php
 			$o->closeField();
 
-			$o->openField(translate('conditions'));
+			$o->openField(translate('Conditions'));
+
 				$this->_paintConditionsList($o, $conditions);
 			$o->closeField();
 
@@ -739,7 +748,8 @@ class Context_Config extends Config
 								'post'				=> translate($this->prefix.'type_post'),
 							);
 
-			$o->openField(translate('new_condition_question'));
+			$o->openField(translate('New Condition?'));
+
 			?><p><?php
 				ob_start();
 					check_box($this->prefix.'new_condition', '1', FALSE, 'document.getElementById("'.$this->prefix.'new_condition_type").disabled = !this.checked; if (this.checked == true) { document.getElementById("'.$this->prefix.'new_condition_type").focus() };');
@@ -776,7 +786,8 @@ class Context_Config extends Config
 	<tr class="sq-table-row">
 		<th><?php echo translate($this->prefix.'condition_type'); ?></th>
 		<th><?php echo translate($this->prefix.'condition_details'); ?></th>
-		<th style="text-align: center"><?php echo translate('delete_question'); ?></th>
+		<th style="text-align: center"><?php echo translate('Delete?'); ?></th>
+
 	</tr><?php
 		foreach ($conditions as $condition_id => &$condition_options) {
 		?>
@@ -1614,7 +1625,8 @@ class Context_Config extends Config
 
 			foreach ($overlap as $code => $language) {
 				if(isset($standards_lists_languages[$code])) {
-					$standards_lists_languages[$code] = sprintf(translate('non_localised_variation'), $language);
+					$standards_lists_languages[$code] = sprintf(translate('%s (Non-Localised variation)'), $language);
+
 				}
 			}
 

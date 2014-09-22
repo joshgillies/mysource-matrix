@@ -311,7 +311,9 @@ class HIPO_Herder extends MySource_Object
 				$delay = ($source_job->getRunningMode() == 'server');
 				$onload = 'document.'.$form_name.'.submit();';
 			}
-			$status_msg = $source_job->complete() ? sprintf(translate('hipo_complete'), $source_job->getHipoName()) : sprintf(translate('hipo_progress'), $source_job->getHipoName());
+			$status_msg = $source_job->complete() ? sprintf(translate('%s HIPO Complete'), $source_job->getHipoName()) : sprintf(translate('%s HIPO Progress'), $source_job->getHipoName());
+
+
 		}
 
 		$o = $this->getBackendOutputter();
@@ -328,7 +330,8 @@ class HIPO_Herder extends MySource_Object
 				if (ON_LOAD_TIME_OUT != null) {
 					clearTimeout(ON_LOAD_TIME_OUT);
 				}
-				if (confirm(js_translate('confirm_cancel'))) {
+				if (confirm(js_translate('Are you sure you want to cancel?'))) {
+
 					document.<?php echo $form_name; ?>.cancel_hipo.value = "1";
 					document.<?php echo $form_name; ?>.submit();
 				} else {
@@ -336,7 +339,8 @@ class HIPO_Herder extends MySource_Object
 					if (!is_null($source_job) && $source_job->getRunningMode() == 'server') {
 						?>next_page();<?php
 					} else {
-						?>alert(js_translate('action_cannot_be_performed'));<?php
+						?>alert(js_translate('This action cannot be performed'));<?php
+
 					}
 					?>
 				}
@@ -410,10 +414,12 @@ class HIPO_Herder extends MySource_Object
 							// if the source job is null it means that an abort finally finished
 							// (we couldn't get here otherwise) so print that and get out of here
 							if (is_null($source_job)) {
-								echo translate('hipo_abort_complete');
+								echo translate('Abort Complete');
+
 								$button_text = 'OK';
 							} else {
-								echo translate('hipo_aborting');
+								echo translate('Aborting...');
+
 								$button_text = 'Next';
 							}
 
@@ -944,10 +950,12 @@ class HIPO_Herder extends MySource_Object
 						echo '<div class="sq-locks-button-wrapper">';
 							if (!empty($lock)) {
 								if ($have_lock) {
-									submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+									submit_button('sq_lock_release_manual', translate('Release Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+
 								}
 							} else {
-								submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+								submit_button('sq_lock_acquire', translate('Acquire Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+
 							}
 						echo '</div>';
 						echo '<p class="sq-lock-message">';
@@ -960,17 +968,25 @@ class HIPO_Herder extends MySource_Object
 								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 								$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 								if (!$expires_in) $expires_in = '1 second';
-								$expires_in = sprintf(translate('due_to_expire'), $expires_in);
+								$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
+
 								if ($have_lock) {
-									echo sprintf(translate('release_lock'), translate('release_lock_button'), translate('hipo_herder'));
+									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), translate('HIPO Herder'));
+
+
+
 								}
 								if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-									echo sprintf(translate('lock_held_by_user'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+									echo sprintf(translate('Held by user "%s"'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+
 								}
 								echo ' '.$expires_in.'.';
 
 							} else {
-								echo sprintf(translate('acquire_lock'), translate('acquire_lock_button'), translate('hipo_herder'));
+								echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), translate('HIPO Herder'));
+
+
+
 							}
 						echo '</p>';
 						?>
@@ -980,7 +996,8 @@ class HIPO_Herder extends MySource_Object
 		<?php
 		$o->closeRaw();
 
-		$o->openSection(translate('current_hipo_jobs'));
+		$o->openSection(translate('Current HIPO Jobs'));
+
 			$o->openField('', 'wide_col');
 
 			$source_jobs = Array();
@@ -1013,7 +1030,8 @@ class HIPO_Herder extends MySource_Object
 			}
 
 			if (empty($source_jobs[''])) {
-				echo translate('hipo_currently_no_jobs');
+				echo translate('There are currently no HIPO Jobs on the system');
+
 
 			} else {
 				?>
@@ -1022,18 +1040,24 @@ class HIPO_Herder extends MySource_Object
 						<?php
 							if ($have_lock) {
 								?>
-									<th class="sq-backend-table-header" style="width: 30px;"><?php echo translate('hipo_herder_resume'); ?></th>
+									<th class="sq-backend-table-header" style="width: 30px;"><?php echo translate('Resume'); ?></th>
+
 								<?php
 							}
 						?>
-						<th class="sq-backend-table-header"><?php echo translate('hipo_herder_job_type'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('owner'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('hipo_last_updated'); ?></th>
-						<th class="sq-backend-table-header" style="text-align: center;"><?php echo translate('percent_complete'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('Job Type'); ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Owner'); ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Last Updated'); ?></th>
+
+						<th class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Percent Complete'); ?></th>
+
 				<?php
 					if ($have_lock) {
 						?>
-							<th class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></th>
+							<th class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Delete?'); ?></th>
+
 						<?php
 					} // end if have lock
 				?>
@@ -1058,11 +1082,13 @@ class HIPO_Herder extends MySource_Object
 									if (($source_job->userid === $current_user_id) || $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 									?>
 										<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;">
-											<img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" />
+											<img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('Resume this HIPO Job'); ?>" alt="Resume <?php echo $source_code_name; ?>" />
+
 										</a>
 										&nbsp;
 										<a href="#" onclick="var result = window.open('./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>', 'hipo_job<?php echo $source_code_name; ?>', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');return false;" style="text-decoration: none;" >
-											<img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume_popup.png" title="<?php echo translate('hipo_herder_continue_new_window'); ?>" alt="Resume <?php echo $source_code_name; ?>" />
+											<img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume_popup.png" title="<?php echo translate('Resume this HIPO Job in a new window'); ?>" alt="Resume <?php echo $source_code_name; ?>" />
+
 										</a>
 									<?php
 									}
@@ -1152,7 +1178,8 @@ class HIPO_Herder extends MySource_Object
 		$o->closeSection();
 
 		// get jobs that have a non-existant source job
-		$o->openSection(translate('orphaned_hipo_jobs'));
+		$o->openSection(translate('Orphaned HIPO Jobs'));
+
 			$o->openField('', 'wide_col');
 
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
@@ -1181,19 +1208,25 @@ class HIPO_Herder extends MySource_Object
 
 				// no orphaned jobs, yay
 				if (empty($orphaned_jobs)) {
-					echo translate('hipo_currently_no_oprhaned_jobs');
+					echo translate('There are currently no orphaned HIPO Jobs on the system');
+
 				} else {
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header"><?php echo translate('hipo_herder_job_type'); ?></td>
-							<td class="sq-backend-table-header"><?php echo translate('hipo_herder_parent_job_type'); ?></td>
-							<td class="sq-backend-table-header"><?php echo translate('owner'); ?></td>
-							<td class="sq-backend-table-header"><?php echo translate('hipo_last_updated'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('Job Type'); ?></td>
+
+							<td class="sq-backend-table-header"><?php echo translate('Parent Job Type'); ?></td>
+
+							<td class="sq-backend-table-header"><?php echo translate('Owner'); ?></td>
+
+							<td class="sq-backend-table-header"><?php echo translate('Last Updated'); ?></td>
+
 					<?php
 					if ($have_lock) {
 						?>
-							<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+							<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Delete?'); ?></td>
+
 						<?php
 					} // end if have lock
 					?>

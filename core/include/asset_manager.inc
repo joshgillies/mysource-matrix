@@ -1199,7 +1199,8 @@ class Asset_Manager extends MySource_Object
 
 		// This function is supposed to take in an assetid of type int or string only, array of assetids should not be accepted.
 		if (is_array($assetid)) {
-			$msg = sprintf(translate('assert_assetid'), gettype($assetid), '');
+			$msg = sprintf(translate('[%1$s] "%2$s" is not a valid asset ID'), gettype($assetid), '');
+
 			trigger_exception($msg, FALSE, TRUE);
 			$asset = NULL;
 			return $asset;
@@ -5894,7 +5895,8 @@ class Asset_Manager extends MySource_Object
 		if (!$major->id) return FALSE;
 
 		if (!($minor instanceof Asset)) {
-			return translate('minor_is_not_asset');
+			return translate('Variable passed in minor asset parameter is not an asset object');
+
 		}
 
 		// check if we are allowed to link to these type of assets
@@ -5908,7 +5910,8 @@ class Asset_Manager extends MySource_Object
 				// To create a notice link you need effective write access
 				// to the major, but you don't need any access to the minor
 				if (($major->status == SQ_STATUS_ARCHIVED) || (!$major->writeAccess(''))) {
-					return sprintf(translate('cannot_create_notice_link_permission_denied'), $major->name, $major->id, $minor->name, $minor->id);
+					return sprintf(translate('Cannot create notice link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - No write access to "%1$s")'), $major->name, $major->id, $minor->name, $minor->id);
+
 				}
 			} else {
 				// To create a significant link you need write permissions
@@ -5916,11 +5919,14 @@ class Asset_Manager extends MySource_Object
 				$majwa = $major->writeAccess('');
 				$minwa = $minor->writeAccess('');
 				if (!($majwa || $minwa)) {
-					return sprintf(translate('cannot_create_sig_link_no_perm_either'), $major->name, $major->id, $minor->name, $minor->id);
+					return sprintf(translate('Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - no write permission for either asset'), $major->name, $major->id, $minor->name, $minor->id);
+
 				} else if (!$majwa) {
-					return sprintf(translate('cannot_create_sig_link_no_perm_major'), $major->name, $major->id, $minor->name, $minor->id);
+					return sprintf(translate('Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - no write permission for "%1$s"'), $major->name, $major->id, $minor->name, $minor->id);
+
 				} else if (!$minwa) {
-					return sprintf(translate('cannot_create_sig_link_no_perm_minor'), $major->name, $major->id, $minor->name, $minor->id);
+					return sprintf(translate('Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - no write permission for "%3$s"'), $major->name, $major->id, $minor->name, $minor->id);
+
 				}
 			}
 		}
@@ -5933,7 +5939,8 @@ class Asset_Manager extends MySource_Object
 			$paths = $minor->getWebPaths();
 			$bad_paths = $this->webPathsInUse($major, $paths, $minor->id);
 			if (!empty($bad_paths)) {
-				return sprintf(translate('cannot_create_link_paths_in_use'), $major->name, $major->id, $minor->name, $minor->id, '"'.implode('", "', $bad_paths).'"');
+				return sprintf(translate('Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s), path(s) %5$s already in use by one of the children of "%1$s"'), $major->name, $major->id, $minor->name, $minor->id, '"'.implode('", "', $bad_paths).'"');
+
 			}
 		}
 
@@ -5965,7 +5972,8 @@ class Asset_Manager extends MySource_Object
 
 			if ($current_majorid) {
 				$current_major = $this->getAsset($current_majorid);
-				return sprintf(translate('cannot_create_link_exclusive_link'), $minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
+				return sprintf(translate('Asset "%1$s" (# %2$s) cannot be linked to "%3$s" (# %4$s), it is exclusively linked to "%5$s" (# %6$s)'), $minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
+
 			}
 
 		}//end if
@@ -5995,15 +6003,18 @@ class Asset_Manager extends MySource_Object
 	{
 		// type checking
 		if (!($major instanceof Asset)) {
-			return translate('major_is_not_asset');
+			return translate('Variable passed in major asset parameter is not an asset object');
+
 		}
 
 		if (!is_string($type_code)) {
-			return translate('type_code_is_not_string');
+			return translate('Variable passed in type code parameter is not a string');
+
 		}
 
 		if (!is_numeric($link_type)) {
-			return translate('link_type_is_not_integer');
+			return translate('Variable passed in link type parameter is not numeric');
+
 		}
 
 		// get the minor assets parents and add it's type to the front of the indexed array
@@ -6034,15 +6045,18 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		if (empty($allowed_links[$link_type][$type])) {
-			return sprintf(translate('asset_type_cannot_be_linktype_linked_to_type'), $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
+			return sprintf(translate('%1$s assets cannot be %2$s-linked to a %3$s'), $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
+
 		}
 
 		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $exclusive) {
-			return translate('exclusive_links_must_be_significant');
+			return translate('In order for a link to be exclusive it must also be a significant link');
+
 		}
 
 		if (!$exclusive && !empty($allowed_links[$link_type][$type]['exclusive'])) {
-			return sprintf(translate('asset_type_must_be_linktype_exclusively_linked_to_type'), $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
+			return sprintf(translate('%2$s links between %1$s and %3$s assets must be exclusive'), $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
+
 		}
 
 		//// Now we need to check that the cardinality is kept valid ////
@@ -6053,7 +6067,8 @@ class Asset_Manager extends MySource_Object
 			//  and we already have our quota of links
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				$cardTypeName = $this->getTypeInfo($type, 'name');
-				return sprintf(translate('asset_type_can_have_only_linktypes_links_to_type'), $typeNames[$major->type()], ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $cardTypeName);
+				return sprintf(translate('%1$s assets can only have %2$s %3$s link(s) to %4$s assets'), $typeNames[$major->type()], ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $cardTypeName);
+
 			}
 		}
 
@@ -6346,7 +6361,9 @@ class Asset_Manager extends MySource_Object
 							'linkid'			=> $linkid,
 							'major_name'		=> $major->name,
 							'minor_name'		=> $minor->name,
-							'link_locked_value'	=> (($locked == '1') ? translate('locked') : translate('unlocked')),
+							'link_locked_value'	=> (($locked == '1') ? translate('LOCKED') : translate('UNLOCKED')),
+
+
 						);
 			$message = $ms->newMessage(Array(), 'asset.linking.locked', $msg_reps);
 			$message->parameters['majorid']   = $major->id;

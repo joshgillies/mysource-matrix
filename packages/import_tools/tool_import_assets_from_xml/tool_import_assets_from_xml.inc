@@ -66,19 +66,27 @@ class Tool_Import_Assets_From_Xml extends Tool
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
-		$o->openField(translate('tool_import_assets_from_xml_file_upload'));
+		$o->openField(translate('Import XML File'));
+
 			file_upload($type_code.'_file_upload');
-			$o->note(sprintf(translate('tool_import_assets_from_xml_file_upload_note'), sq_web_path('data').'/asset_types/tool_import_assets_from_xml/files/example.xml'));
+			$o->note(sprintf(translate('Select the XML file or a tar file containing xml file and physical files to import Assets from. Structure should be as in <a href="%s" target="_blank">example.xml</a>
+<br/>
+<strong>Note:</strong> Import of large number of assets should be performed by sysadmin using scripts. See <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/import-scripts#import_from_xml.php" target="_blank">manual</a> for details.'), sq_web_path('data').'/asset_types/tool_import_assets_from_xml/files/example.xml'));
+
 		$o->closeField();
 
-		$o->openField(translate('tool_import_assets_from_xml_create_under'));
+		$o->openField(translate('Import Asset under (optional)'));
+
 			asset_finder($type_code.'_create_under_assetid', 0, Array('asset' => 'D'));
-			$o->note(translate('tool_import_assets_from_xml_create_under_note'));
+			$o->note(translate('Set the root parent asset of the assets to import. This option should only be used if there is just a single root node to specify. If there are multiple root nodes, these should be specified using the export tool.'));
+
 		$o->closeField();
 
-		$o->openField(translate('allow_virus_scan'));
+		$o->openField(translate('Allow Virus Scan'));
+
 			combo_box($type_code.'_allow_virus_scan', Array(1 => 'Yes', 0 => 'No'));
-			$o->note(translate('allow_virus_scan_note'));
+			$o->note(translate('If global Virus Checker is enabled, perform immediate virus scan on each imported file. This will slow down import process.'));
+
 		$o->closeField();
 
 		$o->closeSection();

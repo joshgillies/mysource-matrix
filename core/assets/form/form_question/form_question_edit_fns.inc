@@ -65,7 +65,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->getRuleCount() == 0) {
 			$o->openField('','wide_col');
-			echo '<em>'.translate('core_form_no_rules_set').'</em>';
+			echo '<em>'.translate('No rules set for this question.').'</em>';
+
 			$o->closeField();
 			return FALSE;
 		}
@@ -94,18 +95,22 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $this);
 
 			if ($write_access) {
-				$o->openField(translate('core_form_custom_error_text'));
+				$o->openField(translate('Custom Error Text'));
+
 				text_box($prefix.'_rule_'.$k.'[custom_text]', array_get_index($rule, 'custom_text', ''), 30);
 				$o->closeField();
 
-				$o->openField(translate('delete_question'));
+				$o->openField(translate('Delete?'));
+
 				check_box($prefix.'_rule_'.$k.'[delete]');
 				$o->closeField();
 			} else {
-				$o->openField(translate('core_form_custom_error_text'));
+				$o->openField(translate('Custom Error Text'));
+
 				$custom_text = array_get_index($rule, 'custom_text', '');
 				if (empty($custom_text)) {
-					?><i><?php echo translate('core_form_no_custom_error_text_set') ?></i><?php
+					?><i><?php echo translate('No custom error text set - a default message will be displayed.') ?></i><?php
+
 				} else {
 					echo $rule['custom_text'];
 				}
@@ -207,7 +212,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
-		combo_box('rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), FALSE, '', 0, '', 0, TRUE);
+		combo_box('rule', array_merge(Array(' ' => '------ '.translate('Please Select').' ------'), $desc), FALSE, '', 0, '', 0, TRUE);
+
 
 		return TRUE;
 
@@ -342,7 +348,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		// this condition is only available when the simple validation is set up as a required field
 		if (!$asset->attr('is_required')) {
-			echo '<em>'.translate('core_form_required_validation_condition').'</em>';
+			echo '<em>'.translate('Validation condition can be specified only when this question requires an entry.').'</em>';
+
 			return TRUE;
 		}
 

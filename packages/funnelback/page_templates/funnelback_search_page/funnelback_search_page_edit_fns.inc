@@ -75,17 +75,24 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('edit_format') ?></th>
-				<th><?php echo translate('note') ?></th>
+				<th><?php echo translate('Edit Format') ?></th>
+
+				<th><?php echo translate('Note') ?></th>
+
 			</tr>
 			<?php
-			$this->_paintDefaultFormatLink($asset->id, 'initial', translate('funnelback_initial_bodycopy_desc'));
-			$this->_paintDefaultFormatLink($asset->id, 'results', translate('funnelback_results_bodycopy_desc'));
-			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('funnelback_no_results_bodycopy_desc'));
+			$this->_paintDefaultFormatLink($asset->id, 'initial', translate('This format defines the layout for the initial funnelback search page'));
+
+			$this->_paintDefaultFormatLink($asset->id, 'results', translate('This format defines the layout for the funnelback search results'));
+
+			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('This format defines the layout for the page returned when no results are found'));
+
 
 			$folder = $asset->getFolder('type_format');
-			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('funnelback_default_bodycopy_desc'));
-			$this->_paintDefaultFormatLink($folder->id, 'featured_format', translate('funnelback_featured_bodycopy_desc'));
+			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('This is the default format for all results in the list if they do not have a customised format'));
+
+			$this->_paintDefaultFormatLink($folder->id, 'featured_format', translate('This format defines how the featured results are to be displayed.'));
+
 			?>
 		</table>
 		<?php
@@ -110,14 +117,19 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('edit_format') ?></th>
-				<th><?php echo translate('note') ?></th>
+				<th><?php echo translate('Edit Format') ?></th>
+
+				<th><?php echo translate('Note') ?></th>
+
 			</tr>
 			<?php
 			$folder = $asset->getFolder('fluster_format');
-			$this->_paintDefaultFormatLink($folder->id, 'context_format', translate('funnelback_fluster_format_desc'));
-			$this->_paintDefaultFormatLink($folder->id, 'cluster_format', translate('funnelback_cluster_format_desc'));
-			$this->_paintDefaultFormatLink($folder->id, 'navigation_format', translate('funnelback_navigation_format_desc'));
+			$this->_paintDefaultFormatLink($folder->id, 'context_format', translate('This is the layout of how the contextual navigation results looks.'));
+
+			$this->_paintDefaultFormatLink($folder->id, 'cluster_format', translate('This is the layout of how each contextual navigation element looks.'));
+
+			$this->_paintDefaultFormatLink($folder->id, 'navigation_format', translate('This is the layout of how the contextual navigation looks.'));
+
 			?>
 		</table>
 		<?php
@@ -142,12 +154,15 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('edit_format') ?></th>
-				<th><?php echo translate('note') ?></th>
+				<th><?php echo translate('Edit Format') ?></th>
+
+				<th><?php echo translate('Note') ?></th>
+
 			</tr>
 			<?php
 			$folder = $asset->getFolder('spell_format');
-			$this->_paintDefaultFormatLink($folder->id, 'spell_format', translate('funnelback_spell_format_desc'));
+			$this->_paintDefaultFormatLink($folder->id, 'spell_format', translate('This is the layout of how the spelling suggestion looks.'));
+
 			?>
 		</table>
 		<?php
@@ -219,12 +234,15 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('edit_format') ?></th>
-					<th><?php echo translate('note') ?></th>
+					<th><?php echo translate('Edit Format') ?></th>
+
+					<th><?php echo translate('Note') ?></th>
+
 					<?php
 					if ($write_access) {
 						?>
-						<th><?php echo translate('delete_question') ?></th>
+						<th><?php echo translate('Delete?') ?></th>
+
 						<?php
 					}
 					?>
@@ -234,21 +252,25 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if ($value == 'default_format') continue;
 					if ($value == 'featured_format') continue;
 
-					$this->_paintDefaultFormatLink($folder->id, $value, sprintf(translate('funnelback_custom_format_desc'), strtoupper($value)), $write_access, $prefix);
+					$this->_paintDefaultFormatLink($folder->id, $value, sprintf(translate('This is the customised layout for the %s type formats.'), strtoupper($value)), $write_access, $prefix);
+
 				}//end foreach
 				?>
 			</table>
 			<?php
 		} else {
-			echo translate('funnelback_no_type_formats');
+			echo translate('No Type Formats Defined');
+
 		}//end if cutomised formats
 
 		if ($write_access) {
-			echo '<p><b>'.translate('funnelback_new_type_format').'</b> ';
+			echo '<p><b>'.translate('New Type:').'</b> ';
+
 			text_box($prefix.'_new_type', '');
 			echo '</p>';
 		}
-		$o->note(translate('funnelback_custom_format_note'));
+		$o->note(translate('Enter a file type (eg. pdf, html, doc) to use the customised format for that file type. File types can be exposed by <b>result_type</b> keyword'));
+
 		return TRUE;
 
 	}//end paintTypeFormats()
@@ -336,7 +358,8 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$collection           = $asset->attr('collection');
 		$fm                   = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 		$all_collections      = $fm->getCollections();
-		$local_collections    = Array(''=>translate('funnelback_no_collection_selected'));
+		$local_collections    = Array(''=>translate('No collection selected'));
+
 		$squiz_search_options = $this->_getSquizSearchSystems();
 		$suiteid              = $asset->attr('systemid');
 		$systemname           = array_get_index($squiz_search_options, $suiteid, '');
@@ -441,7 +464,8 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			} else {
 				echo $type_options[$search_type];
 			}
-		$o->note(translate('funnelback_search_type_note'));
+		$o->note(translate('Integrated Search uses the Funnelback OEM version installed into Matrix. Funnelback Server Search can be configured to access a Funnelback Server by adding in the URL of the server. Collections will be displayed based on the type of search eg. an funnelback server search will allow you to type the collections in, while the integrated search will display the collections defined in Funnelback Manager.'));
+
 		$o->closeField();
 		$o->openField('Mode to use');
             $mode = $asset->attr('hosted_mode');
@@ -480,13 +504,15 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			} else {
 				if ($search_type == 'integrated') {
 					if (empty($collection) || !isset($local_collections[$collection])) {
-						echo translate('funnelback_no_collection_selected');
+						echo translate('No collection selected');
+
 					} else {
 						echo $local_collections[$collection];
 					}//end if
 				} else if ($search_type == 'squiz') {
 					if (empty($collection) || !isset($squiz_collections[$collection])) {
-						echo translate('funnelback_no_collection_selected');
+						echo translate('No collection selected');
+
 					} else {
 						echo $squiz_collections[$collection];
 					}//end if
@@ -701,7 +727,8 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			echo combo_box($prefix.'_default_scope', $scope, FALSE, $default);
 		} else {
-			echo (isset($scope[$default])) ? $scope[$default] : translate('funnelback_no_default_scope');
+			echo (isset($scope[$default])) ? $scope[$default] : translate('No Default Scope is selected');
+
 		}//end if
 
 		return TRUE;

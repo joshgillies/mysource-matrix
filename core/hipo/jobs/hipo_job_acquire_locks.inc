@@ -60,7 +60,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('acquire_lock_threshold'));
+		$o->openField(translate('Acquire Lock Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -69,6 +70,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			echo SQ_HIPO_ACQUIRE_LOCK_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -118,7 +120,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_acquire_locks');
+		return translate('Acquire Locks');
+
 
 	}//end getHipoName()
 
@@ -134,7 +137,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_acquiring_locks'),
+					'name'			=> translate('Acquiring Locks'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processLocking',
 									   ),
@@ -309,12 +313,15 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 				foreach ($lock_types as $lock_type) {
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $lock_type, $parent_assetid, $this->_running_vars['forceably_acquire']);
 				}
-				$step_data['message'] = sprintf(translate('hipo_acquire_lock'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				$step_data['message'] = sprintf(translate('Acquiring Lock on "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
-				$this->_addError(sprintf(translate('hipo_asset_not_exist'), $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not Acquire Lock for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again

@@ -60,9 +60,11 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 
 		if (is_null($conn) || is_null($conn->ptr)) {
 			// the conncection failed
-			echo '<span style="color: red"><b>'.translate('ldap_unable_to_connect').'</b></span>';
+			echo '<span style="color: red"><b>'.translate('Unable to connect').'</b></span>';
+
 		} else {
-			echo '<span style="color: green"><b>'.translate('ldap_connected').'</b></span>';
+			echo '<span style="color: green"><b>'.translate('Connected').'</b></span>';
+
 		}
 
 		return FALSE;
@@ -259,8 +261,10 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 	function paintLDAPNotAvailable(&$asset, &$o, $prefix)
 	{
 		?>
-		<p class="sq-backend-warning"><strong><?php echo translate('ldap_not_available_line_1'); ?></strong></p>
-		<p><?php echo translate('ldap_not_available_line_2'); ?></p>
+		<p class="sq-backend-warning"><strong><?php echo translate('The LDAP extension has not been enabled on this PHP installation.'); ?></strong></p>
+
+		<p><?php echo translate('LDAP support needs to be compiled into/enabled in PHP, before the LDAP Bridge can work. For further information, please contact your system administrator.'); ?></p>
+
 		<?php
 		return FALSE;
 

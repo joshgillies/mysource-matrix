@@ -68,7 +68,8 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('thesaurus_hipo_name_export_thesaurus_xml');
+		return translate('Export Thesaurus XML');
+
 
 	}//end getHipoName()
 
@@ -84,7 +85,8 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('thesaurus_hipo_starting_process'),
+					'name'			=> translate('Starting up process'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processStart',
 									   ),
@@ -93,10 +95,12 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
 					'complete'		=> FALSE,
-					'message'		=> translate('thesaurus_hipo_setting_up_env'),
+					'message'		=> translate('Setting up the environment'),
+
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_acquiring_locks'),
+					'name'			=> translate('Acquiring Permission Locks'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
@@ -108,7 +112,8 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_creating_xml'),
+					'name'			=> translate('Writing XML file'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processCreateXML',
 									   ),
@@ -121,7 +126,8 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_finalising'),
+					'name'			=> translate('Finalising'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processFinish',
 									   ),

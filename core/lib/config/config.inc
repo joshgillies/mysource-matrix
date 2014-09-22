@@ -348,10 +348,12 @@ class Config extends MySource_Object
 							echo '<div class="sq-locks-button-wrapper">';
 								if (!empty($lock)) {
 									if ($have_lock) {
-										submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+										submit_button('sq_lock_release_manual', translate('Release Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+
 									}
 								} else {
-									submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+									submit_button('sq_lock_acquire', translate('Acquire Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+
 								}
 							echo '</div>';
 							echo '<p class="sq-lock-message">';
@@ -365,17 +367,23 @@ class Config extends MySource_Object
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 									$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 									if (!$expires_in) $expires_in = '1 second';
-									$expires_in = sprintf(translate('due_to_expire'), $expires_in);
+									$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
+
 									if ($have_lock) {
-										echo sprintf(translate('release_lock'), translate('release_lock_button'), translate($config_screen));
+										echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), translate($config_screen));
+
+
 									}
 									if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-										echo sprintf(translate('lock_held_by_user'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+										echo sprintf(translate('Held by user "%s"'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+
 									}
 									echo ' '.$expires_in.'.';
 
 								} else {
-									echo sprintf(translate('acquire_lock'), translate('acquire_lock_button'), translate($config_screen));
+									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), translate($config_screen));
+
+
 								}
 							echo '</p>';
 							?>

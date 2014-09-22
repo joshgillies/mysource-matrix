@@ -57,7 +57,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('lookups_updating_threshold'));
+		$o->openField(translate('Lookups Updating Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -66,6 +67,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			echo SQ_HIPO_LOOKUPS_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -114,7 +116,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_update_lookups');
+		return translate('Update Lookups');
+
 
 	}//end getHipoName()
 
@@ -130,7 +133,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_updating_lookups'),
+					'name'			=> translate('Updating Lookups'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processLookups',
 									   ),
@@ -299,12 +303,15 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 
 			if (!is_null($asset)) {
 				if (!$asset->updateLookups($this->_running_vars['auto_add_remaps'])) return FALSE;
-				$step_data['message'] = sprintf(translate('hipo_updating_lookups_for'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				$step_data['message'] = sprintf(translate('Updating Lookups for "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
-				$this->_addError(sprintf(translate('hipo_cannot_update_lookups'), $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not update lookups for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again

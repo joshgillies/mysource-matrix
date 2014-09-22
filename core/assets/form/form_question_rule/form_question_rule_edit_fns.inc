@@ -64,27 +64,32 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 		$condition_operators = $asset->getConditionOperators();
 		$condition_exists = isset($rule_data['condition_asset']) && $rule_data['condition_asset'];
 
-		if ($open_field) $o->openField(translate('core_form_rule_condition'));
+		if ($open_field) $o->openField(translate('Condition'));
+
 		if (!$write_access) {
 			if (!$condition_exists) {
-				echo translate('core_form_rule_condition_not_set');
+				echo translate('No condition to run this validation');
+
 			} else {
 				$target_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($rule_data['condition_asset']);
 				$target = $target_question->getVal('title');
 				$operators = $asset->getConditionOperators();
 				$operator = isset($rule_data['condition_operator']) && isset($operators[$rule_data['condition_operator']]) ? $operators[$rule_data['condition_operator']] : NULL;
 				$value = isset($rule_data['condition_value']) ? '/'.$rule_data['condition_value'].'/' : '';
-				echo sprintf(translate('core_form_rule_condition_set'), $target, $operator, $value);
+				echo sprintf(translate('Run this validation when %1$s %2$s %3$s'), $target, $operator, $value);
+
 			}
 		} else {
 			$enabled = isset($_POST[$prefix]) ? array_get_index($_POST[$prefix], 'enable', 0) : FALSE;
-			label( translate('core_form_rule_condition_add_condition'), $prefix.'[enable]');
+			label( translate('Add a condition to this validation rule?'), $prefix.'[enable]');
+
 			check_box($prefix.'[enable]', '1', $enabled || $condition_exists);
 
 			// only display condition configuration interface when required
 			if($enabled || $condition_exists) {
 			    echo '<br>';
-			    echo translate('core_form_rule_condition_text');
+			    echo translate('Validate if the answer of');
+
 			    asset_finder($prefix.'[condition_asset]', array_get_index($rule_data, 'condition_asset', '0'), Array('form_question' => 'D'));
 			    combo_box($prefix.'[condition_operator]', $condition_operators, false, array_get_index($rule_data, 'condition_operator', 1));
 			    text_box($prefix.'[condition_value]', array_get_index($rule_data, 'condition_value', ''), 50);

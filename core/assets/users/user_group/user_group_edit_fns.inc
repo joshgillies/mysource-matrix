@@ -110,7 +110,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		if (empty($current) && !$admin_access) {
 			$o->openField('');
-				$o->note(translate('user_group_unrestricted_access_granted'));
+				$o->note(translate('Unrestricted access has been granted. No security restrictions apply on this user group.'));
+
 			$o->closeField();
 		}
 
@@ -122,9 +123,11 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header" style="width: 75%;"><?php echo translate('screen_name'); ?></td>
+							<td class="sq-backend-table-header" style="width: 75%;"><?php echo translate('Screen Name'); ?></td>
+
 							<?php if ($admin_access) {
-							?><td class="sq-backend-table-header" style="width: 25%;"><?php echo translate('remove_question'); ?></td><?php
+							?><td class="sq-backend-table-header" style="width: 25%;"><?php echo translate('Remove?'); ?></td><?php
+
 							}
 						?></tr>
 					<?php
@@ -132,7 +135,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					foreach ($type_data as $screen_data) {
 						$granted_screens[] = $screen_data['screen'];
 						if ($screen_data['screen'] == '0') {
-							$screen_name = '<b>'.translate('all_screens').'</b>';
+							$screen_name = '<b>'.translate('All Screens').'</b>';
+
 						} else {
 							$screen_name = ucwords(str_replace('_', '', $screen_data['screen']));
 						}
@@ -162,7 +166,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							$ef = $asset->getEditFns();
 
 							$screens = Array(' ' => ''); // first option is blank
-							$screens['0'] = '-- '.translate('all_screens').' --'; // second option is 'All Screens'
+							$screens['0'] = '-- '.translate('All Screens').' --'; // second option is 'All Screens'
+
 							foreach (array_keys($ef->static_screens) as $screen) {
 								if (in_array($screen, $granted_screens)) continue;
 								$screens[$screen] = ucfirst($screen);
@@ -172,12 +177,15 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								$screens[$screen] = ucfirst($screen);
 							}
 
-							echo '<br />'.translate('grant_screen_access').' ';
+							echo '<br />'.translate('Allow access to the following screen (any screen not specified will be restricted):').' ';
+
 							combo_box($prefix.'_add_type_screen['.$type_code.']', $screens, FALSE, Array());
 						} else {
-							echo '<br />'.translate('granted_unrestricted_access_explanation');
+							echo '<br />'.translate('You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to further customise this asset type');
+
 							if (count($current[$type_code]) == 1) {
-								echo '<br />'.translate('remove_all_screens_explanation');
+								echo '<br />'.translate('If you delete the "All Screens" option, the "Details" screen will be added as a default. You can choose to remove this later.');
+
 							}
 						}
 					}
@@ -196,7 +204,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$uc_types[$type] = ucwords(str_replace('_',' ', $type));
 			}
 
-			$o->openSection(translate('restrict_screen_access_to_new_type'));
+			$o->openSection(translate('Add new type code to restrict'));
+
 				$o->openField('');
 					combo_box($prefix.'_restrict_types', $uc_types, TRUE, '', 6);
 				$o->closeField();
@@ -363,20 +372,24 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					if(!isset($var_data['name'])) continue;
 					$o->openField(translate($var_data['name']));
 						if (isset($custom_preferences[$type_code][$var_name])) {
-							echo '<p>'.translate('preference_currently_customised');
+							echo '<p>'.translate('This preference is currently customised. The global preference setting is currently being overridden for users in this user group.');
+
 							if ($write_access) {
 								echo '<br />';
 								check_box($prefix.'_revert['.$type_code.']['.$var_name.']');
-								echo ' <label for="'.$prefix.'_revert['.$type_code.']['.$var_name.']">'.translate('revert_to_global_preferences').'</label>';
+								echo ' <label for="'.$prefix.'_revert['.$type_code.']['.$var_name.']">'.translate('Revert to global preference').'</label>';
+
 							}
 							echo '</p>';
 							$prefs->paintBackend($o, $write_access, $var_name);
 						} else {
-							echo '<p>'.translate('preference_not_customised');
+							echo '<p>'.translate('This preference is currently not customised. The global preference setting is currently being used for this user group.');
+
 							if ($write_access) {
 								echo '<br />';
 								check_box($prefix.'_customise['.$type_code.']['.$var_name.']');
-								echo ' <label for="'.$prefix.'_customise['.$type_code.']['.$var_name.']">'.translate('customise_this_preference').'</label>';
+								echo ' <label for="'.$prefix.'_customise['.$type_code.']['.$var_name.']">'.translate('Customise this preference').'</label>';
+
 							}
 							echo '</p>';
 						}
@@ -471,14 +484,17 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 			<tr>
 				<?php
 					if ($include_userid) {
-						?><th class="sq-backend-table-header"><?php echo translate('role_assigned_to'); ?></td><?php
+						?><th class="sq-backend-table-header"><?php echo translate('User/Group'); ?></td><?php
+
 					}
 				?>
-				<th class="sq-backend-table-header"><?php echo translate('role'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('Role'); ?></td>
+
 				<th class="sq-backend-table-header">Asset for which the role is to be performed</td>
 				<?php
 					if ($write_access) {
-						?><th class="sq-backend-table-header"><?php echo translate('role_reassign'); ?></td><?php
+						?><th class="sq-backend-table-header"><?php echo translate('Reassign?'); ?></td><?php
+
 					}
 				?>
 			</tr>
@@ -549,7 +565,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					?><span style="color: #84848F"><?php
 				}
 				?>
-				&lt;&lt; <?php echo translate('previous_page');
+				&lt;&lt; <?php echo translate('Previous Page');
+
 
 				if ($start_printing_at > 0) {
 					echo '</a>';
@@ -557,7 +574,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					echo '</span>';
 				}
 				?>
-				&nbsp;<b><?php echo sprintf(translate('page_number'), (floor($start_printing_at / $num_per_page) + 1), ceil($num_roles / $num_per_page)); ?></b>&nbsp;
+				&nbsp;<b><?php echo sprintf(translate('Page %1$s of %2$s'), (floor($start_printing_at / $num_per_page) + 1), ceil($num_roles / $num_per_page)); ?></b>&nbsp;
+
 
 				<?php
 				if (($start_printing_at + $num_per_page) < $num_roles) {
@@ -566,7 +584,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					?><span style="color: #84848F"><?php
 				}
 
-				echo translate('next_page'); ?> &gt;&gt;
+				echo translate('Next Page'); ?> &gt;&gt;
+
 				<?php
 				if (($start_printing_at + $num_per_page) < $num_roles) {
 					echo '</a>';
@@ -604,15 +623,18 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 			$o->openRaw();
 
 			if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') {
-				echo translate('roles_system_disabled');
+				echo translate('The Roles System is disabled');
+
 			} else {
 				$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE, FALSE, FALSE, FALSE);
 				if (empty($roles)) {
-					echo translate('no_roles_set');
+					echo translate('No roles have been assigned');
+
 				} else {
 					$this->_printRoleTable($prefix, 'direct', $roles, $write_access);
 					if ($write_access) {
-						echo translate('role_new_user').': ';
+						echo translate('Reassign selected role assignments to').': ';
+
 						echo asset_finder($prefix.'_reassignee', 0, Array('user' => 'D', 'user_group' => 'D'));
 					}
 				}

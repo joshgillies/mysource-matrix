@@ -208,14 +208,19 @@ class Page_Calendar_Rolling extends Page
 
 		switch ($format_bodycopy) {
 			case '':
-				$vars['keywords']['event_list'] = translate('cal_rolling_keyword_event_list');
-				$vars['keywords']['root_nodes'] = translate('root_node');
+				$vars['keywords']['event_list'] = translate('List of Events');
+
+				$vars['keywords']['root_nodes'] = translate('Root Node');
+
 				return TRUE;
 			break;
 			case 'time_unit':
-				$vars['keywords']['time_unit_event_list'] = sprintf(translate('cal_rolling_keyword_time_unit_event_list'), $this->attr('time_unit'));
-				$vars['keywords']['time_unit_start_datetime_xxxx'] = translate('cal_rolling_keyword_time_unit_start_datetime_xxxx');
-				$vars['keywords']['time_unit_end_datetime_xxxx'] = translate('cal_rolling_keyword_time_unit_end_datetime_xxxx');
+				$vars['keywords']['time_unit_event_list'] = sprintf(translate('List of Events for this Time Unit (%s)'), $this->attr('time_unit'));
+
+				$vars['keywords']['time_unit_start_datetime_xxxx'] = translate('Dynamic Start Date (Replace the "XXXX" with a PHP Date format string - no space allowed)');
+
+				$vars['keywords']['time_unit_end_datetime_xxxx'] = translate('Dynamic End Date (Replace the "XXXX" with a PHP Date format string - no space allowed)');
+
 				return TRUE;
 			break;
 		}

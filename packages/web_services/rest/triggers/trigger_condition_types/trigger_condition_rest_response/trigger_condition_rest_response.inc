@@ -136,20 +136,30 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 		$conditions = array_get_index($settings, 'conditions', Array());
 
 		$match_condition_type = Array(
-									'rest_response_match_condition_all'    => translate('rest_response_match_condition_all'),
-									'rest_response_match_condition_one'    => translate('rest_response_match_condition_one'),
+									'all'    => translate('all'),
+
+									'at least one'    => translate('at least one'),
+
 								);
 		$match_target         = Array(
-									'rest_response_match_target_req_urls'  => translate('rest_response_match_target_req_urls'),
-									'rest_response_match_target_http_code' => translate('rest_response_match_target_http_code'),
-									'rest_response_match_target_body'      => translate('rest_response_match_target_body'),
+									'request URLs'  => translate('request URLs'),
+
+									'http codes' => translate('http codes'),
+
+									'response bodies'      => translate('response bodies'),
+
 								);
 		$match_type           = Array(
-									'rest_response_match_type_match'       => translate('rest_response_match_type_match'),
-									'rest_response_match_type_contain'     => translate('rest_response_match_type_contain'),
-									'rest_response_match_type_gt'          => translate('rest_response_match_type_gt'),
-									'rest_response_match_type_lt'          => translate('rest_response_match_type_lt'),
-									'rest_response_match_type_regex_match' => translate('rest_response_match_type_regex_match'),
+									'match'       => translate('match'),
+
+									'contain'     => translate('contain'),
+
+									'is/are greater than'          => translate('is/are greater than'),
+
+									'is/are less than'          => translate('is/are less than'),
+
+									'match the regex' => translate('match the regex'),
+
 								);
 
 		// user default values if the setting has not been set
@@ -189,7 +199,8 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 			$conditions = ob_get_contents();
 		ob_end_clean();
 
-		return sprintf(translate('trigger_rest_response'), $conditions);
+		return sprintf(translate('The response received matches all of the following conditions: <br /> %1$s'), $conditions);
+
 
 	}//end getInterface()
 
@@ -209,7 +220,8 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 		if (($request_data['match_type'] == 'rest_response_match_type_gt' ||
 				$request_data['match_type'] =='rest_response_match_type_lt') &&
 				!is_numeric($request_data['match_value'])) {
-			return translate('trigger_numeric_only');
+			return translate('Only a numeric value is allowed when \'greater than\' or \'less than\' is selected.');
+
 		}//end if
 
 		// save the selected options

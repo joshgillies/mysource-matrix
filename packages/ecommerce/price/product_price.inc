@@ -102,32 +102,39 @@ class Product_Price extends MySource_Object
 	{
 		switch($var) {
 			case 'name' :
-				$o->openField(translate('name'));
+				$o->openField(translate('Name'));
+
 					if ($wa) text_box($prefix.'_name', $this->name, 15);
 					else echo $this->name;
 				$o->closeField();
 				break;
 			case 'value' :
-				$o->openField(translate('value'));
+				$o->openField(translate('Value'));
+
 					if ($wa) text_box($prefix.'_value', ($this->value == -1) ? '' : $this->value, 10);
 					else echo ($this->value == -1) ? '&nbsp;' : $this->value;
-					$o->note(translate('ecom_product_price_note_value'));
+					$o->note(translate('Zero = Free <br/> Blank = Value Not Known'));
+
 				$o->closeField();
 				break;
 			case 'value_has_tax' :
-				$o->openField(translate('ecom_product_price_value_has_tax'));
+				$o->openField(translate('Product Price Already Includes Tax'));
+
 					$options = Array(0 => 'No', 1 => 'Yes');
 					if ($wa) combo_box($prefix.'_value_has_tax', $options, false, (int) $this->value_has_tax);
 					else echo $options[(int) $this->value_has_tax];
-					$o->note(translate('ecom_product_price_note_value_has_tax'));
+					$o->note(translate('Select this if the the above price value already includes the tax for this product.'));
+
 				$o->closeField();
 				break;
 			case 'calculate_tax' :
-				$o->openField(translate('ecom_product_price_calculate_tax'));
+				$o->openField(translate('Calculate Tax During Checkout'));
+
 					$options = Array(0 => 'No', 1 => 'Yes');
 					if ($wa) combo_box($prefix.'_calculate_tax', $options, false, (int) $this->calculate_tax);
 					else echo $options[(int) $this->calculate_tax];
-					$o->note(translate('ecom_product_price_note_calculate_tax'));
+					$o->note(translate('If selected, tax will be calculated and be displayed during the checkout process.'));
+
 				$o->closeField();
 				break;
 		}

@@ -158,7 +158,8 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'db_connector');
 
 		if (empty($links)) {
-			echo '<span class="sq-backend-warning">'.translate('connector_not_used').'</span>';
+			echo '<span class="sq-backend-warning">'.translate('This connector is not used by anything in the system').'</span>';
+
 			return TRUE;
 		}
 

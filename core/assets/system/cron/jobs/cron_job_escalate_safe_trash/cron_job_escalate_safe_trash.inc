@@ -96,7 +96,8 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		return translate('cron_job_escalate_safe_trash');
+		return translate('Escalate Safe-Trash Scheduled Job');
+
 
 	}//end _getName()
 

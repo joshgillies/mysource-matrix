@@ -71,7 +71,8 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('cms_hipo_name_export_files');
+		return translate('Export Files');
+
 
 	}//end getHipoName()
 
@@ -87,7 +88,8 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('cms_hipo_exporting_files'),
+					'name'			=> translate('Exporting Files'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processExport',
 									   ),

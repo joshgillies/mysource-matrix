@@ -74,7 +74,8 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_export_online_quiz_to_xml');
+		return translate('Export Online Quiz to XML');
+
 
 	}//end getHipoName()
 
@@ -273,10 +274,12 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 						echo "<name><![CDATA[".$asset->name."]]></name>\n";
 					}
 				} else {
-					$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
 				}
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
 				$this->_addError("Could not load Asset (Id: #$assetid)");
 			}
 			$this->_running_vars['done_export_assets'][] = $assetid;

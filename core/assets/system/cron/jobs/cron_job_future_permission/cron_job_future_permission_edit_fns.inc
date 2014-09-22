@@ -68,14 +68,20 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			combo_box($prefix.'_add_future_permissions', Array('1' => translate('add'), '0' => translate('remove')), FALSE, '1');
-			echo '&nbsp;'.translate('the_following').'&nbsp;';
+			combo_box($prefix.'_add_future_permissions', Array('1' => translate('Add'), '0' => translate('Remove')), FALSE, '1');
+
+
+			echo '&nbsp;'.translate('the following').'&nbsp;';
+
 			combo_box($prefix.'_future_permission', $descs, FALSE, $asset->attr('permission'), NULL, $form_extra_elements);
 		} else {
-			echo $asset->attr('add')? translate('add') : translate('remove');
+			echo $asset->attr('Add')? translate('Add') : translate('Remove');
+
+
 			echo $descs[$asset->attr('permission')];
 		}
-		echo '&nbsp;'.translate('permission').'</span><br /><br />';
+		echo '&nbsp;'.translate('Permission').'</span><br /><br />';
+
 
 		if ($write_access) {
 				?>
@@ -84,8 +90,11 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 						<td colspan="2">
 							<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
 							<?php
-							combo_box($prefix.'_future_permissions_access[public][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-							echo ' '.translate('public_permission');
+							combo_box($prefix.'_future_permissions_access[public][granted]', Array('' => '', '1' => translate('Grant'), '0' => translate('Deny')), FALSE, '');
+
+
+							echo ' '.translate('Public Permission');
+
 							?>
 							</span>&nbsp;
 						</td>
@@ -94,8 +103,11 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 						<td valign="top">
 							<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
 							<?php
-							combo_box($prefix.'_future_permissions_access[user][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-							echo ' '.translate('specific_permission');
+							combo_box($prefix.'_future_permissions_access[user][granted]', Array('' => '', '1' => translate('Grant'), '0' => translate('Deny')), FALSE, '');
+
+
+							echo ' '.translate('Specific Permission');
+
 							?>
 							</span>&nbsp;
 						</td>
@@ -104,17 +116,20 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 				</table>
 				<?php
 
-			echo '<br /><span class="sq-inline-fields-wrapper">'.translate('at').'&nbsp;';
+			echo '<br /><span class="sq-inline-fields-wrapper">'.translate('At').'&nbsp;';
+
 			$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 			echo '</span>';
 
 			echo '<br /><br />';
 			check_box($prefix.'_cascade_to_new', '1', $cascade_to_new);
-			label(translate('cascade_permission_to_new_children'), $prefix.'_cascade_to_new');
+			label(translate('Automatically cascade this permission to newly-created children'), $prefix.'_cascade_to_new');
+
 
 			echo '<br />';
 			check_box($prefix.'_cascade_permission_changes', '1', !$dependants_only);
-			label(translate('update_permission_to_current_children'), $prefix.'_cascade_permission_changes', '1');
+			label(translate('Update this permission to all existing children that fall under this asset in the various hierarchies'), $prefix.'_cascade_permission_changes', '1');
+
 		}//end if
 
 		return TRUE;

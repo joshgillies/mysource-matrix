@@ -68,12 +68,15 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('inherit_types'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('Asset Type'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Inherit Types'); ?></td>
+
 				<?php
 				if ($write_access) {
 					?>
-					<td class="sq-backend-table-header"><?php echo translate('remove_question'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Remove?'); ?></td>
+
 					<?php
 				}
 				?>
@@ -92,7 +95,9 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 						if ($write_access) {
 							check_box($prefix.'_inherit_types[]', $type, $inherit);
 						} else {
-							echo ($inherit) ? translate('yes') : translate('no');
+							echo ($inherit) ? translate('Yes') : translate('No');
+
+
 						}
 						?>
 					</td>
@@ -243,12 +248,15 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	public function paintUsage(Paint_Layout_Page $asset, Backend_Outputter $o, $prefix)
 	{
 		$o->openRaw();
-		echo '<p><i>'.translate('design_usage_explanation').'</i></p>';
+		echo '<p><i>'.translate('This screen shows which parts of the asset tree this design is used in, by listing the highest-level assets to which it has been applied and the number of their children to which it has cascaded.').'</i></p>';
+
 		echo '<div style="line-height: 160%">';
 		$res = $GLOBALS['SQ_SYSTEM']->am->getAssetidsByLookupValue('paint_layout::%', $asset->id, TRUE);
 		$res = $this->_getTreeTops($res);
-		$singular = strtolower(translate('child'));
-		$plural = strtolower(translate('children'));
+		$singular = strtolower(translate('Child'));
+
+		$plural = strtolower(translate('Children'));
+
 		$paginate = (count($res) > 20);
 		if ($paginate) {
 			$current_page_no = array_get_index($_REQUEST, 'usage_page_no', 0);
@@ -267,11 +275,14 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		if ($paginate) {
 			echo '<p>';
 			if ($current_page_no > 0) {
-				echo '<a href="'.htmlspecialchars(replace_query_string_vars(Array('usage_page_no' => $current_page_no-1))).'">'.translate('previous_page').'</a> &nbsp; ';
+				echo '<a href="'.htmlspecialchars(replace_query_string_vars(Array('usage_page_no' => $current_page_no-1))).'">'.translate('Previous Page').'</a> &nbsp; ';
+
 			}
-			echo sprintf(translate('page_number'), $current_page_no + 1, $total_pages);
+			echo sprintf(translate('Page %1$s of %2$s'), $current_page_no + 1, $total_pages);
+
 			if ($current_page_no < ($total_pages-1)) {
-				echo ' &nbsp; <a href="'.htmlspecialchars(replace_query_string_vars(Array('usage_page_no' => $current_page_no+1))).'">'.translate('next_page').'</a> ';
+				echo ' &nbsp; <a href="'.htmlspecialchars(replace_query_string_vars(Array('usage_page_no' => $current_page_no+1))).'">'.translate('Next Page').'</a> ';
+
 			}
 			echo '</p>';
 		}

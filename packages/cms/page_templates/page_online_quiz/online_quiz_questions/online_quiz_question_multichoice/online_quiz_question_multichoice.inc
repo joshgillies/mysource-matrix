@@ -160,7 +160,8 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 				  );
 
 		if (empty($value)) {
-			$errors['warnings'][] = sprintf(translate('online_quiz_question_warning_empty_question'), $this->getPosition());
+			$errors['warnings'][] = sprintf(translate('Question #%s has not been answered.'), $this->getPosition());
+
 		}
 
 		return $errors;
@@ -189,7 +190,8 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 					function <?php echo $this->type(); ?>_validate(error_stack, question, answer)
 					{
 						if (!answer.length) {
-							 error_stack["warnings"][error_stack["warnings"].length] = "<?php echo sprintf(translate('online_quiz_question_warning_empty_question'), '%s'); ?>".replace('%s', question);
+							 error_stack["warnings"][error_stack["warnings"].length] = "<?php echo sprintf(translate('Question #%s has not been answered.'), '%s'); ?>".replace('%s', question);
+
 						}
 					}
 				<?php
@@ -502,7 +504,8 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 			?><div class="<?php echo $class; ?>"><?php
 
 			if (empty($options)) {
-				echo translate('online_quiz_question_multichoice_empty_options');
+				echo translate('There are currently no options for this question.');
+
 			} else {
 				switch ($this->attr('option_style')) {
 					case 'list':

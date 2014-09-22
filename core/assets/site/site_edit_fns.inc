@@ -678,15 +678,18 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$body = ob_get_clean();
 
-		$o->openSection(translate('core_site_current_redirects'));
+		$o->openSection(translate('Current Redirects'));
+
 		$o->openField('');
 
 		if ($paint_table) {
 			?>
 			<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('old_url') ?></th>
-				<th><?php echo translate('new_url') ?></th>
+				<th><?php echo translate('Old URL') ?></th>
+
+				<th><?php echo translate('New URL') ?></th>
+
 				<?php if ($write_access) {
 					?><th>Delete?</th><?php
 				}
@@ -710,13 +713,16 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			$combo_box_from = Array('' => '-- Select URL --') + $combo_box_from;
 			$combo_box_urls = Array('' => '-- Select URL --') + $combo_box_urls;
 
-			$o->openSection(translate('core_site_add_redirect'));
+			$o->openSection(translate('Add Redirect'));
 
-				$o->openField(translate('from'));
+
+				$o->openField(translate('From'));
+
 					combo_box($prefix.'auth_url[from]', $combo_box_from);
 				$o->closeField();
 
-				$o->openField(translate('to'));
+				$o->openField(translate('To'));
+
 					combo_box($prefix.'auth_url[to]', $combo_box_urls);
 				$o->closeField();
 

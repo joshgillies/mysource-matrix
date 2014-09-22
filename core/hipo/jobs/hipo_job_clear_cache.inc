@@ -64,7 +64,8 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// clear cache threshhold HIPO config entry
-		$o->openField(translate('clear_cache_threshold'));
+		$o->openField(translate('Clear Cache Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -73,6 +74,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 			echo SQ_HIPO_CLEAR_CACHE_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -125,7 +127,8 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_clear_cache');
+		return translate('Clear Cache');
+
 
 	}//end getHipoName()
 
@@ -153,7 +156,8 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_clearing_cache'),
+					'name'			=> translate('Clearing Cache'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processClearCacheFile',
 									   ),

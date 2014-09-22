@@ -916,13 +916,16 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				$vars['keywords'] = array_merge($vars['keywords'], $this->_getNotLoggedInKeywords());
 			break;
 			case 'auth_fail' :
-				$vars['keywords'] = array_merge($vars['keywords'], Array('auth_error' => translate('saml_account_manager_auth_error')));
+				$vars['keywords'] = array_merge($vars['keywords'], Array('auth_error' => translate('Authentication Error')));
+
 			break;
 
 		}
 
-		$vars['keywords'] = array_merge($vars['keywords'], Array('user_attributes_xml' => translate('saml_account_manager_user_attributes_xml')));
-		$vars['keywords'] = array_merge($vars['keywords'], Array('user_saml_id' => translate('saml_account_manager_user_saml_id')));
+		$vars['keywords'] = array_merge($vars['keywords'], Array('user_attributes_xml' => translate('User Attributes XML')));
+
+		$vars['keywords'] = array_merge($vars['keywords'], Array('user_saml_id' => translate('User SAML ID')));
+
 
 	}//end onRequestKeywords()
 
@@ -941,19 +944,23 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	{
 		$res = Array();
 		$res['create_user']= Array(
-							'name'	=> translate('saml_account_manager_create_user'),
+							'name'	=> translate('Create User'),
+
 							'content'	=> '%create_error% %login_error% %login_invite% %login_form% %create_form%',
 						    );
 		$res['create_link']= Array(
-							'name'	=> translate('saml_account_manager_create_link'),
+							'name'	=> translate('Create Link'),
+
 							'content'	=> 'SAML account is not linked to current Matrix user. <a href="?linkAccounts">Link them now</a>.',
 						 );
 		$res['logged_in']= Array(
-							'name'	=> translate('logged_in'),
+							'name'	=> translate('Logged in'),
+
 							'content'	=> 'logged in as %globals_user_name%',
 						   );
 		$res['auth_fail']= Array(
-							'name'	=> translate('saml_account_manager_auth_fail'),
+							'name'	=> translate('Authentication Failed'),
+
 							'content'	=> '%auth_error%',
 						   );
 		return $res;

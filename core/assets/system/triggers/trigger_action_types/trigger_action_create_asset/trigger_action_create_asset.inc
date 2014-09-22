@@ -197,7 +197,8 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 				if ($write_access) {
 					echo '<br />';
 					check_box($prefix.'[parentid]', 'current_asset', $parent_broadcasted);
-					label(translate('trigger_create_under_broadcaster'), $prefix.'[parentid]');
+					label(translate('the broadcasting asset'), $prefix.'[parentid]');
+
 					echo '<b>&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;&nbsp;&nbsp;</b>';
 					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
 				} else {
@@ -206,7 +207,8 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 						$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 					}
 					if (is_null($parent)) {
-						echo '<b>['.translate('no_asset_selected').']</b>';
+						echo '<b>['.translate('No asset selected').']</b>';
+
 					} else {
 						echo get_asset_tag_line($parent->id);
 					}
@@ -234,7 +236,8 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 					text_box($prefix.'[value]', $value, '', '');
 				} else {
 					if (empty($value)) {
-						$value = '['.translate('no_value_entered').']';
+						$value = '['.translate('no value entered').']';
+
 					}
 					echo '<b>'.$value.'</b>';
 				}
@@ -243,8 +246,10 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 
 			ob_start();
 				$is_dependant_list = Array(
-										0	=> translate('non_dependently'),
-										1	=> translate('dependently'),
+										0	=> translate('Non-dependently'),
+
+										1	=> translate('Dependently'),
+
 									 );
 				if ($write_access) {
 					combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant);
@@ -257,8 +262,10 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 
 			ob_start();
 				$is_exclusive_list = Array(
-										0	=> translate('non_exclusively'),
-										1	=> translate('exclusively'),
+										0	=> translate('Non-exclusively'),
+
+										1	=> translate('Exclusively'),
+
 									 );
 				if ($write_access) {
 					combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive);
@@ -281,7 +288,8 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 							text_box($prefix.'[attributes]['.$index.'][value]', $attr['value'], 50, '', FALSE, 'style="margin-bottom: 3px;"');
 							echo '&nbsp;';
 							check_box($prefix.'[attributes]['.$index.'][delete]','delete', FALSE);
-							label(translate('delete_question'), $prefix.'[attributes]['.$index.'][delete]');
+							label(translate('Delete?'), $prefix.'[attributes]['.$index.'][delete]');
+
 							echo '<br />';
 						} else {
 							echo '<strong>'.ucwords($attr['attribute']).':</strong>  '.$attr['value'].'<br />';
@@ -306,13 +314,19 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			$attributes .= $replace_keywords;
 
 			// now patch together the output
-			$contents =	sprintf(translate('trigger_new_asset_basic'), $basic_part_1, $basic_part_3).
+			$contents =	sprintf(translate('Create a new asset of type %1$s using a %2$s link.'), $basic_part_1, $basic_part_3).
+
 						'<br /><br />'.
-						'<b>'.translate('create_asset_under').'</b><br />'.$basic_part_2.
-						'<br /><br /><b>'.translate('triggers_advanced_user_options').'</b><br /><br />'.
-						sprintf(translate('trigger_new_asset_advanced'), $advanced_part_1, $advanced_part_2, $advanced_part_3).
-						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
-						'<span>'.translate('trigger_create_asset_required_attrs_warning').'</span>';
+						'<b>'.translate('Create Asset Under').'</b><br />'.$basic_part_2.
+
+						'<br /><br /><b>'.translate('Optional items for Advanced users').'</b><br /><br />'.
+
+						sprintf(translate('Use the link value %1$s and link the asset %2$s and %3$s to the parent.'), $advanced_part_1, $advanced_part_2, $advanced_part_3).
+
+						'<br /><br /><b>'.translate('Set Attribute Values').'</b><br />'.$attributes.'<br /><br />'.
+
+						'<span>'.translate('<strong>Note:</strong> If the selected asset type has any required attributes, values for those attributes must be supplied here or the asset will not be created.').'</span>';
+
 
 		return $contents;
 
@@ -334,12 +348,14 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 	{
 		// make sure the parentid isn't blank
 		if (($request_data['parentid'] != 'current_asset') && empty($request_data['parentid']['assetid'])) {
-			return translate('parent_to_create_under_is_missing');
+			return translate('Parent to create under is missing');
+
 		}
 
 		$link_type_list = get_link_type_names();
 		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
-			return translate('link_type_missing');
+			return translate('Link type is missing');
+
 		}
 
 		if (is_array($request_data['parentid'])) {
@@ -351,7 +367,8 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 
 		$type_code = array_get_index($request_data, 'type_code', FALSE);
 		if (!$type_code) {
-			return translate('asset_type_not_specified');
+			return translate('Asset type not specified');
+
 		}
 		$settings['type_code'] = $type_code;
 

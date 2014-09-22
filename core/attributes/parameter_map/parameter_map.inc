@@ -162,8 +162,10 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 		<table class="sq-backend-table sq-parameter-map">
 			<tr>
-				<th><?php echo translate('parameter'); ?></th>
-				<th><?php echo translate('source'); ?></th>
+				<th><?php echo translate('Parameter'); ?></th>
+
+				<th><?php echo translate('Source'); ?></th>
+
 			</tr>
 			<?php
 
@@ -189,7 +191,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 										<?php
 										if (!$read_only) {
 											check_box($one_source_prefix.'[delete]');
-											echo '<label for="'.$one_source_prefix.'[delete]">'.translate('delete').'</label>';
+											echo '<label for="'.$one_source_prefix.'[delete]">'.translate('Delete').'</label>';
+
 										}
 										?>
 									</td>
@@ -260,17 +263,21 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				$keyword = array_get_index($data, 'keyword', SQ_PARAM_MAP_DEFAULT_KEYWORD);
 				if ($read_only) {
 					if (is_null($attribute)) {
-						echo translate('not_configured');
+						echo translate('Not Configured');
+
 					} else {
 						echo $attribute;
 						if ($attribute == SQ_PARAM_MAP_ATTR_OPTION_KEYWORD) {
-							echo ' - '.(empty($keyword) ? translate('not_configured') : $keyword);
+							echo ' - '.(empty($keyword) ? translate('Not Configured') : $keyword);
+
 						}
 					}
 				} else {
 					$options = Array(
-								'assetid'							=> translate('asset_id'),
-								SQ_PARAM_MAP_ATTR_OPTION_KEYWORD	=> translate('keyword'),
+								'assetid'							=> translate('Asset ID'),
+
+								SQ_PARAM_MAP_ATTR_OPTION_KEYWORD	=> translate('Keyword'),
+
 							   );
 					combo_box($prefix.'[attribute]', $options, FALSE, $attribute, 0, 'onchange="document.getElementById(\''.$prefix.'[keyword]\').style.visibility = (this.value == \'keyword\') ? \'\' : \'hidden\'"');
 					text_box($prefix.'[keyword]', $keyword, '', '', FALSE, ($attribute == SQ_PARAM_MAP_ATTR_OPTION_KEYWORD) ? '' : 'style="visibility: hidden"');
@@ -281,7 +288,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				$value = array_get_index($data, 'value');
 				if ($read_only) {
 					if (is_null($value)) {
-						echo translate('not_configured');
+						echo translate('Not Configured');
+
 					} else {
 						echo htmlspecialchars($value);
 					}//end if
@@ -294,7 +302,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				$value = array_get_index($data, 'index');
 				if ($read_only) {
 					if (is_null($value)) {
-						echo translate('not_configured');
+						echo translate('Not Configured');
+
 					} else {
 						echo $value;
 					}
@@ -318,7 +327,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function _printParameterChooser($prefix)
 	{
-		combo_box($prefix.'[parameter]', Array(''=>'-- '.translate('new_mapping').' --')+$this->_params['parameters'], FALSE, Array());
+		combo_box($prefix.'[parameter]', Array(''=>'-- '.translate('New Mapping').' --')+$this->_params['parameters'], FALSE, Array());
+
 
 	}//end _printParameterChooser()
 
@@ -552,14 +562,22 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		// 'ASSET_ANY'		=> 'Any Asset (Paint Asset Chooser)',
 
 		return Array(
-				'GET'			=> 'GET '.translate('variable_name'),
-				'POST'			=> 'POST '.translate('variable_name'),
-				'SESSION'		=> 'SESSION '.translate('variable_name'),
-				'ASSET'			=> translate('current_asset'),
-				'USER'			=> translate('current_user'),
-				'CURRENT_SITE'	=> translate('current_site'),
-				'SET_VALUE'		=> translate('set_value'),
-				'GLOBALS'		=> translate('super_global'),
+				'GET'			=> 'GET '.translate('Variable Name'),
+
+				'POST'			=> 'POST '.translate('Variable Name'),
+
+				'SESSION'		=> 'SESSION '.translate('Variable Name'),
+
+				'ASSET'			=> translate('Current Asset'),
+
+				'USER'			=> translate('Current User'),
+
+				'CURRENT_SITE'	=> translate('Current Site'),
+
+				'SET_VALUE'		=> translate('Set Value'),
+
+				'GLOBALS'		=> translate('Any Super Global'),
+
 			   );
 
 	}//end _getSourceTypes()

@@ -61,11 +61,14 @@ class Online_Quiz_Question_Edit_Fns extends Asset_Edit_Fns
 		$write_access =  $asset->writeAccess('links') && $asset->writeAccess('attributes');
 		$use_bodycopy =  !is_null($bodycopy);
 
-		$o->openField(translate('online_quiz_question_use_question_text_bodycopy'));
+		$o->openField(translate('Use Bodycopy for Question Text?'));
+
 			if ($write_access) {
 				$options = Array(
-							'1'	=> translate('yes'),
-							'0'	=> translate('no'),
+							'1'	=> translate('Yes'),
+
+							'0'	=> translate('No'),
+
 						   );
 
 				combo_box($prefix.'_question_text_use_bodycopy', $options, FALSE, Array($use_bodycopy));
@@ -74,12 +77,15 @@ class Online_Quiz_Question_Edit_Fns extends Asset_Edit_Fns
 				}
 			} else {
 				if ($use_bodycopy) {
-					echo translate('yes').' - '.get_asset_tag_line($bodycopy->id, 'contents');
+					echo translate('Yes').' - '.get_asset_tag_line($bodycopy->id, 'contents');
+
 				} else {
-					echo translate('no');
+					echo translate('No');
+
 				}
 			}
-			$o->note(translate('online_quiz_question_use_question_text_bodycopy_note'));
+			$o->note(translate('If this is set to Yes, an additional "Question Text" bodycopy will appear, allowing you more control over the question text. Note that this is turned off by default.'));
+
 		$o->closeField();
 
 		if (!$use_bodycopy) {

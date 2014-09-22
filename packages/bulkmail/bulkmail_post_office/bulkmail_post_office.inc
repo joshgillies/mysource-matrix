@@ -123,7 +123,8 @@ class Bulkmail_Post_Office extends Asset
 			// bulkmail job can only link to one bulkmail post office
 			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', FALSE, 'minor');
 			if (!empty($bmail_link)) {
-				return translate('bm_warning_one_post_office_for_job');
+				return translate('Bulkmail Jobs can only be linked under one Bulkmail Post Office');
+
 			}
 		}
 
@@ -148,7 +149,8 @@ class Bulkmail_Post_Office extends Asset
 			 // tolerate one existing bmail_link if we are moving jobs from one post office to another
 			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', FALSE, 'minor');
 			if (count($bmail_link) > 1) {
-				return translate('bm_warning_one_post_office_for_job');
+				return translate('Bulkmail Jobs can only be linked under one Bulkmail Post Office');
+
 			}
 		} else {
 			// if we aren't moving from a post office, the usual check applies

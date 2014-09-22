@@ -279,13 +279,15 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			$datetime->value = substr($settings['when'], 3).':00';
 		}
 
-		echo translate('trigger_action_future_status_make_status_change_to').' ';
+		echo translate('Add a Scheduled Job to change the asset\'s status to').' ';
+
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 		$descs = Cron_Job_Future_Status::_getAllStatiiDescs();
 		if ($write_access) {
 			combo_box($prefix.'_status', $descs, FALSE, $settings['status'], NULL);
-			echo '<div>'.translate('asset_status_live_warning').'</div>'."\n\n";
+			echo '<div>'.translate('<strong>Warning:</strong> Cascading Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.').'</div>'."\n\n";
+
 		} else {
 			echo '<b>'.$descs[$settings['status']].'</b> ';
 		}
@@ -293,26 +295,31 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$formats = Array();
 
 		ob_start();
-			label(translate('immediately_when_trigger_fired'), $prefix.'_when_type_on_trigger_fire');
+			label(translate('immediately when this trigger is fired'), $prefix.'_when_type_on_trigger_fire');
+
 		$formats['on_trigger_fire'] = ob_get_clean();
 
 		ob_start();
-			label(translate('trigger_action_future_status_explicit_exact').' ', $prefix.'_when_type_explicit_exact');
+			label(translate('at exactly').' ', $prefix.'_when_type_explicit_exact');
+
 			$datetime->paint($prefix.'_explicit_exact', !$write_access);
 		$formats['explicit_exact'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_asset_attribute').'&nbsp', $prefix.'_as_determined_from_attr');
+			label(translate('as determined from Asset Attribute').'&nbsp', $prefix.'_as_determined_from_attr');
+
 			echo Trigger_Action_Set_Future_Status::getAttributeChooser($prefix.'_exact_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
 		$formats['by_attr_value'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_metadata_field').'&nbsp;&nbsp;&nbsp;', $prefix.'_as_determined_from_meta');
+			label(translate('as determined from Metadata Field').'&nbsp;&nbsp;&nbsp;', $prefix.'_as_determined_from_meta');
+
 			$metadata_field_id = $settings['when_meta_field_id'];
             if ($write_access) {
                 asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
                 ?>
-                <br/><?php echo translate('trigger_action_future_status_date_format'); ?>
+                <br/><?php echo translate('<strong>Note:</strong> Metadata Date Field must provide ISO8601 format as "Y-m-d H:i:s".'); ?>
+
                 <?php
             } else {
 				if ($metadata_field_id) {
@@ -355,55 +362,71 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		}
 
 		echo '<p>';
-		label(translate('offset_for_above_fields').': ', $prefix.'_offset');
+		label(translate('Offset for the above fields').': ', $prefix.'_offset');
+
 		if ($write_access) {
 			$duration->paint($prefix.'_offset_value', !$write_access);
 			echo ' ';
 			combo_box($prefix.'_offset_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($mins < 0) ? '-' : '+');
-			echo ' '.translate('specified_value');
+
+
+			echo ' '.translate('the specified value');
+
 		} else {
 			echo '<strong>';
 			$duration->paint($prefix.'_offset_value', !$write_access);
 			echo ' ';
 			echo translate(($mins < 0) ? 'before' : 'after');
-			echo ' '.translate('specified_value');
+			echo ' '.translate('the specified value');
+
 			echo '</strong>';
 		}
-		echo '<br />'.translate('offset_field_note').'</p>';
+		echo '<br />'.translate('<strong>Note:</strong> Offset settings will not apply when exact time is selected to set the future status via option "at exactly".').'</p>';
+
 
 		if ($write_access) {
 			check_box($prefix.'_cascade_all', '1', $settings['cascade']);
-			label(translate('trigger_action_future_status_cascade_all'), $prefix.'_cascade_all');
+			label(translate('and cascade the status change to all children of the asset'), $prefix.'_cascade_all');
+
 			?>
-			<p><?php echo translate('trigger_action_future_status_failure_conditions'); ?></p>
+			<p><?php echo translate('<strong>Note:</strong> If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set.'); ?></p>
+
 			<?php
 		} else {
 			if ($settings['cascade']) {
-				echo ' <strong>'.translate('trigger_action_future_status_cascade_all').'</strong>';
+				echo ' <strong>'.translate('and cascade the status change to all children of the asset').'</strong>';
+
 			}
 		}
 
 		echo '<p>';
-		echo translate('trigger_action_future_status_customise_msg').': ';
+		echo translate('Error message').': ';
+
 		$custom_message = array_get_index($settings, 'custom_error_msg', '');
 		if ($write_access) {
 			text_box($prefix.'_custom_error_msg', $custom_message, '40');
 		} else {
 			echo '<strong>'.$custom_message.'</strong>';
 		}
-		echo translate('trigger_action_future_status_customise_msg_note');
+		echo translate('<br><strong>Note:</strong> If customised, this error message will be displayed if the caluclated time value is in past.</p>');
+
 		'<br /><strong>Note:</strong> If customised, this error message will be displayed if the caluclated time is in the past.</p>';
 
 		echo '<p>';
 		$treat_fatal = array_get_index($settings, 'treat_as_fatal', 0);
 		if ($write_access) {
 			check_box($prefix.'_treat_as_fatal', '1', $treat_fatal);
-			label(translate('trigger_action_future_status_treat_as_fatal'), $prefix.'_treat_as_fatal');
+			label(translate('Treat as fatal error'), $prefix.'_treat_as_fatal');
+
 		} else {
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($treat_fatal ? 'tick' : 'cross').'.gif" alt="'.($treat_fatal ? translate('yes') : translate('no')).'" /> ';
-			echo translate('trigger_action_future_status_treat_as_fatal');
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($treat_fatal ? 'tick' : 'cross').'.gif" alt="'.($treat_fatal ? translate('Yes') : translate('No')).'" /> ';
+
+
+			echo translate('Treat as fatal error');
+
 		}
-		echo translate('trigger_action_future_status_treat_as_fatal_note');
+		echo translate('<br /><strong>Note:</strong> Tick the box if the error is to be treated as fatal, i.e. stops the script execution. By default the error will be treated as <i>E_USER_WARNING</i> which means the error will be lodged but the script execution will continue.');
+
 
 		return ob_get_clean();
 
@@ -540,11 +563,13 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 		ob_start();
 			if ($type == '') {
-				echo '<em>['.translate('asset_type_not_selected').']</em>';
+				echo '<em>['.translate('asset type not selected').']</em>';
+
 			} else {
 				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type, Array('name', 'type'));
 				if (empty($attrs)) {
-					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+					echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 				} else {
 					if ($write_access) {
 						$attr_options = Array('' => '');

@@ -185,7 +185,8 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 		ob_start();
 
 			// The average rating field store
-			echo translate('trigger_avg_comment_rating_metadata_field');
+			echo translate('Metadata text field to store ratings average:');
+
 			if ($write_access) {
 				$type_code = Array(
 								'metadata_field_text'	=> 'I',
@@ -198,7 +199,8 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				echo asset_finder($prefix.'[fieldid]', $field_selected_asset, $type_code);
 			} else {
 				if (empty($fieldid['assetid'])) {
-					echo '<b>['.translate('no_asset_selected').']</b>';
+					echo '<b>['.translate('No asset selected').']</b>';
+
 				} else {
 					echo get_asset_tag_line($fieldid['assetid']);
 				}
@@ -207,7 +209,8 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 			echo '<br />';
 
 			// The total comments field store
-			echo translate('trigger_total_comment_rating_metadata_field');
+			echo translate('Metadata text field to store total comments:');
+
 			if ($write_access) {
 				$type_code = Array(
 								'metadata_field_text'	=> 'I',
@@ -220,7 +223,8 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				echo asset_finder($prefix.'[totalid]', $total_selected_asset, $type_code);
 			} else {
 				if (empty($totalid['assetid'])) {
-					echo '<b>['.translate('no_asset_selected').']</b>';
+					echo '<b>['.translate('No asset selected').']</b>';
+
 				} else {
 					echo get_asset_tag_line($totalid['assetid']);
 				}

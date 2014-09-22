@@ -57,7 +57,8 @@ class HIPO_Job_Import_File extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('file_hipo_import_file_threshold'));
+		$o->openField(translate('Importing File Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -66,6 +67,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 			echo SQ_HIPO_IMPORT_FILE_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -133,7 +135,8 @@ class HIPO_Job_Import_File extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('file_hipo_name_import_file');
+		return translate('Import File from File Bridge');
+
 
 	}//end getHipoName()
 
@@ -289,7 +292,8 @@ class HIPO_Job_Import_File extends HIPO_Job
 
 			if (!is_null($parent) && !is_null($asset) && in_array(strtolower($asset->type()), $allowable_file_types) && (!$this->_running_vars['index_file'] || $asset->name != 'index.html')) {
 				if (strtolower($asset->type()) == 'physical_file') {
-					$step_data['message'] = sprintf(translate('file_importing_file'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('Importing File "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -321,7 +325,8 @@ class HIPO_Job_Import_File extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				} else {
-					$step_data['message'] = sprintf(translate('file_importing_folder'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('Importing Folder "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 

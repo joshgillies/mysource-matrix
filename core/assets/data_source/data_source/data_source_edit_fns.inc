@@ -111,7 +111,8 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	{
 		$shadow_asset = $asset->getAsset($asset->id.':0');
 		if (is_null($shadow_asset)) {
-			echo '<strong>'.translate('data_source_no_keywords').'</strong>';
+			echo '<strong>'.translate('No keywords available - this data source, as currently configured, does not have any record sets.').'</strong>';
+
 			return;
 		}
 		$keywords = $shadow_asset->getAvailableKeywords();
@@ -119,8 +120,10 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('keyword');?></th>
-				<th><?php echo translate('description');?></th>
+				<th><?php echo translate('Keyword');?></th>
+
+				<th><?php echo translate('Description');?></th>
+
 			</tr>
 			<?php
 			foreach ($keywords as $key => $desc) {
@@ -189,15 +192,21 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
 				<tr>
-					<th><?php echo translate('data_source_filter_name'); ?></th>
-					<th><?php echo translate('data_source_value_to_match'); ?></th>
-					<th><?php echo translate('data_source_match_type'); ?></th>
-					<th><?php echo translate('data_source_match_case'); ?></th>
-					<th><?php echo translate('data_source_allow_empty'); ?></th>
+					<th><?php echo translate('Record Set Field Name'); ?></th>
+
+					<th><?php echo translate('Value to Match'); ?></th>
+
+					<th><?php echo translate('Match Type'); ?></th>
+
+					<th><?php echo translate('Match Case'); ?></th>
+
+					<th><?php echo translate('Allow Empty'); ?></th>
+
 					<?php
 					if ($wa) {
 						?>
-						<th style="text-align:center;"><?php echo translate('delete'); ?>?</th>
+						<th style="text-align:center;"><?php echo translate('Delete'); ?>?</th>
+
 						<?php
 					}
 					?>
@@ -288,13 +297,17 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 				?>
 			</table>
 			<div class="sq-backend-field-note">
-				<strong><?php echo translate('note'); ?>:</strong> <?php echo translate('data_source_dynamic_keywords_node'); ?>
+				<strong><?php echo translate('Note'); ?>:</strong> <?php echo translate('Dynamic variables added in "Dynamic Inputs" screen can be used here in the "Value to Match" field in the form <strong>%%%%VARIABLENAME%%%%.</strong>'); ?>
+
+
 			</div>
 			<?php
 		$o->closeField();
 		if ($wa) {
-			$o->openField(translate('data_source_new_filter'));
-				label(translate('data_source_filter_name'), $prefix.'_new_filter_name');
+			$o->openField(translate('Add New Condition'));
+
+				label(translate('Record Set Field Name'), $prefix.'_new_filter_name');
+
 				echo '&nbsp;';
 				text_box($prefix.'_new_filter_name', '', 25);
 			$o->closeField();
@@ -458,7 +471,8 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 
 		$o->closeRaw();
 
-		$o->sectionNote(translate('data_source_variable_section_note'));
+		$o->sectionNote(translate('Variables added in this section can be used in Record Filters and in other applicable fields in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)'));
+
 
 		$o->closeSection();
 
@@ -475,7 +489,8 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		$map->paint($prefix.'_parameter_map', !$write_access);
 		$o->closeRaw();
 
-		$o->sectionNote(translate('data_source_mappings_section_note'));
+		$o->sectionNote(translate('Use this section to setup dynamic assignment of values to variables.'));
+
 
 		return $write_access;
 

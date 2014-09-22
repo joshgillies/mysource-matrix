@@ -79,18 +79,21 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($write_access) {
 			echo '<div class="sq-metadata-settings-wrapper inline">';
 			check_box($prefix.'_default', '1', $is_default, 'handleMetadataWYSIWYGDefaultClickFor'.$prefix.'()');
-			label(translate('use_default'), $prefix.'_default');
+			label(translate('Use default'), $prefix.'_default');
+
 
 			if ($print_cascade_values_option) {
 				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
 				check_box($prefix.'_cascade_value', '1', FALSE);
-				label(translate('cascade_value'), $prefix.'_cascade_value');
+				label(translate('Cascade value'), $prefix.'_cascade_value');
+
 			}
 			echo '</div>';
 		} else {
 			if ($is_default) {
 				echo '<div class="sq-metadata-settings-wrapper inline">';
-					echo ' <em>('.translate('using_default_value').')</em>';
+					echo ' <em>('.translate('Using default value').')</em>';
+
 				echo '</div>';
 			} else{
 

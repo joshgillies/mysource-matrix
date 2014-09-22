@@ -375,8 +375,10 @@ class Page_Whats_New extends Listing_Engine
 	function _getContentsKeywords()
 	{
 		$keywords = parent::_getContentsKeywords();
-		$keywords['date_range_list'] = translate('cms_whats_new_date_range_list');
-		$keywords['date_range_list_linked'] = translate('cms_whats_new_date_range_list_linked');
+		$keywords['date_range_list'] = translate('Date Range List');
+
+		$keywords['date_range_list_linked'] = translate('Date Range List Linked');
+
 
 		return $keywords;
 
@@ -410,7 +412,8 @@ class Page_Whats_New extends Listing_Engine
 			combo_box($prefix.'_date_range', $names, FALSE, $selected);
 			echo '&nbsp;';
 			$extras = 'var select = document.getElementById("'.$prefix.'_date_range"); document.location.href="'.$url.'?'.$prefix.'_date_range=" + select.selectedIndex;';
-			normal_button($prefix.'_date_range_submit', translate('go'), $extras);
+			normal_button($prefix.'_date_range_submit', translate('Go'), $extras);
+
 
 			$replacement = ob_get_contents();
 		ob_end_clean();

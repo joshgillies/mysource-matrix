@@ -43,7 +43,8 @@ function paintDependants(&$owner, &$o, &$ei, $keywords=NULL)
 	// the links are not right and they are not working
 	// a feature request should be to enable and fix this screen
 	if (SQ_IN_LIMBO) return FALSE;
-	$o->openSection(translate('current_lock_status'));
+	$o->openSection(translate('Current Lock Status'));
+
 	$o->openField('&nbsp;');
 
 	$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, 'all');
@@ -55,9 +56,11 @@ function paintDependants(&$owner, &$o, &$ei, $keywords=NULL)
 	}
 	$lock_message = '';
 	if (!empty($locks_acquired)) {
-		$lock_message = sprintf(translate('locked_types'), '<span style="color:red"><b>[', ']</b></span> (', implode(', ', $locks_acquired).')');
+		$lock_message = sprintf(translate('%1$sLOCKED%2$s Types : %3$s'), '<span style="color:red"><b>[', ']</b></span> (', implode(', ', $locks_acquired).')');
+
 	} else {
-		$lock_message = '<span style="color:green"><b>['.translate('unlocked').']</b></span>';
+		$lock_message = '<span style="color:green"><b>['.translate('UNLOCKED').']</b></span>';
+
 	}
 
 	?>
@@ -90,13 +93,15 @@ function paintDependants(&$owner, &$o, &$ei, $keywords=NULL)
 		<tr>
 			<td class="sq-backend-data"><span style="color:red"><b>*</b></span></td>
 			<td class="sq-backend-data">
-				<?php echo sprintf(translate('status_dependence_higher'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?>
+				<?php echo sprintf(translate('The status of the dependent asset is higher than the status of "%s"'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?>
+
 			</td>
 		</tr>
 		<tr>
 			<td class="sq-backend-data"><span style="color:red"><b>**</b></span></td>
 			<td class="sq-backend-data">
-				<?php echo sprintf(translate('status_dependence_lower'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?>
+				<?php echo sprintf(translate('The status of the dependent asset is lower than the status of "%s"'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?>
+
 			</td>
 		</tr>
 	</table>
@@ -140,9 +145,11 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 		}
 		$lock_message = '';
 		if (!empty($locks_acquired)) {
-			$lock_message = sprintf(translate('locked_types'), '<span style="color:red"><b>[', ']</b></span> (', implode(', ', $locks_acquired).')');
+			$lock_message = sprintf(translate('%1$sLOCKED%2$s Types : %3$s'), '<span style="color:red"><b>[', ']</b></span> (', implode(', ', $locks_acquired).')');
+
 		} else {
-			$lock_message = '<span style="color:green"><b>['.translate('unlocked').']</b></span>';
+			$lock_message = '<span style="color:green"><b>['.translate('UNLOCKED').']</b></span>';
+
 		}
 
 		$status_message = '';

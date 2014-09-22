@@ -65,7 +65,8 @@ class Asset_Attribute_Url extends Asset_Attribute
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('width'); ?></td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('Width'); ?></td>
+
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) {
@@ -77,7 +78,8 @@ class Asset_Attribute_Url extends Asset_Attribute
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('protocols'); ?></td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('Protocols'); ?></td>
+
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) {

@@ -66,7 +66,27 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content_pg_securepay')));
+		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
+<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> (%%transaction_gst%% percent GST)  dollars are about to be debited from your card</div>
+<table cellpadding="5">
+	<tr>
+		<td align="right">Card Number</td>
+		<td>%%card_number%%  %%card_cv2%%</td>
+	</tr>
+	<tr>
+		<td align="right">Expiry Date (MM/YY)</td>
+		<td>%%card_expiry_month_select%% / %%card_expiry_year_select%%</td>
+	</tr>
+	<tr>
+		<td align="right">Card Type</td>
+		<td>%%card_type%%</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>')));
+
 
 	}//end _createAdditional()
 
@@ -198,7 +218,8 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 
 		// Make sure all the account parameters are set first
 		if (!$this->checkAccountParameters()) {
-			$this->_setError(translate('securepay_account_not_set'));
+			$this->_setError(translate('Required transaction parameters not set to start the SecurePay transaction'));
+
 		}
 
 		//this page is redirected to by the child iframe with an error message
@@ -224,11 +245,13 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 			if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
 				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 			}
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+			$this->appendPendingOrderAuditLog(translate('Payment has no amount'));
+
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($signature) {
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+			$this->appendPendingOrderAuditLog(translate('Payment Attempted (gateway contacted)'));
+
 
 			// Gateway has already processed the transaction at their end,
 			// now verify the transaction and log it at our end
@@ -263,7 +286,8 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 				}
 			}
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+			$this->appendPendingOrderAuditLog(translate('Payment is successful'));
+
 
 			$this->returnToCaller('SUCCESS');
 		} else {
@@ -271,7 +295,8 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 				if (isset($_SESSION['SECUREPAY_REQUEST_TIMESTAMP'])) {
 					unset($_SESSION['SECUREPAY_REQUEST_TIMESTAMP']);
 				}
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+				$this->appendPendingOrderAuditLog(translate('Payment Declined'));
+
 			}
 		}
 
@@ -409,7 +434,8 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 		$response_str = rtrim($response_str, '&');
 
 		if (empty($summary_code) || empty($response_sig) || empty($txn_id) || empty($txn_date) || empty($response_sig)) {
-			$this->_setError(translate('securepay_expected_parameter_not_returned'));
+			$this->_setError(translate('Expected parameters not returned by SecurePay'));
+
 			return FALSE;
 		}
 
@@ -456,7 +482,8 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 
 		// If signature verification fails, the transaction is not legit
 		if ($response_sig != $fingerprint) {
-			$this->_setError(translate('securepay_fingerprint_verification_failed'));
+			$this->_setError(translate('Transaction fingerprint verification failed'));
+
 			$success = FALSE;
 		}
 

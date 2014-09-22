@@ -298,7 +298,14 @@ class Trigger_Action_Issue_Counter_Value extends Trigger_Action
 		$current_counters_input = ob_get_clean();
 
 
-		$output = sprintf(translate('trigger_issue_counter_value'), $var_name_input, $parameter_map_input, $current_counters_input);
+		$output = sprintf(translate('<div>
+			<b>Issue the counter number to the session variable name:</b> %1$s<br/>
+			<b>Current counters:</b>
+				<div>%3$s</div>
+		</div>
+		<b>Counter ID:</b><br/>%2$s
+		NOTE: The counter is selected based on the counter id value return by the parameter map. If the parameter map is not set then the "default" counter will be used. This trigger action will fire "Counter Number Issued" trigger event after the counter number is issued.'), $var_name_input, $parameter_map_input, $current_counters_input);
+
 
 		return $output;
 

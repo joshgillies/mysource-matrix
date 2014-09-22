@@ -86,7 +86,8 @@ class Condition_Asset_Status_Edit_Fns extends Condition_Edit_Fns
 
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('asset_statuses') ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('Asset Statuses') ?></th>
+
 				<td>
 					<div class="sq-multi-status-select-wrapper">
 					<?php
@@ -99,7 +100,8 @@ class Condition_Asset_Status_Edit_Fns extends Condition_Edit_Fns
 						}//end foreach
 						echo '</ul>';
 					} else {
-						echo '<em>'.translate('condition_no_statuses_selected').'</em>';
+						echo '<em>'.translate('No statuses selected.').'</em>';
+
 					}
 					?>
 					</div>

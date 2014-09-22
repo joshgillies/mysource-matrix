@@ -287,7 +287,9 @@ class JS_Api extends Page
 		    if (!$this->readAccess()) {
 		        // Paint the login page if we can't login.
 		        restore_error_handler();
-		        $GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
+		        $GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 		    } else {
                 header('Content-Type: text/javascript');
                 header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');

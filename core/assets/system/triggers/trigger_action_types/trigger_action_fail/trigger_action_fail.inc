@@ -74,10 +74,14 @@ class Trigger_Action_Fail extends Trigger_Action
 
 			ob_start();
 				$error_level_list = Array(
-										0				=> translate('no_error'),
-										E_USER_NOTICE	=> translate('notice'),
-										E_USER_WARNING	=> translate('warning'),
-										E_USER_ERROR	=> translate('error'),
+										0				=> translate('Fail silently without triggering an error'),
+
+										E_USER_NOTICE	=> translate('Notice'),
+
+										E_USER_WARNING	=> translate('Warning'),
+
+										E_USER_ERROR	=> translate('Error'),
+
 									);
 				if ($write_access) {
 					combo_box($prefix.'[error_level]', $error_level_list, FALSE, $error_level);
@@ -101,11 +105,14 @@ class Trigger_Action_Fail extends Trigger_Action
 
 
 			// now patch together the output
-			$contents =	translate('trigger_fail_level_label').$part_1.
+			$contents =	translate('Trigger an error of type:').$part_1.
+
 						'<br /><br />'.
-						'<span style="vertical-align:top;">'.translate('trigger_fail_message_label').'</span>'.$part_2.
+						'<span style="vertical-align:top;">'.translate('Error Message:').'</span>'.$part_2.
+
 						'<br /><br />'.
-						'<span><b>'.translate('trigger_always_fails_warning').'</b></span>';
+						'<span><b>'.translate('If this action is included, the trigger will always fail.').'</b></span>';
+
 
 		return $contents;
 

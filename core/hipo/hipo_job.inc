@@ -1083,12 +1083,15 @@ class HIPO_Job extends MySource_Object
 				$status_msg = $this->_steps[$step]['name'];
 			} else {
 				// this step doesnt exist - probably reached the end of the HIPO
-				$status_msg = ($this->complete()) ? translate('completed') : translate('unknown_error_occurred');
+				$status_msg = ($this->complete()) ? translate('Completed') : translate('Unknown Error Occurred');
+
+
 			}
 
 			$o->openSection($this->getHipoName());
 				$o->openField('&nbsp;');
-				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], sprintf(translate('hipo_progress'), $this->getHipoName()).' - '.$status_msg);
+				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], sprintf(translate('%s HIPO Progress'), $this->getHipoName()).' - '.$status_msg);
+
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -1542,8 +1545,11 @@ class HIPO_Job extends MySource_Object
 			<table class="sq-standalone-table">
 				<tr class="sq-standalone-header">
 					<td colspan="2">
-						<?php echo sprintf(translate('hipo_error_report'), $this->getHipoName());?>
-						<span><?php echo sprintf(translate('hipo_herder_completion'), (!$this->complete()) ? translate('not') : ''); ?></span>
+						<?php echo sprintf(translate('%s HIPO Error Report'), $this->getHipoName());?>
+
+						<span><?php echo sprintf(translate('(HIPO job was %s completed)'), (!$this->complete()) ? translate('Not') : ''); ?></span>
+
+
 					</td>
 				</tr>
 				<tr class="sq-standalone-body">
@@ -1552,11 +1558,14 @@ class HIPO_Job extends MySource_Object
 							<tr>
 								<th class="sq-error-report-type">Type</th>
 								<th class="sq-error-report-description">Description</th>
-								<th class="sq-error-report-reported"><?php echo translate('reported'); ?></th>
+								<th class="sq-error-report-reported"><?php echo translate('Reported'); ?></th>
+
 							</tr>
 						<?php
 							foreach ($this->_hipo_vars['errors'] as $error) {
-								$err_type = ($error['warning']) ? translate('warning') : translate('error');
+								$err_type = ($error['Warning']) ? translate('Warning') : translate('Error');
+
+
 								$err_type_lowercase = strtolower($err_type);
 								?>
 								<tr>
@@ -1578,7 +1587,8 @@ class HIPO_Job extends MySource_Object
 						&nbsp;
 					</td>
 					<td style="text-align:right;">
-						<a class="sq-btn-link sq-btn-large sq-btn-blue" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('continue'); ?></a>
+						<a class="sq-btn-link sq-btn-large sq-btn-blue" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('Continue'); ?></a>
+
 					</td>
 				</tr>
 			</table>

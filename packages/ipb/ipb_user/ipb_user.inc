@@ -63,7 +63,8 @@ class Ipb_User extends Backend_User
 		// set general object properties
 		$this->id = $ipb_bridge->id.':'.$data['id'];
 		if (!isset($data['name'])) {
-			$this->name = translate('ipb_unknown_user');
+			$this->name = translate('Unknown IPB User');
+
 		} else {
 			$this->name = $data['name'];
 		}

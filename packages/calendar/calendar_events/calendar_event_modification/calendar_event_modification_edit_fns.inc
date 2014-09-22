@@ -109,7 +109,8 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 		if (!is_null($modified_event_asset)) {
 			echo get_asset_tag_line($modified_event_asset->id);
 		} else {
-			echo translate('cal_event_modify_no_event_selected');
+			echo translate('No event has been selected for modification');
+
 		}
 
 	}//end paintRecurringEventChooser()

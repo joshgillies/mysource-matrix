@@ -126,7 +126,9 @@ class Inbox extends Asset
 	function printFrontend()
 	{
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
 

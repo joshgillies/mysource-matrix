@@ -70,7 +70,8 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 				}
 				echo implode('<br />', $sel_option_names);
 			} else {
-				echo translate('core_form_type_country_all');
+				echo translate('All countries');
+
 			}
 		} else {
 			combo_box($prefix.'_available', $options, true, $selected_options);

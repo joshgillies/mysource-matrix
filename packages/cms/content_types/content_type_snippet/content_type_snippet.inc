@@ -200,7 +200,8 @@ class Content_Type_Snippet extends Content_Type
 		// provide a more descriptive message when user trash active snippet
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if ($link['link_type'] == SQ_LINK_NOTICE && $link['value'] == 'snippet_asset') {
-			return translate('cms_ct_snippet_link_desc');
+			return translate('Linked as an active snippet');
+
 		}
 		return parent::describeLink($linkid);
 

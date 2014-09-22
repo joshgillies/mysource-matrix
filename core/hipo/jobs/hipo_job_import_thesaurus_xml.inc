@@ -66,7 +66,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('thesaurus_hipo_name_import_thesaurus_xml');
+		return translate('Import Thesaurus XML');
+
 
 	}//end getHipoName()
 
@@ -82,7 +83,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('thesaurus_hipo_starting_process'),
+					'name'			=> translate('Starting up process'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processStart',
 									   ),
@@ -91,10 +93,12 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
 					'complete'		=> FALSE,
-					'message'		=> translate('thesaurus_hipo_setting_up_env'),
+					'message'		=> translate('Setting up the environment'),
+
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_acquiring_locks'),
+					'name'			=> translate('Acquiring Permission Locks'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
@@ -106,7 +110,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_erasing_thesaurus'),
+					'name'			=> translate('Erasing Thesaurus Contents'),
+
 					'function_call'	=> Array(
 										'paint_function'	=> 'paintEraseContents',
 										'process_function'	=> 'processEraseContents',
@@ -119,7 +124,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_parsing_xml'),
+					'name'			=> translate('Parsing XML file'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processParseXML',
 									   ),
@@ -217,9 +223,11 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function paintEraseContents(&$step_data, &$o, $prefix)
 	{
-		$o->openSection(translate('thesaurus_hipo_erasing_thesaurus'));
+		$o->openSection(translate('Erasing Thesaurus Contents'));
+
 		$o->openField('');
-			echo translate('thesaurus_hipo_confirm_erase');
+			echo translate('Please confirm that you want to erase the existing thesaurus. Your XML file is ready to be imported. Its contents will replace the existing thesaurus data.');
+
 			$o->addHiddenField('form_submitted', 1);
 		$o->closeField();
 		$o->closeSection();

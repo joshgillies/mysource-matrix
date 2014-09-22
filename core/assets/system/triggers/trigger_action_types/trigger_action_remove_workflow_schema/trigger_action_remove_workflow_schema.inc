@@ -136,27 +136,35 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 		ob_start();
 			if ($write_access) {
 				echo '<div class="sq-break-line-inputs">';
-				echo translate('workflow_schema_to_remove').': ';
+				echo translate('Remove workflow schema').': ';
+
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('workflow_schema' => 'I'));
 
 				echo '<br />';
 				check_box($prefix.'[cascade_to_children]', '1', $cascade_to_children);
-				label(translate('cascade_schema_removal_to_children'), $prefix.'[cascade_to_children]');
+				label(translate('Cascade the removal of workflow schema to all children'), $prefix.'[cascade_to_children]');
+
 				echo '</div>';
 
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
-					echo translate('workflow_schema_to_remove').': ';
+					echo translate('Remove workflow schema').': ';
+
 					echo get_asset_tag_line($current_schemaid);
 				} else {
-					echo translate('workflow_schema_to_remove').': ';
-					echo '<em>'.translate('trigger_schema_no_schema_specified').'</em>';
+					echo translate('Remove workflow schema').': ';
+
+					echo '<em>'.translate('No schema specified').'</em>';
+
 				}
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_children ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_children ? translate('yes') : translate('no')).'" /> ';
-				echo translate('cascade_schema_removal_to_children');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_children ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_children ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Cascade the removal of workflow schema to all children');
+
 			}
 
 			$output = ob_get_contents();

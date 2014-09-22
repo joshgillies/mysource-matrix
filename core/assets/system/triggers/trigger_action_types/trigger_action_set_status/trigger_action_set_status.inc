@@ -167,16 +167,22 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
 			if ($write_access) {
 				check_box($prefix.'[dependant_parents]', 1, $dependant_parents);
-				label(translate('trigger_set_status_dependant_parents'), $prefix.'[dependant_parents]');
+				label(translate('Set status of dependent parents instead'), $prefix.'[dependant_parents]');
+
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('yes') : translate('no')).'" /> ';
-				echo translate('trigger_set_status_dependant_parents');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Set status of dependent parents instead');
+
 			}
 			$basic_part_2 = ob_get_contents();
 		ob_end_clean();
 
 
-		return '<div class="sq-break-line-inputs">'.sprintf(translate('trigger_set_status'), $basic_part_1).'</div>'.$basic_part_2.'<br/>'.translate('trigger_set_status_dependant_parents_note');
+		return '<div class="sq-break-line-inputs">'.sprintf(translate('Set the Asset\'s status to %1$s'), $basic_part_1).'</div>'.$basic_part_2.'<br/>'.translate('<strong>Note:</strong> eg. set the status of a bodycopy DIV\'s Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally.');
+
+
 
 	}//end getInterface()
 

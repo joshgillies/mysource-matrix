@@ -54,18 +54,21 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 		$attributes	= array_get_index($settings, 'attributes_mapping', '');
 		?>
 
-		<p class="sq-backend-section-subheading"><?php echo translate('marketo_connection_details'); ?></p>
+		<p class="sq-backend-section-subheading"><?php echo translate('Connection Details'); ?></p>
+
 
 		<div id="<?php echo $prefix ?>_connector_div" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" style="width:auto">
 				<tr>
-					<td><p><?php echo translate('marketo_bridge_asset'); ?></p></td>
+					<td><p><?php echo translate('Marketo Bridge Asset'); ?></p></td>
+
 					<td><p><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('marketo_bridge'=>'D')); ?></p></td>
 				</tr>
 			</table>
 		</div>
 
-		<p class="sq-backend-section-subheading"><?php echo translate('marketo_attribute_sync_settings'); ?></p>
+		<p class="sq-backend-section-subheading"><?php echo translate('Attribute Sync Settings'); ?></p>
+
 
 			<?php
 
@@ -75,9 +78,12 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 				<table border="1" style="margin-bottom: 7px; " class="sq-backend-table">
 					<tbody>
 					<tr>
-						<th><?php echo translate('marketo_attribute_name'); ?></th>
-						<th><?php echo translate('marketo_attribute_value'); ?></th>
-						<th><?php echo translate('delete_question'); ?></th>
+						<th><?php echo translate('Attribute Name'); ?></th>
+
+						<th><?php echo translate('Attribute Value'); ?></th>
+
+						<th><?php echo translate('Delete?'); ?></th>
+
 					</tr>
 					<?php
 						foreach ($attributes as $attribute_name => $attribute_value) {
@@ -107,8 +113,10 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 			<div id="<?php echo $prefix ?>_new_attribute_mapping" style="padding: 0.5em 0px 2em 30px;">
 				<table style="width:auto;padding-left: 30px;">
 					<tr>
-						<td><?php echo translate('marketo_attribute_name'); ?></td>
-						<td><?php echo translate('marketo_attribute_value'); ?></td>
+						<td><?php echo translate('Attribute Name'); ?></td>
+
+						<td><?php echo translate('Attribute Value'); ?></td>
+
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell"><?php
@@ -121,7 +129,8 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 						</td>
 					</tr>
 				</table>
-			    <div class="sq-backend-section-note"><?php echo translate('marketo_sync_form_action_note') ?></div>
+			    <div class="sq-backend-section-note"><?php echo translate('<strong>Note: </strong>Marketo Cookie is required to be set for this action to work.<br/>Global keywords and form response keywords are supported in the attribute value. <br/>If Email attribute is specified, it will be passed to Marketo directly. Verified Email address will be automatically synced to Marketo.') ?></div>
+
 			</div>
 		</div>
 

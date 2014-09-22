@@ -723,8 +723,10 @@ class Ecommerce_Cart extends Listing_Engine
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['product_count'] = translate('ecom_cart_keyword_product_count');
-		$keywords['total_value'] = translate('ecom_cart_keyword_total_value');
+		$keywords['product_count'] = translate('Cart Item Count');
+
+		$keywords['total_value'] = translate('Cart Total Value');
+
 
 		return $keywords;
 
@@ -770,8 +772,10 @@ class Ecommerce_Cart extends Listing_Engine
 
 		$keywords	= Array();
 		if (count($type_formats) > 0) {
-			$keywords['product_quantity'] = translate('ecom_cart_keyword_product_quantity');
-			$keywords['product_total'] = translate('ecom_cart_keyword_product_total');
+			$keywords['product_quantity'] = translate('Product Quantity');
+
+			$keywords['product_total'] = translate('Product Total');
+
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
@@ -802,22 +806,38 @@ class Ecommerce_Cart extends Listing_Engine
 		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('page_asset_listing');
 
 		$keywords += Array(
-						'cart_updated'					=> translate('ecom_cart_keyword_cart_updated'),
-						'product_count'					=> translate('ecom_cart_keyword_product_count'),
-						'total_value'					=> translate('ecom_cart_keyword_total_value'),
-						'cart_update_button'			=> translate('ecom_cart_keyword_cart_update_button'),
-						'checkout_cart_button'			=> translate('ecom_cart_keyword_checkout_cart_button'),
-						'checkout_cart_href'			=> translate('ecom_cart_keyword_checkout_cart_href'),
-						'insufficient_quantity_message'	=> translate('ecom_cart_keyword_insufficient_quantity_message'),
-						'asset_listing'					=> translate('cms_listing_asset_listing'),
-						'previous_page'					=> translate('cms_listing_previous_page_link'),
-						'next_page'						=> translate('cms_listing_next_page_link'),
-						'page_list'						=> translate('cms_listing_page_list'),
-						'page_number'					=> translate('cms_listing_page_number'),
-						'asset_count'					=> translate('cms_listing_asset_count'),
-						'page_asset_count'				=> translate('cms_listing_page_asset_count'),
-						'first_asset_position'			=> translate('cms_listing_first_asset_position'),
-						'last_asset_position'			=> translate('cms_listing_last_asset_position'),
+						'cart_updated'					=> translate('Cart Updated Message'),
+
+						'product_count'					=> translate('Cart Item Count'),
+
+						'total_value'					=> translate('Cart Total Value'),
+
+						'cart_update_button'			=> translate('Cart Update Button'),
+
+						'checkout_cart_button'			=> translate('Cart Checkout Button'),
+
+						'checkout_cart_href'			=> translate('Cart Checkout Href'),
+
+						'insufficient_quantity_message'	=> translate('Insufficient Product Quantity Message'),
+
+						'asset_listing'					=> translate('Asset Listing'),
+
+						'previous_page'					=> translate('Previous Page Link'),
+
+						'next_page'						=> translate('Next Page Link'),
+
+						'page_list'						=> translate('Page List'),
+
+						'page_number'					=> translate('Page Number'),
+
+						'asset_count'					=> translate('Total Assets Listed'),
+
+						'page_asset_count'				=> translate('Assets Listed On This Page'),
+
+						'first_asset_position'			=> translate('First Asset on Page\'s Position Number'),
+
+						'last_asset_position'			=> translate('Last Asset on Page\'s Position Number'),
+
 					 );
 
 		return $keywords;

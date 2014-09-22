@@ -68,7 +68,8 @@ class Condition_Referrer_Url_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('patterns'); ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('Patterns'); ?></th>
+
 				<td>
 				<?php
 				if (!$write_access && empty($condition_data['url_patterns'])) {
@@ -82,10 +83,12 @@ class Condition_Referrer_Url_Edit_Fns extends Condition_Edit_Fns
 							echo '<th></th>';
 						}
 						?>
-						<th><?php echo translate('pattern'); ?></th>
+						<th><?php echo translate('Pattern'); ?></th>
+
 						<?php if ($write_access) {
 						?>
-							<th style="text-align: center;"><?php echo translate('delete_question'); ?></th>
+							<th style="text-align: center;"><?php echo translate('Delete?'); ?></th>
+
 						<?php
 						}
 						?>
@@ -98,7 +101,8 @@ class Condition_Referrer_Url_Edit_Fns extends Condition_Edit_Fns
 								<td>
 									<?php
 									if ($index === 'new') {
-										echo '<strong>'.translate('new_question').'</strong>';
+										echo '<strong>'.translate('New?').'</strong>';
+
 									}
 									?>
 								</td>

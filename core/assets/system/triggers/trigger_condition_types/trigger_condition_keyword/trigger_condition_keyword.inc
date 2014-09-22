@@ -39,9 +39,12 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 	protected static function getMatchOptions()
 	{
 		return Array(
-				'exact'		=> translate('exact_match'),
-				'partial'	=> translate('partial_match'),
-				'regex'		=> translate('regex_match'),
+				'exact'		=> translate('Exact Match'),
+
+				'partial'	=> translate('Partial Match'),
+
+				'regex'		=> translate('RegEx Match'),
+
 			   );
 
 	}//end getMatchOptions()
@@ -165,7 +168,8 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 		ob_end_clean();
 
 
-		return sprintf(translate('trigger_condition_keyword'), $keyword_component, $operator_component, $replacement_value_component);
+		return sprintf(translate('If the replacement value of keyword %%%1$s%% is a %2$s with %3$s'), $keyword_component, $operator_component, $replacement_value_component);
+
 
 	}//end getInterface()
 
@@ -183,7 +187,8 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_missing');
+			return translate('Input Data is missing');
+
 		}
 
 		$settings['keyword'] = array_get_index($request_data, 'keyword', '');

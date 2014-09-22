@@ -112,7 +112,8 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return translate('cron_job_metadata_triggers');
+		return translate('Metadata Triggers Scheduled Job');
+
 
 	}//end _getName()
 
@@ -194,11 +195,17 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 		if (!$this->Attr('use_cron_last_run')) {
 			$period_options = Array(
 								'i' => translate('minutes'),
+
 								'h' => translate('hours'),
+
 								'd' => translate('days'),
+
 								'w' => translate('weeks'),
+
 								'm' => translate('months'),
+
 								'y' => translate('years'),
+
 							);
 
 			// check to see if the $ignore_time is relative or fixed. If relative lets make a proper time out of it

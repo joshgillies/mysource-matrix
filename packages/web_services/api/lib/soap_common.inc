@@ -322,7 +322,8 @@ class SOAP_Common
 		if(!empty($settings['local_cert'])) {
 			$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['local_cert']);
 			if(empty($file) || !method_exists($file, 'getExistingFile')) {
-				if (!is_null($form)) $form->submission_errors = array_merge($form->submission_errors,  Array(translate('no_cert')));
+				if (!is_null($form)) $form->submission_errors = array_merge($form->submission_errors,  Array(translate('No certificate file found')));
+
 				return FALSE;
 			}
 			$file_info = $file->getExistingFile();
@@ -1021,10 +1022,12 @@ class SOAP_Common
 	public static function paintUsernamePasswordFields($prefix, $settings, Backend_Outputter $o, $write_access=FALSE, $paint_o=FALSE, $array_fields=FALSE, $username_label='', $password_label='', $new_section=TRUE)
 	{
 		if (empty($username_label)) {
-			$username_label = translate('username');
+			$username_label = translate('Username');
+
 		}
 		if (empty($password_label)) {
-			$password_label = translate('password');
+			$password_label = translate('Password');
+
 		}
 
 		$login_field_name = $array_fields ? $prefix.'[login]' : $prefix.'_login';
@@ -1047,7 +1050,8 @@ class SOAP_Common
 				if ($write_access) {
 					password_box($password_field_name, array_get_index($settings, 'password', ''), 35);
 				} else {
-					echo translate('password_not_shown');
+					echo translate('Password not shown');
+
 				}
 				$o->closeField();
 
@@ -1073,7 +1077,8 @@ class SOAP_Common
 						if ($write_access) {
 							password_box($password_field_name, array_get_index($settings, 'password', ''), 35);
 						} else {
-							echo translate('password_not_shown');
+							echo translate('Password not shown');
+
 						}
 					?>
 					</td>

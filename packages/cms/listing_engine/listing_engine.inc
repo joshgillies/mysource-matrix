@@ -109,7 +109,8 @@ class Listing_Engine extends Page
 		}
 		$asset = new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$asset->setAttrValue('name', translate('default_format'));
+		$asset->setAttrValue('name', translate('Default Format'));
+
 		$args = Array('content' => $this->_getDefaultBodycopyContent('default_format'));
 		if (!$asset->create($copy_link, $args)) return FALSE;
 
@@ -157,7 +158,8 @@ class Listing_Engine extends Page
 			case 'page_contents':
 				return '%asset_listing%';
 			case 'no_results':
-				return '<p>'.translate('cms_listing_no_results').'</p>';
+				return '<p>'.translate('No results were found').'</p>';
+
 			case 'default_format':
 				return '%asset_name_linked%';
 		}
@@ -231,7 +233,8 @@ class Listing_Engine extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'root' :
-				return translate('cms_listing_root_node_link_desc');
+				return translate('The root node of the Asset Listing');
+
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -254,28 +257,32 @@ class Listing_Engine extends Page
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
 		if (!empty($folder_link)) {
 			if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('cms_listing_cannot_delete_type_formats_link'), str_replace('_',' ', $this->type()));
+				return sprintf(translate('You cannot delete the link between the type formats folder and the %s page'), str_replace('_',' ', $this->type()));
+
 			}
 		}
 
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'position_formats');
 		if (!empty($asset_folder_link)) {
 			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('cms_listing_cannot_delete_position_formats_link'), str_replace('_',' ', $this->type()));
+				return sprintf(translate('You cannot delete the link between the position formats folder and the %s page'), str_replace('_',' ', $this->type()));
+
 			}
 		}
 
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'group_formats');
 		if (!empty($asset_folder_link)) {
 			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('cms_listing_cannot_delete_group_formats_link'), str_replace('_',' ', $this->type()));
+				return sprintf(translate('You cannot delete the link between the group formats folder and the %s page'), str_replace('_',' ', $this->type()));
+
 			}
 		}
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (!empty($bodycopy_link)) {
 			if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('cms_cannot_delete_link'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+				return sprintf(translate('You cannot delete the link between the page contents and the %s page'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+
 			}
 		}
 
@@ -285,7 +292,8 @@ class Listing_Engine extends Page
 			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'bodycopy', TRUE, 'no_results');
 		}
 		if (!empty($bodycopy_link) && $bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return sprintf(translate('cms_cannot_delete_link'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			return sprintf(translate('You cannot delete the link between the page contents and the %s page'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -2805,9 +2813,11 @@ class Listing_Engine extends Page
 		}
 
 		if (($list_position % 2) == 0) {
-			$keywords['asset_odd_even'] = translate('cms_listing_asset_position_even');
+			$keywords['asset_odd_even'] = translate('even');
+
 		} else {
-			$keywords['asset_odd_even'] = translate('cms_listing_asset_position_odd');
+			$keywords['asset_odd_even'] = translate('odd');
+
 		}
 
 		// asset selections
@@ -4237,22 +4247,33 @@ class Listing_Engine extends Page
 	*/
 	function _getAdditionalSingleAssetFormatKeywords()
 	{
-		$keywords['asset_lineage'] = translate('asset_lineage');
-		$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
-		$keywords['asset_contents'] = translate('cms_listing_asset_contents');
-		$keywords['asset_contents_paint_'] = translate('cms_listing_asset_contents_paint');
-		$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
-		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
-		$keywords['asset_position'] = translate('cms_listing_asset_position');
-		$keywords['asset_odd_even'] = translate('cms_listing_asset_position_odd_even');
-		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
-		$keywords['asset_contents_raw'] = translate('cms_listing_asset_contents_raw');
+		$keywords['Asset Lineage'] = translate('Asset Lineage');
+
+		$keywords['Asset Lineage Linked'] = translate('Asset Lineage Linked');
+
+		$keywords['asset_contents'] = translate('Asset Contents (including paintlayout)');
+
+		$keywords['asset_contents_paint_'] = translate('Asset Contents (user-defined paint layout)');
+
+		$keywords['asset_name_linked'] = translate('Asset Name Linked');
+
+		$keywords['asset_short_name_linked'] = translate('Short Asset Name Linked');
+
+		$keywords['asset_position'] = translate('Asset Position');
+
+		$keywords['asset_odd_even'] = translate('Asset\'s position is odd or even');
+
+		$keywords['root_nodes'] = translate('Root Nodes (separated by commas)');
+
+		$keywords['asset_contents_raw'] = translate('Asset Contents (excluding paintlayout)');
+
 
 		// asset selections
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
-				$keywords[$name.'_asset_selection'] = sprintf(translate('cms_listing_keyword_asset_selection'), $name);
+				$keywords[$name.'_asset_selection'] = sprintf(translate('Asset Selection (%s)'), $name);
+
 			}
 		}
 
@@ -4299,32 +4320,53 @@ class Listing_Engine extends Page
 	{
 		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('page_asset_listing');
 
-		$keywords['sort_by']				= translate('cms_listing_keyword_sort_by');
-		$keywords['sort_order']				= translate('cms_listing_keyword_sort_order');
-		$keywords['reset_button']			= translate('cms_listing_keyword_reset_button');
-		$keywords['submit_button']			= translate('cms_listing_keyword_submit_button');
-		$keywords['root_nodes']				= translate('cms_listing_keyword_root_nodes');
+		$keywords['sort_by']				= translate('Sort By');
 
-		$keywords['asset_listing']			= translate('cms_listing_asset_listing');
-		$keywords['previous_page']			= translate('cms_listing_previous_page_link');
-		$keywords['previous_page_href']		= translate('cms_listing_previous_page_link_href');
-		$keywords['next_page']				= translate('cms_listing_next_page_link');
-		$keywords['next_page_href']			= translate('cms_listing_next_page_link_href');
+		$keywords['sort_order']				= translate('Sort Order');
 
-		$keywords['page_list']				= translate('cms_listing_page_list');
+		$keywords['reset_button']			= translate('Reset Button');
+
+		$keywords['submit_button']			= translate('Submit Button');
+
+		$keywords['root_nodes']				= translate('Root Nodes (separated by commas)');
+
+
+		$keywords['asset_listing']			= translate('Asset Listing');
+
+		$keywords['previous_page']			= translate('Previous Page Link');
+
+		$keywords['previous_page_href']		= translate('Previous page Href');
+
+		$keywords['next_page']				= translate('Next Page Link');
+
+		$keywords['next_page_href']			= translate('Next Page Href');
+
+
+		$keywords['page_list']				= translate('Page List');
+
 		if ($this->attr('group_by') == 'letter') {
-			$keywords['page_list_without_unused'] = translate('cms_listing_page_list_without_unused');
-		}
-		$keywords['page_list_X']			= translate('cms_listing_page_list_sliding');
+			$keywords['page_list_without_unused'] = translate('Page List (without unused letters)');
 
-		$keywords['page_number']			= translate('cms_listing_page_number');
-		$keywords['asset_count']			= translate('cms_listing_asset_count');
-		$keywords['page_asset_count']		= translate('cms_listing_page_asset_count');
-		$keywords['total_pages']			= translate('cms_listing_total_pages');
-		$keywords['first_asset_position']	= translate('cms_listing_first_asset_position');
-		$keywords['last_asset_position']	= translate('cms_listing_last_asset_position');
-		$keywords['unique_asset_count']		= translate('cms_listing_unique_asset_count');
-		$keywords['structured_root_node']	= translate('cms_listing_structured_root_node');
+		}
+		$keywords['page_list_X']			= translate('Sliding page list showing X page numbers at a time');
+
+
+		$keywords['page_number']			= translate('Page Number');
+
+		$keywords['asset_count']			= translate('Total Assets Listed');
+
+		$keywords['page_asset_count']		= translate('Assets Listed On This Page');
+
+		$keywords['total_pages']			= translate('Total Pages');
+
+		$keywords['first_asset_position']	= translate('First Asset on Page\'s Position Number');
+
+		$keywords['last_asset_position']	= translate('Last Asset on Page\'s Position Number');
+
+		$keywords['unique_asset_count']		= translate('Number of unique assets');
+
+		$keywords['structured_root_node']	= translate('Structured Root Node Selector');
+
 
 		$keywords['select_all_js_code']		= 'Select All Script Code';
 
@@ -4332,7 +4374,8 @@ class Listing_Engine extends Page
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
 				if (array_get_index($settings, 'type', '') == 'radio' && !empty($settings['options']['allow_multiple'])) {
-					$keywords[$name.'_check_all'] = sprintf(translate('cms_listing_asset_selection_check_all'), $name);
+					$keywords[$name.'_check_all'] = sprintf(translate('Asset Selection Check All (%s)'), $name);
+
 				}
 			}
 		}
@@ -4340,7 +4383,8 @@ class Listing_Engine extends Page
 		$targets = $this->attr('asset_targets');
 		if (is_array($targets) && !empty($targets)) {
 			foreach ($targets as $name => $settings) {
-				$keywords[$name.'_asset_target'] = sprintf(translate('cms_listing_asset_target_button'), $name);
+				$keywords[$name.'_asset_target'] = sprintf(translate('Asset Target Button (%s)'), $name);
+
 			}
 		}
 
@@ -4360,20 +4404,28 @@ class Listing_Engine extends Page
 	*/
 	function _getTypeFormatsKeywords()
 	{
-		$keywords['asset_lineage'] = translate('asset_lineage');
-		$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
-		$keywords['asset_contents'] = translate('cms_listing_asset_contents');
-		$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
-		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
-		$keywords['asset_position'] = translate('cms_listing_asset_position');
-		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+		$keywords['Asset Lineage'] = translate('Asset Lineage');
+
+		$keywords['Asset Lineage Linked'] = translate('Asset Lineage Linked');
+
+		$keywords['asset_contents'] = translate('Asset Contents (including paintlayout)');
+
+		$keywords['asset_name_linked'] = translate('Asset Name Linked');
+
+		$keywords['asset_short_name_linked'] = translate('Short Asset Name Linked');
+
+		$keywords['asset_position'] = translate('Asset Position');
+
+		$keywords['root_nodes'] = translate('Root Nodes (separated by commas)');
+
 
 
 		// asset selections
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
-				$keywords[$name.'_asset_selection'] = sprintf(translate('cms_listing_keyword_asset_selection'), $name);
+				$keywords[$name.'_asset_selection'] = sprintf(translate('Asset Selection (%s)'), $name);
+
 			}
 		}
 
@@ -4397,19 +4449,27 @@ class Listing_Engine extends Page
 			$keywords[$key1] = $keywords[$key];
 			unset($keywords[$key]);
 		}
-		$keywords['group_listing']				   = translate('cms_listing_group_listing');
-		$keywords['group_name']					   = translate('cms_listing_group_name');
-		$keywords['group_name_linked']			   = translate('cms_listing_group_name_linked');
-		$keywords['parent_contents']			   = translate('cms_listing_parent_contents');
-		$keywords['parent_contents_raw']		   = translate('cms_listing_parent_contents_raw');
-		$keywords['group_immed_child_group_count'] = translate('cms_listing_group_immed_child_group_count');
-		$keywords['group_total_child_asset_count'] = translate('cms_listing_group_total_child_asset_count');
+		$keywords['group_listing']				   = translate('Asset Group Listing');
+
+		$keywords['group_name']					   = translate('Asset Group Name');
+
+		$keywords['group_name_linked']			   = translate('Asset Group Name Linked');
+
+		$keywords['parent_contents']			   = translate('Contents of the Parent Asset');
+
+		$keywords['parent_contents_raw']		   = translate('Raw Contents of the Parent Asset');
+
+		$keywords['group_immed_child_group_count'] = translate('Asset Group Immediate Child Group Count');
+
+		$keywords['group_total_child_asset_count'] = translate('Asset Group Total Child Asset Count');
+
 
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
 				if (array_get_index($settings, 'type', '') == 'radio' && !empty($settings['options']['allow_multiple'])) {
-					$keywords[$name.'_check_all_in_group'] = sprintf(translate('cms_listing_asset_selection_check_all_in_group'), $name);
+					$keywords[$name.'_check_all_in_group'] = sprintf(translate('Asset Selection Check All In Group (%s)'), $name);
+
 				}
 			}
 		}

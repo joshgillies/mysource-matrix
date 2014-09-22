@@ -79,7 +79,8 @@ class Authentication_IPB_Edit_Fns extends Authentication_Edit_Fns
 				-->
 			</script>
 			<?php
-			$o->openField(translate('allow_banned_user'));
+			$o->openField(translate('Allow Banned Users'));
+
 				echo 'Yes';
 				$onclick = 'chooseOne(\''.$prefix.'_allow_banned_user\', \''.$prefix.'_disallow_banned_user\')';
 				check_box($prefix.'_allow_banned_user', '1', $allow_banned, $onclick);
@@ -89,11 +90,14 @@ class Authentication_IPB_Edit_Fns extends Authentication_Edit_Fns
 			$o->closeField();
 
 		} else {
-			$o->openField(translate('allow_banned_user'));
+			$o->openField(translate('Allow Banned Users'));
+
 			if ($allow_banned) {
-				echo '<b>'.translate('yes').'</b>';
+				echo '<b>'.translate('Yes').'</b>';
+
 			} else {
-				echo '<b>'.translate('no').'</b>';
+				echo '<b>'.translate('No').'</b>';
+
 			}
 			$o->closeField();
 		}

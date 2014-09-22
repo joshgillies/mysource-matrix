@@ -146,7 +146,8 @@ class Page_RSS_Feed extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'generate_rss' :
-				return translate('listing_engine_asset_link_description');
+				return translate('This asset is used in RSS Feed generation by the RSS Page Feed');
+
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -200,7 +201,9 @@ class Page_RSS_Feed extends Page
 		if (!parent::readAccess()) {
 
 			ob_start();
-				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			$login = ob_get_clean();
 
 			// handle http authentication
@@ -233,7 +236,8 @@ class Page_RSS_Feed extends Page
 			$rss_source_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'listing_engine', FALSE, 'major', 'generate_rss');
 
 			if (empty($rss_source_links)) {
-				trigger_error(translate('no_listing_engine_assets_linked'), E_USER_WARNING);
+				trigger_error(translate('No Listing Engine Assets  Found To Get Assets For RSS'), E_USER_WARNING);
+
 				return;
 			}
 			foreach ($rss_source_links as $links) {
@@ -250,7 +254,8 @@ class Page_RSS_Feed extends Page
 			// A feed should consist of both channel and items. If either of them is empty then throw an error
 			// If there are no assets to list then generate a valid empty feed
 			if (empty($channel) || empty($items)) {
-				trigger_error(translate('no_channel_or_items_found'), E_USER_WARNING);
+				trigger_error(translate('No Channel Info Or Items Found To Genereate RSS'), E_USER_WARNING);
+
 				return;
 			} else {
 
@@ -530,14 +535,16 @@ class Page_RSS_Feed extends Page
 				if (in_array('category', $keys)) {
 					$temp = $items['category']['ATTRIBUTUES'];
 					if (!in_array('term', array_keys($temp))) {
-						trigger_error(translate('required_attr_term_unassigned'), E_USER_WARNING);
+						trigger_error(translate('Required Attribute Term Is Not Assigned'), E_USER_WARNING);
+
 						return FALSE;
 					}
 				}
 				if ($rss_type == 'rss_2.0') {
 					if (!in_array('title', $keys)) {
 						if (!in_array('description', $keys)) {
-							trigger_error(translate('required_tag_title_or_description_missing'), E_USER_WARNING);
+							trigger_error(translate('Required Tag  Title Or Description Missing'), E_USER_WARNING);
+
 							return FALSE;
 						}
 					}
@@ -584,7 +591,9 @@ class Page_RSS_Feed extends Page
 		}
 		foreach ($required as $tag) {
 			if (!in_array($tag, array_keys($channel))) {
-				trigger_error(translate('required_attribute').' "'.$tag.'" '.translate('missing_for_channel'), E_USER_WARNING);
+				trigger_error(translate('Required Attribute').' "'.$tag.'" '.translate('Missing For Channel'), E_USER_WARNING);
+
+
 				return FALSE;
 			}
 		}
@@ -604,7 +613,8 @@ class Page_RSS_Feed extends Page
 	function validateImage($image=Array())
 	{
 		if (empty($image)) {
-			trigger_error(translate('missing_image_info'), E_USER_WARNING);
+			trigger_error(translate('Missing Image Info'), E_USER_WARNING);
+
 			return FALSE;
 		}
 		$required = Array();
@@ -618,7 +628,9 @@ class Page_RSS_Feed extends Page
 		}
 		foreach ($required as $tag) {
 			if (!in_array($tag, array_keys($image))) {
-				trigger_error(translate('required_attribute').' "'.$tag.'" '.translate('missing_for_image'), E_USER_WARNING);
+				trigger_error(translate('Required Attribute').' "'.$tag.'" '.translate('Missing For Image'), E_USER_WARNING);
+
+
 				return FALSE;
 			}
 		}

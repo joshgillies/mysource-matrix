@@ -79,7 +79,8 @@ class Content_Type_Markdown_Prefs extends Prefs
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width') ?></td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
+
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
@@ -91,7 +92,8 @@ class Content_Type_Markdown_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height') ?></td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height') ?></td>
+
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {

@@ -61,19 +61,25 @@ class Tool_Import_Bmail_User extends Tool
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
-		$o->openField(translate('bm_tool_import_bmail_user_file_upload'));
+		$o->openField(translate('Import CSV File'));
+
 			file_upload($type_code.'_file_upload');
-			$o->note(translate('bm_tool_import_bmail_user_file_upload_note'));
+			$o->note(translate('The format for each line must be: "Bulkmail User name, Bulkmail User email address"'));
+
 		$o->closeField();
 
-		$o->openField(translate('bm_tool_import_bmail_user_file_upload_header'));
+		$o->openField(translate('Column Headings in CSV File?'));
+
 			check_box($type_code.'_csv_header');
-			$o->note(translate('bm_tool_import_bmail_user_file_upload_header_example'));
+			$o->note(translate('If the first row of your CSV file contains column headings, select this field to ensure Matrix correctly imports the CSV file.'));
+
 		$o->closeField();
 
-		$o->openField(translate('bm_tool_import_bmail_user_create_in'));
+		$o->openField(translate('Create Users in'));
+
 			asset_finder($type_code.'_create_in_assetid', 0, Array('user_group' => 'D'));
-			$o->note(translate('bm_tool_import_bmail_user_create_in_note'));
+			$o->note(translate('Select the User Group to create Bulkmail Users in'));
+
 		$o->closeField();
 
 		$o->openField('');

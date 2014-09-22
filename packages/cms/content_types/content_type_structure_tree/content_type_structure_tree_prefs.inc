@@ -91,22 +91,29 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('tree_formatting_options'); ?></td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Formatting Options to Show'); ?></td>
+
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
 							check_box('SQ_STRUCTURE_SHOW_BOLD', '1', $format_options['bold']);
-							echo translate('tree_bold').'<br />';
+							echo translate('Bold').'<br />';
+
 							check_box('SQ_STRUCTURE_SHOW_UNDERLINE', '1', $format_options['underline']);
-							echo translate('tree_underline').'<br />';
+							echo translate('Underline').'<br />';
+
 							check_box('SQ_STRUCTURE_SHOW_ITALIC', '1', $format_options['italic']);
-							echo translate('tree_italic').'<br />';
+							echo translate('Italic').'<br />';
+
 							check_box('SQ_STRUCTURE_SHOW_DELETE', '1', $format_options['delete']);
-							echo translate('delete').'<br />';
+							echo translate('Delete').'<br />';
+
 							check_box('SQ_STRUCTURE_SHOW_INSERT', '1', $format_options['delete']);
-							echo translate('insert').'<br />';
+							echo translate('Insert').'<br />';
+
 							check_box('SQ_STRUCTURE_SHOW_CONNECTIONS', '1', $format_options['connections']);
-							echo translate('tree_connections').'<br />';
+							echo translate('Connections').'<br />';
+
 						} else {
 							$tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
 							$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
@@ -114,7 +121,8 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 							<table>
 								<tr>
 									<td>
-										<?php echo translate('tree_bold'); ?>&nbsp;
+										<?php echo translate('Bold'); ?>&nbsp;
+
 									</td>
 									<td>
 										<?php
@@ -124,7 +132,8 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 								</tr>
 								<tr>
 									<td>
-										<?php echo translate('tree_underline'); ?>&nbsp;
+										<?php echo translate('Underline'); ?>&nbsp;
+
 									</td>
 									<td>
 										<?php
@@ -134,7 +143,8 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 								</tr>
 								<tr>
 									<td>
-										<?php echo translate('tree_italic'); ?>&nbsp;
+										<?php echo translate('Italic'); ?>&nbsp;
+
 									</td>
 									<td>
 										<?php
@@ -144,7 +154,8 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 								</tr>
 								<tr>
 									<td>
-										<?php echo translate('delete'); ?>&nbsp;
+										<?php echo translate('Delete'); ?>&nbsp;
+
 									</td>
 									<td>
 										<?php
@@ -154,7 +165,8 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 								</tr>
 								<tr>
 									<td>
-										<?php echo translate('insert'); ?>&nbsp;
+										<?php echo translate('Insert'); ?>&nbsp;
+
 									</td>
 									<td>
 										<?php
@@ -164,7 +176,8 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 								</tr>
 								<tr>
 									<td>
-										<?php echo translate('tree_connections'); ?>&nbsp;
+										<?php echo translate('Connections'); ?>&nbsp;
+
 									</td>
 									<td>
 										<?php

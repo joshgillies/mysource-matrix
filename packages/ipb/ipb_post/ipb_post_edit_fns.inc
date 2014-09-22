@@ -59,7 +59,8 @@ class Ipb_Post_Edit_Fns extends Ipb_Topic_Edit_Fns
 		$ipb =& $ipb_bridge->getIpbConn();
 		$result = $ipb->getMemberInfoByName($asset->attr('author_name'));
 
-		$o->openField(translate('author'));
+		$o->openField(translate('Author'));
+
 			echo get_asset_tag_line($asset->_ipbid.':'.'u_'.$result['id']);
 		$o->closeField();
 
@@ -97,7 +98,8 @@ class Ipb_Post_Edit_Fns extends Ipb_Topic_Edit_Fns
 	*/
 	function paintPostContent(&$asset, &$o, $prefix)
 	{
-		$o->openField(translate('post'));
+		$o->openField(translate('Post'));
+
 			echo $asset->attr('post');
 		$o->closeField();
 

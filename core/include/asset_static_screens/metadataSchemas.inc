@@ -54,16 +54,19 @@ function paintInlineMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Ed
 
 	if (empty($direct)) return FALSE;
 
-	$o->openSection(translate('metadata_schemas'));
+	$o->openSection(translate('Metadata Schemas'));
+
 		$o->openField('&nbsp;');
 		?>
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('metadata_schema'); ?>
+					<?php echo translate('Metadata Schema'); ?>
+
 				</td>
 				<td class="sq-backend-table-header" align="right">
-					<?php echo translate('access'); ?>
+					<?php echo translate('Access'); ?>
+
 				</td>
 			</tr>
 
@@ -85,7 +88,9 @@ function paintInlineMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Ed
 						?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
-							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight: bold; "><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
+							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight: bold; "><?php echo (($granted == '0') ? translate('Denied') : translate('Applied')) ?></span>
+
+
 						</td>
 					</tr>
 				<?php
@@ -117,7 +122,8 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 
 	$admin_access = $owner->adminAccess('metadata');
 
-	$o->openSection(translate('metadata_schemas'));
+	$o->openSection(translate('Metadata Schemas'));
+
 
 	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getAssetSchemaInfo($owner->id, NULL, NULL, TRUE, TRUE);
@@ -137,21 +143,27 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 	$o->openSection('Existing Schemas');
 		$o->openRaw();
 			if (empty($direct)) {
-				echo '<p><em>'.translate('no_metadata_schemas').'</em></p>';
+				echo '<p><em>'.translate('There are no metadata schemas applied to this asset.').'</em></p>';
+
 			} else {
 				foreach ($direct as $granted => $schema_list) {
 				?>
 					<table class="sq-backend-table">
 						<tr>
 							<th class="sq-backend-table-header">
-								<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?> <?php echo translate('schemas');?></span>
+								<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('Denied') : translate('Applied')) ?> <?php echo translate('Schemas');?></span>
+
+
+
 							</th>
 							<th style="text-align: center;" width="100" class="sq-backend-table-header">
-								<?php echo translate('cascade_question'); ?>
+								<?php echo translate('Cascade?'); ?>
+
 							</th>
 							<?php
 							if ($admin_access) {
-								?><th style="text-align: center;" width="100" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></th><?php
+								?><th style="text-align: center;" width="100" class="sq-backend-table-header"><?php echo translate('Delete?'); ?></th><?php
+
 							}
 							?>
 						</tr>
@@ -207,14 +219,19 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 		$o->openSection('Add New Schema');
 			$o->openField('Select Schema', '');
 				echo '<span class="sq-inline-fields-wrapper bottom-margin">';
-					combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
-					echo ' '.translate('metadata_schema').' &nbsp; ';
+					combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('Apply'), '0' => translate('Deny')), FALSE, '');
+
+
+					echo ' '.translate('Metadata Schema').' &nbsp; ';
+
 					asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 				echo '</span>';
 			$o->closeField();
-			$o->openField(translate('cascade_question'), '');
+			$o->openField(translate('Cascade?'), '');
+
 				check_box($prefix.'_metadata[new][cascades]', 1, TRUE);
-				label(translate('cascade_schema_changes_to_new_children'), $prefix.'_metadata[new][cascades]');
+				label(translate('Cascade this new schema to newly-created children'), $prefix.'_metadata[new][cascades]');
+
 				$o->note('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the metadata schema to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
 			$o->closeField();
 		$o->closeSection();
@@ -225,14 +242,20 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 	if ($admin_access) {
 		$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 		if (count($kiddies)) {
-			$o->openSection(translate('cascade_options'));
-				$o->openField(translate('cascade_options'));
-					echo '<p><strong>'.translate('note').':</strong> '.sprintf(translate('action_affects_assets_below_this'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
+			$o->openSection(translate('Cascade Options'));
+
+				$o->openField(translate('Cascade Options'));
+
+					echo '<p><strong>'.translate('Note').':</strong> '.sprintf(translate('These actions will affect <strong>%1$s</strong> other assets below "<strong>%2$s</strong>"'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
+
+
 					check_box($prefix.'_metadata[cascade_changes]', '1', TRUE);
-					label(translate('cascade_schema_changes'), $prefix.'_metadata[cascade_changes]');
+					label(translate('Cascade schema changes'), $prefix.'_metadata[cascade_changes]');
+
 					echo '<br/>';
 					check_box($prefix.'_metadata[manual_cascade]');
-					label(translate('manually_cascade_schema'), $prefix.'_metadata[manual_cascade]');
+					label(translate('Manually cascade schemas'), $prefix.'_metadata[manual_cascade]');
+
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -259,7 +282,9 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 {
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+
+
 		exit();
 	}
 

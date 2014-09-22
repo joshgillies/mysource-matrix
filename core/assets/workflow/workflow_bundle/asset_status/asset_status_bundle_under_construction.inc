@@ -64,7 +64,8 @@ class Asset_Status_Bundle_Under_Construction extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('core_workflow_bundle_editing');
+		return translate('Editing');
+
 
 	}//end getDescription()
 
@@ -143,7 +144,8 @@ class Asset_Status_Bundle_Under_Construction extends Asset_Status
 
 		if ($has_workflow === TRUE) {
 			if ($m_complete === FALSE) {
-				$available_statuses[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
+				$available_statuses[SQ_STATUS_PENDING_APPROVAL] = translate('Apply for Approval');
+
 			} else {
 				$all_streams        = $this->owner->getAllBundleStreams();
 				$bypassable_streams = $this->owner->getAllBypassableBundleStreams();
@@ -167,16 +169,19 @@ class Asset_Status_Bundle_Under_Construction extends Asset_Status
 
 				// If we have to apply for approval on at least one stream
 				if ($needs_apply === TRUE) {
-					$available_statuses[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
+					$available_statuses[SQ_STATUS_PENDING_APPROVAL] = translate('Apply for Approval');
+
 				}
 
 				// If we can complete something through at least one stream
 				if ($needs_approve === TRUE) {
-					$available_statuses[SQ_STATUS_APPROVED] = translate('status_change_approve');
+					$available_statuses[SQ_STATUS_APPROVED] = translate('Approve');
+
 				}
 			}
 		} else {
-			$available_statuses[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+			$available_statuses[SQ_STATUS_LIVE] = translate('Approve and Make Live');
+
 		}//end if has workflow
 
 		return $available_statuses;

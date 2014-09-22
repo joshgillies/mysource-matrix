@@ -67,7 +67,8 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('snyc_cmis_bridge_hipo_name');
+		return translate('Hipo Job Sync CMIS Bridge');
+
 
 	}//end getHipoName()
 
@@ -300,14 +301,18 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 
 					unlink($full_path);
 				} else {
-					$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $asset->id);
-					$this->_addError(sprintf(translate('snyc_cmis_bridge_hipo_can_not_update_file_no_content_stream'), $todo['object_data']['cmis:contentStreamFileName']), TRUE);
+					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $asset->id);
+
+					$this->_addError(sprintf(translate('Update Files failed to update "%s". No content stream from CMIS Server.'), $todo['object_data']['cmis:contentStreamFileName']), TRUE);
+
 				}
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
 
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $asset->id);
-				$this->_addError(sprintf(translate('snyc_cmis_bridge_hipo_can_not_update_file'), $asset->name, $asset->id), TRUE);
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $asset->id);
+
+				$this->_addError(sprintf(translate('Update Files failed to update "%1$s" (Id: #%2$s). No asset write access.'), $asset->name, $asset->id), TRUE);
+
 			}
 
 			$this->_running_vars['done_update_assetids'][] = $todo;
@@ -436,8 +441,10 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 				$new_file->setAttrValue('allow_unrestricted', TRUE);
 
 				if (!$new_file->create($import_link, $temp_info)) {
-					$step_data['message'] = sprintf(translate('snyc_cmis_bridge_hipo_skip_doc'), $todo['cmis:contentStreamFileName']);
-					$this->_addError(sprintf(translate('snyc_cmis_bridge_hipo_can_not_create_file'), $todo['cmis:contentStreamFileName'], $bridge->id), TRUE);
+					$step_data['message'] = sprintf(translate('Skipping CMIS document "%s".'), $todo['cmis:contentStreamFileName']);
+
+					$this->_addError(sprintf(translate('Create Files failed to create "%1$s" asset under CMIS Bridge : (Id: #%2$s)'), $todo['cmis:contentStreamFileName'], $bridge->id), TRUE);
+
 				} else {
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'metadata');
 
@@ -457,8 +464,10 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 
 				unlink($full_path);
 			} else {
-				$step_data['message'] = sprintf(translate('snyc_cmis_bridge_hipo_skip_doc'), $todo['cmis:contentStreamFileName']);
-				$this->_addError(sprintf(translate('snyc_cmis_bridge_hipo_can_not_create_file_no_content_stream'), $todo['cmis:contentStreamFileName']), TRUE);
+				$step_data['message'] = sprintf(translate('Skipping CMIS document "%s".'), $todo['cmis:contentStreamFileName']);
+
+				$this->_addError(sprintf(translate('Create Files failed to create "%s". No content stream from CMIS server.'), $todo['cmis:contentStreamFileName']), TRUE);
+
 			}
 
 			$this->_running_vars['done_create_objectIds'][] = $todo;

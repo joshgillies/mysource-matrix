@@ -100,7 +100,8 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		return translate('cron_job_expired_workflow');
+		return translate('Expired Workflow Scheduled Job');
+
 
 	}//end _getName()
 

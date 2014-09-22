@@ -154,7 +154,8 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 				foreach (array_values($selected_assetids) as $index => $selected_assetid){
 					asset_finder($name.'['.$index.']', $selected_assetid, Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
 					echo '<span style="margin-left:10px;">';
-					echo translate('immediate_child_only');
+					echo translate('Immediate child only');
+
 					check_box($prefix.'[immed_child]['.$index.']', '1', (!empty($immed_child[$selected_assetid])), '', 'style="margin-left:10px;"');
 					echo '</span>';
 					echo '<br />';
@@ -162,7 +163,8 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 
 				asset_finder($name.'['.count($selected_assetids).']', 0, Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
 				echo '<span id="trigger_condition_tree_location_check_box" style="margin-left:10px;">';
-				echo translate('immediate_child_only');
+				echo translate('Immediate child only');
+
 				check_box($prefix.'[immed_child]['.count($selected_assetids).']', '1', FALSE, '', 'style="margin-left:10px;"');
 				echo '</span>';
 
@@ -184,7 +186,8 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 				</script>
 				<?php
 
-				echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', \'null\', true); addParentNode(this);" style="margin-left:10px;"/>';
+				echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('More').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', \'null\', true); addParentNode(this);" style="margin-left:10px;"/>';
+
 				echo '<br />';
 				echo '</div>';
 			} else {
@@ -193,20 +196,23 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 					foreach ($selected_assetids as $selected_assetid){
 						echo get_asset_tag_line($selected_assetid);
 						if (!empty($immed_child[$selected_assetid])) {
-							echo '<b> '.translate('as_an_immediate_child_only').'</b>';
+							echo '<b> '.translate('as an immediate child only').'</b>';
+
 						}
 						echo '<br />';
 					}
 					echo '</div>';
 				} else {
-					echo '<b>['.translate('no_asset_selected').']</b>';
+					echo '<b>['.translate('No asset selected').']</b>';
+
 				}
 			}
 
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return sprintf(translate('trigger_tree_location_basic'), $basic_part_1);
+		return sprintf(translate('Asset is under any one of these locations: <br />%s'), $basic_part_1);
+
 
 	}//end getInterface()
 
@@ -237,12 +243,14 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 						$settings['immed_child'][$tree_location['assetid']] = '1';
 					}
 				} else {
-					trigger_error(translate('selected_asset_does_not_exist'), E_USER_NOTICE);
+					trigger_error(translate('Selected asset does not exist'), E_USER_NOTICE);
+
 				}
 			}
 		}
 
-		if (empty($settings['assetids'])) return translate('triger_no_tree_location');
+		if (empty($settings['assetids'])) return translate('No tree location selected');
+
 
 		return FALSE;
 

@@ -263,7 +263,8 @@ class Data_Source_Graph extends Image
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'data_source_for_graph' :
-				return (translate('data_source_asset_linked_to_graph').' '.$this->id);
+				return (translate('Data Source Asset Linked To The Graph Asset').' '.$this->id);
+
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -814,7 +815,9 @@ class Data_Source_Graph extends Image
 		if (SQ_IN_LIMBO) return parent::printFrontend();
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
 

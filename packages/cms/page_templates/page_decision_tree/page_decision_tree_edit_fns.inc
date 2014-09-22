@@ -69,7 +69,8 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 			if (!empty($first_question['minorid'])) {
 				echo get_asset_tag_line($first_question['minorid'], 'details');
 			} else {
-				echo "<i>".translate('first_question_not_selected')."</i>";
+				echo "<i>".translate('First Question has not been selected.')."</i>";
+
 			}
 		}
 
@@ -247,10 +248,12 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
-							<?php echo translate('result_bodycopy'); ?>
+							<?php echo translate('Result Bodycopy'); ?>
+
 						</td>
 						<td class="sq-backend-table-header">
-							<?php echo translate('points_range_min_max_incl'); ?>
+							<?php echo translate('Points Range (min to max inclusive)'); ?>
+
 						</td>
 					</tr>
 				<?php

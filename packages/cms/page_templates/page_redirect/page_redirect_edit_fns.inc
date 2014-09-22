@@ -61,7 +61,8 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 			asset_finder($prefix.'_redirect_assetid', (is_null($redirect_asset) ? 0 : $redirect_asset->id));
 		} else {
 			if (is_null($redirect_asset)) {
-				echo translate('cms_redirect_none_set');
+				echo translate('None Set');
+
 			} else {
 				echo get_asset_tag_line($redirect_asset->id);
 			}

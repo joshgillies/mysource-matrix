@@ -73,7 +73,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('tool_export_assets_to_xml_hipo_name');
+		return translate('Hipo Job Export Assets To XML');
+
 
 	}//end getHipoName()
 
@@ -89,7 +90,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('tool_export_assets_to_xml_hipo_name'),
+					'name'			=> translate('Hipo Job Export Assets To XML'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processExportAsset',
 									   ),

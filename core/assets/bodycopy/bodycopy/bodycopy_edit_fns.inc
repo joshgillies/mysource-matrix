@@ -86,12 +86,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			} else {
 				if (!$mute_errors) {
-					$o->note(sprintf(translate('bodycopy_asset_has_no_design'), $GLOBALS['sq_preview_url']));
+					$o->note(sprintf(translate('<b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b>%s</b>]. No style information is available to use for content editing.'), $GLOBALS['sq_preview_url']));
+
 				}
 			}
 		} else {
 			if (!$mute_errors) {
-				$o->note(translate('bodycopy_asset_has_no_preview'));
+				$o->note(translate('<b>NOTE:</b> This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.'));
+
 			}
 		}
 
@@ -299,14 +301,18 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								<?php
 								if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
 									?>
-									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_pref_cannot_insert_new'); ?></span></td>
+									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('<b>NOTE:</b> You cannot insert a new Div or Table while it is disabled in user preference.'); ?></span></td>
+
 									<?php
 								}
 								else {
 									?>
 									<td>
 										<?php
-											Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_container('$prefix', $i, true)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
+											Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_container('$prefix', $i, true)", translate('Insert New Container'), translate('Click to open the \'Insert New Container\' tool.'), 'create_container', '['.translate('Insert').']');
+
+
+
 										?>
 									</td>
 								<?php
@@ -346,14 +352,18 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 							<?php
 							if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
 								?>
-								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_pref_cannot_insert_new'); ?></span></td>
+								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('<b>NOTE:</b> You cannot insert a new Div or Table while it is disabled in user preference.'); ?></span></td>
+
 								<?php
 							}
 							else {
 								?>
 								<td>
 									<?php
-									Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_container('$prefix', $i, false)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
+									Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_container('$prefix', $i, false)", translate('Insert New Container'), translate('Click to open the \'Insert New Container\' tool.'), 'create_container', '['.translate('Insert').']');
+
+
+
 									?>
 								</td>
 							<?php

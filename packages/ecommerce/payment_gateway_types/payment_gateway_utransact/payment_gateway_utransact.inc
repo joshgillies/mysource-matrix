@@ -116,7 +116,31 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 	function _createBodycopy($default_content=NULL)
 	{
 		if (is_null($default_content)) {
-			$default_content = translate('default_bodycopy_content_pg_utransact');
+			$default_content = translate('%%processing_error%%
+<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> (%%transaction_gst%% percent GST)  dollars are about to be debited from your card</div>
+<table cellpadding="5">
+	<tr>
+		<td align="right">Name on Card</td>
+		<td>%%credit_card_name%%</td>
+	</tr>
+	<tr>
+		<td align="right">Card Number</td>
+		<td>%%credit_card_number%%  %%credit_card_ccv%%</td>
+	</tr>
+	<tr>
+		<td align="right">Expiry Date (MMM/YYYY)</td>
+		<td>%%credit_card_expiry_month%% / %%credit_card_expiry_year%%</td>
+	</tr>
+	<tr>
+		<td align="right">Card Type</td>
+		<td>%%credit_card_type_selector%%</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>');
+
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
@@ -229,12 +253,14 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 			unset($_SESSION['SQ_ECOM_AMOUNT']);
 			unset($_SESSION['SQ_ECOM_GST']);
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+			$this->appendPendingOrderAuditLog(translate('Payment has no amount'));
+
 
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($card_info) {
-			$this->appendPendingOrderAuditLog(translate('utransact_payment_attempted_gateway_contacted'));
+			$this->appendPendingOrderAuditLog(translate('UTransact payment gateway contacted, payment attempted'));
+
 
 			if ($this->processPayment($card_info)) {
 
@@ -263,12 +289,14 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 					}
 				}
 
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+				$this->appendPendingOrderAuditLog(translate('Payment is successful'));
+
 
 				$this->returnToCaller('SUCCESS');
 
 			} else {
-				$this->appendPendingOrderAuditLog(translate('utransact_payment_declined'));
+				$this->appendPendingOrderAuditLog(translate('Payment declined by gateway'));
+
 			}
 		}
 
@@ -364,7 +392,8 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 
 		$amount = $_SESSION['SQ_ECOM_AMOUNT'];
 		if (empty($amount)) {
-			$this->_setError(translate('utransact_amount_not_specified'));
+			$this->_setError(translate('No amount is specified for the payment'));
+
 			return FALSE;
 		}
 
@@ -416,7 +445,8 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 		}
 		$pending_order = $GLOBALS['SQ_SYSTEM']->am->getAsset($pending_order_id);
 		$pending_order->setAttrValue('ecom_ref_no', $_SESSION['SQ_ECOM_REF_NO']);
-		$pending_order->appendAuditLog(translate('utransact_ecom_ref_num_recorded_before_processing'));
+		$pending_order->appendAuditLog(translate('Order reference number recorded before processing'));
+
 
         // Set credit card number
 		if (!empty($card_info['number'])) {

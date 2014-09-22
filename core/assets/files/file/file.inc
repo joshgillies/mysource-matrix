@@ -1198,7 +1198,8 @@ class File extends Asset
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$ext = get_file_type($info['filename']);
 		if (!empty($this->allowed_extensions) && !in_array($ext, $this->allowed_extensions)) {
-			trigger_localised_error('CORE0106', E_USER_WARNING, make_readable_list($this->allowed_extensions, strtolower(translate('or'))), strtoupper($ext));
+			trigger_localised_error('CORE0106', E_USER_WARNING, make_readable_list($this->allowed_extensions, strtolower(translate('Or'))), strtoupper($ext));
+
 			// Get rid of temp copy of the uploaded file
 			unlink($info['path']);
 
@@ -1347,7 +1348,9 @@ class File extends Asset
 		}
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
 
@@ -1594,10 +1597,14 @@ class File extends Asset
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['asset_file_size_in_bytes'] = translate('core_file_keyword_size_in_bytes');
-		$keywords['asset_file_size_readable'] = translate('core_file_keyword_size_readable');
-		$keywords['asset_file_contents'] = translate('core_file_keyword_file_contents');
-		$keywords['asset_file_type'] = translate('core_file_keyword_file_type');
+		$keywords['asset_file_size_in_bytes'] = translate('File size (in bytes)');
+
+		$keywords['asset_file_size_readable'] = translate('File size (in human-friendly format)');
+
+		$keywords['asset_file_contents'] = translate('Binary contents of the file');
+
+		$keywords['asset_file_type'] = translate('File type');
+
 
 
 		return $keywords;

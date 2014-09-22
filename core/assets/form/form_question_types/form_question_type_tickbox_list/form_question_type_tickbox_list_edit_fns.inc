@@ -125,7 +125,8 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		if ($write_access) {
 			?>
-			<label class="sq-option-list-header" for="<?php echo $prefix; ?>_option_list_options[0]"><?php echo translate('label'); ?></label>
+			<label class="sq-option-list-header" for="<?php echo $prefix; ?>_option_list_options[0]"><?php echo translate('Label'); ?></label>
+
 			<?php
 		}
 		require_once(SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc');

@@ -94,7 +94,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		?>
 		<select name="<?php echo $prefix; ?>_select_type" onchange="this.form.submit();">
-			<option value="">-- <?php echo translate('select_asset_type'); ?> --</option>
+			<option value="">-- <?php echo translate('Select Asset Type'); ?> --</option>
+
 			<?php
 			foreach ($options as $type_code => $name) {
 				$style = (isset($type_codes[$type_code])) ? ' style="background-color: #ddd";' : '';
@@ -106,8 +107,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		?></select><?php
 		$o->addFormActionGetVar($prefix.'_type', $selected, TRUE);
-		submit_button($prefix.'_go', translate('go'));
-		$o->note(translate('type_code_precedence_over_root_node').' '.translate('type_code_current_customised_highlighted'));
+		submit_button($prefix.'_go', translate('Go'));
+
+		$o->note(translate('Type Code specific customisations will take precendence over Root Node specific customisations.').' '.translate('Currently customised type codes are highlighted in grey in the above select list.'));
+
+
 
 		return FALSE;
 
@@ -158,9 +162,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		} else {
 			if ($write_access) {
-				echo '<em>'.translate('customise_asset_selection_below').'</em>';
+				echo '<em>'.translate('Please select an Asset Type below to customise.').'</em>';
+
 			} else {
-				echo '<em>'.translate('view_asset_selection_below').'</em>';
+				echo '<em>'.translate('Please select an Asset Type below to view its settings.').'</em>';
+
 			}
 			return FALSE;
 
@@ -199,9 +205,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			// field opened by asset_edit_interface
 			if (isset($_REQUEST[$prefix.'_customise_root_node']) && in_array($_REQUEST[$prefix.'_customise_root_node'], array_keys($root_nodes))) {
 				if ($wa) {
-					echo sprintf(translate('currently_customising'), get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
+					echo sprintf(translate('Currently customising %s'), get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
+
 				} else {
-					echo sprintf(translate('currently_viewing'), get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
+					echo sprintf(translate('Currently viewing %s'), get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
+
 				}
 			} else {
 				unset($_REQUEST[$prefix.'_customise_root_node']);
@@ -210,11 +218,14 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 
 			if (isset($_REQUEST[$prefix.'_select_type']) && !empty($_REQUEST[$prefix.'_select_type'])) {
-				$o->openField(translate('asset_field_type_code'));
+				$o->openField(translate('Type Code'));
+
 					if ($wa) {
-						echo translate('currently_customising_type_code');
+						echo translate('Currently customising type code');
+
 					} else {
-						echo translate('currently_viewing_type_code');
+						echo translate('Currently viewing type code');
+
 					}
 					echo '<strong>';
 					echo get_asset_type_icon($_REQUEST['cache_manager_20_select_type']);
@@ -224,33 +235,46 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			// Caching Status field
-			$o->openField(translate('cache_manager_cache_status'), '', translate('cache_manager_cache_status_note'));
+			$o->openField(translate('Caching Status'), '', translate('Setting this value to \'On\', will bring the Default Expiry setting into effect.'));
+
+
 			$using_default = !isset($current_values[$selected]['enabled']);
 			if ($using_default) {
-				echo ($asset->attr('enabled')) ? translate('on') : translate('off');
-				echo ' <em>('.translate('using_default_value').')</em>';
+				echo ($asset->attr('enabled')) ? translate('On') : translate('Off');
+
+
+				echo ' <em>('.translate('Using default value').')</em>';
+
 			} else {
 				$caching = ($current_values[$selected]['enabled']) ? 1 : 0;
 				if ($wa) {;
-					echo combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), FALSE, $caching);
+					echo combo_box($prefix.'_enabled', Array('1' => translate('On'), '0' => translate('Off')), FALSE, $caching);
+
+
 				} else {
-					echo ($current_values[$selected]['enabled']) ? translate('on') : translate('off');
+					echo ($current_values[$selected]['enabled']) ? translate('On') : translate('Off');
+
+
 				}
 			}
 			if ($wa) {
 				echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
 				check_box($prefix.'_default_enabled', '1', $using_default);
-				label(translate('use_default'), $prefix.'_default_enabled');
+				label(translate('Use default'), $prefix.'_default_enabled');
+
 				echo '</span>';
 			}
 			$o->closeField();
 
 			// Default Expiry field
-			$o->openField(translate('default_expiry'), '', translate('valid_cache_length'));
+			$o->openField(translate('Default Expiry'), '', translate('The length of time a cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days).'));
+
+
 				$using_default = !isset($current_values[$selected]['expiry']);
 				if ($using_default) {
 					echo $asset->attr('expiry').' seconds';
-					echo ' <em>('.translate('using_default_value').')</em>';
+					echo ' <em>('.translate('Using default value').')</em>';
+
 				} else {
 					if ($wa) {
 						echo '<span class="sq-inline-fields-wrapper">';
@@ -263,48 +287,63 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				if ($wa) {
 					echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
 					check_box($prefix.'_default_expiry', '1', $using_default);
-					label(translate('use_default'), $prefix.'_default_expiry');
+					label(translate('Use default'), $prefix.'_default_expiry');
+
 					echo '</span>';
 				}
 			$o->closeField();
 
 			// Send Cacheable Header field
-			$o->openField(translate('http_header_cacheable_field'), '', translate('cache_manager_http_header_cacheable_note'));
+			$o->openField(translate('Send Cacheable Header'), '', translate('Setting this value to \'On\', will bring the Browser and Accellerator Cache Expiry settings into effect.'));
+
+
 				$using_default = !isset($current_values[$selected]['send_cacheable_header']);
 				if ($using_default) {
-					echo SQ_CONF_SEND_CACHEABLE_HEADER ? translate('yes') : translate('no');
-					echo ' <em>('.translate('using_default_value').')</em>';
+					echo SQ_CONF_SEND_CACHEABLE_HEADER ? translate('Yes') : translate('No');
+
+
+					echo ' <em>('.translate('Using default value').')</em>';
+
 				} else {
 					if ($wa) {
-						combo_box($prefix.'_send_cacheable_header', Array('1' => translate('on'), '0' => translate('off')), FALSE, $current_values[$selected]['send_cacheable_header']);
+						combo_box($prefix.'_send_cacheable_header', Array('1' => translate('On'), '0' => translate('Off')), FALSE, $current_values[$selected]['send_cacheable_header']);
+
+
 						echo ' ';
 					} else {
 						if ($current_values[$selected]['send_cacheable_header'] == '0' ){
-							echo translate('off');
+							echo translate('Off');
+
 						} else {
-							echo translate('on');
+							echo translate('On');
+
 						}
 					}
 				}
 				if ($wa) {
 					echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
 					check_box($prefix.'_default_send_cacheable_header', '1', $using_default);
-					label(translate('use_default'), $prefix.'_default_send_cacheable_header');
+					label(translate('Use default'), $prefix.'_default_send_cacheable_header');
+
 					echo '</span>';
 				}
 			$o->closeField();
 
 			// Accelerator cache expiry field
-			$o->openField(translate('cache_manager_accelerator_cache_expiry'), '', translate('cache_manager_accelerator_valid_cache_length'));
+			$o->openField(translate('Accelerator Cache Expiry'), '', translate('Expire the requested content in the accelerator proxy the specified number of seconds after which it is accessed. When this value is not supplied, the \'s-maxage\' cache header attribute will not be sent.'));
+
+
 				$using_default_accelerator = !isset($current_values[$selected]['accelerator_cache_expiry']);
 				if ($using_default_accelerator) {
 					$accelerator_cache_expiry = $asset->attr('accelerator_cache_expiry');
 					if (empty($browser_cache_expiry)) {
 						echo $asset->attr('expiry').' seconds';
-						echo ' <em>('.sprintf(translate('cache_manager_using_blank_default_value'), 'the system Default Expiry').')</em>';
+						echo ' <em>('.sprintf(translate('Using blank default value - equal to %1$s'), 'the system Default Expiry').')</em>';
+
 					} else {
 						echo $accelerator_cache_expiry.' seconds';
-						echo ' <em>('.translate('using_default_value').')</em>';
+						echo ' <em>('.translate('Using default value').')</em>';
+
 					}
 				} else {
 					if ($wa) {
@@ -318,22 +357,27 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				if ($wa) {
 					echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
 					check_box($prefix.'_default_accelerator_cache_expiry', '1', $using_default_accelerator);
-					label(translate('use_default'), $prefix.'_default_accelerator_cache_expiry');
+					label(translate('Use default'), $prefix.'_default_accelerator_cache_expiry');
+
 					echo '</span>';
 				}
 			$o->closeField();
 
 			// Browser cache expiry field
-			$o->openField(translate('cache_manager_browser_cache_expiry'), '', translate('cache_manager_browser_valid_cache_length'));
+			$o->openField(translate('Browser Cache Expiry'), '', translate('Expire the requested content in the browser the specified number of seconds after which it is accessed. When this value is not supplied, the content will expire after the "Default Expiry" period.'));
+
+
 				$using_default = !isset($current_values[$selected]['browser_cache_expiry']);
 				if ($using_default) {
 					$browser_cache_expiry = $asset->attr('browser_cache_expiry');
 					if (empty($browser_cache_expiry)) {
 						echo $asset->attr('expiry').' seconds';
-						echo ' <em>('.sprintf(translate('cache_manager_using_blank_default_value'), 'the system Default Expiry').')</em>';
+						echo ' <em>('.sprintf(translate('Using blank default value - equal to %1$s'), 'the system Default Expiry').')</em>';
+
 					} else {
 						echo $browser_cache_expiry.' seconds';
-						echo ' <em>('.translate('using_default_value').')</em>';
+						echo ' <em>('.translate('Using default value').')</em>';
+
 					}
 				} else {
 					if ($wa) {
@@ -347,7 +391,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				if ($wa) {
 					echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
 					check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
-					label(translate('use_default'), $prefix.'_default_browser_cache_expiry');
+					label(translate('Use default'), $prefix.'_default_browser_cache_expiry');
+
 					echo '</span>';
 				}
 
@@ -468,8 +513,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				<tbody>
 					<tr>
 						<th>Root node</th>
-						<th title="<?php echo translate('include_all_assets'); ?>?"><?php echo translate('cascade'); ?>?</th>
-						<th><?php echo translate('customise'); ?></th>
+						<th title="<?php echo translate('Include all assets underneath this root node'); ?>?"><?php echo translate('Cascade'); ?>?</th>
+
+
+						<th><?php echo translate('Customise'); ?></th>
+
 					</tr>
 					<?php
 					foreach ($root_nodes as $assetid => $data) {
@@ -490,18 +538,24 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 								<?php
 									if ($wa) {
 										$options = Array(
-														0	=> translate('no'),
-														1	=> translate('yes'),
+														0	=> translate('No'),
+
+														1	=> translate('Yes'),
+
 												   );
 										$combo_name = $prefix.'_all_underneath_X_'.$key.'_X_';
 										combo_box($combo_name, $options, FALSE, $data['all_underneath']);
 									} else {
 										if ($data['all_underneath']) {
 											echo '<img src="'.sq_web_path('lib').'/web/images/tick.gif" /> ';
-											echo '<strong>'.translate('yes').'</strong> ('.translate('assets_underneath_root_node_affected').')';
+											echo '<strong>'.translate('Yes').'</strong> ('.translate('Assets underneath this root node <u>ARE</u> affected').')';
+
+
 										} else {
 											echo '<img src="'.sq_web_path('lib').'/web/images/cross.gif" /> ';
-											echo '<strong>'.translate('no').'</strong> ('.translate('assets_underneath_root_node_not_affected').')';
+											echo '<strong>'.translate('No').'</strong> ('.translate('Assets underneath this root node are <u>NOT</u> affected').')';
+
+
 										}
 									}
 								?>
@@ -519,19 +573,23 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 										//this.form.submit();
 										check_box($radio_name, $assetid, FALSE, '', 'id="'.$radio_id.'" onchange="customiseCheck(this, \'select-root-node-table\', false); return false;"');
 										if ($customised) {
-											label(translate('edit_customisations'), $radio_id);
+											label(translate('Edit customisations'), $radio_id);
+
 										} else {
-											label(translate('customise'), $radio_id);
+											label(translate('Customise'), $radio_id);
+
 										}
 									} else {
 										if ($customised) {
 											$radio_name = $prefix.'_customise_root_node';
 											$radio_id = $prefix.'_'.$assetid.'_customise_root_node';
 											check_box($radio_name, $assetid, FALSE, '', 'id="'.$radio_id.'"');
-											label(translate('view_customisations'), $radio_id);
+											label(translate('View customisations'), $radio_id);
+
 										} else {
 											if (!empty($assetid)) {
-												echo '<em>'.translate('not_yet_customised').'</em>';
+												echo '<em>'.translate('Not yet customised').'</em>';
+
 											}
 										}
 									}
@@ -545,7 +603,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 								<td colspan="3">
 									<?php
 										$more_button_name = $prefix.'_root_node_more_button_X_'.$key.'_X_';
-										normal_button($more_button_name, translate('add_root_node'), 'var table = prependLastRow(this); resetLastRowFields(table, false)');
+										normal_button($more_button_name, translate('Add Root Node'), 'var table = prependLastRow(this); resetLastRowFields(table, false)');
+
 									?>
 								</td>
 							</tr>
@@ -612,7 +671,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 						cloneCustomiseCell.appendChild(cloneCustomiseText);
 
 						// use innerHTML for IE6
-						cloneCustomiseText.innerHTML = js_translate('customise_after_commit');
+						cloneCustomiseText.innerHTML = js_translate('Customise after commit');
+
 
 						// remove the asset finder from the clone
 						var cloneAssetFinderCell = clone.cells[0];
@@ -832,9 +892,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$this->_paintSpecificCacheManagement($asset, $o, $prefix, 'root_nodes', $_REQUEST[$prefix.'_customise_root_node'], TRUE);
 		} else {
 			if ($wa) {
-				echo '<em>'.translate('customise_root_node_selection_below').'</em>';
+				echo '<em>'.translate('Please select a Root Node below to customise.').'</em>';
+
 			} else {
-				echo '<em>'.translate('view_root_node_selection_below').'</em>';
+				echo '<em>'.translate('Please select a customised Root Node below to view its settings.').'</em>';
+
 			}
 		}
 
@@ -885,27 +947,34 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintClearCache(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			echo translate('cannot_clear_cache');
+			echo translate('You do not have access to clear the cache');
+
 			return FALSE;
 		}
 
 		if (!$asset->canClearByAssetid()) {
-			echo translate('cannot_clear_cache_by_assetid');
+			echo translate('Your chosen cache storage type does not support clearing by asset ID or asset type');
+
 			return FALSE;
 		}
 
 		multiple_asset_finder($prefix.'_clear_cache', Array());
 
-		$o->openField(translate('level'));
+		$o->openField(translate('Level'));
+
 			$options = Array(
-						'single'		=> translate('this_asset'),
-						'dependants'	=> translate('this_asset_and_dependants'),
-						'children'		=> translate('this_asset_and_children'),
+						'single'		=> translate('This asset'),
+
+						'dependants'	=> translate('This asset and its dependants'),
+
+						'children'		=> translate('This asset and its children'),
+
 					   );
 			combo_box($prefix.'_level', $options, '', FALSE);
 		$o->closeField();
 
-		$o->openField(translate('asset_types'));
+		$o->openField(translate('Asset Types'));
+
 			$type_options = Array();
 			$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 			foreach ($asset_types as $type_code) {
@@ -917,7 +986,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			asort($type_options);
 			$type_options = array_reverse($type_options, TRUE);
-			$type_options[''] = '-- '.translate('all_asset_types').' --';
+			$type_options[''] = '-- '.translate('All Asset Types').' --';
+
 			$type_options = array_reverse($type_options, TRUE);
 			combo_box($prefix.'_type_codes', $type_options, TRUE, '', 8);
 		$o->closeField();
@@ -987,17 +1057,23 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintSystemWideClearCache(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			echo translate('cannot_clear_cache');
+			echo translate('You do not have access to clear the cache');
+
 			return FALSE;
 		}
 
-		$o->openField(translate('delete_all_cache'));
+		$o->openField(translate('Delete All System Cache'));
+
 			$delete_all_ops = Array(
-								'yes'	=> translate('yes'),
-								'no'	=> translate('no'),
+								'Yes'	=> translate('Yes'),
+
+								'No'	=> translate('No'),
+
 							  );
-			combo_box($prefix.'_delete_all', $delete_all_ops, FALSE, 'no', 0, "onChange=\"Javascript: if (this.value == 'yes') { if(!confirm(js_translate('confirm_purge_cache'))) { this.value = 'no'; } } \"");
-			$o->note(translate('trash_cache_warning'));
+			combo_box($prefix.'_delete_all', $delete_all_ops, FALSE, 'no', 0, "onChange=\"Javascript: if (this.value == 'yes') { if(!confirm(js_translate('Are you sure you want to delete all cache currently in the system?'))) { this.value = 'no'; } } \"");
+
+			$o->note(translate('This will delete all cache existing in the system.'));
+
 		$o->closeField();
 
 		return TRUE;
@@ -1065,11 +1141,13 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$cron_job = new Cron_Job_Refresh_Cache();
 				$edit_fns = $cron_job->getEditFns();
 				$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rc');
-				$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+				$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+
 
 			} else {
 				// Cron Manager is not configured yet.
-				echo translate('cron_manager_not_configured_refresh');
+				echo translate('The Scheduled Jobs Manager has not been configured. No future cache refreshing can be set for this asset.');
+
 			}
 		}
 
@@ -1146,7 +1224,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		$rc_jobs = $cron_mgr->getJobs('cron_job_refresh_cache');
 
 		if (empty($rc_jobs)) {
-			echo translate('cron_manager_refresh_no_job');
+			echo translate('No Jobs available');
+
 		} else {
 ?>
 			<table class="sq-backend-table">
@@ -1170,9 +1249,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 						<td class="sq-backend-table-cell">
 						<?php
 							if ($rc_job->attr('long') && $rc_job->attr('running')) {
-								echo translate('cron_manager_refresh_cache_running');
+								echo translate('Running');
+
 							} else {
-								echo translate('cron_manager_refresh_cache_not_running');
+								echo translate('Not Running');
+
 							}
 						?>
 						</td>
@@ -1280,8 +1361,10 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		<table class="sq-backend-table" style="width: auto">
 			<thead>
 				<tr>
-					<th><?php echo translate('url'); ?></th>
-					<th style="text-align: center;"><?php echo translate('use_cache'); ?>?</th>
+					<th><?php echo translate('URL'); ?></th>
+
+					<th style="text-align: center;"><?php echo translate('Use Cache'); ?>?</th>
+
 				</tr>
 			</thead>
 			<tbody>
@@ -1424,7 +1507,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		<table class="sq-backend-table" style="width: auto">
 			<thead>
 				<tr>
-					<th><?php echo translate('url'); ?></th>
+					<th><?php echo translate('URL'); ?></th>
+
 					<th style="text-align: center;"><?php echo "Send Headers"; ?>?</th>
 					<th style="text-align: center;"><?php echo "Public User Only"; ?>?</th>
 				</tr>
@@ -1519,9 +1603,13 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintCacheableHeadersSettings(&$asset, &$o, $prefix)
 	{
-        $o->openField(translate('http_header_cacheable_field'));
-            echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
-        	$o->note(sprintf(translate('cache_manager_send_cacheable_headers_settings_node'), 'href="'.$GLOBALS['SQ_SYSTEM']->backend->getBackendUrl('main').'&backend_section=config'.'" target="sq_main"'));
+        $o->openField(translate('Send Cacheable Header'));
+
+            echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('Yes') : translate('No');
+
+
+        	$o->note(sprintf(translate('This option can only be enabled/disabled in the <a %1$s> System Configuration screen</a>.'), 'href="'.$GLOBALS['SQ_SYSTEM']->backend->getBackendUrl('main').'&backend_section=config'.'" target="sq_main"'));
+
         $o->closeField();
 	}
 

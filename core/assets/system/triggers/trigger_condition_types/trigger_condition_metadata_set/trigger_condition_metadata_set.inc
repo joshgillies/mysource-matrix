@@ -97,7 +97,8 @@ class Trigger_Condition_Metadata_Set extends Trigger_Condition
 			$asset_id_component = ob_get_contents();
 		ob_end_clean();
 
-		return sprintf(translate('trigger_metadata_set'), $asset_id_component);
+		return sprintf(translate('If the metadata value of the %1$s field is set.<br /><br /><strong>Note:</strong> Will return FALSE if the field is empty or the value is set to Default value of the Metadata Field.'), $asset_id_component);
+
 
 	}//end getInterface()
 
@@ -115,12 +116,14 @@ class Trigger_Condition_Metadata_Set extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$asset_id = array_get_index($request_data, 'asset_id', FALSE);
 		if (!$asset_id) {
-			return translate('trigger_asset_not_supplied');
+			return translate('Asset ID has not been supplied');
+
 		}
 
 		if (!empty($asset_id['assetid'])) {

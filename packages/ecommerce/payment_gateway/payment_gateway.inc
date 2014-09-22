@@ -148,7 +148,8 @@ class Payment_Gateway extends Page
 			$pending_order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['pending_order_id']);
 
 			$pending_order->setAttrValue('ecom_ref_no', $ref_no);
-			$pending_order->appendAuditLog(translate('ecom_ref_num_recorded_before_processing'));
+			$pending_order->appendAuditLog(translate('Order reference number recorded before processing'));
+
 		}
 
 	}//end setPendingOrderMerchantReference()

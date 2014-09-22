@@ -1775,7 +1775,8 @@ class Metadata_Manager extends MySource_Object
 						echo 'if (!empty($metadata_'.$field_name.'_by_user)) {'."\n";
 						echo '	$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->'.$user_member.";\n";
 						echo '} else {'."\n";
-						echo '	$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
+						echo '	$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+
 						echo '}'."\n";
 					break;
 
@@ -1790,7 +1791,8 @@ class Metadata_Manager extends MySource_Object
 						echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
 						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+
 						echo '}'."\n";
 
 					break;
@@ -1805,7 +1807,8 @@ class Metadata_Manager extends MySource_Object
 						echo 'if (!empty($metadata_published_by_user)) { ';
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->name;'."\n";
 						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+
 						echo '}}'."\n";
 					break;
 
@@ -1819,7 +1822,8 @@ class Metadata_Manager extends MySource_Object
 						echo 'if (!empty($metadata_published_by_user)) { ';
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
 						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+
 						echo '}}'."\n";
 
 					break;

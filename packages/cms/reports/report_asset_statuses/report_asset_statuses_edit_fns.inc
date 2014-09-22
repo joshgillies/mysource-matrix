@@ -260,12 +260,18 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('cms_reports_asset_statuses_asset_icon'); ?></th>
-				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('assetid'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('name'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('status'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_change'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_changer'); ?></th>
+				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('Icon'); ?></th>
+
+				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('Assetid'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Name'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Status'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Last Status Change'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Last Status Changer'); ?></th>
+
 			</tr>
 		<?php
 
@@ -334,7 +340,8 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			combo_box($prefix.'_statuses', $options, TRUE, $current_statuses);
 		} else {
 			if (empty($current_statuses)) {
-				echo translate('cms_listing_no_status_selected');
+				echo translate('No statuses are selected. Only assets for which the user has sufficient read permissions will be listed.');
+
 			} else {
 				?><ul style="margin: 1px 15px;"><?php
 				foreach ($current_statuses as $status) {

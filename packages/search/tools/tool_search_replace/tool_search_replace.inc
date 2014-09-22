@@ -62,27 +62,34 @@ class Tool_Search_Replace extends Tool
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		// user input of search and replace strings
-		$o->openSection(translate('sch_search_terms'));
-			$o->openField(translate('sch_search_string'));
+		$o->openSection(translate('Search Terms'));
+
+			$o->openField(translate('Search String'));
+
 				text_box($type_code.'_search_string', '', 40);
 			$o->closeField();
 
-			$o->openField(translate('sch_tool_global_sr_replace_string'));
+			$o->openField(translate('Replace String'));
+
 				text_box($type_code.'_replace_string', '', 40);
 			$o->closeField();
 			$o->openField('');
 				check_box($type_code.'_match_case');
-				label(translate('sch_tool_global_sr_match_case'), $type_code.'_match_case');
+				label(translate('Match Case of Target String'), $type_code.'_match_case');
+
 			$o->closeField();
 		$o->closeSection();
 
 		// allow restrictions based on asset type and asset status
-		$o->openSection(translate('sch_search_restrictions'));
-			$o->openField(translate('asset_types'));
+		$o->openSection(translate('Search Restrictions'));
+
+			$o->openField(translate('Asset Types'));
+
 				asset_type_chooser($type_code.'_search_types', TRUE, Array());
 			$o->closeField();
 
-			$o->openField(translate('asset_status'));
+			$o->openField(translate('Asset Status'));
+
 				$statuses = get_constant_values('SQ_STATUS');
 				$options = Array();
 				foreach ($statuses as $constant => $value) {
@@ -93,15 +100,20 @@ class Tool_Search_Replace extends Tool
 		$o->closeSection();
 
 		// limit the search to certain parts (or all) of the system
-		$o->openSection(translate('sch_search_location'));
-			$o->openField(translate('root_node'));
+		$o->openSection(translate('Search Location'));
+
+			$o->openField(translate('Root Node'));
+
 				asset_finder($type_code.'_root_assetid', '');
-				echo '&nbsp;&nbsp;&nbsp;<b>'.strtoupper(translate('or')).'</b>';
+				echo '&nbsp;&nbsp;&nbsp;<b>'.strtoupper(translate('Or')).'</b>';
+
 			$o->closeField();
 
-			$o->openField(translate('sch_system_wide'));
+			$o->openField(translate('System Wide'));
+
 				check_box($type_code.'_root_folder');
-				label(translate('sch_search_entire_system'), $type_code.'_root_folder');
+				label(translate('Search entire system'), $type_code.'_root_folder');
+
 			$o->closeField();
 
 		$o->closeSection();

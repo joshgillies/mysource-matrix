@@ -164,8 +164,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						$this->paint($asset, FALSE);
 					$container_content = ob_get_clean();
 					$container_content = ''
-						.'<div class="sq-source-mode-forced" title="'.translate('bodycopy_html_conflict_warning').'">'
-							.'<img align="absmiddle" src="'.sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode_grey.png" title="'.translate('bodycopy_html_conflict_warning').'" width="16" height="16" />'
+						.'<div class="sq-source-mode-forced" title="'.translate('HTML contents of this container interfere with the edit interface. HTML parsing has been disabled for this container. Below is the raw HTML content.').'">'
+
+							.'<img align="absmiddle" src="'.sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode_grey.png" title="'.translate('HTML contents of this container interfere with the edit interface. HTML parsing has been disabled for this container. Below is the raw HTML content.').'" width="16" height="16" />'
+
 						.'</div>'
 						.'<pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre>'
 						.'';

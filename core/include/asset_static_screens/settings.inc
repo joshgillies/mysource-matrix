@@ -46,7 +46,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 	$created = FALSE;
 
 	if (count($root->children()) == 0) {
-		$o->openSection(sprintf(translate('no_asset_settings'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+		$o->openSection(sprintf(translate('There are no settings for "%s"'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+
 		$o->closeSection();
 	}
 
@@ -72,7 +73,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 			switch (strtolower((string) $field['code'])) {
 				case 'version_current_version' :
 					if ((string) $field['children'][0]['name'] != 'display_name') {
-						$display_name = translate('current_version');
+						$display_name = translate('Current Version');
+
 					} else {
 						$display_name = (string) $field['children'][0]['content'];
 					}
@@ -93,7 +95,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						$created = TRUE;
 
 						if ((string) $field['children'][0]['name'] != 'display_name') {
-							$display_name = translate('update_major_version');
+							$display_name = translate('Update Major Version?');
+
 						} else {
 							$display_name = (string) $field['children'][0]['content'];
 						}
@@ -103,7 +106,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 
 						check_box($prefix.'_version_update_version');
-						label(translate('increment_major_version_numner'), $prefix.'_version_update_version');
+						label(translate('Increment major version number'), $prefix.'_version_update_version');
+
 						if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 							ob_end_flush();
@@ -200,8 +204,10 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								}
 							</script>
 						<?php
-						normal_button($prefix.'_set_time_'.$date_type, strtolower(translate('now')), 'setCurrentTime(\''.$prefix.'_date_'.$date_type.'\');');
-						echo '&nbsp;<b>'.strtolower(translate('by')).'</b>&nbsp;';
+						normal_button($prefix.'_set_time_'.$date_type, strtolower(translate('Now')), 'setCurrentTime(\''.$prefix.'_date_'.$date_type.'\');');
+
+						echo '&nbsp;<b>'.strtolower(translate('By')).'</b>&nbsp;';
+
 						asset_finder($prefix.'_date_'.$date_type.'_userid', $userid, Array('user' => 'D'));
 
 						if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
@@ -211,14 +217,17 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					} else {
 						$print_note = FALSE;
 						if ($date_field->isEmpty() && $date_type == 'published') {
-							echo translate('never_published');
+							echo translate('This asset has never been published');
+
 						} else {
 							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', FALSE);
 							if (empty($info)) {
 								$info[$userid] = Array('name' => '&lt;unknown&gt;');
 							}
 
-							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' '.strtolower(translate('on')).' '.date('d M Y H:i:s', strtotime($date_field->value));
+							echo ucfirst($date_type).' '.strtolower(translate('By')).' '.htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' '.strtolower(translate('On')).' '.date('d M Y H:i:s', strtotime($date_field->value));
+
+
 
 						}
 					}
@@ -232,7 +241,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 				case 'force_secure' :
 					if ((string) $field['children'][0]['name'] != 'display_name') {
-						$display_name = translate('force_secure');
+						$display_name = translate('Force Secure');
+
 					} else {
 						$display_name = $field['children'][0]['content'];
 					}
@@ -273,7 +283,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 				case 'intl_languages' :
 
 					if ($field['children'][0]['name'] != 'display_name') {
-						$display_name = translate('languages');
+						$display_name = translate('Languages');
+
 					} else {
 						$display_name = $field['children'][0]['content'];
 					}
@@ -289,12 +300,14 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						$standards_lists_languages = array_reverse($standards_lists_languages);
 						$standards_lists_languages[''] = '';
 						$standards_lists_languages = array_reverse($standards_lists_languages);
-						$o->openField(translate('add_language'));
+						$o->openField(translate('Add Language?'));
+
 						combo_box($prefix.'_add_intl_language', $standards_lists_languages, FALSE, '');
 						$o->closeField();
 					}
 
-					$o->openField(translate('current'));
+					$o->openField(translate('Current'));
+
 					$current_langs = $owner->getLanguages();
 					if (!empty($current_langs)) {
 						sort($current_langs);
@@ -304,7 +317,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 							?>
 							<tr>
 								<td class="sq-backend-table-header">&nbsp;</td>
-								<td class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td>
+								<td class="sq-backend-table-header"><b><?php echo translate('Delete?'); ?></b></td>
+
 							</tr>
 							<?php }
 							?>
@@ -324,7 +338,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 						?></table><?php
 					} else {
-						echo sprintf(translate('no_language_set'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						echo sprintf(translate('<i>No languages are currently set for "%s"</i>'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 					}
 
 					if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
@@ -342,7 +357,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 				case 'intl_character_set' :
 					if ($field['children'][0]['name'] != 'display_name') {
-						$display_name = translate('character_set');
+						$display_name = translate('Character Set');
+
 					} else {
 						$display_name = $field['children'][0]['content'];
 					}
@@ -360,7 +376,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 				case 'morph_new_type' :
 					if ($field['children'][0]['name'] != 'display_name') {
-						$display_name = translate('new_type');
+						$display_name = translate('New Type');
+
 					} else {
 						$display_name = $field['children'][0]['content'];
 					}
@@ -374,7 +391,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						$created = TRUE;
 						if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
 							// cant morph an asset if it is not under construction
-							echo translate('only_morph_under_construction');
+							echo translate('<i>An asset can only be morphed while Under Construction</i>');
+
 						} else {
 							$db = MatrixDAL::getDb();
 							$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -406,7 +424,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 							}
 
 							if (empty($result)) {
-								echo translate('no_types_to_morph');
+								echo translate('<i>No types are available to morph this asset into</i>');
+
 							} else {
 								$morph_types = Array('' => '');
 								foreach ($result as $type_code) {
@@ -419,7 +438,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								<br/><br/>
 								<table>
 									<tr>
-										<td class="sq-backend-data"><p><?php echo translate('morph_confirmation'); ?></p></td>
+										<td class="sq-backend-data"><p><?php echo translate('To confirm the change of type for this asset, enter the character string you see below into the box supplied, then press the Commit button.'); ?></p></td>
+
 									</tr>
 									<tr>
 										<td valign="top"><?php security_key(4, 4, 2); ?></td>
@@ -429,7 +449,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 							}
 						}//end else
 					} else {
-						echo translate('morph_no_access');
+						echo translate('<i>You do not have access to morph this asset</i>');
+
 					}
 
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
@@ -451,9 +472,12 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						ob_start();
 					}
 					$system_designs = Array(
-										'design::system::frontend'			=> translate('asset_frontend_design'),
-										'design::system::login'				=> translate('asset_design_user_no_permissions'),
-										'design::system::password_change'	=> translate('asset_design_change_password'),
+										'design::system::frontend'			=> translate('The Design that is to be used when displaying this asset on the frontend'),
+
+										'design::system::login'				=> translate('The Design that is to be used whenever someone attempts to access this asset without permission'),
+
+										'design::system::password_change'	=> translate('The Design that is to be used whenever the user needs to change their password'),
+
 									  );
 					$our_designs = Array(
 									'design::system::frontend'			=> 0,
@@ -507,15 +531,18 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 
 						if (!$new_user_design) {
-							$display_name = sprintf(translate('config_display_name'), ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
+							$display_name = sprintf(translate('%1$s Defined %2$s Design'), ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
+
 						} else {
-							$display_name = translate('create_new_user_defined_design');
+							$display_name = translate('Create New User Defined Design');
+
 						}
 
 						$o->openSection($display_name);
 
 						if ($new_user_design) {
-							$o->openField(translate('design_code'));
+							$o->openField(translate('Design Code'));
+
 								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							$o->closeField();
 						} else {
@@ -524,7 +551,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 							$o->closeRaw();
 
 							if ($design_type == 'user') {
-								$o->openField(translate('design_code'));
+								$o->openField(translate('Design Code'));
+
 									echo $design_code;
 								$o->closeField();
 							}
@@ -537,14 +565,17 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								$effective_designs[$url] = $designs[$design_name];
 							}
 
-							$o->openField(translate('current'));
+							$o->openField(translate('Current'));
+
 
 							if (!empty($effective_designs)) {
 								?>
 								<table class="sq-backend-table">
 									<tr>
-										<th class="sq-backend-table-header"><?php echo translate('url'); ?></th>
-										<th class="sq-backend-table-header"><?php echo translate('effective_design'); ?></th>
+										<th class="sq-backend-table-header"><?php echo translate('URL'); ?></th>
+
+										<th class="sq-backend-table-header"><?php echo translate('Effective Design'); ?></th>
+
 									</tr>
 								<?php
 								foreach ($effective_designs as $url => $effective_designid) {
@@ -561,18 +592,22 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								</table>
 								<?php
 							} else {
-								echo translate('no_effective_designs');
+								echo translate('There are no effective designs');
+
 							}
 
 							$o->closeField();
 						}//end if
 
-						$o->openField(($designid) ? translate('change_question') : translate('new_question'));
+						$o->openField(($designid) ? translate('Change?') : translate('New?'));
+
+
 
 						if (!$owner->writeAccess('links')) {
 							echo '<i>';
 							if (!$designid) {
-								echo translate('none');
+								echo translate('None');
+
 							} else {
 								echo get_asset_tag_line($designid);
 							}
@@ -592,12 +627,14 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 						$o->closeField();
 
-						$o->openField(translate('override_design_question'));
+						$o->openField(translate('Override?'));
+
 
 						if (!$owner->writeAccess('links')) {
 							echo '<i>';
 							if (!$override_designid) {
-								echo translate('none');
+								echo translate('None');
+
 							} else {
 								echo get_asset_tag_line($override_designid);
 							}
@@ -611,7 +648,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 
 
-						$o->note(translate('override_design_explanation'));
+						$o->note(translate('You can override the design this asset would inherit from its parent, with a design that is applied to this asset only. This override design does not affect the inheritance to this asset\'s children of any parent design.'));
+
 
 
 						$o->closeField();

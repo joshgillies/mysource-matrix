@@ -673,7 +673,8 @@ class Page_Calendar_Events_Search extends Search_Page
 			<tr>
 				<?php
 				if (!$single_field) {
-					echo '<td align="right">'.ucfirst(translate('from')).':</td>';
+					echo '<td align="right">'.ucfirst(translate('From')).':</td>';
+
 				}
 				?>
 				<td>
@@ -712,7 +713,8 @@ class Page_Calendar_Events_Search extends Search_Page
 				if (!$single_field) {
 			?>
 			<tr>
-				<td align="right"><?php echo ucfirst(translate('to')) ?>:</td>
+				<td align="right"><?php echo ucfirst(translate('To')) ?>:</td>
+
 				<td>
 					<?php
 					if ($read_only && $current_value['to'] != '---------- --:--:--') {
@@ -816,9 +818,11 @@ class Page_Calendar_Events_Search extends Search_Page
 		if (empty($from_string) && empty($to_string)) {
 			return;
 		} else if (empty($from_string)) {
-			echo sprintf(translate('sch_page_date_range_prior_to'), $to_string);
+			echo sprintf(translate('Prior to %s'), $to_string);
+
 		} else if (empty($to_string)) {
-			echo sprintf(translate('sch_page_date_range_onwards'), $from_string);
+			echo sprintf(translate('%s onwards'), $from_string);
+
 		} else if ($from_string == $to_string) {
 			echo $from_string;
 		} else {
@@ -1120,16 +1124,19 @@ class Page_Calendar_Events_Search extends Search_Page
 				// work out the query field keywords
 				$fields = $this->attr('fields');
 				foreach ($fields as $field => $field_data) {
-					$keywords[$field.'_query'] = sprintf(translate('sch_page_keyword_search_field'), $field);
+					$keywords[$field.'_query'] = sprintf(translate('Input field for %s'), $field);
+
 					if ($bodycopy == 'initial') {
-						$keywords[$field.'_query_logic'] = sprintf(translate('sch_page_keyword_search_field_logic'), $field);
+						$keywords[$field.'_query_logic'] = sprintf(translate('Word Logic Chooser for %s'), $field);
+
 					}
 				}
 				// work out the calendar events filter keywords
 				$filters = $this->attr('events_filters');
 				foreach ($filters as $filter => $filter_data) {
 					if (isset($filter_data['type'])) {
-						$keywords['event_filter_'.$filter] = sprintf(translate('page_events_search_filter_field'), $filter);
+						$keywords['event_filter_'.$filter] = sprintf(translate('Input field for Calendar Event filter %s'), $filter);
+
 					}
 				}
 				// work out search category keywords
@@ -1140,10 +1147,12 @@ class Page_Calendar_Events_Search extends Search_Page
 
 			// add in the buttons for the customisation bodycopies
 			if ($bodycopy == 'search_form') {
-				$keywords['submit_button'] = translate('cms_listing_keyword_submit_button');
+				$keywords['submit_button'] = translate('Submit Button');
+
 			}
 			if ($bodycopy == 'sis_form') {
-				$keywords['search_in_search_button'] = translate('sch_page_keyword_sis_button');
+				$keywords['search_in_search_button'] = translate('Search in Search Button');
+
 			}
 
 			if ($bodycopy != 'sis_form' && $bodycopy != 'search_form') {

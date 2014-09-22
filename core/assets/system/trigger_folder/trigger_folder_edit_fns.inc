@@ -41,7 +41,8 @@ class Trigger_Folder_Edit_Fns extends Folder_Edit_Fns
 		$this->static_screens = Array();
 		// enable just the details
 		// disable lock section
-		$this->static_screens['details']['name'] = translate('details');
+		$this->static_screens['details']['name'] = translate('Details');
+
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'none';
 
@@ -70,7 +71,8 @@ class Trigger_Folder_Edit_Fns extends Folder_Edit_Fns
 		array_shift ($category);
 		$category_path = implode('/',$category);
 
-		$o->openField(translate('category'));
+		$o->openField(translate('Category'));
+
 		echo ($category_path);
 		$o->closeField();
 		// no committing allowed

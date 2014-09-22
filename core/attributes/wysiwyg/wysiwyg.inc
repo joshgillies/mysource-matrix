@@ -316,7 +316,8 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 							</div>&nbsp;&nbsp;
 						<?php
 						}
-						echo '<strong>'.translate('wysiwyg_content_container').'</strong>';
+						echo '<strong>'.translate('WYSIWYG Content Container').'</strong>';
+
 						?>
 					</td>
 					<td align="right" class="sq-left-img-margin">
@@ -487,27 +488,33 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		$o = empty($GLOBALS['SQ_SYSTEM']->backend) ? NULL : $GLOBALS['SQ_SYSTEM']->backend->out;
 		if(!is_null($o) && $o->isViperAvailable()) {
-		    //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Edit+ Content Area', translate('edit+_editor_enabled_icon_note'), 'viper_logo', '[Edit+ Content Area]');
+		    //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Edit+ Content Area', translate('Click inside the content area to start editing using the Edit+ Content Editor.'), 'viper_logo', '[Edit+ Content Area]');
+
 		}
 		else {
 		    // prints the status of the last run of htmltidy tool as a tag icon
 		    if (!SQ_TOOL_HTML_TIDY_ENABLED || !file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
 			    // tool is not enabled
-			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
+			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('HTMLTidy is disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
+
 		    } else {
 
 			    $status = $this->_edit_params['tidy_status'];
-			    $status_msg = translate('wysiwyg_htmltidy_status_wait');
+			    $status_msg = translate('HTMLTidy has not been used to clean this content');
+
 			    $image_filename = 'htmltidy_'.$status;
 			    switch ($status) {
 				    case 'pass':
-					    $status_msg = translate('wysiwyg_htmltidy_status_pass');
+					    $status_msg = translate('HTMLTidy has cleaned this content');
+
 				    break;
 				    case 'fail':
-					    $status_msg = translate('wysiwyg_htmltidy_status_fail');
+					    $status_msg = translate('HTMLTidy failed to clean this content');
+
 				    break;
 				    case 'wait':
-					    $status_msg = translate('wysiwyg_htmltidy_status_wait');
+					    $status_msg = translate('HTMLTidy has not been used to clean this content');
+
 				    break;
 			    }//end switch
 
@@ -516,7 +523,8 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			    $res = (str_replace("\n", '<br />', htmlentities($this->_edit_params['tidy_errors'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 
 			    $htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
-		Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
+		Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('No warning for Accessibility check'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
+
 
 		    }
 		}

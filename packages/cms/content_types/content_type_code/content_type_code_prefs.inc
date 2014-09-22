@@ -130,7 +130,8 @@ class Content_Type_Code_Prefs extends Prefs
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width') ?></td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
+
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
@@ -142,7 +143,8 @@ class Content_Type_Code_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height') ?></td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height') ?></td>
+
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
@@ -263,38 +265,47 @@ class Content_Type_Code_Prefs extends Prefs
 			<table class="sq-backend-table" style="width: 350px;">
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('show_line_numbers'); ?>
+						<?php echo translate('Show Line Numbers:'); ?>
+
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock && $is_admin) {
 						check_box('SQ_CODE_show_line_numbers', '1', $line_prefs['use_line_numbers']);
 					} else {
-						echo ($line_prefs['use_line_numbers'] == TRUE) ? translate('yes') : translate('no');
+						echo ($line_prefs['use_line_numbers'] == TRUE) ? translate('Yes') : translate('No');
+
+
 					}
 					?>
 					</td>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('line_number_orientation'); ?>
+						<?php echo translate('Line Number Orientation:'); ?>
+
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock && $is_admin) {
 						radio_button('SQ_CODE_line_number_left', 'left', $line_prefs['line_number_left'] == TRUE);
-						label(translate('left'), 'SQ_CODE_line_number_left');
+						label(translate('Left'), 'SQ_CODE_line_number_left');
+
 						radio_button('SQ_CODE_line_number_left', 'right', $line_prefs['line_number_left'] == FALSE);
-						label(translate('right'), 'SQ_CODE_line_number_left');
+						label(translate('Right'), 'SQ_CODE_line_number_left');
+
 					} else {
-						echo ($line_prefs['line_number_left'] == TRUE) ? translate('left') : translate('right');
+						echo ($line_prefs['line_number_left'] == TRUE) ? translate('Left') : translate('Right');
+
+
 					}
 					?>
 					</td>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('line_number_style'); ?>
+						<?php echo translate('Line Number Style:'); ?>
+
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
@@ -308,7 +319,8 @@ class Content_Type_Code_Prefs extends Prefs
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('line_number_class'); ?>
+						<?php echo translate('Line Number Class:'); ?>
+
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php

@@ -58,8 +58,10 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		file_upload($prefix);
-		$o->note(sprintf(translate('core_only_upload_files_of_type'), make_readable_list($asset->allowed_extensions)));
-		$o->note(sprintf(translate('core_image_size_restricted'), $asset->attr('max_width'), $asset->attr('max_height')));
+		$o->note(sprintf(translate('<b>NOTE:</b> You may only upload files of type %s.'), make_readable_list($asset->allowed_extensions)));
+
+		$o->note(sprintf(translate('<b>NOTE:</b> Image size is restricted to a maximum of %1$s x %2$s pixels.'), $asset->attr('max_width'), $asset->attr('max_height')));
+
 
 		return TRUE;
 
@@ -144,7 +146,8 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$image = $asset->attr('image');
 		if (empty($image) || !file_exists($asset->data_path_public.'/'.$image)) {
-			echo translate('core_design_area_custom_image_no_upload');
+			echo translate('No Image Uploaded');
+
 		} else {
 		?>
 			<a href="<?php echo sq_web_path('data').'/assets/'.$asset->type().'/'.get_asset_hash($asset->id).'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>

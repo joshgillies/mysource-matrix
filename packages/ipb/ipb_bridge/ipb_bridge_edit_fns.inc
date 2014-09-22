@@ -61,12 +61,15 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 		if ($version_selected && $location_entered) {
 			$ipb =& $asset->getIpbConn();
 			if (!is_null($ipb) && $ipb->isConnected()) {
-				echo '<span style="color: green"><b>'.translate('ipb_connected').'</b></span>';
+				echo '<span style="color: green"><b>'.translate('Connected').'</b></span>';
+
 			} else {
-				echo '<span style="color: red"><b>'.translate('ipb_unable_to_connect').'</b></span>';
+				echo '<span style="color: red"><b>'.translate('Unable to connect').'</b></span>';
+
 			}
 		} else {
-			echo '<span style="color: red"><b>'.translate('ipb_setup_note').'</b></span>';
+			echo '<span style="color: red"><b>'.translate('Please select the version number and enter the path to IPB').'</b></span>';
+
 		}
 		return FALSE;
 
@@ -107,9 +110,12 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 		if (!is_null($ipb) && $ipb->isConnected()) {
 			$url = $ipb->getIpbURL();
 			if (empty($url)) {
-				$o->openSection(translate('warning'));
-					$o->openField(translate('url'));
-						echo translate('ipb_site_url_not_set');
+				$o->openSection(translate('Warning'));
+
+					$o->openField(translate('URL'));
+
+						echo translate('IPB Site URL is not set in IPB configuration. Ask to your network administrator.');
+
 					$o->closeField();
 				$o->closeSection();
 			} else {
@@ -120,9 +126,12 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			}
 		} else {
-			$o->openSection(translate('warning'));
-				$o->openField(translate('connection'));
-					echo translate('failed');
+			$o->openSection(translate('Warning'));
+
+				$o->openField(translate('Connection'));
+
+					echo translate('Failed');
+
 				$o->closeField();
 			$o->closeSection();
 		}

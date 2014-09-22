@@ -267,32 +267,39 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		?>
 		<table class="sq-backend-table" border="1" style="width: auto">
 			<tr>
-				<th><?php echo translate('trigger_active_user_recipient'); ?></th>
+				<th><?php echo translate('Active User Recipient'); ?></th>
+
 				<td>
 					<?php
 					if ($write_access) {
 						check_box($prefix.'[to_owner]', 1, $to_owner);
-						label(translate('trigger_send_to_active_user'), $prefix.'[to_owner]');
-						echo '<div class="sq-backend-note">'.translate('trigger_send_to_active_user_note').'</div>';
+						label(translate('Send to active user'), $prefix.'[to_owner]');
+
+						echo '<div class="sq-backend-note">'.translate('Sends a copy to the user asset that fired this event').'</div>';
+
 					} else {
 						?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($to_owner ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
 						<?php
-						echo translate('trigger_send_to_active_user');
+						echo translate('Send to active user');
+
 					}
 					?>
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('trigger_group_recipients'); ?></th>
+				<th><?php echo translate('Group Recipients'); ?></th>
+
 				<td>
 					<?php
 					if ($write_access) {
 						multiple_asset_finder($prefix.'[groups]', $current_groups, Array('user_group' => 'I'));
-						echo '<div class="sq-backend-note">'.translate('trigger_send_to_groups_note').'</div>';
+						echo '<div class="sq-backend-note">'.translate('Sends a copy to users assigned to the selected groups for the asset that fired this event').'</div>';
+
 					} else {
 						if (empty($current_groups)) {
-							echo translate('none');
+							echo translate('None');
+
 						} else {
 							foreach ($current_groups as $group) {
 								echo get_asset_tag_line($group).'<br />';
@@ -303,15 +310,18 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('trigger_role_recipients'); ?></th>
+				<th><?php echo translate('Role Recipients'); ?></th>
+
 				<td>
 					<?php
 					if ($write_access) {
 						multiple_asset_finder($prefix.'[roles]', $current_roles, Array('role' => 'I'));
-						echo '<div class="sq-backend-note">'.translate('trigger_send_to_roles_note').'</div>';
+						echo '<div class="sq-backend-note">'.translate('Sends a copy to users assigned to the selected roles for the asset that fired this event').'</div>';
+
 					} else {
 						if (empty($current_roles)) {
-							echo translate('none');
+							echo translate('None');
+
 						} else {
 							foreach ($current_roles as $role) {
 								echo get_asset_tag_line($role).'<br />';
@@ -341,7 +351,8 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('trigger_general_email_settings'); ?></th>
+				<th><?php echo translate('General Email Settings'); ?></th>
+
 				<td>
 					<?php $atr_email_format->paint($new_prefix.'_email', !$write_access); ?>
 				</td>

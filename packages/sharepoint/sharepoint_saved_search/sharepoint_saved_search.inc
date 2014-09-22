@@ -310,7 +310,9 @@ class Sharepoint_Saved_Search extends Data_Source
 		header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 
 		if (!$this->readAccess()) {
-		    	$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
+		    	$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
 

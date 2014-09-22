@@ -112,9 +112,11 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 				echo '<b>"'.$file_path.'"</b>';
 			}
 		$value = ob_get_clean();
-		$res = '<div class="sq-break-line-inputs">'.sprintf(translate('trigger_replace_file'), $value).'</div>';
+		$res = '<div class="sq-break-line-inputs">'.sprintf(translate('Replace the file asset\'s contents with the file stored on the server at %s'), $value).'</div>';
+
 		if ($write_access) {
-			$res .= '<p>'.translate('trigger_replace_file_type_warning').'</p>';
+			$res .= '<p>'.translate('<strong>Note:</strong> This trigger action will fail if the broadcasting asset is not a file asset or descendant thereof.').'</p>';
+
 		}
 		return $res;
 

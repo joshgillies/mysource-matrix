@@ -72,17 +72,21 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 
 			radio_button($prefix.'_rewrite_type', 'none', ($overall == 'none'), '', 'id="'.$prefix.'_rewrite_type_none"');
-			label(translate('cms_remote_content_tunneling_rule_none'), $prefix.'_rewrite_type_none');
+			label(translate('No URLs may be tunneled'), $prefix.'_rewrite_type_none');
+
 			echo '<br />';
 
 			radio_button($prefix.'_rewrite_type', 'all', ($overall == 'all'), '', 'id="'.$prefix.'_rewrite_type_all"');
-			label(translate('cms_remote_content_tunneling_rule_all'), $prefix.'_rewrite_type_all');
+			label(translate('Any URL may be tunneled'), $prefix.'_rewrite_type_all');
+
 			echo '<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-			echo translate('cms_remote_content_tunneling_rule_all_note');
+			echo translate('<i><b>NOTE: </b>Enabling this option can result in System being used as a Proxy to access <b>any domain</b><i>.');
+
 			echo '<br />';
 
 			radio_button($prefix.'_rewrite_type', 'some', ($overall == 'some'), '', 'id="'.$prefix.'_rewrite_type_some"');
-			label(translate('cms_remote_content_tunneling_rule_some'), $prefix.'_rewrite_type_some');
+			label(translate('Only the following URLs may be tunneled:'), $prefix.'_rewrite_type_some');
+
 			echo '<br />';
 
 			$pf = $prefix.'_rewrite_some_options';
@@ -90,15 +94,18 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 
 			<div style="margin-left: 5ex" id="<?php echo $prefix; ?>_rewrite_type_some_options">
 				<input type="checkbox" name="<?php echo $pf; ?>[]" value="remote_url" id="<?php echo $pf; ?>_remote_url" <?php if ($options['remote_url']) echo 'checked="checked"'; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
-				<label for="<?php echo $pf; ?>_remote_url"><?php echo translate('cms_remote_content_tunneling_option_remote_url'); ?></label>
+				<label for="<?php echo $pf; ?>_remote_url"><?php echo translate('URLs underneath the Remote URL above'); ?></label>
+
 				<br />
 
 				<input type="checkbox" name="<?php echo $pf; ?>[]" value="remote_domain" id="<?php echo $pf; ?>_remote_domain" <?php echo $options['remote_domain'] ? 'checked="checked"' : ''; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
-				<label for="<?php echo $pf; ?>_remote_domain"><?php echo translate('cms_remote_content_tunneling_option_remote_domain'); ?></label>
+				<label for="<?php echo $pf; ?>_remote_domain"><?php echo translate('URLs in the same domain as the Remote URL above'); ?></label>
+
 				<br />
 
 				<input type="checkbox" name="<?php echo $pf; ?>[]" value="white_list" id="<?php echo $pf; ?>_white_list" <?php if ($options['white_list']) echo 'checked="checked"'; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
-				<label for="<?php echo $pf; ?>_white_list"><?php echo translate('cms_remote_content_tunneling_option_white_list'); ?></label>
+				<label for="<?php echo $pf; ?>_white_list"><?php echo translate('URLs based the following \'white list\' URLs:'); ?></label>
+
 				<br />
 				<textarea name="<?php echo $prefix.'_white_list'; ?>" onfocus="document.getElementById('<?php echo $pf; ?>_white_list').checked = true" <?php if ($overall != 'some') echo 'disabled="disabled"'; ?>><?php
 					$urls = $asset->attr('url_white_list');
@@ -343,7 +350,12 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 		if (!empty($tag_replacements) || $write_access) {
 			?>
 			<table width="100%" class="sq-backend-table">
-			<tr><th><?php echo translate('cms_remote_content_tag'); ?></th><th><?php echo translate('cms_remote_content_start_tag'); ?></th><th><?php echo translate('cms_remote_content_end_tag'); ?></th><th><?php echo translate('cms_remote_content_remove_contents'); ?></th><?php echo (($write_access && !empty($tag_replacements)) ? '<th>'.translate('delete').'</th>' : ''); ?></tr>
+			<tr><th><?php echo translate('Tag'); ?></th><th><?php echo translate('Start Tag'); ?></th><th><?php echo translate('End Tag'); ?></th><th><?php echo translate('Remove Contents'); ?></th><?php echo (($write_access && !empty($tag_replacements)) ? '<th>'.translate('Delete').'</th>' : ''); ?></tr>
+
+
+
+
+
 			<?php
 
 			foreach ($tag_replacements as $tag => $tag_info) {
@@ -363,13 +375,16 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 					<td><?php echo htmlspecialchars($tag); ?></td>
 					<td><?php echo htmlspecialchars($tag_info['start_tag']); ?></td>
 					<td><?php echo htmlspecialchars($tag_info['end_tag']); ?></td>
-					<td><?php echo ($tag_info['remove_content'] ? translate('yes') : translate('no')); ?></td>
+					<td><?php echo ($tag_info['remove_content'] ? translate('Yes') : translate('No')); ?></td>
+
+
 					</tr>
 				<?php
 				}
 			}//end foreach
 		} else if (!$write_access) {
-			echo translate('cms_remote_content_no_tag_replacements');
+			echo translate('No tag replacements defined');
+
 		}
 
 		if ($write_access) {

@@ -70,33 +70,43 @@ class Tool_Bulk_File_Import extends Tool
 		$process_local = ($import_option != 'Server Only');
 		$process_server = ($import_option != 'Local Only');
 
-		$o->openSection(translate('file_import_tools_global_options'));
-			$o->openField(translate('file_import_tools_allow_unrestricted'));
+		$o->openSection(translate('Global Options'));
+
+			$o->openField(translate('Allow Unrestricted'));
+
 				combo_box($type_code.'_allow_unrestricted', Array(1 => 'Yes', 0 => 'No'));
-				$o->note(translate('file_import_tools_allow_unrestricted_note'));
+				$o->note(translate('Set to Yes to allow this file to be be served by the web server if it is Live and publicly readable.'));
+
 			$o->closeField();
 
 			$o->openField('Link Type');
 				combo_box($type_code.'_link_type', Array(SQ_LINK_TYPE_1 => 'TYPE_1', SQ_LINK_TYPE_2 => 'TYPE_2'));
-				$o->note(translate('file_import_tools_file_link_type_msg'));
+				$o->note(translate('Each asset will be linked to the selected parent using this link type.'));
+
 			$o->closeField();
 
-			$o->openField(translate('allow_virus_scan'));
+			$o->openField(translate('Allow Virus Scan'));
+
 				combo_box($type_code.'_allow_virus_scan', Array(1 => 'Yes', 0 => 'No'));
-				$o->note(translate('allow_virus_scan_note'));
+				$o->note(translate('If global Virus Checker is enabled, perform immediate virus scan on each imported file. This will slow down import process.'));
+
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection(translate('file_import_tools_file_dir_selection'));
+		$o->openSection(translate('Choose File or Directory'));
+
 			if (empty($import_dir)) {
-				$o->openField(translate('file_import_tools_warning'));
-					$o->note(translate('file_import_tools_not_ready_msg'));
+				$o->openField(translate('Warning'));
+
+					$o->note(translate('Please set the file import directory using config file data/private/conf/import_tools_manager.inc.'));
+
 				$o->closeSection();
 			} else {
 
 				if ($process_server) {
 
-					$o->openField(translate('file_import_tools_server_import'));
+					$o->openField(translate('Server File Import'));
+
 
 							$compatible_types = $itm->attr('valid_file_types');
 
@@ -121,7 +131,8 @@ class Tool_Bulk_File_Import extends Tool
 											<td class="sq-backend-table-cell"><?php asset_finder('chunk_file_import_root_assetid', ''); ?></td>
 										</tr>
 										<tr>
-											<td class="sq-backend-table-cell" colspan="3"><?php echo sprintf(translate('file_import_tools_file_chunk'), '<b>'.$import_dir.'</b>') ?></td>
+											<td class="sq-backend-table-cell" colspan="3"><?php echo sprintf(translate('These files are located under %s and they will be imported at once.'), '<b>'.$import_dir.'</b>') ?></td>
+
 										</tr>
 										<?php
 									}
@@ -156,17 +167,20 @@ class Tool_Bulk_File_Import extends Tool
 								</tr>
 							</table>
 							<?php
-							$o->note(translate('file_import_tools_select_file'));
+							$o->note(translate('Select a directory to import into the system'));
+
 					$o->closeField();
 
 				}//end if Server Import
 
 				if ($process_local) {
 
-					$o->openField(translate('file_import_tools_local_import'));
+					$o->openField(translate('Local File Import'));
+
 
 						if (!is_writable($import_dir)) {
-							$o->note(sprintf(translate('file_import_tools_local_import_permission_warning'), $import_dir));
+							$o->note(sprintf(translate('Local File Import can not be used since the Web Server does not have write permission on %s. Please contact the server administrator first.'), $import_dir));
+
 						} else {
 							// Max File Size for local file upload
 							$max_size = Tool_Bulk_File_Import::_getMaxFileSize();
@@ -174,12 +188,14 @@ class Tool_Bulk_File_Import extends Tool
 							<table class="sq-backend-table">
 								<tr>
 									<th class="sq-backend-table-header" colspan="2"><?php
-										echo translate('file_import_tools_local_file_import_root');
+										echo translate('Local File Import Root');
+
 									?></th>
 								</tr>
 								<tr>
 									<td class="sq-backend-table-header" style="width: 100px;"><?php
-										echo translate('file_import_tools_root_asset');
+										echo translate('Root Asset');
+
 									?></td>
 									<td class="sq-backend-table-header" style="width: 500px;"><?php
 										asset_finder('bulk_file_import_local_upload_root_asset', '');
@@ -190,7 +206,8 @@ class Tool_Bulk_File_Import extends Tool
 							<div style='display: none;`' id='bulk_file_import_local_file_input_container'></div>
 							<div id='bulk_file_import_table_container'></div>
 
-							<span style="font-size: 11px;">&nbsp;<?php echo sprintf(translate('core_cannot_upload_file_larger_than'), '<b>'.strtoupper(easy_filesize($max_size)).'</b>'); ?></span>
+							<span style="font-size: 11px;">&nbsp;<?php echo sprintf(translate('You may only upload files no larger than %s'), '<b>'.strtoupper(easy_filesize($max_size)).'</b>'); ?></span>
+
 							<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $max_size; ?>" />
 
 							<script type="text/javascript">
@@ -637,7 +654,8 @@ class Tool_Bulk_File_Import extends Tool
 			} else {
 				if (!empty($_FILES)) {
 					// the user didn't pick the root asset, show some warning.
-					trigger_error(translate('file_import_tools_local_file_no_root_asset'), E_USER_WARNING);
+					trigger_error(translate('Root asset for local fime import is not selected.'), E_USER_WARNING);
+
 				}
 			}
 
@@ -656,17 +674,20 @@ class Tool_Bulk_File_Import extends Tool
 						// File Upload
 						if (!file_exists($import_dir.'/'.$tmp_dir_name)) {
 							if (!mkdir($import_dir.'/'.$tmp_dir_name)) {
-								trigger_error(translate('file_import_tools_cannot_create_temp_dir'), E_USER_WARNING);
+								trigger_error(translate('Can not create a temp upload directory.'), E_USER_WARNING);
+
 								return FALSE;
 							}
 						}
 
 						$result = commit_file_upload($id, $import_dir.'/'.$tmp_dir_name, TRUE);
 						if ($result === FALSE) {
-							trigger_error(sprintf(translate('file_import_tools_local_file_upload_error'), $file_info['name']), E_USER_WARNING);
+							trigger_error(sprintf(translate('Error occurred during the file upload, %s.'), $file_info['name']), E_USER_WARNING);
+
 							$error = TRUE;
 						} else if ($result === '') {
-							trigger_error(sprintf(translate('file_import_tools_local_file_cannot_upload'), $file_info['name']), E_USER_WARNING);
+							trigger_error(sprintf(translate('Can not upload %s.'), $file_info['name']), E_USER_WARNING);
+
 							$error = TRUE;
 						} else if ($result == $file_info['name']) {
 

@@ -124,7 +124,8 @@ class Page_Standard extends Page
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '1');
 		if (!$GLOBALS['SQ_PURGING_TRASH'] && (!empty($bodycopy_link) && $bodycopy_link[0]['linkid'] == $linkid)) {
-			return translate('core_error_bodycopy_link_cannot_delete');
+			return translate('You can\'t delete the link between the bodycopy and the standard page');
+
 		}
 
 		return parent::isDeletableLink($linkid);

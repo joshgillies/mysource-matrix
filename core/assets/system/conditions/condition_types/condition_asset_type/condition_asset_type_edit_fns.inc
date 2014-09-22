@@ -66,7 +66,8 @@ class Condition_Asset_Type_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('asset_types') ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('Asset Types') ?></th>
+
 				<td>
 				<?php
 				if ($write_access) {
@@ -82,7 +83,8 @@ class Condition_Asset_Type_Edit_Fns extends Condition_Edit_Fns
 					}
 					echo '</ul>';
 				} else {
-					echo '<em>'.translate('condition_no_asset_types_selected').'</em>';
+					echo '<em>'.translate('No asset types selected.').'</em>';
+
 				}
 				?>
 				</td>

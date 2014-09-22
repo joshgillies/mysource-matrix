@@ -383,9 +383,14 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							$status_name = get_status_description($asset->status);
 							$status_img = get_asset_status_icon($asset->status);
 							$desc = '<table class="sq-toolbox-properties-table">';
-							$desc .= '<tr><td>'.translate('content_type_tooltip_status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
-							$desc .= '<tr><td>'.translate('content_type_tooltip_public').'</td><td>'.($public_read ? translate('yes') : translate('no')).'</td><tr>';
-							$desc .= '<tr><td>'.(($popup_attribute_list) ?  translate('current_properties').'</td><td> '.$popup_attribute_list :''.'</td><tr>');
+							$desc .= '<tr><td>'.translate('Status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
+
+							$desc .= '<tr><td>'.translate('Public').'</td><td>'.($public_read ? translate('Yes') : translate('No')).'</td><tr>';
+
+
+
+							$desc .= '<tr><td>'.(($popup_attribute_list) ?  translate('Current Properties').'</td><td> '.$popup_attribute_list :''.'</td><tr>');
+
 							$desc .= '</table>';
 							Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]', 'class="sq-icon"');
 

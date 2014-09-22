@@ -1613,9 +1613,12 @@ class Form_Section extends Asset implements Bridge
 		$keywords = Array();
 
 		foreach ($questions as $shadowid => $question) {
-			$keywords['response_'.$this->id.'_q'.$shadowid]       = sprintf(translate('cms_form_section_response'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
-			$keywords['question_name_'.$this->id.'_q'.$shadowid]  = sprintf(translate('cms_form_section_q_name'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
-			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = sprintf(translate('cms_form_section_q_note'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['response_'.$this->id.'_q'.$shadowid]       = sprintf(translate('Response to %1$s: %2$s'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+
+			$keywords['question_name_'.$this->id.'_q'.$shadowid]  = sprintf(translate('Question Name: %1$s: %2$s'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+
+			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = sprintf(translate('Question Note: %1$s: %2$s'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+
 		}
 
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE) as $link) {

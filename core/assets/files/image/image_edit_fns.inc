@@ -52,7 +52,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 		if ((!$asset->id) && file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) {
 			// we are in the create screen, so offer the editor too unless we are on Safari Windows
 			echo '<p>';
-			normal_button($prefix.'_use_editor_button', translate('core_use_image_editor_button'), 'this.parentNode.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';', 'style=display:none;');
+			normal_button($prefix.'_use_editor_button', translate('Use Image Editor'), 'this.parentNode.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';', 'style=display:none;');
+
 			?>
 			<script type="text/javascript">
 				if (!(navigator.userAgent.match(/Windows/i) && navigator.userAgent.match(/Safari/i))) {
@@ -88,9 +89,12 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}
 
 		echo '<table class="sq-backend-table">';
-		echo '<tr><th>'.translate('name').'</th>';
-		echo '<th>'.translate('keyword').'</th>';
-		echo '<th>'.translate('value').'</th></tr>';
+		echo '<tr><th>'.translate('Name').'</th>';
+
+		echo '<th>'.translate('Keyword').'</th>';
+
+		echo '<th>'.translate('Value').'</th></tr>';
+
 		foreach ($embedded_data as $keyword => $value_set) {
 			$code = array_get_index($value_set, 'name');
 			echo '<tr>';
@@ -218,7 +222,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 				$o->openSection($variety->name);
 					$edit_fns->paintInlineInterface($variety, $o, $prefix.'_'.$variety->id);
 					if ($wa) {
-						$o->openField(translate('delete_question'));
+						$o->openField(translate('Delete?'));
+
 							check_box($prefix.'_delete[]', $variety->id);
 						$o->closeField();
 					}
@@ -301,7 +306,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		$edit_fns = $variety->getEditFns();
 
-		$o->openSection(translate('new_variety'));
+		$o->openSection(translate('New Variety'));
+
 			$edit_fns->paintInlineInterface($variety, $o, $prefix.'_new');
 		$o->closeSection();
 
@@ -356,7 +362,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 		parent::printExistingFileInfo($asset);
 		$existing = $asset->getExistingFile();
 		if (!empty($existing)) {
-			echo sprintf(translate('core_dimensions'), $existing['width'], $existing['height'])?><br/><?php
+			echo sprintf(translate('<b>Dimensions:</b> %1$s x %2$s pixels'), $existing['width'], $existing['height'])?><br/><?php
+
 		}
 
 	}//end printExistingFileInfo()

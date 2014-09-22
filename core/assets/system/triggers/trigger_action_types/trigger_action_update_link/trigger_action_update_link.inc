@@ -132,8 +132,11 @@ class Trigger_Action_Update_Link extends Trigger_Action
 		ob_start();
 			?>
 			<div>
-				<p class="sq-backend-section-subheading"><?php echo translate('link_characteristics'); ?></p>
-				<p><?php echo translate('link_characteristics_note');?></p>
+				<p class="sq-backend-section-subheading"><?php echo translate('Link Characteristics'); ?></p>
+
+				<p><?php echo translate('You may specify the exact link that you want updated otherwise you need to specify the link characteristics as linked to the Broadcasting Asset. <br /> 
+	This trigger action will be executed if exactly one link is found, otherwise it will fail. Leave <em>\'Link Value\'</em > blank to match any link value.');?></p>
+
 				<?php
 				echo 'Link Id: ';
 				if ($write_access) {
@@ -152,7 +155,8 @@ class Trigger_Action_Update_Link extends Trigger_Action
 					<col width="20%" />
 					<col width="80%"/>
 					<tr>
-						<th style="vertical-align:middle;"><?php echo translate('link_type'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('Link Type'); ?>:</th>
+
 						<td><?php
 						if ($write_access) {
 							combo_box($prefix.'[link_type]',  $link_type_names, FALSE, $link_type);
@@ -162,7 +166,8 @@ class Trigger_Action_Update_Link extends Trigger_Action
 						?></td>
 					</tr>
 					<tr>
-						<th style="vertical-align:middle;"><?php echo translate('side_of_link'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('Side of Link'); ?>:</th>
+
 						<td><?php
 						$side_of_link_options = Array('major' => 'Parent', 'minor' => 'Child');
 						if ($write_access) {
@@ -173,7 +178,8 @@ class Trigger_Action_Update_Link extends Trigger_Action
 						?></td>
 					</tr>
 					<tr>
-						<th style="vertical-align:middle;"><?php echo translate('link_value'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('Link Value'); ?>:</th>
+
 						<td><?php
 						if ($write_access) {
 							text_box($prefix.'[value]', $value);
@@ -183,7 +189,8 @@ class Trigger_Action_Update_Link extends Trigger_Action
 						?></td>
 					</tr>
 					<tr>
-						<th style="vertical-align:middle;"><?php echo translate('asset_type'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('Asset Type'); ?>:</th>
+
 						<td><?php
 						if ($write_access) {
 							asset_type_chooser($prefix.'[type_code]', FALSE, $type_code, TRUE);
@@ -195,13 +202,16 @@ class Trigger_Action_Update_Link extends Trigger_Action
 				</table>
 			</div>
 			<div>
-				<p class="sq-backend-section-subheading"><?php echo translate('new_link_characteristics'); ?></p>
-				<p><?php echo translate('new_link_characteristics_note');?></p>
+				<p class="sq-backend-section-subheading"><?php echo translate('New Link Characteristics'); ?></p>
+
+				<p><?php echo translate('<strong>Note:</strong> You cannot change a link from being a significant link to a non-significant link or vice versa.');?></p>
+
 				<table class="sq-backend-table">
 					<col width="20%" />
 					<col width="80%"/>
 					<tr>
-						<th style="vertical-align:middle;"><?php echo translate('link_type'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('Link Type'); ?>:</th>
+
 						<td><?php
 						if ($write_access) {
 							combo_box($prefix.'[new_link_type]',  $link_type_names, FALSE, $new_link_type);
@@ -211,7 +221,8 @@ class Trigger_Action_Update_Link extends Trigger_Action
 						?></td>
 					</tr>
 					<tr>
-						<th style="vertical-align:middle;"><?php echo translate('link_value'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('Link Value'); ?>:</th>
+
 						<td><?php
 						if ($write_access) {
 							text_box($prefix.'[new_value]', $new_value);

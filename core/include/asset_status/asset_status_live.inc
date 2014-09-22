@@ -58,7 +58,8 @@ class Asset_Status_Live extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_live');
+		return translate('Live');
+
 
 	}//end getDescription()
 
@@ -87,11 +88,15 @@ class Asset_Status_Live extends Asset_Status
 			log_dump(get_backtrace());
 		} else {
 			// workflow is not currently running for this asset
-			$statii[SQ_STATUS_LIVE_APPROVAL]          = translate('status_change_place_up_for_review');
-			$statii[SQ_STATUS_EDITING]                = translate('status_change_safe_edit');
+			$statii[SQ_STATUS_LIVE_APPROVAL]          = translate('Place Up For Review');
+
+			$statii[SQ_STATUS_EDITING]                = translate('Safe Edit');
+
 			if ($this->owner->adminAccess('')) {
-				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_place_under_construction');
-				$statii[SQ_STATUS_ARCHIVED]           = translate('status_change_archive');
+				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Place Under Construction');
+
+				$statii[SQ_STATUS_ARCHIVED]           = translate('Archive');
+
 			}
 		}//end if workflow running
 

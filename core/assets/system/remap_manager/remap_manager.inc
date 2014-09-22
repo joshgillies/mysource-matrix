@@ -154,7 +154,8 @@ class Remap_Manager extends Asset
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case '404' :
-				return translate('404_remap_description');
+				return translate('The page where 404 requests are remapped to');
+
 			break;
 			default :
 				return parent::describeLink($linkid);

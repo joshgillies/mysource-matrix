@@ -73,7 +73,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	function paintSubmissionTime(&$asset, &$o, $prefix)
 	{
 		if ($asset->attr('submitted') == '---------- --:--:--') {
-			echo translate('cms_not_submitted');
+			echo translate('Not submitted');
+
 		} else {
 			echo date('d M Y H:i:s', strtotime($asset->attr('submitted')));
 		}//end if
@@ -126,7 +127,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 					$q->setValue($section_questions[$form_id][$q_id]['answer']);
 				}
 			}
-			$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
+			$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('(Questions of this type cannot be edited)').'</i>';
+
 			$o->openField($q->getVal('title'), '', $note);
 
 			if ($q instanceof Form_Question_Type_File_Upload) {
@@ -154,7 +156,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		}
 		foreach ($section_questions[$form_id] as $q_id => $q_details) {
 			if (!$q_details['printed']) {
-				$note = '<i>'.translate('cms_form_submission_question_deleted_cannot_be_edited').'</i>';
+				$note = '<i>'.translate('(This question has been deleted from the form and cannot be edited)').'</i>';
+
 				$o->openField($answers['summary'][$q_id]['name'], '', $note);
 				echo $q_details['answer'];
 				$o->closeField();
@@ -178,7 +181,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 						$q->setExtraData(array_get_index($section_questions[$section_id][$q_id], 'extra_data', Array()));
 					}
 
-					$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
+					$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('(Questions of this type cannot be edited)').'</i>';
+
 
 					$o->openField($q->getVal('title'), '', $note);
 					if ($q->isEditable() && $wa) {
@@ -207,13 +211,15 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 					$o->closeField();
 				}
 			} else {
-				$o->openSection(translate('cms_form_submission_answers_for_deleted_section'));
+				$o->openSection(translate('(This section has been deleted)'));
+
 				$o->closeField();
 			}
 			foreach ($section_questions[$section_id] as $q_id => $q_details) {
 
 				if (!$q_details['printed']) {
-					$note = '<i>'.translate('cms_form_submission_question_deleted_cannot_be_edited').'</i>';
+					$note = '<i>'.translate('(This question has been deleted from the form and cannot be edited)').'</i>';
+
 					$o->openField($answers['summary'][$q_id]['name'], '', $note);
 					echo $q_details['answer'];
 					$o->closeField();
@@ -292,7 +298,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			?>
 			<div style="color: red">
-			<strong><?php echo translate('cms_form_submission_error_during_processing'); ?></strong>
+			<strong><?php echo translate('Errors during processing - form submission not updated:'); ?></strong>
+
 			<ul>
 				<?php
 				foreach ($this->_tmp['question_errors'] as $msg) {

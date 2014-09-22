@@ -92,11 +92,16 @@ class Cron_Job_Future_Permission extends Cron_Job
 	{
 		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
-			return translate('cron_job_asset_less_future_permission');
+			return translate('Asset-less Future Permission Scheduled Job');
+
 		} else if ($short_name) {
-			return sprintf(translate('cron_fp_for'), sprintf(translate('asset_format'), $asset->short_name, $asset->id));
+			return sprintf(translate('FP for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->short_name, $asset->id));
+
+
 		} else {
-			return sprintf(translate('cron_future_permission_for'), sprintf(translate('asset_format'), $asset->name, $asset->id));
+			return sprintf(translate('Future Permission for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->name, $asset->id));
+
+
 		}
 
 	}//end _getName()
@@ -262,7 +267,9 @@ class Cron_Job_Future_Permission extends Cron_Job
 	 */
 	public function actionName()
 	{
-		return ($this->attr('add')? translate('add') : translate('remove'));
+		return ($this->attr('Add')? translate('Add') : translate('Remove'));
+
+
 
 	}//end actionName()
 

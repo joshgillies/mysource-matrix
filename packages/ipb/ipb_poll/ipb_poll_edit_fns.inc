@@ -75,23 +75,31 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 			$list_of_polls = $ipb->getListOfPolls();
 
 			if (empty($list_of_polls)) {
-				$o->openField(translate('list_of_polls'));
-					echo translate('no_poll_in_forum');
+				$o->openField(translate('List of Polls'));
+
+					echo translate('Currently there is no polls in IPB');
+
 				$o->closeField();
 			} else {
-				$o->openSection(translate('summary'));
-					$o->openField(translate('num_of_polls'));
+				$o->openSection(translate('Summary'));
+
+					$o->openField(translate('Number of Polls'));
+
 						echo count($list_of_polls);
 					$o->closeField();
 
-					$o->openField(translate('list_of_polls'));
+					$o->openField(translate('List of Polls'));
+
 						$ipb =& $ipb_bridge->getIpbConn();
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<th style="width: 45%"><?php echo translate('question'); ?></th>
-								<th style="width: 50%"><?php echo translate('asset'); ?></th>
-								<th style="width: 15%"><?php echo translate('state'); ?></th>
+								<th style="width: 45%"><?php echo translate('Question'); ?></th>
+
+								<th style="width: 50%"><?php echo translate('Asset'); ?></th>
+
+								<th style="width: 15%"><?php echo translate('State'); ?></th>
+
 							</tr>
 						<?php
 						foreach ($list_of_polls as $poll) {
@@ -119,11 +127,16 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 				$forum_tag_line = get_asset_tag_line($asset->_ipbid.':'.'f_'.$asset->attr('forum_id'));
 				$total_votes = $asset->attr('votes');
 				$fields = Array(
-							translate('poll_question')	=> $poll_question,
-							translate('start_date')		=> $start_date,
-							translate('started_by')		=> $started_by,
-							translate('forum')			=> $forum_tag_line,
-							translate('total_votes')	=> $total_votes,
+							translate('Poll Question')	=> $poll_question,
+
+							translate('Start Date')		=> $start_date,
+
+							translate('Started by')		=> $started_by,
+
+							translate('Forum')			=> $forum_tag_line,
+
+							translate('Total votes')	=> $total_votes,
+
 						  );
 				foreach ($fields as $key => $value) {
 					$o->openField($key);
@@ -134,15 +147,19 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 				$o->openField('Results');
 					$poll_data = @unserialize(stripslashes($asset->attr('choices')));
 					if ($poll_data === FALSE) {
-						echo '<b>'.translate('poll_result_error').'</b>';
+						echo '<b>'.translate('Can not retrieve the result data. Serialization error occurred.').'</b>';
+
 					} else {
 						$total_votes = $asset->attr('votes');
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<th style="width: 40%"><?php echo translate('option'); ?></th>
-								<th style="width: 30%"><?php echo translate('votes'); ?></th>
-								<th style="width: 30%"><?php echo translate('percentage'); ?></th>
+								<th style="width: 40%"><?php echo translate('Option'); ?></th>
+
+								<th style="width: 30%"><?php echo translate('Votes'); ?></th>
+
+								<th style="width: 30%"><?php echo translate('Percentage'); ?></th>
+
 							</tr>
 						<?php
 						foreach ($poll_data as $data) {

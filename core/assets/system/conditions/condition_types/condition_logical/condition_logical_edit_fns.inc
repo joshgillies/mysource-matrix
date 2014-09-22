@@ -77,7 +77,8 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
                 $selected_keywords = array_keys($condition_data['logical_keywords']);
 			}
 			if ($write_access) {
-			    $selected_keywords['-- none --'] = '-- '.strtolower(translate('none')).' --';
+			    $selected_keywords['-- none --'] = '-- '.strtolower(translate('None')).' --';
+
 			}
 
 			$keyword_options = Array();
@@ -89,7 +90,8 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 			?>
 
 			<tr>
-				<th><?php echo translate('logical_grouping'); ?></th>
+				<th><?php echo translate('Logical Grouping'); ?></th>
+
 				<td>
 					<?php
 					$operator = '';
@@ -97,9 +99,12 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 					   $operator = $condition_data['operator'];
 					}
 					if ($write_access) {
-						combo_box($prefix.'[operator]', Array('ALL' => translate('condition_match_on_following_keywords',strtoupper(translate('all'))), 'ANY' => translate('condition_match_on_following_keywords',strtoupper(translate('any')))), FALSE, $operator);
+						combo_box($prefix.'[operator]', Array('ALL' => translate('condition_match_on_following_keywords',strtoupper(translate('All'))), 'ANY' => translate('condition_match_on_following_keywords',strtoupper(translate('Any')))), FALSE, $operator);
+
+
 					} else {
-						echo sprintf(translate('condition_match_on_following_keywords'), $operator);
+						echo sprintf(translate('Match on %s of the following keywords'), $operator);
+
 					}
 					?>
 				</td>
@@ -110,15 +115,18 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 				foreach ($selected_keywords as $keyword) {
 					$special_option = Array();
 					if ($i == (count($selected_keywords) - 1)) {
-						$special_option = Array('none' => '-- '.strtolower(translate('select_keyword_to_add_it')).' --');
+						$special_option = Array('none' => '-- '.strtolower(translate('select a keyword to add it')).' --');
+
 					} else if ($i > 0) {
-						$special_option = Array('none' => '-- '.strtolower(translate('remove_this_keyword')).' --');
+						$special_option = Array('none' => '-- '.strtolower(translate('remove this keyword')).' --');
+
 					}
 
 					$keyword_info = self::_getKeywordInfo($keyword, $allowed_keywords);
 					?>
 					<tr>
-						<th class="sq-conditions-options-th"><?php echo translate('keyword').' '.($i+1); ?></th>
+						<th class="sq-conditions-options-th"><?php echo translate('Keyword').' '.($i+1); ?></th>
+
 						<td>
 							<?php
 							echo '<span class="sq-inline-fields-wrapper">%';
@@ -141,12 +149,14 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 					$i++;
 				}
 			} else {
-				echo(translate('core_keyword_list_empty'));
+				echo(translate('The keyword list is empty.'));
+
 			}
 			?>
 		</table>
 		<?php
-		$o->note(translate('condition_logical_keyword_note'));
+		$o->note(translate('Keywords are considered TRUE if their value is NOT empty or NOT zero. Keywords are considered FALSE if their value is empty or zero.'));
+
 
 	}//end paintEditInterface()
 

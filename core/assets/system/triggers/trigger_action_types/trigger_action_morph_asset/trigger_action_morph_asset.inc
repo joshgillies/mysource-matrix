@@ -117,7 +117,8 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 		echo '<p>';
 
 		// morph from type options
-		echo (translate('trigger_morph_asset_from'));
+		echo (translate('Morph from type'));
+
 		if ($write_access) {
 			combo_box($prefix.'[from_type_code]', $from_options, FALSE, $from_type_code);
 		} else {
@@ -127,7 +128,8 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 
 		// morph to type options
 		if(isset($settings['from_type_code']) && !empty($settings['from_type_code'])) {
-		    echo (translate('trigger_morph_asset_to'));
+		    echo (translate('to type'));
+
 		    if ($write_access) {
 				$am = $GLOBALS['SQ_SYSTEM']->am;
 				$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
@@ -158,7 +160,8 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 				}
 
 				if (empty($result)) {
-					echo translate('no_types_to_morph');
+					echo translate('<i>No types are available to morph this asset into</i>');
+
 				} else {
 					$to_options = Array('' => '');
 					foreach ($result as $type_code) {
@@ -175,7 +178,8 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 
 		echo '</p>';
 
-		echo '<p><span>'.translate('trigger_morph_asset_warning').'</span></p>';
+		echo '<p><span>'.translate('<strong>Note:</strong> The target asset must be in Under Construction status and match the "morph from" type code.').'</span></p>';
+
 
 		$content = ob_get_clean();
 

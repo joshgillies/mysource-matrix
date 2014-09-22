@@ -276,7 +276,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unsubscriptions = empty($unsubscriptions) ? Array() : explode(',', $unsubscriptions);
 
 		if (empty($subscriptions) && empty($unsubscriptions)) {
-			$this->errors[] = translate('bm_no_subscription_no_unsubscription');
+			$this->errors[] = translate('No subscription/unsubscription selected');
+
 			return;
 		}
 
@@ -321,11 +322,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$new_subscriptions = array_unique($new_minus_old);
 
 		if (!empty($bad_subscriptions)) {
-			$this->errors[] = translate('bsp_bad_subscriptions');
+			$this->errors[] = translate('You have attempted to subscribe to lists that are unavailable to you - these lists will be skipped.');
+
 		}
 
 		if (!empty($bad_unsubscriptions)) {
-			$this->errors[] = translate('bsp_bad_unsubscriptions');
+			$this->errors[] = translate('You have attempted to unsubscribe from lists that are unavailable to you - these lists will be skipped.');
+
 		}
 
 		// Check if the subscriptions are empty because otherwise
@@ -355,7 +358,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$this->addLinkingMessages($done);
 
 		} else {
-			$this->errors[] = translate('bsp_no_valid_sub_unsub');
+			$this->errors[] = translate('None of the subscriptions/unsubscriptions specified are valid.');
+
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($unverified_folder);
@@ -378,7 +382,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		if (empty($email_address)) {
 			if (isset($_REQUEST[$this->getPrefix().'_email_address'])) {
-				$this->errors[] = translate('bm_email_empty');
+				$this->errors[] = translate('Email address was not provided');
+
 			}
 			return;
 		}
@@ -407,7 +412,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			}
 		}
 		if (empty($subscriptions) && empty($unsubscriptions)) {
-			$this->errors[] = translate('bm_no_subscription_no_unsubscription');
+			$this->errors[] = translate('No subscription/unsubscription selected');
+
 			return;
 		}
 
@@ -456,7 +462,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 						$this->sendAlreadySubscribedEmail($email_address, $from_addr, $subscriptions);
 					}
 				}
-				$this->messages[] = sprintf(translate('bsp_verification_email_sent'), $email_address);
+				$this->messages[] = sprintf(translate('A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.'), $email_address);
+
 				return;
 			}
 		}
@@ -473,7 +480,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				// if the email is valid send a confirmation
 				if (valid_email($_email_address_trim) && !empty($_email_address_trim)) {
 					$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
-					$this->messages[] = sprintf(translate('bsp_verification_email_sent'), $email_address);
+					$this->messages[] = sprintf(translate('A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.'), $email_address);
+
 				}
 			}
 		}
@@ -516,12 +524,14 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 				// if we could not set the email add a error
 				if (!$bulkmail_user->setAttrValue('email', $email_address)) {
-					$this->errors[] = translate('bm_email_invalid');
+					$this->errors[] = translate('Email address provided is invalid');
+
 				}
 
 				// if we could not set the name add a error
 				if (!$bulkmail_user->setAttrValue('name', $user_name)) {
-					$this->errors[] = translate('bm_username_invalid');
+					$this->errors[] = translate('Username provided is invalid');
+
 				}
 				$bulkmail_user->create($link);
 				// if create succeed processMinor Links
@@ -629,7 +639,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		$current_user_email = $current_user->attr('email');
 		if (empty($current_user_email)) {
-			$this->errors[] = translate('bsp_email_not_configured');
+			$this->errors[] = translate('You do not currently have an email address configured for your user.');
+
 			return;
 		}
 
@@ -650,7 +661,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 					trigger_localised_error('BML0016', E_USER_WARNING);
 				} else {
 					$this->sendAlreadySubscribedEmail($current_user_email, $from_addr, $subscriptions);
-					$this->messages[] = sprintf(translate('bsp_verification_email_sent'), $current_user_email);
+					$this->messages[] = sprintf(translate('A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.'), $current_user_email);
+
 				}
 			}
 			return;
@@ -664,7 +676,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				trigger_localised_error('BML0016', E_USER_WARNING);
 			} else {
 				$this->sendConfirmationEmail($current_user_email, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
-				$this->messages[] = sprintf(translate('bsp_verification_email_sent'), $current_user_email);
+				$this->messages[] = sprintf(translate('A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.'), $current_user_email);
+
 			}
 		}
 
@@ -730,16 +743,20 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		foreach ($fail_success as $message_type => $assetids) {
 			switch ($message_type) {
 				case 'add_fail':
-					$this->errors[] = translate('bsp_add_failed').$this->_getCommaSeparatedNamesByAssetid($assetids);
+					$this->errors[] = translate('Unable to subscribe you to the following mailing lists:').$this->_getCommaSeparatedNamesByAssetid($assetids);
+
 				break;
 				case 'add_success':
-					$this->messages[] = translate('bsp_add_successful').$this->_getCommaSeparatedNamesByAssetid($assetids);
+					$this->messages[] = translate('You have been subscribed to the following mailing lists:').$this->_getCommaSeparatedNamesByAssetid($assetids);
+
 				break;
 				case 'delete_fail':
-					$this->errors[] = translate('bsp_remove_failed').$this->_getCommaSeparatedNamesByAssetid($assetids);
+					$this->errors[] = translate('Unable to unsubscribe you from the following mailing lists:').$this->_getCommaSeparatedNamesByAssetid($assetids);
+
 				break;
 				case 'delete_success':
-					$this->messages[] = translate('bsp_remove_successful').$this->_getCommaSeparatedNamesByAssetid($assetids);
+					$this->messages[] = translate('You have been unsubscribed from the following mailing lists:').$this->_getCommaSeparatedNamesByAssetid($assetids);
+
 				break;
 			}
 		}
@@ -769,7 +786,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$custom_subject = $this->attr('verify_subject_line');
 		$headers = Array(
 					'From'		=> $from,
-					'Subject'	=> empty($custom_subject) ? translate('bsp_verification_email_subject') : $this->attr('verify_subject_line'),
+					'Subject'	=> empty($custom_subject) ? translate('Please confirm your subscription / unsubscription request') : $this->attr('verify_subject_line'),
+
 				   );
 
 		$body = '';
@@ -790,15 +808,27 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$body .= translate('bsp_verification_email_body_sub_unsub',
 									$this->_getCommaSeparatedNamesByAssetid($subscriptions),
 									$this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
-			$body .= sprintf(translate('bsp_verification_email_body_part2'), $url);
+			$body .= sprintf(translate('To confirm your request, click the link below:
+
+%s'), $url);
+
 		} else if (!empty($subscriptions)) {
-			$body .= sprintf(translate('bsp_verification_email_body_sub'), $this->_getCommaSeparatedNamesByAssetid($subscriptions));
-			$body .= sprintf(translate('bsp_verification_email_body_sub_part2'), $url);
+			$body .= sprintf(translate('Thank you for subscribing to %s.'), $this->_getCommaSeparatedNamesByAssetid($subscriptions));
+
+			$body .= sprintf(translate('To activate your subscription, click the link below:
+
+%s'), $url);
+
 		} else if (!empty($unsubscriptions)) {
-			$body .= sprintf(translate('bsp_verification_email_body_unsub'), $this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
-			$body .= sprintf(translate('bsp_verification_email_body_part2'), $url);
+			$body .= sprintf(translate('You have requested to unsubscribe from %s.'), $this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
+
+			$body .= sprintf(translate('To confirm your request, click the link below:
+
+%s'), $url);
+
 		}
-			$body .= sprintf(translate('bsp_verification_email_note'), $from);
+			$body .= sprintf(translate('If you have received this email in error, please take no further action or contact %s.'), $from);
+
 
 
 		$mime = new Mail_mime("\n");
@@ -844,11 +874,16 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$custom_subject = $this->attr('verify_subject_line');
 		$headers = Array(
 					'From'		=> $from,
-					'Subject'	=> empty($custom_subject) ? translate('bsp_verification_email_subject') : $this->attr('verify_subject_line'),
+					'Subject'	=> empty($custom_subject) ? translate('Please confirm your subscription / unsubscription request') : $this->attr('verify_subject_line'),
+
 				   );
 
 		$url = current_url();
-		$body = sprintf(translate('bsp_already_sub_email_body'), $this->_getCommaSeparatedNamesByAssetid($subscriptions), $url);
+		$body = sprintf(translate('You have requested to subscribe to %1$s.
+This request was made from the following URL: %2$s
+
+Your email address is already subscribed, therefore no action has been taken.'), $this->_getCommaSeparatedNamesByAssetid($subscriptions), $url);
+
 
 		$mime = new Mail_mime("\n");
 		$mime->setTXTBody($body);
@@ -976,24 +1011,33 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		switch ($code) {
 			case 'logged_in':
-				return '<h2>'.sprintf(translate('bsp_default_title_logged_in'), '%user_name%').'</h2>
+				return '<h2>'.sprintf(translate('Editing list subscriptions for %s'), '%user_name%').'</h2>
+
 					%success_messages_list% %error_messages_list%
-					<h3>'.translate('bsp_default_subtitle_current_subs').'</h3>
+					<h3>'.translate('Current Subscriptions').'</h3>
+
 					%current_subscriptions%
-					<h3>'.translate('bsp_default_subtitle_add_sub').'</h3>
+					<h3>'.translate('Subscribe to new list').'</h3>
+
 					%subscriptions_picker%
-					<h3>'.translate('bsp_default_subtitle_remove_sub').'</h3>
+					<h3>'.translate('Unsubscribe from list').'</h3>
+
 					%unsubscriptions_picker%
 					<br />%commit_button%
 				';
 			case 'not_logged_in':
-				return '<h2>'.translate('bsp_default_title_not_logged_in').'</h2>
+				return '<h2>'.translate('Edit List Subscriptions').'</h2>
+
 					%success_messages_list% %error_messages_list%
-					'.translate('username').': %subscribe_user_name% <br />
-					'.translate('email').': %subscribe_email_address% <br />
-					<h3>'.translate('bsp_default_subtitle_add_sub').'</h3>
+					'.translate('Username').': %subscribe_user_name% <br />
+
+					'.translate('Email').': %subscribe_email_address% <br />
+
+					<h3>'.translate('Subscribe to new list').'</h3>
+
 					%subscriptions_picker%
-					<h3>'.translate('bsp_default_subtitle_remove_sub').'</h3>
+					<h3>'.translate('Unsubscribe from list').'</h3>
+
 					%unsubscriptions_picker%
 					<br />%commit_button%
 				';

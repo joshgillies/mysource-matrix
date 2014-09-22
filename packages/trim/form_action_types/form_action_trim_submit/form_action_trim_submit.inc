@@ -67,16 +67,19 @@ class Form_Action_TRIM_Submit extends Form_Action
 					<td><p><?php text_box($prefix.'_wsdl', array_get_index($settings, 'wsdl', ''), 120); ?></p></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('username'); ?></td>
+					<td><?php echo translate('Username'); ?></td>
+
 					<td><p><?php text_box($prefix.'_username', array_get_index($settings, 'username', ''), 35); ?><br />
 					</p></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('password'); ?></td>
+					<td><?php echo translate('Password'); ?></td>
+
 					<td><p><?php password_box($prefix.'_password', array_get_index($settings, 'password', ''), 35); ?></p></td>
 				</tr>
 				<tr>
-					<td colspan="2"><?php echo translate('use_proxy_connector'); ?></td>
+					<td colspan="2"><?php echo translate('Proxy setting is only available using a connector asset'); ?></td>
+
 				</tr>
 			</table>
 		</div>
@@ -96,7 +99,8 @@ class Form_Action_TRIM_Submit extends Form_Action
 		<div id="<?php echo $prefix ?>_record_type_selection" style="padding: 0.5em 0px 2em 30px;">
 			<table style="width:auto;padding-left: 30px;">
 				<tr>
-					<td><strong><?php echo translate('record_type');?></strong><br /><br /></td>
+					<td><strong><?php echo translate('Record Type');?></strong><br /><br /></td>
+
 					<td>
 						<?php
 							$options	= Array (
@@ -108,7 +112,8 @@ class Form_Action_TRIM_Submit extends Form_Action
 					</td>
 				</tr>
 				<tr>
-					<td><span style="padding-top:10px;"><strong><?php echo translate('creator_username');?></strong></span></td>
+					<td><span style="padding-top:10px;"><strong><?php echo translate('Create As User');?></strong></span></td>
+
 					<td>
 						<?php
 							text_box($prefix.'_creator_username', array_get_index($settings,'creator_username', ''), 35, '', FALSE, ((boolean) array_get_index($settings, 'session_creator_username', FALSE)) ? ' disabled=true' :'');
@@ -170,9 +175,12 @@ class Form_Action_TRIM_Submit extends Form_Action
 			<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 2em 30px;">
 				<table style="width:auto;padding-left: 30px;">
 					<tr>
-						<td><?php echo translate('field_name') ?></td>
-						<td><?php echo translate('field_value') ?></td>
-						<td><?php echo translate('delete_question'); ?></td>
+						<td><?php echo translate('Field Name') ?></td>
+
+						<td><?php echo translate('Field Value') ?></td>
+
+						<td><?php echo translate('Delete?'); ?></td>
+
 					</tr>
 					<?php
 						foreach ($additional_fields as $field_name => $field_value) {

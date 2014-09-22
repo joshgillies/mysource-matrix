@@ -183,27 +183,48 @@ class Calendar_Event extends Asset
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['asset_attribute_start_date'] = translate('cal_evt_keyword_asset_attribute_start_date');
-		$keywords['asset_attribute_end_date']   = translate('cal_evt_keyword_asset_attribute_end_date'); // = 'End date (iso8601)';
-		$keywords['event_start_date']           = translate('cal_evt_keyword_event_start_date'); // = 'Event Start Date';
-		$keywords['event_end_date']             = translate('cal_evt_keyword_event_end_date'); // = 'Event End Date';
-		$keywords['event_start_datetime']       = translate('cal_evt_keyword_event_start_datetime'); // = 'Event start date/time';
-		$keywords['event_end_datetime']         = translate('cal_evt_keyword_event_end_datetime'); // = 'Event end date/time';
-		$keywords['event_start_time_12h']       = translate('cal_evt_keyword_event_start_time_12h'); // = 'Start time (12 hour)';
-		$keywords['event_end_time_12h']         = translate('cal_evt_keyword_event_end_time_12h'); // = 'End time (12 hour)';
-		$keywords['event_start_time_24h']       = translate('cal_evt_keyword_event_start_time_24h'); // = 'Start time (24 hour)';
-		$keywords['event_end_time_24h']         = translate('cal_evt_keyword_event_end_time_24h'); // = 'End time (24 hour)';
-		$keywords['event_short_start_time']     = translate('cal_evt_keyword_event_short_start_time'); // = 'Short start time (12 hour)';
-		$keywords['event_short_end_time']       = translate('cal_evt_keyword_event_short_end_time'); // = 'Short end time (12 hour)';
-		$keywords['event_start_time_ical']      = translate('cal_evt_keyword_event_start_time_ical'); // = 'Start time (iCalendar)';
-		$keywords['event_end_time_ical']        = translate('cal_evt_keyword_event_end_time_ical'); // = 'End time (iCalendar)';
-		$keywords['event_datetime_summary']     = translate('cal_evt_keyword_event_datetime_summary'); // = 'Friendly description of event dates and times';
-		$keywords['event_duration']             = translate('cal_evt_keyword_event_duration'); // = 'Duration of the Event';
-		$keywords['edit_link']                  = translate('cal_evt_keyword_edit_link'); // = 'Link to edit this event in Limbo (if user has permission)';
-		$keywords['delete_link']                = translate('cal_evt_keyword_delete_link'); // = 'Link to delete this event altogether (if user has permission)';
-		$keywords['event_start_datetime_']      = translate('cal_evt_keyword_event_start_datetime_'); // = dynamic keyword to print start date and time
-		$keywords['event_end_datetime_']        = translate('cal_evt_keyword_event_end_datetime_'); // = dynamic keyword to print end date and time
-		$keywords['event_calendar_date_']       = translate('cal_evt_keyword_event_calendar_date_'); // = dynamic keyword to print calendar date
+		$keywords['asset_attribute_start_date'] = translate('Event Start (ISO8601 Format)');
+
+		$keywords['asset_attribute_end_date']   = translate('Event End (ISO8601 Format)'); // = 'End date (iso8601)';
+
+		$keywords['event_start_date']           = translate('Event Start (readable date)'); // = 'Event Start Date';
+
+		$keywords['event_end_date']             = translate('Event End (readable date)'); // = 'Event End Date';
+
+		$keywords['event_start_datetime']       = translate('Event Start (Readable date/time)'); // = 'Event start date/time';
+
+		$keywords['event_end_datetime']         = translate('Event End (Readable date/time'); // = 'Event end date/time';
+
+		$keywords['event_start_time_12h']       = translate('Event Start (12 hour time)'); // = 'Start time (12 hour)';
+
+		$keywords['event_end_time_12h']         = translate('Event End (12 hour time)'); // = 'End time (12 hour)';
+
+		$keywords['event_start_time_24h']       = translate('Event Start (24 hour time)'); // = 'Start time (24 hour)';
+
+		$keywords['event_end_time_24h']         = translate('Event End (24 hour time)'); // = 'End time (24 hour)';
+
+		$keywords['event_short_start_time']     = translate('Short start time (12 hour time, without minutes if on the hour)'); // = 'Short start time (12 hour)';
+
+		$keywords['event_short_end_time']       = translate('Short end time (12 hour time, without minutes if on the hour)'); // = 'Short end time (12 hour)';
+
+		$keywords['event_start_time_ical']      = translate('Event Start (iCalendar)'); // = 'Start time (iCalendar)';
+
+		$keywords['event_end_time_ical']        = translate('Event End (iCalendar)'); // = 'End time (iCalendar)';
+
+		$keywords['event_datetime_summary']     = translate('Event start/end summary'); // = 'Friendly description of event dates and times';
+
+		$keywords['event_duration']             = translate('Event Duration'); // = 'Duration of the Event';
+
+		$keywords['edit_link']                  = translate('Link to edit this event in Limbo (if user has permission)'); // = 'Link to edit this event in Limbo (if user has permission)';
+
+		$keywords['delete_link']                = translate('Link to delete this event altogether (if user has permission)'); // = 'Link to delete this event altogether (if user has permission)';
+
+		$keywords['event_start_datetime_']      = translate('Event Start expressed with PHP date format which follow the last underscore character of the keyword.'); // = dynamic keyword to print start date and time
+
+		$keywords['event_end_datetime_']        = translate('Event End expressed with PHP date format which follow the last underscore character of the keyword.'); // = dynamic keyword to print end date and time
+
+		$keywords['event_calendar_date_']       = translate('Event Calendar Date with PHP date format after the last underscore character.'); // = dynamic keyword to print calendar date
+
 
 		return $keywords;
 
@@ -258,7 +279,8 @@ class Calendar_Event extends Asset
 			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 				$res .= '&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'];
 			}
-			$res .= '" onclick="return confirm(js_translate(\'confirm_delete_event\'));">'.translate('delete').'</a>';
+			$res .= '" onclick="return confirm(js_translate(\'confirm_delete_event\'));">'.translate('Delete').'</a>';
+
 			return $res;
 		} else {
 			return '';
@@ -978,7 +1000,8 @@ class Calendar_Event extends Asset
 				break;
 
 			case 'edit_link':
-				$replacement = $this->writeAccess('') ? '<a href="'.htmlentities(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('cal_event_edit_link_text').'</a>' : '';
+				$replacement = $this->writeAccess('') ? '<a href="'.htmlentities(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('Edit').'</a>' : '';
+
 				break;
 
 			case 'delete_link':

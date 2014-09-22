@@ -57,11 +57,16 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 		$filters = $asset->attr('events_filters');
 
 		$query_types = Array(
-						'none'				=> '-- '.ucfirst(translate('page_events_search_filter_select_options').' --'),
-						'single_date'		=> ucfirst(translate('page_events_search_filter_select_options_single_date')),
-						'date_range'		=> ucfirst(translate('page_events_search_filter_select_options_date_range')),
-						'fuzzy_dropdown'	=> ucfirst(translate('page_events_search_filter_select_options_fuzzy_dropdown')),
-						'fuzzy_checkboxes'	=> ucfirst(translate('page_events_search_filter_select_options_fuzzy_checkboxes')),
+						'none'				=> '-- '.ucfirst(translate('Select filter type').' --'),
+
+						'single_date'		=> ucfirst(translate('Single Date')),
+
+						'date_range'		=> ucfirst(translate('Date Range')),
+
+						'fuzzy_dropdown'	=> ucfirst(translate('Fuzzy Date (Dropdown selection)')),
+
+						'fuzzy_checkboxes'	=> ucfirst(translate('Fuzzy Date (Checkboxes selection)')),
+
 					   );
 
 		$fuzzy_options = Array();

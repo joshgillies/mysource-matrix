@@ -66,8 +66,10 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('asset') ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Asset') ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('Type') ?></td>
+
 				</tr>
 			<?php
 			foreach ($infos as $assetid => $info) {
@@ -155,7 +157,8 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					}
 				}
 			}
-			$types['select'] = '-- '.translate('select_asset_type').' --';
+			$types['select'] = '-- '.translate('Select Asset Type').' --';
+
 			$wa = $asset->writeAccess('attributes');
 			if ($wa) {
 				$type = null;
@@ -171,7 +174,8 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td> <?php echo translate('choose_asset_type');?></td>
+						<td> <?php echo translate('Choose Asset Type');?></td>
+
 						<td>
 							<?php
 							combo_box('asset_type', $types, FALSE, !empty($type)? $type: 'select');
@@ -181,7 +185,8 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					</tr>
 					<?php
 					if (!empty($type)) {
-						$keywords['select'] = '-- '.translate('select_keyword').' --';
+						$keywords['select'] = '-- '.translate('Select Keyword').' --';
+
 						$keyword = null;
 						$tag = null;
 						if (isset($_POST[$prefix.'_keyword']) && ($_POST[$prefix.'_keyword'] != 'select')) {
@@ -190,7 +195,8 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						if (empty($tag)) {
 							?>
 							<tr>
-								<td><?php echo translate('choose_or_enter_keyword');?></td>
+								<td><?php echo translate('Choose /Enter Keyword');?></td>
+
 								<td>
 									<?php
 									combo_box($prefix.'_keyword', $keywords[$type], FALSE, !empty($keyword)? $keyword: 'select');
@@ -220,7 +226,8 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 							}
 							?>
 							<tr>
-								<td><?php echo translate('choose_tag');?></td>
+								<td><?php echo translate('Choose Tag');?></td>
+
 								<td>
 									<?php
 									combo_box($prefix.'_tag', $tags, FALSE, !empty($tag)? $tag: '');
@@ -295,13 +302,17 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('asset_type');?></th>
-					<th><?php echo translate('keyword');?></th>
-					<th><?php echo translate('tag_represented');?></th>
+					<th><?php echo translate('Asset Type');?></th>
+
+					<th><?php echo translate('Keyword');?></th>
+
+					<th><?php echo translate('Tag Represented');?></th>
+
 					<?php
 					if ($wa) {
 						?>
-						<th><?php echo translate('delete_question');?></th>
+						<th><?php echo translate('Delete?');?></th>
+
 					<?php
 					}
 					?>
@@ -425,16 +436,20 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 				?>
 				<table class="sq-backend-table" width="100%">
 					<tr>
-						<th><?php echo translate('tag');?></th>
-						<th><?php echo translate('value');?></th>
+						<th><?php echo translate('Tag');?></th>
+
+						<th><?php echo translate('Value');?></th>
+
 						<?php
 						if (($wa) && (in_array('link', $tags) || in_array('link.href', $tags))) {
 							?>
-							<th><?php echo translate('link_text_value');?></th>
+							<th><?php echo translate('Link Text');?></th>
+
 						<?php
 						}
 						?>
-						<th><?php echo translate('required');?></th>
+						<th><?php echo translate('Required');?></th>
+
 					</tr>
 					<?php
 					foreach ($tags as $tag) {

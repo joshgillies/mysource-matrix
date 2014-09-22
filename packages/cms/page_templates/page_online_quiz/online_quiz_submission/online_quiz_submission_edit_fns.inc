@@ -110,7 +110,8 @@ class Online_Quiz_Submission_Edit_Fns extends Asset_Edit_Fns
 		if(!isset($user_details_answers) || empty($user_details_answers)) {
 			$sub_user = $asset->created_userid;
 			$valid_user = FALSE;
-			$o->openField(translate('user'));
+			$o->openField(translate('User'));
+
 						if (!empty($sub_user)) {
 							$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
 							if (!empty($sub_user_asset)) {
@@ -119,7 +120,8 @@ class Online_Quiz_Submission_Edit_Fns extends Asset_Edit_Fns
 							}
 						}
 						if (!$valid_user) {
-						 	echo '<i>'.translate('online_quiz_no_logged_in_user').'</i>';
+						 	echo '<i>'.translate('No logged in user').'</i>';
+
 						}
 			$o->closeField();
 		}

@@ -70,7 +70,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 		<script type="text/javascript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
-				  alert('<?php echo translate('cms_form_no_getelementbyid') ?>');
+				  alert('<?php echo translate('Browser cannot support script - Get Element By ID is not defined') ?>');
+
 				  return;
 			  }
 			  // move a question up a row
@@ -83,7 +84,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 			  if (!nextElement) return;
 
 			  if (!currentElement.innerHTML) {
-				  alert('<?php echo translate('cms_form_no_innerhtml') ?>');
+				  alert('<?php echo translate('Browser cannot support script - Inner HTML is not defined') ?>');
+
 				  return;
 			  }
 
@@ -117,7 +119,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 			function sortOrderMoveUp(currentOrder) {
 			  // move a question up a row
 			  if (!document.getElementById) {
-				  alert('<?php echo translate('cms_form_no_getelementbyid') ?>');
+				  alert('<?php echo translate('Browser cannot support script - Get Element By ID is not defined') ?>');
+
 				  return;
 			  }
 
@@ -129,7 +132,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder - 1));
 
 			  if (!currentElement.innerHTML) {
-				  alert('<?php echo translate('cms_form_no_innerhtml') ?>');
+				  alert('<?php echo translate('Browser cannot support script - Inner HTML is not defined') ?>');
+
 				  return;
 			  }
 
@@ -164,13 +168,17 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 		</script>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><?php echo translate('name'); ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('link'); ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('Name'); ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Link'); ?></th>
+
 					<?php
 					if ($write_access) {
 						?>
-						<th class="sq-backend-table-header"><?php echo translate('delete'); ?>?</th>
-						<th class="sq-backend-table-header"><?php echo translate('move'); ?>?</th>
+						<th class="sq-backend-table-header"><?php echo translate('Delete'); ?>?</th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Move'); ?>?</th>
+
 						<?php
 					}
 					?>
@@ -179,7 +187,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 				if (empty($asset_ids)) {
 					?>
 					<tr>
-						<td colspan="5" style="text-align: center;"><?php echo translate('currently_no_pages_to_display'); ?></td>
+						<td colspan="5" style="text-align: center;"><?php echo translate('There are currently no pages to display'); ?></td>
+
 					</tr>
 					<?php
 				}
@@ -193,7 +202,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 							<?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $asset_info['minorid']); ?>
 						</td>
 						<td class="sq-backend-table-cell">
-							<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><a href="<?php echo $edit_links[$asset_info['minorid']]; ?>"><?php echo translate('contents'); ?></a></span>
+							<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><a href="<?php echo $edit_links[$asset_info['minorid']]; ?>"><?php echo translate('Contents'); ?></a></span>
+
 						</td>
 						<?php
 						if ($write_access) {
@@ -227,7 +237,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 			<table>
 				<tr>
 				<td>
-					<?php echo translate('create_new_page'); ?>
+					<?php echo translate('Create New Page'); ?>
+
 				</td>
 				<td>
 					<?php text_box($prefix.'_new_page', '', '50'); ?>

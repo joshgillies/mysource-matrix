@@ -80,13 +80,15 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 
 		?>
 		<div style="padding: 5px">
-		<p class="sq-backend-section-subheading"><?php echo translate('form_action_upload_youtube_video_client_credentials_header') ?></p>
+		<p class="sq-backend-section-subheading"><?php echo translate('Client Credentials') ?></p>
+
 
 		<table class="sq-backend-table">
 			<col width="20%" />
 			<col width="80%" />
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_client_credentials_key') ?></th>
+				<th><?php echo translate('Consumer key:') ?></th>
+
 				<td><?php
 				if (($consumer_details_locked === FALSE)) {
 					text_box($prefix.'[consumer_key]', $settings['consumer_key'], 50);
@@ -97,7 +99,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				?></td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_client_credentials_secret') ?></th>
+				<th><?php echo translate('Consumer secret string:') ?></th>
+
 				<td><?php
 				if (($consumer_details_locked === FALSE)) {
 					text_box($prefix.'[consumer_secret]', $settings['consumer_secret'], 50);
@@ -108,21 +111,26 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				?></td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_client_dev_key') ?></th>
+				<th><?php echo translate('Developer key:') ?></th>
+
 				<td><?php
 					text_box($prefix.'[developer_key]', $settings['developer_key'], 50);
 				?></td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_client_credentials_step') ?></th>
+				<th><?php echo translate('Authentication:') ?></th>
+
 				<td><?php
 				if ((empty($settings['consumer_key']) === TRUE) || (empty($settings['consumer_secret']) === TRUE)) {
-					echo translate('form_action_upload_youtube_video_client_credentials_status_no_consumer');
+					echo translate('<strong style="color: #f00">Client credentials missing.</strong>');
+
 				} else {
 					if (!empty($settings['access_token'])){
-						echo translate('form_action_upload_youtube_video_client_credentials_connected');
+						echo translate('<strong style="color: #060">Access Token Granted</strong>');
+
 					} else if (empty($settings['access_token']) && !empty($_REQUEST['oauth_verifier'])){
-						$value = translate('form_action_upload_youtube_video_client_credentials_access_token');
+						$value = translate('Get Access Token');
+
 						submit_button($prefix.'[get_access_token]', $value, 'main_form.submit()');
 						if (!empty($settings['access_token_errors'])){
 							?><br /><strong style="color: #f00">Error: failed to gain access token</strong><?php
@@ -133,9 +141,11 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 					} else if (!empty($settings['request_token'])){
 							$callback_url = self::_getCallbackURL($prefix);
 	                        $url = 'https://www.google.com/accounts/OAuthAuthorizeToken?oauth_token='.$settings['request_token'].'&oauth_callback='.urlencode($callback_url);
-	                        echo '<a target="_blank" href="'.$url.'">'.translate('form_action_upload_youtube_video_client_credentials_auth_token').'</a>';
+	                        echo '<a target="_blank" href="'.$url.'">'.translate('Authorise Token').'</a>';
+
 					} else {
-						$value = translate('form_action_upload_youtube_video_client_credentials_request_token');
+						$value = translate('Get Request Token');
+
 						submit_button($prefix.'[get_request_token]', $value, 'main_form.submit()');
 						if (!empty($settings['request_token_errors'])){
 							?><br /><strong style="color: #f00">Error: failed to gain request token</strong><?php
@@ -148,7 +158,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				?></td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_client_credentials_deauthorise') ?></th>
+				<th><?php echo translate('Reset Authentication?') ?></th>
+
 				<td><?php
 				check_box($prefix.'[deauthorise]');
 				?></td>
@@ -156,11 +167,22 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		</table>
 		</div>
 		<div style="padding: 5px">
-		<?php echo translate('form_action_upload_youtube_video_client_credentials_note') ?>
+		<?php echo translate('<p>You need to have a YouTube account linked with a Google account. To obtain a Consumer Key and Secret, please see the <a target="_blank" href="http://code.google.com/apis/accounts/docs/RegistrationForWebAppsAuto.html#new">Registration for Web-Based Applications</a> page for an explanation of the registration process.</p>
+    <p><strong>Note:</strong> Leave the certificate field blank when completing your registration. Google will generate an OAuth consumer secret value, which will display on your domain\'s registration page after you have completed the registration process.</p>
+    <p>To obtain a Developer Key please visit your <a  target="_blank" href="http://code.google.com/apis/youtube/dashboard/">Account Dashboard</a> page.</p>
+    <p>Once you have entered your credentials, there are 3 steps to get authenticated:
+    <ol>
+    <li>Click the "Get Request Token" button</li>
+    <li>Click the "Authorise Token" link which takes you to your account where you need log in and approve the token. You will automatically be redirected back here.</li>
+    <li>Immediately click the "Get Access Token" button.</li>
+    </ol>
+    If there is an error at any stage or you wish to change accounts, Reset the Authentication.</p>') ?>
+
 		</div>
 
         <div style="padding: 5px">
-		<p class="sq-backend-section-subheading"><?php echo translate('form_action_upload_youtube_video_settings_header') ?></p>
+		<p class="sq-backend-section-subheading"><?php echo translate('YouTube Video Setup') ?></p>
+
 
 		<table class="sq-backend-table">
 			<tr>
@@ -169,7 +191,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				<th>Form Question Id</th>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_settings_privacy') ?></th>
+				<th><?php echo translate('Privacy:') ?></th>
+
 				<td><?php
 				$options = Array(
 							'public'	=> 'Public',
@@ -182,7 +205,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_settings_title') ?></th>
+				<th><?php echo translate('Title:') ?></th>
+
 				<td><?php
 					text_box($prefix.'[title]', $settings['title'], 50, 100);
 				?> </td>
@@ -194,7 +218,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				?></td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_settings_description') ?></th>
+				<th><?php echo translate('Description:') ?></th>
+
 				<td><?php
 					text_area($prefix.'[description]', $settings['description'], 46, 10, 5000);
 				?> </td>
@@ -206,7 +231,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				?></td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_settings_category') ?></th>
+				<th><?php echo translate('Category:') ?></th>
+
 				<td><?php
 					text_box($prefix.'[category]', $settings['category'], 50);
 				?> </td>
@@ -219,7 +245,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				?></td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_settings_file') ?></th>
+				<th><?php echo translate('Video Source:') ?></th>
+
 				<td>&nbsp;</td>
 				<td><?php
 					$type_codes = Array (
@@ -229,7 +256,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				?></td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_settings_delete_file') ?></th>
+				<th><?php echo translate('Delete Video from server?') ?></th>
+
 				<td><?php
 				$options = Array(
 							1	=> 'Yes',
@@ -240,7 +268,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('form_action_upload_youtube_video_upload_timeout') ?></th>
+				<th><?php echo translate('Video Upload Timeout (sec)') ?></th>
+
 				<td><?php
 					int_text_box($prefix.'[upload_timeout]', $settings['upload_timeout'], FALSE);
 				?></td>
@@ -249,7 +278,10 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		</table>
 		</div>
 		<div style="padding: 5px">
-		<?php echo translate('form_action_upload_youtube_video_settings_note') ?>
+		<?php echo translate('<p>For the Title, Description and Category, you may set a default value and/or select a Form Question asset to dynamically populate the value from its submission answer. The Form Question answer takes priority over the default value. Category is compulsory. Description is optional. A missing Title will be populated with the video file name.</p>
+    <p>The Video Source field is compulsory and must be a File Upload Form Question.</p>
+    <p>Video files are only deleted from the server if the File Upload Form Question does not specify a "Create Location".</p>') ?>
+
 		</div>
 
         <?php
@@ -455,7 +487,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong>Authentication:</strong></p></td>
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 					if (!empty($settings['access_token'])) {
-						echo translate('form_action_upload_youtube_video_client_credentials_connected');
+						echo translate('<strong style="color: #060">Access Token Granted</strong>');
+
 					} else {
 						?><span class="sq-backend-warning">No Access Token.</span><?php
 					}

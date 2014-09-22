@@ -56,12 +56,15 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		$o->openField(translate('csv_upload'));
+		$o->openField(translate('CSV Upload'));
+
 			file_upload($prefix.'_add_source_csv');
-			$o->note(translate('data_source_csv_upload_instructions'));
+			$o->note(translate('Upload the CSV file with rows to expose as assets.'));
+
 		$o->closeField();
 
-		$o->openField(translate('compare_current_file'));
+		$o->openField(translate('Compare format for Uploaded CSV to existing contents?'));
+
 			check_box($prefix.'_check_file_content', '1');
 		$o->closeField();
 

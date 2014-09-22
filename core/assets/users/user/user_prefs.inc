@@ -137,17 +137,23 @@ class User_Prefs extends Prefs
 			foreach ($session_settings as $id => $extra_setting) {
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
-				<strong><?php echo ($id == '0') ? translate('default').' '.translate('rule') : sprintf(translate('rule_number'), $id); ?>:</strong><br />
-				<?php echo translate('end_user_session'); ?>...
+				<strong><?php echo ($id == '0') ? translate('Default').' '.translate('Rule') : sprintf(translate('Rule %s'), $id); ?>:</strong><br />
+
+
+
+				<?php echo translate('End the user\'s session'); ?>...
+
 				<ul id="user-prefs">
 					<li>
 						<?php
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][persist]', '0', ($extra_setting['persist'] == 0), '', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_persist"');
-							label(translate('session_persist'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_persist');
+							label(translate('When the user closes the browser'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_persist');
+
 						} else {
 							echo '<img src="'.sq_web_path('lib').'/web/images/'.(empty($extra_setting['persist']) ? 'tick' : 'cross').'.gif" />';
-							echo translate('session_persist');
+							echo translate('When the user closes the browser');
+
 						}
 						?>
 					</li>
@@ -156,11 +162,13 @@ class User_Prefs extends Prefs
 						$dur = new Asset_Attribute_Duration(0, $extra_setting['timeout']);
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][timeout_enabled]', '1', ($extra_setting['timeout'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_timeout_enabled"');
-							label(translate('session_timeout'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_timeout_enabled');
+							label(translate('When the time since their last Matrix-Activity* is longer than'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_timeout_enabled');
+
 							echo ' ';
 						} else {
 							echo '<img src="'.sq_web_path('lib').'/web/images/'.(!empty($extra_setting['timeout']) ? 'tick' : 'cross').'.gif" />';
-							echo translate('session_timeout');
+							echo translate('When the time since their last Matrix-Activity* is longer than');
+
 						}
 						$dur->paint('prefs_dur_timeout_'.$id, !$have_lock);
 						?>
@@ -170,11 +178,13 @@ class User_Prefs extends Prefs
 						$dur = new Asset_Attribute_Duration(0, $extra_setting['max_length']);
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][max_length_enabled]', '1', ($extra_setting['max_length'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_max_length_enabled"');
-							label(translate('session_max_length'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_max_length_enabled');
+							label(translate('When the time since their last login is longer than'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_max_length_enabled');
+
 							echo ' ';
 						} else {
 							echo '<img src="'.sq_web_path('lib').'/web/images/'.(!empty($extra_setting['max_length']) ? 'tick' : 'cross').'.gif" />';
-							echo translate('session_max_length');
+							echo translate('When the time since their last login is longer than');
+
 						}
 						$dur->paint('prefs_dur_max_length_'.$id, !$have_lock); ?>
 					</li>
@@ -192,14 +202,16 @@ class User_Prefs extends Prefs
 						if ($have_lock && $is_admin) {
 							$js = "onChange=\"Javascript: if (this.checked == false) { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][ip_from]').value = ''; } \"";
 							check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][limit]', '0', (!empty($extra_setting['ip_from'])), '', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit" '.$js);
-							label(translate('limit_by_ip_address'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit');
+							label(translate('Limit this rule to an IP Address or Range'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit');
+
 							echo ' ';
 							text_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][ip_from]', $extra_setting['ip_from']);
 							echo ' to ';
 							text_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][ip_to]', $extra_setting['ip_to']);
 						} else {
 							echo '<img src="'.sq_web_path('lib').'/web/images/'.((!empty($extra_setting['ip_from'])) ? 'tick' : 'cross').'.gif" />';
-							echo translate('limit_by_ip_address');
+							echo translate('Limit this rule to an IP Address or Range');
+
 							echo ' ';
 							echo $extra_setting['ip_from'];
 							if (!empty($extra_setting['ip_to'])) {
@@ -217,12 +229,14 @@ class User_Prefs extends Prefs
 						if ($have_lock && $is_admin) {
 							$js = "onChange=\"Javascript: if (this.checked == true) { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][user_types]').disabled = false; } else { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][user_types]').disabled = true;  }\"";
 							check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][limit_user_types]', '0', (!empty($user_types)), '', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types" '.$js);
-							label(translate('limit_by_user_types'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types');
+							label(translate('Limit this rule to the User types** (comma seperated)'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types');
+
 							text_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]', $user_types, 70, '', FALSE, 'id="prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]"');
 							echo '<script type="text/javascript">if (document.getElementById("prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]").value == \'\') { document.getElementById("prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]").disabled = true; }</script>';
 						} else {
 							echo '<img src="'.sq_web_path('lib').'/web/images/'.((!empty($user_types)) ? 'tick' : 'cross').'.gif" />';
-							echo translate('limit_by_user_types');
+							echo translate('Limit this rule to the User types** (comma seperated)');
+
 							echo ' ';
 							echo $user_types;
 						}
@@ -236,9 +250,11 @@ class User_Prefs extends Prefs
 					?>
 					<li>
 					<?php
-						$js = "onChange=\"Javascript: if (this.checked == true) { if(!confirm(js_translate('confirm_delete_rule'))) { this.checked=false; } } \"";
+						$js = "onChange=\"Javascript: if (this.checked == true) { if(!confirm(js_translate('Are you sure you want to delete this rule?'))) { this.checked=false; } } \"";
+
 						check_box('prefs_delete_rule_number_'.$id, '1', FALSE, 'prefs_sq_user_prefs_delete_'.$id, $js);
-						label(translate('delete_rule'), 'prefs_delete_rule_number_'.$id);
+						label(translate('Delete Rule'), 'prefs_delete_rule_number_'.$id);
+
 					?>
 					</li>
 					<?php
@@ -248,7 +264,8 @@ class User_Prefs extends Prefs
 			</div>
 			<?php
 			}//end foreach
-			$o->note('* '.translate('session_timeout_explanation'));
+			$o->note('* '.translate('Matrix-Activity refers to either accessing a page on the frontend, or having the backend interface open.  If none of the boxes above are ticked then the session expiry time will be equal to the longest session expiry preference configured in the system, to a maximum of a year and a minimum of a week.'));
+
 			$available_user_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', TRUE);
 			$o->note('** Available user types in this system are: '.implode(', ', $available_user_types));
 			?>
@@ -257,7 +274,8 @@ class User_Prefs extends Prefs
 
 			if ($have_lock && $is_admin) {
 				check_box('prefs_make_new_rule', '1', FALSE, 'prefs_sq_user_prefs_new');
-				label(translate('add_session_expiry_rule'), 'prefs_make_new_rule');
+				label(translate('Add a new session expiry rule'), 'prefs_make_new_rule');
+
 			}//end if
 
 			if ($have_lock && $is_admin) {
@@ -310,12 +328,14 @@ class User_Prefs extends Prefs
 				if (!empty($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'])) {
 					echo get_asset_tag_line($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default']);
 				} else {
-					echo translate('root_folder');
+					echo translate('Root Folder');
+
 				}
 			}
 			?>
 			<?php
-			$o->note(translate('user_prefs_asset_map_root_asset_explanation'));
+			$o->note(translate('The asset that will be displayed as the Asset Map\'s root node'));
+
 			?>
 			</div>
 			<?php
@@ -331,7 +351,8 @@ class User_Prefs extends Prefs
 				$safe_trash = $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['default'];
 				if ($have_lock && $is_admin) {
 					check_box('prefs[SQ_USER_SAFE_TYPE3_TRASH]', 1, ($safe_trash), '', 'id="prefs_SQ_USER_SAFE_TYPE3_TRASH"');
-					label(translate('yes'), 'prefs_SQ_USER_SAFE_TYPE3_TRASH');
+					label(translate('Yes'), 'prefs_SQ_USER_SAFE_TYPE3_TRASH');
+
 					$o->note('Check this box if you want to prohibit the deletion of an asset until all notice links are removed.');
 				} else {
 					echo '<img src="'.sq_web_path('lib').'/web/images/'.($safe_trash ? 'tick' : 'cross').'.gif" />';
@@ -431,17 +452,23 @@ class User_Prefs extends Prefs
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_face'); ?></td>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Font'); ?></td>
+
 					<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 						$font_files = list_files(SQ_LIB_PATH.'/fonts');
 						$fonts_installed = Array(
-											1	=> translate('default_gd_font_1'),
-											2	=> translate('default_gd_font_2'),
-											3	=> translate('default_gd_font_3'),
-											4	=> translate('default_gd_font_4'),
-											5	=> translate('default_gd_font_5'),
+											1	=> translate('Built in font 1'),
+
+											2	=> translate('Built in font 2'),
+
+											3	=> translate('Built in font 3'),
+
+											4	=> translate('Built in font 4'),
+
+											5	=> translate('Built in font 5'),
+
 										   );
 						foreach ($font_files as $font_file) {
 							$result = preg_match('/(.*)\.ttf$/i', $font_file, $matches);
@@ -455,14 +482,16 @@ class User_Prefs extends Prefs
 							if (isset($fonts_installed[$attribute_settings['face']])) {
 								echo $fonts_installed[$attribute_settings['face']];
 							} else {
-								echo translate('no_valid_font');
+								echo translate('No valid font');
+
 							}//end if
 						}//end if
 						?>
 					</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_size'); ?></td>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Size'); ?></td>
+
 					<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						$default_fonts = Array( 1,2,3,4,5 );
@@ -470,7 +499,8 @@ class User_Prefs extends Prefs
 							text_box('prefs[SQ_USER_ATTRIBUTE_IMAGE][size]', $attribute_settings['size'], 'id="prefs_SQ_USER_ATTRIBUTE_IMAGE_size"');
 						} else {
 							if (in_array($attribute_settings['face'], $default_fonts)) {
-								echo translate('using_default_font');
+								echo translate('Size is fixed for Built in font');
+
 							} else {
 								echo $attribute_settings['size'];
 							}//end if
@@ -479,7 +509,8 @@ class User_Prefs extends Prefs
 					</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_hpad'); ?></td>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Horizontal padding'); ?></td>
+
 					<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
@@ -491,7 +522,8 @@ class User_Prefs extends Prefs
 					</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_vpad'); ?></td>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Vertical padding'); ?></td>
+
 					<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
@@ -503,7 +535,8 @@ class User_Prefs extends Prefs
 					</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_fgcol'); ?></td>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Foreground Colour'); ?></td>
+
 					<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						require_once(SQ_ATTRIBUTES_PATH.'/colour/colour.inc');
@@ -513,7 +546,8 @@ class User_Prefs extends Prefs
 					</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_bgcol'); ?></td>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Background Colour'); ?></td>
+
 					<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						require_once(SQ_ATTRIBUTES_PATH.'/colour/colour.inc');

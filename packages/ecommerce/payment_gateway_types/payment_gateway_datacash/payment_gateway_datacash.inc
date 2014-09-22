@@ -74,7 +74,24 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content_pg_datacash')) && $this->_createBodycopy('card_holder_verification', translate('card_holder_verification_bodycopy_content')));
+		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
+<div style="background-color: #CCC; padding: 5px"><strong>&pound;%%transaction_amount%%</strong> Pounds Sterling (GBP) are about to be debited from your card</div>
+<table cellpadding="5">
+	<tr>
+		<td align="right">Card Number</td>
+		<td>%%card_number%%</td>
+	</tr>
+	<tr>
+		<td align="right">Expiry Date (MM/YY)</td>
+		<td>%%card_expiry_month%% / %%card_expiry_year%%</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>')) && $this->_createBodycopy('card_holder_verification', translate('%%card_holder_verification_form%%')));
+
+
 
 	}//end _createAdditional()
 
@@ -223,12 +240,14 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 					unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 				}
 
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+				$this->appendPendingOrderAuditLog(translate('Payment has no amount'));
+
 
 				$this->returnToCaller('SUCCESS');
 
 			} else if ($card_info) {
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+				$this->appendPendingOrderAuditLog(translate('Payment Attempted (gateway contacted)'));
+
 
 				$success = $this->processPayment($card_info);
 				//if success = 2, redirect to the Access Control Server (ACS) for Card Holder Verification
@@ -279,13 +298,15 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 				}
 			}
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+			$this->appendPendingOrderAuditLog(translate('Payment is successful'));
+
 
 			$this->returnToCaller('SUCCESS', $is_in_frame);
 		} else {
 			// Notify that the payment was declined
 			if ($card_info) {
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+				$this->appendPendingOrderAuditLog(translate('Payment Declined'));
+
 			}
 		}
 
@@ -375,7 +396,8 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 
 		//SET AMOUNT
 		if (empty($amount)) {
-			$this->_setError(translate('datacash_amount_not_specified'));
+			$this->_setError(translate('No amount is specified for the payment'));
+
 		} else {
 			$processor->setAmount($amount, $this->_getCurrency());
 		}
@@ -394,7 +416,8 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 
 		//SET CARD NUMBER
 		if (empty($card_info['number'])) {
-			$this->_setError(translate('datacash_card_number_not_specified'));
+			$this->_setError(translate('No card number is specified for the payment'));
+
 		} else {
 			$card_info['number'] = str_replace(Array(' ', "\t"), '', $card_info['number']);
 			$processor->setCardNumber($card_info['number']);
@@ -404,7 +427,8 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		if ($this->_isValidDate(array_get_index($card_info, 'expiry_month', ''), array_get_index($card_info, 'expiry_year', ''))) {
 			$processor->setCardExpiryDate($card_info['expiry_month'], $card_info['expiry_year']);
 		} else {
-			$this->_setError(translate('datacash_expiry_date_invalid'));
+			$this->_setError(translate('The expiry date (MM/YY) is not valid'));
+
 		}
 
 		//SET CARD START DATE IF SPECIFIED BECAUSE START DATE IS ONLY REQUIRED FOR SOME CARD TYPES, E.G. SOLO
@@ -412,7 +436,8 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 			if ($this->_isValidDate(array_get_index($card_info, 'start_month', ''), array_get_index($card_info, 'start_year', ''))) {
 				$processor->setCardStartDate($card_info['start_month'], $card_info['start_year']);
 			} else {
-				$this->_setError(translate('datacash_start_date_invalid'));
+				$this->_setError(translate('The start date (MM/YY) is not valid'));
+
 			}
 		}
 
@@ -421,7 +446,8 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 			if ($this->_isValidIssueNumber($card_info['issue_number'])) {
 				$processor->setCardIssueNumber($card_info['issue_number']);
 			} else {
-				$this->_setError(translate('datacash_issue_number_invalid'));
+				$this->_setError(translate('The issue number is invalid (must be one or two digits long)'));
+
 			}
 		}
 
@@ -430,7 +456,8 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 			if ($this->_isValidCV2($card_info['cv2'])) {
 				$processor->setCardCV2($card_info['cv2']);
 			} else {
-				$this->_setError(translate('datacash_card_cv2_invalid'));
+				$this->_setError(translate('The card CV2 is invalid (must be three or four (only American Express Card) digits long)'));
+
 			}
 		}
 
@@ -463,17 +490,20 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 
 			if (($policy == 2) || ($policy == 3) || ($policy == 6) || ($policy == 7)) {
 				if (empty($card_info['cv2'])) {
-					$this->_setError(translate('datacash_card_cv2_not_specified'));
+					$this->_setError(translate('No CV2 is specified for the card'));
+
 				}
 			}
 
 			if (($policy == 1) || ($policy == 3) || ($policy == 5) || ($policy == 7)) {
 				if (empty($card_info['street_address1']) && empty($card_info['street_address2']) && empty($card_info['street_address3']) && empty($card_info['street_address4'])) {
-					$this->_setError(translate('datacash_street_address_not_specified'));
+					$this->_setError(translate('The street address is not specified'));
+
 				}
 
 				if (empty($card_info['postcode'])) {
-					$this->_setError(translate('datacash_postcode_not_specified'));
+					$this->_setError(translate('No postcode is specified'));
+
 				}
 			}
 

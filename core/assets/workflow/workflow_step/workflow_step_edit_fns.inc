@@ -62,7 +62,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		$o->openField(translate('step_logic'));
+		$o->openField(translate('Step Logic'));
+
 			$step_logic = $asset->attr('logic');
 			$step_logic_num = $asset->attr('logic_num');
 			if (!$step_logic_num) $step_logic_num = '';
@@ -76,7 +77,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				combo_box($prefix.'_logic', $wfm->_valid_step_logic, FALSE, $step_logic);
 				echo '&nbsp;';
 				text_box($prefix.'_logic_num', $step_logic_num, 4);
-				echo ' '.translate('conditions_must_be_met_in_this_step');
+				echo ' '.translate('condition(s) must be met in this step');
+
 			}
 		$o->closeField();
 
@@ -87,12 +89,16 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">&nbsp;</td>
-						<td class="sq-backend-table-header"><?php echo translate('notify_when_live'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('require_comment'); ?></td>
-						<td class="sq-backend-table-header" width="270"><?php echo translate('group_logic'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('Notify When Live'); ?></td>
+
+						<td class="sq-backend-table-header"><?php echo translate('Require Comment'); ?></td>
+
+						<td class="sq-backend-table-header" width="270"><?php echo translate('Group Logic'); ?></td>
+
 						<?php
 						if ($write_access) {
-							?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
+							?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('Delete?'); ?></b></td><?php
+
 						}
 						?>
 					</tr>
@@ -118,35 +124,43 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 
 		if ($write_access) {
-			$o->openField(translate('new_condition_question'));
+			$o->openField(translate('New Condition?'));
+
 				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 			$o->closeField();
 		}
 		if ($write_access) {
-			$o->openField(translate('new_dynamic_condition_question'));
+			$o->openField(translate('New Dynamic Condition?'));
+
 				text_box($prefix.'_new_dynamic_condition', '', 80);
-				$o->note(translate('new_dynamic_condition_question_note'));
+				$o->note(translate('Specify a Matrix keyword to be dynamically evaluated as the condition asset ID. This keyword will be only evaluated against the dependant parent asset. Global keywords and keyword modifier are supported. e.g %%asset_metadata_value^empty:12%%'));
+
 			$o->closeField();
 		}
-		$o->openField(translate('require_comment_from_unlisted_users'));
+		$o->openField(translate('Unlisted User Commenting'));
+
 			$require_comment_attr = $asset->getAttribute('require_comment_from_unlisted_users');
 			$xml = simplexml_load_string('<boolean true_text="yes" false_text="no" />');
 			$require_comment_attr->setEditParams($xml);
 			$require_comment_attr->paint($prefix.'_require_comment_from_unlisted_users', !$write_access);
-			$o->note(translate('require_comment_from_unlisted_users_explanation'));
+			$o->note(translate('Requires users not specified in the condition steps to comment when approving or rejecting.'));
+
 		$o->closeField();
 
-		$o->openField(translate('expiry_time'));
+		$o->openField(translate('Expiry Time'));
+
 			$comparator_attr = $asset->getAttribute('expiry_time');
 			$comparator_attr->paint($prefix.'_expiry_time', !$write_access);
-			$o->note(translate('step_not_completed_in_time_explanation'));
+			$o->note(translate('If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at "0" to disable this feature.'));
+
 		$o->closeField();
 		$o->openField('Escalate?');
 			$comparator_attr = $asset->getAttribute('escalate');
 			$xml = simplexml_load_string('<boolean true_text="yes" false_text="no" />');
 			$comparator_attr->setEditParams($xml);
 			$comparator_attr->paint($prefix.'_escalate', !$write_access);
-			$o->note(translate('escalate_note'));
+			$o->note(translate('Escalation will move to the first escalation step upon expiry, or to the next workflow step if no escalation steps are available. This option has no effect if an expiry period is not configured.'));
+
 			if ($asset->attr('escalate') == TRUE) {
 				$o->openSection('Escalation Steps');
 					// look for all the children of this step and list a bunch of links with delete buttons
@@ -164,11 +178,14 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 							?>
 							<table class="sq-backend-table">
 								<tr>
-									<td class="sq-backend-table-header"><b><?php echo translate('step_name'); ?></b></td>
-									<td width="150" class="sq-backend-table-header"><b><?php echo translate('edit_step'); ?></b></td>
+									<td class="sq-backend-table-header"><b><?php echo translate('Step Name'); ?></b></td>
+
+									<td width="150" class="sq-backend-table-header"><b><?php echo translate('Edit Step'); ?></b></td>
+
 									<?php
 									if ($write_access) {
-										?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
+										?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('Delete?'); ?></b></td><?php
+
 									}
 									?>
 								</tr>
@@ -179,7 +196,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 								?>
 								<tr>
 									<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($field->id);?></td>
-									<td align="left" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('edit_step'); ?></a> ]</td>
+									<td align="left" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('Edit Step'); ?></a> ]</td>
+
 								<?php
 								if ($write_access) {
 									?><td align="center" class="sq-backend-table-cell"><?php

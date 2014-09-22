@@ -111,11 +111,14 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('edit_format') ?></th>
-				<th><?php echo translate('note') ?></th>
+				<th><?php echo translate('Edit Format') ?></th>
+
+				<th><?php echo translate('Note') ?></th>
+
 			</tr>
 			<?php
-			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('calendar_upcoming_events_page_contents_desc'));
+			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %%event_list%% keyword to include the list of events on the page.'));
+
 			?>
 		</table>
 		<?php
@@ -177,12 +180,15 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('asset_type') ?></th>
-					<th><?php echo translate('edit_format') ?></th>
+					<th><?php echo translate('Asset Type') ?></th>
+
+					<th><?php echo translate('Edit Format') ?></th>
+
 					<?php
 					if ($write_access) {
 						?>
-						<th><?php echo translate('delete_question') ?></th>
+						<th><?php echo translate('Delete?') ?></th>
+
 						<?php
 					}
 					?>
@@ -225,7 +231,8 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		} else {
-			echo translate('calendar_upcoming_events_no_type_formats');
+			echo translate('There are no custom type formats defined');
+
 		}//end if cutomised formats
 
 		if ($write_access) {
@@ -235,7 +242,8 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 				$new_format_options[$type] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
 			}
 			if (count($new_format_options) > 0) {
-				echo '<p><b>'.translate('calendar_upcoming_events_new_type_format').'</b> ';
+				echo '<p><b>'.translate('New Type Format:').'</b> ';
+
 				combo_box($prefix.'_new_type', $new_format_options, FALSE, '');
 				echo '</p>';
 			}

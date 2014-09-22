@@ -80,7 +80,8 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_bundled_assets_status');
+		return translate('Edit Bundle Status');
+
 
 	}//end getHipoName()
 
@@ -114,7 +115,8 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	{
 		return Array(
 				0	=> Array(
-						'name'			=> translate('hipo_job_edit_bundled_assets_status_status'),
+						'name'			=> translate('Editing Status of Bundled Assets'),
+
 						'function_call'	=> Array(
 											'paint_function'	=> 'paintStatusChangeWarning',
 											'process_function'	=> 'processStatusChangeWarning',
@@ -128,7 +130,8 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 						'message'		=> '',
 					   ),
 				1	=> Array(
-						'name'			=> translate('hipo_job_edit_bundled_assets_status_status'),
+						'name'			=> translate('Editing Status of Bundled Assets'),
+
 						'function_call'	=> Array(
 											'process_function'	=> 'processBundledAsset',
 										   ),
@@ -140,7 +143,8 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 						'message'		=> '',
 					   ),
 				2	=> Array(
-						'name'			=> translate('hipo_job_edit_bundled_assets_status_send'),
+						'name'			=> translate('Sending Bundle Workflow Message'),
+
 						'function_call'	=> Array(
 											'process_function'	=> 'sendBundleWorkflowMessage',
 										   ),
@@ -292,14 +296,21 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	*/
 	public function paintStatusChangeWarning(Array &$step_data, Hipo_Backend_Outputter $o, $prefix)
 	{
-		$o->openSection(translate('hipo_job_edit_bundled_assets_status_status'));
+		$o->openSection(translate('Editing Status of Bundled Assets'));
+
 
 		$o->openRaw();
-			echo translate('hipo_job_edit_bundled_assets_status_status_warning');
+			echo translate('<p>The following bundled assets will not follow the change of status expected from this bundle status change, and will instead change to the status(es) listed below. This may be due to a lack of workflow on the affected assets, or due to your ability to complete any workflow on them straight away.<br/><br/>
+
+Please check that these intended statuses are correct, and if desired, manually change the affected assets\' status and/or workflow before continuing.<br/><br/>
+
+If you are ready to continue, please click <strong>Next</strong> to proceed with the bundle status change.</p>');
+
 		$o->closeRaw();
 
 		foreach ($this->_running_vars['warn_assetids'] as $status => $warn_assetids) {
-			$o->openSection(sprintf(translate('hipo_job_edit_bundled_assets_status_status_line'), get_asset_status_icon($status), get_status_description($status)));
+			$o->openSection(sprintf(translate('New Status: %1$s %2$s'), get_asset_status_icon($status), get_status_description($status)));
+
 			$o->openRaw();
 			?><ul><?php
 			foreach ($warn_assetids as $assetid) {
@@ -404,9 +415,11 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 
 				$this->_running_vars['sub_job'] = $code_name;
 				$sub_job = $hh->getJob($code_name);
-				$step_data['message'] = sprintf(translate('hipo_edit_status'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
+				$step_data['message'] = sprintf(translate('Editing status of "%1$s" (Id: #%2$s)'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
+
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
 			}
 		}
 

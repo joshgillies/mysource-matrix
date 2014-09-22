@@ -169,10 +169,14 @@ class Form_Question_Rule extends Asset
 	public static function getConditionOperators()
 	{
 		return Array(
-				'='	 => translate('core_form_rule_condition_match'),
-				'!=' => translate('core_form_rule_condition_not_match'),
-				'>'	 => translate('core_form_rule_condition_greater_than'),
-				'<'	 => translate('core_form_rule_condition_less_than'),
+				'='	 => translate('matches a regex'),
+
+				'!=' => translate('does not match a regex'),
+
+				'>'	 => translate('is greater than'),
+
+				'<'	 => translate('is less than'),
+
 			   );
 
 	}//end getOperators()

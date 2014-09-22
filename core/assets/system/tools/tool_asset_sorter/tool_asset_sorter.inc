@@ -91,18 +91,22 @@ class Tool_Asset_Sorter extends Tool
 
 		$sort_by_field = ($sort_type == 'sort_by_field');
 
-		$o->openSection(translate('tool_asset_sorter_sort_options'));
-			$o->openField(translate('parent'));
+		$o->openSection(translate('Sort Options'));
+
+			$o->openField(translate('Parent'));
+
 				asset_finder($type_code.'_parent', $parent_asset_id);
 			$o->closeField();
-			$o->openField(translate('tool_asset_sorter_sort_type'));
+			$o->openField(translate('Sort Type'));
+
 				$options = Array(
 						'sort_by_field'		=> 'Asset Field',
 						'sort_by_attribute'	=> 'Asset Attribute'
 					   );
 				combo_box($type_code.'_sort_type', $options, FALSE, $sort_type, 0, 'onchange="setFieldType(this);"');
 			$o->closeField();
-			$o->openField(translate('tool_asset_sorter_sort_field'), '', '', !$sort_by_field, 'sort_field');
+			$o->openField(translate('Sort Field'), '', '', !$sort_by_field, 'sort_field');
+
 				$options = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
 				// unset some things by which we can't or don't want to sort properly
 				unset($options['force_secure']);
@@ -111,13 +115,16 @@ class Tool_Asset_Sorter extends Tool
 				unset($options['languages']);
 				combo_box($type_code.'_field', $options, FALSE, $sort_field);
 			$o->closeField();
-			$o->openField(translate('asset_type'), '', '', $sort_by_field, 'sort_attr_asset');
+			$o->openField(translate('Asset Type'), '', '', $sort_by_field, 'sort_attr_asset');
+
 				hidden_field($type_code.'_asset_type_old', $selected_asset_type);
 				asset_type_chooser($type_code.'_asset_type', FALSE, Array($selected_asset_type), TRUE);
 			$o->closeField();
-			$o->openField(translate('tool_asset_sorter_sort_attribute'), '', '', $sort_by_field, 'sort_attr_attr');
+			$o->openField(translate('Sort Attribute'), '', '', $sort_by_field, 'sort_attr_attr');
+
 				if ($selected_asset_type == '') {
-					echo '<b>['.translate('asset_type_not_selected').']</b>';
+					echo '<b>['.translate('asset type not selected').']</b>';
+
 				} else {
 					$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_asset_type);
 					$options = Array();
@@ -130,11 +137,14 @@ class Tool_Asset_Sorter extends Tool
 					combo_box($type_code.'_asset_attribute', $options, FALSE, $selected_asset_attribute);
 				}
 			$o->closeField();
-			$o->openField(translate('tool_asset_sorter_sort_direction'));
+			$o->openField(translate('Sort Direction'));
+
 				combo_box($type_code.'_direction', Array('ASC' => 'Ascending', 'DESC' => 'Descending'), FALSE, $sort_direction);
 			$o->closeField();
-			$o->openField(translate('note'));
-				$o->note(translate('tool_asset_sorter_usage_notes'));
+			$o->openField(translate('Note'));
+
+				$o->note(translate('<p>This tool provides sorting functionality for assets in the Asset Map. Assets may be sorted either by \'Asset Field\' or \'Asset Attribute\'.</p><p><b>To sort by \'Asset Field\'</b>, select the \'Asset Field\' sort type and a \'Sort Field\' above.</p><p><b>To sort by \'Asset Attribute\'</b>, select the \'Asset Attribute\' sort type then select an Asset Type above and click \'Commit\'. A list of attributes for the selected asset type will then appear below the Asset Type. Select an attribute and click \'Commit\' to sort by the selected attribute.</p>'));
+
 			$o->closeField();
 
 			$o->addJsInclude(sq_web_path('lib').'/js/tool_asset_sorter.js');

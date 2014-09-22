@@ -83,7 +83,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
 		$from->printField();
-		echo ' '.translate('to').' ';
+		echo ' '.translate('To').' ';
+
 		$to->printField();
 
 		return TRUE;
@@ -208,14 +209,19 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $num_per_page, $submission_offset);
 
 		if ($asset_count == 0) {
-			?><p><i><?php echo translate('cms_form_no_submissions_during_period') ?></i></p><?php
+			?><p><i><?php echo translate('There are no submissions during the time period specified above') ?></i></p><?php
+
 		} else {
 			if ($num_pages == 1) {
-				$page_tag = sprintf(translate('page_number'), $page_num, $num_pages);
+				$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
+
 			} else {
-				$page_tag = sprintf(translate('page_number_with_pager'), $page_num, $num_pages, $prefix.'_submissions_page');
+				$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_submissions_page');
+
 			}
-			$asset_count_tag = sprintf(translate('item_range'), ($page_num - 1) * $num_per_page + 1, min($asset_count, $page_num * $num_per_page), $asset_count, strtolower(translate('submissions')));
+			$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $num_per_page + 1, min($asset_count, $page_num * $num_per_page), $asset_count, strtolower(translate('Submissions')));
+
+
 
 			$links = Array(
 						'first'		=> '&lt;&lt;',
@@ -226,19 +232,27 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					);
 
 			if ($page_num > 1) {
-				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', 1)">'.$links['first'].'</a>';
-				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+				$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', 1)">'.$links['first'].'</a>';
+
+				$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+
 			} else {
-				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
-				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+				$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
+
+				$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
+
 			}
 
 			if ($page_num < $num_pages) {
-				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.$num_pages.')">'.$links['last'].'</a>';
-				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+				$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.$num_pages.')">'.$links['last'].'</a>';
+
+				$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+
 			} else {
-				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
-				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+				$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
+
+				$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
+
 			}
 
 			hidden_field($prefix.'_submissions_page', $page_num); ?>
@@ -302,9 +316,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			<td class="sq-form-sub-header" colspan="2"><b><?php
 				hidden_field($prefix.'_submission_offset', $submission_offset);
 				if ($submission_offset > 0) {
-					?><a title="<?php echo translate('cms_form_submissions_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the first page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('cms_form_cannot_go_further_back') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&lt;&lt;
@@ -316,9 +332,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}
 				?> &nbsp; &nbsp; <?php
 				if ($submission_offset > 0) {
-					?><a title="<?php echo translate('cms_form_submissions_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the previous page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('cms_form_cannot_go_further_back') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&lt;
@@ -329,12 +347,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					?></span><?php
 				}
 				?>
-				&nbsp; &nbsp; <?php echo sprintf(translate('page_number'), round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
+				&nbsp; &nbsp; <?php echo sprintf(translate('Page %1$s of %2$s'), round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
+
 				<?php
 				if (($submission_offset + $num_per_page) < $asset_count) {
-					?><a title="<?php echo translate('cms_form_submissions_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the next page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('cms_form_cannot_go_further_forward') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&gt;
@@ -346,9 +367,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}
 				?> &nbsp; &nbsp; <?php
 				if (($submission_offset + $num_per_page) < $asset_count) {
-					?><a title="<?php echo translate('cms_form_submissions_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the last page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('cms_form_cannot_go_further_forward') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&gt;&gt;
@@ -360,27 +383,33 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}
 				?></b>
 			</td>
-			<td class="sq-form-sub-header" colspan="4" align="right"><?php echo sprintf(translate('cms_form_submissions_during_period'), $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
+			<td class="sq-form-sub-header" colspan="4" align="right"><?php echo sprintf(translate('Displaying submissions <b>%1$s</b> to <b>%2$s</b>, out of <b>%3$s</b> total submissions'), $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
+
 			</td>
 			</tr> -->
 			<tr>
 				<th>
-					<?php echo translate('asset_id') ?>
+					<?php echo translate('Asset ID') ?>
+
 				</th>
 				<th>
-					<?php echo translate('submission_time') ?>
+					<?php echo translate('Submission Time') ?>
+
 				</th>
 				<th>
-					<?php echo translate('user') ?>
+					<?php echo translate('User') ?>
+
 				</th>
 				<th>
-					<input type="checkbox" name="<?php echo $prefix ?>_expand_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_expand[]', this.checked);"> <?php echo translate('expand_question') ?>
+					<input type="checkbox" name="<?php echo $prefix ?>_expand_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_expand[]', this.checked);"> <?php echo translate('Expand?') ?>
+
 				</th>
 			<?php
 			if ($write_access) {
 				?>
 				<th>
-					<input type="checkbox" name="<?php echo $prefix ?>_delete_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_delete[]', this.checked);"> <?php echo translate('delete_question') ?>
+					<input type="checkbox" name="<?php echo $prefix ?>_delete_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_delete[]', this.checked);"> <?php echo translate('Delete?') ?>
+
 				</th>
 				<?php
 			}
@@ -435,7 +464,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							}
 						}
 						if (!$valid_user) {
-							?><i><?php echo translate('cms_form_no_logged_in_user'); ?></i><?php
+							?><i><?php echo translate('No logged in user'); ?></i><?php
+
 						}
 						?>
 					</td>
@@ -451,7 +481,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					<?php
 				}
 				?>
-					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
+					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('Edit') ?></a> ]</td>
+
 				</tr>
 				<?php
 				// display only if expanded
@@ -612,7 +643,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to = new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
 
 		$from->printField();
-		echo ' '.translate('to').' ';
+		echo ' '.translate('To').' ';
+
 		$to->printField();
 
 	}//end paintDownloadDateRange()
@@ -631,10 +663,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function paintDownloadFormat(&$asset, &$o, $prefix)
 	{
 		$options = Array(
-					''			=> '------- '.translate('please_select').' -------',
-					'csv'		=> translate('cms_form_download_csv'),
-					'csv_nhr'	=> translate('cms_form_download_csv_nhr'),
-					'xml'		=> translate('cms_form_download_xml'),
+					''			=> '------- '.translate('Please Select').' -------',
+
+					'csv'		=> translate('Comma Separated Values (CSV)'),
+
+					'csv_nhr'	=> translate('Comma Separated Values (CSV) - No Header Row'),
+
+					'xml'		=> translate('XML Format'),
+
 				   );
 
 		echo combo_box($prefix.'_export_format', $options, FALSE, '');
@@ -688,7 +724,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// - set export switch to 0 = "OFF" so Commit doesn't try to save a file either
 			// - return true for the event as per JS standard
 
-			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+			echo normal_button($prefix.'_export', translate('Download File'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+
 		}
 
 	}//end processDownloadButton()
@@ -749,7 +786,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	public function createCSVSubmissionLogs($form, $from_time, $to_time)
 	{
 		$logs = Array();
-		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'), '__ipaddress__' => translate('cms_form_ipaddress_submitting'));
+		$headers = Array('__time__' => translate('Submission Time'), '__user__' => translate('User Submitting Form'), '__ipaddress__' => translate('IP Address'));
+
+
+
 		$sub_folder = $form->getSubmissionsFolder();
 		$assetids = Array($form->id, $sub_folder->id);
 		$from_time = ts_iso8601($from_time);
@@ -799,7 +839,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			// Finally, add the header row for assetid in
 			if (!isset($headers['__assetid__'])) {
-				$headers['__assetid__'] = translate('assetid');
+				$headers['__assetid__'] = translate('Assetid');
+
 			}//end if
 		}//end foreach
 
@@ -914,10 +955,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('name'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('run_as'); ?></td>
-					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete'); ?> ?</td>
+					<td class="sq-backend-table-header"><?php echo translate('Name'); ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('When'); ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('Run As'); ?></td>
+
+					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Delete'); ?> ?</td>
+
 					<td align="center" class="sq-backend-table-header" style="text-align: center;"></td>
 				</tr>
 				<?php
@@ -934,7 +979,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						<td class="sq-backend-table-cell">
 						<?php
 							$user = $job->getRunningUser();
-							echo $user ? get_asset_tag_line($user->id) : '<em>'.translate('system').'</em>';
+							echo $user ? get_asset_tag_line($user->id) : '<em>'.translate('System').'</em>';
+
 						?>
 						</td>
 						<td align="center" class="sq-backend-table-cell">
@@ -946,7 +992,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							}
 						?>
 						</td>
-						<td>[ <a href="<?php echo $job->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
+						<td>[ <a href="<?php echo $job->getBackendHref(); ?>"><?php echo translate('Edit') ?></a> ]</td>
+
 					</tr>
 					<?php
 				}//end for
@@ -955,12 +1002,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			<?php
 
 		} else {
-			echo "<i>".translate('cron_job_send_submission_log_no_jobs')."</i><br/><br/>";
+			echo "<i>".translate('There are no "Send Logs" jobs scheduled for this form')."</i><br/><br/>";
+
 		}
 
 		// Add new job checkbox
 		if ($write_access) {
-			label(translate('cron_job_send_submission_log_add_new_job'), $prefix.'_new_job');
+			label(translate('Add new job'), $prefix.'_new_job');
+
 			echo '&nbsp;';
 			text_box($prefix.'_new_job_name', '', 25);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_send_submission_log');
@@ -1188,7 +1237,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			if (!empty($assetid)) {
 				echo get_asset_tag_line($assetid);
 			} else {
-				echo '<em>'.translate('none').'</em>';
+				echo '<em>'.translate('None').'</em>';
+
 			}
 		}
 
@@ -1251,7 +1301,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			if (!empty($assetid)) {
 				echo get_asset_tag_line($assetid);
 			} else {
-				echo '<em>'.translate('none').'</em>';
+				echo '<em>'.translate('None').'</em>';
+
 			}
 		}
 
@@ -1390,7 +1441,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$all_se = $asset->attr('selective_emails');
 
 		if (empty($all_se)) {
-			echo translate('cms_form_no_selective_email_rules');
+			echo translate('There are no Selective Email rules yet set up for this form');
+
 			return FALSE;
 		}
 
@@ -1399,15 +1451,19 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			<tr>
 				<?php
 				if ($admin_access) {
-					?><td align="center" width="30" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('edit') ?></td><?php
+					?><td align="center" width="30" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('Edit') ?></td><?php
+
 				}
 				?><td class="sq-backend-table-header">
-					<?php echo translate('rule') ?>
+					<?php echo translate('Rule') ?>
+
 				</td>
-				<td align="center" width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('valid_question') ?></td>
+				<td align="center" width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('Valid?') ?></td>
+
 				<?php
 				if ($admin_access) {
-					?><td align="center" width="70" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question') ?></td>
+					?><td align="center" width="70" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('Delete?') ?></td>
+
 				<?php
 				}
 				?>
@@ -1430,13 +1486,16 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					<?php
 					if (empty($info['rules'])) {
 						?>
-						<span><?php echo translate('cms_form_rule_no_parts') ?></span><br/>
+						<span><?php echo translate('<b>WARNING:</b> This rule contains no parts') ?></span><br/>
+
 						<?php
 						$valid = FALSE;
 					} else {
 						$rules =& $info['rules'];
 
-						$rule_logic = ($info['require'] == 'all') ? strtoupper(translate('and')) : strtoupper(translate('or'));
+						$rule_logic = ($info['require'] == 'all') ? strtoupper(translate('And')) : strtoupper(translate('Or'));
+
+
 						$descriptions = Array();
 						$deleted_q = FALSE;
 
@@ -1461,7 +1520,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						}//end for
 
 						if ($deleted_q) {
-							echo translate('cms_form_se_rule_deleted_questions');
+							echo translate('<b>WARNING:</b> This Selective Email rule is invalid because it refers to deleted questions');
+
 						} else {
 							echo implode('<br/><b>'.$rule_logic.'</b>', $descriptions);
 						}
@@ -1471,20 +1531,25 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 					echo 'Send a <b>';
 					if ($info['send'] == 'staf') {
-						echo translate('cms_form_staf');
+						echo translate('Send to a Friend');
+
 					} else if ($info['send'] == 'recipient') {
-						echo translate('cms_form_recipient');
+						echo translate('Recipient');
+
 					} else if ($info['send'] == 'receipt') {
-						echo translate('cms_form_receipt');
+						echo translate('Receipt');
+
 					} else {
-						echo translate('cms_form_unknown_email_type');
+						echo translate('Unknown Email Type');
+
 						$valid = FALSE;
 					}
 
 					echo '</b> email to <b>';
 					if (empty($info['address'])) {
 						$valid = FALSE;
-						echo translate('cms_form_no_email_address');
+						echo translate('No Email Address Specified');
+
 					} else {
 						echo $info['address'];
 					}
@@ -1608,7 +1673,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		if (!isset($_POST[$prefix.'_se_new_qid']['assetid'])) {
-			echo translate('cms_form_select_question_before_part');
+			echo translate('You must select a question before you can select the type of rule part');
+
 			return FALSE;
 		} else {
 			$active_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_se_new_qid']['assetid']);
@@ -1623,7 +1689,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			}
 
 			$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
-			combo_box($prefix.'_new_rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), FALSE, '');
+			combo_box($prefix.'_new_rule', array_merge(Array(' ' => '------ '.translate('Please Select').' ------'), $desc), FALSE, '');
+
 
 			return TRUE;
 		}
@@ -1696,14 +1763,16 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) {
 			$o->openField('Note');
-			echo translate('cms_form_unlock_to_select_se_rule');
+			echo translate('Unlock the form to select an active Selective Email rule');
+
 			$o->closeField();
 			return FALSE;
 		}
 
 		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
 			$o->openField('Note');
-			echo translate('cms_form_select_to_edit_se_rule');
+			echo translate('Select an active Selective Email rule to edit it');
+
 			$o->closeField();
 			return FALSE;
 		}
@@ -1719,7 +1788,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		if (empty($rules)) {
 			$o->openField('Note');
-			echo translate('cms_form_se_rule_empty');
+			echo translate('This Selective Email rule is empty');
+
 			$o->closeField();
 			return FALSE;
 		}
@@ -1739,12 +1809,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			$o->openSection($descs[$type_code]);
 
-			$o->openField(translate('applies_to'));
+			$o->openField(translate('Applies To'));
+
 				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
 				if ($q_asset) {
 					echo get_asset_tag_line($q_asset->id);
 				} else {
-					echo '<i class="sq-backend-warning">'.sprintf(translate('cms_form_deleted_question_cannot_edit'), $rule['assetid']).'</i>';
+					echo '<i class="sq-backend-warning">'.sprintf(translate('The question that this rule part applied to (Id: #%s) has been deleted; you cannot edit this rule part. It is recommended that you delete it'), $rule['assetid']).'</i>';
+
 				}
 			$o->closeField();
 
@@ -1859,7 +1931,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$address_box = ob_get_contents();
 		ob_end_clean();
 
-		echo sprintf(translate('cms_form_match_email_line'), $require_box, $email_type_box, $address_box);
+		echo sprintf(translate('When %1$s rule parts are matched,<br/>send a %2$s to %3$s'), $require_box, $email_type_box, $address_box);
+
 
 
 		return TRUE;

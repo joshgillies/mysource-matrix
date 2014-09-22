@@ -160,7 +160,8 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 					}
 					echo '</table>';
 				} else {
-					echo translate('ecom_form_numeric_field');
+					echo translate('This field is numeric. The value supplied by the user will be used for calculation.');
+
 				}
 
 				$am->forgetAsset($question);
@@ -389,7 +390,8 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		// paint option goes here
 		echo hidden_field($prefix.'_export_switch', '0');
 
-		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+		echo normal_button($prefix.'_export', translate('Download File'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+
 
 		return TRUE;
 

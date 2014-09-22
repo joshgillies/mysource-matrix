@@ -901,7 +901,8 @@ class Thesaurus extends Asset implements Bridge
 
 		if (array_search($new_name, $this->getActiveRelations())!== FALSE) {
 			// can't rename an existing relation
-			$this->_tmp['error'][] = translate('thesaurus_new_relation_in_use');
+			$this->_tmp['error'][] = translate('The desired relation is already in use');
+
 			return FALSE;
 		}
 

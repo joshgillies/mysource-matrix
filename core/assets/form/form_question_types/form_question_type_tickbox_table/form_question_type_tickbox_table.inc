@@ -157,9 +157,11 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 				    $to_output .= '<caption>'.$caption.'</caption>';
 				$to_output .='	<tr>		<th class="sq-backend-table-header" scope="col">';
 				if (empty($question_contents) || empty($question_contents[0])) {
-					$to_output .= '<div align="center">'.translate('core_form_tickbox_table_not_properly_defined');
+					$to_output .= '<div align="center">'.translate('This question has not been properly defined.');
+
 					if ($type == 'passive') {
-						$to_output .= ' '.translate('core_form_tickbox_table_incorrectly_displayed');
+						$to_output .= ' '.translate('It will be incorrectly displayed on the front end.');
+
 					}
 					$to_output .= '</div></th>';
 				} else {

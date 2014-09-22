@@ -59,13 +59,15 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		$ranges = $asset->attr('date_ranges');
 
 		if (empty($ranges)) {
-			echo translate('cms_whats_new_no_ranges');
+			echo translate('There are no ranges');
+
 		} else {
 			foreach ($ranges as $id => $info) {
 				$options[$id] = $info['name'];
 			}
 			$options = array_reverse($options);
-			$options[] = '-- '.translate('please_select').' --';
+			$options[] = '-- '.translate('Please Select').' --';
+
 			$options = array_reverse($options);
 
 			combo_box($prefix.'_range_id', $options, FALSE, '', 0 , 'onchange="this.form.submit();"');
@@ -170,7 +172,8 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				if(!empty($range))
 					echo $range_types[$range];
 			}
-		$o->note(translate('cms_whats_new_range_type_note'));
+		$o->note(translate('When this option is set, the Oldest Date and Newest Date options are ignored, and this predefined range is used.<br/><br/>For these ranges, the Newest Date is set to "now", and the Oldest Date is set to 00:00:00 on the first day of the specified period. For "This Week", weeks start on Monday, in line with the ISO definition.'));
+
 		$o->closeField();
 
 		foreach (Array('date_range_from', 'date_range_to') as $type) {
@@ -269,7 +272,8 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			// remove 1 from the index because of the please select option
 			$rangeid = $_POST[$prefix.'_range_id'] - 1;
 		} else {
-			echo translate('cms_whats_new_select_range');
+			echo translate('Please select a date range to customise');
+
 			return FALSE;
 		}
 
@@ -314,7 +318,8 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			} else {
 				echo $range_types[$range];
 			}
-			$o->note(translate('cms_whats_new_range_type_note'));
+			$o->note(translate('When this option is set, the Oldest Date and Newest Date options are ignored, and this predefined range is used.<br/><br/>For these ranges, the Newest Date is set to "now", and the Oldest Date is set to 00:00:00 on the first day of the specified period. For "This Week", weeks start on Monday, in line with the ISO definition.'));
+
 		$o->closeField();
 
 		foreach (Array('oldest_date', 'newest_date') as $type) {
@@ -341,7 +346,8 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		// only add an option to remove this range if it has a name (it has been saved)
 		if ($asset->writeAccess('attributes') && trim($range_name) != '') {
-			$o->openField(translate('remove_question'));
+			$o->openField(translate('Remove?'));
+
 				check_box($prefix.'_remove', FALSE);
 			$o->closeField();
 		}
@@ -456,7 +462,8 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			combo_box($prefix.'_link_types', $link_types, TRUE, $selected);
 		} else {
 			if ($current == 0) {
-				echo translate('cms_listing_no_link_types_selected');
+				echo translate('No link types have been selected - <b>no assets will be displayed</b>');
+
 			} else {
 				echo '<ul>';
 				foreach ($link_types as $link_type => $link_type_name) {

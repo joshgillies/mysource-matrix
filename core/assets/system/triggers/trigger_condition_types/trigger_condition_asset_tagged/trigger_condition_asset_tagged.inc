@@ -84,8 +84,10 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 
 
 		ob_start();
-			$strict_options[TRUE] = translate('all');
-			$strict_options[FALSE] = translate('some');
+			$strict_options[TRUE] = translate('All');
+
+			$strict_options[FALSE] = translate('Some');
+
 
 			if ($write_access) {
 				combo_box($prefix.'[is_strict]', $strict_options, FALSE, $is_strict);
@@ -93,7 +95,8 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 				echo '<strong>'.$strict_options[$is_strict].'</strong>';
 			}
 
-			echo ' '.translate('tags_must_be_assigned');
+			echo ' '.translate('tags must be assigned');
+
 			echo '<br />';
 			echo '<br />';
 

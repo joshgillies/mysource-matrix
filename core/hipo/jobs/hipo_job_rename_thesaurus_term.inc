@@ -61,7 +61,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('hipo_rename_thesaurus_term'));
+		$o->openField(translate('Update Thesaurus Term'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -70,6 +71,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 			echo SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD;
 		}
 		echo ' '.translate('terms');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -119,7 +121,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_rename_thesaurus_term');
+		return translate('Update Thesaurus Term');
+
 
 	}//end getHipoName()
 
@@ -135,7 +138,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_rename_thesaurus_term'),
+					'name'			=> translate('Update Thesaurus Term'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processRenameTerm',
 									   ),
@@ -147,7 +151,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_generating_metadata_files'),
+					'name'			=> translate('Generating Metadata Files'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'regenerateMetadata',
 									   ),

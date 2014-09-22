@@ -117,7 +117,8 @@ class Site_Network extends Folder
 			// site assets can only be in a single site network
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
 			if (!empty($network_link)) {
-				return translate('core_one_network_for_site');
+				return translate('Sites can only be linked under one Site Network');
+
 			}
 		}
 
@@ -146,7 +147,8 @@ class Site_Network extends Folder
 			// network link - the one being moved from
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
 			if (count($network_link) > 1) {
-				return translate('core_one_network_for_site');
+				return translate('Sites can only be linked under one Site Network');
+
 			}
 		} else {
 			// if we aren't moving from a site network, the usual check applies

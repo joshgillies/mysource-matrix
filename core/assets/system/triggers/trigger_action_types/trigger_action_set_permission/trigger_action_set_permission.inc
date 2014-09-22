@@ -175,9 +175,12 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		if ($write_access) {
 			combo_box($prefix.'[granted]',
 				Array (
-					'1' => translate('grant'),
-					'0' => translate('deny'),
-					'-1' => translate('delete'),
+					'1' => translate('Grant'),
+
+					'0' => translate('Deny'),
+
+					'-1' => translate('Delete'),
+
 				),
 				FALSE,
 				$granted);
@@ -185,13 +188,16 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			echo '<b>';
 			switch ($granted) {
 			case 1:
-				echo translate('grant');
+				echo translate('Grant');
+
 				break;
 			case 0:
-				echo translate('deny');
+				echo translate('Deny');
+
 				break;
 			case -1:
-				echo translate('delete');
+				echo translate('Delete');
+
 				break;
 			}
 			echo '</b> ';
@@ -205,7 +211,8 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		} else {
 			echo '<b>'.$permissions[$permission].'</b>';
 		}
-		echo ' '.translate('access_for').' ';
+		echo ' '.translate('access for').' ';
+
 
 		// print the asset finder
 		if ($write_access) {
@@ -223,7 +230,8 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			}
 			if (is_null($user)) {
-				echo '<em>['.translate('trigger_no_user_selected').']</em>';
+				echo '<em>['.translate('No User Selected').']</em>';
+
 			} else {
 				echo get_asset_tag_line($user->id);
 			}
@@ -243,41 +251,55 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		if ($write_access) {
 			echo '<br />';
 			check_box($prefix.'[dependants_only]', 1, $dependants_only);
-			label(translate('trigger_set_permission_dependants_only'), $prefix.'[dependants_only]');
+			label(translate('Update the Asset\'s dependant children only'), $prefix.'[dependants_only]');
+
 		} else {
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependants_only ? 'tick' : 'cross').'.gif" alt="'.($dependants_only ? translate('yes') : translate('no')).'" /> ';
-			echo translate('trigger_set_permission_dependants_only');
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependants_only ? 'tick' : 'cross').'.gif" alt="'.($dependants_only ? translate('Yes') : translate('No')).'" /> ';
+
+
+			echo translate('Update the Asset\'s dependant children only');
+
 		}
 		echo '<br />';
-		echo translate('trigger_set_permission_dependants_only_note');
+		echo translate('<strong>Note:</strong> If this option is set, only the permission of the dependant children will be updated.');
+
 
 		// Look for dependant parents (and change them instead)?
 		if ($write_access) {
 			echo '<br />';
 			echo '<br />';
 			check_box($prefix.'[dependant_parents]', 1, $dependant_parents);
-			label(translate('trigger_set_permission_dependant_parents'), $prefix.'[dependant_parents]');
+			label(translate('Set permission of dependent parents instead'), $prefix.'[dependant_parents]');
+
 		} else {
 			echo '<br />';
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('yes') : translate('no')).'" /> ';
-			echo translate('trigger_set_permission_dependant_parents');
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('Yes') : translate('No')).'" /> ';
+
+
+			echo translate('Set permission of dependent parents instead');
+
 		}
 		echo '<br />';
-		echo translate('trigger_set_permission_dependants_only_note');
+		echo translate('<strong>Note:</strong> If this option is set, only the permission of the dependant children will be updated.');
+
 
 		// Cascade to new children
 		if ($write_access) {
 			echo '<br />';
 			echo '<br />';
 			check_box($prefix.'[cascade_to_new]', 1, $cascade_to_new);
-			label(translate('cascade_permission_to_new_children'), $prefix.'[cascade_to_new]');
+			label(translate('Automatically cascade this permission to newly-created children'), $prefix.'[cascade_to_new]');
+
 		} else {
 			echo '<br />';
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
-			echo translate('cascade_permission_to_new_children');
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('Yes') : translate('No')).'" /> ';
+
+
+			echo translate('Automatically cascade this permission to newly-created children');
+
 		}
 
 

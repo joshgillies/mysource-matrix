@@ -99,8 +99,10 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 	*/
 	public static function getInterface($settings, $prefix, $write_access=FALSE, $trigger=NULL, $action_id='')
 	{
-		$note = translate('trigger_action_no_configuration');
-		$note .= '<div class="sq-backend-note">'.translate('trigger_action_use_other_assets_setting').'</div>';
+		$note = translate('This trigger action does not require any configuration.');
+
+		$note .= '<div class="sq-backend-note">'.translate('<strong>NOTE:</strong> Please use the "Action On Other Assets" function to specify which other assets to fire this action on.').'</div>';
+
 
 		// This trigger action does not requires interface
 		return $note;

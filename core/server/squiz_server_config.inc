@@ -110,31 +110,37 @@ class Squiz_Server_Config extends Config
 		$write_access = $this->writeAccess();
 		$class = get_class_lower($this);
 
-		$o->openSection(translate('squiz_server_configuration'));
+		$o->openSection(translate('Squiz Server Configuration'));
 
-			$o->openField(translate('system_root'));
+
+			$o->openField(translate('System Root'));
+
 			if ($write_access) {
 				text_box($class.'[SQ_SERVER_SYSTEM_ROOT]', SQ_SERVER_SYSTEM_ROOT, 60);
 			} else {
 				echo SQ_SERVER_SYSTEM_ROOT;
 			}
-			$o->note(translate('squiz_server_path'));
+			$o->note(translate('This is the path to the local Squiz Server\'s base directory'));
 
-			$o->openField(translate('system_id'));
+
+			$o->openField(translate('System ID'));
+
 			if ($write_access) {
 				text_box($class.'[SQ_SERVER_SYSTEMID]', SQ_SERVER_SYSTEMID, 30);
 			} else {
 				echo SQ_SERVER_SYSTEMID;
 			}
 
-			$o->openField(translate('domain'));
+			$o->openField(translate('Domain'));
+
 			if ($write_access) {
 				text_box($class.'[SQ_SERVER_DOMAIN]', SQ_SERVER_DOMAIN, 30);
 			} else {
 				echo SQ_SERVER_DOMAIN;
 			}
 
-			$o->openField(translate('port'));
+			$o->openField(translate('Port'));
+
 			if ($write_access) {
 				text_box($class.'[SQ_SERVER_PORT]', SQ_SERVER_PORT, 10);
 			} else {

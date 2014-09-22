@@ -193,7 +193,8 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 
 		$parameter_map_input = ob_get_clean();
 
-		$output = sprintf(translate('trigger_set_session_var_interface'), $name_input, $value_input, $parameter_map_input);
+		$output = sprintf(translate('<div class="sq-break-line-inputs">Set session variable name %1$s to value %2$s</div> %3$s'), $name_input, $value_input, $parameter_map_input);
+
 
 		return $output;
 

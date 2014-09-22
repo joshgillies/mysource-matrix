@@ -43,13 +43,17 @@ function paintInlineRoles(&$owner, &$o, &$ei)
 
 	if (empty($roles)) return FALSE;
 
-	$o->openSection(translate('roles'));
+	$o->openSection(translate('Roles'));
+
 	$o->openField('&nbsp;');
 	?>
 	<table class="sq-backend-table">
-		<td class="sq-backend-table-header"><?php echo translate('roles'); ?></td>
-		<td class="sq-backend-table-header"><?php echo translate('users'); ?></td>
-		<td class="sq-backend-table-header"><?php echo translate('global'); ?></td>
+		<td class="sq-backend-table-header"><?php echo translate('Roles'); ?></td>
+
+		<td class="sq-backend-table-header"><?php echo translate('Users'); ?></td>
+
+		<td class="sq-backend-table-header"><?php echo translate('Global?'); ?></td>
+
 		<?php
 		foreach ($roles as $roleid => $userids) {
 			$global_role = FALSE;
@@ -143,7 +147,8 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 		if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM  == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') {
 			$o->openField('');
 			ob_start();
-			echo translate('roles_system_disabled');
+			echo translate('The Roles System is disabled');
+
 			ob_end_flush();
 			$o->closeField();
 			$o->closeSection();
@@ -171,16 +176,20 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 					case 'roles_current' :
 						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($owner->id);
 						if (empty($roles)) {
-							echo translate('no_roles_set');
+							echo translate('No roles have been assigned');
+
 						} else {
 							?>
 							<table class="sq-backend-table">
-							<td class="sq-backend-table-header"><?php echo translate('roles'); ?></td>
-							<td class="sq-backend-table-header"><?php echo translate('users'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('Roles'); ?></td>
+
+							<td class="sq-backend-table-header"><?php echo translate('Users'); ?></td>
+
 							<?php
 							if (SQ_CONF_ENABLE_GLOBAL_ROLES == '1') {
 							?>
-							<td class="sq-backend-table-header"><?php echo translate('global'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('Global?'); ?></td>
+
 							<?php
 							}
 
@@ -258,12 +267,15 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 						}//end else
 					break;
 					case 'roles_add' :
-						echo '<p>'.translate('select_a_role').'<br />';
+						echo '<p>'.translate('Select a role').'<br />';
+
 						echo asset_finder($prefix.'_role_new', 0, Array('role' => 'I')).'</p>';
-						echo '<p>'.translate('select_users_for_role').'<br />';
+						echo '<p>'.translate('Select the users who will perform the role on this asset').'<br />';
+
 						echo multiple_asset_finder($prefix.'_userids_new', Array(), Array('user' => 'D', 'user_group' => 'D')).'</p>';
 						if (SQ_CONF_ENABLE_GLOBAL_ROLES == '1') {
-							echo check_box($prefix.'_globally_assign_new').translate('allow_global_assignment');
+							echo check_box($prefix.'_globally_assign_new').translate('Allow globally assigned users to perform this role?');
+
 						}
 					break;
 				}//end switch
@@ -285,23 +297,31 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 		if ($admin_access) {
 			$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 			if (count($kiddies)) {
-				$o->openSection(translate('cascade_roles'));
-					$o->openField(translate('note'));
-						$o->note(sprintf(translate('cascade_roles_note'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+				$o->openSection(translate('Cascade Changes to Role Assignments?'));
+
+					$o->openField(translate('Note'));
+
+						$o->note(sprintf(translate('If you choose to cascade the role assignment changes you make for <strong>"%1$s"</strong>, the changes will also be made on all assets that fall under <strong>"%1$s"</strong> in the various hierarchies in which it exists. This will affect <strong>%2$s</strong> other assets.'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+
 					$o->closeField();
 					$o->openField('&nbsp;');
 						check_box($prefix.'_cascade_roles', TRUE, TRUE);
-						label(translate('cascade_roles_option'), $prefix.'_roles[cascade_changes]');
+						label(translate('Yes, cascade role assignment changes'), $prefix.'_roles[cascade_changes]');
+
 					$o->closeField();
 				$o->closeSection();
 
-				$o->openSection(translate('manually_cascade_roles'));
-					$o->openField(translate('note'));
-						$o->note(sprintf(translate('manually_cascade_roles_note'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+				$o->openSection(translate('Manually Cascade Changes to Role Assignments?'));
+
+					$o->openField(translate('Note'));
+
+						$o->note(sprintf(translate('Manually cascading role assignments will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.<br/><i>Any additional roles set on affected assets will <b>not</b> be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also <b>not</b> be changed.</i><br/><b>NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.</b>'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+
 					$o->closeField();
 					$o->openField('&nbsp;');
 						check_box($prefix.'_manually_cascade_roles', TRUE);
-						label(translate('manually_cascade_roles_option'), $prefix.'_roles[manual_cascade]');
+						label(translate('Yes, manually cascade role assignment changes'), $prefix.'_roles[manual_cascade]');
+
 					$o->closeField();
 				$o->closeSection();
 			}

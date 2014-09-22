@@ -182,9 +182,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if ($have_lock && $is_admin) {
 				$options = Array(1 => 'Yes', 0 => 'No');
 				combo_box('prefs[SQ_ENABLE_VIPER_EDITOR]', $options, FALSE, $pref_var);
-				echo $o->note(translate('enable_edit+_editor_note'));
+				echo $o->note(translate('If this option is enabled, the new Edit+ editor will be used for the WYSIWYG content type and attributes. As a result, the following WSIWYG preferences will not be applied: WYSIWYG Style, Apply CSS Styles, WYSIWYG Plugins, WYSIWYG Disable Image Resize, Thesaurus and Protocol Templates.'));
+
 			} else {
-				echo ($pref_var) ? translate('yes') : translate('no');
+				echo ($pref_var) ? translate('Yes') : translate('No');
+
+
 			}
 
 			if (is_null($pref)) $o->closeField();
@@ -211,7 +214,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				}
 			} else {
 				if ($all) {
-					echo translate('all_plugins_selected');
+					echo translate('All plugins are selected');
+
 				} else {
 					echo '<ul>';
 					foreach ($viper_plugins as $plugin_name) {
@@ -235,20 +239,25 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('body_type'); ?></td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Body Type'); ?></td>
+
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
-							combo_box('prefs[SQ_WYSIWYG_STYLE][body_type]', Array('div' => translate('div'), 'iframe' => translate('iframe')), FALSE, $wysiwyg_style['body_type']);
+							combo_box('prefs[SQ_WYSIWYG_STYLE][body_type]', Array('DIV' => translate('DIV'), 'iFrame' => translate('iFrame')), FALSE, $wysiwyg_style['body_type']);
+
+
 						} else {
 							echo $wysiwyg_style['body_type'];
 						}
 						?>
-						<br /><i><?php echo translate('mozilla_always_uses_iframe'); ?></i>
+						<br /><i><?php echo translate('In WebKit based browsers, an iFrame will always be used. This setting only affects Internet Explorer.'); ?></i>
+
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width'); ?></td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width'); ?></td>
+
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if (!is_numeric($wysiwyg_style['width'])) {
@@ -275,7 +284,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height'); ?></td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height'); ?></td>
+
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if (!is_numeric($wysiwyg_style['height'])) {
@@ -317,9 +327,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if ($have_lock && $is_admin) {
 				$options = Array(1 => 'Yes', 0 => 'No');
 				combo_box('prefs[SQ_WYSIWYG_APPLY_DESIGN_STYLE]', $options, FALSE, $pref_var);
-				echo $o->note(translate('wysiwyg_apply_design_style_note'));
+				echo $o->note(translate('If yes, it will apply CSS styles to the WYSIWYG. The styles are defined in CSS files under the design used for current asset. Matrix Apply Design plugin must be enabled.'));
+
 			} else {
-				echo ($pref_var) ? translate('yes') : translate('no');
+				echo ($pref_var) ? translate('Yes') : translate('No');
+
+
 			}
 
 			if (is_null($pref)) $o->closeField();
@@ -364,10 +377,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				}
 			} else {
 				if ($all) {
-					echo translate('all_plugins_selected');
+					echo translate('All plugins are selected');
+
 				} else {
 					if (empty($plugins)) {
-						echo translate('no_plugins_selected');
+						echo translate('No plugins are selected');
+
 					} else {
 						echo '<ul>';
 						foreach ($plugins as $plugin_name) {
@@ -392,7 +407,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					<tr>
 						<td class="sq-backend-table-header" nowrap="nowrap">
 						<?php
-							echo translate('disable');
+							echo translate('Disable');
+
 						?>
 						</td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
@@ -418,10 +434,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 			if ($have_lock && $is_admin) {
 				asset_finder('prefs[SQ_THESAURUS]', $this->pref_vars['SQ_THESAURUS']['default'], Array('thesaurus'=>'A'));
-				$o->note(translate('thesaurus_used_by_matrix_expand_keywords_plugin'));
+				$o->note(translate('The thesaurus asset used by the Matrix Expand Keywords plugin.'));
+
 			} else {
 				if (!$this->pref_vars['SQ_THESAURUS']['default']) {
-					echo '('.translate('none_selected').')';
+					echo '('.translate('None selected').')';
+
 				} else {
 					$name = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->pref_vars['SQ_THESAURUS']['default']), 'thesaurus', TRUE, 'name'));
 					echo $name.' (#'.$this->pref_vars['SQ_THESAURUS']['default'].')';
@@ -443,7 +461,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				<tr>
 					<th>Link Type</th>
 					<th>Template</th>
-					<th><?php echo translate('delete_question') ?></th>
+					<th><?php echo translate('Delete?') ?></th>
+
 				</tr><?php
 				foreach ($pref_var['default'] as $key => $item) {
 					// The first four items (http, https, mailto, ftp) cannot be altered
@@ -510,7 +529,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				?></table><?php
 			}
 
-			$o->note(translate('core_ct_wysiwyg_link_type_templates_note'));
+			$o->note(translate('This preference allows you to customise the templates used for protocols (or link types) displayed on the Insert Link pop-up. The keyword <b>%%%%link%%%%</b> is replaced by the <b>Link</b> field in the Insert Link pop-up - this can appear anywhere in the string, allowing you to make \'pseudo-protocols\' that expand to a link in a certain format. The \'http\', \'https\', \'mailto\' and \'ftp\' protocols are core to the system, and cannot be deleted or modified.'));
+
 			if (is_null($pref)) $o->closeField();
 		}// end if show SQ_WYSIWYG_LINK_TYPES
 
@@ -524,9 +544,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if ($have_lock && $is_admin) {
 				$options = Array(1 => 'Yes', 0 => 'No');
 				combo_box('prefs[SQ_LIVE_LINK_ONLY]', $options, FALSE, $pref_var);
-				echo $o->note(translate('live_link_only_note'));
+				echo $o->note(translate('If yes, it will stop user creating a hyperlink from a Live asset to a non-live asset.'));
+
 			} else {
-				echo ($pref_var) ? translate('yes') : translate('no');
+				echo ($pref_var) ? translate('Yes') : translate('No');
+
+
 			}
 
 			if (is_null($pref)) $o->closeField();

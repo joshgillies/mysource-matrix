@@ -128,7 +128,8 @@ class Content_Type_Image_Prefs extends Prefs
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('caption'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
@@ -140,7 +141,8 @@ class Content_Type_Image_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('caption_position'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption Position'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
@@ -152,7 +154,8 @@ class Content_Type_Image_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('use_caption_attribute'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Use Caption Attribute'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
@@ -164,7 +167,8 @@ class Content_Type_Image_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
@@ -176,7 +180,8 @@ class Content_Type_Image_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
@@ -188,7 +193,8 @@ class Content_Type_Image_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('constrain_proportions'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Constrain Proportions'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
@@ -200,7 +206,8 @@ class Content_Type_Image_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('fit_dimensions'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Shrink/Stretch to Dimensions'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
@@ -212,7 +219,8 @@ class Content_Type_Image_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('on_click'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('On Click'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
@@ -228,7 +236,8 @@ class Content_Type_Image_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('html_layout'); ?>:</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('HTML Layout'); ?>:</td>
+
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {

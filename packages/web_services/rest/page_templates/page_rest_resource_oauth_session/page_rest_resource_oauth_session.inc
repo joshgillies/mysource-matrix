@@ -284,9 +284,12 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	public function getAvailableKeywords()
 	{
 		$res = parent::getAvailableKeywords();
-		$res['oauth_reset_session_vars'] = translate('oauth_reset_session_vars_keyword');
-		$res['oauth_access_token_available'] = translate('oauth_access_token_available');
-		$res['oauth_errors'] = translate('oauth_errors');
+		$res['oauth_reset_session_vars'] = translate('Submit Button to reset OAuth related session variables');
+
+		$res['OAuth Access Token is available to access user data or not'] = translate('OAuth Access Token is available to access user data or not');
+
+		$res['Error(s) encountered during OAuth authorisation'] = translate('Error(s) encountered during OAuth authorisation');
+
 		return $res;
 
 	}//end getAvailableKeywords()
@@ -306,7 +309,8 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		ob_start();
 			?>
 			<form id="<?php echo $this->getPrefix() ?>_oauth_reset_session_vars_form" method="POST" action="<?php echo current_url(TRUE, TRUE); ?>">
-				<?php echo submit_button($this->getPrefix().'_oauth_reset_session_vars', translate('oauth_reset_session_vars')); ?>
+				<?php echo submit_button($this->getPrefix().'_oauth_reset_session_vars', translate('Reset Existing Authorisation Data')); ?>
+
 			</form>
 			<?php
 			$replacement = ob_get_contents();

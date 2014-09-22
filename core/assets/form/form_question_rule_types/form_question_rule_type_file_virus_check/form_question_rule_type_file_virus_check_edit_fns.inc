@@ -47,18 +47,22 @@ class Form_Question_Rule_Type_File_Virus_Check_Edit_Fns extends Form_Question_Ru
 	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
 	{
 		$default_option = Array (
-							1 => translate('core_form_rule_file_virus_check_true'),
-							2 => translate('core_form_rule_file_virus_check_false'),
+							1 => translate('Yes'),
+
+							2 => translate('No'),
+
 						);
 
 		// display warning message if global virus checker is disabled or not configured
 		if(!SQ_TOOL_VIRUS_CHECKER_ENABLED || !file_exists(SQ_TOOL_VIRUS_CHECKER_PATH)) {
-				$warning = '<p class="sq-backend-warning">'.translate('core_form_rule_file_virus_check_warning').'</p>';
+				$warning = '<p class="sq-backend-warning">'.translate('Virus Checker has to be configured and enabled in External Tool Configuration first.').'</p>';
+
 		}
 
 
 		if (!$write_access) {
-			$o->openField(translate('core_form_rule_file_virus_check_enable'));
+			$o->openField(translate('Enable Virus Checking?'));
+
 			if(empty($warning)){
 				echo translate('core_form_rule_file_virus_check_'.(array_get_index($rule_data, 'value', TRUE) ? 'true' : 'false'));
 			}
@@ -67,7 +71,8 @@ class Form_Question_Rule_Type_File_Virus_Check_Edit_Fns extends Form_Question_Ru
 			}
 			$o->closeField();
 		} else {
-			$o->openField(translate('core_form_rule_file_virus_check_enable'));
+			$o->openField(translate('Enable Virus Checking?'));
+
 			if(empty($warning)){
 				combo_box($prefix.'[check_virus]', $default_option, FALSE, array_get_index($rule_data, 'check_virus', 1));
 			}
@@ -76,15 +81,18 @@ class Form_Question_Rule_Type_File_Virus_Check_Edit_Fns extends Form_Question_Ru
 			}
 			$o->closeField();
 
-			$o->openField(translate('core_form_rule_file_virus_check_indicator_content_customise'));
+			$o->openField(translate('Custom Progress Indicator Text'));
+
 			text_box($prefix.'[indicator_content]', array_get_index($rule_data, 'indicator_content', ''), 30);
 			$o->closeField();
 
-			$o->openField(translate('core_form_rule_file_virus_check_indicator_class_customise'));
+			$o->openField(translate('Custom Progress Indicator Class'));
+
 			text_box($prefix.'[indicator_class]', array_get_index($rule_data, 'indicator_class', ''), 30);
 			$o->closeField();
 
-			$o->sectionNote(translate('core_form_rule_file_virus_check_note'));
+			$o->sectionNote(translate('Virus scanning progress indicator can only be displayed and customised when client side validation is turned on.'));
+
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;

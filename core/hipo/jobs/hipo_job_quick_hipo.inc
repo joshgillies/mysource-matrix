@@ -79,7 +79,8 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_quick_hipo');
+		return translate('Quick');
+
 
 	}//end getHipoName()
 
@@ -95,7 +96,8 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_processing_assets'),
+					'name'			=> translate('Processing Assets'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processQuickHipo',
 									   ),
@@ -166,7 +168,8 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 	{
 		// to start acquiring locks, we need to have an asset id to acquire a lock on
 		if (empty($this->_running_vars['items'])) {
-			trigger_localised_error('HIPO0079', E_USER_WARNING, translate('hipo_name_quick_hipo'));
+			trigger_localised_error('HIPO0079', E_USER_WARNING, translate('Quick'));
+
 			return FALSE;
 		}
 

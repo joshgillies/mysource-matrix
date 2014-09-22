@@ -551,7 +551,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		if (is_array($keywords)) {
 
 			// 1. asset content
-			$keywords['asset_contents'] = translate('asset_contents');
+			$keywords['Asset Contents'] = translate('Asset Contents');
+
 
 			// 2. asset keywords (includes attributes)
 			if (!empty($asset_type_code)) {
@@ -569,11 +570,14 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			unset($asset);
 
 			// lineage
-			$keywords['asset_lineage'] = translate('asset_lineage');
-			$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
+			$keywords['Asset Lineage'] = translate('Asset Lineage');
+
+			$keywords['Asset Lineage Linked'] = translate('Asset Lineage Linked');
+
 
 			// 3. asset metadata
-			$keywords['asset_metadata_'] = translate('asset_metadata_x');
+			$keywords['asset_metadata_'] = translate('Asset Metadata X');
+
 
 			// 4. conditions
 			$condition_list = new Conditions_List($this, 'conditional_keywords');
@@ -581,10 +585,14 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 			foreach ($condition_names as $condition_name) {
 				$keywords[$condition_name] = ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['begin_'.$condition_name] = translate('core_paint_layout_bodycopy_begin').' '.ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['else_'.$condition_name] = translate('core_paint_layout_bodycopy_else').' '.ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['end_'.$condition_name] = translate('core_paint_layout_bodycopy_end').' '.ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['begin_'.$condition_name.'% %else_'.$condition_name.'% %end_'.$condition_name] = translate('core_paint_layout_bodycopy_full').' '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name] = translate('Begin').' '.ucwords(str_replace('_', ' ', $condition_name));
+
+				$keywords['else_'.$condition_name] = translate('Else').' '.ucwords(str_replace('_', ' ', $condition_name));
+
+				$keywords['end_'.$condition_name] = translate('End').' '.ucwords(str_replace('_', ' ', $condition_name));
+
+				$keywords['begin_'.$condition_name.'% %else_'.$condition_name.'% %end_'.$condition_name] = translate('Full Structure for').' '.ucwords(str_replace('_', ' ', $condition_name));
+
 			}
 
 			ksort($keywords);

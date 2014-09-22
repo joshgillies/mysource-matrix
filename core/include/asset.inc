@@ -3039,7 +3039,8 @@ class Asset extends MySource_Object
 	*/
 	public function canCreateLink(Asset $minor, $link_type, $exclusive)
 	{
-		if (!$this->id) return translate('asset_not_created');
+		if (!$this->id) return translate('Asset not created');
+
 		return $GLOBALS['SQ_SYSTEM']->am->canCreateLink($this, $minor, $link_type, $exclusive);
 
 	}//end canCreateLink()
@@ -3112,13 +3113,15 @@ class Asset extends MySource_Object
 	*/
 	public function canDeleteLink($linkid)
 	{
-		if (!$this->id) return translate('asset_not_created');
+		if (!$this->id) return translate('Asset not created');
+
 		if (($err_msg = $this->isDeletableLink($linkid)) !== TRUE) {
 			return $err_msg;
 		}
 		// we only need permissions, not effective access, to delete a significant link
 		if (!$this->writeAccess()) {
-			return translate('permission_denied');
+			return translate('Permission Denied');
+
 		}
 		return TRUE;
 
@@ -4938,7 +4941,9 @@ class Asset extends MySource_Object
 		}
 
 		if (!$asset->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $asset->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $asset->name));
+
+
 			return;
 		}
 

@@ -122,11 +122,13 @@ class Page_User_Group_Manager extends Page
 	{
 		switch ($code) {
 			case 'logged_in':
-				return '<h2>'.sprintf(translate('cms_user_group_manager_title'), '%user_name%').'</h2>'."\n".
+				return '<h2>'.sprintf(translate('Editing group membership for %s'), '%user_name%').'</h2>'."\n".
+
 						'%error_messages_list%%success_messages_list%'."\n".
 						'<p>%location_picker%%commit_button%</p>';
 			case 'not_logged_in':
-				return translate('cms_user_group_manager_must_be_logged_in');
+				return translate('You need to log in to use this page');
+
 		}
 		return '';
 
@@ -661,11 +663,13 @@ class Page_User_Group_Manager extends Page
 
 			<table border="0">
 				<tr>
-					<td valign="top"><?php echo translate('username'); ?></td>
+					<td valign="top"><?php echo translate('Username'); ?></td>
+
 					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? FALSE : TRUE, 'title="Username"'); ?></td>
 				</tr>
 				<tr>
-					<td valign="top"><?php echo translate('password'); ?></td>
+					<td valign="top"><?php echo translate('Password'); ?></td>
+
 					<td valign="top"><?php echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password"'); ?></td>
 				</tr>
 				<tr>

@@ -127,7 +127,8 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return sprintf(translate('trigger_set_thumbnail'), $basic_part_1);
+		return sprintf(translate('<p>To set a thumbnail, set the value stored in the index:</p> %1$s </p><strong>Note:</strong> This image will be set as a thumbnail to the current asset.'), $basic_part_1);
+
 
 	}//end getInterface()
 
@@ -146,7 +147,8 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_missing');
+			return translate('Input Data is missing');
+
 		}
 
 		// Get the prefix

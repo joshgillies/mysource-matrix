@@ -45,7 +45,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array();
 
 		// enable just the details
-		$this->static_screens['details']['name'] = translate('details');
+		$this->static_screens['details']['name'] = translate('Details');
+
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -69,7 +70,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$o->openField('');
 
-			$o->sectionNote(translate('trigger_subscreen_add_or_edit'));
+			$o->sectionNote(translate('This subscreen allows you to add new trigger or select an existing one to edit'));
+
 
 			// we now only display a list of triggers for editing
 			$this->_paintSubScreenList($tm, $o, $prefix, $write_access);
@@ -115,7 +117,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->closeSection();
 		$list = $tm->_getTriggerInfoList();
 
-		$o->openSection(translate('trigger_list'));
+		$o->openSection(translate('Trigger List'));
+
 		$o->openField('');
 		?>
 		<script type="text/javascript">
@@ -145,10 +148,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		</script>
 		<table class="sq-backend-table">
 			<tr>
-				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('id'); ?></td>
-				<td class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('name'); ?></td>
-				<td class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('description'); ?></td>
-				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('status'); ?></td>
+				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('ID:'); ?></td>
+
+				<td class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('Name'); ?></td>
+
+				<td class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('Description'); ?></td>
+
+				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('Status'); ?></td>
+
 			</tr>
 
 		<?php
@@ -158,7 +165,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (is_null($trigger_asset)) continue;
 
 			$trigger_url = $trigger_asset->getBackendHref('details');
-			$active_text = $trigger['active'] ? '<strong>'.translate('active').'</strong>' : '<span style="color: red">'.translate('inactive').'</span>';
+			$active_text = $trigger['Active'] ? '<strong>'.translate('Active').'</strong>' : '<span style="color: red">'.translate('Inactive').'</span>';
+
+
 			?>
 			<tr>
 				<td class="sq-backend-table-cell"><?php echo $trigger['id']; ?></td>
@@ -194,18 +203,24 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $tm->writeAccess('attributes');
 		if ($write_access) {
-			$o->openField(translate('trigger_ids'));
-			multiple_asset_finder($prefix.'[trigger_ids]', array_get_index($this->_tmp, 'trigger_ids', Array()), Array('trigger' => 'I'));
-			$o->note(translate('trigger_ids_note'));
+			$o->openField(translate('Trigger Ids'));
 
-			$o->openField(translate('target_node'));
+			multiple_asset_finder($prefix.'[trigger_ids]', array_get_index($this->_tmp, 'trigger_ids', Array()), Array('trigger' => 'I'));
+			$o->note(translate('Specify the Triggers that may only be executed. Leave blank to allow any Trigger.'));
+
+
+			$o->openField(translate('Target Node'));
+
 			asset_finder($prefix.'[target_node]', array_get_index($this->_tmp, 'target_id'));
 
-			$o->openField(translate('children'));
-			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', TRUE));
-			label(translate('include_children_question'), $prefix.'[include_children]');
+			$o->openField(translate('Children'));
 
-			$o->openField(translate('events'));
+			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', TRUE));
+			label(translate('Include Children?'), $prefix.'[include_children]');
+
+
+			$o->openField(translate('Events'));
+
 			$event_type_list = $tm->_getEventList();
 			$events = array_get_index($this->_tmp, 'selected_events');
 			// paint a tickbox list of all the events in the system

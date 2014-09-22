@@ -107,7 +107,8 @@ class Oauth2_Token extends Page
 		    // but not if it's global token, too risky to share token
 		    $token_storage = $this->attr('token_storage');
 		    if($token_storage === 'global')
-			trigger_error(translate('oauth2_global_token_not_shared'), E_USER_ERROR);
+			trigger_error(translate('Globally stored Access Token can not be displayed'), E_USER_ERROR);
+
 
 		    header('Content-Type: application/json');
 		    echo (json_encode_array($token));
@@ -133,14 +134,17 @@ class Oauth2_Token extends Page
 
 	    // check read access
 	    if (!$this->readAccess()) {
-		trigger_error(translate('oauth2_permission_get_token'), E_USER_ERROR);
+		trigger_error(translate('You do not have read permission to get the Access Token'), E_USER_ERROR);
+
 	    }
 	    // no access for public user, if it's stored per user in DB. because public user is not identifiable
 	    $token_storage = $this->attr('token_storage');
 	    if($token_storage === 'user') {
 		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		if(is_null($current_user) ||  $current_user instanceof Public_User) {
-		    $GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('oauth2_public_user_save_token'));
+		    $GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), translate('Access Token can not be stored for a Public User'));
+
+
 		    return;
 		}
 	    }
@@ -148,7 +152,8 @@ class Oauth2_Token extends Page
 	    if($force && !isset($_GET['code'])){
 		 // global token storage would require write access
 		 if($token_storage === 'global' && !$this->writeAccess('attributes')) {
-		    trigger_error(translate('oauth2_permission_save_token'), E_USER_ERROR);
+		    trigger_error(translate('You do not have write permission to save the Access Token'), E_USER_ERROR);
+
 		 }
 		// forget about existing token and start again
 		$this->removeStoredToken();
@@ -169,16 +174,19 @@ class Oauth2_Token extends Page
 		     // step 2 exchange the auth code for access token
 		    // verify this response is from original request by comparing state param
 		    If(!isset($_SESSION['SQ_OAUTH2_CLIENT_STATE']) ||  !isset($_GET['state']))
-			trigger_error(translate('oauth2_state_param_invalid'), E_USER_ERROR);
+			trigger_error(translate('State parameter in response is invalid'), E_USER_ERROR);
+
 		    if($_SESSION['SQ_OAUTH2_CLIENT_STATE'] !== $_GET['state'])
-			trigger_error(translate('oauth2_state_param_invalid'), E_USER_ERROR);
+			trigger_error(translate('State parameter in response is invalid'), E_USER_ERROR);
+
 
 		    $params = array('code' => $_GET['code'], 'redirect_uri' => $this->redirect_uri);
 		    $response = $this->client->getAccessToken($this->token_endpoint, 'authorization_code', $params);
 
 		    // global token storage would require write access
 		    if($token_storage === 'global' && !$this->writeAccess('attributes')) {
-			trigger_error(translate('oauth2_permission_save_token'), E_USER_ERROR);
+			trigger_error(translate('You do not have write permission to save the Access Token'), E_USER_ERROR);
+
 		    }
 
 		    // parse and store access token in session
@@ -272,7 +280,8 @@ class Oauth2_Token extends Page
 	{
 	    if(!isset($response['result'])) {
 		log_dump($response);
-		trigger_error(translate('oauth2_no_access_token_response'), E_USER_ERROR);
+		trigger_error(translate('There is no Access Token in response'), E_USER_ERROR);
+
 	    }
 
 	    if(is_array($response['result'])) {
@@ -283,7 +292,8 @@ class Oauth2_Token extends Page
 	    }
 	    if(!isset($info['access_token'])) {
 		log_dump($response);
-		trigger_error(translate('oauth2_no_access_token_response'), E_USER_ERROR);
+		trigger_error(translate('There is no Access Token in response'), E_USER_ERROR);
+
 	    }
 
 	    // store access token

@@ -526,16 +526,20 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('answer_key'); ?>
+					<?php echo translate('Answer Key'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('next_question'); ?>
+					<?php echo translate('Next Question'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('result_bodycopy'); ?>
+					<?php echo translate('Result Bodycopy'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('points_value'); ?>
+					<?php echo translate('Points Value'); ?>
+
 				</td>
 			</tr>
 		<?php

@@ -87,75 +87,97 @@ class Proxy_Authentication_Config extends Config
 		$class = get_class_lower($this);
 
 		$o->openSection('Primary Proxy Configuration');
-			$o->openField(translate('proxy_authentication_status'));
+			$o->openField(translate('Proxy Status'));
+
 			if (SQ_PA_ENABLED) {
 				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 				$socket = open_socket_connection('http://matrix.squiz.net', $errno, $errstr);
 				if ($socket !== FALSE && !is_null($socket)) {
 					$response = fread($socket, 128);
 					if (preg_match('|407 proxy authentication required|i', $response)) {
-						echo '<font color="red"><strong>'.translate('proxy_authentication_failed').'</strong></font>';
+						echo '<font color="red"><strong>'.translate('Failed (Proxy Authentication Failed)').'</strong></font>';
+
 					} else {
-						echo '<font color="green"><strong>'.translate('proxy_authentication_passed').'</strong></font>';
+						echo '<font color="green"><strong>'.translate('Passed').'</strong></font>';
+
 					}
 					fclose($socket);
 				} else {
-					echo '<strong class="sq-backend-warning">'.translate('proxy_configuration_problem').'</font>';
+					echo '<strong class="sq-backend-warning">'.translate('Proxy Configuration Problem').'</font>';
+
 				}
 			} else {
-				echo '<strong>'.translate('proxy_authentication_disabled').'</font>';
+				echo '<strong>'.translate('Disabled').'</font>';
+
 			 }
 			 $o->closeField();
 
-			$o->openField(translate('proxy_authentication_enable'));
+			$o->openField(translate('Enable Proxy'));
+
 			if ($write_access) {
-				combo_box($class.'[SQ_PA_ENABLED]', Array(translate('no'), translate('yes')), FALSE, SQ_PA_ENABLED);
+				combo_box($class.'[SQ_PA_ENABLED]', Array(translate('No'), translate('Yes')), FALSE, SQ_PA_ENABLED);
+
+
 			} else {
-				echo (SQ_PA_ENABLED ? translate('yes') : translate('no'));
+				echo (SQ_PA_ENABLED ? translate('Yes') : translate('No'));
+
+
 			}
 			$o->closeField();
-			$o->openField(translate('hostname'));
+			$o->openField(translate('Hostname'));
+
 			if ($write_access) {
 				text_box($class.'[SQ_PA_HOSTNAME]', SQ_PA_HOSTNAME, 25);
 			} else {
 				echo SQ_PA_HOSTNAME;
 			}
 			$o->closeField();
-			$o->openField(translate('port'));
+			$o->openField(translate('Port'));
+
 			if ($write_access) {
 				text_box($class.'[SQ_PA_PORT]', SQ_PA_PORT, 5);
 			} else {
 				echo SQ_PA_PORT;
 			}
 			$o->closeField();
-			$o->openField(translate('username'));
+			$o->openField(translate('Username'));
+
 			if ($write_access) {
 				text_box($class.'[SQ_PA_USERNAME]', SQ_PA_USERNAME, 25);
 			} else {
 				echo SQ_PA_USERNAME;
 			}
 			$o->closeField();
-			$o->openField(translate('password'));
+			$o->openField(translate('Password'));
+
 			if ($write_access) {
 				password_box($class.'[SQ_PA_PASSWORD]', base64_decode(SQ_PA_PASSWORD), 25);
 			} else {
 				if (strlen(SQ_PA_PASSWORD)) {
-					echo translate('password_not_shown');
+					echo translate('Password not shown');
+
 				}
 			}
 			$o->closeField();
 
 		$o->closeSection();
 
-		$o->openSection(translate('proxy_url_manipulation'));
+		$o->openSection(translate('Proxy URL Manipulation'));
 
-			$o->openField(translate('proxy_url_strip_port'));
+
+			$o->openField(translate('Ignore Port Number'));
+
 			if ($write_access) {
-				combo_box($class.'[SQ_PROXY_URL_PORT_STRIP]', Array(translate('no'), translate('yes')), FALSE, SQ_PROXY_URL_PORT_STRIP);
+				combo_box($class.'[SQ_PROXY_URL_PORT_STRIP]', Array(translate('No'), translate('Yes')), FALSE, SQ_PROXY_URL_PORT_STRIP);
+
+
 			} else {
-				echo (SQ_PROXY_URL_PORT_STRIP ? translate('yes') : translate('no'));
+				echo (SQ_PROXY_URL_PORT_STRIP ? translate('Yes') : translate('No'));
+
+
 			}
-			$o->note(translate('proxy_url_strip_port_note'));
+			$o->note(translate('Useful if you access Squiz Matrix using a specific port number (i.e. specified in the URL). If you choose to ignore port numbers, URLs printed by Squiz Matrix will not contain the port number by which the system is being accessed.'));
+
 			$o->closeField();
 
 		$o->closeSection();
@@ -168,66 +190,90 @@ class Proxy_Authentication_Config extends Config
 		$o->closeSection('');
 
 		$o->openSection('SSL Accelerator Configuration');
-			$o->openField(translate('ssl_accelerator_handling_enabled'));
+			$o->openField(translate('Handling Enabled?'));
+
 				if ($write_access) {
-					combo_box($class.'[SQ_SSLA_ENABLED]', Array(translate('no'), translate('yes')), FALSE, SQ_SSLA_ENABLED);
+					combo_box($class.'[SQ_SSLA_ENABLED]', Array(translate('No'), translate('Yes')), FALSE, SQ_SSLA_ENABLED);
+
+
 				} else {
-					echo (SQ_SSLA_ENABLED ? translate('yes') : translate('no'));
+					echo (SQ_SSLA_ENABLED ? translate('Yes') : translate('No'));
+
+
 				}
-				$o->note(translate('ssl_accelerator_handling_enabled_note'));
+				$o->note(translate('The following settings will only apply if this setting is set to "Yes".'));
+
 			$o->closeField();
 
-			$o->openField(translate('ssl_accelerator_match_method'));
+			$o->openField(translate('Match Method'));
+
 				$options = Array(
-							'ip'		=> translate('ssl_accelerator_match_method_ip'),
-							'header'	=> translate('ssl_accelerator_match_method_header'),
-							'both'		=> translate('ssl_accelerator_match_method_both'),
+							'ip'		=> translate('IP Address'),
+
+							'header'	=> translate('Header'),
+
+							'both'		=> translate('Both'),
+
 						   );
 				if ($write_access) {
 					combo_box($class.'[SQ_SSLA_MATCH]', $options, FALSE, SQ_SSLA_MATCH);
 				} else {
 					echo $options[SQ_SSLA_MATCH];
 				}
-				$o->note(translate('ssl_accelerator_match_method_note'));
+				$o->note(translate('Squiz Matrix can use two methods to determine whether a request has been made through an SSL accelerator: by matching the IP address of the proxy, or through a header injected by the proxy into the request made to the Squiz Matrix system. Either or both match methods can be used. If "Both" is selected, the system is not considered behind an accelerator unless both methods match.'));
+
 			$o->closeField();
 
-			$o->openField(translate('ssl_accelerator_ip_address'));
+			$o->openField(translate('IP Address'));
+
 				if ($write_access) {
 					text_box($class.'[SQ_SSLA_IP]', SQ_SSLA_IP, 15);
 				} else {
 					echo SQ_SSLA_IP;
 				}
-				$o->note(translate('ssl_accelerator_ip_address_note'));
+				$o->note(translate('If IP address matching is turned on, Squiz Matrix will only consider itself behind an SSL accelerator if the request (from the accelerator proxy) is made from the entered IP address. Remember that this the IP address that this system sees the accelerator as. This may be an internal network address, rather than any public-facing IP address.'));
+
 			$o->closeField();
 
-			$o->openField(translate('ssl_accelerator_header_name'));
+			$o->openField(translate('Header Name'));
+
 				if ($write_access) {
 					text_box($class.'[SQ_SSLA_HEADER_NAME]', SQ_SSLA_HEADER_NAME, 15);
 				} else {
 					echo SQ_SSLA_HEADER_NAME;
 				}
-				$o->note(translate('ssl_accelerator_header_name_note'));
+				$o->note(translate(''));
+
 			$o->closeField();
 
-			$o->openField(translate('ssl_accelerator_header_value'));
+			$o->openField(translate('Header Value'));
+
 				if ($write_access) {
 					text_box($class.'[SQ_SSLA_HEADER_VALUE]', SQ_SSLA_HEADER_VALUE, 15);
 				} else {
 					echo SQ_SSLA_HEADER_VALUE;
 				}
-				$o->note(translate('ssl_accelerator_header_value_note'));
+				$o->note(translate(''));
+
 			$o->closeField();
 
-			$o->openField(translate('ssl_accelerator_force_secure'));
+			$o->openField(translate('Force Secure?'));
+
 				if ($write_access) {
-					combo_box($class.'[SQ_SSLA_FORCE_SECURE]', Array(translate('no'), translate('yes')), FALSE, SQ_SSLA_FORCE_SECURE);
+					combo_box($class.'[SQ_SSLA_FORCE_SECURE]', Array(translate('No'), translate('Yes')), FALSE, SQ_SSLA_FORCE_SECURE);
+
+
 				} else {
-					echo (SQ_SSLA_FORCE_SECURE ? translate('yes') : translate('no'));
+					echo (SQ_SSLA_FORCE_SECURE ? translate('Yes') : translate('No'));
+
+
 				}
-				$o->note(translate('ssl_accelerator_force_secure_note'));
+				$o->note(translate('When this is set to "Yes", and Squiz Matrix detects that it is running behind an SSL accelerator, it will always produce secure (https://) URLs, except where an asset has been set to force standard http:// URLs.'));
+
 			$o->closeField();
 
-			$o->sectionNote(translate('ssl_accelerator_section_note'));
+			$o->sectionNote(translate('An SSL accelerator is a hardware or software proxy whose primary function is to handle the decoding of secure (HTTPS) requests. If Squiz Matrix is located behind one of these, the SSL acclerator will handle the SSL layer of the request, and then send a plain (HTTP) request to the Squiz Matrix system. This would normally mean that the system would use HTTP urls back, rather than the expected HTTPS. Squiz Matrix is able to detect the presence of the SSL accelerator through the above settings, and send links using HTTPS protocol as expected.'));
+
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('', TRUE);
@@ -294,9 +340,11 @@ class Proxy_Authentication_Config extends Config
 				$o->openField('Hostname');
 					if ($write_access) {
 						echo text_box($class.'_alternative[proxy_url]['.$proxy_key.']', array_get_index($proxy_details, 'proxy_url', ''), 30);
-						$o->note(translate('proxy_leave_blank'));
+						$o->note(translate('Leave hostname blank if you want to disable proxy use for this matching pattern.'));
+
 					} else {
-						echo (array_get_index($proxy_details, 'proxy_url', '') === '') ? '<i>' . translate('proxy_none_set') . '</i>' : array_get_index($proxy_details, 'proxy_url', '');
+						echo (array_get_index($proxy_details, 'proxy_url', '') === '') ? '<i>' . translate('None') . '</i>' : array_get_index($proxy_details, 'proxy_url', '');
+
 					}
 				$o->closeField();
 				$o->openField('Port');
@@ -334,18 +382,22 @@ class Proxy_Authentication_Config extends Config
 						echo translate('comparison'.(array_get_index($proxy_details, 'pattern_not', '0') ? '_not_' : '_').array_get_index($proxy_details, 'pattern_type', 'equals'), 'URL', '"'.array_get_index($proxy_details, 'pattern_url', '').'"');
 					}
 				$o->closeField();
-				$o->openField(translate('active_question'));
+				$o->openField(translate('Active?'));
+
 					if ($write_access) {
 						echo check_box($class.'_alternative[active]['.$proxy_key.']', 1, array_get_index($proxy_details, 'active', TRUE));
-						echo label(translate('proxy_active'), $class.'_alternative[active]['.$proxy_key.']');
+						echo label(translate('Keep this proxy active'), $class.'_alternative[active]['.$proxy_key.']');
+
 					} else {
 						echo array_get_index($proxy_details, 'active', TRUE);
 					}
 				$o->closeField();
 				if ($write_access) {
-					$o->openField(translate('delete_question'));
+					$o->openField(translate('Delete?'));
+
 						echo check_box($class.'_alternative[delete]['.$proxy_key.']', 1, FALSE);
-						echo label(translate('proxy_delete'), $class.'_alternative[delete]['.$proxy_key.']');
+						echo label(translate('Delete this proxy'), $class.'_alternative[delete]['.$proxy_key.']');
+
 					$o->closeField();
 				}
 			$o->closeSection();

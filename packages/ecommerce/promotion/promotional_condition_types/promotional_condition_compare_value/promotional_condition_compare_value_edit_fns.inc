@@ -62,7 +62,8 @@ class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition
 		}
 
 		// Paint the compare "source" field
-		$o->openField(translate('ecom_promotional_condition_type_compare_value_source_field'));
+		$o->openField(translate('Source Value'));
+
 			if ($write_access) {
 				text_box($prefix.'[source_value]', $condition_data['source_value'], 50);
 			} else {
@@ -71,7 +72,8 @@ class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition
 		$o->closeField();
 
 		// Paint the compare value selection
-		$o->openField(translate('ecom_promotional_condition_type_compare_value_compare_field'));
+		$o->openField(translate('Compare Value'));
+
 			if ($write_access) {
 				text_box($prefix.'[compare_value]', $condition_data['compare_value'], 50);
 			} else {
@@ -80,7 +82,8 @@ class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition
 		$o->closeField();
 
 		// Paint the comparison type selection
-		$o->openField(translate('ecom_promotional_condition_type_compare_value_comparison_type'));
+		$o->openField(translate('Comparison Type'));
+
 			$comp_types = $asset->getComparisionTypes();
 			if ($write_access) {
 				combo_box($prefix.'[comparison_type]', $comp_types, FALSE, $condition_data['comparison_type']);
@@ -93,7 +96,8 @@ class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition
 		$o->closeField();
 
 		// Add section note
-		$o->sectionNote(translate('ecom_promotional_condition_type_compare_value_section_note'));
+		$o->sectionNote(translate('This condition is based on the value comparison. "Source Value" and "Compare Value" can be considered as first and second operands respectivly, and "Compare Type" as an operator. If the comparison operation returns TRUE, this condition will be considered successful. Globals keywords can be used in "Source Value" and "Compare Value" fields'));
+
 
 		return TRUE;
 

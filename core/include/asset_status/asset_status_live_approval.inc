@@ -61,7 +61,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_live_approval');
+		return translate('Up For Review');
+
 
 	}//end getDescription()
 
@@ -81,7 +82,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 		if (!$this->owner->readAccess()) return $statii;
 
 		if ($this->owner->adminAccess('')) {
-			$statii[SQ_STATUS_EDITING] = translate('status_change_safe_edit');
+			$statii[SQ_STATUS_EDITING] = translate('Safe Edit');
+
 		}
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -107,25 +109,32 @@ class Asset_Status_Live_Approval extends Asset_Status
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 					if ($wf_complete && ((!$is_dependant && $m_complete) || $is_dependant)) {
-						$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+						$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
+
 					} else if (in_array($userid, $publishers)) {
-						$statii[SQ_STATUS_LIVE_APPROVAL] = translate('status_change_approve_review');
+						$statii[SQ_STATUS_LIVE_APPROVAL] = translate('Approve Review');
+
 					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
-					$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
-					$statii[SQ_STATUS_LIVE_APPROVAL] = translate('status_change_approve_review');
+					$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
+
+					$statii[SQ_STATUS_LIVE_APPROVAL] = translate('Approve Review');
+
 				}
 
-				$statii[SQ_STATUS_EDITING] = translate('status_change_safe_edit');
+				$statii[SQ_STATUS_EDITING] = translate('Safe Edit');
+
 			}
 		} else {
 			// no running workflow means that anyone with admin access can
 			// make this live (up for review is just a flag in this case)
-			$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+			$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
+
 			if ($this->owner->adminAccess('')) {
-				$statii[SQ_STATUS_ARCHIVED] = translate('status_change_archive');
+				$statii[SQ_STATUS_ARCHIVED] = translate('Archive');
+
 			}
 
 		}//end if workflow running

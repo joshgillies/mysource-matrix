@@ -193,7 +193,8 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			asset_finder($prefix.'_redirect_assetid', (is_null($redirect_asset) ? 0 : $redirect_asset->id));
 		} else {
 			if (is_null($redirect_asset)) {
-				echo translate('saml_redirect_none_set');
+				echo translate('None Set');
+
 			} else {
 				echo get_asset_tag_line($redirect_asset->id);
 			}
@@ -471,11 +472,14 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th class="sq-backend-table-header" style="width:190px;" ><?php echo translate('attribute') ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('value') ?></th>
+						<th class="sq-backend-table-header" style="width:190px;" ><?php echo translate('Attribute') ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Value') ?></th>
+
 						<?php
 						if ($write_access) {
-							?><th class="sq-backend-table-header" align="center" style="text-align:center;"><?php echo translate('delete_question') ?></th><?php
+							?><th class="sq-backend-table-header" align="center" style="text-align:center;"><?php echo translate('Delete?') ?></th><?php
+
 						}
 						?>
 					</tr>
@@ -491,7 +495,8 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 							if (!is_null($mf_asset)) {
 								$required_name = 'Metadata: '.$mf_asset->name;
 							} else {
-								$required_name = translate('unknown_metadata_field');
+								$required_name = translate('Unknown Metadata Field');
+
 							}
 						} else {
 							$required_name = $attributes[$attr];
@@ -527,7 +532,8 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 			if ($write_access) {
 
-				$new_required = Array('' => '-- '.translate('select_attribute').' --');
+				$new_required = Array('' => '-- '.translate('Select Attribute').' --');
+
 				foreach ($attributes as $attr => $name) {
 					if (isset($current[$create_type][$attr])) continue;
 					$new_required[$attr] = $name;
@@ -556,7 +562,8 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					}//end foreach
 				}
 
-				$o->openField(translate('add_attribute'));
+				$o->openField(translate('Add Attribute'));
+
 				combo_box($type_prefix.'_new_prefilled', $new_required, FALSE, '');
 				$o->closeField();
 			}

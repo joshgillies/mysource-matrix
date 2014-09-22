@@ -425,16 +425,23 @@ class Cron_Manager extends Asset
 		if ($refresh_time >= 86400) {
 			$num = ($refresh_time / 86400);
 			return ($num > 1) ? $num.' '.translate('days') : translate('day');
+
+
 		}
 		if ($refresh_time >= 3600) {
 			$num = ($refresh_time / 3600);
 			return ($num > 1) ? $num.' '.translate('hours') : translate('hour');
+
+
 		}
 		if ($refresh_time >= 60) {
 			$num = ($refresh_time / 60);
 			return ($num > 1) ? $num.' '.translate('minutes') : translate('minute');
+
+
 		}
 		return $refresh_time.' '.translate('seconds');
+
 
 	}//end readableRefreshTime()
 

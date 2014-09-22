@@ -75,18 +75,26 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			$num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id);
 			if (!$num_links) {
 				$o->openField('');
-					echo translate('trash_is_empty');
+					echo translate('The trash is currently empty');
+
 				$o->closeField();
 				return FALSE;
 			} else {
-				$o->openField(translate('purge_root_node'));
+				$o->openField(translate('Purge Root Node'));
+
 					asset_finder($prefix.'_purge_root');
-					$o->note(translate('purge_root_note'));
+					$o->note(translate('Only this asset and its children will be purged. If no purge root is selected, all assets will be purged.'));
+
 				$o->closeField();
 
-				$o->openField(translate('purge_trash'));
-				combo_box($prefix.'_purge_trash', Array(0 => translate('no'), 1 => translate('yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('confirm_purge_trash'))) { this.value = 0; } } \"");
-				$o->note(translate('trash_purge_warning'));
+				$o->openField(translate('Purge Trash?'));
+
+				combo_box($prefix.'_purge_trash', Array(0 => translate('No'), 1 => translate('Yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('Are you sure you want to purge the selected assets from the trash?'))) { this.value = 0; } } \"");
+
+
+
+				$o->note(translate('This will purge the selected assets from the trash and make them unavailable for restoring or editing.'));
+
 				$o->closeField();
 				return TRUE;
 			}

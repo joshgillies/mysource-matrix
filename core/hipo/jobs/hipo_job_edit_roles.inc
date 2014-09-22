@@ -69,7 +69,8 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('edit_role_threshold'));
+		$o->openField(translate('Edit Role Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -78,6 +79,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 			echo SQ_HIPO_EDIT_ROLE_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -121,7 +123,8 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_roles');
+		return translate('Edit Roles');
+
 
 	}//end getHipoName()
 
@@ -137,7 +140,8 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_updating_roles'),
+					'name'			=> translate('Updating Roles'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processRoles',
 									   ),
@@ -284,7 +288,8 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 								}
 							}
 						}
-						$step_data['message'] = sprintf(translate('hipo_edit_role'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						$step_data['message'] = sprintf(translate('Editing Roles for "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'roles');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						unset($asset);
@@ -297,8 +302,10 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 					trigger_localised_error('SYS0100', E_USER_WARNING, 'roles', $asset->name, ' skipping asset.');
 				}
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
-				$this->_addError(sprintf(translate('hipo_skipping_role'), $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not edit roles for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -372,7 +379,9 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = sprintf(translate('hipo_release_locks'), $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+		$step_data['message'] = sprintf(translate('Releasing locks on %s'), $asset_info[$assetid]['name']).translate('and its dependent assets');
+
+
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

@@ -42,7 +42,8 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		// override static screens - only display details because the others don't apply
 		$this->static_screens = Array(
 									'details'	=> Array(
-													'name'			=> translate('details'),
+													'name'			=> translate('Details'),
+
 													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'none',
 												   ),
@@ -76,7 +77,8 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$sel_edit_params  = new SimpleXMLElement('<selection style="box" columns="5" extras="" />');
 
 		if ($asset->name == '') {
-			$o->openField(translate('name'));
+			$o->openField(translate('Name'));
+
 				$text_edit_params = new SimpleXMLElement('<text width="15" />');
 				$attr = $asset->getAttribute('name');
 				$attr->setEditParams($text_edit_params);
@@ -85,7 +87,8 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 		}
 
-		$o->openField(translate('variety_type'));
+		$o->openField(translate('Variety Type'));
+
 			$js_prefix = preg_replace('/[^a-z0-9_]/', '_', $prefix);
 		?>
 			<script type="text/javascript">
@@ -115,7 +118,8 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('constrain_by'), '', '', ($variety_type != 'resize'), $prefix.'_field_constrain');
+		$o->openField(translate('Constrain by'), '', '', ($variety_type != 'resize'), $prefix.'_field_constrain');
+
 			$sel_edit_params->attributes()->extras = 'onclick="return '.$js_prefix.'_update_visible_fields();"';
 			$attr = $asset->getAttribute('constrain');
 			$attr->setEditParams($sel_edit_params);
@@ -123,35 +127,42 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('width'), '', '', ($variety_type != 'resize' || $constrain != 'width'), $prefix.'_field_width');
+		$o->openField(translate('Width'), '', '', ($variety_type != 'resize' || $constrain != 'Width'), $prefix.'_field_width');
+
 			$attr = $asset->getAttribute('width');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('height'), '', '', ($variety_type != 'resize' || $constrain != 'height'), $prefix.'_field_height');
+		$o->openField(translate('Height'), '', '', ($variety_type != 'resize' || $constrain != 'Height'), $prefix.'_field_height');
+
 			$attr = $asset->getAttribute('height');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('dimension'), '', translate('dimension_note'), ($variety_type != 'resize' || ($constrain != 'dimension' && $constrain != 'centre_weighted_square')), $prefix.'_field_dimension');
+		$o->openField(translate('Dimension'), '', translate('The maximum size of the largest dimension'), ($variety_type != 'resize' || ($constrain != 'Dimension' && $constrain != 'centre_weighted_square')), $prefix.'_field_dimension');
+
+
 			$attr = $asset->getAttribute('dimension');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('upload'), '', '', ($variety_type != 'upload'), $prefix.'_field_upload');
+		$o->openField(translate('Upload'), '', '', ($variety_type != 'Upload'), $prefix.'_field_upload');
+
 			if ($wa) file_upload($prefix.'_upload_file');
 		$o->closeField();
 
 		if ($asset->id) {
-			$o->openField(translate('current_variety'));
+			$o->openField(translate('Current Variety'));
+
 				?>
-					<a href="<?php echo current_url(TRUE, TRUE).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('core_click_to_open_in_new_window'); ?></a>
+					<a href="<?php echo current_url(TRUE, TRUE).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('Click to open in a new window'); ?></a>
+
 				<?php
 			$o->closeField();
 		}

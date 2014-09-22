@@ -123,7 +123,8 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 		}
 
 		ob_start();
-			echo translate('trigger_remove_future_lineage_cron');
+			echo translate('Delete all the asset\'s future lineage Scheduled Jobs of type');
+
 			combo_box($prefix.'[job_type]', $jobs_types, FALSE, $selected_type, NULL, $form_element_extras);
 			$html = ob_get_contents();
 		ob_end_clean();

@@ -72,7 +72,8 @@ class Page_REST_Resource_OAuth_Session_Edit_Fns extends Page_REST_Resource_Edit_
 		?>
 		<table border="0" class="sq-backend-table">
 		    	<tr>
-			    <th width="20%"><?php echo sprintf(translate('oauth_access_token_type'), $type); ?></th>
+			    <th width="20%"><?php echo sprintf(translate('Storage Type'), $type); ?></th>
+
 			    <td>
 				<?php
 				   echo htmlspecialchars($type);
@@ -80,7 +81,8 @@ class Page_REST_Resource_OAuth_Session_Edit_Fns extends Page_REST_Resource_Edit_
 			    </td>
 			</tr>
 			<tr>
-			    <th width="20%"><?php echo translate('oauth_access_token'); ?></th>
+			    <th width="20%"><?php echo translate('OAuth Access Token'); ?></th>
+
 			    <td>
 				<?php
 				   echo htmlspecialchars($access_token);
@@ -88,7 +90,8 @@ class Page_REST_Resource_OAuth_Session_Edit_Fns extends Page_REST_Resource_Edit_
 			    </td>
 			</tr>
 			<tr>
-			    <th width="20%"><?php echo translate('oauth_access_token_secret'); ?></th>
+			    <th width="20%"><?php echo translate('OAuth Access Token Secret'); ?></th>
+
 			    <td>
 				<?php
 				   echo htmlspecialchars($access_token_secret);

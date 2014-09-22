@@ -55,8 +55,10 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_begins_with_true'),
-				0	=> translate('core_form_rule_begins_with_false'),
+				1	=> translate('Must begin with'),
+
+				0	=> translate('Must NOT begin with'),
+
 			   );
 
 	}//end getOperators()

@@ -97,7 +97,8 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 		// do it here; do it on the Workflow screen instead
 		if ((int)$asset->status === SQ_STATUS_PENDING_APPROVAL) {
 			$need_commit = FALSE;
-			$o->note(sprintf(translate('asset_currently_in_workflow'), $asset->getBackendHref('workflow')));
+			$o->note(sprintf(translate('<i>This asset is currently in workflow. Approval or rejection of the changes must be done on the <a href="%s">asset workflow screen</a></i>.'), $asset->getBackendHref('workflow')));
+
 		} else {
 			require_once SQ_INCLUDE_PATH.'/asset_static_screens/details.inc';
 			ob_start();
@@ -163,7 +164,8 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 								combo_box($prefix.'_change_status_stream', $options['workflow'], FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_workflow"');
 								combo_box($prefix.'_change_status_stream', $options['bypass'],   FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_bypass"');
 							$cb = ob_get_clean();
-							echo sprintf(translate('workflow_stream_using_workflow_stream'), $cb);
+							echo sprintf(translate('using workflow stream: %1$s'), $cb);
+
 						} else {
 							// Only one option; hide the stream field and chuck it into a hidden field
 							$all_options = $options['bypass'] + $options['workflow'];
@@ -206,7 +208,8 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 					echo str_replace($cascade_box, $stream_box.$cascade_box, $status_output);
 					if (isset($this->_tmp['incomplete_metadata'])) {
 						$new_status = isset($_POST[$prefix.'_change_status']) ? ' to \''.get_status_description($_POST[$prefix.'_change_status']).'\'' : '';
-						echo "<p>".sprintf(translate('cannot_change_bundle_status_metadata_incomplete'), $new_status);
+						echo "<p>".sprintf(translate('Asset status cannot be changed%s. Following assets are missing some mandatory metadata fields.'), $new_status);
+
 						foreach (array_keys($this->_tmp['incomplete_metadata']) as $incomplete_meta_assetid) {
 							$assetinfo = get_asset_tag_line($incomplete_meta_assetid, 'metadata');
 							echo "<br />$assetinfo";
@@ -309,14 +312,16 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 
 		// Only show current contents if there are set FS jobs
 		if (empty($current_fs_contents) === FALSE) {
-			$o->openField(translate('scheduled_future_status_change'), 'new_line');
+			$o->openField(translate('Scheduled Future Status Changes'), 'new_line');
+
 				echo $current_fs_contents;
 			$o->closeField();
 		}
 
 		// Only show Add FS section if write access allowed
 		if ($asset->writeAccess()) {
-			$o->openField(translate('add_new_future_status'), 'new_line');
+			$o->openField(translate('Add New Future Status'), 'new_line');
+
 				echo $new_fs_contents;
 			$o->closeField();
 		}//end if
@@ -371,14 +376,18 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 		// can't do it here because no workflow is running
 		if ((int)$asset->status === SQ_STATUS_PENDING_APPROVAL) {
 			if ($this->showIfCanApprove($asset) === TRUE) {
-				$o->openField(translate('log_message'));
+				$o->openField(translate('Log Message'));
+
 					text_area($prefix.'_workflow_new_log_message', '', 60, 6);
 					if ($this->bundleRequiresComment($asset) === TRUE) {
-						$comment_button_js = "elt = document.getElementById('".$prefix."_workflow_new_log_message'); if (elt && elt.value.replace(".'/^\s+|\s+$/g'.", '').length == 0) { alert(js_translate('must_enter_comment_error')); } else { submit_form(); }";
-						$o->note(translate('workflow_must_enter_reason_for_decision_bundle'));
+						$comment_button_js = "elt = document.getElementById('".$prefix."_workflow_new_log_message'); if (elt && elt.value.replace(".'/^\s+|\s+$/g'.", '').length == 0) { alert(js_translate('You must enter a comment for this workflow step.')); } else { submit_form(); }";
+
+						$o->note(translate('You must enter the reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes. At least one bundled asset requires you do this.'));
+
 					} else {
 						$comment_button_js = 'submit_form();';
-						$o->note(translate('workflow_may_enter_reason_for_decision'));
+						$o->note(translate('You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.'));
+
 					}
 				$o->closeField();
 				$o->openField('');
@@ -408,7 +417,8 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 					}
 					if (isset($this->_tmp['incomplete_metadata'])) {
 						$new_status = isset($_POST[$prefix.'_workflow_new_status']) ? ' to \''.get_status_description($_POST[$prefix.'_workflow_new_status']).'\'' : '';
-						echo "<p>".sprintf(translate('cannot_change_bundle_status_metadata_incomplete'), $new_status);
+						echo "<p>".sprintf(translate('Asset status cannot be changed%s. Following assets are missing some mandatory metadata fields.'), $new_status);
+
 						foreach (array_keys($this->_tmp['incomplete_metadata']) as $incomplete_meta_assetid) {
 							$assetinfo = get_asset_tag_line($incomplete_meta_assetid, 'metadata');
 							echo "<br />$assetinfo";
@@ -418,13 +428,17 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 
 				$o->closeField();
 			} else {
-				$o->openField(translate('workflow_status'));
-					echo translate('workflow_bundle_not_current_step');
+				$o->openField(translate('Workflow Status'));
+
+					echo translate('To be able to approve or reject workflow at a bundle level, you must be able to approve or reject at least one bundled asset.');
+
 				$o->closeField();
 			}
 		} else {
-			$o->openField(translate('workflow_status'));
-				echo translate('workflow_not_running_bundle');
+			$o->openField(translate('Workflow Status'));
+
+				echo translate('This bundle must be in "Approving" status to be able to approve or reject workflow at a bundle level.');
+
 			$o->closeField();
 		}
 

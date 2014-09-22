@@ -1664,7 +1664,8 @@ function get_asset_tag_line($assetid, $screen='')
 			<td colspan="2" class="sq-backend-table-cell"><span class="sq-status-square status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset_info['status']))) ?>"></span><?php echo get_status_description($asset_info['status']) ?></td>
 		</tr>
 		<tr>
-			<td class="sq-backend-table-cell"><strong><?php echo translate('asset_type') ?>:</strong></td>
+			<td class="sq-backend-table-cell"><strong><?php echo translate('Asset Type') ?>:</strong></td>
+
 			<td colspan="2" class="sq-backend-table-cell"><?php
 			    echo ' <span class="sq-info-type-icon">'.get_asset_type_icon($asset_info['type_code']).'</span>';
 			    echo ' <span class="sq-info-type-name" data-type-code="'.$asset_info['type_code'].'">'.$type_name.'</span>';
@@ -1688,7 +1689,8 @@ function get_asset_tag_line($assetid, $screen='')
 				} else {
 					$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), FALSE, 'name');
 					if (empty($user_name) || !isset($user_name[$asset_info[$time_type.'_userid']]) || empty($user_name[$asset_info[$time_type.'_userid']])) {
-						$user_name = '<span style="color: red">'.translate('unknown_or_deleted_user').'</span>';
+						$user_name = '<span style="color: red">'.translate('Unknown or deleted user').'</span>';
+
 					} else {
 						$user_name = htmlspecialchars($user_name[$asset_info[$time_type.'_userid']], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					}
@@ -1696,7 +1698,8 @@ function get_asset_tag_line($assetid, $screen='')
 
 				$user_name = 'by '.$user_name;
 			} else {
-				$time_str = translate('never');
+				$time_str = translate('Never');
+
 				$user_name = '&nbsp;';
 			}
 			?><tr>
@@ -1758,7 +1761,8 @@ function get_asset_tag_line($assetid, $screen='')
 function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 {
 	if ($popupTitle === NULL) {
-		$popupTitle = translate('lineages');
+		$popupTitle = translate('Lineages');
+
 	}
 
 	ob_start();
@@ -1841,10 +1845,12 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	if (count($lineages) > 1) {
 		echo $lineages_div;
 		?><div id="asset-tag-line-<?php echo $assetid ?>-cancel-icon" style="display:none"><?php
-			sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
+			sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', 16, 16, translate('Cancel'), translate('Cancel'), ' style="border:none"');
+
 		?></div><?php
 		$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-lineages\').innerHTML, \''.addslashes($popupTitle).'\', document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-cancel-icon\').innerHTML)';
-		$lineages_name = translate('show_lineages');
+		$lineages_name = translate('Show Lineages');
+
 	} else if (count($lineages) == 1) {
 		sort($lineages);
 		$lineage_names = $lineages[0]['lineage'];
@@ -1854,7 +1860,8 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 		$lineage_names[$assetid] = $asset_info['name'];
 
 		$lineages_onclick = asset_locator_onclick($lineage_assetids, FALSE);
-		$lineages_name = translate('show_in_asset_map');
+		$lineages_name = translate('Show in Asset Map');
+
 	}
 
 	if (count($lineages) > 0) {
@@ -2726,7 +2733,8 @@ function do_redirect($url, $message=NULL, $timeout=0)
 	if ($timeout || $message || headers_sent()) {
 		// Javascript Redirect
 		if (is_null($message)) {
-			$message = sprintf(translate('redirecting_you_to'), htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$message = sprintf(translate('Redirecting you to %s'), htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 		}
 		?>
 		<html>

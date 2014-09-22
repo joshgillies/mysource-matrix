@@ -329,16 +329,22 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$current_level = $asset->attr('level');
 		$special_levels = Array(
-							''		=> '-- '.strtolower(translate('custom')).' --',
-							'-2'	=> translate('children'),
-							'-1'	=> translate('current'),
-							'0'		=> translate('top'),
-							'1'		=> translate('sub'),
+							''		=> '-- '.strtolower(translate('Custom')).' --',
+
+							'-2'	=> translate('Children'),
+
+							'-1'	=> translate('Current'),
+
+							'0'		=> translate('Top'),
+
+							'1'		=> translate('Sub'),
+
 						  );
 
 		if ($write_access) {
 			combo_box($prefix.'_special_level', $special_levels, FALSE, $asset->attr('level'));
-			echo ' '.strtolower(translate('or')).' ';
+			echo ' '.strtolower(translate('Or')).' ';
+
 			text_box($prefix.'_level', (!isset($special_levels[$current_level])) ? $current_level : '');
 		} else {
 			if (isset($special_levels[$current_level])) {

@@ -74,24 +74,32 @@ class Tool_Export_Files extends Tool
 
 		$o->openSection($tool_info['name']);
 
-			$o->openField(translate('cms_tool_export_files_root_node'));
+			$o->openField(translate('Root Node'));
+
 				multiple_asset_finder($type_code.'_root_node', Array(), $filetypes);
-				$o->note(translate('cms_tool_export_files_root_node_note'));
+				$o->note(translate('Export all the files under this root node'));
+
 			$o->closeField();
 
-			$o->openField(translate('cms_tool_export_files_save_name'));
+			$o->openField(translate('Save As'));
+
 				text_box($type_code.'_save_name', $save_name, 30);
-				$o->note(translate('cms_tool_export_files_save_name_note'));
+				$o->note(translate('Name to save the exported files as'));
+
 			$o->closeField();
 
-			$o->openField(translate('cms_tool_export_files_save_location'));
+			$o->openField(translate('Save Location'));
+
 				text_box($type_code.'_save_location', $save_location, 30);
-				$o->note(translate('cms_tool_export_files_save_location_note'));
+				$o->note(translate('Location to save the exported files'));
+
 			$o->closeField();
 
-			$o->openField(translate('cms_tool_export_files_keep_structure'));
+			$o->openField(translate('Keep Structure'));
+
 				check_box($type_code.'_keep', 1, TRUE);
-				$o->note(translate('cms_tool_export_files_keep_structure_note'));
+				$o->note(translate('When exporting, keep the structure underneath the root node'));
+
 			$o->closeField();
 
 		$o->closeSection();

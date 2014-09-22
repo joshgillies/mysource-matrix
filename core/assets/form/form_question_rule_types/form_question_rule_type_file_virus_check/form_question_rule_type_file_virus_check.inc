@@ -113,8 +113,10 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 		// if disabled
 		if(isset($rule_data['check_virus']) && $rule_data['check_virus'] == 2) return '';
 
-		$content = isset($rule_data['indicator_content']) && !empty ($rule_data['indicator_content']) ? $rule_data['indicator_content'] : translate('core_form_rule_file_virus_check_indicator_content_default');
-		$class = isset($rule_data['indicator_class']) && !empty ($rule_data['indicator_class']) ? $rule_data['indicator_class'] : translate('core_form_rule_file_virus_check_indicator_class_default');
+		$content = isset($rule_data['indicator_content']) && !empty ($rule_data['indicator_content']) ? $rule_data['indicator_content'] : translate('Virus scanning is underway, please wait...');
+
+		$class = isset($rule_data['indicator_class']) && !empty ($rule_data['indicator_class']) ? $rule_data['indicator_class'] : translate('virus_scan_indicator');
+
 
 		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
 		$condition_js = parent::generateConditionJSCode($rule_data);
@@ -157,9 +159,11 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 	    	$use_accessible_string = $form->useAccessibleFormat();
 		if($use_accessible_string)
-		    return sprintf(translate('core_form_rule_file_virus_check_error_true_accessible'), $q_asset->getValue());
+		    return sprintf(translate('Virus is detected in uploaded file "%1$s".'), $q_asset->getValue());
+
 		else
-		    return sprintf(translate('core_form_rule_file_virus_check_error_true'), $q_asset->getValue(), $q_asset->attr('name'));
+		    return sprintf(translate('Name of uploaded file "%1$s" at question "%2$s" is invalid - Virus was detected'), $q_asset->getValue(), $q_asset->attr('name'));
+
 	}//end defaultError()
 
 

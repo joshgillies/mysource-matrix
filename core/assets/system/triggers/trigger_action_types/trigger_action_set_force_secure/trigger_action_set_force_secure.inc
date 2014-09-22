@@ -93,7 +93,9 @@ class Trigger_Action_Set_Force_Secure extends Trigger_Action
 		$basic_part = ob_get_contents();
 		ob_end_clean();
 
-		return sprintf(translate('trigger_set_force_secure_basic'), $basic_part);
+		return sprintf(translate('Set Force Secure setting to: %s <br />
+<strong>Note:</strong> Force that this asset can only be viewed through a Secure (SSL) or insecure connection or allow both.'), $basic_part);
+
 
 
 	}//end getInterface()

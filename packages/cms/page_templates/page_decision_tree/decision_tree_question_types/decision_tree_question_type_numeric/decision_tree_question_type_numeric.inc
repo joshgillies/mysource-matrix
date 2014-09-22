@@ -117,10 +117,14 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 	public function getOperators()
 	{
 		$operators = Array(
-						'INCL' 	  => translate('all_inclusive'),
-						'L_INCL'  => translate('left_inclusive'),
-						'R_INCL'  => translate('right_inclusive'),
-						'N_INCL'  => translate('not_inclusive'),
+						'INCL' 	  => translate('INCLUSIVE'),
+
+						'L_INCL'  => translate('MINIMUM INCLUSIVE'),
+
+						'R_INCL'  => translate('MAXIMUM INCLUSIVE'),
+
+						'N_INCL'  => translate('NOT INCLUSIVE'),
+
 					 );
 
 		return $operators;

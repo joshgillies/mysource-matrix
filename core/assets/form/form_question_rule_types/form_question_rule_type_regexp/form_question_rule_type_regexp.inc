@@ -55,8 +55,10 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_regexp_true'),
-				0	=> translate('core_form_rule_regexp_false'),
+				1	=> translate('Must Match the Regular Expression'),
+
+				0	=> translate('Must NOT Match the Regular Expression'),
+
 			   );
 
 	}//end getOperators()
@@ -150,9 +152,11 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
 		if($use_accessible_string)
-		    $error_str = translate('core_form_rule_regexp_error_accessible');
+		    $error_str = translate('The response is not in the correct format.');
+
 		else
-		    $error_str = sprintf(translate('core_form_rule_regexp_error'), $q_asset->name);
+		    $error_str = sprintf(translate('The response to question "%s" is not in the correct format'), $q_asset->name);
+
 
 		return $error_str;
 

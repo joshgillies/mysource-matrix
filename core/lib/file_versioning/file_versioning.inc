@@ -853,6 +853,8 @@ class File_Versioning
 		if (copy(SQ_DATA_PATH.'/private/'.$info['path'].'/'.$info['filename'], $destination)) {
 			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
 				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], translate('data').' '.translate('private'));
+
+
 				return true;
 			}
 		}
@@ -861,6 +863,8 @@ class File_Versioning
 		if (@copy(SQ_DATA_PATH.'/public/'.$info['path'].'/'.$info['filename'], $destination)) {
 			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
 				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], translate('data').' '.translate('public'));
+
+
 				return true;
 			}
 		}

@@ -97,7 +97,8 @@ class Calendar_Event_Modification extends Calendar_Event
 		}//end if
 
 		if ($short_name) {
-			return sprintf(translate('cal_event_modified_date'), date('d M Y', iso8601_ts($this->attr('start_date'))));
+			return sprintf(translate('Modified %s'), date('d M Y', iso8601_ts($this->attr('start_date'))));
+
 		}//end if
 
 		// Obtain the attribute value for Name from the specified Context
@@ -196,7 +197,8 @@ class Calendar_Event_Modification extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b><?php echo translate('cal_event_modification_of'); ?></b></td>
+				<td><b><?php echo translate('Modification Of'); ?></b></td>
+
 				<td><?php
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE)) {
@@ -207,19 +209,23 @@ class Calendar_Event_Modification extends Calendar_Event
 				?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_modified_start_date'); ?></b></td>
+				<td><b><?php echo translate('Start Date of modified instance'); ?></b></td>
+
 				<td><?php echo $this->getFriendlyStart(); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_modified_end_date'); ?></b></td>
+				<td><b><?php echo translate('End Date of modified instance'); ?></b></td>
+
 				<td><?php echo $this->getFriendlyEnd(); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_modified_name'); ?></b></td>
+				<td><b><?php echo translate('Modified Name'); ?></b></td>
+
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_modified_description'); ?></b></td>
+				<td><b><?php echo translate('Modified Description'); ?></b></td>
+
 				<td><?php echo $this->attr('description'); ?></td>
 			</tr>
 		</table>

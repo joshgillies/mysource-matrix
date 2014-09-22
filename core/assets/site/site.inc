@@ -698,13 +698,16 @@ class Site extends Folder
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'index' :
-				return translate('core_site_index_page');
+				return translate('The index page for the site');
+
 			break;
 			case 'not_found' :
-				return translate('core_site_not_found_page');
+				return translate('The not found page for the site');
+
 			break;
 			case 'archive' :
-				return translate('core_site_archive_page');
+				return translate('Page to act as a "Not Found" page when archived assets are accessed');
+
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -725,7 +728,9 @@ class Site extends Folder
 	{
 		// check that the user has read access to the site
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
 
@@ -787,7 +792,9 @@ class Site extends Folder
 
 		// check that the user has read access to the index page
 		if (!$asset->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
 

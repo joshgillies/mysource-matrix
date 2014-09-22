@@ -98,9 +98,11 @@ class Page_Link_Manager extends Page_Asset_Listing
 	{
 		switch ($bodycopy_code) {
 			case 'not_logged_in':
-				return '<p>'.translate('cms_link_manager_not_logged_in_msg').'</p>';
+				return '<p>'.translate('This page is only available to logged-in users').'</p>';
+
 			case 'page_contents':
-				return '<h2>'.sprintf(translate('cms_link_manager_managing_links_for'), '%managed_asset_asset_name%').'</h2>%asset_listing%<p>%submit_button%</p>';
+				return '<h2>'.sprintf(translate('Managing links for %s'), '%managed_asset_asset_name%').'</h2>%asset_listing%<p>%submit_button%</p>';
+
 			case 'default_format':
 				return '%Linked_asset_selection% %asset_name%';
 		}
@@ -660,8 +662,10 @@ class Page_Link_Manager extends Page_Asset_Listing
 
 		// messages
 		$keywords += Array(
-						'error_messages_list'	=> translate('cms_link_manager_error_messages_list'),
-						'success_messages_list'	=> translate('cms_link_manager_success_messages_list'),
+						'error_messages_list'	=> translate('The list of error messages'),
+
+						'success_messages_list'	=> translate('The list of success messages'),
+
 					 );
 
 		// add replacements for the managed assets

@@ -61,7 +61,8 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('links')) return FALSE;
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		echo translate('create_new_step_called').' ';
+		echo translate('Create a new step called').' ';
+
 		text_box($prefix.'_new_step', '', 20);
 		return TRUE;
 
@@ -336,7 +337,8 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 				if ($write_access) {
 					$o->openField('Delete ?');
 						check_box($prefix.'_delete_steps['.$link_data['linkid'].']');
-						label(translate('delete_step_and_conditions_question'), $prefix.'_delete_steps['.$link_data['linkid'].']');
+						label(translate('Delete this step and all its conditions?'), $prefix.'_delete_steps['.$link_data['linkid'].']');
+
 					$o->closeField();
 				}
 				$edit_fns = $step->getEditFns();
@@ -445,7 +447,8 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		$prefix .= '_automatic_stream';
-		$o->openField($wa ? translate('current_rules') : '');
+		$o->openField($wa ? translate('Current Rules') : '');
+
 			$current_rules = is_array($asset->attr('stream_selection_rules')) ? $asset->attr('stream_selection_rules') : unserialize($asset->attr('stream_selection_rules'));
 			$keyword_datas = $current_rules;
 
@@ -453,12 +456,15 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th><?php echo translate('keyword'); ?></th>
-						<th><?php echo translate('pattern') ?></th>
+						<th><?php echo translate('Keyword'); ?></th>
+
+						<th><?php echo translate('Pattern') ?></th>
+
 					<?php
 					if ($wa) {
 						?>
-						<th style="width: 12ex; text-align:center;"><?php echo translate('delete_question'); ?></th>
+						<th style="width: 12ex; text-align:center;"><?php echo translate('Delete?'); ?></th>
+
 						<?php
 					}
 					?>
@@ -503,28 +509,37 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 				</table>
 				<?php
 			} else {
-				echo ('<em>'.translate('no_automatic_workflow_stream_rules').'</em>');
+				echo ('<em>'.translate('There are no rules set.').'</em>');
+
 			}
 		$o->closeField();
 		if ($wa) {
-			$o->openField(translate('new_rule'));
+			$o->openField(translate('New Rule'));
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th><?php echo translate('keyword'); ?></th>
-						<td><?php text_box($prefix.'_new[keyword]', '', '', '', FALSE, 'style="width:95%"'); ?><div class="sq-backend-smallprint"><?php echo translate('workflow_stream_rules_note_keyword'); ?></div></td>
+						<th><?php echo translate('Keyword'); ?></th>
+
+						<td><?php text_box($prefix.'_new[keyword]', '', '', '', FALSE, 'style="width:95%"'); ?><div class="sq-backend-smallprint"><?php echo translate('An asset based keyword or global keyword to use as the value for matching with the pattern value below. Keyword modifiers are also supported.'); ?></div></td>
+
 					</tr>
 					<tr>
-						<th><?php echo translate('pattern'); ?></th>
-						<td><?php text_box($prefix.'_new[pattern]', '', '', '', FALSE, 'style="width:95%"'); ?><div class="sq-backend-smallprint"><?php echo translate('workflow_stream_rules_note_pattern'); ?></div></td>
+						<th><?php echo translate('Pattern'); ?></th>
+
+						<td><?php text_box($prefix.'_new[pattern]', '', '', '', FALSE, 'style="width:95%"'); ?><div class="sq-backend-smallprint"><?php echo translate('A value to use for checking a match with the keyword value above. If there is a match, the rule will be evaluated as true. Regular Expression is supported. Keywords are not supported.'); ?></div></td>
+
 					</tr>
 				</table>
 				<?php
 			$o->closeField();
 		}
 
-		$o->openField(translate('rules_logic'));
-		$query_types = Array('all' => translate('match_all_rules'), 'any' => translate('match_any_rule'));
+		$o->openField(translate('Rules Logic'));
+
+		$query_types = Array('all' => translate('Match On All Rules'), 'any' => translate('Match On Any Rule'));
+
+
 		$current_logic = $asset->attr('rules_logic');
 		if ($wa) {
 			combo_box($prefix.'_logic', $query_types, FALSE, $current_logic);

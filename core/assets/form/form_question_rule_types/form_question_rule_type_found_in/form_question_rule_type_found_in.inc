@@ -55,8 +55,10 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_found_in_true'),
-				0	=> translate('core_form_rule_found_in_false'),
+				1	=> translate('Must be found in'),
+
+				0	=> translate('Must NOT be found in'),
+
 			   );
 
 	}//end getOperators()

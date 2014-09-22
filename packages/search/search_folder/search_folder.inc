@@ -134,7 +134,8 @@ class Search_Folder extends Asset implements Bridge
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) return $links;
 
-		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
+		assert_equals($assetid, $this->id, translate('The Search Folder can only get its own links'));
+
 
 		if (!isset($this->_tmp['getLinks'])) {
 
@@ -355,7 +356,8 @@ class Search_Folder extends Asset implements Bridge
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
-		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
+		assert_equals($assetid, $this->id, translate('The Search Folder can only get its own links'));
+
 		return Array();
 
 	}//end getParents()
@@ -383,7 +385,8 @@ class Search_Folder extends Asset implements Bridge
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
-		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
+		assert_equals($assetid, $this->id, translate('The Search Folder can only get its own links'));
+
 		return Array();
 
 	}//end getChildren()

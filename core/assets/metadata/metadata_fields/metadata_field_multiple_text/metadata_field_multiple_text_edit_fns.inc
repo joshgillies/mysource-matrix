@@ -102,14 +102,16 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 						$default_keys = explode('; ', $default_keys);
 						$default_vals_expr = '[\''.implode('\', \'', $default_keys).'\']';
 						check_box($prefix.'_default', '1', $is_default, "handleDefaultClickMT(this, '$prefix', $default_vals_expr); ");
-						label(translate('use_default'), $prefix.'_default');
+						label(translate('Use default'), $prefix.'_default');
+
 					echo '</span>';
 				}
 
 				if ($print_cascade_values_option) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
-						label(translate('cascade_value'), $prefix.'_cascade_value');
+						label(translate('Cascade value'), $prefix.'_cascade_value');
+
 					echo '</span>';
 				}
 			echo '</span>';
@@ -131,7 +133,8 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			echo '<span class="sq-metadata-settings-wrapper">';
 				if ($is_default) {
-					echo ' <em>('.translate('using_default_value').')</em>';
+					echo ' <em>('.translate('Using default value').')</em>';
+
 				} else{
 
 				}

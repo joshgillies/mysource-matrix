@@ -1481,7 +1481,8 @@ class Asset_Map
 					$asset['short_name'] = $shdw_asset->short_name;
 					$asset['type_code']  = $shdw_asset->type();
 				} else {
-					$asset['short_name'] = sprintf(translate('asset_not_found'), $asset['assetid']);
+					$asset['short_name'] = sprintf(translate('Asset %s not found'), $asset['assetid']);
+
 					$asset['type_code']  = '';
 				}
 				$asset['status']     = $bridge->status;
@@ -2136,13 +2137,16 @@ class Asset_Map
 					$majwa = $old_parent->writeAccess('');
 					$minwa = $asset->writeAccess('');
 					if (!($majwa || $minwa)) {
-						$reordering_errors = sprintf(translate('cannot_reorder_sig_link_no_perm_either'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$reordering_errors = sprintf(translate('Cannot reorder asset "%1$s" (# %2$s) under "%3$s" (# %4$s) - no write permission for either asset'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+
 						$this->_error('AMAP0045', $reordering_errors);
 					} else if (!$majwa) {
-						$reordering_errors = sprintf(translate('cannot_reorder_sig_link_no_perm_major'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$reordering_errors = sprintf(translate('Cannot reorder asset "%1$s" (# %2$s) under "%3$s" (# %4$s) - no write permission for "%3$s"'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+
 						$this->_error('AMAP0045', $reordering_errors);
 					} else if (!$minwa) {
-						$reordering_errors = sprintf(translate('cannot_reorder_sig_link_no_perm_minor'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$reordering_errors = sprintf(translate('Cannot reorder asset "%1$s" (# %2$s) under "%3$s" (# %4$s) - no write permission for "%1$s"'), $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+
 						$this->_error('AMAP0045', $reordering_errors);
 					}
 

@@ -52,7 +52,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('edit_metadata_threshold'));
+		$o->openField(translate('Edit Metadata Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -61,7 +62,9 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 			echo SQ_HIPO_METADATA_THRESHOLD;
 		}
 		echo ' '.translate('assets');
-		$o->note(translate('hipo_value_divided_by_schema'));
+
+		$o->note(translate('Value will be divided by number of affected schemas.'));
+
 		echo '</span>';
 
 		$o->closeField();
@@ -110,7 +113,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_metadata_schemas');
+		return translate('Edit Metadata Schemas');
+
 
 	}//end getHipoName()
 
@@ -126,7 +130,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_updating_metadata_schemas'),
+					'name'			=> translate('Updating Metadata Schemas'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processSchemas',
 									   ),
@@ -298,9 +303,14 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							// at all - either grant OR deny - for this asset
 							$schemas = $mm->getSchemas($asset->id, $set_data['granted']);
 							if (isset($schemas[$set_data['schemaid']])) {
-								$new_access     = ($set_data['granted']) ? translate('apply') : translate('deny');
-								$current_access = ($schemas[$set_data['schemaid']]) ? translate('applied') : translate('denied');
-								$this->_addError(sprintf(translate('hipo_cannot_modify_schema'), $new_access, $schema_name, $asset->name, $current_access), TRUE);
+								$new_access     = ($set_data['granted']) ? translate('Apply') : translate('Deny');
+
+
+								$current_access = ($schemas[$set_data['schemaid']]) ? translate('Applied') : translate('Denied');
+
+
+								$this->_addError(sprintf(translate('Could not %1$s schema "%2$s" on "%3$s" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained'), $new_access, $schema_name, $asset->name, $current_access), TRUE);
+
 								continue;
 							}
 						} else {
@@ -309,9 +319,14 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							if (!isset($schemas[$set_data['schemaid']])) {
 								continue;
 							} else if ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
-								$new_access     = ($set_data['previous_access']) ? translate('revoke')  : translate('apply');
-								$current_access = ($set_data['previous_access']) ? translate('applied') : translate('denied');
-								$this->_addError(sprintf(translate('hipo_cannot_modify_schema'), $new_access, $schema_name, $asset->name, $current_access), TRUE);
+								$new_access     = ($set_data['previous_access']) ? translate('Revoke')  : translate('Apply');
+
+
+								$current_access = ($set_data['previous_access']) ? translate('Applied') : translate('Denied');
+
+
+								$this->_addError(sprintf(translate('Could not %1$s schema "%2$s" on "%3$s" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained'), $new_access, $schema_name, $asset->name, $current_access), TRUE);
+
 								continue;
 							}
 						}
@@ -337,7 +352,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					if (count($schema_changes) > 1) {
 						$step_data['message'] = htmlentities('Making '.count($schema_changes).' schema changes to '.$asset->name.' (Id: #'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					} else if (count($schema_changes) == 0) {
-						$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $asset->id);
+						$step_data['message'] = sprintf(translate('Skipping asset #%s'), $asset->id);
+
 					}
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
@@ -348,8 +364,10 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					trigger_localised_error('SYS0100', E_USER_WARNING, 'metadata', $asset->name, ' skipping asset.');
 				}
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
-				$this->_addError(sprintf(translate('hipo_cannot_edit_schema'), $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not edit schemas for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again

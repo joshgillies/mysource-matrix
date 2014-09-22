@@ -87,9 +87,11 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 							<?php
 								$conn = $asset->connect($service, TRUE);
 								if ($conn === FALSE) {
-									echo '<span style="color: red"><b>'.translate('cmis_not_connected').'</b></span>';
+									echo '<span style="color: red"><b>'.translate('Not Connected').'</b></span>';
+
 								} else {
-									echo '<span style="color: green"><b>'.translate('cmis_connected').'</b></span>';
+									echo '<span style="color: green"><b>'.translate('Connected').'</b></span>';
+
 								}
 							?>
 						</td>

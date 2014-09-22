@@ -177,23 +177,32 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$use_current_link   = array_get_index($settings, 'use_current_link', array_get_index($settings, 'use_new_link', FALSE));
 
 		$is_major_list = Array(
-							0	=> translate('parent'),
-							1	=> translate('child'),
+							0	=> translate('Parent'),
+
+							1	=> translate('Child'),
+
 						 );
 
-		$link_type_list = Array('' => '--- '.translate('any').' ---');
+		$link_type_list = Array('' => '--- '.translate('Any').' ---');
+
 		$link_type_list = $link_type_list + get_link_type_names();
 
 		$dependant_options = Array(
-								''	=> '--- '.translate('any').' ---',
-								'1'	=> translate('yes'),
-								'0'	=> translate('no'),
+								''	=> '--- '.translate('Any').' ---',
+
+								'1'	=> translate('Yes'),
+
+								'0'	=> translate('No'),
+
 							 );
 
 		$exclusive_options = Array(
-								''	=> '--- '.translate('any').' ---',
-								'1'	=> translate('yes'),
-								'0'	=> translate('no'),
+								''	=> '--- '.translate('Any').' ---',
+
+								'1'	=> translate('Yes'),
+
+								'0'	=> translate('No'),
+
 							 );
 
 		if (!$write_access) {
@@ -244,7 +253,8 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 		ob_start();
 			check_box($prefix.'[use_current_link]', '1', $use_current_link, NULL, $form_element_extras, NULL, $form_element_extras);
-			label(translate('match_current_link_only'), $prefix.'[use_current_link]');
+			label(translate('Match only the triggering link (for events that relate to links like \'Link Created\' and \'Link Deleted\')'), $prefix.'[use_current_link]');
+
 		$current_link_enabler = ob_get_clean();
 
 
@@ -266,10 +276,13 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$link_value = ob_get_clean();
 
 
-		$contents = sprintf(translate('trigger_link_exists_basic'), $major_selector, $asset_type_option, $asset_type_selector, $asset_id_option, $asset_id_selector, $only_link_option, $current_link_enabler).
+		$contents = sprintf(translate('Has a %1$s asset <ul style="list-style-type: none; padding: 0;"><li>%2$sof type %3$s</li><li>%4$s with ID %5$s</li><li>%6$s Use only advanced link parameters (below). This option ONLY works for the triggering link.</li></ul>%7$s'), $major_selector, $asset_type_option, $asset_type_selector, $asset_id_option, $asset_id_selector, $only_link_option, $current_link_enabler).
+
 					'<hr />'.
-					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					sprintf(translate('trigger_link_exists_advanced'), $link_type_selector, $dependent_selector, $exclusive_selector, $link_value);
+					'<b>'.translate('Optional items for Advanced users').'</b><br />'.
+
+					sprintf(translate('<ul style="list-style-type: none; padding: 0;"><li>Link Type:%1$s</li><li>Is Dependant? %2$s</li><li>Is Exclusive? %3$s</li><li>Value: %4$s</li></ul>'), $link_type_selector, $dependent_selector, $exclusive_selector, $link_value);
+
 
 		return $contents;
 

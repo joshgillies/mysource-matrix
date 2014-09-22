@@ -212,12 +212,14 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 		ob_start();
 			if ($selected_type == '') {
-				echo '<b>['.translate('asset_type_not_selected').']</b';
+				echo '<b>['.translate('asset type not selected').']</b';
+
 			} else {
 				$attribute = array_get_index($settings, 'attribute', '');
 				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type, Array('name'));
 				if (empty($attrs)) {
-					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+					echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 				} else {
 					if ($write_access) {
 						$attr_options = Array('' => '');
@@ -257,11 +259,13 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			$basic_part_3 = ob_get_contents();
 		ob_end_clean();
 
-		$output = sprintf(translate('trigger_set_attribute_value_basic'), $basic_part_1, $basic_part_2, $basic_part_3);
+		$output = sprintf(translate('Set the value of the %1$s attribute %2$s to: %3$s'), $basic_part_1, $basic_part_2, $basic_part_3);
+
 
 		if (!empty($selected_type) && isset($attrs[$attribute])) {
 			if (in_array($attrs[$attribute], Array('serialise', 'parameter_map'))) {
-				$output .= '<br /><i>'.translate('trigger_set_attribute_value_serialise_note').'</i>';
+				$output .= '<br /><i>'.translate('You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"').'</i>';
+
 			}
 		}
 
@@ -293,7 +297,8 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	{
 		$type_code = array_get_index($request_data, 'asset_type', FALSE);
 		if (!$type_code) {
-			return translate('asset_type_not_specified');
+			return translate('Asset type not specified');
+
 		}
 		$settings['asset_type'] = $type_code;
 

@@ -100,33 +100,40 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 							if ($safe_trash_enabled) {
 								if (empty($safe_trash_errors)) {
 								?>
-								<div><?php echo translate('safe_trash_line_common'); ?><br/>
-								<?php echo translate('safe_trash_line_unblocked'); ?></div>
+								<div><?php echo translate('This asset is marked to be automatically trashed when it meets Safe-Trash conditions.'); ?><br/>
+
+								<?php echo translate('This asset now satisfies those conditions and will now be trashed at the next run of the Scheduled Jobs Manager.'); ?></div>
+
 								<?php
 								} else {
 								?>
-								<div class="sq-backend-warning"><strong><?php echo translate('safe_trash_line_common'); ?><br/>
-								<?php echo translate('safe_trash_line_still_blocked'); ?></strong></div>
+								<div class="sq-backend-warning"><strong><?php echo translate('This asset is marked to be automatically trashed when it meets Safe-Trash conditions.'); ?><br/>
+
+								<?php echo translate('There are still Safe-Trash conditions that prevent this asset from being trashed:'); ?></strong></div>
+
 
 								<ul>
 								<?php
 								if (!empty($safe_trash_errors['status'])) {
 								?>
-								<li><?php echo translate('safe_trash_line_blocked_status'); ?></li>
+								<li><?php echo translate('The asset\'s status is Live or higher status. Change the status to <em>Under Construction</em> or <em>Archived</em> to satisfy this condition.'); ?></li>
+
 								<?php
 								}
 								?>
 								<?php
 								if (!empty($safe_trash_errors['links'])) {
 								?>
-								<li><?php echo sprintf(translate('safe_trash_line_blocked_links'), $owner->getBackendHref('linking')); ?></li>
+								<li><?php echo sprintf(translate('There are NOTICE or TYPE_3 links from another asset to this asset. See the <a href="%s">Linking screen</a> for details of all this asset\'s links.'), $owner->getBackendHref('linking')); ?></li>
+
 								<?php
 								}
 								?>
 								<?php
 								if (!empty($safe_trash_errors['children'])) {
 								?>
-								<li><?php echo translate('safe_trash_line_blocked_children'); ?></li>
+								<li><?php echo translate('Any of the asset\'s children is either of Live or higher status, or is NOTICE or TYPE_3 linked to another asset.'); ?></li>
+
 								<?php
 								}
 								?>
@@ -135,8 +142,10 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 								}
 							} else {
 								?>
-								<div><?php echo translate('safe_trash_line_common'); ?><br/>
-								<?php echo translate('safe_trash_line_disabled'); ?></div>
+								<div><?php echo translate('This asset is marked to be automatically trashed when it meets Safe-Trash conditions.'); ?><br/>
+
+								<?php echo translate('However, Safe-Trash is currently disabled. This asset will be trashed at the next run of the Scheduled Jobs Manager.'); ?></div>
+
 								<?php
 							}
 
@@ -150,7 +159,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 				case 'status_current' :
 
 					if (!empty($field->display_name)) {
-						$display_name = translate('current');
+						$display_name = translate('Current');
+
 					} else {
 						// If we dont have a display name node then we dont have anything to say
 						$display_name = '';
@@ -182,7 +192,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 					if (!empty($field->display_name)) {
-						$display_name = translate('change_question');
+						$display_name = translate('Change?');
+
 					} else {
 						// If we dont have a display name node then we dont have anything to say
 						$display_name = '';
@@ -229,14 +240,16 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 					if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'status_future_status', $current_fs_contents.$new_fs_contents) === FALSE) {
 						// Only show current contents if there are set FS jobs
 						if (empty($current_fs_contents) === FALSE) {
-							$o->openField(translate('scheduled_future_status_change'));
+							$o->openField(translate('Scheduled Future Status Changes'));
+
 								echo $current_fs_contents;
 							$o->closeField();
 						}
 
 						// Only show Add FS section if write access allowed
 						if ($owner->writeAccess()) {
-							$o->openField(translate('add_new_future_status'));
+							$o->openField(translate('Add New Future Status'));
+
 								echo $new_fs_contents;
 							$o->closeField();
 						}//end if
@@ -250,7 +263,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 					if ($owner->writeAccess('links')) {
 
 						if (!empty($field->display_name)) {
-							$display_name = translate('change_question');
+							$display_name = translate('Change?');
+
 						} else {
 							$display_name = '';
 						}
@@ -275,7 +289,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 				case 'thumbnail_current' :
 
 					if (!empty($field->display_name)) {
-						$display_name = translate('current');
+						$display_name = translate('Current');
+
 					} else {
 						$display_name = '';
 					}
@@ -485,7 +500,8 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 					combo_box($prefix.'_change_status_stream', $options['workflow'], FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_workflow"');
 				$cb2 = ob_get_clean();
 
-				echo sprintf(translate('workflow_stream_using_workflow_stream'), $cb1.$cb2);
+				echo sprintf(translate('using workflow stream: %1$s'), $cb1.$cb2);
+
 			} else {
 				// Only one option; hide the stream field and chuck it into a hidden field
 				$all_options = $options['bypass'] + $options['workflow'];
@@ -545,7 +561,8 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		else {
 			check_box($prefix.'_change_status_all_children', 1, FALSE, 'checkStatusDisplayWarning()');
 		}
-		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
+		label(translate('Cascade Status Change'), $prefix.'_change_status_all_children');
+
 
 		?>
 		<script type="text/javascript">
@@ -605,7 +622,8 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			ob_start();
 				echo '<div id="'.$prefix.'_workflow_approval_request_comment_div" style="display:none"><br /><br />';
 				text_area($prefix.'_workflow_approval_request_comment', '', 60, 6, 0, '  id="'.$prefix.'_workflow_approval_request_comment"  placeholder="Enter comment"');
-				echo '<br /><div id="note_workflow_comment">'.translate('editor_comment_note').'</div></div>';
+				echo '<br /><div id="note_workflow_comment">'.translate('You can enter a comment that the approvers will see when they get notified of this request.').'</div></div>';
+
 				?>
 				<script type="text/javascript">
 				//<![CDATA[
@@ -811,7 +829,8 @@ function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 		if (!empty($running_schemas)) {
-			echo sprintf(translate('asset_currently_in_workflow'), $owner->getBackendHref('workflow'));
+			echo sprintf(translate('<i>This asset is currently in workflow. Approval or rejection of the changes must be done on the <a href="%s">asset workflow screen</a></i>.'), $owner->getBackendHref('workflow'));
+
 		} else {
 			_paintStatusChange($owner, $o, $prefix, $statii);
 			$needs_commit = TRUE;
@@ -820,8 +839,10 @@ function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
 			if ($note) {
 				$o->note($note);
 			}
-			echo '<div id="warning_message_for_live_plus_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('asset_status_live_warning').'</div>';
-			echo '<div id="warning_message_for_stream_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('cascade_stream_warning').'</div>';
+			echo '<div id="warning_message_for_live_plus_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.').'</div>';
+
+			echo '<div id="warning_message_for_stream_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading this workflow initiation status to child assets will initiate the workflow for all children that are in a workflow ready state. The chosen workflow stream will also be cascaded if applicable.').'</div>';
+
 		}
 
 	}
@@ -854,10 +875,14 @@ function _paintDetailsFutureStatusCurrent(Asset $owner, Backend_Outputter $o, $p
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-backend-table-header"><?php echo translate('status'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('when'); ?></th>
-				<th align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></th>
-				<th align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('Status'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('When'); ?></th>
+
+				<th align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Cascade?'); ?></th>
+
+				<th align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Delete?'); ?></th>
+
 			</tr>
 			<?php
 			for ($k = 0; $k < count($fs_links); $k++) {
@@ -873,9 +898,11 @@ function _paintDetailsFutureStatusCurrent(Asset $owner, Backend_Outputter $o, $p
 					<td align="center" class="sq-backend-table-cell">
 					<?php
 						if ($fs_job->attr('dependants_only')) {
-							echo translate('no');
+							echo translate('No');
+
 						} else {
-							echo translate('yes');
+							echo translate('Yes');
+
 						}
 					?>
 					</td>
@@ -932,10 +959,12 @@ function _paintDetailsFutureStatusNew(Asset $owner, Backend_Outputter $o, $prefi
 
 		$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 
-		$o->note(sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+		$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+
 		$needs_commit = TRUE;
 	} else {
-		echo translate('cron_manager_not_configured');
+		echo translate('The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset.');
+
 	}
 
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
@@ -1000,7 +1029,8 @@ function _paintDetailsThumbnailCurrent(Asset $owner, Backend_Outputter $o, $pref
 	    $edit_fns = $thumbnail->getEditFns();
 	    $edit_fns->printExistingFileInfo($thumbnail);
 	} else {
-	    echo translate('no_thumbnail_attatched');
+	    echo translate('No thumbnail attached');
+
 	}
 
 	return FALSE;

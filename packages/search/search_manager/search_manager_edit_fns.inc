@@ -249,14 +249,18 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$tree_type = array_get_index($_POST, $prefix.'_selected_tree_type', '');
 
 		// section opened by xml
-			$o->openField(translate('sch_customise').'?');
+			$o->openField(translate('Customise').'?');
+
 				$types = Array(
-							'asset_type'	=> translate('asset_types'),
-							'metadata'		=> translate('metadata'),
+							'asset_type'	=> translate('Asset Types'),
+
+							'Metadata'		=> translate('Metadata'),
+
 						 );
 				combo_box($prefix.'_selected_tree_type', $types, FALSE, $tree_type);
 				echo '&nbsp;';
-				submit_button($prefix.'_selected_tree_type_go', translate('go'), 'main_form.submit()');
+				submit_button($prefix.'_selected_tree_type_go', translate('Go'), 'main_form.submit()');
+
 			$o->closeField();
 
 		// check to see if they have chosen to customise a different tree asset than the current
@@ -300,14 +304,18 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	function _paintAssetWeightInterface(&$asset, &$o, $prefix, $weights)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$o->openSection(translate('sch_asset_weightings'));
+		$o->openSection(translate('Asset Field Weightings'));
+
 			$o->openField('');
 				?>
 				<table class="sq-backend-table" style="width:50%">
 					<tr>
-						<td width="250" class="sq-backend-table-header"><?php echo translate('sch_weighting_component'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('sch_weighting'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('sch_indexed'); ?>?</td>
+						<td width="250" class="sq-backend-table-header"><?php echo translate('Weighting Field'); ?></td>
+
+						<td class="sq-backend-table-header"><?php echo translate('Weighting'); ?></td>
+
+						<td class="sq-backend-table-header"><?php echo translate('Indexed'); ?>?</td>
+
 					</tr>
 					<?php
 
@@ -335,7 +343,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 									if ($write_access) {
 										check_box($prefix.'_asset_weights['.$comp.'][indexed]', 1, $indexed);
 									} else {
-										echo ($indexed) ? translate('yes') : translate('no');
+										echo ($indexed) ? translate('Yes') : translate('No');
+
+
 									}
 								?>
 							</td>
@@ -371,14 +381,18 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$attrs        = $asset->getIndexableAttributes($type_code);
 
 		if (!empty($attrs)) {
-			$o->openSection(translate('sch_attribute_weightings'));
+			$o->openSection(translate('Asset Attribute Weightings'));
+
 				$o->openField('');
 					?>
 						<table class="sq-backend-table" style="width:50%">
 							<tr>
-								<td width="250" class="sq-backend-table-header"><?php echo translate('sch_weighting_attribute'); ?></td>
-								<td class="sq-backend-table-header"><?php echo translate('sch_weighting'); ?></td>
-								<td class="sq-backend-table-header"><?php echo translate('sch_indexed'); ?>?</td>
+								<td width="250" class="sq-backend-table-header"><?php echo translate('Weighting Attribute'); ?></td>
+
+								<td class="sq-backend-table-header"><?php echo translate('Weighting'); ?></td>
+
+								<td class="sq-backend-table-header"><?php echo translate('Indexed'); ?>?</td>
+
 							</tr>
 							<?php
 
@@ -412,7 +426,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 											if ($write_access) {
 												check_box($prefix.'_attr_weights['.$name.'][indexed]', 1, $indexed);
 											} else {
-												echo ($indexed) ? translate('yes') : translate('no');
+												echo ($indexed) ? translate('Yes') : translate('No');
+
+
 											}
 										?>
 									</td>
@@ -451,18 +467,21 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 						'metadata_field'	=> 'D',
 					   );
 		if ($write_access) {
-			$o->openSection(translate('sch_metadata_weightings'));
+			$o->openSection(translate('Metadata Weightings'));
+
 				$o->openField('');
 					?>
 					<table class="sq-backend-table" style="width:60%">
 						<tr>
-							<td class="sq-backend-table-header"><?php echo translate('sch_metadata_asset'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('Metadata Asset'); ?></td>
+
 							<td class="sq-backend-table-cell">
 								<?php asset_finder($prefix.'_metadata_asset', 0, $valid_types); ?>
 							</td>
 						</tr>
 						<tr>
-							<td class="sq-backend-table-header"><?php echo translate('sch_weighting'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('Weighting'); ?></td>
+
 							<td class="sq-backend-table-cell">
 								<?php text_box($prefix.'_metadata_weight', 1, 5); ?>
 							</td>
@@ -473,20 +492,27 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeSection();
 		}
 
-		$o->openSection(translate('sch_metadata_asset_weightings'));
+		$o->openSection(translate('Metadata Asset Weightings'));
+
 			$o->openField('');
 				if (!empty($weights)) {
 					?>
 						<table class="sq-backend-table" style="width:60%">
 							<tr>
-								<td class="sq-backend-table-header"><?php echo translate('assetid'); ?></td>
-								<td class="sq-backend-table-header"><?php echo translate('sch_metadata_asset_name'); ?></td>
-								<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-								<td class="sq-backend-table-header"><?php echo translate('sch_weighting'); ?></td>
-								<td class="sq-backend-table-header"><?php echo translate('sch_indexed'); ?>?</td>
+								<td class="sq-backend-table-header"><?php echo translate('Assetid'); ?></td>
+
+								<td class="sq-backend-table-header"><?php echo translate('Metadata Asset Name'); ?></td>
+
+								<td class="sq-backend-table-header"><?php echo translate('Asset Type'); ?></td>
+
+								<td class="sq-backend-table-header"><?php echo translate('Weighting'); ?></td>
+
+								<td class="sq-backend-table-header"><?php echo translate('Indexed'); ?>?</td>
+
 								<?php
 									if ($write_access) {
-										echo '<td class="sq-backend-table-header">'.translate('sch_remove').'?</td>';
+										echo '<td class="sq-backend-table-header">'.translate('Remove').'?</td>';
+
 									}
 								?>
 							</tr>
@@ -497,7 +523,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 								$type_name  = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($info['type_code'], 'name');
 								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'name');
 								$indexed    = (isset($weights[$assetid]['indexed'])) ? $weights[$assetid]['indexed'] : 1;
-								$asset_name = !empty($asset_info[$assetid]) ? $asset_info[$assetid] : "<span style='color:red'>(".translate('asset_not_found_no_id').")</span>";
+								$asset_name = !empty($asset_info[$assetid]) ? $asset_info[$assetid] : "<span style='color:red'>(".translate('Asset not found').")</span>";
+
 								?>
 								<tr>
 									<td class="sq-backend-table-cell">
@@ -523,7 +550,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 											if ($write_access) {
 												echo check_box($prefix.'_metadata_assets['.$assetid.'][indexed]', 1, $indexed);
 											} else {
-												echo ($indexed) ? translate('yes') : translate('no');
+												echo ($indexed) ? translate('Yes') : translate('No');
+
+
 											}
 										?>
 									</td>
@@ -541,7 +570,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 						</table>
 					<?php
 				} else {
-					echo translate('sch_no_metadata_customised');
+					echo translate('Currently no metadata assets customised');
+
 				}
 			$o->closeField();
 		$o->closeSection();
@@ -581,13 +611,15 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 		$all_types = array_unique($all_types);
 		arsort($all_types);
-		$all_types['asset'] = '-- '.translate('sch_all_asset_types').' --';
+		$all_types['asset'] = '-- '.translate('All Asset Types').' --';
+
 		$all_types[''] = '';
 		$all_types = array_reverse($all_types);
 
 		combo_box($field_name, $all_types, FALSE, $selected_type_code);
 		echo '&nbsp;';
-		submit_button($field_name.'_go', translate('go'), 'main_form.submit()');
+		submit_button($field_name.'_go', translate('Go'), 'main_form.submit()');
+
 
 	}//end _paintAssetTypeChooser()
 
@@ -608,14 +640,16 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		if ($screen == 'asset_type') {
-			$o->openField(translate('sch_choose_type_code'));
+			$o->openField(translate('Customise Asset Types'));
+
 				$current_customisation = $this->_getCurrentCustomisation($prefix, 'asset_type');
 				if ($write_access) {
 					$this->_paintAssetTypeChooser($prefix.'_selected_type_code'.$field_suffix, $current_customisation);
 				} else {
 					if (!empty($current_customisation)) {
 						if ($current_customisation == 'asset') {
-							echo translate('sch_all_asset_types');
+							echo translate('All Asset Types');
+
 						} else {
 							echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($current_customisation, 'name');
 						}
@@ -624,7 +658,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 		} else if ($screen == 'asset') {
 			if ($write_access) {
-				$o->openField(translate('sch_choose_assetid'));
+				$o->openField(translate('Customise Asset'));
+
 					$current_customisation = $this->_getCurrentCustomisation($prefix, 'asset');
 					asset_finder($prefix.'_selected_assetid'.$field_suffix, $current_customisation, Array());
 				$o->closeField();
@@ -662,14 +697,16 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 								<?php
 								// only print this header if we are printing non asset_type screens
 								if ($screen != 'asset_type') {
-									?><td class="sq-backend-table-header"><?php echo translate('assetid'); ?></td><?php
+									?><td class="sq-backend-table-header"><?php echo translate('Assetid'); ?></td><?php
+
 								}
 								$type_col_name = ($screen == 'asset') ? 'asset_name' : 'asset_type';
 								?>
 								<td class="sq-backend-table-header"><?php echo translate($type_col_name); ?></td>
 								<?php
 									if ($write_access) {
-										echo '<td class="sq-backend-table-header">'.translate('sch_remove').'?</td>';
+										echo '<td class="sq-backend-table-header">'.translate('Remove').'?</td>';
+
 									}
 								?>
 							</tr>
@@ -748,7 +785,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			if ($key != 'asset') {
 				$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($key, 'name');
 			} else {
-				$type_name = translate('sch_all_asset_types');
+				$type_name = translate('All Asset Types');
+
 			}
 		}
 		return $type_name;
@@ -855,7 +893,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 						$type_code  = $asset_info[$key]['type_code'];
 					}
 
-					$o->openField(translate('sch_indexing_enabled'));
+					$o->openField(translate('Enable Indexing ?'));
+
 
 						if (isset($weights['indexed'])) {
 							$indexed = $weights['indexed'];
@@ -863,8 +902,10 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 							$indexed = 1;
 						}
 						$options = Array(
-									1	=> translate('yes'),
-									0	=> translate('no'),
+									1	=> translate('Yes'),
+
+									0	=> translate('No'),
+
 								   );
 						if ($write_access) {
 							combo_box($prefix.'_indexed', $options, FALSE, $indexed);
@@ -1171,11 +1212,14 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix.'_reindexing_root_assetid', '');
-			echo '&nbsp;&nbsp;&nbsp;<b>'.strtoupper(translate('or')).'</b>';
+			echo '&nbsp;&nbsp;&nbsp;<b>'.strtoupper(translate('Or')).'</b>';
+
 			$o->closeField();
-			$o->openField(translate('sch_system_wide'));
+			$o->openField(translate('System Wide'));
+
 			check_box($prefix.'_reindexing_root_folder');
-			echo translate('sch_reindex_all_assets');
+			echo translate('Reindex all assets in the system');
+
 			return TRUE;
 		}
 		return FALSE;

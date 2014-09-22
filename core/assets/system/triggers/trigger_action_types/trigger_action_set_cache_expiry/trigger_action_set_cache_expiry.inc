@@ -169,7 +169,8 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 		$output = Trigger_Action_Set_Cache_Expiry::_paintTimeUnit($settings, $prefix, $write_access);
 		$output .= '<br />';
 		$output .= Trigger_Action_Set_Cache_Expiry::_paintDSN($settings, $prefix, $write_access);
-		$output .= '<div class="sq-backend-note">'.translate('trigger_action_use_other_assets_setting').'</div>';
+		$output .= '<div class="sq-backend-note">'.translate('<strong>NOTE:</strong> Please use the "Action On Other Assets" function to specify which other assets to fire this action on.').'</div>';
+
 
 		return $output;
 
@@ -223,8 +224,11 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 
 		$time_unit = Array(
 						60		=> translate('minute'),
+
 						3600	=> translate('hour'),
+
 						86400	=> translate('day'),
+
 					 );
 
 		if ($write_access) {
@@ -243,7 +247,8 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			$output = ($value.' '.$unit.'(s)');
 		}
 
-		return sprintf(translate('trigger_set_cache_expiry'), $output);
+		return sprintf(translate('Set cache entries related to current asset to expire in: %s.'), $output);
+
 
 	}//end _paintTimeUnit()
 
@@ -327,8 +332,10 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 				<?php
 				$alt_dsn_part = ob_get_contents();
 			ob_end_clean();
-			$output = sprintf(translate('trigger_set_cache_expiry_default_db'), '<b>dbcache</b><br />Use Alternative? '.$default);
-			$output .= '<br />'.sprintf(translate('trigger_set_cache_expiry_alt_dsn'), $alt_dsn_part);
+			$output = sprintf(translate('Default Cache DB: %s'), '<b>dbcache</b><br />Use Alternative? '.$default);
+
+			$output .= '<br />'.sprintf(translate('Alternative Cache DB DSN: %s'), $alt_dsn_part);
+
 
 		} else {
 			$output = 'Cache DSN: ';

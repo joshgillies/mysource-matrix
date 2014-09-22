@@ -66,7 +66,15 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content_pg_paypal_express')));
+		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
+<div style="background-color: #CCC; padding: 5px">Confirm payment <strong>$%%transaction_amount%%</strong>(%%transaction_gst%% percent GST)</div>
+<table cellpadding="5">
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>')));
+
 
 	}//end _createAdditional()
 
@@ -207,7 +215,8 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 		$valid_token = TRUE;
 
 		if (!empty($payer_id) && !empty($get_var_transaction_token) && $get_var_transaction_token == $transaction_token) {
-			$this->appendPendingOrderAuditLog(translate('paypal_audit_redirected_from_paypal'));
+			$this->appendPendingOrderAuditLog(translate('User authenticated successfully at PayPal'));
+
 			// Redirected from PayPal after successful user authentication
 			$_SESSION['PAYPAL_PAYER_ID'] = $payer_id;
 		} else if (!empty($get_var_transaction_token) && $get_var_transaction_token != $transaction_token) {
@@ -234,11 +243,13 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 			if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
 				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 			}
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+			$this->appendPendingOrderAuditLog(translate('Payment has no amount'));
+
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($action == $submit_text) {
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+			$this->appendPendingOrderAuditLog(translate('Payment Attempted (gateway contacted)'));
+
 			$success = $this->processPayment();
 		}
 
@@ -271,11 +282,13 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 				}
 			}
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+			$this->appendPendingOrderAuditLog(translate('Payment is successful'));
+
 
 			$this->returnToCaller('SUCCESS');
 		} else if ($action == $submit_text) {
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+				$this->appendPendingOrderAuditLog(translate('Payment Declined'));
+
 		}
 
 		//print default bodycopy
@@ -360,7 +373,8 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 
 		// Check that transaction token matches with the one in the session
 		if (empty($transaction_token) || empty($correlation_id) || empty($payer_id)){
-			$this->_setError(translate('paypal_authentication_error'));
+			$this->_setError(translate('PayPal authentication unsuccessful'));
+
 			return FALSE;
 		}
 
@@ -385,7 +399,8 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 			return FALSE;
 		}
 
-		$this->appendPendingOrderAuditLog(translate('paypal_audit_finalising_payment'));
+		$this->appendPendingOrderAuditLog(translate('Sending request to PayPal to finialise the transaction'));
+
 		// Do the processing
 		$success = $processor->process();
 
@@ -437,13 +452,15 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 			return FALSE;
 		}
 
-		$this->appendPendingOrderAuditLog(translate('paypal_audit_requesting_token'));
+		$this->appendPendingOrderAuditLog(translate('Transaction Token request sent to PayPal'));
+
 
 		$success = $processor->process();
 		$response = $processor->getResponse();
 
 		if (empty($response['CORRELATIONID']) || empty($response['TOKEN']) || empty($response['ACK']) || $response['ACK'] != 'Success') {
-			$this->_setError(translate('paypal_token_not_obtained_error'));
+			$this->_setError(translate('Expected transaction paramaters not obtained from the PayPal'));
+
 			if (!empty($response['PAYPAL_ERROR'])) {
 				$this->_setError($response['PAYPAL_ERROR']);
 			}
@@ -455,7 +472,8 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 		$_SESSION['PAYPAL_CORRELATION_ID'] = $response['CORRELATIONID'];
 		$_SESSION['SQ_ECOM_REF_NO'] = $response['TOKEN'];
 
-		$this->appendPendingOrderAuditLog(translate('paypal_audit_token_obtained_and_redirecting'));
+		$this->appendPendingOrderAuditLog(translate('Token obtained. Redirecting user to PayPal'));
+
 
 		// Everything good so far, now redirect user to the Paypal
 		$processor->redirectToPaypal($response['TOKEN']);
@@ -479,7 +497,8 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 		if ($amount && is_numeric($amount) && $amount > 0) {
 			$processor->setTransactionAmount($amount);
 		} else {
-			$this->_setError(translate('paypal_amount_not_specified_error'));
+			$this->_setError(translate('Transaction amount is invalid'));
+
 		}
 		$currency = $this->attr('currency');
 		$processor->setTransactionCurrency($currency);
@@ -488,21 +507,24 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 		if ($api_username) {
 			$processor->setApiUsername($api_username);
 		} else {
-			$this->_setError(translate('paypal_api_username_not_specified'));
+			$this->_setError(translate('PayPal API Username not specified'));
+
 		}
 
 		$api_password = $this->attr('password');
 		if ($api_password) {
 			$processor->setApiPassword($api_password);
 		} else {
-			$this->_setError(translate('paypal_api_password_not_specified'));
+			$this->_setError(translate('PayPal API Password not specified'));
+
 		}
 
 		$api_signature = $this->attr('signature');
 		if ($api_signature) {
 			$processor->setApiSignature($api_signature);
 		} else {
-			$this->_setError(translate('paypal_api_signature_not_specified'));
+			$this->_setError(translate('PayPal API Signature not specified'));
+
 		}
 
 		$timeout = $this->attr('timeout');

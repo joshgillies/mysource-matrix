@@ -217,7 +217,8 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$custom_error = $this->attr('cust_required_error');
 		if (empty($custom_error)) {
-			$custom_error = translate('core_form_datetime_invalid_date_time');
+			$custom_error = translate('Invalid date/time');
+
 		}
 
 		$this->failed_rules[] = $custom_error;

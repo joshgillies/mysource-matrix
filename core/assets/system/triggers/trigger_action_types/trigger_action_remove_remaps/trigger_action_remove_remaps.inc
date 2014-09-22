@@ -151,20 +151,29 @@ class Trigger_Action_Remove_Remaps extends Trigger_Action
 		$remove_to_from = array_get_index($settings, 'removetofrom', 0);
 
 		ob_start();
-			echo translate('trigger_schema_remove_remaps_message').'.';
+			echo translate('This trigger removes all the remaps for the current asset').'.';
+
 			echo '<br />';
 			if ($write_access) {
 				check_box($prefix.'[removefromto]', '1', $remove_from_to, '');
-				label(translate('trigger_schema_remove_from_to_remaps_message'), $prefix.'[removefromto]');
+				label(translate('Remove all remap entries where the <em>Remapped URL</em> matches any of the asset\'s URLs'), $prefix.'[removefromto]');
+
 				echo '<br />';
 				check_box($prefix.'[removetofrom]', '1', $remove_to_from, '');
-				label(translate('trigger_schema_remove_to_from_remaps_message'), $prefix.'[removetofrom]');
+				label(translate('Remove all remap entries where the <em>Original URL</em> matches any of the asset\'s URLs'), $prefix.'[removetofrom]');
+
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_from_to ? 'tick' : 'cross').'.gif" alt="'.($remove_from_to ? translate('yes') : translate('no')).'" /> ';
-				echo translate('trigger_schema_remove_from_to_remaps_message');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_from_to ? 'tick' : 'cross').'.gif" alt="'.($remove_from_to ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Remove all remap entries where the <em>Remapped URL</em> matches any of the asset\'s URLs');
+
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_to_from ? 'tick' : 'cross').'.gif" alt="'.($remove_to_from ? translate('yes') : translate('no')).'" /> ';
-				echo translate('trigger_schema_remove_to_from_remaps_message');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_to_from ? 'tick' : 'cross').'.gif" alt="'.($remove_to_from ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Remove all remap entries where the <em>Original URL</em> matches any of the asset\'s URLs');
+
 			}
 
 			$output = ob_get_contents();

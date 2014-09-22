@@ -518,15 +518,18 @@ class Internal_Message extends MySource_Object
 			<body bgcolor="#FFFFFF">
 				<table border="0" cellspacing="1" cellpadding="2" width="100%" height="100%">
 					<tr>
-						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('subject')) ?>:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('Subject')) ?>:</b></td>
+
 						<td valign="top" class="sq-message-item" width="100%"><?php echo $info['subject']; ?></td>
 					</tr>
 					<tr>
-						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('from')) ?>:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('From')) ?>:</b></td>
+
 						<td valign="top" class="sq-message-item" width="100%"><?php echo $info['from_name'] ?></td>
 					</tr>
 					<tr>
-						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('date')) ?>:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('Date')) ?>:</b></td>
+
 						<td valign="top" class="sq-message-item" width="100%"><?php echo readable_datetime($info['sent']); ?></td>
 					</tr>
 					<tr height="100%">

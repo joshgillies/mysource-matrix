@@ -46,9 +46,12 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 	public static function execute($settings, &$state)
 	{
 		$options = Array(
-					'details'	=> translate('database_details'),
-					'dsn'		=> translate('dsn'),
-					'connector'	=> translate('db_connector'),
+					'details'	=> translate('Database Details'),
+
+					'DSN'		=> translate('DSN'),
+
+					'connector'	=> translate('DB Connector'),
+
 				   );
 		$method		= array_get_index($settings, 'method', '');
 		$type		= array_get_index($settings, 'type', 'pgsql');
@@ -230,9 +233,12 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		$password	= array_get_index($settings, 'password', '');
 		$sql		= array_get_index($settings, 'sql', '');
 		$options = Array(
-					'details'	=> translate('database_details'),
-					'dsn'		=> translate('dsn'),
-					'connector'	=> translate('db_connector'),
+					'details'	=> translate('Database Details'),
+
+					'DSN'		=> translate('DSN'),
+
+					'connector'	=> translate('DB Connector'),
+
 				   );
 		if (!array_key_exists($method, $options) || empty($method)) {
 			$method = 'details';
@@ -279,7 +285,8 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 			</script>
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('connection_type'); ?></th>
+					<th><?php echo translate('Connection Type'); ?></th>
+
 					<td><?php
 							if ($write_access) {
 								combo_box($prefix.'[method]', $options, FALSE, $method, '1', 'onchange="toggleDatabaseSetup(document.getElementById(\''.$prefix.'[method]\').value)"');
@@ -290,12 +297,14 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('connection_setup'); ?></th>
+					<th><?php echo translate('Connection Setup'); ?></th>
+
 					<td>
 						<table class="sq-backend-table">
 							<?php $style = ($method != 'connector') ? $enable : $disable; ?>
 							<tr id="trigger_action_user_username" <?php echo $style; ?>>
-								<th style="width:100px;"><?php echo translate('user_name');?></th>
+								<th style="width:100px;"><?php echo translate('User Name');?></th>
+
 								<td><?php
 										if ($write_access) {
 											text_box($prefix.'[username]', $username, 35);
@@ -306,23 +315,27 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 								</td>
 							</tr>
 							<tr id="trigger_action_user_password" <?php echo $style; ?>>
-								<th style="width:100px;"><?php echo translate('password');?></th>
+								<th style="width:100px;"><?php echo translate('Password');?></th>
+
 								<td><?php
 										if ($write_access) {
 											password_box($prefix.'[password]', $password, 35);
 										} else {
-											echo translate('data_password_not_displayed');
+											echo translate('(Password not displayed)');
+
 										}//end if
 									?>
 								</td>
 							</tr>
 							<?php $style = ($method == 'details') ? $enable : $disable; ?>
 							<tr id="trigger_action_database_details" <?php echo $style; ?>>
-								<th style="width:100px;"><?php echo translate('database_details'); ?></th>
+								<th style="width:100px;"><?php echo translate('Database Details'); ?></th>
+
 								<td>
 									<table class="sq-backend-table">
 										<tr>
-											<th><?php echo translate('database_type');?></th>
+											<th><?php echo translate('Database Type');?></th>
+
 											<td>
 												<?php
 													$db_options = Array('pgsql' => 'PostgreSQL', 'oci' => 'Oracle', 'mysql' => 'MySQL');
@@ -338,7 +351,8 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 											</td>
 										</tr>
 										<tr>
-											<th><?php echo translate('database_name');?></th>
+											<th><?php echo translate('Database Name');?></th>
+
 											<td><?php
 													if ($write_access) {
 														text_box($prefix.'[database]', $database, 35);
@@ -349,7 +363,8 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 											</td>
 										</tr>
 										<tr>
-											<th><?php echo translate('host_name'); ?></th>
+											<th><?php echo translate('Host Name'); ?></th>
+
 											<td><?php
 													if ($write_access) {
 														text_box($prefix.'[host]', $host, 35);
@@ -364,7 +379,8 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 							</tr>
 							<?php $style = ($method == 'dsn') ? $enable : $disable; ?>
 							<tr id="trigger_action_dsn" <?php echo $style; ?>>
-								<th style="width:100px;"><?php echo translate('dsn'); ?></th>
+								<th style="width:100px;"><?php echo translate('DSN'); ?></th>
+
 								<td><?php
 										if ($write_access) {
 											text_box($prefix.'[dsn]', $dsn, 70);
@@ -376,7 +392,8 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 							</tr>
 							<?php $style = ($method == 'connector') ? $enable : $disable; ?>
 							<tr id="trigger_action_connector" <?php echo $style; ?>>
-								<th style="width:100px;"><?php echo translate('db_connector'); ?></th>
+								<th style="width:100px;"><?php echo translate('DB Connector'); ?></th>
+
 								<td><?php
 										if ($write_access) {
 											asset_finder($prefix.'[connector]', $connector, Array('db_connector'=>'D'));
@@ -384,7 +401,8 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 											if (!empty($connector)) {
 												echo get_asset_tag_line($connector);
 											} else {
-												echo translate('no_asset_selected');
+												echo translate('No asset selected');
+
 											}//end if
 										}//end if
 									?>
@@ -394,7 +412,8 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('sql_query'); ?></th>
+					<th><?php echo translate('SQL Query'); ?></th>
+
 					<td><?php
 							if ($write_access) {
 								text_area($prefix.'[sql]', $sql, 100, 40, 0, 'style="width: 80%; height: 30em; font-family: \'Courier New\', Courier, monospace; display: block"');
@@ -402,7 +421,8 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 								echo $sql;
 								echo "<br />\n";
 							}//end if
-							echo translate('trigger_execute_database_query_note');
+							echo translate('<strong>Note:</strong> You can use keywords of the current asset (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the SQL Query.');
+
 						?>
 					</td>
 				</tr>

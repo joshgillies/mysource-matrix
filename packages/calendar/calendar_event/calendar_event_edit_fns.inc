@@ -80,7 +80,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<!-- start -->
 		<table class="sq-calendar-date-table start">
 			<tr>
-				<td class="sq-backend-data" style="white-space: nowrap">&nbsp;<?php echo translate('cal_event_occurs_on') ?>&nbsp;
+				<td class="sq-backend-data" style="white-space: nowrap">&nbsp;<?php echo translate('Occurs on') ?>&nbsp;
+
 					<?php $this->printDateChooser($prefix.'_start', (isset($_REQUEST['SQ_CALENDAR_DATE']) && !$asset->id) ? strtotime($_REQUEST['SQ_CALENDAR_DATE']) : ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0), $attributes+Array('onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processStartDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')); ?>
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
@@ -98,18 +99,23 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				</td>
 				<!-- duration -->
 				<td class="sq-backend-data" style="white-space: nowrap">
-					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> <?php echo strtolower(translate('for')); ?>
+					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> <?php echo strtolower(translate('For')); ?>
+
 				</td>
 				<td colspan="2" class="sq-backend-data" style="white-space: nowrap">
 					<?php text_box($prefix.'_duration', $duration, 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValuesByPrefix(\''.$prefix.'\')" '.$end_disabled_code);
 					combo_box($prefix.'_duration_units', Array('i' => translate('minutes'), 'h' => translate('hours'), 'd' => translate('days')), FALSE, $duration_units, 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValuesByPrefix(\''.$prefix.'\')" '.$end_disabled_code); ?>
+
+
+
 				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 				<!-- end date -->
 				<td class="sq-backend-data" style="white-space: nowrap">
-					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  /> <?php echo strtolower(translate('until')); ?> &nbsp;
+					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  /> <?php echo strtolower(translate('Until')); ?> &nbsp;
+
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
 					<?php $this->printDateChooser($prefix.'_end', $occurrence_end_ts ? $occurrence_end_ts : ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : FALSE), $attributes+Array('onclick'=>'checkBox(\''.$prefix.'_end_date_enabled\');', 'onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processEndDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')+$end_disabled_array); ?>

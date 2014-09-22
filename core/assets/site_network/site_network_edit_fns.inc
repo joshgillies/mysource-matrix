@@ -67,9 +67,11 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 			}
 			if (!is_null($site_asset)) {
 				echo $asset->getPrimaryURL();
-				echo '<br/ ><i>'.strtolower(translate('from')).' '.get_asset_tag_line($site_asset->id).'</i>';
+				echo '<br/ ><i>'.strtolower(translate('From')).' '.get_asset_tag_line($site_asset->id).'</i>';
+
 			} else {
-				echo translate('core_primary_url_not_set');
+				echo translate('No primary URL has been set');
+
 			}
 		} else {
 			asset_finder($prefix.'_primary_site', (!empty($site_link)) ? $site_link['minorid'] : '', Array('site' => 'D'));

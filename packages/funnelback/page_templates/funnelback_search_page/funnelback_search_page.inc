@@ -380,21 +380,24 @@ class Funnelback_Search_Page extends Listing_Engine
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_format');
 		if (!empty($folder_link)) {
 			if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('cms_listing_cannot_delete_type_formats_link'), str_replace('_',' ', $this->type()));
+				return sprintf(translate('You cannot delete the link between the type formats folder and the %s page'), str_replace('_',' ', $this->type()));
+
 			}
 		}
 
 		$fluster_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'fluster_format');
 		if (!empty($fluster_folder_link)) {
 			if ($fluster_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('funnelback_cannot_delete_fluster_format_link'), str_replace('_',' ', $this->type()));
+				return sprintf(translate('You cannot delete the link between the contextual navigation formats folder and the %s'), str_replace('_',' ', $this->type()));
+
 			}
 		}
 
 		$spelling_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'spell_format');
 		if (!empty($spelling_folder_link)) {
 			if ($spelling_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('funnelback_cannot_delete_spelling_format_link'), str_replace('_',' ', $this->type()));
+				return sprintf(translate('You cannot delete the link between the spelling formats folder and the %s'), str_replace('_',' ', $this->type()));
+
 			}
 		}
 
@@ -402,7 +405,8 @@ class Funnelback_Search_Page extends Listing_Engine
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && array_key_exists($bodycopy_link['value'], $this->bodycopies) && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return sprintf(translate('funnelback_cannot_delete_bodycopy_link'), str_replace('_', ' ', ucwords($bodycopy_link['value'])), str_replace('_',' ', ucwords($this->type())));
+			return sprintf(translate('You cannot delete the link between the %1s bodycopy and the %2s'), str_replace('_', ' ', ucwords($bodycopy_link['value'])), str_replace('_',' ', ucwords($this->type())));
+
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -1617,10 +1621,14 @@ class Funnelback_Search_Page extends Listing_Engine
 	public function getSortOptions()
 	{
 		return Array(
-					'rank'	=> translate('funnelback_sort_rank'),
-					'date'	=> translate('funnelback_sort_date'),
-					'title'	=> translate('funnelback_sort_title'),
-					'url'	=> translate('funnelback_sort_url'),
+					'rank'	=> translate('Sort By Relevance'),
+
+					'date'	=> translate('Sort By Date'),
+
+					'title'	=> translate('Sort By Title'),
+
+					'url'	=> translate('Sort By URL'),
+
 			   );
 
 	}//end getSortOptions()

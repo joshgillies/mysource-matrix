@@ -215,10 +215,13 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 			$combo_box = ob_get_contents();
 		ob_end_clean();
 
-		$contents =	translate('trigger_create_design_customisation_usage')
-		.'<br /><br />'.translate('trigger_create_design_customisation_select_keyword').$combo_box
+		$contents =	translate('This trigger will create a design customisation of the design asset in which the trigger condition is matched.')
+
+		.'<br /><br />'.translate('Available keywords for naming:').$combo_box
+
 		.'<br /><br />'.
-		translate('trigger_create_design_customisation_specify_name').$text_box.'<br />'
+		translate('Specify a name for the customisation:').$text_box.'<br />'
+
 		;
 
 		return $contents;
@@ -241,7 +244,8 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 	{
 		// make sure the assetid isn't blank
 		if (empty($request_data['customisation_name'])) {
-			return translate('trigger_create_design_customisation_name_missing');
+			return translate('Design customisation name is missing');
+
 		}
 
 		$settings['customisation_name']   = $request_data['customisation_name'];

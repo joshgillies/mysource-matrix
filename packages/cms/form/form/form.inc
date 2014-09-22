@@ -158,7 +158,8 @@ class Form extends Asset implements Bridge
 	*/
 	function create(&$link)
 	{
-		$this->setAttrValue('submission_errors_msg', translate('cms_form_error_msg_default'));
+		$this->setAttrValue('submission_errors_msg', translate('There were errors submitting the form.  Please correct the marked fields and try again'));
+
 
 		return parent::create($link);
 
@@ -187,7 +188,8 @@ class Form extends Asset implements Bridge
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!$this->createSubmissionsFolder(translate('submissions'), 'submissions_folder')) {
+		if (!$this->createSubmissionsFolder(translate('Submissions'), 'submissions_folder')) {
+
 			return FALSE;
 		}
 
@@ -2954,7 +2956,8 @@ class Form extends Asset implements Bridge
 					if ($error_text) {
 						$mollom_error = $error_text;
 					} else {
-						$mollom_error = translate('cms_form_mollom_spam_submission_message');
+						$mollom_error = translate('This submission does not seem legitimate. This submission has not been accepted.');
+
 					}
 				break;
 
@@ -2982,7 +2985,8 @@ class Form extends Asset implements Bridge
 					if($error_text) {
 						$mollom_error = $error_text;
 					} else {
-						$mollom_error = translate('cms_form_mollom_invalid_captcha_message');
+						$mollom_error = translate('Incorrect security key. Please try again');
+
 					}
 					break;
 			}//end switch
@@ -3409,7 +3413,8 @@ class Form extends Asset implements Bridge
 				<?php echo $code; ?>
 
 				if (submission_errors.length > 0) {
-					var errors_list = "<?php echo translate('cms_form_submission_errors'); ?>\n";
+					var errors_list = "<?php echo translate('The following errors must be corrected before the form can be submitted:'); ?>\n";
+
 					for(x in submission_errors) {
 						errors_list += submission_errors[x] + "\n";
 					}
@@ -3838,7 +3843,8 @@ class Form extends Asset implements Bridge
 			// We shall not do this with the Completed Submissions folder, because
 			// this should have been created when the form was created
 			if (!$create_in_completed) {
-				$submissions_folder = $this->createSubmissionsFolder(translate('cms_form_incomplete_submissions'), 'incomplete_submissions');
+				$submissions_folder = $this->createSubmissionsFolder(translate('Incomplete Submissions'), 'incomplete_submissions');
+
 			}
 
 			if (is_null($submissions_folder)) {
@@ -4312,14 +4318,20 @@ class Form extends Asset implements Bridge
 		$questions = $this->getQuestionAssets();
 		$sections = $this->getSections();
 
-		$keywords['form_contents']         = translate('cms_form_contents');
-		$keywords['current_page_contents'] = translate('cms_current_page_contents');
-		$keywords['form_errors']           = translate('cms_form_errors');
-		$keywords['form_errors_message']   = translate('cms_form_errors_message');
-		$keywords['form_required_field_note']   = ucfirst(translate('cms_form_required_field_note'));
+		$keywords['form_contents']         = translate('Form Contents');
+
+		$keywords['current_page_contents'] = translate('Current Page Contents');
+
+		$keywords['form_errors']           = translate('List of Submission Errors');
+
+		$keywords['form_errors_message']   = translate('Message indicating that there were errors');
+
+		$keywords['form_required_field_note']   = ucfirst(translate('Required field note'));
+
 
 		foreach ($questions as $question) {
-			$keywords['question_name_' .$question->id] = sprintf(translate('cms_form_question_name'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_name_' .$question->id] = sprintf(translate('Question Name: %s'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
 			$keywords += $this->_getCommonQuestionKeywords($question, $this);
 		}
 
@@ -4330,11 +4342,14 @@ class Form extends Asset implements Bridge
 		}
 
 		// These are best at the end
-		$keywords['reset_button']         = translate('cms_form_reset_button');
-		$keywords['submit_button']        = translate('cms_form_submit_button');
+		$keywords['reset_button']         = translate('Reset Button');
+
+		$keywords['submit_button']        = translate('Submit Button');
+
 
 		if ($this->getTotalPages() > 1) {
-			$keywords['previous_page_button'] = translate('cms_form_previous_page_button');
+			$keywords['previous_page_button'] = translate('Previous Page Button');
+
 		}
 
 		if ($this->attr('require_captcha')) {
@@ -4346,10 +4361,12 @@ class Form extends Asset implements Bridge
 		}
 
 		if ($this->attr('use_recaptcha')) {
-			$keywords['form_recaptcha'] = translate('cms_form_recaptcha');
+			$keywords['form_recaptcha'] = translate('Google reCAPTCHA');
+
 		}
 
-		$keywords['form_honeypot_field'] = translate('cms_form_honeypot_field');
+		$keywords['form_honeypot_field'] = translate('Honeypot Question');
+
 
 		return $keywords;
 
@@ -4364,9 +4381,12 @@ class Form extends Asset implements Bridge
 	*/
 	function _getSubmissionLimitReachedBodycopyKeywords()
 	{
-		$keywords['form_submissions_limit'] = translate('cms_form_submissions_limit');
-		$keywords['form_submissions_count'] = translate('cms_form_submissions_count');
-		$keywords['form_submissions_left']  = translate('cms_form_submissions_left');
+		$keywords['form_submissions_limit'] = translate('Number of submissions allowed for this form');
+
+		$keywords['form_submissions_count'] = translate('Number of submissions completed on this form');
+
+		$keywords['form_submissions_left']  = translate('Number of submissions left for this form');
+
 
 		return $keywords;
 
@@ -4384,29 +4404,43 @@ class Form extends Asset implements Bridge
 		$questions = $this->getQuestions();
 		$sections = $this->getSections();
 
-		$keywords['form_summary']               = translate('cms_form_submission_summary');
-		$keywords['form_summary_html']          = translate('cms_form_submission_summary').' (html)';
-		$keywords['form_summary_semantic']          = translate('cms_form_submission_summary').' (semantic)';
-		$keywords['form_info']                  = translate('cms_form_submission_info');
-		$keywords['form_info_html']             = translate('cms_form_submission_info').' (html)';
-		$keywords['form_submission_id']         = translate('cms_form_submission_id');
-		$keywords['form_submission_ip_address'] = translate('cms_form_submission_ip_address');
-		$keywords['form_submission_time']       = sprintf(translate('cms_form_submission_time_format'), translate('date_format_default'));
+		$keywords['form_summary']               = translate('Submission Summary');
+
+		$keywords['form_summary_html']          = translate('Submission Summary').' (html)';
+
+		$keywords['form_summary_semantic']          = translate('Submission Summary').' (semantic)';
+
+		$keywords['form_info']                  = translate('Submission Info');
+
+		$keywords['form_info_html']             = translate('Submission Info').' (html)';
+
+		$keywords['form_submission_id']         = translate('Submission Id');
+
+		$keywords['form_submission_ip_address'] = translate('Submission IP Address');
+
+		$keywords['form_submission_time']       = sprintf(translate('Time of Submission (%s)'), translate('yyyy-mm-dd hh:mm:ss'));
+
+
 
 		foreach (get_date_format_names() as $date_name => $date_format) {
-			$keywords['form_submission_time_'.$date_name] = sprintf(translate('cms_form_submission_time_format'), translate('date_format_'.$date_name));
+			$keywords['form_submission_time_'.$date_name] = sprintf(translate('Time of Submission (%s)'), translate('date_format_'.$date_name));
+
 		}
 
 		foreach ($questions as $q_id => $question) {
 			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$keywords['response_'.$this->id.'_q'.$q_id]      = sprintf(translate('cms_form_question_response'), ellipsisize($q_name,30));
-			$keywords['question_name_'.$this->id.'_q'.$q_id] = sprintf(translate('cms_form_question_name'), ellipsisize($q_name,30));
-			$keywords['question_note_'.$this->id.'_q'.$q_id] = sprintf(translate('cms_form_question_note'), ellipsisize($q_name,30));
+			$keywords['response_'.$this->id.'_q'.$q_id]      = sprintf(translate('Response to %s'), ellipsisize($q_name,30));
+
+			$keywords['question_name_'.$this->id.'_q'.$q_id] = sprintf(translate('Question Name: %s'), ellipsisize($q_name,30));
+
+			$keywords['question_note_'.$this->id.'_q'.$q_id] = sprintf(translate('Question Note: %s'), ellipsisize($q_name,30));
+
 		}
 
 		foreach ($sections as $section) {
-			$keywords['section_title_'.$section->id] = sprintf(translate('cms_form_section_title'), $section->attr('name'));
+			$keywords['section_title_'.$section->id] = sprintf(translate('Section Title: %s'), $section->attr('name'));
+
 			$keywords += $section->getResponseKeywords();
 		}
 
@@ -4428,10 +4462,14 @@ class Form extends Asset implements Bridge
 
 		$keywords = Array();
 
-		$keywords['form_summary'] = translate('cms_form_submission_summary');
-		$keywords['form_summary_html']          = translate('cms_form_submission_summary').' (html)';
-		$keywords['form_summary_semantic']          = translate('cms_form_submission_summary').' (semantic)';
-		$keywords['form_info']    = translate('cms_form_submission_info');
+		$keywords['form_summary'] = translate('Submission Summary');
+
+		$keywords['form_summary_html']          = translate('Submission Summary').' (html)';
+
+		$keywords['form_summary_semantic']          = translate('Submission Summary').' (semantic)';
+
+		$keywords['form_info']    = translate('Submission Info');
+
 
 		foreach ($questions as $question) {
 			$keywords += $this->_getCommonQuestionKeywords($question, $this);
@@ -4443,9 +4481,12 @@ class Form extends Asset implements Bridge
 		}
 
 		// These are best at the end
-		$keywords['reset_button']         = translate('cms_form_reset_button');
-		$keywords['submit_button']        = translate('cms_form_submit_button');
-		$keywords['previous_page_button'] = translate('cms_form_previous_page_button');
+		$keywords['reset_button']         = translate('Reset Button');
+
+		$keywords['submit_button']        = translate('Submit Button');
+
+		$keywords['previous_page_button'] = translate('Previous Page Button');
+
 
 		$keywords += $this->_getCaptchaDisplayKeywords();
 
@@ -4475,21 +4516,35 @@ class Form extends Asset implements Bridge
 		$keyword_assetid = str_replace(':', '_', $question->id);
 
 		if ($parent instanceof Form_Section) {
-			$keywords['question_field_' .$keyword_assetid] = sprintf(translate('cms_form_section_q_field'),  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_name_' .$keyword_assetid] = sprintf(translate('cms_form_section_q_name'),  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_id_'   .$keyword_assetid] = sprintf(translate('cms_form_section_q_id'),    $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_note_' .$keyword_assetid] = sprintf(translate('cms_form_section_q_note'),  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_label_'.$keyword_assetid] = sprintf(translate('cms_form_section_q_label'), $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_error_'.$keyword_assetid] = sprintf(translate('cms_form_section_q_error'), $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_contents_'.$keyword_assetid] = sprintf(translate('cms_form_question_contents'), $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_field_' .$keyword_assetid] = sprintf(translate('Input Field: %1$s: %2$s'),  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_name_' .$keyword_assetid] = sprintf(translate('Question Name: %1$s: %2$s'),  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_id_'   .$keyword_assetid] = sprintf(translate('Question ID: %1$s: %2$s'),    $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_note_' .$keyword_assetid] = sprintf(translate('Question Note: %1$s: %2$s'),  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_label_'.$keyword_assetid] = sprintf(translate('Question Label: %1$s: %2$s'), $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_error_'.$keyword_assetid] = sprintf(translate('Question Error: %1$s: %2$s'), $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_contents_'.$keyword_assetid] = sprintf(translate('Question Contents: %s'), $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
 		} else {
-			$keywords['question_field_' .$keyword_assetid] = sprintf(translate('cms_form_question_field'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_name_' .$keyword_assetid] = sprintf(translate('cms_form_question_name'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_id_'   .$keyword_assetid] = sprintf(translate('cms_form_question_id'),    ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_note_' .$keyword_assetid] = sprintf(translate('cms_form_question_note'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_label_'.$keyword_assetid] = sprintf(translate('cms_form_question_label'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_error_'.$keyword_assetid] = sprintf(translate('cms_form_question_error'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
-			$keywords['question_contents_'.$keyword_assetid] = sprintf(translate('cms_form_question_contents'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_field_' .$keyword_assetid] = sprintf(translate('Input Field: %s'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_name_' .$keyword_assetid] = sprintf(translate('Question Name: %s'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_id_'   .$keyword_assetid] = sprintf(translate('Asset ID: %s'),    ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_note_' .$keyword_assetid] = sprintf(translate('Question Note: %s'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_label_'.$keyword_assetid] = sprintf(translate('Question Label: %s'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_error_'.$keyword_assetid] = sprintf(translate('Question Error: %s'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
+			$keywords['question_contents_'.$keyword_assetid] = sprintf(translate('Question Contents: %s'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
 		}
 
 		return $keywords;
@@ -4508,7 +4563,8 @@ class Form extends Asset implements Bridge
 	{
 		$keywords = Array();
 
-		$keywords['section_title_'.$section->id] = sprintf(translate('cms_form_section_title'), $section->attr('name')).' ('.$section->id.')';
+		$keywords['section_title_'.$section->id] = sprintf(translate('Section Title: %s'), $section->attr('name')).' ('.$section->id.')';
+
 
 		return $keywords;
 
@@ -4539,9 +4595,11 @@ class Form extends Asset implements Bridge
 		$keyword_assetid = str_replace(':', '_', $question->id);
 
 		if ($parent instanceof Form_Section) {
-			$keywords['response_' .$keyword_assetid] = sprintf(translate('cms_form_section_response'),  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['response_' .$keyword_assetid] = sprintf(translate('Response to %1$s: %2$s'),  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
 		} else {
-			$keywords['response_' .$keyword_assetid] = sprintf(translate('cms_form_question_response'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['response_' .$keyword_assetid] = sprintf(translate('Response to %s'),  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+
 		}
 
 		return $keywords;
@@ -4558,12 +4616,18 @@ class Form extends Asset implements Bridge
 	{
 		$keywords = Array();
 
-		$keywords['form_captcha']       = translate('cms_form_captcha');
-		$keywords['form_captcha_image'] = translate('cms_form_captcha_image');
-		$keywords['form_captcha_field'] = translate('cms_form_captcha_field');
-		$keywords['form_captcha_link']  = translate('cms_form_captcha_link');
-		$keywords['form_captcha_errors']  = translate('cms_form_captcha_errors');
-		$keywords['form_captcha_label']       = translate('cms_form_captcha_label');
+		$keywords['form_captcha']       = translate('CAPTCHA');
+
+		$keywords['form_captcha_image'] = translate('CAPTCHA image');
+
+		$keywords['form_captcha_field'] = translate('CAPTCHA input field');
+
+		$keywords['form_captcha_link']  = translate('CAPTCHA regeneration link');
+
+		$keywords['form_captcha_errors']  = translate('CAPTCHA error message');
+
+		$keywords['form_captcha_label']       = translate('CAPTCHA input label');
+
 
 		return $keywords;
 
@@ -4580,13 +4644,20 @@ class Form extends Asset implements Bridge
 	{
 		$keywords = Array();
 
-		$keywords['form_mollom_captcha']       = translate('cms_form_mollom_captcha');
-		$keywords['form_mollom_captcha_image'] = translate('cms_form_mollom_captcha_image');
-		$keywords['form_mollom_captcha_audio'] = translate('cms_form_mollom_captcha_audio');
-		$keywords['form_mollom_captcha_field'] = translate('cms_form_mollom_captcha_field');
-		$keywords['form_mollom_captcha_regen_link']  = translate('cms_form_mollom_captcha_link');
-		$keywords['form_mollom_captcha_errors']       = translate('cms_form_mollom_captcha_errors');
-		$keywords['form_mollom_captcha_label']       = translate('cms_form_mollom_captcha_label');
+		$keywords['form_mollom_captcha']       = translate('Mollom CAPTCHA');
+
+		$keywords['form_mollom_captcha_image'] = translate('Mollom CAPTCHA image');
+
+		$keywords['form_mollom_captcha_audio'] = translate('Mollom CAPTCHA audio');
+
+		$keywords['form_mollom_captcha_field'] = translate('Mollom CAPTCHA input field');
+
+		$keywords['form_mollom_captcha_regen_link']  = translate('Mollom CAPTCHA regeneration link');
+
+		$keywords['form_mollom_captcha_errors']       = translate('Mollom CAPTCHA error message');
+
+		$keywords['form_mollom_captcha_label']       = translate('Mollom CAPTCHA input label');
+
 
 		return $keywords;
 
@@ -4737,7 +4808,8 @@ class Form extends Asset implements Bridge
 				case 'mollom_captcha_regen_link':
 					$regen_link_text = $this->attr('mollom_captcha_regen_link_text');
 					if (empty($regen_link_text)) {
-						$regen_link_text = translate('cms_form_mollom_regen_link_text');
+						$regen_link_text = translate('Regenerate security key');
+
 					}
 					$replacement = Mollom::getMollomCaptchaRegenLinkKeywordReplacement($this->id, $regen_link_text);
 				break;
@@ -5126,9 +5198,11 @@ class Form extends Asset implements Bridge
 		$total_pages  = $this->getTotalPages();
 
 		if ($current_page >= $total_pages) {
-			$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : translate('submit');
+			$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : translate('Submit');
+
 		} else {
-			$button_name = ($this->attr('next_button')) ? $this->attr('next_button') : translate('next');
+			$button_name = ($this->attr('next_button')) ? $this->attr('next_button') : translate('Next');
+
 		}
 		$extra = $this->attr('submit_button_extras');
 		if (empty($extra))
@@ -5149,7 +5223,8 @@ class Form extends Asset implements Bridge
 	*/
 	function getSaveButtonKeywordReplacement()
 	{
-		$button_name = ($this->attr('save_button')) ? $this->attr('save_button') : translate('save');
+		$button_name = ($this->attr('save_button')) ? $this->attr('save_button') : translate('Save');
+
 		$extra = 'class="sq-form-submit"';
 		ob_start();
 			submit_button($this->getPrefix().'_save', $button_name, '', $extra);
@@ -5168,7 +5243,8 @@ class Form extends Asset implements Bridge
 	{
 		$prefix = $this->getPrefix();
 		if (isset($_POST[$prefix.'_save'])) {
-			$message = ($this->attr('save_confirmation_message')) ? $this->attr('save_confirmation_message') : translate('cms_form_save_confirmation');
+			$message = ($this->attr('save_confirmation_message')) ? $this->attr('save_confirmation_message') : translate('Your progress has been saved.');
+
 		} else {
 			$message = '';
 		}
@@ -5192,7 +5268,8 @@ class Form extends Asset implements Bridge
 		}
 
 		$message = $this->attr('public_auth_info_format');
-		$message = $message ? $message : translate('cms_public_auth_info_format');
+		$message = $message ? $message : translate('Use the link below to resume the form submission:<br/>Link: %%return_to_form_url_latest%%<br/>Password: %%form_submission_password%%');
+
 
 		if (!empty($message)) {
 			$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($message);
@@ -5217,7 +5294,8 @@ class Form extends Asset implements Bridge
 		$bodycopy = $this->getBodycopy('Exit Page Contents');
 
 		if ($bodycopy) {
-			$button_name = ($this->attr('save_and_exit_button')) ? $this->attr('save_and_exit_button') : translate('save_and_exit');
+			$button_name = ($this->attr('save_and_exit_button')) ? $this->attr('save_and_exit_button') : translate('Save and Exit');
+
 			$extra = 'class="sq-form-submit"';
 			ob_start();
 				submit_button($this->getPrefix().'_save_and_exit', $button_name, '', $extra);
@@ -5239,7 +5317,8 @@ class Form extends Asset implements Bridge
 	*/
 	function getResetButtonKeywordReplacement()
 	{
-		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('reset');
+		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('Reset');
+
 		$extra = $this->attr('reset_button_extras');
 		if (empty($extra))
 		    $extra = 'class="sq-form-reset"';
@@ -5262,7 +5341,8 @@ class Form extends Asset implements Bridge
 		$current_page = $this->getCurrentPageNumber();
 
 		if ($current_page > 1) {
-			$button_name = ($this->attr('previous_button')) ? $this->attr('previous_button') : translate('previous_page');
+			$button_name = ($this->attr('previous_button')) ? $this->attr('previous_button') : translate('Previous Page');
+
 			$extra = 'class="sq-form-submit"';
 			ob_start();
 				submit_button($this->getPrefix().'_previous_page', $button_name, '', $extra);
@@ -5907,9 +5987,11 @@ class Form extends Asset implements Bridge
 
 		$prefix = $this->getPrefix();
 		$form_format = $this->attr('public_auth_form_format');
-		$form_format = trim($form_format) ? $form_format : translate('cms_public_auth_form_format');
+		$form_format = trim($form_format) ? $form_format : translate('Please enter the password to retrieve the submission:<br /><br />%%public_form_password_input%% %%public_form_submit_button%%');
+
 		$submit_button_text = $this->attr('public_auth_submit_button_text');
-		$submit_button_text = trim($submit_button_text) ? $submit_button_text : translate('cms_public_auth_submit_button_text');
+		$submit_button_text = trim($submit_button_text) ? $submit_button_text : translate('Submit');
+
 
 		ob_start();
 			password_box('SQ_FORM_'.$this->id.'_SUBMISSION_CODE', '', 17);
@@ -5922,7 +6004,8 @@ class Form extends Asset implements Bridge
 		// Incorrect password message
 		$error_message = $this->attr('public_auth_error_message');
 		if (empty($error_message)) {
-			$error_message = translate('cms_public_auth_error_message');
+			$error_message = translate('Incorrect password');
+
 		}
 		// If form was previously submitted and we are still here means - the password is incorrect
 		$error_message = isset($_POST[$prefix.'_public_auth']) ? $error_message : '';
@@ -6100,9 +6183,11 @@ class Form extends Asset implements Bridge
 
 		// Don't allow deletion of submission folders and bodycopy folder
 		if ($is_exclusive && ($link_value == 'bodycopies_folder' || $link_value == 'submissions_folder' || $link_value == 'incomplete_submissions')) {
-			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
+			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('Unknown Asset Type');
 
-			return sprintf(translate('core_cannot_delete_exclusive_link'), $major_type_code, ucwords(str_replace('_', ' ', $link_value)));
+
+			return sprintf(translate('Cannot delete exclusive link between %1$s and %2$s'), $major_type_code, ucwords(str_replace('_', ' ', $link_value)));
+
 		}
 
 		return TRUE;

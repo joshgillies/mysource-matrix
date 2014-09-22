@@ -68,13 +68,15 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell-alt"><b><?php echo sprintf(translate('cms_ct_nest_content_currently_nesting'), $nested_asset->attr('name')) ?><?php require_once SQ_INCLUDE_PATH.'/general.inc'; echo ' : '.get_asset_tag_line($nested_asset->id);?></b></td>
+						<td class="sq-backend-table-cell-alt"><b><?php echo sprintf(translate('Currently nesting the contents of "<i>%s</i>"'), $nested_asset->attr('name')) ?><?php require_once SQ_INCLUDE_PATH.'/general.inc'; echo ' : '.get_asset_tag_line($nested_asset->id);?></b></td>
+
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('asset' => 'D')); ?></td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-cell"><b><a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('cms_ct_nest_content_click_to_preview') ?></a></b></td>
+						<td class="sq-backend-table-cell"><b><a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('Click to preview in a new window') ?></a></b></td>
+
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell-alt"><b>Dynamic Options:</b></td>
@@ -129,7 +131,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						<?php
 							// get delete icon, with new lines replaced
 							ob_start();
-							sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('delete'), translate('delete'), ' style="border:none"');
+							sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('Delete'), translate('Delete'), ' style="border:none"');
+
 							$delete_icon = ob_get_clean();
 							$delete_icon = str_replace("\n", ' ', $delete_icon);
 
@@ -211,12 +214,14 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 								<tr>
 									<th>Variable Name</th>
 									<th>Variable Value</th>
-									<th><span style="white-space: nowrap"><?php echo translate('delete_question') ?></span></th>
+									<th><span style="white-space: nowrap"><?php echo translate('Delete?') ?></span></th>
+
 								</tr>
 							</thead>
 							<tfoot>
 								<tr>
-									<td colspan="3"><a href="" onclick="<?php echo $asset->type() ?>.addGetRow('<?php echo $prefix ?>'); return false;" id="<?php echo $prefix ?>_additional_get_new_row"><?php echo translate('cms_ct_nest_content_additional_get_add'); ?></a></td>
+									<td colspan="3"><a href="" onclick="<?php echo $asset->type() ?>.addGetRow('<?php echo $prefix ?>'); return false;" id="<?php echo $prefix ?>_additional_get_new_row"><?php echo translate('Add a new variable...'); ?></a></td>
+
 								</tr>
 								<tr>
 									<td colspan="3">You can use keywords of the form <strong>%nested_*%</strong> (e.g %nested_asset_name%) to refer to any of the keywords of the asset being nested. <br/>You can also use global keywords (<strong>%globals_*%</strong>). These will be evaluated upon asset load.
@@ -226,7 +231,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							</tfoot>
 							<tbody id="<?php echo $prefix ?>_additional_get_none" style="display: <?php echo empty($additional_get_vars) ? 'table-row-group' : 'none' ?>">
 								<tr>
-									<td colspan="3"><em><?php echo translate('cms_ct_nest_content_additional_get_no_variables'); ?></em></td>
+									<td colspan="3"><em><?php echo translate('No variables are set.'); ?></em></td>
+
 								</tr>
 							</tbody>
 							<tbody id="<?php echo $prefix ?>_additional_get_body">
@@ -251,7 +257,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell-alt"><b><?php echo translate('cms_ct_nest_content_no_page_selected'); ?></b></td>
+						<td class="sq-backend-table-cell-alt"><b><?php echo translate('No page has been selected'); ?></b></td>
+
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', '', Array('asset' => 'D')); ?></td>
@@ -295,7 +302,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 			}
-			$asset_contents = '<strong>'.sprintf(translate('cms_ct_nest_content_nested_content'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
+			$asset_contents = '<strong>'.sprintf(translate('Nested Content - %s'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('Click to preview in a new window').'</a>.';
+
+
 		} else {
 			$asset_contents = '';
 			// This is the real deal, so we want to actually print the asset
@@ -314,7 +323,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 			if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
 				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
-				echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';
+				echo '<span class="sq-backend-warning"><b>[ ** '.translate('RECURSION WARNING').' ** ]<br/>'.translate('You are nesting the content of this page inside itself').'</b></span>';
+
+
 				return TRUE;
 			}
 
@@ -553,7 +564,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			$_GET = $old_get[$asset_cache_key];
 			$_REQUEST = $old_request[$asset_cache_key];
 		} else {
-			echo '<font color="red"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br />'.translate('cms_ct_nest_content_recursion_body').'</b></font>';
+			echo '<font color="red"><b>[ ** '.translate('RECURSION WARNING').' ** ]<br />'.translate('You are nesting the content of this page inside itself').'</b></font>';
+
+
 		}
 
 		<?php echo "\n".'?'.'>';

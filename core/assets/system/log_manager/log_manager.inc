@@ -681,7 +681,8 @@ class Log_Manager extends Asset
 		$logname = preg_replace('/[^a-zA-Z0-9_-]+/','', $logname);
 
 		if (empty($action)) {
-			echo translate('no_action_supplied');
+			echo translate('No action supplied');
+
 			return TRUE;
 
 		} else if ($action == 'monitor' && !empty($logname)) {
@@ -689,7 +690,8 @@ class Log_Manager extends Asset
 			$filename = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
 
 			if (!is_readable($filename)) {
-				echo translate('file_not_readable');
+				echo translate('File is not readable');
+
 				return TRUE;
 			}
 
@@ -699,7 +701,8 @@ class Log_Manager extends Asset
 			} else {
 				$handle = fopen($filename, 'r');
 				if (!$handle) {
-					echo translate('cannot_open_file');
+					echo translate('Cannot open file');
+
 					return;
 				}
 
@@ -727,12 +730,15 @@ class Log_Manager extends Asset
 			$content = '
 				<table class="sq-backend-table sq-log-monitor-table">
 					<!--tr>
-						<th style="width: 150px">'.translate('metadata').'</th>
-						<th>'.translate('message').'</th>
+						<th style="width: 150px">'.translate('Metadata').'</th>
+
+						<th>'.translate('Message').'</th>
+
 					</tr-->';
 
 			if (empty($lines)) {
-				$content .= translate('empty');
+				$content .= translate('Empty');
+
 			} else {
 				foreach ($lines as $line) {
 					if (empty($line)) continue;
@@ -753,8 +759,10 @@ class Log_Manager extends Asset
 						<tr class="sq-error-type-'.$error_type_name.'">
 							<td style="background-color: '.$error_type_colour.';">
 								'.$log_date.'<br />
-								'.translate('user').':&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
-								'.translate('level').':&nbsp;<strong>'.$error_type_name.'</strong><br />
+								'.translate('User').':&nbsp;<strong>'.$d_line['User'].'</strong>&nbsp;('.$d_line['userid'].')<br />
+
+								'.translate('Level').':&nbsp;<strong>'.$error_type_name.'</strong><br />
+
 							</td>
 							<td><span style="font-family: \'Courier New\', Courier, monospace;">'.$message.'</span></td>
 						</tr>';
@@ -764,7 +772,8 @@ class Log_Manager extends Asset
 						$content .= '
 						<tr class="alt sq-error-type-raw">
 							<td>
-								<strong>'.translate('raw_entry').':</strong>
+								<strong>'.translate('Raw Entry').':</strong>
+
 							</td>
 							<td><span style="font-family: \'Courier New\', Courier, monospace;">'.$line.'<span></td>
 						</tr>';
@@ -783,7 +792,8 @@ class Log_Manager extends Asset
 		?>
 		<html>
 				<head>
-					<title><?php echo translate('log_monitor'); ?></title>
+					<title><?php echo translate('Log Monitor'); ?></title>
+
 					<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib');?>/web/css/edit.css" />
 					<script type="text/javascript">
 						//<![CDATA[

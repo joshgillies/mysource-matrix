@@ -120,9 +120,11 @@ class Trigger_Action_Delete_Future_Permission extends Trigger_Action
 		}
 
 		ob_start();
-			echo translate('trigger_delete_future_permission').'&nbsp;';
+			echo translate('Delete all future permission Scheduled Jobs that would change the asset\'s').'&nbsp;';
+
 			combo_box($prefix.'[permission]', $permission_list, FALSE, $selected_permission, NULL, $form_element_extras);
-			echo '&nbsp;'.translate('permission');
+			echo '&nbsp;'.translate('Permission');
+
 			$html = ob_get_contents();
 		ob_end_clean();
 

@@ -101,7 +101,8 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				// If asset type list is empty, then none were set and therefore we do all asset
 				// types. If set, then it needs to be a key in the $asset_types
 				if (empty($asset_types) || isset($asset_types[$asset->type()])) {
-					$step_data['message'] = sprintf(translate('core_checking_for_metadata'), $asset->name);
+					$step_data['message'] = sprintf(translate('Checking metadata for %s ...'), $asset->name);
+
 
 					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					$field_values = $mm->getMetadataFieldValues($asset->id);
@@ -123,11 +124,14 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
-					$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
+					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
 				}
 			} else {
-				$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $assetid);
-				$job->_addError(sprintf(translate('core_cannot_generate_incomplete_metadata_report'), $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$job->_addError(sprintf(translate('Could not generate incomplete metadata report for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -176,7 +180,8 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			echo translate('report_not_generated');
+			echo translate('This report has not been generated');
+
 			return;
 		}
 
@@ -211,18 +216,22 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		}
 		$o->closeSection();
 
-		$o->openSection(translate('missing_metadata_fields'));
+		$o->openSection(translate('Missing Metadata Fields'));
+
 			$o->openField('');
 				if (empty($missing_fields)) {
-					echo translate('core_no_missing_metadata_fields_found');
+					echo translate('No missing metadata fields were found');
+
 					return;
 				}
 
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td colspan="4" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('empty_fields'); ?></td>
+						<td colspan="4" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('Found In'); ?></td>
+
+						<td class="sq-backend-table-header"><?php echo translate('Empty Fields'); ?></td>
+
 					</tr>
 				<?php
 				foreach ($missing_fields as $assetid => $fields) {
@@ -299,19 +308,23 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 		$types = $asset->attr('types');
 		if (empty($types)) {
-			echo translate('core_no_types_defined');
+			echo translate('There are no Types Defined');
+
 			return FALSE;
 		}
 
 		?>
 		<table class="sq-backend-table">
 		<tr>
-			<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-			<td class="sq-backend-table-header"><?php echo translate('inherit_types'); ?></td>
+			<td class="sq-backend-table-header"><?php echo translate('Asset Type'); ?></td>
+
+			<td class="sq-backend-table-header"><?php echo translate('Inherit Types'); ?></td>
+
 			<?php
 			if ($write_access) {
 				?>
-				<td class="sq-backend-table-header"><?php echo translate('remove_question'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('Remove?'); ?></td>
+
 				<?php
 			}
 			?>
@@ -330,7 +343,9 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 						if ($write_access) {
 							check_box($prefix."_inherit_types[$type]", $type, $inherit);
 						} else {
-							echo ($inherit) ? translate('yes') : translate('no');
+							echo ($inherit) ? translate('Yes') : translate('No');
+
+
 						}
 						?>
 					</td>

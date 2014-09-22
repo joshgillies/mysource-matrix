@@ -128,7 +128,8 @@ class Page_Decision_Tree extends Page
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents', 'major', TRUE);
 		if (!$GLOBALS['SQ_PURGING_TRASH'] && (!empty($bodycopy_link) && $bodycopy_link['linkid'] == $linkid)) {
-			return translate('error_bodycopy_link_cannot_delete');
+			return translate('You can not delete the Page Contents bodycopy from the Decision Tree Page.');
+
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -152,7 +153,9 @@ class Page_Decision_Tree extends Page
 		//we are getting an AJAX Request
 		if (isset($_GET['q_id']) && isset($_GET['a_id']) && isset($_GET['pts'])){
 			if (!$asset->readAccess()) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $asset->name));
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $asset->name));
+
+
 				return;
 			}
 			$this->printNextStep($_GET['q_id'], $_GET['a_id'], $_GET['pts']);

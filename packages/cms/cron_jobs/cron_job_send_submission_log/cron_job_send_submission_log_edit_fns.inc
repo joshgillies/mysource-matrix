@@ -68,18 +68,21 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 			$cron_job = new Cron_Job();
 			$edit_fns = $cron_job->getEditFns();
 			echo '<br />';
-			echo '<br />'.translate('cron_job_send_submission_log_at').' ';
+			echo '<br />'.translate('Send the submission logs at').' ';
+
 			$edit_fns->_paintWhenBox($cron_job, $o, $prefix, is_null($asset) ? '' : $asset->attr('first_run'));
 
 			// paint the repeat frequency using repeating time interval job's edit fns
 			$cron_job_repeat = new Cron_Job();
 			$cron_job_repeat->setAttrValue('type', 'repeating');
-			echo '<br />'.translate('cron_job_regenerate_report_repeat');
+			echo '<br />'.translate('and repeat this process every');
+
 			$this->_paintWhenBox($cron_job_repeat, $o, $prefix, is_null($asset) ? '' : $asset->attr('when'));
 
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			echo '<br/>';
-			echo sprintf(translate('cron_manager_next_run'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun()));
+			echo sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun()));
+
 		}
 
 		return TRUE;

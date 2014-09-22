@@ -190,17 +190,20 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 		//get the HTML string of the Override checkbox
 		ob_start();
 			check_box($prefix.'[override_special_page]', '1', array_get_index($settings, 'override_special_page', 0), NULL, $form_element_extras);
-			label(translate('trigger_action_set_site_special_page_override_special_page'), $prefix.'[override_special_page]');
+			label(translate('Override the existing special page'), $prefix.'[override_special_page]');
+
 		$override_special_page_checkbox = ob_get_clean();
 
 		//get the HTML string of the Use the direct parent site checkbox
 		ob_start();
 			check_box($prefix.'[use_direct_parent_sites]', '1', array_get_index($settings, 'use_direct_parent_sites', 0), NULL, $form_element_extras);
-			label(translate('trigger_action_set_site_special_page_use_direct_parent_sites'), $prefix.'[use_direct_parent_sites]');
+			label(translate('Use the direct parent sites of the broadcasting asset'), $prefix.'[use_direct_parent_sites]');
+
 		$use_direct_parent_sites_checkbox = ob_get_clean();
 
 		$contents = '<div class="sq-break-line-inputs">'
-					.sprintf(translate('trigger_action_set_site_special_page_basic'), $special_page_selection, $site_asset_selection)
+					.sprintf(translate('Set the broadcasting asset as the %1$s page of the site: %2$s'), $special_page_selection, $site_asset_selection)
+
 					.'<br />'
 					.$override_special_page_checkbox
 					.'<br />'
@@ -228,13 +231,15 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 		//the special page type must be in the special page type list
 		$special_page_type = array_get_index($request_data, 'special_page_type', 'index');
 		if (!key_exists($special_page_type, self::_getSpecialPages())) {
-			return translate('trigger_action_set_site_special_page_special_page_type_invalid');
+			return translate('The special page type is invalid');
+
 		}
 
 		$use_direct_parent_sites = array_get_index($request_data, 'use_direct_parent_sites', 0);
 		//make sure the site assetid isn't blank if "something" is not selected
 		if (($use_direct_parent_sites == 0) && empty($request_data['site_assetid']['assetid'])) {
-			return translate('trigger_action_set_site_special_page_site_missing');
+			return translate('The site is not specified or using the direct parent sites of the broadcasting asset is not selected');
+
 		}
 
 		$settings['special_page_type'] 		= $special_page_type;

@@ -110,7 +110,8 @@ class Trigger_Condition_Interface_Mode extends Trigger_Condition
 		$selected = array_get_index($settings, 'modes', Array());
 
 		ob_start();
-		echo translate('condition_interface_mode_user_in');
+		echo translate('User must be in ANY of the following interface modes:');
+
 		if ($write_access) {
 			$options = Array(
 						'frontend',

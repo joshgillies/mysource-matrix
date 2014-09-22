@@ -145,7 +145,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		echo '<div id="'.$prefix.'_file_pre_upload" style="display:none;">';
 		combo_box($prefix.'_server_file', Array(''=>'')+$options, FALSE, Array());
 		echo '&nbsp;&nbsp;';
-		normal_button($prefix.'_simple_upload_button', translate('core_upload_new_file_button'),		 'document.getElementById(\''.$prefix.'_file_pre_upload\').style.display=\'none\';
+		normal_button($prefix.'_simple_upload_button', translate('Upload a new file'),		 'document.getElementById(\''.$prefix.'_file_pre_upload\').style.display=\'none\';
+
 		document.getElementById(\''.$prefix.'_choose_server_file_button\').parentNode.style.display=\'\'; document.getElementById(\''.$prefix.'_server_file\').value = \'\'');
 		echo '</div>';
 
@@ -154,7 +155,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			file_upload($prefix);
 			if ($this->havePreUploadedFiles($asset, $prefix)) {
 				echo '&nbsp;&nbsp;';
-				normal_button($prefix.'_choose_server_file_button', translate('core_upload_server_file_button'),
+				normal_button($prefix.'_choose_server_file_button', translate('Choose a pre-uploaded file'),
+
 				'document.getElementById(\''.$prefix.'_file_upload\').style.display=\'none\';
 				document.getElementById(\''.$prefix.'_simple_upload_button\').parentNode.style.display=\'\'');
 			}
@@ -194,9 +196,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				}
 				$max_size = min($ini_size, $post_size, $mem_limit_size);
 			}
-			?><br/><span style="font-size: 10px;"><?php echo sprintf(translate('core_cannot_upload_file_larger_than'), strtoupper(easy_filesize($max_size))); ?></span><?php
+			?><br/><span style="font-size: 10px;"><?php echo sprintf(translate('You may only upload files no larger than %s'), strtoupper(easy_filesize($max_size))); ?></span><?php
+
 			if (!empty($asset->allowed_extensions)) {
-				$o->note(sprintf(translate('core_only_upload_files_of_type'), make_readable_list($asset->allowed_extensions, strtolower(translate('and')))));
+				$o->note(sprintf(translate('<b>NOTE:</b> You may only upload files of type %s.'), make_readable_list($asset->allowed_extensions, strtolower(translate('And')))));
+
+
 			}
 			echo '</div>';
 		}//end if
@@ -584,10 +589,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?>
 			<div>
-				<b><a href="<?php echo current_url(TRUE, TRUE).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('core_current_file'); ?></a></b><br/>
-				<b><?php echo translate('info'); ?>:</b> <?php echo get_asset_tag_line($asset->id); ?><br/>
-				<b><?php echo translate('size'); ?>:</b> <?php echo easy_filesize($existing['size'])?><br/>
-				<b><?php echo translate('updated'); ?>:</b> <?php echo readable_datetime($existing['modified'])?>
+				<b><a href="<?php echo current_url(TRUE, TRUE).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('Current File'); ?></a></b><br/>
+
+				<b><?php echo translate('Info'); ?>:</b> <?php echo get_asset_tag_line($asset->id); ?><br/>
+
+				<b><?php echo translate('Size'); ?>:</b> <?php echo easy_filesize($existing['Size'])?><br/>
+
+				<b><?php echo translate('Updated'); ?>:</b> <?php echo readable_datetime($existing['modified'])?>
+
 			</div>
 			<?php
 		}

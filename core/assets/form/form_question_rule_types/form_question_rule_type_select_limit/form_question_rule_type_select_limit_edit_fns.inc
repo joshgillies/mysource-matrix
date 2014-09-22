@@ -48,7 +48,8 @@ class Form_Question_Rule_Type_Select_Limit_Edit_Fns extends Form_Question_Rule_E
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('core_form_rule_details'));
+			$o->openField(translate('Rule Details'));
+
 			echo 'Response '.strtolower($operator_list[array_get_index($rule_data, 'operator', '==')]);
 
 			echo ' "'.array_get_index($rule_data, 'value', '').'"';
@@ -56,18 +57,21 @@ class Form_Question_Rule_Type_Select_Limit_Edit_Fns extends Form_Question_Rule_E
 
 		} else {
 
-			$o->openField(translate('operator'));
+			$o->openField(translate('Operator'));
+
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '=='));
 			$o->closeField();
 
-			$o->openField(translate('core_form_rule_select_limit_num_options'));
+			$o->openField(translate('Number of Options'));
+
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
 			echo ' option(s)';
 			$o->closeField();
 
-			$o->sectionNote(translate('core_form_rule_select_limit_note'));
+			$o->sectionNote(translate('Enter the number of selected options to compare against in the text box above.'));
+
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;

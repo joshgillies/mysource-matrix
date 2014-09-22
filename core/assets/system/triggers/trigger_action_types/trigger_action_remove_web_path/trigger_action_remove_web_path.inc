@@ -159,19 +159,23 @@ class Trigger_Action_Remove_Web_Path extends Trigger_Action
 		ob_start();
 
 		$web_path = array_get_index($settings, 'path', '');
-		echo translate('remove_web_path').': ';
+		echo translate('Remove web path').': ';
+
 		if ($write_access) {
 			text_box($prefix.'[path]', $web_path, 40);
 		} else {
 			echo '<b>"'.$web_path.'"</b>';
 		}
 		echo '<br />';
-		echo '<div class="sq-backend-section-note bottom-margin">'.translate('trigger_remove_web_path_note').'</div>';
+		echo '<div class="sq-backend-section-note bottom-margin">'.translate('Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.').'</div>';
+
 		check_box($prefix.'[remove_all]', '1', array_get_index($settings, 'remove_all', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-		echo '<label for='.$prefix.'[remove_all]'.'>'.translate('trigger_remove_web_path_remove_all').'</label>';
+		echo '<label for='.$prefix.'[remove_all]'.'>'.translate('Delete all webpaths').'</label>';
+
 		echo '<br />';
 		check_box($prefix.'[update_children]', '1', array_get_index($settings, 'update_children', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-		echo '<label for='.$prefix.'[update_children]'.'>'.translate('trigger_remove_web_path_update_children').'</label>';
+		echo '<label for='.$prefix.'[update_children]'.'>'.translate('Update lookups for children').'</label>';
+
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -196,7 +200,8 @@ class Trigger_Action_Remove_Web_Path extends Trigger_Action
 		$update_children =  array_get_index($request_data, 'update_children', '');
 
 		if ($web_path == '' && $remove_all == '') {
-			return translate('web_path_not_specified');
+			return translate('Web Path not specified');
+
 		}
 		$settings['path'] = $web_path;
 		$settings['remove_all'] = $remove_all;

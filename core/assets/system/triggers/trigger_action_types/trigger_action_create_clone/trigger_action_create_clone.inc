@@ -226,7 +226,8 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 					$clone_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($clone_assetid), Array(), TRUE, 'name');
 					echo get_asset_tag_line($clone_assetid);
 				} else {
-					echo '<b>['.translate('no_asset_selected').']</b>';
+					echo '<b>['.translate('No asset selected').']</b>';
+
 				}
 			}
 
@@ -242,7 +243,8 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 					echo get_asset_tag_line($selected_assetid);
 				} else {
 					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
-					echo '<b>['.translate('no_parent_selected').']</b>';
+					echo '<b>['.translate('no parent selected').']</b>';
+
 				}
 			}
 
@@ -262,8 +264,10 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		ob_start();
 			$is_dependant_list = Array(
-									0	=> translate('non_dependently'),
-									1	=> translate('dependently'),
+									0	=> translate('Non-dependently'),
+
+									1	=> translate('Dependently'),
+
 								 );
 			combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant, NULL, $form_element_extras);
 			$advanced_part_2 = ob_get_contents();
@@ -271,8 +275,10 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		ob_start();
 			$is_exclusive_list = Array(
-									0	=> translate('non_exclusively'),
-									1	=> translate('exclusively'),
+									0	=> translate('Non-exclusively'),
+
+									1	=> translate('Exclusively'),
+
 								 );
 			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive, NULL, $form_element_extras);
 			$advanced_part_3 = ob_get_contents();
@@ -280,28 +286,34 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		ob_start();
 			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates, NULL, $form_element_extras);
-			label(translate('do_not_create_clone_if_same_name_exists'), $prefix.'[disallow_duplicates]');
+			label(translate('Do not create if a clone with the same name and asset type already exists'), $prefix.'[disallow_duplicates]');
+
 			$advanced_part_4 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
 			check_box($prefix.'[clone_broadcaster]', '1', $clone_broadcaster, NULL, $form_element_extras);
-			label(translate('clone_broadcasting_asset'), $prefix.'[clone_broadcaster]');
+			label(translate('Clone broadcasting asset'), $prefix.'[clone_broadcaster]');
+
 			$advanced_part_5 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
 			check_box($prefix.'[link_to_broadcaster]', '1', $link_to_broadcaster, NULL, $form_element_extras);
-			label(translate('link_to_broadcasting_asset'), $prefix.'[link_to_broadcaster]');
+			label(translate('Link to broadcasting asset'), $prefix.'[link_to_broadcaster]');
+
 			$advanced_part_6 = ob_get_contents();
 		ob_end_clean();
 
 
 		// now patch together the output
-		$contents = sprintf(translate('trigger_create_clone_basic'), $basic_part_1, $basic_part_2, $basic_part_3).
+		$contents = sprintf(translate('Create a clone of asset %1$s and link it as child of asset %2$s using a %3$s link.'), $basic_part_1, $basic_part_2, $basic_part_3).
+
 					'<br /><br />'.
-					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					sprintf(translate('trigger_create_clone_advanced'), $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4, $advanced_part_5, $advanced_part_6);
+					'<b>'.translate('Optional items for Advanced users').'</b><br />'.
+
+					sprintf(translate('Use the link value %1$s and link the asset %2$s to the parent.<br /><br />%4$s<br />%5$s<br />%6$s'), $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4, $advanced_part_5, $advanced_part_6);
+
 
 		return $contents;
 
@@ -328,16 +340,19 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		// make sure the clone assetid isn't blank if "Clone broadcasting asset" is not selected
 		if (($clone_broadcaster == 0) && empty($request_data['clone_assetid']['assetid'])) {
-			return translate('trigger_clone_asset_missing');
+			return translate('The asset to clone is missing and cloning broadcasting asset is not selected');
+
 		}
 
 		// make sure the assetid isn't blank if "Link to broadcasting asset" is not selected
 		if (($link_to_broadcaster == 0) && empty($request_data['assetid']['assetid'])) {
-			return translate('trigger_clone_parent_missing');
+			return translate('Parent to clone under is missing and linking to broadcasting asset is not selected');
+
 		}
 
 		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
-			return translate('trigger_link_type_missing');
+			return translate('Link type is missing');
+
 		}
 
 		$settings['clone_assetid']			= $request_data['clone_assetid']['assetid'];

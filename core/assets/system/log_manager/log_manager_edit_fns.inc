@@ -46,7 +46,8 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array();
 
 		// enable just the details
-		$this->static_screens['details']['name']         =translate('details');
+		$this->static_screens['details']['name']         =translate('Details');
+
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type']    = 'none';
 
@@ -75,7 +76,8 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openRaw();
 		$logs = $lm->getLogs();
 		if (empty($logs)) {
-			echo '<h2>'.translate('no_logs_found').'</h2>';
+			echo '<h2>'.translate('No Logs Found').'</h2>';
+
 			return $write_access;
 		}
 
@@ -248,7 +250,8 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 				refresher = setInterval(loadLog, refresh_interval);
 
 				setIdValue('sq-log-refresh-status', 'ON');
-				document.getElementById('sq-log-refresh-enabler').value=js_translate('disable');
+				document.getElementById('sq-log-refresh-enabler').value=js_translate('Disable');
+
 
 				log_refresh = true;
 
@@ -268,7 +271,8 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				setIdValue('sq-log-refresh-status', 'OFF');
-				document.getElementById('sq-log-refresh-enabler').value=js_translate('enable');
+				document.getElementById('sq-log-refresh-enabler').value=js_translate('Enable');
+
 
 				log_refresh = false;
 
@@ -296,8 +300,10 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		</script>
 		<table class="sq-backend-table">
 			<tr>
-				<th style="width: 10%"><?php echo translate('log_name'); ?></th>
-				<th style="width: 50%"><?php echo translate('info'); ?></th>
+				<th style="width: 10%"><?php echo translate('Log Name'); ?></th>
+
+				<th style="width: 50%"><?php echo translate('Info'); ?></th>
+
 				<th>Action</th>
 			</tr>
 		<?php
@@ -309,7 +315,8 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$last_rotated = array_get_index(array_get_index($rotation,'rotation'), 'last_timestamp');
 			if (empty($last_rotated)) {
-				$last_rotated = translate('never');
+				$last_rotated = translate('Never');
+
 			} else {
 				$last_rotated = date('G:i:s - M d', $last_rotated);
 			}
@@ -318,15 +325,20 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td><strong><?php echo $logname; ?></strong></td>
 				<td>
-					<?php echo translate('modified'); ?>: <strong><?php echo $last_modified; ?></strong>
+					<?php echo translate('Modified'); ?>: <strong><?php echo $last_modified; ?></strong>
+
 					<br />
-					<?php echo translate('core_log_manager_current_logfile_size'); ?>: <strong><?php echo easy_filesize(filesize($filepath)); ?></strong>
+					<?php echo translate('Current log size'); ?>: <strong><?php echo easy_filesize(filesize($filepath)); ?></strong>
+
 					<br />
-					<?php echo translate('rotated'); ?>: <strong><?php echo $last_rotated; ?></strong>
+					<?php echo translate('Rotated'); ?>: <strong><?php echo $last_rotated; ?></strong>
+
 				</td>
 				<td>
-					<input type="button" onclick="monitorLog('<?php echo $logname; ?>');" value="<?php echo translate('monitor'); ?>" />
-					<?php normal_button($prefix.'_export_to_csv', translate('download_file'), 'this.form.'.$prefix.'_download_file.value = \''.$logname.'\'; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_download_file.value = 0; return true;');
+					<input type="button" onclick="monitorLog('<?php echo $logname; ?>');" value="<?php echo translate('Monitor'); ?>" />
+
+					<?php normal_button($prefix.'_export_to_csv', translate('Download File'), 'this.form.'.$prefix.'_download_file.value = \''.$logname.'\'; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_download_file.value = 0; return true;');
+
 					?>
 				</td>
 			</tr>
@@ -338,21 +350,29 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->closeRaw();
 		$o->closeSection();
 
-		$o->openSection(translate('log_monitor'));
+		$o->openSection(translate('Log Monitor'));
+
 			$o->openField('', 'wide_col');
 				?>
 				<div id="sq-log-monitor-initial-message">
-					<?php echo translate('moniter_logs_instructions'); ?>
+					<?php echo translate('To monitor a log, click "Monitor" in the list of known logs (above).'); ?>
+
 				</div>
 				<div id="sq-log-monitor-container" class="sq-log-monitor-container" style="display: none;">
 					<table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('log'); ?></th>
-							<th><?php echo translate('loaded'); ?></th>
-							<th><?php echo translate('rows_displayed'); ?></th>
-							<th><?php echo translate('max_rows'); ?></th>
-							<th><?php echo translate('auto-refresh'); ?></th>
-							<th><?php echo translate('refresh_interval'); ?></th>
+							<th><?php echo translate('Log'); ?></th>
+
+							<th><?php echo translate('Loaded'); ?></th>
+
+							<th><?php echo translate('Rows displayed'); ?></th>
+
+							<th><?php echo translate('Max Rows'); ?></th>
+
+							<th><?php echo translate('Auto-Refresh'); ?></th>
+
+							<th><?php echo translate('Refresh Interval'); ?></th>
+
 						</tr>
 						<tr>
 							<td><strong id="sq-log-name"></strong></td>
@@ -375,19 +395,26 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 							<td>
 								<select name="sq-log-refresh-interval" id="sq-log-refresh-interval" onchange="setRefreshInterval(this.value)">
 									<option value="15">15 <?php echo translate('sec'); ?></option>
+
 									<option value="30" selected="selected">30 <?php echo translate('sec'); ?></option>
+
 									<option value="60">1 <?php echo translate('min'); ?></option>
+
 									<option value="300">5 <?php echo translate('min'); ?></option>
+
 								</select>
-								<input type="button" onclick="forceRefresh();" id="sq-log-refresh-force" value="<?php echo translate('refresh_now'); ?>" />
+								<input type="button" onclick="forceRefresh();" id="sq-log-refresh-force" value="<?php echo translate('Refresh Now'); ?>" />
+
 							</td>
 						</tr>
 					</table>
 
 					<table class="sq-backend-table sq-log-monitor-table-outer">
 						<tr>
-							<th><?php echo translate('metadata'); ?></th>
-							<th><?php echo translate('message'); ?></th>
+							<th><?php echo translate('Metadata'); ?></th>
+
+							<th><?php echo translate('Message'); ?></th>
+
 						</tr>
 						<tr>
 							<td colspan="2" style="padding: 0 !important">

@@ -74,7 +74,8 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('tool_import_assets_from_xml_hipo_name');
+		return translate('Hipo Job Import Assets From XML');
+
 
 	}//end getHipoName()
 
@@ -90,7 +91,8 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('tool_import_assets_from_xml_hipo_name'),
+					'name'			=> translate('Hipo Job Import Assets From XML'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processImportAsset',
 									   ),

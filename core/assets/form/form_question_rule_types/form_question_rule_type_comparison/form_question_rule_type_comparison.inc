@@ -55,12 +55,18 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	public static function getOperators()
 	{
 		$operators = Array(
-						'=='	=> translate('core_form_rule_comparison_=='),
-						'!='	=> translate('core_form_rule_comparison_!='),
-						'>'		=> translate('core_form_rule_comparison_>'),
-						'<'		=> translate('core_form_rule_comparison_<'),
-						'>='	=> translate('core_form_rule_comparison_>='),
-						'<='	=> translate('core_form_rule_comparison_<='),
+						'=='	=> translate('Must Be Equal To'),
+
+						'!='	=> translate('Must NOT Be Equal To'),
+
+						'>'		=> translate('Must Be Greater Than'),
+
+						'<'		=> translate('Must Be Less Than'),
+
+						'>='	=> translate('Must Be Greater Than Or Equal To'),
+
+						'<='	=> translate('Must Be Less Than Or Equal To'),
+
 					 );
 
 		return $operators;
@@ -202,9 +208,11 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 				$error_str = $q_asset->attr('cust_required_error');
 			} else {
 				if($use_accessible_string)
-				    $error_str = translate('core_form_rule_comparison_required_accessible');
+				    $error_str = translate('This field is required. Please enter a value.');
+
 				 else
-				    $error_str = sprintf(translate('core_form_rule_comparison_required'), $q_asset->attr('name'));
+				    $error_str = sprintf(translate('Question "%s" is a required field; it must be filled in'), $q_asset->attr('name'));
+
 			}
 		} else {
 			$operator_list = $this->getOperators();

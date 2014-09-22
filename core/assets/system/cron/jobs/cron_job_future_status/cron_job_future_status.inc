@@ -91,11 +91,16 @@ class Cron_Job_Future_Status extends Cron_Job
 	{
 		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
-			return translate('cron_job_asset_less_future_status');
+			return translate('Asset-less Future Status Scheduled Job');
+
 		} else if ($short_name) {
-			return sprintf(translate('cron_fs_for'), sprintf(translate('asset_format'), $asset->short_name, $asset->id));
+			return sprintf(translate('FS for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->short_name, $asset->id));
+
+
 		} else {
-			return sprintf(translate('cron_future_status_for'), sprintf(translate('asset_format'), $asset->name, $asset->id));
+			return sprintf(translate('Future Status for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->name, $asset->id));
+
+
 		}
 
 	}//end _getName()
@@ -329,7 +334,9 @@ class Cron_Job_Future_Status extends Cron_Job
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 			if (empty($status_errors)) {
 				// all OK, and we can be removed because we have done our one off task
-				$msg = sprintf(translate('cron_altered_asset_status'), sprintf(translate('asset_format'), $asset->name, $asset->id), get_status_description($old_status), $this->statusName());
+				$msg = sprintf(translate('Altered status of %1$s from %2$s to %3$s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->name, $asset->id), get_status_description($old_status), $this->statusName());
+
+
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed

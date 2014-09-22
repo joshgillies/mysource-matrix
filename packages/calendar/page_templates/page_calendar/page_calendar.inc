@@ -121,9 +121,11 @@ class Page_Calendar extends Page
 
 			// if the user is trying to delete the bodycopy or the no results body copy return an error message
 			if ((!empty($bodycopy_link)) && ($bodycopy_link[0]['linkid'] == $linkid)) {
-				return translate('cal_page_error_bodycopy_link_cannot_delete');
+				return translate('You are now allow to delete this page contents');
+
 			} else if ((!empty($bodycopy_no_results_link) && ($bodycopy_no_results_link[0]['linkid'] == $linkid))) {
-				return translate('cal_page_error_bodycopy_no_results_link_cannot_delete');
+				return translate('You are now allow to delete this page contents (no results)');
+
 			}
 		}
 
@@ -678,14 +680,22 @@ class Page_Calendar extends Page
 	function _getContentsKeywords()
 	{
 		$keywords = Array(
-						'calendar_contents'	=> translate('cal_page_calendar_contents'),
-						'calendar_title'	=> translate('cal_page_calendar_title'),
-						'up_link'			=> translate('cal_page_up_link'),
-						'prev_link'			=> translate('cal_page_prev_link'),
-						'next_link'			=> translate('cal_page_next_link'),
-						'current_user'		=> translate('cal_page_current_user'),
-						'today_link'		=> translate('cal_page_today_link'),
-						'root_nodes'		=> translate('root_node'),
+						'calendar_contents'	=> translate('Calendar Contents'),
+
+						'calendar_title'	=> translate('Calendar Title'),
+
+						'up_link'			=> translate('Up Link'),
+
+						'prev_link'			=> translate('Previous Link'),
+
+						'next_link'			=> translate('Next Link'),
+
+						'current_user'		=> translate('Name of Current User'),
+
+						'today_link'		=> translate('Link to jump to today\'s date in the current view'),
+
+						'root_nodes'		=> translate('Root Node'),
+
 					);
 
 		return $keywords;
@@ -703,32 +713,50 @@ class Page_Calendar extends Page
 	{
 		return Array(
 				'year'	=> Array(
-							''						=> translate('cal_no_display'),
-							'list_without_headings'	=> translate('cal_list_without_headings'),
-							'list_with_headings'	=> translate('cal_list_with_month_headings'),
-							'calendar_format'		=> translate('cal_calendar_format'),
+							''						=> translate('(none)'),
+
+							'list_without_headings'	=> translate('List Without Headings'),
+
+							'list_with_headings'	=> translate('List With Month Headings'),
+
+							'calendar_format'		=> translate('Calendar Format'),
+
 						   ),
 				'month'	=> Array(
-							''						=> translate('cal_no_display'),
-							'list_without_headings'	=> translate('cal_list_without_headings'),
-							'list_with_headings'	=> translate('cal_list_with_day_headings'),
-							'calendar_format'		=> translate('cal_calendar_format'),
+							''						=> translate('(none)'),
+
+							'list_without_headings'	=> translate('List Without Headings'),
+
+							'list_with_headings'	=> translate('List With Day Headings'),
+
+							'calendar_format'		=> translate('Calendar Format'),
+
 						   ),
 				'week'	=> Array(
-							''						=> translate('cal_no_display'),
-							'list_without_headings'	=> translate('cal_list_without_headings'),
-							'list_with_headings'	=> translate('cal_list_with_day_headings'),
-							'calendar_format'		=> translate('cal_calendar_format'),
+							''						=> translate('(none)'),
+
+							'list_without_headings'	=> translate('List Without Headings'),
+
+							'list_with_headings'	=> translate('List With Day Headings'),
+
+							'calendar_format'		=> translate('Calendar Format'),
+
 						   ),
 				'day'	=> Array(
-							''						=> translate('cal_no_display'),
-							'list_without_headings'	=> translate('cal_list_without_headings'),
-							'calendar_format'		=> translate('cal_calendar_format'),
+							''						=> translate('(none)'),
+
+							'list_without_headings'	=> translate('List Without Headings'),
+
+							'calendar_format'		=> translate('Calendar Format'),
+
 						   ),
 				'event'	=> Array(
-							''					=> translate('cal_no_display'),
-							'single_event_view'	=> translate('cal_show_single_event_view'),
-							'event_itself'		=> translate('cal_show_single_event_itself'),
+							''					=> translate('(none)'),
+
+							'single_event_view'	=> translate('Display individual events using this page'),
+
+							'event_itself'		=> translate('Show individual event assets at their own URLs'),
+
 						   ),
 			   );
 
@@ -749,7 +777,8 @@ class Page_Calendar extends Page
 	function getCalendarTitle()
 	{
 		$title_formats = $this->attr('view_title_formats');
-		$title_formats['edit'] = translate('cal_page_edit_event');
+		$title_formats['edit'] = translate('Edit Event');
+
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		if (($view == 'event') || ($view == 'edit')) {
 			// _validateRequest already made sure we have a valid event id
@@ -1351,14 +1380,16 @@ class Page_Calendar extends Page
 				}
 
 				if (in_array('*', $column_ids)) {
-					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('other') : $this->attr('other_column_name');
+					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('Other') : $this->attr('other_column_name');
+
 				}
 				$raw_events = $this->getDayEvents($date);
 				$events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
 				$events = $this->groupDayEventsByRootNodeAndTime($raw_events);
 			} else {
-				$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('events') : $this->attr('other_column_name');
+				$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('Events') : $this->attr('other_column_name');
+
 				$raw_events = $this->getDayEvents($date);
 				$events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
@@ -1452,7 +1483,8 @@ class Page_Calendar extends Page
 		$ei = $event->getEI();
 		$ei->printEditInterface('screen_details', $event, $o);
 		$o->closeRaw();
-		$o->commitButton(translate('cal_page_update_event'));
+		$o->commitButton(translate('Update Event'));
+
 		ob_start();
 			$o->_paintHeader();
 			$o->paint();
@@ -1552,7 +1584,8 @@ class Page_Calendar extends Page
 		// PRINT HEADER ROW
 		?>
 		<tr>
-			<th><?php echo translate('time'); ?></th>
+			<th><?php echo translate('Time'); ?></th>
+
 		<?php
 		foreach ($column_names as $id => $name) {
 			$today_class = ($id == $today_iso) ? ' today' : '';
@@ -1603,7 +1636,8 @@ class Page_Calendar extends Page
 					$cursor_code = $event_href ? ' cursor: pointer; cursor: hand' : '';
 					$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 					if (!empty($mousedown_code) && (($event['type_code'] == 'calendar_event_recurring') || (isset($event['expanded'])))) {
-						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
+						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('Recurring, multi-day and trimmed events cannot be dragged').'\')" onmouseup="statusBarMsg(\'\');"';
+
 					}
 					$current_mouse_over_out_code = '';
 					if (!empty($event['description'])) {
@@ -1760,7 +1794,8 @@ class Page_Calendar extends Page
 			$onclick_code = $event_href ? 'onclick="sq_cal_redirect(this)"' : '';
 			$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 			if (!empty($mousedown_code) && (($details['type_code'] == 'calendar_event_recurring') || (isset($details['expanded'])))) {
-				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
+				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('Recurring, multi-day and trimmed events cannot be dragged').'\')" onmouseup="statusBarMsg(\'\');"';
+
 			}
 			$current_mouse_over_out_code = '';
 

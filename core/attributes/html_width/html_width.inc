@@ -80,7 +80,9 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 		$is_pct = (strpos($this->value, '%') !== false);
 
 		if ($read_only) {
-			echo (int) $this->value.($is_pct ? ' '.translate('percent') : ' '.translate('pixels'));
+			echo (int) $this->value.($is_pct ? ' '.translate('percent') : ' '.translate('Pixels'));
+
+
 			return;
 		}
 

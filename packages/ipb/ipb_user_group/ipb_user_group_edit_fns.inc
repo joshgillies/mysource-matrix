@@ -70,8 +70,10 @@ class Ipb_User_Group_Edit_Fns extends User_Group_Edit_Fns
 	{
 
 		if ($asset->_prefix == '0') {
-			$o->openField(translate('details'));
-				echo translate('list_of_ipb_user_groups');
+			$o->openField(translate('Details'));
+
+				echo translate('List of IPB User Groups');
+
 			$o->closeField();
 
 		} else {
@@ -128,16 +130,21 @@ class Ipb_User_Group_Edit_Fns extends User_Group_Edit_Fns
 		$groups = $ipb->getListOfGroups();
 
 		if (empty($groups)) {
-			$o->openField(translate('list_of_ipb_user_groups'));
-				echo translate('no_user_groups_in_ipb');
+			$o->openField(translate('List of IPB User Groups'));
+
+				echo translate('Currently there is no forums in IPB');
+
 			$o->closeField();
 		} else {
-			$o->openField(translate('list_of_ipb_user_groups'));
+			$o->openField(translate('List of IPB User Groups'));
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th style="width: 50%"><?php echo translate('name'); ?></th>
-						<th style="width: 50%"><?php echo translate('asset'); ?></th>
+						<th style="width: 50%"><?php echo translate('Name'); ?></th>
+
+						<th style="width: 50%"><?php echo translate('Asset'); ?></th>
+
 					</tr>
 				<?php
 				foreach ($groups as $group) {

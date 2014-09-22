@@ -136,7 +136,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 		<table border="0" class="sq-backend-table">
 			<tr>
-				<th width="20%"><?php echo translate('http_request_method'); ?></th>
+				<th width="20%"><?php echo translate('Method'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -148,14 +149,16 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_enable_http_10'); ?></th>
+				<th><?php echo translate('Use HTTP 1.0'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
 							echo htmlspecialchars($current_value['enable_http_10'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_enable_http_10', 1, $current_value['enable_http_10']);
-							label(translate('http_request_enable_http_10_label'), $prefix.'_enable_http_10');
+							label(translate('Use HTTP 1.0 for the HTTP request instead of the default HTTP 1.1'), $prefix.'_enable_http_10');
+
 						}
 					?>
 				</td>
@@ -164,14 +167,16 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				if ($current_value['method'] == 'POST') {
 					?>
 					<tr>
-						<th><?php echo translate('http_request_cache_post_requests'); ?></th>
+						<th><?php echo translate('Cache Post Requests'); ?></th>
+
 						<td>
 							<?php
 								if ($read_only) {
 									echo htmlspecialchars($current_value['cache_post_requests'] ? 'Yes' : 'No');
 								} else {
 									check_box($prefix.'_cache_post_requests', 1, $current_value['cache_post_requests']);
-									label(translate('http_request_cache_post_requests_label'), $prefix.'_cache_post_requests');
+									label(translate('Cache POST requests made by the REST Resource (use with caution)'), $prefix.'_cache_post_requests');
+
 								}
 							?>
 						</td>
@@ -180,7 +185,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				}
 			?>
 			<tr>
-				<th><?php echo translate('http_request_urls'); ?></th>
+				<th><?php echo translate('URL(s)'); ?></th>
+
 				<td>
 					<?php
 					$ol = new Asset_Attribute_Option_List();
@@ -191,7 +197,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_timeout'); ?></th>
+				<th><?php echo translate('Timeout (seconds)'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -203,46 +210,53 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_follow_redirect'); ?></th>
+				<th><?php echo translate('Follow Redirects'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
 							echo htmlspecialchars($current_value['follow_redirect'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_follow_redirect', 1, $current_value['follow_redirect']);
-							label(translate('http_request_follow_redirect_label'), $prefix.'_follow_redirect');
+							label(translate('Follow any URL redirection set by the selected URL(s)'), $prefix.'_follow_redirect');
+
 						}
 					?>
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_enable_compression'); ?></th>
+				<th><?php echo translate('Enable HTTP Compression'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
 							echo htmlspecialchars($current_value['enable_compression'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_enable_compression', 1, $current_value['enable_compression']);
-							label(translate('http_request_enable_compression_label'), $prefix.'_enable_compression');
+							label(translate('Enable decoding of the response'), $prefix.'_enable_compression');
+
 						}
 					?>
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_disable_ssl_verify'); ?></th>
+				<th><?php echo translate('Disable SSL Verification'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
 							echo htmlspecialchars($current_value['disable_ssl_verify'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_disable_ssl_verify', 1, $current_value['disable_ssl_verify']);
-							label(translate('http_request_disable_ssl_verify_label'), $prefix.'_disable_ssl_verify');
+							label(translate('Disable SSL certificate verification on HTTP requests'), $prefix.'_disable_ssl_verify');
+
 						}
 					?>
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_ssl_cert'); ?></th>
+				<th><?php echo translate('SSL certificate filepath'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -254,7 +268,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_ssl_key'); ?></th>
+				<th><?php echo translate('SSL key filepath'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -266,7 +281,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_ca_file'); ?></th>
+				<th><?php echo translate('SSL CA filepath'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -278,7 +294,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_cache_options'); ?></th>
+				<th><?php echo translate('Cache Options'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -291,7 +308,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_default_cache_expiry'); ?></th>
+				<th><?php echo translate('Default Cache Expiry (seconds)'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -303,7 +321,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_authentication_type'); ?></th>
+				<th><?php echo translate('Authentication Type'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -317,7 +336,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 								?>
 								<table>
 									<tr>
-										<th><?php echo translate('username'); ?></th>
+										<th><?php echo translate('Username'); ?></th>
+
 										<td>
 											<?php
 												text_box($prefix.'_http_auth_user', $current_value['http_auth_options']['username'], '', '', 'autocomplete="off"');
@@ -325,7 +345,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 										</td>
 									</tr>
 									<tr>
-										<th><?php echo translate('password'); ?></th>
+										<th><?php echo translate('Password'); ?></th>
+
 										<td>
 											<?php
 												password_box($prefix.'_http_auth_pass', $current_value['http_auth_options']['password'], '', '', 'autocomplete="off"');
@@ -348,7 +369,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 								?>
 								<table>
 									<tr>
-										<th><?php translate('oauth_asset'); ?></th>
+										<th><?php translate('OAuth Asset'); ?></th>
+
 										<td>
 										<?php
 											asset_finder($prefix.'_oauth_asset', $current_value['oauth_asset']['assetid'], $type_codes);
@@ -365,7 +387,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 								?>
 								<table>
 									<tr>
-										<th><?php translate('oauth2_token'); ?></th>
+										<th><?php translate('OAuth 2 Token'); ?></th>
+
 										<td>
 										<?php
 											asset_finder($prefix.'_oauth2_token', $current_value['oauth2_token']['assetid'], $type_codes);
@@ -381,7 +404,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_request_headers'); ?></th>
+				<th><?php echo translate('Request Headers'); ?></th>
+
 				<td>
 					<?php
 					$hl = new Asset_Attribute_Option_List();
@@ -395,7 +419,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			if (($current_value['method'] == 'POST') || ($current_value['method'] == 'PUT')) {
 			?>
 			<tr>
-				<th><?php echo translate('http_request_request_body'); ?></th>
+				<th><?php echo translate('Request Body'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -412,14 +437,16 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			}
 			?>
 			<tr>
-				<th><?php echo translate('http_request_convert_to_utf8'); ?></th>
+				<th><?php echo translate('Convert to UTF-8'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
 							echo $current_value['convert_to_utf8'] ? 'Yes' : 'No';
 						} else {
 							check_box($prefix.'_convert_to_utf8', 1, $current_value['convert_to_utf8']);
-							label(translate('http_request_convert_to_utf8_label'), $prefix.'_convert_to_utf8');
+							label(translate('Convert the response content of the request to UTF-8 character encoding'), $prefix.'_convert_to_utf8');
+
 						}
 					?>
 				</td>
@@ -428,7 +455,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				if ($current_value['convert_to_utf8'] == TRUE) {
 					?>
 					<tr>
-						<th><?php echo translate('http_request_document_encoding'); ?></th>
+						<th><?php echo translate('Document Encoding'); ?></th>
+
 						<td>
 							<?php
 								if ($read_only) {
@@ -443,40 +471,47 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				}
 			?>
 			<tr>
-				<th><?php echo translate('http_request_append_get_vars'); ?></th>
+				<th><?php echo translate('Append Query String'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
 							echo $current_value['append_get_vars'] ? 'Yes' : 'No';
 						} else {
 							check_box($prefix.'_append_get_vars', 1, $current_value['append_get_vars']);
-							label(translate('http_request_append_get_vars_label'), $prefix.'_append_get_vars');
+							label(translate('Append query strings from the frontend URL to the URL of the HTTP request'), $prefix.'_append_get_vars');
+
 						}
 					?>
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_forward_user_keys'); ?></th>
+				<th><?php echo translate('Forward user information'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
 							echo $current_value['forward_user_keys'] ? 'Yes' : 'No';
 						} else {
 							check_box($prefix.'_forward_user_keys', 1, $current_value['forward_user_keys']);
-							label(translate('http_request_forward_user_keys_label'), $prefix.'_forward_user_keys');
+							label(translate('Forward user IP address and other information to the HTTP request'), $prefix.'_forward_user_keys');
+
 						}
 					?>
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('http_request_run_test'); ?></th>
+				<th><?php echo translate('Run Test'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
-							echo translate('no');
+							echo translate('No');
+
 						} else {
 							check_box($prefix.'_run_test', 1, 0);
-							label(translate('http_request_run_test_label'), $prefix.'_run_test');
+							label(translate('Run a test of the HTTP request when this screen is committed'), $prefix.'_run_test');
+
 
 							// Run the test?
 							if (isset($_REQUEST[$prefix.'_run_test']) && $_REQUEST[$prefix.'_run_test'] == 1) {

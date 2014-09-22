@@ -145,14 +145,20 @@ class Form_Question_Type_Password extends Form_Question
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
 		if($use_accessible_string) {
-		    $core_form_password_entered_differently = translate('core_form_password_entered_differently_accessible');
-		    $core_form_password_length_min = sprintf(translate('core_form_password_length_>=_accessible'), $this->attr('min'));
-		    $core_form_password_length_max = sprintf(translate('core_form_password_length_<=_accessible'), $this->attr('max'));
+		    $core_form_password_entered_differently = translate('These passwords don\'t match. Try again?');
+
+		    $core_form_password_length_min = sprintf(translate('Password must be no less than %1$s characters'), $this->attr('min'));
+
+		    $core_form_password_length_max = sprintf(translate('Password must be no more than %1$s characters'), $this->attr('max'));
+
 		}
 		else {
-		    $core_form_password_entered_differently = sprintf(translate('core_form_password_entered_differently'), $this->attr('name'));
-		    $core_form_password_length_min = sprintf(translate('core_form_password_length_>='), $this->attr('name'), $this->attr('min'));
-		    $core_form_password_length_max = sprintf(translate('core_form_password_length_<='), $this->attr('name'), $this->attr('max'));
+		    $core_form_password_entered_differently = sprintf(translate('Password field "%s" was entered differently on each try'), $this->attr('name'));
+
+		    $core_form_password_length_min = sprintf(translate('Password field "%1$s" must be no less than %2$s characters'), $this->attr('name'), $this->attr('min'));
+
+		    $core_form_password_length_max = sprintf(translate('Password field "%1$s" must be no more than %2$s characters'), $this->attr('name'), $this->attr('max'));
+
 		}
 
 		// Only try to check "passwords entered differently" if we've actually

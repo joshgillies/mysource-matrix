@@ -1137,7 +1137,8 @@ class Backend_Outputter
 				function form_on_submit()
 				{
 					if (SQ_FORM_SUBMITTED) {
-						alert(js_translate('form_already_submitted'));
+						alert(js_translate('The form has already been submitted, please wait ...'));
+
 						return;
 					}
 
@@ -1149,7 +1150,8 @@ class Backend_Outputter
 
 					// if the form contains errors and we don't want to submit, handle at here.
 					if (SQ_FORM_ERROR_CONTAINED) {
-						alert(js_translate('form_contains_error'));
+						alert(js_translate('The form can not be submitted, please check javascript errors.'));
+
 						return;
 					}
 
@@ -1280,7 +1282,8 @@ class Backend_Outputter
 									$this->printContextSwitcher();
 									$this->printScreenMenu();
 									echo '<span>';
-									sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('print_this_page'), NULL, 'onclick="showPrintPopup()" class="clickable"');
+									sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('Print this Page'), NULL, 'onclick="showPrintPopup()" class="clickable"');
+
 									echo '</span>';
 									?>
 								</div>
@@ -1300,7 +1303,8 @@ class Backend_Outputter
 							<tr>
 								<td class="sq-backend-nav-history-title">
 									<?php sq_print_icon($this->filesPath('images/icons/history.png'), '', '', 'Navigation History'); ?>
-									<span><?php echo translate('back_to'); ?>:</span>
+									<span><?php echo translate('Back to'); ?>:</span>
+
 								</td>
 								<td class="sq-backend-nav-history">
 									<?php
@@ -1662,7 +1666,8 @@ class Backend_Outputter
 			</tr>
 			<tr>
 				<td class="sq-backend-section-note-cell" colspan="2">
-					<div class="sq-backend-section-note"><strong><?php echo translate('note'); ?>: </strong><?php echo $str ?></div>
+					<div class="sq-backend-section-note"><strong><?php echo translate('Note'); ?>: </strong><?php echo $str ?></div>
+
 		<?php
 
 	}//end _nbSectionNote()
@@ -1745,7 +1750,8 @@ class Backend_Outputter
 			}
 			combo_box('screen_menu', $this->_screens, FALSE, $this->_action, 1, 'id="screen_menu" onchange="self.location = this.value"');
 			echo '&nbsp;';
-			normal_button('screen_menu_go', ' '.translate('go').' ', 'self.location = get_form_element_value("screen_menu");', 'class="sq-form-field sq-btn-small sq-btn-no-shadow"');
+			normal_button('screen_menu_go', ' '.translate('Go').' ', 'self.location = get_form_element_value("screen_menu");', 'class="sq-form-field sq-btn-small sq-btn-no-shadow"');
+
 			echo '&nbsp;';
 		}
 

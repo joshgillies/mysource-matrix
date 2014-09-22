@@ -58,7 +58,8 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('fnb_hipo_rebuild_cache'));
+		$o->openField(translate('Funnelback Rebuild Cache'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -67,6 +68,7 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 			echo SQ_HIPO_REBUILD_FUNNELBACK_CACHE;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -129,7 +131,8 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('fnb_hipo_rebuild_cache');
+		return translate('Funnelback Rebuild Cache');
+
 
 	}//end getHipoName()
 
@@ -145,7 +148,8 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('fnb_hipo_rebuild_cache_step_name0'),
+					'name'			=> translate('Flushing the existing Funnelback Cache'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processFlushTable',
 									   ),
@@ -157,7 +161,8 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 					'allow_cancel'	=> TRUE,
 				),
 				Array(
-					'name'			=> translate('fnb_hipo_rebuild_cache_step_name1'),
+					'name'			=> translate('Rebuilding the Funnelback Cache'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processRebuild',
 									   ),
@@ -300,7 +305,8 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if ($asset) {
-				$step_data['message'] = sprintf(translate('fnb_hipo_refreshing_asset'), $asset->name);
+				$step_data['message'] = sprintf(translate('Refreshing the Cache for Asset "%s"'), $asset->name);
+
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$fm->updateAsset($asset, Array('update'));

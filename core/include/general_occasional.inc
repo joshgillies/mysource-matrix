@@ -432,10 +432,12 @@ function make_valid_web_paths($paths, $fallback_path='')
 		}
 
 		// no ampersands in web paths
-		$path = str_replace('&amp;', SQ_CONF_WEB_PATH_SEPARATOR.translate('web_path_ampersand_replacement').SQ_CONF_WEB_PATH_SEPARATOR, $path);
+		$path = str_replace('&amp;', SQ_CONF_WEB_PATH_SEPARATOR.translate('and').SQ_CONF_WEB_PATH_SEPARATOR, $path);
+
 		$path = preg_replace('|&[^;]+;|', '', $path);
 		$path = preg_replace('|&#[0-9]+;|', '', $path);
-		$path = str_replace('&', SQ_CONF_WEB_PATH_SEPARATOR.translate('web_path_ampersand_replacement').SQ_CONF_WEB_PATH_SEPARATOR, $path);
+		$path = str_replace('&', SQ_CONF_WEB_PATH_SEPARATOR.translate('and').SQ_CONF_WEB_PATH_SEPARATOR, $path);
+
 
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);

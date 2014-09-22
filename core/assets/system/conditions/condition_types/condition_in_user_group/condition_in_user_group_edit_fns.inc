@@ -60,14 +60,16 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('user_groups'); ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('User Groups'); ?></th>
+
 				<td>
 					<?php
 						if ($write_access) {
 							multiple_asset_finder($prefix.'[groupids]', array_get_index($condition_data, 'groupids', Array()), Array('user_group' => 'D'));
 						} else {
 							if (empty($condition_data['groupids'])) {
-								echo '<em>'.translate('condition_no_user_groups_selected').'</em>';
+								echo '<em>'.translate('No user groups selected.').'</em>';
+
 							} else {
 								$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($condition_data['groupids'], 'user_group', FALSE, 'name');
 								?>

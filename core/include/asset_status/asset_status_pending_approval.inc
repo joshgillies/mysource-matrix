@@ -61,7 +61,8 @@ class Asset_Status_Pending_Approval extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_pending_approval');
+		return translate('Pending Approval');
+
 
 	}//end getDescription()
 
@@ -104,20 +105,25 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					$is_dependant =  $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
 					if ($wf_complete && (($m_complete && !$is_dependant) || $is_dependant)) {
-						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
+						$statii[SQ_STATUS_APPROVED] = translate('Approve');
+
 					} else if (in_array($userid, $publishers)) {
-						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
+						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Approve Changes');
+
 					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata, but only if workflow is complete
 					if ($wf_complete) {
-						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
-						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
+						$statii[SQ_STATUS_APPROVED] = translate('Approve');
+
+						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Approve Changes');
+
 					}
 				}
 
-				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
+				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Reject Changes');
+
 			}
 		} else {
 			// workflow is not currently running for this asset

@@ -374,7 +374,8 @@ class Online_Quiz_Question extends Asset
 				  );
 
 		if (empty($value)) {
-			$errors['warnings'][] = sprintf(translate('online_quiz_question_warning_empty_question'), $this->getPosition());
+			$errors['warnings'][] = sprintf(translate('Question #%s has not been answered.'), $this->getPosition());
+
 		}
 
 		return $errors;
@@ -501,7 +502,8 @@ class Online_Quiz_Question extends Asset
 							'is_exclusive'	=> 1,
 						  );
 
-			$asset->setAttrValue('name', translate('online_quiz_question_bodycopy_question_text'));
+			$asset->setAttrValue('name', translate('Question Text'));
+
 			$args = Array(
 						'content'	=> $this->attr('question_text'),
 					);
@@ -634,11 +636,16 @@ class Online_Quiz_Question extends Asset
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['question_text']		= translate('online_quiz_question_keyword_question_text');
-		$keywords['response_form']		= translate('online_quiz_question_keyword_response_form');
-		$keywords['available_points']	= translate('online_quiz_question_keyword_available_points');
-		$keywords['question_number']	= translate('online_quiz_question_keyword_question_number');
-		$keywords['question_note']		= translate('online_quiz_question_keyword_question_note');
+		$keywords['question_text']		= translate('Question Text');
+
+		$keywords['response_form']		= translate('Response Form');
+
+		$keywords['available_points']	= translate('Available Points');
+
+		$keywords['question_number']	= translate('Question Number');
+
+		$keywords['question_note']		= translate('Question Note');
+
 
 		return $keywords;
 

@@ -60,7 +60,8 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	function paintPasswordNote(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$o->note(translate('password_entry_instructions').'<br />'.$asset->getPasswordRulesDescription());
+			$o->note(translate('Enter password once, then again to confirm.').'<br />'.$asset->getPasswordRulesDescription());
+
 			return TRUE;
 		}
 		return FALSE;
@@ -109,7 +110,8 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 		if (empty($groups)) {
 			$o->openField('');
-				echo translate('user_cannot_be_restricted');
+				echo translate('This user is not a member of any user groups; it cannot be restricted');
+
 			$o->closeField();
 			return FALSE;
 		}
@@ -130,7 +132,8 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 			// if user has restrictions related to this group
 			if (!array_get_index($restrictions, $group_assetid, FALSE)) {
-				echo sprintf(translate('no_membership_conditions'), $group['name']);
+				echo sprintf(translate('There are no membership conditions set for "%s". This user is always a member of this group.'), $group['name']);
+
 			} else {
 				?>
 				This user is part of this group when...
@@ -278,9 +281,11 @@ class User_Edit_Fns extends Asset_Edit_Fns
 				echo $standards_lists_locales[$current_locale];
 			} else if ($current_locale == '') {
 				// add system default to this message when it is determined
-				echo sprintf(translate('no_locale_set_for_user'), $standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE]);
+				echo sprintf(translate('<i>No locale is set for this user - system default "%s" used</i>'), $standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE]);
+
 			} else {
-				echo sprintf(translate('unknown_locale'), $current_locale);
+				echo sprintf(translate('<i>Unknown locale "%s" set</i>'), $current_locale);
+
 			}
 		}
 
@@ -365,7 +370,8 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		$current_locks = $asset->getUserLocks();
 
 		if ($current_locks === FALSE) {
-			$o->openField(translate('current_locks'));
+			$o->openField(translate('Current Locks'));
+
 				echo 'No ability to show active locks in current lock method';
 			$o->closeField();
 			return FALSE;
@@ -373,8 +379,10 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 		$num_locks = count($current_locks);
 		$write_access = $asset->writeAccess('attributes');
-		$o->openField(translate('current_locks'));
-			echo sprintf(translate('user_held_locks'), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $num_locks);
+		$o->openField(translate('Current Locks'));
+
+			echo sprintf(translate('%s currently holds %d Locks.'), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $num_locks);
+
 			?>
 			<script type="text/javascript">
 			function sq_user_held_locks_info()
@@ -383,19 +391,23 @@ class User_Edit_Fns extends Asset_Edit_Fns
 				var userLockToggle = document.getElementById('sq_user_held_locks_toggle');
 				if (userLockInfo.style.display == 'none') {
 					userLockInfo.style.display = 'block';
-					userLockToggle.innerHTML = '<?php echo translate('hide_user_held_locks_details'); ?>';
+					userLockToggle.innerHTML = '<?php echo translate('Hide User Held Lock Details'); ?>';
+
 				} else {
 					userLockInfo.style.display = 'none';
-					userLockToggle.innerHTML = '<?php echo translate('show_user_held_locks_details'); ?>';
+					userLockToggle.innerHTML = '<?php echo translate('Show User Held Lock Details'); ?>';
+
 				}
 			}
 			</script>
 			<?php
 			// Restrict to the top 100 other the page will take forever to load up
 			$restricted_locks = array_slice($current_locks, 0, 100);
-			echo '<br /><b class="clickable" onclick="sq_user_held_locks_info();" id="sq_user_held_locks_toggle">'.translate('show_user_held_locks_details').'</b><br />';
+			echo '<br /><b class="clickable" onclick="sq_user_held_locks_info();" id="sq_user_held_locks_toggle">'.translate('Show User Held Lock Details').'</b><br />';
+
 			echo '<div id="sq_user_held_locks_details" style="display:none;">';
-			echo sprintf(translate('showing_first'), count($restricted_locks), $num_locks);
+			echo sprintf(translate('Showing %1$s out of %2$s locks'), count($restricted_locks), $num_locks);
+
 			echo '<table class="sq-backend-table">';
 			echo '<tr>';
 			echo '<td class="sq-backend-table-header">Asset</td>';
@@ -431,7 +443,8 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			echo '</table></div>';
 
 		$o->closeField();
-		$o->openField(translate('release_locks'));
+		$o->openField(translate('Release Held Locks'));
+
 			if (!$write_access) {
 				?>
 				<script type="text/javascript">
@@ -453,12 +466,15 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				// We have the lock, so we can use the normal commit button. Just print a dropdown box
 				$options = Array(
-							'yes'	=> translate('yes'),
-							'no'	=> translate('no'),
+							'Yes'	=> translate('Yes'),
+
+							'No'	=> translate('No'),
+
 						   );
 				combo_box($prefix.'_release_all_locks_dropdown', $options, FALSE, 'no');
 			}
-			$o->note(translate('release_locks_note'));
+			$o->note(translate('Releasing all locks will delete any editing changes that this user has not yet committed.'));
+
 		$o->closeField();
 
 		return FALSE;

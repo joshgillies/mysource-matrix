@@ -275,7 +275,8 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			$context_list = Array(
-								'-default-' => translate('trigger_use_currently_active_context'),
+								'-default-' => translate('Use currently active context at time of firing'),
+
 								'-sep-'		=> '----------------------',
 							);
 			foreach ($contexts as $context_item_id => $context_item) {
@@ -292,21 +293,24 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			}
 
 			if ($metadata_field) {
-				label(translate('trigger_set_value_in_this_context'), $prefix.'[context_to_select]');
+				label(translate('Set value in this context:'), $prefix.'[context_to_select]');
+
 				echo ' ';
 				if ($write_access) {
 					combo_box($prefix.'[context_to_select]', $context_list, FALSE, $default);
 				} else {
 					if ($current_context === NULL) {
 						echo '<strong>';
-						echo translate('trigger_use_currently_active_context');
+						echo translate('Use currently active context at time of firing');
+
 						echo '</strong>';
 					} else if (array_key_exists($current_context, $contexts) === TRUE) {
 						echo '<strong>';
 						echo $contexts[$current_context]['name'];
 						echo '</strong>';
 					} else {
-						echo '<span class="sq-backend-warning">'.translate('trigger_context_deleted_fail_until_changed').'</span>';
+						echo '<span class="sq-backend-warning">'.translate('Set context has been deleted. Trigger will fail until the context is changed to an existing one.').'</span>';
+
 					}
 				}
 			}
@@ -340,7 +344,8 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$fieldid = $fieldid_data['assetid'];
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($fieldid)) {
-			return translate('selected_asset_does_not_exist');
+			return translate('Selected asset does not exist');
+
 		}
 
 		if ($fieldid) {

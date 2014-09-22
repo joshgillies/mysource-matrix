@@ -72,7 +72,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		$types = $asset->attr('create_type');
 		if (empty($types)) {
-			echo '<p class="sq-backend-warning">'.translate('cms_asset_builder_no_types_defined').'</p>';
+			echo '<p class="sq-backend-warning">'.translate('There are no Types Defined').'</p>';
+
 		}
 		if ($asset->writeAccess('attributes')) {
 			asset_type_chooser($prefix.'_create_types', TRUE, array_keys($types));
@@ -128,14 +129,19 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			if ($asset->attr('create_status')) {
 				echo get_status_description($asset->attr('create_status'));
 			} else {
-				echo translate('cms_asset_builder_do_not_change_status');
+				echo translate('Do not change status');
+
 			}
 		} else {
 			$status_options = Array(
-								0								=> translate('cms_asset_builder_do_not_change_status'),
-								SQ_STATUS_ARCHIVED				=> translate('archived'),
-								SQ_STATUS_UNDER_CONSTRUCTION	=> translate('under_construction'),
-								SQ_STATUS_LIVE					=> translate('live'),
+								0								=> translate('Do not change status'),
+
+								SQ_STATUS_ARCHIVED				=> translate('Archived'),
+
+								SQ_STATUS_UNDER_CONSTRUCTION	=> translate('Under Construction'),
+
+								SQ_STATUS_LIVE					=> translate('Live'),
+
 							  );
 			combo_box($prefix.'_create_status', $status_options, FALSE, $asset->attr('create_status'));
 		}
@@ -307,16 +313,20 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$locations = $asset->attr('create_location');
 
 		if (empty($locations)) {
-			echo translate('cms_no_fixed_create_locations');
+			echo translate('No fixed create locations have been specified');
+
 		} else {
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('link_type'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Asset'); ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('Link Type'); ?></td>
+
 					<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td><?php
+
 					}
 					?>
 				</tr>
@@ -345,9 +355,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		}//end else
 
 		if ($write_access) {
-			echo '<p><b>'.translate('cms_add_location').':</b>&nbsp;&nbsp;&nbsp; ';
+			echo '<p><b>'.translate('Add Location').':</b>&nbsp;&nbsp;&nbsp; ';
+
 			asset_finder($prefix.'_new_create_location', 0, $this->location_types);
-			echo '&nbsp;&nbsp;&nbsp;'.translate('link_type').': ';
+			echo '&nbsp;&nbsp;&nbsp;'.translate('Link Type').': ';
+
 			combo_box($prefix.'_new_link_type', $link_type_names, FALSE, '');
 			echo '</p>';
 		}
@@ -427,7 +439,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b><?php echo translate('cms_location_options') ?>:</b>
+					<b><?php echo translate('Location Options') ?>:</b>
+
 				</td>
 				<td class="sq-backend-table-cell">
 					<?php
@@ -464,7 +477,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b><?php echo translate('cms_asset_builder_input_style') ?></b>
+					<b><?php echo translate('Input Style') ?></b>
+
 				</td>
 
 				<td class="sq-backend-table-cell">
@@ -502,7 +516,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								<?php
 									}
 								?>
-								<?php echo translate('cms_allow_no_selection'); ?> &nbsp;&nbsp;&nbsp;&nbsp;
+								<?php echo translate('Allow No Selection'); ?> &nbsp;&nbsp;&nbsp;&nbsp;
+
 							</td>
 
 							<td style="width: 48%;">
@@ -517,14 +532,16 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								<?php
 									}
 								?>
-								<?php echo translate('cms_allow_multiple_selections'); ?> &nbsp;&nbsp;&nbsp;&nbsp;
+								<?php echo translate('Allow Multiple Selections'); ?> &nbsp;&nbsp;&nbsp;&nbsp;
+
 							</td>
 
 							<td style="width: 4%; text-align: right">
 							<?php
 								if ($write_access) {
 							?>
-								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm(js_translate('cms_asset_builder_delete_selectable_locations'))) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
+								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm(js_translate('Are you sure you want to delete this set of selectable create locations?'))) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
+
 							<?php
 								}
 							?>
@@ -558,11 +575,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$this->_paintSelectableLocationSet($asset, $o, $prefix, $name, $data);
 			}
 		} else {
-			echo translate('cms_asset_builder_no_selectable_sets');
+			echo translate('No sets of selectable locations have been specified');
+
 		}
 
 		if ($write_access) {
-			echo '<p><b>'.translate('cms_asset_builder_add_new_set').': </b> ';
+			echo '<p><b>'.translate('Add New Set').': </b> ';
+
 			text_box($prefix.'_new_set_name', '');
 			echo '</p>';
 		}
@@ -658,7 +677,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		$current_assets = $asset->attr('create_type');
 		if (empty($current_assets)) {
-			echo translate('cms_asset_builder_rules_no_asset_type');
+			echo translate('You must specify the type of asset to create before create location rules can be defined');
+
 			return FALSE;
 		}
 
@@ -671,23 +691,29 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		}
 
 		$comparators = Array(
-						'equals'		=> translate('equals'),
-						'starts_with'	=> translate('starts_with'),
-						'ends_with'		=> translate('ends_with'),
-						'contains'		=> translate('contains'),
+						'Equals'		=> translate('Equals'),
+
+						'Starts With'	=> translate('Starts With'),
+
+						'Ends With'		=> translate('Ends With'),
+
+						'Contains'		=> translate('Contains'),
+
 					   );
 
 		$create_types = $asset->attr('create_type');
 		// print the rules for each create type
 		foreach ($create_types as $create_type => $null) {
-			echo '<p><b>'.sprintf(translate('cms_asset_builder_rules_for_asset_type'), $create_type).'</b></p>';
+			echo '<p><b>'.sprintf(translate('Rules for Asset Type \'%s\''), $create_type).'</b></p>';
+
 
 			$attributes = Array();
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attrid', 'type'));
 			foreach ($attrs as $name => $data) {
 				$attributes[$name] = ucwords(str_replace('_', ' ', $name));
 			}
-			$attributes = Array(''=>'-- '.translate('select_attribute').' --') + $attributes;
+			$attributes = Array(''=>'-- '.translate('Select Attribute').' --') + $attributes;
+
 
 			$i = 1;
 			// print out the current rules, if we have them
@@ -696,11 +722,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					$parent_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($rule['locations']);
 					?>
 					<table class="sq-backend-table" style="width: 90%; margin-left: 2em; margin-top: 1ex; "><tr><td class="sq-backend-table-header">
-					<b><?php echo sprintf(translate('rule_number'), $i) ?></b>
+					<b><?php echo sprintf(translate('Rule %s'), $i) ?></b>
+
 					</td></tr>
 					<tr><td class="sq-backend-table-cell">
 
-					<?php echo translate('cms_asset_builder_rules_all_true'); ?><br />
+					<?php echo translate('If all these conditions are true...'); ?><br />
+
 					<ul>
 					<?php
 					for ($j = 0; $j < count($rule['attributes']); $j++) {
@@ -729,7 +757,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					?>
 					</ul>
 
-					<?php echo translate('cms_asset_builder_rules_link_to'); ?><br />
+					<?php echo translate('...link the asset to all these locations:'); ?><br />
+
 					<ul style="margin-bottom: 3px;">
 					<?php
 					$j = 0;
@@ -737,7 +766,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						if ($write_access) {
 							echo '<li>';
 							asset_finder($prefix.'_rules['.$create_type.']['.$i.'][locations]['.$j.']', $rule['locations'][$j], $this->location_types);
-							echo ' '.translate('link_type').': ';
+							echo ' '.translate('Link Type').': ';
+
 							combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types]['.$j.']', $link_type_names, FALSE, $rule['link_types'][$j]);
 							echo '</li>';
 						} else {
@@ -751,7 +781,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						// allow them to add a location
 						echo '<li>';
 						asset_finder($prefix.'_rules['.$create_type.']['.$i.'][locations]['.$j.']', 0, $this->location_types);
-						echo ' '.translate('link_type').': ';
+						echo ' '.translate('Link Type').': ';
+
 						combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types]['.$j.']', $link_type_names, FALSE, '');
 						echo '</li>';
 					}
@@ -761,7 +792,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						if ($write_access) {
 					?>
 						<input type="hidden" name="<?php echo $prefix.'_rules['.$create_type.']['.$i.'][delete]'; ?>" id="<?php echo $prefix.'_rules_'.$create_type.'_'.$i.'_delete'; ?>" value="0" />
-						<input style="display: inline; float: right; clear: none; margin: 0px; " type="button" onclick="if (confirm(js_translate('confirm_delete_rule'))) { document.getElementById('<?php echo $prefix.'_rules_'.$create_type.'_'.$i.'_delete'; ?>').value=1; form.submit(); }" value="<?php echo translate('delete_rule'); ?>" />
+						<input style="display: inline; float: right; clear: none; margin: 0px; " type="button" onclick="if (confirm(js_translate('Are you sure you want to delete this rule?'))) { document.getElementById('<?php echo $prefix.'_rules_'.$create_type.'_'.$i.'_delete'; ?>').value=1; form.submit(); }" value="<?php echo translate('Delete Rule'); ?>" />
+
+
 					<?php
 						}
 					?>
@@ -772,7 +805,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					$i++;
 				}//end foreach
 			} else {
-				?><span style="margin-left: 2em; "><?php echo translate('cms_asset_builder_no_rules_defined') ?><br /></span><?php
+				?><span style="margin-left: 2em; "><?php echo translate('(no rules defined)') ?><br /></span><?php
+
 			}
 
 			// allow the user to add a rule
@@ -785,7 +819,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 					<tr>
 						<td id="<?php echo $prefix.'_'.$create_type; ?>_new_rule_body" class="sq-backend-table-cell" style="display: none" >
-							<?php echo translate('cms_asset_builder_rules_all_true') ?><br />
+							<?php echo translate('If all these conditions are true...') ?><br />
+
 							<ul>
 				<?php
 				for ($j = 0; $j < 3; $j++) {
@@ -799,7 +834,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				?>
 							</ul>
 
-							<?php echo translate('cms_asset_builder_rules_link_to') ?><br />
+							<?php echo translate('...link the asset to all these locations:') ?><br />
+
 							<ul>
 								<li>
 				<?php
@@ -992,11 +1028,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$this->_paintDynamicCreateLocationSet($asset, $o, $prefix, $name, $data);
 			}
 		} else {
-			echo translate('cms_asset_builder_no_dynamic_sets');
+			echo translate('No sets of dynamic locations have been specified');
+
 		}
 
 		if ($write_access) {
-			echo '<p><b>'.translate('cms_asset_builder_add_new_set').': </b> ';
+			echo '<p><b>'.translate('Add New Set').': </b> ';
+
 			text_box($prefix.'_new_dynamic_set_name', '');
 			echo '</p>';
 		}
@@ -1043,7 +1081,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							if ($rootid > 0 && $GLOBALS['SQ_SYSTEM']->am->assetExists($rootid)) {
 								echo get_asset_tag_line($rootid);
 							} else {
-								echo translate('none_selected');
+								echo translate('None selected');
+
 							}
 							?></p><?php
 						}
@@ -1052,24 +1091,29 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b><?php echo translate('depth') ?>:</b>
+					<b><?php echo translate('Depth') ?>:</b>
+
 				</td>
 				<td class="sq-backend-table-cell">
 					<?php
 						if ($write_access) {
 							int_text_box($prefix.'_'.$code_name.'_depth', array_get_index($data, 'depth', 0), FALSE, 3);
-							echo ' '.translate('cms_asset_builder_levels_text');
+							echo ' '.translate('Levels (0 is unlimited depth)');
+
 						} else {
 							$levels = array_get_index($data, 'depth', 0);
-							if ($levels == 0) $levels = translate('infinite');
-							echo '<p>'.sprintf(translate('cms_asset_builder_num_levels'), $levels).'</p>';
+							if ($levels == 0) $levels = translate('Infinite');
+
+							echo '<p>'.sprintf(translate('%s Levels'), $levels).'</p>';
+
 						}
 					?>
 				</td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b><?php echo translate('cms_asset_builder_restrict_types') ?>:</b>
+					<b><?php echo translate('Restrict to these Asset Types') ?>:</b>
+
 				</td>
 				<td class="sq-backend-table-cell">
 					<?php
@@ -1099,7 +1143,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b><?php echo translate('cms_asset_builder_include_link_type') ?>:</b>
+					<b><?php echo translate('Include links of the following type in the locations list') ?>:</b>
+
 				</td>
 				<td class="sq-backend-table-cell">
 				<?php
@@ -1127,7 +1172,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							}
 						}
 						if (empty($display_link_types)) {
-							echo translate('cms_asset_builder_no_exclusions');
+							echo translate('No exclusions.');
+
 						} else {
 							echo implode(",<br />\n", $display_link_types);
 						}
@@ -1137,7 +1183,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b><?php echo translate('cms_asset_builder_created_link_type') ?>:</b>
+					<b><?php echo translate('Link Type of Created Asset') ?>:</b>
+
 				</td>
 				<td class="sq-backend-table-cell">
 				<?php
@@ -1154,16 +1201,20 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b><?php echo translate('cms_asset_builder_input_style'); ?></b>
+					<b><?php echo translate('Input Style'); ?></b>
+
 				</td>
 
 				<td class="sq-backend-table-cell">
 				<?php
-				$input_style        = array_get_index($data, 'input_style', translate('none_selected'));
+				$input_style        = array_get_index($data, 'input_style', translate('None selected'));
+
 				$display_structured = array_get_index($data, 'display_structured', 0);
 				$options = Array(
-							'dropdown'	=> translate('dropdown_list'),
-							'radio'		=> translate('radio_buttons'),
+							'dropdown'	=> translate('Drop-down List'),
+
+							'radio'		=> translate('Radio Buttons'),
+
 						   );
 				if ($write_access) {
 					?><select name="<?php echo $prefix.'_'.$code_name.'_input_style'; ?>"><?php
@@ -1174,17 +1225,21 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 					// display structured?
 					check_box($prefix.'_'.$code_name.'_display_structured', '1', ($display_structured == 1 ? TRUE : FALSE));
-					echo '&nbsp;'.translate('cms_asset_builder_display_as_tree')."\n";
+					echo '&nbsp;'.translate('Display Assets as a Tree')."\n";
+
 
 				} else {
-					echo '<p>'.$options[$input_style].' ('.($display_structured ? translate('cms_asset_builder_display_as_tree') : translate('cms_asset_builder_display_as_list')).')</p>';
+					echo '<p>'.$options[$input_style].' ('.($display_structured ? translate('Display Assets as a Tree') : translate('Display Assets as a Normal List')).')</p>';
+
+
 				}
 				?>
 				</td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell" >
-					<?php echo translate('rules') ?>:
+					<?php echo translate('Rules') ?>:
+
 				</td>
 				<td class="sq-backend-table-cell">
 					<table border="0" cellpadding="0" cellspacing="0" style="width: 100%">
@@ -1201,7 +1256,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $selected_allow_empty ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 									<?php
 								}
-								?> <?php echo translate('cms_allow_no_selection') ?> &nbsp;&nbsp;&nbsp;&nbsp;
+								?> <?php echo translate('Allow No Selection') ?> &nbsp;&nbsp;&nbsp;&nbsp;
+
 							</td>
 
 							<td style="width: 48%;">
@@ -1216,14 +1272,16 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $selected_allow_multiple ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 									<?php
 								}
-								?> <?php echo translate('cms_allow_multiple_selections') ?> &nbsp;&nbsp;&nbsp;&nbsp;
+								?> <?php echo translate('Allow Multiple Selections') ?> &nbsp;&nbsp;&nbsp;&nbsp;
+
 							</td>
 
 							<td style="width: 4%; text-align: right">
 							<?php
 								if ($write_access) {
 							?>
-								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm(js_translate('cms_asset_builder_delete_dynamic_locations'))) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
+								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm(js_translate('Are you sure you want to delete this set of dynamic create locations?'))) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
+
 							<?php
 								}
 							?>
@@ -1406,16 +1464,20 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			$o->openRaw();
 
 			if (empty($current[$create_type])) {
-				echo translate('cms_asset_builder_no_required_attrs');
+				echo translate('No attributes are currently set to be required');
+
 			} else {
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('error_text') ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('Name') ?></td>
+
+						<td class="sq-backend-table-header"><?php echo translate('Error Text') ?></td>
+
 						<?php
 						if ($write_access) {
-							?><td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td><?php
+							?><td class="sq-backend-table-header"><?php echo translate('Delete?') ?></td><?php
+
 						}
 						?>
 					</tr>
@@ -1431,7 +1493,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							if (!is_null($mf_asset)) {
 								$required_name = 'Metadata: '.$mf_asset->name;
 							} else {
-								$required_name = translate('unknown_metadata_field');
+								$required_name = translate('Unknown Metadata Field');
+
 							}
 						} else {
 							$required_name = $attributes[$attr];
@@ -1467,7 +1530,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 			if ($write_access) {
 
-				$new_required = Array('' => '-- '.translate('select_attribute').' --');
+				$new_required = Array('' => '-- '.translate('Select Attribute').' --');
+
 				foreach ($attributes as $attr => $name) {
 					if (isset($current[$create_type][$attr])) continue;
 					$new_required[$attr] = $name;
@@ -1496,7 +1560,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					}//end foreach
 				}
 
-				echo '<br/><b>'.translate('cms_asset_builder_new_req_attr_question').' </b>';
+				echo '<br/><b>'.translate('New required attribute ?').' </b>';
+
 				combo_box($type_prefix.'_new_required', $new_required, FALSE, '');
 			}
 
@@ -1577,7 +1642,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			if ($ttf_file_id > 0) {
 				echo get_asset_tag_line($ttf_file_id);
 			} else {
-				echo translate('none_selected');
+				echo translate('None selected');
+
 			}
 		}
 		return TRUE;
@@ -1696,17 +1762,20 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			$type_prefix = $prefix.'_'.$create_type;
 
 			if (empty($current[$create_type])) {
-				echo translate('cms_asset_builder_mollom_no_attr_to_check').'<br />';
+				echo translate('No attributes are set be checked for spam').'<br />';
+
 			} else {
 				?>
 				<table class="sq-backend-table">
 					<tr><td colspan="3" style="font-style:italic;"><b><?php echo $type_name; ?></b></td></tr>
 					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('Name') ?></td>
+
 						<td class="sq-backend-table-header">Content Type</td>
 						<?php
 						if ($write_access) {
-							?><td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td><?php
+							?><td class="sq-backend-table-header"><?php echo translate('Delete?') ?></td><?php
+
 						}
 						?>
 					</tr>
@@ -1722,7 +1791,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							if (!is_null($mf_asset)) {
 								$required_name = 'Metadata: '.$mf_asset->name;
 							} else {
-								$required_name = translate('unknown_metadata_field');
+								$required_name = translate('Unknown Metadata Field');
+
 							}
 						} else {
 							$required_name = $attributes[$attr];
@@ -1763,7 +1833,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 			if ($write_access) {
 
-				$new_required = Array('' => '-- '.translate('select_attribute').' --');
+				$new_required = Array('' => '-- '.translate('Select Attribute').' --');
+
 				foreach ($attributes as $attr => $name) {
 					if (isset($current[$create_type][$attr])) continue;
 					$new_required[$attr] = $name;
@@ -1792,7 +1863,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					}//end foreach
 				}
 
-				echo '<b>'.translate('cms_asset_builder_new_mollom_attr_question').' </b>';
+				echo '<b>'.translate('New attribute to check ?').' </b>';
+
 				combo_box($type_prefix.'_new_content_type', $new_required, FALSE, '');
 				echo '<br /><br />';
 			}

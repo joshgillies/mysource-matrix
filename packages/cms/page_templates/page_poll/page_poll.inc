@@ -441,21 +441,36 @@ class Page_Poll extends Page
 	function _getQuestionFormatKeywords()
 	{
 		$keywords = Array();
-		$keywords['poll_question'] = translate('cms_poll_question');
-		$keywords['poll_date'] = translate('cms_poll_date');
-		$keywords['poll_option_list'] = translate('cms_poll_option_list');
-		$keywords['poll_vote_button'] = translate('cms_poll_vote_button');
-		$keywords['poll_vote_button_new_window'] = translate('cms_poll_vote_button_new_window');
-		$keywords['poll_vote_button_js'] = translate('cms_poll_vote_button_js');
-		$keywords['poll_vote_button_js_new_window'] = translate('cms_poll_vote_button_js_new_window');
-		$keywords['poll_view_results'] = translate('cms_poll_view_results');
-		$keywords['poll_view_results_url'] = translate('cms_poll_view_results_url');
-		$keywords['poll_view_past_questions'] = translate('cms_poll_view_past_questions');
-		$keywords['poll_view_past_questions_url'] = translate('cms_poll_view_past_questions_url');
-		$keywords['poll_active_question'] = translate('cms_poll_active_question');
-		$keywords['poll_active_question_results'] = translate('cms_poll_active_question_results');
-		$keywords['poll_active_question_date'] = translate('cms_poll_active_question_date');
-		$keywords['poll_active_question_date_results'] = translate('cms_poll_active_question_date_results');
+		$keywords['poll_question'] = translate('Question');
+
+		$keywords['poll_date'] = translate('Date');
+
+		$keywords['poll_option_list'] = translate('Option List');
+
+		$keywords['poll_vote_button'] = translate('Vote Button');
+
+		$keywords['poll_vote_button_new_window'] = translate('Vote Button (Opens results in a new window)');
+
+		$keywords['poll_vote_button_js'] = translate('Vote Button Javascript');
+
+		$keywords['poll_vote_button_js_new_window'] = translate('Vote Button Javascript (Opens results in a new window)');
+
+		$keywords['poll_view_results'] = translate('View Results Link');
+
+		$keywords['poll_view_results_url'] = translate('View Results URL');
+
+		$keywords['poll_view_past_questions'] = translate('View Past Questions');
+
+		$keywords['poll_view_past_questions_url'] = translate('View Past Questions URL');
+
+		$keywords['poll_active_question'] = translate('A link to Active Question');
+
+		$keywords['poll_active_question_results'] = translate('A link to Active Question Results');
+
+		$keywords['poll_active_question_date'] = translate('A link to Active Question with creation date');
+
+		$keywords['poll_active_question_date_results'] = translate('A link to Active Question Results with creation date');
+
 
 		return $keywords;
 
@@ -471,10 +486,14 @@ class Page_Poll extends Page
 	function _getOptionListFormatKeywords()
 	{
 		$keywords = Array();
-		$keywords['poll_option_label'] = translate('cms_poll_option_label');
-		$keywords['poll_option_number'] = translate('cms_poll_option_number');
-		$keywords['poll_option_id'] = translate('cms_poll_option_id');
-		$keywords['poll_option_vote_selection_button'] = translate('cms_poll_option_vote_selection_button');
+		$keywords['poll_option_label'] = translate('Option Label');
+
+		$keywords['poll_option_number'] = translate('Option Number');
+
+		$keywords['poll_option_id'] = translate('Option Id');
+
+		$keywords['poll_option_vote_selection_button'] = translate('Option Selection (Radio button or Checkbox)');
+
 
 		return $keywords;
 
@@ -491,7 +510,8 @@ class Page_Poll extends Page
 	{
 		$keywords = Array();
 		$keywords = $this->_getQuestionFormatKeywords();
-		$keywords['poll_results_list'] = translate('cms_poll_results_list');
+		$keywords['poll_results_list'] = translate('Results List');
+
 		if (isset($keywords['poll_option_list'])) {
 			unset($keywords['poll_option_list']);
 		}
@@ -525,12 +545,18 @@ class Page_Poll extends Page
 	function _getResultsListFormatKeywords()
 	{
 		$keywords = Array();
-		$keywords['poll_option_number'] = translate('cms_poll_option_number');
-		$keywords['poll_option_id'] = translate('cms_poll_option_id');
-		$keywords['poll_option_label'] = translate('cms_poll_option_label');
-		$keywords['poll_option_bar'] = translate('cms_poll_option_bar');
-		$keywords['poll_option_votes_number'] = translate('cms_poll_option_votes_number');
-		$keywords['poll_option_votes_percent'] = translate('cms_poll_option_votes_percent');
+		$keywords['poll_option_number'] = translate('Option Number');
+
+		$keywords['poll_option_id'] = translate('Option Id');
+
+		$keywords['poll_option_label'] = translate('Option Label');
+
+		$keywords['poll_option_bar'] = translate('Option Graph Bar');
+
+		$keywords['poll_option_votes_number'] = translate('Option Votes (Number)');
+
+		$keywords['poll_option_votes_percent'] = translate('Option Votes (Percent)');
+
 
 		return $keywords;
 
@@ -546,12 +572,18 @@ class Page_Poll extends Page
 	function _getPastQuestionsFormatKeywords()
 	{
 		$keywords = Array();
-		$keywords['poll_question_list'] = translate('cms_poll_question_list');
-		$keywords['poll_question_list_date'] = translate('cms_poll_question_list_date');
-		$keywords['poll_question_list_no_active'] = translate('cms_poll_question_list_no_active');
-		$keywords['poll_question_list_date_no_active'] = translate('cms_poll_question_list_date_no_active');
-		$keywords['poll_active_question'] = translate('cms_poll_active_question');
-		$keywords['poll_date'] = translate('cms_poll_date');
+		$keywords['poll_question_list'] = translate('Question List');
+
+		$keywords['poll_question_list_date'] = translate('Question List (with creation dates)');
+
+		$keywords['poll_question_list_no_active'] = translate('Question List (without active question)');
+
+		$keywords['poll_question_list_date_no_active'] = translate('Question List (with dates, without active question)');
+
+		$keywords['poll_active_question'] = translate('A link to Active Question');
+
+		$keywords['poll_date'] = translate('Date');
+
 
 
 		return $keywords;
@@ -594,7 +626,8 @@ class Page_Poll extends Page
 	function _getPastQuestionsListFormatKeywords()
 	{
 		$keywords = Array();
-		$keywords['poll_question'] = translate('cms_poll_question');
+		$keywords['poll_question'] = translate('Question');
+
 		$keywords = array_merge($keywords,$this->getAvailableKeywords());
 
 		return $keywords;

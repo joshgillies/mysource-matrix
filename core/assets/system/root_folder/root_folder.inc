@@ -188,7 +188,8 @@ class Root_Folder extends Folder
 	*/
 	function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		return ($short_name) ? '/' : translate('root_folder');
+		return ($short_name) ? '/' : translate('Root Folder');
+
 
 	}//end _getName()
 

@@ -63,7 +63,8 @@ class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!empty($search_page_link)) {
 				echo get_asset_tag_line($search_page_link['minorid']);
 			} else {
-				echo translate('sch_no_search_page_specified');
+				echo translate('No search page specified');
+
 			}
 
 		} else {
@@ -150,7 +151,8 @@ class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 		}
 
 		if (is_null($search_page)) {
-			echo translate('sch_list_page_before_field');
+			echo translate('You must select a search page before a search field can be set');
+
 			return false;
 		}
 
@@ -175,7 +177,8 @@ class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 
-			$options = array_merge(Array('' => translate('none')), $options);
+			$options = array_merge(Array('' => translate('None')), $options);
+
 			combo_box($prefix.'_field_name', $options, false, $asset->attr('search_field'));
 			return true;
 		} else {

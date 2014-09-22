@@ -128,13 +128,16 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 		}
 
 		if (!is_file($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('path_to_not_valid'), 'Datacash PHP API'); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not valid'), 'Datacash PHP API'); ?></span><?php
+
 		} else {
 			include_once $current_path;
 			if (!class_exists('DataCash_Document')) {
-				?><br /><span class="sq-backend-warning"><?php echo translate('datacash_api_no_required_class'); ?></span><?php
+				?><br /><span class="sq-backend-warning"><?php echo translate('The Datacash API does not have the required DataCash_Document class'); ?></span><?php
+
 			} else if (!method_exists('DataCash_Document', 'readDocumentFromString')) {
-				?><br /><span class="sq-backend-warning"><?php echo translate('datacash_api_no_required_method'); ?></span><?php
+				?><br /><span class="sq-backend-warning"><?php echo translate('The Datacash API\'s DataCash_Document class does not contain the required readDocumentFromString() method'); ?></span><?php
+
 			}
 		}//end if
 
@@ -188,9 +191,11 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 		}
 
 		if (!is_dir($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('path_to_not_valid'), 'Datacash CardInfo Directory'); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not valid'), 'Datacash CardInfo Directory'); ?></span><?php
+
 		} else if (!is_file($current_path.'/CardInfo1.bin') || !is_file($current_path.'/CardInfo2.bin')) {
-			?><br /><span class="sq-backend-warning"><?php echo translate('datacash_cardinfo_dir_no_required_files'); ?></span><?php
+			?><br /><span class="sq-backend-warning"><?php echo translate('The Datacash CardInfo Directory does not contain CardInfo1.bin or CardInfo2.bin file'); ?></span><?php
+
 		}
 
 		return TRUE;

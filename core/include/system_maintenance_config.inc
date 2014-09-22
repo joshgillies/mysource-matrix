@@ -50,10 +50,14 @@ class System_Maintenance_Config extends Config
 						'SQ_MAINTENANCE_ASSET_TYPE'			=> Array('editable' => 1, 'default' => 'page_asset_builder:1|page_custom_form:1|page_account_manager:1|ecommerce_checkout:1|page_password_reset:1|page_online_quiz:1|page_link_manager:1'),
 						'SQ_MAINTENANCE_ROOT_NODE'			=> Array('editable' => 1, 'default' => '1:1'),
 						'SQ_MAINTENANCE_EXCLUDE_ROOT_NODE'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_frontend_notify_message')),
-						'SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_backend_notify_message')),
-						'SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_frontend_enabled_message')),
-						'SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_backend_enabled_message')),
+						'SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE'	=> Array('editable' => 1, 'default' => translate('This website will soon be undergoing maintenance. Some website functions will temporarily be disabled.')),
+
+						'SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE'	=> Array('editable' => 1, 'default' => translate('This Matrix system will soon be entering Maintenance Mode. Please save your work and consult the system owner for further information.')),
+
+						'SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE'	=> Array('editable' => 1, 'default' => translate('This website is currently undergoing maintenance. Some website functions are temporarily disabled.')),
+
+						'SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE'	=> Array('editable' => 1, 'default' => translate('This Matrix system has entered Maintenance Mode. Please consult the system owner before making any changes.')),
+
 						'SQ_MAINTENANCE_RETRY_AFTER'			=> Array('editable' => 1, 'default' => 3600),
 					   );
 
@@ -132,7 +136,9 @@ class System_Maintenance_Config extends Config
 
 		// if we dont have access, go away
 		if (!$is_admin) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset'));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), translate('You do not have permission to access the asset'));
+
+
 			exit();
 		}
 
@@ -157,53 +163,72 @@ class System_Maintenance_Config extends Config
 		}
 
 
-		$o->setHeading(translate('system_maintenance'), sq_get_icon($o->filesPath('/images/icons/header/system_maintenance.png'), '', '', translate('system_maintenance')));
-		$o->setPageTitle(translate('system_maintenance'));
+		$o->setHeading(translate('System Maintenance'), sq_get_icon($o->filesPath('/images/icons/header/system_maintenance.png'), '', '', translate('System Maintenance')));
+
+		$o->setPageTitle(translate('System Maintenance'));
+
 
 		/*
 		*	maintenance mode
 		*/
-		$o->openSection(translate('maintenance_mode'));
-		$o->openField(translate('maintenance_mode'), '', translate('maintenance_mode_note'));
+		$o->openSection(translate('Maintenance Mode'));
+
+		$o->openField(translate('Maintenance Mode'), '', translate('When this setting is set to "Enabled", Matrix will enter Maintenance Mode and affected assets specified below will print a maintenance message instead of their asset contents on the front end.  If this setting is set to "Notify", Matrix will only print a different maintenance message as well as the asset contents on the front end for the affected assets. The %%globals_system_maintenance_mode%% keyword can be used to print the current maintenance mode status which will either be "disabled", "notify" or "enabled".'));
+
+
 		if ($write_access && $is_admin) {
-			combo_box($class.'[SQ_MAINTENANCE_MODE]', Array('0' => translate('disabled'), '1' => translate('notify'), '2' => translate('enabled')), FALSE, SQ_MAINTENANCE_MODE);
+			combo_box($class.'[SQ_MAINTENANCE_MODE]', Array('0' => translate('Disabled'), '1' => translate('Notify'), '2' => translate('Enabled')), FALSE, SQ_MAINTENANCE_MODE);
+
+
+
 		} else {
 			switch (SQ_MAINTENANCE_MODE) {
 				case '0':
-					echo translate('disabled');
+					echo translate('Disabled');
+
 					break;
 				case '1':
-					echo translate('notify');
+					echo translate('Notify');
+
 					break;
 				case '2':
-					echo translate('enabled');
+					echo translate('Enabled');
+
 					break;
 			}
 		}
 		$o->closeField();
 
-		$o->openField(translate('backend_maintenance_notify_message'), '', translate('backend_maintenance_notify_message_note'));
+		$o->openField(translate('Back End Notify Message'), '', translate('The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Notify" status. The <strong>%%globals_system_maintenance_message_backend%%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
+
+
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE';
 			$wysiwyg = new Asset_Attribute_WYSIWYG();
 			$wysiwyg->value = SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE;
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
-		$o->openField(translate('frontend_maintenance_notify_message'), '', translate('frontend_maintenance_notify_message_note'));
+		$o->openField(translate('Front End Notify Message'), '', translate('The message that will be printed on affected asset on frontend when Maintenance Mode is set "Notify" status. The <strong>%%globals_system_maintenance_message_frontend%%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
+
+
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE';
 			$wysiwyg = new Asset_Attribute_WYSIWYG();
 			$wysiwyg->value = SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
-		$o->openField(translate('backend_maintenance_enabled_message'), '', translate('backend_maintenance_enabled_message_note'));
+		$o->openField(translate('Back End Enabled Message'), '', translate('The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Enabled" status. The <strong>%%globals_system_maintenance_message_backend%%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
+
+
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE';
 			$wysiwyg = new Asset_Attribute_WYSIWYG();
 			$wysiwyg->value = SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE;
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
-		$o->openField(translate('frontend_maintenance_enabled_message'), '', translate('frontend_maintenance_enabled_message_note'));
+		$o->openField(translate('Front End Enabled Message'), '', translate('The message that will be printed on affected asset on frontend when Maintenance Mode is set to "Enabled" status. The <strong>%%globals_system_maintenance_message_frontend%%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
+
+
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE';
 			$wysiwyg = new Asset_Attribute_WYSIWYG();
 			$wysiwyg->value = SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE;
@@ -211,19 +236,27 @@ class System_Maintenance_Config extends Config
 		$o->closeField();
 
 
-		$o->openField(translate('affected_asset_types'), '', translate('affected_asset_types_note'));
+		$o->openField(translate('Affected Asset Types'), '', translate('When Maintenance Mode is enabled, the above types of assets will be affected.'));
+
+
 			$this->paintAssetTypes($o, $class);
 		$o->closeField();
 
-		$o->openField(translate('affected_root_nodes'), '', translate('affected_root_nodes_note'));
+		$o->openField(translate('Affected Root Nodes'), '', translate('When Maintenance Mode is enabled, the affected assets under the above root nodes will print the <strong>Front End Message</strong> instead of printing their content.'));
+
+
 			$this->paintRootNode($o, $class);
 		$o->closeField();
 
-		$o->openField(translate('excluded_root_nodes'), '', translate('excluded_root_nodes_note'));
+		$o->openField(translate('Excluded Root Nodes'), '', translate('The above root nodes are excluded and will overwrite any root nodes configured to be affected by Maintenance Mode.'));
+
+
 			$this->paintExcludeRootNode($o, $class);
 		$o->closeField();
 
-		$o->openField(translate('retry_after'), '', translate('retry_after_note'));
+		$o->openField(translate('Retry-After Response Header Value'), '', translate('When Maintenance Mode is enabled, affected assets will send a 503 Service Unavailable and a Retry-After response header to the requesting client to indicate that the page is unavailable and to try again after a certain amount of time. The value of this field can be either an HTTP-date or an integer number of seconds (in decimal) after the time of the response.'));
+
+
 			if ($write_access && $is_admin) {
 				text_box($class.'[SQ_MAINTENANCE_RETRY_AFTER]', SQ_MAINTENANCE_RETRY_AFTER, 40);
 			} else {
@@ -236,7 +269,8 @@ class System_Maintenance_Config extends Config
 
 
 
-		$o->openSection(translate('reports'));
+		$o->openSection(translate('Reports'));
+
 		$o->openField('');
 		$reports = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('simple_report');
 
@@ -284,8 +318,10 @@ class System_Maintenance_Config extends Config
 
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('name'); ?></th>
-					<th><?php echo translate('description'); ?></th>
+					<th><?php echo translate('Name'); ?></th>
+
+					<th><?php echo translate('Description'); ?></th>
+
 				</tr>
 				<?php
 
@@ -326,7 +362,8 @@ class System_Maintenance_Config extends Config
 			</table>
 			<?php
 		} else {
-			echo translate('general_reports_not_installed');
+			echo translate('There are no General Reports installed');
+
 		}
 		$o->closeField();
 		$o->closeSection();
@@ -518,20 +555,25 @@ class System_Maintenance_Config extends Config
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('condition_no_asset_types_selected').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('No asset types selected.').'</p>';
+
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('type') ?></th>
-							<th style="width:340px;" ><?php echo translate('inherit_question') ?></th>
+							<th><?php echo translate('Type') ?></th>
+
+							<th style="width:340px;" ><?php echo translate('Inherit?') ?></th>
+
 						</tr>
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
 					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
-					$inherit_alt = $inherit ? translate('yes') : translate('no');
+					$inherit_alt = $inherit ? translate('Yes') : translate('No');
+
+
 					?>
 						<tr>
 							<td><?php

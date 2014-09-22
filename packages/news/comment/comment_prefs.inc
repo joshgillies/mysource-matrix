@@ -182,9 +182,12 @@ class Comment_Prefs extends Prefs
 											);
 
 		$this->html_conf_options = Array(
-									SQ_COMMENT_HTML_ALLOW	=> translate('allow'),
-									SQ_COMMENT_HTML_ESCAPE	=> translate('escape'),
-									SQ_COMMENT_HTML_STRIP	=> translate('strip'),
+									SQ_COMMENT_HTML_ALLOW	=> translate('Allow'),
+
+									SQ_COMMENT_HTML_ESCAPE	=> translate('Escape'),
+
+									SQ_COMMENT_HTML_STRIP	=> translate('Strip'),
+
 								   );
 
 	}//end constructor
@@ -250,7 +253,8 @@ class Comment_Prefs extends Prefs
 
 			?><table class="sq-backend-table" style="width: 350px;">
 				<tr>
-					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width') ?></td>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
+
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock && $is_admin) {
@@ -262,7 +266,8 @@ class Comment_Prefs extends Prefs
 					</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height') ?></td>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height') ?></td>
+
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock && $is_admin) {
@@ -309,7 +314,8 @@ class Comment_Prefs extends Prefs
 			} else {
 				echo $comment_length;
 			}
-			$o->note(translate('comment_pref_max_length_note'));
+			$o->note(translate('This setting limits the number of characters that may be entered in the comment input box. When the value is zero, this option will be ignored.'));
+
 
 		$o->closeField();
 

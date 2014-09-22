@@ -338,7 +338,8 @@ class Utransact_Processor
         // First set the UTransact authentication token
 		if (!$this->_refreshAuthToken()) {
             $this->_response['STATUS'] = "FAIL";
-			$this->_response['MESSAGE'] = sprintf(translate('utransact_problem_while_processing'), $this->_reference_no);
+			$this->_response['MESSAGE'] = sprintf(translate('Problem occured while processing transaction. Please contact the adminstrator and quote the transaction ref: %s.'), $this->_reference_no);
+
 
 			$this->_log("Cannot acquire Utransact bga authentication token");
 
@@ -441,21 +442,24 @@ class Utransact_Processor
 
             } catch (SoapFault $fault) {
                 $this->_response['STATUS'] = "FAIL";
-                $this->_response['MESSAGE'] = $fault->getMessage()."<br>".sprintf(translate('utransact_problem_while_processing'), $this->_reference_no);
+                $this->_response['MESSAGE'] = $fault->getMessage()."<br>".sprintf(translate('Problem occured while processing transaction. Please contact the adminstrator and quote the transaction ref: %s.'), $this->_reference_no);
+
 
                 $this->_log($fault->getMessage());
                 return FALSE;
 
             } catch (BusinessRuleException $e) {
                 $this->_response['STATUS'] = "FAIL";
-                $this->_response['MESSAGE'] = sprintf(translate('utransact_problem_while_processing'), $this->_reference_no);
+                $this->_response['MESSAGE'] = sprintf(translate('Problem occured while processing transaction. Please contact the adminstrator and quote the transaction ref: %s.'), $this->_reference_no);
+
 
                 $this->_log("ERROR: Transaction expection occured for transaction ref ".$this->_reference_no.": ".$e->getMessage());
                 return FALSE;
 
             } catch (TransactionException $e) {
                 $this->_response['STATUS'] = "FAIL";
-                $this->_response['MESSAGE'] = sprintf(translate('utransact_problem_while_processing'), $this->_reference_no);
+                $this->_response['MESSAGE'] = sprintf(translate('Problem occured while processing transaction. Please contact the adminstrator and quote the transaction ref: %s.'), $this->_reference_no);
+
 
                 $this->_log("ERROR: Transaction expection occured for transaction ref ".$this->_reference_no.": ".$e->getMessage());
                 return FALSE;
@@ -468,7 +472,8 @@ class Utransact_Processor
 				// Maximum attempts made, quitting now
                 if ($process_attempt_count > MAX_TRANSACTION_PROCESS_ATTEMPT) {
                     $this->_response['STATUS'] = "FAIL";
-                    $this->_response['MESSAGE'] = sprintf(translate('utransact_core_not_available_for_processing'), $this->_reference_no);
+                    $this->_response['MESSAGE'] = sprintf(translate('Payment processing server is not available currently. Please contact the adminstrator and quote the transaction ref: %s.'), $this->_reference_no);
+
 
 					return FALSE;
                 }
@@ -537,7 +542,8 @@ class Utransact_Processor
             } else {
                 // Transaction completed, but couldn't obtain the details
                 $status = "UNKNOWN";
-                $message = sprintf(translate('utransact_cannot_obtain_transaction_details'), $this->_reference_no);
+                $message = sprintf(translate('Transaction processed successfully but cannot obtained the transaction details. Please contact the adminstrator and quote the transaction ref: %s.'), $this->_reference_no);
+
 
 				$this->_log("ERROR: Couldn't get transaction ref ".$this->_reference_no." details");
             }
@@ -794,7 +800,8 @@ class Utransact_Processor
 	function _getTransactionErrors($result)
 	{
         if (empty($result)) {
-            return Array(sprintf(translate('utransact_empty_response_while_processing'), $this->_reference_no));
+            return Array(sprintf(translate('No response received from the payment processing server. Please contact the administrator and quote the transaction ref: %s'), $this->_reference_no));
+
         }
 
         preg_match_all('|<ErrorCode>(.*?)</ErrorCode>.*?<DisplayMessage>(.*?)</DisplayMessage>|i',$result, $error_match);
@@ -823,7 +830,8 @@ class Utransact_Processor
 	function _getTransactionInvoiceNumber($result)
 	{
         if (empty($result)) {
-            return sprintf(translate('utransact_empty_response_while_processing'), $this->_reference_no);
+            return sprintf(translate('No response received from the payment processing server. Please contact the administrator and quote the transaction ref: %s'), $this->_reference_no);
+
         }
 
         preg_match('|<InvoiceNumber>(.*?)</InvoiceNumber>|',$result, $match);
@@ -844,7 +852,8 @@ class Utransact_Processor
 	function _getTransactionDetails($result)
 	{
         if (empty($result)) {
-            return Array(sprintf(translate('utransact_empty_response_while_processing'), $this->_reference_no));
+            return Array(sprintf(translate('No response received from the payment processing server. Please contact the administrator and quote the transaction ref: %s'), $this->_reference_no));
+
         }
 
         $details = Array();

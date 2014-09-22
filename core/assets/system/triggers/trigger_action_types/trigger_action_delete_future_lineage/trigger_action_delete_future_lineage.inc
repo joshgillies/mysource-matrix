@@ -227,7 +227,8 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 				}
 			$link_type_interface = ob_get_clean();
 			?>
-			<tr><th><?php echo translate('link_type'); ?></th><td><?php echo $link_type_interface; ?></td></tr>
+			<tr><th><?php echo translate('Link Type'); ?></th><td><?php echo $link_type_interface; ?></td></tr>
+
 			<?php
 
 			// Asset Interface
@@ -238,7 +239,8 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 					if (isset($settings['assetid']) && !empty($settings['assetid'])) {
 						echo get_asset_tag_line($settings['assetid']);
 					} else {
-						echo '<em>'.translate('no_asset_selected').'</em>';
+						echo '<em>'.translate('No asset selected').'</em>';
+
 					}
 				}
 				echo ' is the ';
@@ -254,7 +256,8 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 				echo ' of the Current Asset';
 			$asset_interface = ob_get_clean();
 			?>
-			<tr><th><?php echo translate('asset'); ?></th><td><span class="sq-inline-fields-wrapper"><?php echo $asset_interface; ?></span></td></tr>
+			<tr><th><?php echo translate('Asset'); ?></th><td><span class="sq-inline-fields-wrapper"><?php echo $asset_interface; ?></span></td></tr>
+
 			<?php
 
 			// Future Interface
@@ -279,12 +282,14 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 					echo ' attribute ';
 
 					if ($selected_type == '') {
-						echo '<b>['.translate('asset_type_not_selected').']</b';
+						echo '<b>['.translate('asset type not selected').']</b';
+
 					} else {
 						$attribute = array_get_index($settings, 'attribute', '');
 						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type);
 						if (empty($attrs)) {
-							echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+							echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 						} else {
 							if ($write_access) {
 								$attr_options = Array();
@@ -296,7 +301,8 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 								if (count($attr_options) > 0) {
 									combo_box($prefix.'[attribute]', $attr_options, FALSE, $attribute);
 								} else {
-									echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+									echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 								}
 							} else {
 								echo '<b>'.$attribute.'</b>';
@@ -305,7 +311,8 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 					}
 				$future_interface = ob_get_clean();
 			?>
-			<tr><th><?php echo translate('at'); ?></th><td><span class="sq-inline-fields-wrapper"><?php echo $future_interface; ?></span></td></tr>
+			<tr><th><?php echo translate('At'); ?></th><td><span class="sq-inline-fields-wrapper"><?php echo $future_interface; ?></span></td></tr>
+
 			<?php
 			}//end if
 			?>

@@ -176,7 +176,8 @@ class Trigger_Action_Add_Assetid_Remap extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		ob_start();
-			echo translate('trigger_action_add_remap_message');
+			echo translate('The new remap URL consisting of site URL and assetid will be added to remap.');
+
 		return ob_get_clean();
 
 	}//end getInterface()

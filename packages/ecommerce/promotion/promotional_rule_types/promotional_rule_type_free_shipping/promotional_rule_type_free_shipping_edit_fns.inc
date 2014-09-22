@@ -64,7 +64,8 @@ class Promotional_Rule_Type_Free_Shipping_Edit_Fns extends Promotional_Rule_Edit
 		}
 
 		// Paint the discount type selection
-		$o->openField(translate('ecom_promotional_rule_type_free_shipping_discount_type'));
+		$o->openField(translate('Discount Type'));
+
 			$discount_types = $asset->getDiscountTypes();
 			if ($write_access) {
 				combo_box($prefix.'[threshold_type]', $discount_types, FALSE, $rule_data['threshold_type']);
@@ -75,7 +76,8 @@ class Promotional_Rule_Type_Free_Shipping_Edit_Fns extends Promotional_Rule_Edit
 		$o->closeField();
 
 		// Paint the new discount option if we have write access
-		$o->openField(translate('ecom_promotional_rule_type_free_shipping_threshold'));
+		$o->openField(translate('Quantity/Cost Threshold'));
+
 			if ($write_access) {
 				text_box($prefix.'[threshold_value]', $rule_data['threshold_value']);
 			} else {
@@ -87,7 +89,8 @@ class Promotional_Rule_Type_Free_Shipping_Edit_Fns extends Promotional_Rule_Edit
 
 
 		// Add section note
-		$o->sectionNote(translate('ecom_promotional_rule_type_free_shipping_section_note'));
+		$o->sectionNote(translate('This rule defines the free shipping promotional discount based on number of items or total purchase cost'));
+
 
 		return $write_access;
 

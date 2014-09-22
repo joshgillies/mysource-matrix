@@ -62,7 +62,8 @@ class Asset_Status_Bundle_Approved extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('core_workflow_bundle_approved');
+		return translate('Approved');
+
 
 	}//end getDescription()
 
@@ -80,8 +81,10 @@ class Asset_Status_Bundle_Approved extends Asset_Status
 
 		// cant do anything without admin access to at least one bundled asset
 		if ($this->_bundledAssetAdminAccess() === TRUE) {
-			$available_statuses[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
-			$available_statuses[SQ_STATUS_LIVE]               = translate('status_change_make_live');
+			$available_statuses[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Reject Changes');
+
+			$available_statuses[SQ_STATUS_LIVE]               = translate('Make Live');
+
 		}
 
 		return $available_statuses;

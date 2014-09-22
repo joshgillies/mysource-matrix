@@ -77,7 +77,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_create_links');
+		return translate('Create Links');
+
 
 	}//end getHipoName()
 
@@ -93,7 +94,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_confirmation'),
+					'name'			=> translate('Confirmation'),
+
 					'function_call'	=> Array(
 										'paint_function'	=> 'paintConfirmation',
 										'process_function'	=> 'processConfirmation',
@@ -107,7 +109,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_creating_links'),
+					'name'			=> translate('Creating Links'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processCreateLinks',
 									   ),
@@ -120,7 +123,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_updating_lookups'),
+					'name'			=> translate('Updating Lookups'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'updateLookups',
 									   ),
@@ -133,7 +137,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_cascading_options'),
+					'name'			=> translate('Cascading Options'),
+
 					'function_call'	=> Array(
 										'paint_function'	=> 'paintInterface',
 										'process_function'	=> 'processInterface',
@@ -147,7 +152,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_cascading_permissions'),
+					'name'			=> translate('Cascading Permissions'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'cascadePermissions',
 									   ),
@@ -160,7 +166,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_cascading_metadata'),
+					'name'			=> translate('Cascading Metadata'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'cascadeMetadata',
 									   ),
@@ -173,7 +180,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_cascading_workflow'),
+					'name'			=> translate('Cascading Workflow'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'cascadeWorkflow',
 									   ),
@@ -186,7 +194,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_cascading_content_tags'),
+					'name'			=> translate('Cascading Content Tags'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'cascadeTags',
 									   ),
@@ -199,7 +208,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_cascading_roles'),
+					'name'			=> translate('Cascading Roles'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'cascadeRoles',
 									   ),
@@ -212,7 +222,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_refreshing_asset_map'),
+					'name'			=> translate('Refreshing Asset Map'),
+
 					'function_call'	=> Array(
 										'paint_function'	=> 'paintRefresh',
 										'process_function'	=> 'processRefresh',
@@ -388,7 +399,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		if ($this->_running_vars['link_action'] == 'create') {
 
 			// We are creating a new link
-			$o->openSection(translate('new_link_confirmation'));
+			$o->openSection(translate('New Link Confirmation'));
+
 				if (!empty($this->_tmp['message'])) {
 					$o->openField('<span style="color: #FF0000;">Error</span>');
 						echo $this->_tmp['message'];
@@ -396,30 +408,35 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}
 
 				$o->openField('');
-						echo '<p>'.sprintf(translate('hipo_confirm_new_links'), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</p>';
+						echo '<p>'.sprintf(translate('Please confirm that you are creating new link(s) for the following asset(s) under "%s":'), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</p>';
+
 						echo '<ul>';
 						for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current = current($assets);
 							foreach ($current as $link) {
 								$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
-								echo '<li>'.sprintf(translate('hipo_from_under'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</li>';
+								echo '<li>'.sprintf(translate('"%1$s" from under "%2$s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</li>';
+
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 							}
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						}
 						echo '</ul>';
-						echo '<p>'.translate('hipo_confirm_abort').'</p>';
+						echo '<p>'.translate('Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.').'</p>';
+
 				$o->closeField();
 			$o->closeSection();
 
 		} else if ($this->_running_vars['link_action'] == 'move') {
 
 			// we are moving an asset
-			$o->openSection(translate('hipo_move_confirmation'));
+			$o->openSection(translate('Move Confirmation'));
+
 
 				if (!empty($this->_tmp['message'])) {
-					$o->openField('<span style="color: #FF0000;">'.strtoupper(translate('error')).'</span>');
+					$o->openField('<span style="color: #FF0000;">'.strtoupper(translate('Error')).'</span>');
+
 						echo $this->_tmp['message'];
 					$o->closeField();
 				}
@@ -428,7 +445,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// and print them here to avoid confusion
 				if (!empty($reordered_assets)) {
 					$o->openField('&nbsp;');
-							echo '<p>'.sprintf(translate('hipo_assets_not_require_move'), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</p>';
+							echo '<p>'.sprintf(translate('The following asset(s) have already been re-ordered under "%s". They do not need to be moved again:'), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</p>';
+
 							echo '<ul>';
 							for (reset($reordered_assets); NULL !== ($assetid = key($reordered_assets)); next($reordered_assets)) {
 								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -448,14 +466,16 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					// We are moving somewhere else
 					$o->openField('');
-					echo '<p>'.sprintf(translate('hipo_confirm_move_under'), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</p>';
+					echo '<p>'.sprintf(translate('Please confirm that you are moving the following asset(s) to under "%s":'), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</p>';
+
 					echo '<ul>';
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$current = current($assets);
 						foreach ($current as $link) {
 							$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
-							echo '<li>'.sprintf(translate('hipo_from_under'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</li>';
+							echo '<li>'.sprintf(translate('"%1$s" from under "%2$s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</li>';
+
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 						}
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
@@ -512,21 +532,26 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 			// Ask them to confirm that they want to trash all these assets
 			if (count($assets) - $not_to_trash > 0) {
-				echo sprintf(translate('hipo_confirm_move_trash'), count($assets) - $not_to_trash).'</p>';
+				echo sprintf(translate('Please confirm that you are moving %s asset(s) to the trash.'), count($assets) - $not_to_trash).'</p>';
+
 				if (isset($this->_hipo_vars['no_next']) && $this->_hipo_vars['no_next']) {
 					// if no next button printed, modify the confirm message a little
-					echo '<p>'.translate('hipo_abort').'</p>';
+					echo '<p>'.translate('Press the <b>Cancel</b> button to abort.').'</p>';
+
 				} else {
-					echo '<p>'.translate('hipo_confirm_abort').'</p>';
+					echo '<p>'.translate('Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.').'</p>';
+
 				}
 			}
 
 			// Print Safe-Trash notices
 			if ($safe_trash && $not_to_trash > 0) {
 				if (count($assets)== $not_to_trash) {
-					?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_all');?></strong></p><?php
+					?><p><strong class="sq-backend-warning"><?php echo translate('None of the selected assets can be moved to the trash. See below for details.');?></strong></p><?php
+
 				} else {
-					?><p><strong class="sq-backend-warning"><?php echo sprintf(translate('hipo_warning_safe_trash_few'), count($assets), $not_to_trash);?></strong></p><?php
+					?><p><strong class="sq-backend-warning"><?php echo sprintf(translate('You have selected to trash %1$s assets but %2$s of these assets cannot be moved to the trash. See below for details.'), count($assets), $not_to_trash);?></strong></p><?php
+
 				}
 			}
 
@@ -537,7 +562,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}
 			if (!empty($shadow_assets)) {
 				$shadow_info_array = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($shadow_assets);
-				echo '<p><strong class="sq-backend-warning">'.translate('hipo_immediate_delete_shadow').':</strong>';
+				echo '<p><strong class="sq-backend-warning">'.translate('The following assets cannot be moved to trash and will be deleted immediately').':</strong>';
+
 				echo '<ul>';
 				foreach ($shadow_info_array as $shadow_info) {
 					echo '<li>'.$shadow_info['short_name'].'</li>';
@@ -550,11 +576,15 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// Paint the list of affected assets, with appropriate warning message depending on
 			// whether we are Safe-Trashing ('those assets will be affected' / 'you can't delete these assets'
 			if ($safe_trash) {
-				$affected_title = translate('hipo_safe_trash_linking_title');
-				$warning_msg = translate('hipo_safe_trash_linking_msg');
+				$affected_title = translate('Safe-Trash Linking Restrictions');
+
+				$warning_msg = translate('The following assets are Notice- or Type-3-linked to other assets, and cannot be trashed until the links are removed:');
+
 			} else {
-				$affected_title = translate('hipo_trash_warning_affected_title');
-				$warning_msg = translate('hipo_trash_warning_affected_msg');
+				$affected_title = translate('Affected Assets');
+
+				$warning_msg = translate('Trashing these assets will affect other assets that link to them.  The linked assets for each asset being trashed, with the purpose of each link, are shown below:');
+
 			}
 			$this->_paintAffectedAssetsWarning($o, $affected_title, $warning_msg);
 
@@ -597,7 +627,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$o->openField($title, 'new_line');
 			echo '<p>'.$warning_msg.'</p>';
 			foreach ($affected_links as $assetid => $links) {
-				echo '<br />'.sprintf(translate('hipo_trash_warning_asset_linked_to'), get_asset_tag_line($assetid), '<u class="clickable" onclick="toggleNextElt(this, \'TABLE\')" title="'.translate('click_to_toggle_details').'">'.sprintf(translate('n_assets'), count($links)).'</u>');
+				echo '<br />'.sprintf(translate('%1$s is linked to %2$s'), get_asset_tag_line($assetid), '<u class="clickable" onclick="toggleNextElt(this, \'TABLE\')" title="'.translate('Click to show/hide details').'">'.sprintf(translate('%d assets'), count($links)).'</u>');
+
+
+
 				?>
 				<table class="sq-backend-table" style="width: 80%; margin-left: 20px; display: none;">
 				<?php
@@ -637,14 +670,18 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		foreach ($this->_running_vars['do_not_trash'] as $id => $data) {
 			if (isset($data['status'])) {
 				if (!$warning_painted) {
-					$o->openField(translate('hipo_safe_trash_status_title'), 'new_line');
-					?><p><?php echo translate('hipo_safe_trash_status_msg') ?></p><?php
+					$o->openField(translate('Safe-Trash Status Restrictions'), 'new_line');
+
+					?><p><?php echo translate('The following assets cannot be trashed until their statuses are set to Under Construction or Archived:') ?></p><?php
+
 					echo '<ul>';
 					$warning_painted = TRUE;
 				}
 				echo '<li>';
-				echo sprintf(translate('asset_format'), $data['name'], $id).' - ';
-				echo translate('current_status').': ';
+				echo sprintf(translate('"%1$s" [#%2$s]'), $data['name'], $id).' - ';
+
+				echo translate('Current Status').': ';
+
 				echo get_asset_status_icon($data['status']).get_status_description($data['status']).'<br />';
 				echo '</li>';
 			}
@@ -671,8 +708,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		foreach ($this->_running_vars['do_not_trash'] as $id => $data) {
 			if (isset($data['children'])) {
 				if (!$warning_painted) {
-					$o->openField(translate('hipo_safe_trash_children_title'), 'new_line');
-					echo '<p>'.translate('hipo_safe_trash_children_msg').'</p>';
+					$o->openField(translate('Safe-Trash Restrictions on Child Assets'), 'new_line');
+
+					echo '<p>'.translate('The following assets cannot be trashed because one or more of their children do not satisfy the Safe-Trash conditions:').'</p>';
+
 					echo '<ul>';
 					$warning_painted = TRUE;
 				}
@@ -680,12 +719,15 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$details = '<ul style="display: none">';
 				$problem_child_count = 0;
 				foreach ($data['children'] as $child_info) {
-					$details .= '<li>'.sprintf(translate('asset_format'), $child_info['name'], $child_info['minorid']);
+					$details .= '<li>'.sprintf(translate('"%1$s" [#%2$s]'), $child_info['name'], $child_info['minorid']);
+
 					if ($child_info['link_type'] == SQ_LINK_TYPE_3 || $child_info['link_type'] == SQ_LINK_NOTICE) {
-						$details .= ' - '.translate('hipo_warning_safe_trash_link');
+						$details .= ' - '.translate('Asset has Notice or Type-3 links to other assets');
+
 						$problem_child_count++;
 					} else if ($child_info['status'] >= SQ_STATUS_LIVE) {
-						$details .= ' - '.translate('current_status').': '.get_asset_status_icon($child_info['status']).get_status_description($child_info['status']);
+						$details .= ' - '.translate('Current Status').': '.get_asset_status_icon($child_info['status']).get_status_description($child_info['status']);
+
 						$problem_child_count++;
 					}
 					$details .= '</li>';
@@ -694,7 +736,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$code = ($problem_child_count == 1) ? 'hipo_safe_trash_child_label_one' : 'hipo_safe_trash_child_label_many';
 				$sub_code = ($problem_child_count == 1) ? '1_child' : 'n_children';
-				echo '<li>'.translate($code, sprintf(translate('asset_format'), $data['name'], $id), '<u class="clickable" onclick="toggleNextElt(this, \'UL\')" title="'.translate('click_to_toggle_details').'">'.translate($sub_code, $problem_child_count).'</u>');
+				echo '<li>'.translate($code, sprintf(translate('"%1$s" [#%2$s]'), $data['name'], $id), '<u class="clickable" onclick="toggleNextElt(this, \'UL\')" title="'.translate('Click to show/hide details').'">'.translate($sub_code, $problem_child_count).'</u>');
+
+
 				echo $details;
 				echo '</li>';
 			}
@@ -718,7 +762,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function _paintMarkForDeletionList(&$o, $prefix)
 	{
-		$o->openField(translate('hipo_safe_trash_mark_future_title'), 'new_line');
+		$o->openField(translate('Mark Assets for Future Trashing'), 'new_line');
+
 
 		$assetids = array_keys($this->_running_vars['do_not_trash']);
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
@@ -731,7 +776,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// enable select-all
 				?>
 				<input type="checkbox" id="<?php echo $prefix ?>_mark_all" onclick="inputs = this.parentNode.getElementsByTagName('INPUT'); for (i = 0; i &lt; inputs.length; i++) { if ((inputs[i].type == 'checkbox') && (inputs[i]!= this)) inputs[i].checked = this.checked; }">
-				<label for="<?php echo $prefix ?>_mark_all"><em><?php echo translate('select_all'); ?></em></label>
+				<label for="<?php echo $prefix ?>_mark_all"><em><?php echo translate('Select All'); ?></em></label>
+
 				<hr />
 				<?php
 				$onclick = 'onclick="selall = document.getElementById(\''.$prefix.'_mark_all\'); inputs = this.parentNode.parentNode.getElementsByTagName(\'INPUT\'); sel_value = true; for (i = 0; i &lt; inputs.length; i++) { if ((inputs[i].type == \'checkbox\') && (inputs[i] != selall)) { sel_value = sel_value && inputs[i].checked; } if (!sel_value) break; } selall.checked = sel_value;"';
@@ -745,7 +791,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					<label for="<?php echo $prefix ?>_mark_<?php echo $assetid ?>">
 					<?php
 					echo get_asset_type_icon($asset_info[$assetid]['type_code']);
-					echo sprintf(translate('asset_format'), $asset_info[$assetid]['name'], $assetid);
+					echo sprintf(translate('"%1$s" [#%2$s]'), $asset_info[$assetid]['name'], $assetid);
+
 					?>
 					</label>
 				</div>
@@ -776,8 +823,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		foreach ($existing_urls as $url) {
 			if (!empty($url)) {
 				// At least one real URL exists, so ask if they want to remap URLs
-				$o->openField(translate('hipo_trash_url_remapping_title'), 'new_line');
-				echo '<p>'.translate('hipo_trash_url_remapping_msg').'</p>';
+				$o->openField(translate('URL Remapping'), 'new_line');
+
+				echo '<p>'.translate('When these assets are moved to the trash, any URLs that they currently have will be broken. To remap their URLs to another asset (Eg. a "Page not found" asset), select that asset in the field below.').'</p>';
+
 				asset_finder($prefix.'_remap_new_url', NULL, Array(), 'sq_sidenav', isset($_GET['SQ_BACKEND_PAGE'])? FALSE : TRUE);
 				$o->closeField();
 				break;
@@ -799,7 +848,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function _paintRemapURLChooser(&$o, $prefix)
 	{
 		$o->openField('');
-		echo '<p>'.translate('hipo_trash_url_remapping_choose_url').':</p>';
+		echo '<p>'.translate('The asset you have chosen to remap to has several URLs.  Choose which of its URLs you would like to use').':</p>';
+
 		foreach ($this->_running_vars['remap_choices'] as $i => $url) {
 			radio_button($prefix.'_chosen_remap_url', $i, ($i==0));
 			label($url['url'], $prefix.'_chosen_remap_url_'.$i);
@@ -835,7 +885,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					}
 					if (!$rm->remapAllURLs($source_assetid, $remap_url)) {
 						$source_asset =$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.sprintf(translate('hipo_cannot_remap_urls'), htmlentities($source_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $remap_url).'</span>';
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.sprintf(translate('The system was unable to remap the URLs for "%1$s" to "%2$s"'), htmlentities($source_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $remap_url).'</span>';
+
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
 						return TRUE;
 					}
@@ -856,7 +907,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							}
 							if (!$rm->remapAllURLs($source_assetid, ($dest_url_data['http'] ? 'http' : 'https').'://'.$dest_url_data['url'])) {
 								$source_asset =$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-								$this->_tmp['message'] = '<span style="color: #FF0000;">'.sprintf(translate('hipo_cannot_remap_urls'), htmlentities($source_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $dest_url_data['url']).'</span>';
+								$this->_tmp['message'] = '<span style="color: #FF0000;">'.sprintf(translate('The system was unable to remap the URLs for "%1$s" to "%2$s"'), htmlentities($source_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $dest_url_data['url']).'</span>';
+
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
 								return TRUE;
 							}
@@ -865,7 +917,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					case 0:
 						// Cannot remap, the target asset has no URLs
 						$remap_asset =$GLOBALS['SQ_SYSTEM']->am->getAsset($dest_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.sprintf(translate('hipo_cannot_remap_links_without_destination_url'), htmlentities($remap_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</span>';
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.sprintf(translate('You cannot remap URLs to "%s" because it does not have a URL itself. Please choose another asset.'), htmlentities($remap_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</span>';
+
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
 						return TRUE;
 					break;
@@ -1135,7 +1188,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						return FALSE;
 					}
 
-					$step_data['message'] = sprintf(translate('hipo_move'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($new_parent_info[$this->_running_vars['to_parent_assetid']]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('Moving "%1$s" to "%2$s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($new_parent_info[$this->_running_vars['to_parent_assetid']]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 
 					$this->_running_vars['to_parent_pos']++;
 
@@ -1166,9 +1220,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 								unset($cron_job);
 							}
 						}
-						$step_data['message'] = sprintf(translate('hipo_creating_safe_trash_job'), $asset->id);
+						$step_data['message'] = sprintf(translate('Creating Safe Trash Scheduled Job'), $asset->id);
+
 					} else {
-						$step_data['message'] = sprintf(translate('hipo_skipping_asset'), $asset->id);
+						$step_data['message'] = sprintf(translate('Skipping asset #%s'), $asset->id);
+
 					}
 				}//end else not actually trashing
 
@@ -1248,15 +1304,18 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			return FALSE;
 		}
 
-		$o->openSection(translate('note'));
+		$o->openSection(translate('Note'));
+
 			$o->openField('&nbsp;');
 				$o->addHiddenField('link_completed', '0');
 
 				if (count($this->_running_vars['assets']) > 0) {
 					if ($this->_running_vars['link_action'] == 'move') {
-						$success_msg = sprintf(translate('hipo_asset_move_successful'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						$success_msg = sprintf(translate('The following asset(s) have been successfully moved under "%s":'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 					} else {
-						$success_msg = sprintf(translate('hipo_asset_link_successful'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						$success_msg = sprintf(translate('The following asset(s) have been successfully linked under "%s":'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 					}
 					echo '<p><b>'.$success_msg.'</b></p>';
 					echo '<ul>';
@@ -1269,9 +1328,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				?>
 
-				<p><?php echo sprintf(translate('hipo_permission_workflow_metadata_display'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
-				<p><?php echo sprintf(translate('hipo_permission_workflow_metadata_cascade_select'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
-				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_none'); ?></p>
+				<p><?php echo sprintf(translate('The permissions, workflow schemas, and metadata schemas of "%s" are shown below.'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
+
+				<p><?php echo sprintf(translate('To cascade the permissions, workflow schemas, and/or metadata schemas of "%s" to the newly linked asset(s) and their children, check the appropriate boxes below and press the <b>Next</b> button.'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
+
+				<p><?php echo translate('If you do not wish to cascade any permissions or schemas, press the <b>Next</b> button without checking any boxes.'); ?></p>
+
 				<?php
 				$ei = $parent->getEI();
 
@@ -1294,13 +1356,19 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection(translate('cascade'));
+		$o->openSection(translate('Cascade'));
+
 			$o->openField('', 'cascade');
-				echo ($pe) ? translate('permissions').' '.check_box('cascade[]', 'cascade_pe').'<br />' : '';
-				echo ($ms) ? translate('metadata_schemas').' '.check_box('cascade[]', 'cascade_ms').'<br />' : '';
-				echo ($wf) ? translate('workflow').' '.check_box('cascade[]', 'cascade_wf').'<br />' : '';
-				echo ($ta) ? translate('content_tags').' '.check_box('cascade[]', 'cascade_ta').'<br />' : '';
-				echo ($ro) ? translate('roles').' '.check_box('cascade[]', 'cascade_ro').'<br />' : '';
+				echo ($pe) ? translate('Permissions').' '.check_box('cascade[]', 'cascade_pe').'<br />' : '';
+
+				echo ($ms) ? translate('Metadata Schemas').' '.check_box('cascade[]', 'cascade_ms').'<br />' : '';
+
+				echo ($wf) ? translate('Workflow').' '.check_box('cascade[]', 'cascade_wf').'<br />' : '';
+
+				echo ($ta) ? translate('Content Tags').' '.check_box('cascade[]', 'cascade_ta').'<br />' : '';
+
+				echo ($ro) ? translate('Roles').' '.check_box('cascade[]', 'cascade_ro').'<br />' : '';
+
 			$o->closeField();
 		$o->closeSection();
 

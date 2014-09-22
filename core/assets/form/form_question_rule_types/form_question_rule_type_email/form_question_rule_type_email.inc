@@ -59,8 +59,10 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_email_true'),
-				0	=> translate('core_form_rule_email_false'),
+				1	=> translate('Must Be a Valid E-mail Address'),
+
+				0	=> translate('Must Not Be a Valid E-mail Address'),
+
 			   );
 
 	}//end getOperators()

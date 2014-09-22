@@ -66,6 +66,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 			echo SQ_HIPO_REGENERATE_DESIGN_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();

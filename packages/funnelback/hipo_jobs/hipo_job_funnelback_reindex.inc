@@ -58,7 +58,8 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('fnb_hipo_reindex'));
+		$o->openField(translate('Funnelback Reindex'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -67,6 +68,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 			echo SQ_HIPO_REINDEX_FUNNELBACK;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -129,7 +131,8 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('fnb_hipo_reindex');
+		return translate('Funnelback Reindex');
+
 
 	}//end getHipoName()
 
@@ -145,7 +148,8 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('fnb_hipo_reindex_step_name0'),
+					'name'			=> translate('Reindexing'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processReindex',
 									   ),
@@ -282,7 +286,8 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 
 			if (!empty($url) && !is_null($asset)) {
 				// Let people know what you are thinking ;-)
-				$step_data['message'] = sprintf(translate('fnb_hipo_reindexing_url'), htmlspecialchars($asset->attr('name')));
+				$step_data['message'] = sprintf(translate('Reindexing URL: "%s"'), htmlspecialchars($asset->attr('name')));
+
 
 				// Build the parameters
 				$output = '';

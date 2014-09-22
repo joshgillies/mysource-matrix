@@ -141,7 +141,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		if (isset($this->_tmp['file_info']) && $this->_tmp['file_info'] === FALSE) {
 			// there was an upload error
-			$this->failed_rules[] = sprintf(translate('core_form_file_upload_error'), $this->attr('name'));
+			$this->failed_rules[] = sprintf(translate('There was an error uploading the file for File Upload question "%s"'), $this->attr('name'));
+
 			return FALSE;
 		}
 
@@ -155,7 +156,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 			if (strlen($this->attr('cust_required_error'))) {
 				$this->failed_rules[] = $this->attr('cust_required_error');
 			} else {
-				$this->failed_rules[] = sprintf(translate('core_form_file_upload_none_rule'), $this->attr('name'));
+				$this->failed_rules[] = sprintf(translate('No file uploaded for required File Upload question "%s"'), $this->attr('name'));
+
 			}
 			$ok = FALSE;
 		}
@@ -180,7 +182,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$this->_tmp['file_info'] = get_file_upload_info('q'.$this->id);
 
 		if (isset($this->_tmp['file_info']['name'])) {
-			$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('core_form_file_upload_none')));
+			$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('No file uploaded')));
+
 			$this->getSummary();
 			//$this->_tmp['summary'] = $this->_tmp['file_info']['name'].', type '.$this->_tmp['file_info']['type'].', '.easy_filesize($this->_tmp['file_info']['size']);
 		} else {
@@ -204,7 +207,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 			}
 
 			if (!$existing_file) {
-				$this->setValue(translate('core_form_file_upload_none'));
+				$this->setValue(translate('No file uploaded'));
+
 			}
 		}
 
@@ -253,7 +257,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 							if (!empty($type)) $type = ', type '.$type;
 							$new_summary = basename($value).$type.', '.easy_filesize(filesize($filepath));
 						} else {
-							$new_summary = translate('core_form_file_upload_none');
+							$new_summary = translate('No file uploaded');
+
 						}
 					break;
 
@@ -267,7 +272,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 							if (!empty($type)) $type = ', type '.$type;
 							$new_summary = basename($value).$type.', '.easy_filesize(filesize($filepath));
 						} else {
-							$new_summary = translate('core_form_file_upload_none');
+							$new_summary = translate('No file uploaded');
+
 						}
 					break;
 
@@ -284,7 +290,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 								$new_summary = basename($file_info['filename']).$type.', '.easy_filesize($file_info['size']);
 							}
 						} else {
-							$new_summary = translate('core_form_file_upload_none');
+							$new_summary = translate('No file uploaded');
+
 						}
 
 					break;
@@ -327,7 +334,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 					}//end if
 					$this->_tmp['summary'] = $this->getValue().', '.easy_filesize($info['size']);
 				} else {
-					$this->_tmp['summary'] = translate('core_form_file_upload_none');
+					$this->_tmp['summary'] = translate('No file uploaded');
+
 				}
 			}//end if Extra Data exists
 
@@ -484,7 +492,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 				switch ($this->attr('overwrite_rule')) {
 					case 'D' :
 						// D = Raise a Submission Error
-						$this->failed_rules[] = sprintf(translate('core_form_file_upload_already_exists'), $this->attr('name'));
+						$this->failed_rules[] = sprintf(translate('There was an error uploading the file for File Upload question "%s" - file already exists in path'), $this->attr('name'));
+
 						$ok = FALSE;
 					break;
 
@@ -596,7 +605,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 					// regarding write permissions, we'll force this through
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					if (!$file_asset->create($link, $file_info)) {
-						$this->failed_rules[] = sprintf(translate('core_form_file_upload_error'), $this->attr('name'));
+						$this->failed_rules[] = sprintf(translate('There was an error uploading the file for File Upload question "%s"'), $this->attr('name'));
+
 						$ok = FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -705,7 +715,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function getUploadedFileId()
 	{
 		$existing_file = NULL;
-		if ($this->value != translate('core_form_file_upload_none') && !empty($this->value)){
+		if ($this->value != translate('No file uploaded') && !empty($this->value)){
+
 			if (!empty($this->extra_data)) {
 				// We have a permanent filesystem path, ie. we don't have create location
 				if (isset($this->extra_data['filesystem_path'])) {

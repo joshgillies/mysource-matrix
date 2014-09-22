@@ -56,27 +56,33 @@ class Oauth2_Token_Edit_Fns extends Page_Edit_Fns
 
 		?>
 		<table border="0" class="sq-backend-table">
-			    <th width="20%"><?php echo translate('oauth2_access_token'); ?></th>
+			    <th width="20%"><?php echo translate('Access Token'); ?></th>
+
 			    <td>
 				<?php
-				   echo htmlspecialchars(isset($token['access_token']) ? $token['access_token'] : translate('oauth2_not_available'));
+				   echo htmlspecialchars(isset($token['access_token']) ? $token['access_token'] : translate('N/A'));
+
 				?>
 			    </td>
 			</tr>
 			<tr>
-			    <th width="20%"><?php echo translate('oauth2_access_token_expires_at'); ?></th>
+			    <th width="20%"><?php echo translate('Expires At'); ?></th>
+
 			    <td>
 				<?php
-				   $date = isset($token['expires_at']) ? ts_iso8601($token['expires_at']) : translate('oauth2_not_available');
+				   $date = isset($token['expires_at']) ? ts_iso8601($token['expires_at']) : translate('N/A');
+
 				   echo htmlspecialchars($date);
 				?>
 			    </td>
 			</tr>
 			<tr>
-			    <th width="20%"><?php echo translate('oauth2_refresh_token'); ?></th>
+			    <th width="20%"><?php echo translate('Refresh Token'); ?></th>
+
 			    <td>
 				<?php
-				   echo htmlspecialchars(isset($token['refresh_token']) ? $token['refresh_token'] : translate('oauth2_not_available'));
+				   echo htmlspecialchars(isset($token['refresh_token']) ? $token['refresh_token'] : translate('N/A'));
+
 				?>
 			    </td>
 			</tr>

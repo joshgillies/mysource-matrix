@@ -65,7 +65,23 @@ class Payment_Gateway_Dps extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content_pg_dps')));
+		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
+<div style="background-color: #CCC; padding: 5px"><strong>&pound;%%transaction_amount%%</strong> Pounds Sterling (GBP) are about to be debited from your card</div>
+<table cellpadding="5">
+	<tr>
+		<td align="right">Card Number</td>
+		<td>%%card_number%%</td>
+	</tr>
+	<tr>
+		<td align="right">Expiry Date (MM/YY)</td>
+		<td>%%card_expiry_month%% / %%card_expiry_year%%</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>')));
+
 
 	}//end _createAdditional()
 
@@ -214,12 +230,14 @@ class Payment_Gateway_Dps extends Payment_Gateway
 				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 			}
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+			$this->appendPendingOrderAuditLog(translate('Payment has no amount'));
+
 
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($card_info) {
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+			$this->appendPendingOrderAuditLog(translate('Payment Attempted (gateway contacted)'));
+
 
 			$success = $this->processPayment($card_info);
 		}
@@ -250,12 +268,14 @@ class Payment_Gateway_Dps extends Payment_Gateway
 				}
 			}
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+			$this->appendPendingOrderAuditLog(translate('Payment is successful'));
+
 
 			$this->returnToCaller('SUCCESS');
 		} else {
 			if ($card_info) {
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+				$this->appendPendingOrderAuditLog(translate('Payment Declined'));
+
 			}
 		}
 

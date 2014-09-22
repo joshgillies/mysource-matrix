@@ -101,17 +101,20 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 		// check MUST have configs
 		if(empty($this->oauth_token)) {
-		    trigger_error(translate('oauth_account_manager_no_token'));
+		    trigger_error(translate('Oauth Token is not specified.'));
+
 		    return;
 		}
 		$storage_type = $this->oauth_token->attr('token_storage');
 		if($storage_type !== 'session') {
-		    trigger_error(translate('oauth_account_manager_token_storage_incorrect'));
+		    trigger_error(translate('Oauth Token must use session storage.'));
+
 		    return;
 		}
 		$api_url = $this->attr('userid_api_url');
 		if(empty($api_url)) {
-		    trigger_error(translate('oauth_account_manager_no_profile_api'));
+		    trigger_error(translate('Profile API is not specified.'));
+
 		    return;
 		}
 
@@ -252,7 +255,8 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 			// Oauth user should have been already authenticated at this point
 			 // check if we have enough info about the user
 			 if(empty($this->oauth_user_id) || empty($this->oauth_user_profile)) {
-			    $this->_replacements['login_error'] = translate('oauth_account_manager_no_userid');
+			    $this->_replacements['login_error'] = translate('Can not locate the userid in the response of profile API.');
+
 			    $this->_current_state = 'login_fail';
 			 }
 			 else {
@@ -270,7 +274,8 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 			    $this->_prefillUserAttributes($GLOBALS['SQ_SYSTEM']->am->getAsset($matrixUserid), FALSE);
 				if(!$this->_loginUser($matrixUserid)){
 				    // login failed
-				    $this->_replacements['login_error'] = translate('oauth_account_manager_login_failed');
+				    $this->_replacements['login_error'] = translate('Can not login as the linked Matrix user.');
+
 				    $this->_current_state = 'login_fail';
 				}
 				else {
@@ -706,11 +711,13 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 				$vars['keywords'] = array_merge($vars['keywords'], $this->_getNotLoggedInKeywords());
 			break;
 		    	case 'login_fail' :
-				$vars['keywords'] = array_merge($vars['keywords'], Array('login_error' => translate('oauth_account_manager_login_error')));
+				$vars['keywords'] = array_merge($vars['keywords'], Array('login_error' => translate('Login Error')));
+
 			break;
 		}
 
-		$vars['keywords'] = array_merge($vars['keywords'], Array('user_id' => translate('oauth_account_manager_user_id')));
+		$vars['keywords'] = array_merge($vars['keywords'], Array('user_id' => translate('User ID')));
+
 
 	}//end onRequestKeywords()
 
@@ -729,19 +736,23 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	{
 		$res = Array();
 		$res['create_user']= Array(
-							'name'	=> translate('oauth_account_manager_create_user'),
+							'name'	=> translate('Create User'),
+
 							'content'	=> '%create_error% %login_error% %login_invite% %login_form% %create_form%',
 						    );
 		$res['create_link']= Array(
-							'name'	=> translate('oauth_account_manager_create_link'),
+							'name'	=> translate('Create Link'),
+
 							'content'	=> 'This account is not linked to current Matrix user. <a href="?linkAccounts">Link them now</a>.',
 						 );
 		$res['logged_in']= Array(
-							'name'	=> translate('oauth_account_manager_logged_in'),
+							'name'	=> translate('Logged In'),
+
 							'content'	=> 'logged in as %globals_user_name%',
 						   );
 		$res['login_fail']= Array(
-							'name'	=> translate('oauth_account_manager_login_fail'),
+							'name'	=> translate('Login Fail'),
+
 							'content'	=> '%login_error%',
 						   );
 		return $res;

@@ -71,12 +71,15 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
         $current_product = $asset->getCurrentProduct();
         if (empty($current_product)) {
-            echo translate('suite_not_registered');
+            echo translate('Product is not registered');
+
         } else {
-            $o->openField(translate('suite_system_id'));
+            $o->openField(translate('System ID'));
+
                 echo array_get_index($current_product, 'systemid', '');
             $o->closeField();
-            $o->openField(translate('suite_system_name'));
+            $o->openField(translate('System Name'));
+
 				$system_name = array_get_index($current_product['connection'], 'name', '');
 				if ($wa) {
 					echo text_box($prefix.'_current_name', $system_name, 30);
@@ -84,24 +87,31 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 	                echo $system_name;
 				}
             $o->closeField();
-            $o->openField(translate('suite_system_url'));
+            $o->openField(translate('System URL'));
+
                 echo array_get_index($current_product, 'url', '');
             $o->closeField();
         }//end if
 
 		if ($wa) {
-			$o->openField(translate('suite_tools_register'));
+			$o->openField(translate('Register System ID'));
+
                 $click = '';
                 if (!empty($current_product)) {
-                    $click = 'if (this.checked === true) { if (!confirm(\''.translate('js_confirm_msg').'\')) { this.checked= false }};';
+                    $click = 'if (this.checked === true) { if (!confirm(\''.translate('This process will affect other products connecting to this system. Continue?').'\')) { this.checked= false }};';
+
                 }
 				echo check_box($prefix.'_register', '1', FALSE, $click);
-				echo label(translate('suite_register'), $prefix.'_register');
+				echo label(translate('Register or regenerate the System ID for this product.'), $prefix.'_register');
+
 			$o->closeField();
 			if (!empty($current_product)) {
-				$o->openField(translate('suite_tools_deregister'));
-					echo check_box($prefix.'_deregister', '1', FALSE, 'if (this.checked == true) { if (!confirm(\''.translate('js_confirm_msg').'\')) { this.checked = false } };');
-					echo label(translate('suite_deregister'), $prefix.'_deregister');
+				$o->openField(translate('Deregister System ID'));
+
+					echo check_box($prefix.'_deregister', '1', FALSE, 'if (this.checked == true) { if (!confirm(\''.translate('This process will affect other products connecting to this system. Continue?').'\')) { this.checked = false } };');
+
+					echo label(translate('Deregister the System ID for this product.'), $prefix.'_deregister');
+
 				$o->closeField();
 			}
 		}
@@ -246,12 +256,18 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
         ?>
 		<table class="sq-backend-table" style="width:100%">
 			<tr>
-			<td class="sq-backend-table-header" width="20%"><?php echo translate('suite_system_id'); ?></td>
-			<td class="sq-backend-table-header" width="50%"><?php echo translate('suite_system_name'); ?></td>
-			<td class="sq-backend-table-header" width="20%"><?php echo translate('suite_system_type'); ?></td>
-			<td class="sq-backend-table-header" width="20%"><?php echo translate('suite_status'); ?></td>
-			<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('suite_activate'); ?></td><?php } ?>
-			<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('delete'); ?>?</td><?php } ?>
+			<td class="sq-backend-table-header" width="20%"><?php echo translate('System ID'); ?></td>
+
+			<td class="sq-backend-table-header" width="50%"><?php echo translate('System Name'); ?></td>
+
+			<td class="sq-backend-table-header" width="20%"><?php echo translate('System Type'); ?></td>
+
+			<td class="sq-backend-table-header" width="20%"><?php echo translate('Status'); ?></td>
+
+			<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('Activate'); ?></td><?php } ?>
+
+			<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('Delete'); ?>?</td><?php } ?>
+
 			</tr>
         <?php
 
@@ -292,11 +308,13 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
             // Further for Matrix products, add a username/password field.
             if ($wa && $product['type'] == 'Squiz Matrix') {
                 echo '<tr>';
-                echo '<td>'.translate('username').'</td>';
+                echo '<td>'.translate('Username').'</td>';
+
                 echo '<td colspan="2">';
                 echo text_box($prefix.'_username['.$product['suiteid'].']', array_get_index($product['connection'], 'username', ''), 30);
                 echo '</td>';
-                echo '<td>'.translate('password').'</td>';
+                echo '<td>'.translate('Password').'</td>';
+
                 echo '<td colspan="2">';
                 echo password_box($prefix.'_password['.$product['suiteid'].']', array_get_index($product['connection'], 'password', ''), 30);
                 echo '</td>';
@@ -411,7 +429,8 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 		$current = $asset->getCurrentProduct();
 
         if ($wa && !empty($current)) {
-            echo translate('suite_new_product_url').' ';
+            echo translate('Product URL to register').' ';
+
             text_box($prefix.'_new_product', '');
         }//end if
 

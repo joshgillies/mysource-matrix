@@ -600,7 +600,8 @@ class Workflow_Bundle extends Asset implements Bridge
 	*/
 	public function canCreateLink(Asset $minor, $link_type, $exclusive)
 	{
-		if (!$this->id) return translate('asset_not_created');
+		if (!$this->id) return translate('Asset not created');
+
 
 		// Ensure that Shadow Assets cannot be linked to a Bundle
 		$minor_asset_id_parts = explode(':', $minor->id);

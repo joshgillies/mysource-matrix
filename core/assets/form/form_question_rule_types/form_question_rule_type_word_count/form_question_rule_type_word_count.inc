@@ -55,12 +55,18 @@ class Form_Question_Rule_Type_Word_Count extends Form_Question_Rule
 	public static function getOperators()
 	{
 		$operators = Array(
-						'=='	=> translate('core_form_rule_count_=='),
-						'!='	=> translate('core_form_rule_count_!='),
-						'>'		=> translate('core_form_rule_count_>'),
-						'<'		=> translate('core_form_rule_count_<'),
-						'>='	=> translate('core_form_rule_count_>='),
-						'<='	=> translate('core_form_rule_count_<='),
+						'=='	=> translate('Must be this many words in length...'),
+
+						'!='	=> translate('Must not be this many words in length...'),
+
+						'>'		=> translate('Length must be greater than this many words...'),
+
+						'<'		=> translate('Length must be less than this many words...'),
+
+						'>='	=> translate('Length must be at least this many words...'),
+
+						'<='	=> translate('Length must be no more than this many words...'),
+
 					 );
 
 		return $operators;

@@ -91,11 +91,16 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	{
 		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
-			return translate('cron_job_assetless_attempt_safe_trash');
+			return translate('Asset-less Attempt Safe-Trash Scheduled Job');
+
 		} else if ($short_name) {
-			return sprintf(translate('cron_safe_trash_for'), sprintf(translate('asset_format'), $asset->short_name, $asset->id));
+			return sprintf(translate('Safe-Trash for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->short_name, $asset->id));
+
+
 		} else {
-			return sprintf(translate('cron_attempt_safe_trash_for'), sprintf(translate('asset_format'), $asset->name, $asset->id));
+			return sprintf(translate('Attempt Safe-Trash for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->name, $asset->id));
+
+
 		}
 
 	}//end _getName()

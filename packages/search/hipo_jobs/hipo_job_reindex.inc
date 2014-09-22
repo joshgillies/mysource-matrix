@@ -58,7 +58,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('sch_hipo_reindex_threshold'));
+		$o->openField(translate('Reindex Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -67,6 +68,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			echo SQ_HIPO_REINDEX_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -134,7 +136,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('sch_hipo_name_reindex_assets');
+		return translate('Re-index Assets');
+
 
 	}//end getHipoName()
 
@@ -150,7 +153,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('sch_hipo_reindexing_assets'),
+					'name'			=> translate('Reindexing Assets'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processReIndex',
 									   ),
@@ -266,7 +270,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if ($asset) {
-				$step_data['message'] = sprintf(translate('sch_reindexing_asset'), $asset->name);
+				$step_data['message'] = sprintf(translate('Reindexing %s'), $asset->name);
+
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$sm->reindexAsset($asset, Array('all'));
