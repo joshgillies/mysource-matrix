@@ -229,11 +229,12 @@ class Ldap
 	* @param boolean	$multi_result	search for multiple entries
 	* @param array		$attributes		array of the attributes we want to return for the returned objects
 	* @param array		$binary_attributes 	the attributes that need to be extracted under binary format
+	* @param string		$member_attribute 	the group name that defines its member
 	*
 	* @return array|boolean
 	* @access public
 	*/
-	function searchEntries($startdn, $filter, $sort_by=null, $multi_level=true, $multi_result=true, $attributes=Array(), $binary_attributes = Array())
+	function searchEntries($startdn, $filter, $sort_by=null, $multi_level=true, $multi_result=true, $attributes=Array(), $binary_attributes = Array(), $member_attribute = '')
 	{
 		if (!$this->ptr) {
 			return FALSE;
@@ -286,6 +287,59 @@ class Ldap
 
 			} while ($cookie !== NULL && $cookie != '');
 		}
+
+		// Handle paginated member list in member attribute value
+		if (!empty($member_attribute)) {
+			foreach($entries as &$entry) {
+				if ($entry == 'count' || empty($entry['dn'])) {
+					continue;
+				}
+				$paginated_list_attr = NULL;
+				foreach($entry as $attr_name => $attr_val) {
+					// If the member list in member attribute is paginated
+					if (preg_match('/^[a-z\-_0-9];range=\d+\-\d+$/', $attr_name)) {
+						$paginated_list_attr = $attr_name;
+					}
+				}//end foreach
+
+				// The member list in member attribute is paginated, we need to get the complete list
+				if ($paginated_list_attr && isset($entry[$paginated_list_attr]) && isset($entry[$paginated_list_attr]['count'])) {
+					$members = $entry[$paginated_list_attr];
+					$page_size = $entry[$paginated_list_attr]['count'];
+					unset($entry[$paginated_list_attr]);
+					$start_range = $page_size;
+					while(TRUE) {
+						// Get the group entry with the specified members range
+						$member_attr = 'member;range='.$start_range.'-'.($start_range + $page_size - 1);
+						$group_sr = @ldap_read($this->ptr, $entry['dn'], '(objectClass=*)', Array($member_attr));
+						if (!$group_sr) {
+							$ldap_error = ldap_err2str(ldap_errno($this->ptr));
+							log_error($ldap_error.' Filter string: '.$filter);
+							return FALSE;
+						}
+
+						// This should return single entry only with updated paginated member list attribute
+						$group_entries = $this->getEntries($group_sr);
+					
+						// If empty result then we have reach the end of the member list
+						if (!isset($group_entries[0]) || !isset($group_entries[0]['count']) || $group_entries[0]['count'] != 1 || !isset($group_entries[0][$member_attr]) || !isset($group_entries[0][$member_attr]['count']) || $group_entries[0][$member_attr]['count'] == 0) {
+							break;
+						}
+
+						//Add up the members into single list
+						$members = array_merge($members, $group_entries[0][$member_attr]);
+						$start_range += $page_size;
+					}//end while
+
+					if (!empty($members)) {
+						unset($members['count']);
+						$members['count'] = count($members);
+						// Set the 'member' attribute to the complete member list
+						$entry['member'] = $members;
+					}
+				}//end if
+			}//end foreach
+		}//end if member attribute
 
 		// Sort the result if required
 		if ($sort_by) {
