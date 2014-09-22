@@ -432,7 +432,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		$recipient = array_get_index($_REQUEST, $prefix.'_preview_address', '');
 		if (empty($recipient) || !valid_email($recipient)) {
-			trigger_localised_error('BML0013', E_USER_WARNING, $recipient);
+			trigger_localised_error('BML0013', sprintf(translate('Invalid email address \'%s\'.'), $recipient), E_USER_WARNING)
 			return FALSE;
 		}
 

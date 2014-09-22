@@ -68,10 +68,10 @@ class Design extends Design_Area
 		$parse_file = $this->data_path.'/parse.txt';
 		touch($parse_file);
 		if (!$fv->add($this->data_path_suffix, $parse_file, '')) {
-			trigger_localised_error('CORE0157', E_USER_WARNING);
+			trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING)
 		}
 		if (!$fv->checkOut($this->data_path_suffix.'/parse.txt', $this->data_path)) {
-			trigger_localised_error('CORE0158', E_USER_WARNING);
+			trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -135,12 +135,12 @@ class Design extends Design_Area
 
 				// attempt to add the parse file to the repository
 				if (!$fv->add($clone->data_path_suffix, $clone_parse, '')) {
-					trigger_localised_error('CORE0157', E_USER_WARNING);
+					trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING)
 				}
 
 				// make sure we have the latest version of our file
 				if (!$fv->checkOut($clone->data_path_suffix.'/parse.txt', $clone->data_path)) {
-					trigger_localised_error('CORE0158', E_USER_WARNING);
+					trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING)
 					return FALSE;
 				}
 
@@ -245,7 +245,7 @@ class Design extends Design_Area
 	*/
 	public function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_localised_error('CORE0168', E_USER_WARNING);
+		trigger_localised_error('CORE0168', translate('Links under Designs are system controlled and therefore cannot be moved'), E_USER_WARNING)
 		return FALSE;
 
 	}//end moveLinkPos()
@@ -373,7 +373,7 @@ class Design extends Design_Area
 
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-						trigger_localised_error('CORE0162', E_USER_WARNING);
+						trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING)
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -407,7 +407,7 @@ class Design extends Design_Area
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', sprintf(translate('Existing Link #%s not found, unable to delete link'), $linkid), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -432,7 +432,7 @@ class Design extends Design_Area
 					if ($link['minorid'] == $delete_link['minorid']) {
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_localised_error('CORE0165', E_USER_WARNING);
+							trigger_localised_error('CORE0165', translate('Failed deleting file link from customisation'), E_USER_WARNING)
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1025,7 +1025,7 @@ echo '/*
 				do {
 					$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($arr['majorid'], NULL, 'design', FALSE, NULL,'minor', FALSE);
 					if (empty($arr)) {
-						trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->id);
+						trigger_localised_error('CORE0259', sprintf(translate('Cannot find the design file to print the asset, "%s"'), $ASSET->id), E_USER_WARNING)
 						break;
 					}
 					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($arr['majorid']);
@@ -1072,7 +1072,7 @@ echo '/*
 					// defining a design area
 					$da = $this->getDesignArea($item['attributes']['id_name']);
 					if (is_null($da)) {
-						trigger_localised_error('CORE0234', E_USER_WARNING, $item['attributes']['id_name']);
+						trigger_localised_error('CORE0234', sprintf(translate('No design area asset with ID name %s was found.  There must have been a problem initialising the asset for this design area.  Area tag ignored.'), $item['attributes']['id_name']), E_USER_WARNING)
 					} else {
 						$da->printAreaCode();
 					}
@@ -1086,7 +1086,7 @@ echo '/*
 					} else {
 						$da = $this->getDesignArea($item['attributes']['id_name']);
 						if (is_null($da)) {
-							trigger_localised_error('CORE0153', E_USER_NOTICE, $item['attributes']['id_name']);
+							trigger_localised_error('CORE0153', sprintf(translate('Design Area "%s" not found, ignoring print operation'), $item['attributes']['id_name']), E_USER_NOTICE)
 						} else {
 							if (isset($item['attributes']['var'])) {
 								// printing a var from a certain design area
@@ -1232,7 +1232,7 @@ echo '/*
 		if ($new_file) {
 			// attempt to add the file to the repository
 			if (!$fv->add($this->data_path_suffix, $file, '')) {
-				trigger_localised_error('CORE0156', E_USER_WARNING);
+				trigger_localised_error('CORE0156', translate('Failed adding design file version'), E_USER_WARNING)
 				return FALSE;
 			}
 		} else {
@@ -1240,7 +1240,7 @@ echo '/*
 			$file_status = $fv->upToDate($file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($file, '')) {
-					trigger_localised_error('CORE0159', E_USER_WARNING);
+					trigger_localised_error('CORE0159', translate('Failed committing design file version'), E_USER_WARNING)
 					return FALSE;
 				}
 			}
@@ -1248,7 +1248,7 @@ echo '/*
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($this->data_path_suffix.'/design_file.php', $this->data_path)) {
-			trigger_localised_error('CORE0031', E_USER_WARNING);
+			trigger_localised_error('CORE0031', translate('Failed checking out latest version of design file'), E_USER_WARNING)
 			return FALSE;
 		}
 

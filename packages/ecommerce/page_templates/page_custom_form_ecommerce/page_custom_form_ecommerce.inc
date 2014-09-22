@@ -91,7 +91,7 @@ class Page_Custom_Form_Ecommerce extends Page_Custom_Form
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
 
 		if (is_null($form)) {
-			trigger_localised_error('ECOM0002', E_USER_ERROR, $this->name, $this->id);
+			trigger_localised_error('ECOM0002', sprintf(translate('Unable to locate the Ecommerce Rules for ecommerce custom form page "%1$s" (Id: #%2$s)'), $this->name, $this->id), E_USER_ERROR)
 			return false;
 		}
 		$form->printBody();

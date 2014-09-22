@@ -237,7 +237,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	{
 		// No thesaurus specified
 		if (empty($this->_running_vars['thesaurusid'])) {
-			trigger_localised_error('HIPO0085', E_USER_WARNING);
+			trigger_localised_error('HIPO0085', translate('Unable to initialise "Rename Thesaurus Term" HIPO, thesaurus asset ID not specified'), E_USER_WARNING)
 			return FALSE;
 		}//end if
 
@@ -249,7 +249,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 		// No thesaurus found
 		$thesaurus = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['thesaurusid'], '', TRUE);
 		if (is_null($thesaurus) || $thesaurus->type() != 'thesaurus') {
-			trigger_localised_error('HIPO0086', E_USER_WARNING);
+			trigger_localised_error('HIPO0086', translate('Unable to initialise "Rename Thesaurus Term" HIPO, invalid thesaurus asset specified'), E_USER_WARNING)
 			return FALSE;
 		}//end if
 

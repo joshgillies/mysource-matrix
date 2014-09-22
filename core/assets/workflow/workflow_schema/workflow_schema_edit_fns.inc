@@ -196,7 +196,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 								$dynamic_userids = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('dynamic_userid', 'workflow_step_condition', Array($condition['minorid']));
 								$dynamic_userid = $dynamic_userids[$condition['minorid']];
 								if(empty($dynamic_userid)) {
-									trigger_localised_error('SYS0348', E_USER_NOTICE, $userid, $condition['minorid']);
+									trigger_localised_error('SYS0348', sprintf(translate('User asset #%1$s set for the workflow step condition #%2$s does not exist'), $userid, $condition['minorid']), E_USER_NOTICE)
 									continue;
 								}
 								$condition_name = $dynamic_userid;

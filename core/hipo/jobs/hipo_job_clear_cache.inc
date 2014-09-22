@@ -249,7 +249,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assetid']) && $this->_running_vars['delete_all'] == 'no') {
-			trigger_localised_error('HIPO0033', E_USER_WARNING);
+			trigger_localised_error('HIPO0033', translate('Unable to initialise Clear Cache HIPO, no start asset ID specified'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -261,7 +261,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 				$assetids = Array ($assetids);
 			}
 			if (empty($assetids)) {
-				trigger_localised_error('HIPO0032', E_USER_WARNING, $this->_running_vars['assetid']);
+				trigger_localised_error('HIPO0032', sprintf(translate('Unable to initialise Clear Cache HIPO, invalid start asset ID specified (%d)'), $this->_running_vars['assetid']), E_USER_WARNING)
 				return FALSE;
 			}//end if
 

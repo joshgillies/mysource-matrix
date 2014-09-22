@@ -218,7 +218,7 @@ class Design_Css extends Design
 
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-						trigger_localised_error('CORE0162', E_USER_WARNING);
+						trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING)
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -252,7 +252,7 @@ class Design_Css extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', sprintf(translate('Existing Link #%s not found, unable to delete link'), $linkid), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -277,7 +277,7 @@ class Design_Css extends Design
 					if ($link['minorid'] == $delete_link['minorid']) {
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_localised_error('CORE0165', E_USER_WARNING);
+							trigger_localised_error('CORE0165', translate('Failed deleting file link from customisation'), E_USER_WARNING)
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -321,7 +321,7 @@ class Design_Css extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', sprintf(translate('Existing Link #%s not found, unable to delete link'), $linkid), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -558,7 +558,7 @@ echo '/*
 		$file_status = $fv->upToDate($cache_asset->data_path.'/'.$cache_asset->_getName());
 		if (FUDGE_FV_MODIFIED & $file_status) {
 			if (!$fv->commit($cache_asset->data_path.'/'.$cache_asset->_getName())) {
-				trigger_localised_error('CORE0034', E_USER_WARNING);
+				trigger_localised_error('CORE0034', translate('Failed committing file version'), E_USER_WARNING)
 				return FALSE;
 			}
 		}
@@ -618,7 +618,7 @@ echo '/*
 		$new_file->setAttrValue('allow_unrestricted', FALSE);
 
 		if (!$new_file->create($import_link, $temp_info)) {
-			trigger_localised_error('CORE0058', E_USER_WARNING, $filename);
+			trigger_localised_error('CORE0058', sprintf(translate('File upload failed. Unable to create %s'), $filename), E_USER_WARNING)
 			return $null;
 		}
 
@@ -729,7 +729,7 @@ echo '/*
 			}
 			require $file_path;
 		} else {
-			trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->name);
+			trigger_localised_error('CORE0259', sprintf(translate('Cannot find the design file to print the asset, "%s"'), $ASSET->name), E_USER_WARNING)
 		}
 
 	}//end paint()

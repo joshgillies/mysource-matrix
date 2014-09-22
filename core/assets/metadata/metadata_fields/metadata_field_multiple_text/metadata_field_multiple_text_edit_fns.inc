@@ -189,7 +189,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($filter_enabled && !empty($new_value_str)) {
 					$new_value_str = filter_content($new_value_str);
 					if ($new_value_str === FALSE){
-						trigger_localised_error('SYS0347', E_USER_WARNING, $asset->name, $asset->type());
+						trigger_localised_error('SYS0347', sprintf(translate('Unable to filter content of Metadata Field "%1$s" of Type "%2$s"'), $asset->name, $asset->type()), E_USER_WARNING)
 						return FALSE;
 					}
 				}
@@ -285,7 +285,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			$value = $attribute->value;
 
 			if (strpos($value, '%asset_metadata_') !== FALSE) {
-				trigger_localised_error('SYS0344', E_USER_WARNING);
+				trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING)
 				$value = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $value);
 			}
 			$value_array = explode($attribute->delimiter, $value);

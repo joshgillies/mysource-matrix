@@ -281,12 +281,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->_tmp['include_children'] = $propagate;
 
 		if (empty($target_id)) {
-			trigger_localised_error('CORE0132', E_USER_WARNING);
+			trigger_localised_error('CORE0132', translate('Target asset not specified. Trigger batching cannot proceed.'), E_USER_WARNING)
 			$error = TRUE;
 		}
 
 		if (empty($events)) {
-			trigger_localised_error('CORE0126', E_USER_WARNING);
+			trigger_localised_error('CORE0126', translate('Events not specified. Trigger batching cannot proceed.'), E_USER_WARNING)
 			$error = TRUE;
 		}
 

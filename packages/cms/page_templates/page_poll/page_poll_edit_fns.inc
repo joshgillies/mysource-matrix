@@ -98,7 +98,7 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 		$poll_question->setAttrValue('name', $poll_name);
 
 		if (!$poll_question->create($initial_link)) {
-			trigger_localised_error('CMS0021', E_USER_WARNING);
+			trigger_localised_error('CMS0021', translate('Poll question not created'), E_USER_WARNING)
 		}
 
 		return FALSE;

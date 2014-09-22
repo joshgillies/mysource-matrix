@@ -55,7 +55,7 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 		// check required settings
 		if (empty($settings['file_path'])) return FALSE;
 		if (!is_readable($settings['file_path'])) {
-			trigger_localised_error('CORE0276', E_USER_WARNING, htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			trigger_localised_error('CORE0276', sprintf(translate('File %s does not exist or is not readable'), htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING)
 			return FALSE;
 		}
 

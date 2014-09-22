@@ -59,7 +59,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 		$form = $asset->getForm();
 
 		if (is_null($form)) {
-			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id, 'Contents');
+			trigger_localised_error('CMS0022', sprintf(translate('Could not locate the Form Contents for custom form page "%1$s" (Id: %2$s)'), $asset->name, $asset->id, 'Contents'), E_USER_ERROR)
 			return FALSE;
 		}
 
@@ -91,7 +91,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 		$form = $asset->getForm();
 
 		if (is_null($form)) {
-			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			trigger_localised_error('CMS0022', sprintf(translate('Could not locate the Form Contents for custom form page "%1$s" (Id: %2$s)'), $asset->name, $asset->id), E_USER_ERROR)
 			return FALSE;
 		}
 
@@ -121,7 +121,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	{
 		$form = $asset->getForm();
 		if (is_null($form)) {
-			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			trigger_localised_error('CMS0022', sprintf(translate('Could not locate the Form Contents for custom form page "%1$s" (Id: %2$s)'), $asset->name, $asset->id), E_USER_ERROR)
 			return FALSE;
 		}
 
@@ -245,7 +245,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	*/
 	function processSubmissionList(&$asset, &$o, $prefix)
-	{	
+	{
 		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
 
 	}//end processSubmissionList()
@@ -260,12 +260,12 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	*/
 	function paintSendSubmissionsEmail(&$asset, &$o, $prefix)
-	{	
+	{
 		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
 
 	}//end paintSendSubmissionsEmail()
-	
-	
+
+
 	/**
 	* Processes the interface for the existing "Send Submissions Email" jobs
 	*
@@ -276,9 +276,9 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	*/
 	public function processSendSubmissionsEmail(&$asset, &$o, $prefix)
-	{	
+	{
 		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
-	
+
 	}//end processSendSubmissionsEmail()
 
 
@@ -352,7 +352,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	{
 		$form = $asset->getForm();
 		if (is_null($form)) {
-			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			trigger_localised_error('CMS0022', sprintf(translate('Could not locate the Form Contents for custom form page "%1$s" (Id: %2$s)'), $asset->name, $asset->id), E_USER_ERROR)
 			return FALSE;
 		}
 
@@ -360,7 +360,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 		if (method_exists($edit_fns, $edit_method)) {
 			return $edit_fns->$edit_method($form, $o, $prefix);
 		} else {
-			trigger_localised_error('CMS0067', E_USER_ERROR, $form->name, $edit_method);
+			trigger_localised_error('CMS0067', sprintf(translate('Delegate method "%2$s" not found in edit functions of asset "%1$s"'), $form->name, $edit_method), E_USER_ERROR)
 			return FALSE;
 		}
 

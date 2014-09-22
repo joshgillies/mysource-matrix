@@ -503,7 +503,7 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
 		$new_type = array_get_index($_POST, $prefix.'_new_type', '');
 		if (isset($deleted_formats[$new_type])) {
-			trigger_localised_error('CMS0042', E_USER_WARNING, $new_type);
+			trigger_localised_error('CMS0042', sprintf(translate('You cant delete a format and create it at the same time. The current type format for type %s has not been deleted.'), $new_type), E_USER_WARNING)
 			unset($deleted_formats[$new_type]);
 			$new_type = '';
 		}
@@ -511,17 +511,17 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 		foreach ($deleted_formats as $type => $on) {
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type);
 			if (empty($current_link)) {
-				trigger_localised_error('CMS0043', E_USER_WARNING, $type);
+				trigger_localised_error('CMS0043', sprintf(translate('Failed deleting format for type %s, couldnt get format bodycopy link'), $type), E_USER_WARNING)
 			} else {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
-					trigger_localised_error('CMS0044', E_USER_WARNING, $type);
+					trigger_localised_error('CMS0044', sprintf(translate('Failed deleting format for type %s'), $type), E_USER_WARNING)
 				}
 			}
 		}
 
 		// check that the new type is valid
 		if ($new_type != '' && !isset($types[$new_type])) {
-			trigger_localised_error('CMS0045', E_USER_WARNING, $new_type);
+			trigger_localised_error('CMS0045', sprintf(translate('Cannot customise the format of type %s, type is not valid'), $new_type), E_USER_WARNING)
 			$new_type = '';
 		}
 
@@ -547,7 +547,7 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			} else {
-				trigger_localised_error('CMS0046', E_USER_WARNING, $new_type);
+				trigger_localised_error('CMS0046', sprintf(translate('Cannot customise type %s, it is already customised'), $new_type), E_USER_WARNING)
 			}
 		}
 		if (isset($asset->_tmp['formats']['type_formats'])) {

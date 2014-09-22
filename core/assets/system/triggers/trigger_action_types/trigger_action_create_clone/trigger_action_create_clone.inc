@@ -153,7 +153,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		if (is_null($clone)) {
-			trigger_localised_error('CORE0138', E_USER_WARNING);
+			trigger_localised_error('CORE0138', translate('clone failed'), E_USER_WARNING)
 			return FALSE;
 		}
 

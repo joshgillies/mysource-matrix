@@ -19,7 +19,7 @@
 *
 * Provides an interface to the reports to handle the reading of a funnelback log (custom logs NOT located under data/private/logs)
 *
-* @author  Benjamin Pearson <bpearson@squiz.com.au>	
+* @author  Benjamin Pearson <bpearson@squiz.com.au>
 * @version $Revision: 1.2 $
 * @package Funnelback
 */
@@ -161,7 +161,7 @@ class Funnelback_Log_Iterator
 			}
 			fclose($handle);
 		} else {
-			trigger_localised_error('CORE0018', E_USER_ERROR, $file);
+			trigger_localised_error('CORE0018', sprintf(translate('Unable to read from logfile %s'), $file), E_USER_ERROR)
 			$result = FALSE;
 		}
 
@@ -171,7 +171,7 @@ class Funnelback_Log_Iterator
 
 
 	/**
-	* Decode the line to something useful for us to work with 
+	* Decode the line to something useful for us to work with
 	*
 	* Log Format:
 	*	[DATE_TIME][REQUESTER_IP][QUERY][INCLUDE_SCOPE][EXCLUDE_SCOPE][START_RANK][NUM_RANKS][CODES][FULL_MATCHES][PARTIAL_MATCHES][ELAPSED_TIME][PROFILE]

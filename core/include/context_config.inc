@@ -1186,7 +1186,7 @@ class Context_Config extends Config
 					$new_name = trim(array_get_index($_POST, $this->prefix.'new_alternate_context_name', ''));
 
 					if ($new_name === '' || in_array($new_name, $context_names)) {
-						trigger_localised_error('CTX0005', E_USER_WARNING);
+						trigger_localised_error('CTX0005', translate('Cannot create new alternate context; a non-blank unique name is required, but was not entered'), E_USER_WARNING)
 					} else {
 						// Creating a new context - include the new name
 						$new_key = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ctx_id_seq'));
@@ -1213,7 +1213,7 @@ class Context_Config extends Config
 					// If the new name is blank or already exists, refuse to change it, but allow
 					// the rest of the editing to continue
 					if ($new_name === '' || ($new_name != $contexts[$editing_context]['name'] && in_array($new_name, $context_names))) {
-						trigger_localised_error('CTX0006', E_USER_NOTICE, $contexts[$editing_context]['name']);
+						trigger_localised_error('CTX0006', sprintf(translate('Cannot change name of context "%s" to a blank or existing context name; previous name was kept'), $contexts[$editing_context]['name']), E_USER_NOTICE)
 					} else {
 						$contexts[$editing_context]['name'] = $new_name;
 					}
@@ -1381,7 +1381,7 @@ class Context_Config extends Config
 				$locales = $this->_getAcceptLanguageOptions();
 				$new_language = array_get_index($_POST, $this->prefix.$condition_id.'_language', '');
 				if (isset($locales[$new_language]) === FALSE) {
-					trigger_localised_error('CTX0008', E_USER_NOTICE, $new_language);
+					trigger_localised_error('CTX0008', sprintf(translate('Accept-language condition: language code "%s" is not in the list of languages recognised by this system, previous language kept'), $new_language), E_USER_NOTICE)
 				} else {
 					$condition_options['language'] = $new_language;
 				}
@@ -1390,11 +1390,11 @@ class Context_Config extends Config
 				if (is_numeric($new_q_value) === TRUE) {
 					$new_q_value = (float)$new_q_value;
 					if ($new_q_value > 1.0) {
-						trigger_localised_error('CTX0009', E_USER_NOTICE, $new_q_value);
+						trigger_localised_error('CTX0009', sprintf(translate('Accept-language condition: quality value of "%s" is greater than the maximum allowed value of 1.0, value will be saved as 1.0'), $new_q_value), E_USER_NOTICE)
 						$new_q_value = 1.0;
 					}
 					if ($new_q_value < 0.0) {
-						trigger_localised_error('CTX0010', E_USER_NOTICE, $new_q_value);
+						trigger_localised_error('CTX0010', sprintf(translate('Accept-language condition: quality value of "%s" is less than the minimum allowed value of 0.0, value will be saved as 0.0'), $new_q_value), E_USER_NOTICE)
 						$new_q_value = 0.0;
 					}
 					$condition_options['min_q'] = $new_q_value;
@@ -1517,7 +1517,7 @@ class Context_Config extends Config
 				// It's not fatal from a PHP point of view - it is for
 				// this processing though, so send a warning and break out
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_localised_error('CTX0001', E_USER_ERROR, $bind_vars['name'], $e->getMessage());
+				trigger_localised_error('CTX0001', sprintf(translate('Cannot create context "%1$s" in database: %2$s'), $bind_vars['name'], $e->getMessage()), E_USER_ERROR)
 				exit(1);
 
 			}//end try
@@ -1542,7 +1542,7 @@ class Context_Config extends Config
 					// It's not fatal from a PHP point of view - it is for
 					// this processing though, so send a warning and break out
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					trigger_localised_error('CTX0002', E_USER_ERROR, $bind_vars['name'], $e->getMessage());
+					trigger_localised_error('CTX0002', sprintf(translate('Cannot update context "%1$s" in database: %2$s'), $bind_vars['name'], $e->getMessage()), E_USER_ERROR)
 					exit(1);
 
 				}//end try
@@ -1564,9 +1564,9 @@ class Context_Config extends Config
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				if (count($deleted_contextids) === 1) {
 					$deleted_contextid = $deleted_contextids[0];
-					trigger_localised_error('CTX0003', E_USER_ERROR, $deleted_contextid, $e->getMessage());
+					trigger_localised_error('CTX0003', sprintf(translate('Cannot delete context ID #%1$s from database: %2$s'), $deleted_contextid, $e->getMessage()), E_USER_ERROR)
 				} else {
-					trigger_localised_error('CTX0004', E_USER_ERROR, count($deleted_contextids), $e->getMessage());
+					trigger_localised_error('CTX0004', sprintf(translate('Cannot delete %1$s context(s) from database: %2$s'), count($deleted_contextids), $e->getMessage()), E_USER_ERROR)
 				}
 				exit(1);
 

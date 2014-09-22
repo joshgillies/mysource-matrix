@@ -261,7 +261,7 @@ class Tool_Clear_Squid_Cache extends Tool
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 				} else {
-					trigger_localised_error('SYS0232', E_USER_NOTICE);
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE)
 				}
 			}
 			// remove job only, do not print error msg
@@ -272,7 +272,7 @@ class Tool_Clear_Squid_Cache extends Tool
 
 		// error: asset is not defined
 		if (!$_REQUEST[$type_code.'_assetid']['assetid']) {
-			trigger_localised_error('SQUID0001', E_USER_NOTICE);
+			trigger_localised_error('SQUID0001', translate('The Asset to be purged is not defined.'), E_USER_NOTICE)
 			return FALSE;
 		}
 
@@ -337,7 +337,7 @@ class Tool_Clear_Squid_Cache extends Tool
 
 
 		} else {
-			trigger_localised_error('SQUID0003', E_USER_NOTICE, sprintf(translate('Purge Squid Cache Scheduled Job #%s'), $owner->id));
+			trigger_localised_error('SQUID0003', sprintf(translate('Unable to process tool, no admin access found, permission denied.'), sprintf(translate('Purge Squid Cache Scheduled Job #%s'), $owner->id)), E_USER_NOTICE)
 
 		}//end if has write access
 

@@ -109,7 +109,7 @@ class System_User_Group extends User_Group
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CORE0091', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 		return FALSE;
 
 	}//end morph()
@@ -128,7 +128,7 @@ class System_User_Group extends User_Group
 	{
 
 		if ($name == 'name') {
-			trigger_localised_error('CORE0111', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0111', sprintf(translate('You are not able to alter the name for the %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 			return FALSE;
 		}
 

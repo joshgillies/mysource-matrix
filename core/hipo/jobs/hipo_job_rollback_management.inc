@@ -351,7 +351,7 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 			include_once(SQ_INCLUDE_PATH.'/system_config.inc');
 			$system_conf = new System_Config();
 			if (!$system_conf->canAcquireLock()) {
-				trigger_localised_error('CORE0233', E_USER_NOTICE);
+				trigger_localised_error('CORE0233', translate('This operation requires the System Configuration lock to be acquired, but another user has that lock.  Please try again later.'), E_USER_NOTICE)
 				// Fail
 				return FALSE;
 			}

@@ -68,7 +68,7 @@ class Cron_Job extends Asset
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		if (!$this->attr('type') || !$this->attr('when')) {
-			trigger_localised_error('CRON0002', E_USER_WARNING);
+			trigger_localised_error('CRON0002', translate('A "type" and a "when" time need to be set for a cron job to be created'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -121,7 +121,7 @@ class Cron_Job extends Asset
 	*/
 	public function morph($new_type_code)
 	{
-		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 		return FALSE;
 
 	}//end morph()
@@ -140,7 +140,7 @@ class Cron_Job extends Asset
 	*/
 	public function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0041', sprintf(translate('Unable to move assets around in the %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 		return FALSE;
 
 	}//end moveLinkPos()
@@ -177,11 +177,11 @@ class Cron_Job extends Asset
 
 			$value = (string) $value;
 			if ($this->attr('type') != 'one_off' && substr($value, 0, 2) == 'OO') {
-				trigger_localised_error('CRON0009', E_USER_NOTICE);
+				trigger_localised_error('CRON0009', translate('Only one_off type cron jobs can have their "when" attributes set to a "OO=" prefixed value'), E_USER_NOTICE)
 				return FALSE;
 			}//end if
 			if ($this->attr('type') == 'one_off' && substr($value, 0, 2) != 'OO') {
-				trigger_localised_error('CRON0043', E_USER_NOTICE);
+				trigger_localised_error('CRON0043', translate('one_off type cron jobs MUST have their "when" attributes set to a "OO=" prefixed value'), E_USER_NOTICE)
 				return FALSE;
 			}// end if
 
@@ -196,7 +196,7 @@ class Cron_Job extends Asset
 						TI=1147416120,1,3600
 			*/
 			if ($this->attr('type') != 'repeating' && substr($value, 0, 2) == 'TI') {
-				trigger_localised_error('CRON0045', E_USER_NOTICE);
+				trigger_localised_error('CRON0045', translate('Only repeating type cron jobs can have their "when" attributes set to a "TI=" prefixed value'), E_USER_NOTICE)
 				return FALSE;
 			}//end if
 
@@ -292,7 +292,7 @@ class Cron_Job extends Asset
 
 				if ($when_ts < (int) $cron_mgr->attr('last_run')) {
 					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-					trigger_localised_error('CRON0042', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime((int) $cron_mgr->attr('last_run')));
+					trigger_localised_error('CRON0042', sprintf(translate('Unable to schedule a one-off %1$s to be run before the last job run is scheduled (which is at %2$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime((int) $cron_mgr->attr('last_run'))), E_USER_WARNING)
 					return FALSE;
 				}//end if
 
@@ -432,7 +432,7 @@ class Cron_Job extends Asset
 			case 6 : return translate('Saturday');
 
 			default :
-				trigger_localised_error('CRON0034', E_USER_NOTICE, $wday);
+				trigger_localised_error('CRON0034', sprintf(translate('Weekday "%s" not known'), $wday), E_USER_NOTICE)
 				return '';
 		}//end switch
 
@@ -639,7 +639,7 @@ class Cron_Job extends Asset
 
 				// else couldn't set the current user
 				} else {
-					trigger_localised_error('CRON0027', E_USER_WARNING, $this->name, $this->id, $user->name, $user->id);
+					trigger_localised_error('CRON0027', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), Unable to set the current system user to "%3$s" (#%4$s)'), $this->name, $this->id, $user->name, $user->id), E_USER_WARNING)
 					// we can retry because the user may have just been being edited, or something
 					$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 				}
@@ -648,7 +648,7 @@ class Cron_Job extends Asset
 
 			// else acquireLock failed
 			} else {
-				trigger_localised_error('CRON0025', E_USER_WARNING, $this->name, $this->id);
+				trigger_localised_error('CRON0025', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), Unable to acquire lock'), $this->name, $this->id), E_USER_WARNING)
 				// we can retry because the lock might be free by the time that we try again
 				$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 
@@ -656,7 +656,7 @@ class Cron_Job extends Asset
 
 		// else no running user
 		} else {
-			trigger_localised_error('CRON0026', E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CRON0026', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), Unable to find user to run as'), $this->name, $this->id), E_USER_WARNING)
 			// we can be removed because without the running user we can't do anything
 			$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
@@ -858,7 +858,7 @@ class Cron_Job extends Asset
 	*/
 	protected function _exec(&$msg)
 	{
-		trigger_localised_error('CRON0028', E_USER_WARNING, $this->name, $this->id);
+		trigger_localised_error('CRON0028', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), _exec() not done'), $this->name, $this->id), E_USER_WARNING)
 		// we can be removed because we haven't been done
 		return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 

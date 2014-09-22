@@ -1678,7 +1678,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					if (($extension_index !== FALSE) && ($extension_index == strlen($filename)-4)) {
 						return $asset->setAttrValue('captcha_ttf', $ttf_file_id);
 					} else {
-						trigger_localised_error('CMS0109', E_USER_WARNING);
+						trigger_localised_error('CMS0109', translate('The CAPTCHA Font specified was not a TrueType Font File (ie; did not have a .ttf extension)'), E_USER_WARNING)
 					}
 				} else {
 					return $asset->setAttrValue('captcha_ttf', NULL);

@@ -86,7 +86,7 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processJavascript');
 
 		if (!empty($ret['error_message'])) {
-			trigger_localised_error('REST0005', E_USER_WARNING, $this->id, $ret['error_message']);
+			trigger_localised_error('REST0005', sprintf(translate('Error occured when processing JavaScript in asset #%1$s: #%2$s'), $this->id, $ret['error_message']), E_USER_WARNING)
 		} else {
 			if (!$this->attr('allow_global_replace')) {
 				require_once SQ_FUDGE_PATH.'/general/text.inc';

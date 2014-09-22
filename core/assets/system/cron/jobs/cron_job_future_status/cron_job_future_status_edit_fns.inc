@@ -112,7 +112,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 			if ($when = $this->_processWhenBox($asset, $o, $prefix)) {
 				return ($asset->setAttrValue('when', $when) && $asset->setAttrValue('dependants_only', $dependants_only));
 			} else {
-				trigger_localised_error('CRON0046', E_USER_NOTICE);
+				trigger_localised_error('CRON0046', translate('To add a future status you must specify the date and time at which the status should be changed'), E_USER_NOTICE)
 			}
 		}
 

@@ -420,7 +420,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 				$ret = Rest_Common::processJavascript($js, $settings['js_engine']);
 				$GLOBALS['SQ_SYSTEM']->pm->stopTimer($form, 'processJavascript');
 				if (!empty($ret['error_message'])) {
-					trigger_localised_error('REST0001', E_USER_WARNING, $form->id, $ret['error_message']);
+					trigger_localised_error('REST0001', sprintf(translate('%1$s: Keyword %2$s not found in REST response.'), $form->id, $ret['error_message']), E_USER_WARNING)
 				} else {
 					$_SESSION[SQ_SESSION_SANDBOX_INDEX][$settings['js_session_var']] =  $ret['output'];
 				}

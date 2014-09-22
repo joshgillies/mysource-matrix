@@ -97,12 +97,12 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 
 		// invalid extension
 		if (isset($file_info['name']) && get_file_type($file_info['name']) != 'csv') {
-			trigger_localised_error('CORE0106', E_USER_WARNING, 'CSV', strtoupper(get_file_type($file_info['name'])));
+			trigger_localised_error('CORE0106', sprintf(translate('File extension not allowed. The supplied file is of type "%2$s". Expected types: %1$s.', 'CSV'), strtoupper(get_file_type($file_info['name']))), E_USER_WARNING)
 			return false;
 		}
 
 		if ($file_info['size'] === 0) {
-			trigger_localised_error('SYS0009', E_USER_WARNING, 'Empty file uploaded, nothing changed');
+			trigger_localised_error('SYS0009', sprintf(translate('Error uploading file %s'), 'Empty file uploaded, nothing changed'), E_USER_WARNING)
 			return false;
 		}
 

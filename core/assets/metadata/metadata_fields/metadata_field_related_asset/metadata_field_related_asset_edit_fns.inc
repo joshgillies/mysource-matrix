@@ -173,7 +173,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 
 			if ($value && !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($value))) {
-				trigger_localised_error('SYS0087', E_USER_WARNING, $value);
+				trigger_localised_error('SYS0087', sprintf(translate('Asset #%s does not exist'), $value), E_USER_WARNING)
 				return FALSE;
 			}
 			$new_value_str = $value;
@@ -256,7 +256,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 		$save_value = FALSE;
 		if ($new_value != $value) {
 			if ($new_value && !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($new_value))) {
-				trigger_localised_error('SYS0087', E_USER_WARNING, $new_value);
+				trigger_localised_error('SYS0087', sprintf(translate('Asset #%s does not exist'), $new_value), E_USER_WARNING)
 				return FALSE;
 			}
 			$save_value = TRUE;

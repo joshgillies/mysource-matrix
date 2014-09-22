@@ -518,10 +518,10 @@ function trigger_exception($msg, $silent=false, $fatal=false)
 			if ($fatal) {
 				throw new Exception('Assertion failed: '.$msg);
 			} else {
-				trigger_localised_error('SYS0270', $error_type, $msg, $line, $file);
+				trigger_localised_error('SYS0270', sprintf('[ASSERT EXCEPTION] %1$s (LINE %2$s IN %3$s)', $msg, $line, $file), $error_type);
 			}
 		} else {
-			trigger_localised_error('SYS0320', $error_type, $msg);
+			trigger_localised_error('SYS0320', sprintf('[ASSERT EXCEPTION] %1$s', $msg), $error_type);
 		}
 	}
 

@@ -171,7 +171,7 @@ class Cron_Manager extends Asset
 	*/
 	public function morph($new_type_code)
 	{
-		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 		return FALSE;
 
 	}//end morph()
@@ -190,7 +190,7 @@ class Cron_Manager extends Asset
 	*/
 	public function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0041', sprintf(translate('Unable to move assets around in the %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 		return FALSE;
 
 	}//end moveLinkPos()
@@ -210,12 +210,12 @@ class Cron_Manager extends Asset
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
-			trigger_localised_error('SYS0243', E_USER_NOTICE, $linkid);
+			trigger_localised_error('SYS0243', sprintf(translate('Unable to delete link, Link #%s does not exist'), $linkid), E_USER_NOTICE)
 			return FALSE;
 		}
 
 		if ($GLOBALS['SQ_SYSTEM']->am->isSystemAssetType($link['minor_type_code'])){
-			trigger_localised_error('CORE0118', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0118', sprintf(translate('You cannot delete anything from the %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -236,7 +236,7 @@ class Cron_Manager extends Asset
 	public function setAttrValue($name, $value)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			trigger_localised_error('CRON0025', E_USER_WARNING, $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CRON0025', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), Unable to acquire lock'), $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -250,19 +250,19 @@ class Cron_Manager extends Asset
 			if ($value >= $one_day) {
 				// if we are over a day we must be a multiple of one day
 				if ($value % $one_day) {
-					trigger_localised_error('CRON0035', E_USER_WARNING, $one_day);
+					trigger_localised_error('CRON0035', sprintf(translate('You can only have a refresh time of over one day if it\'s a multiple of a day (%s seconds)'), $one_day), E_USER_WARNING)
 					return FALSE;
 				}
 			} else if ($value >= $one_hour) {
 				// if we are over an hour we must be a multiple of one hour
 				if ($value % $one_hour || $one_day % $value) {
-					trigger_localised_error('CRON0036', E_USER_WARNING, $one_hour);
+					trigger_localised_error('CRON0036', sprintf(translate('You can only have a refresh time of over one hour if it\'s a multiple of an hour (%s seconds) and the number of hours divides evenly into one day'), $one_hour), E_USER_WARNING)
 					return FALSE;
 				}
 			} else {
 				// if we less than an hour we must divide evenly into an hour
 				if ($one_hour % $value) {
-					trigger_localised_error('CRON0037', E_USER_WARNING, $one_hour);
+					trigger_localised_error('CRON0037', sprintf(translate('You can only have a refresh time of under one hour if it divides evenly into one hour (%s seconds)'), $one_hour), E_USER_WARNING)
 					return FALSE;
 				}
 			}
@@ -509,17 +509,18 @@ class Cron_Manager extends Asset
 		set_error_handler(Array($this, '_errorHandler'));
 
 		if ($this->isExcludedTime($start_time)) {
-			trigger_localised_error('CRON0047', E_USER_NOTICE, $this->name);
+			trigger_localised_error('CRON0047', sprintf(translate('The Cron Manager run() aborted due to blackout period.'), $this->name), E_USER_NOTICE)
 			return;
 		}
 
 		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction(MatrixDAL::getCurrentDbId())) {
-			trigger_localised_error('CRON0012', E_USER_WARNING);
+			trigger_localised_error('CRON0012', 'The Cron Manager should not be run() while nested within any transactions.
+ This stops each job from being independent of each other', E_USER_WARNING)
 			return;
 		}
 
 		if ($start_time < (int) $this->attr('epoch')) {
-			trigger_localised_error('CRON0011', E_USER_WARNING);
+			trigger_localised_error('CRON0011', translate('The Cron Manager run() aborted because its Epoch is still in the future'), E_USER_WARNING)
 			return;
 		}
 
@@ -568,7 +569,7 @@ class Cron_Manager extends Asset
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
 			} else {
-				trigger_localised_error('CRON0016', E_USER_WARNING, $this->name);
+				trigger_localised_error('CRON0016', sprintf(translate('Unable to acquire lock of "%s"'), $this->name), E_USER_WARNING)
 			}
 
 		} else {
@@ -735,7 +736,7 @@ class Cron_Manager extends Asset
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attr_links');
 
 					} else {
-						trigger_localised_error('CRON0015', E_USER_WARNING, $this->name);
+						trigger_localised_error('CRON0015', sprintf(translate('Unable to acquire lock and set running flag of "%s", aborting run'), $this->name), E_USER_WARNING)
 						return;
 					}
 
@@ -753,10 +754,10 @@ class Cron_Manager extends Asset
 					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', FALSE) && $this->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 					} else {
-						trigger_localised_error('CRON0032', E_USER_WARNING, $this->name);
+						trigger_localised_error('CRON0032', sprintf(translate('Unable to unset the last run and/or running flag of "%s", aborting run'), $this->name), E_USER_WARNING)
 					}
 				} else {
-					trigger_localised_error('CRON0016', E_USER_WARNING, $this->name);
+					trigger_localised_error('CRON0016', sprintf(translate('Unable to acquire lock of "%s"'), $this->name), E_USER_WARNING)
 				}
 
 				// process the potential long running jobs
@@ -767,7 +768,7 @@ class Cron_Manager extends Asset
 						if ($result & SQ_CRON_JOB_REMOVE) {
 							$this->removeJob($cron_job);
 						} else if ($result & SQ_CRON_JOB_ERROR) {
-							trigger_localised_error('CRON0049', E_USER_WARNING, $cron_job->id);
+							trigger_localised_error('CRON0049', sprintf(translate('A long running cron job (%s) has returned an error status.'), $cron_job->id), E_USER_WARNING)
 						}
 					}
 					$am->forgetAsset($cron_job);
@@ -775,7 +776,7 @@ class Cron_Manager extends Asset
 
 			} else {
 				// aquire or set running failed
-				trigger_localised_error('CRON0015', E_USER_WARNING, $this->name);
+				trigger_localised_error('CRON0015', sprintf(translate('Unable to acquire lock and set running flag of "%s", aborting run'), $this->name), E_USER_WARNING)
 
 			}//end else - if acquire lock
 
@@ -824,7 +825,7 @@ class Cron_Manager extends Asset
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 		if ($end_ts < $start_ts) {
-			trigger_localised_error('CRON0014', E_USER_WARNING);
+			trigger_localised_error('CRON0014', translate('The start time is after the end time'), E_USER_WARNING)
 			return Array();
 		}
 

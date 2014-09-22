@@ -65,7 +65,7 @@ class Calendar_Event extends Asset
 
 		$name = $this->attr('name');
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY) && ($name == '')) {
-			trigger_localised_error('CAL0008', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CAL0008', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -314,25 +314,25 @@ class Calendar_Event extends Asset
 
 			// All events must have a starting date at least!
 			if (!$start_has_date) {
-				trigger_localised_error('CAL0009', E_USER_WARNING);
+				trigger_localised_error('CAL0009', translate('Calendar Events must at least have a start date'), E_USER_WARNING)
 				return FALSE;
 			}
 
 			// cannot have End Date being like '---------- 11:00:00'
 			if (!$end_has_date && $end_has_time) {
-				trigger_localised_error('CAL0010', E_USER_WARNING);
+				trigger_localised_error('CAL0010', translate('If the \'End Date\' includes a time component it must also include a date'), E_USER_WARNING)
 				return FALSE;
 			}
 
 			// Cannot have an end time if you have no start time
 			if ($end_has_time && (!$start_has_time)) {
-				trigger_localised_error('CAL0011', E_USER_WARNING);
+				trigger_localised_error('CAL0011', translate('If the \'End Time\' is specified you must also specify a \'Start Time\''), E_USER_WARNING)
 				return FALSE;
 			}
 
 			// Cannot have an end date and start time if you have no end time
 			if ($end_has_date && $start_has_time && (!$end_has_time)) {
-				trigger_localised_error('CAL0012', E_USER_WARNING);
+				trigger_localised_error('CAL0012', translate('If the \'End Date\' and \'Start Time\' are specified you must also specify an \'End Time\''), E_USER_WARNING)
 				return FALSE;
 			}
 
@@ -340,7 +340,7 @@ class Calendar_Event extends Asset
 			// the End Date must be no earlier than the start Date
 			if ($end_has_date) {
 				if (iso8601_ts($end_date) < iso8601_ts($start_date)) {
-					trigger_localised_error('CAL0013', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+					trigger_localised_error('CAL0013', sprintf(translate('The \'End Date\' of this %s cannot be prior to the \'Start Date\''), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 					return FALSE;
 				}
 			}
@@ -361,19 +361,19 @@ class Calendar_Event extends Asset
 
 		// For dates, this means all three parts of the date have a value
 		if ($end_has_date && (($end_components['d'] == -1) || ($end_components['m'] == -1) || ($end_components['y'] == -1))) {
-			trigger_localised_error('CAL0014', E_USER_WARNING);
+			trigger_localised_error('CAL0014', translate('If the date component of \'End Date\' is specified it must specify all of day, month and year'), E_USER_WARNING)
 			return FALSE;
 		}
 
 		// For times, at least hour and minute must be specified. You can get away with not specifying
 		// seconds, it's optional.
 		if ($start_has_time && (($start_components['h'] == -1) || ($start_components['i'] == -1))) {
-			trigger_localised_error('CAL0015', E_USER_WARNING);
+			trigger_localised_error('CAL0015', translate('If the time component of \'Start Date\' is specified it must specify at least hour and minute'), E_USER_WARNING)
 			return FALSE;
 		}
 
 		if ($end_has_time && (($end_components['h'] == -1) || ($end_components['i'] == -1))) {
-			trigger_localised_error('CAL0016', E_USER_WARNING);
+			trigger_localised_error('CAL0016', translate('If the time component of \'End Date\' is specified it must specify at least hour and minute'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -723,16 +723,16 @@ class Calendar_Event extends Asset
 				if (isset($_REQUEST['SQ_CALENDAR_OLD_LOC']) && !empty($_REQUEST['SQ_CALENDAR_OLD_LOC'])) {
 					$old_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 					if (empty($old_link)) {
-						trigger_localised_error('CAL0017', E_USER_WARNING, $_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
+						trigger_localised_error('CAL0017', sprintf(translate('Cannot move event, cannot find old link from asset #%1$s to asset #%2$s'), $_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id), E_USER_WARNING)
 						return '';
 					}
 					if (!$GLOBALS['SQ_SYSTEM']->am->moveLink($old_link['linkid'], $_REQUEST['SQ_CALENDAR_NEW_LOC'], $old_link['link_type'], -1)) {
-						trigger_localised_error('CAL0018', E_USER_WARNING, $_REQUEST['SQ_CALENDAR_OLD_LOC'], $_REQUEST['SQ_CALENDAR_NEW_LOC']);
+						trigger_localised_error('CAL0018', sprintf(translate('Cannot move event, unable to move link from under asset #%1$s to under asset #%2$s'), $_REQUEST['SQ_CALENDAR_OLD_LOC'], $_REQUEST['SQ_CALENDAR_NEW_LOC']), E_USER_WARNING)
 						return '';
 					}
 				}
 				if (!isset($_REQUEST['SQ_CALENDAR_NEW_DATE'])) {
-					trigger_localised_error('CAL0019', E_USER_WARNING);
+					trigger_localised_error('CAL0019', translate('Cannot move event, new date not specified'), E_USER_WARNING)
 					return '';
 				}
 				$duration = $this->getDuration();
@@ -748,7 +748,7 @@ class Calendar_Event extends Asset
 					$this->setAttrValue('end_date', $new_end_date.' '.$new_end_time);
 				}
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
-					trigger_localised_error('CAL0020', E_USER_WARNING, $this->name, $this->id);
+					trigger_localised_error('CAL0020', sprintf(translate('Could not acquire lock on asset "%1$s" (#%2$s) to move it'), $this->name, $this->id), E_USER_WARNING)
 					return '';
 				}
 				$this->saveAttributes();
@@ -761,7 +761,7 @@ class Calendar_Event extends Asset
 			break;
 
 			default:
-				trigger_localised_error('CAL0021', E_USER_WARNING, $action_name);
+				trigger_localised_error('CAL0021', sprintf(translate('%s is an unknown action for this type of event'), $action_name), E_USER_WARNING)
 				return '';
 			break;
 		}//end switch

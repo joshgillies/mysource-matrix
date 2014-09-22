@@ -52,9 +52,9 @@ class Text_File extends File
 	* @see Asset::create()
 	*/
 	public function create(Array &$link, $info=Array())
-	{	
+	{
 		$this->_tmp['file_create_data'] =& $info;
-	
+
 		if (empty($info)) {
 			// Try getting the uploaded file details
 			$info = get_file_upload_info($this->getPrefix());
@@ -65,34 +65,34 @@ class Text_File extends File
 			$edit = $this->getEditFns();
 			$info = $edit->getChosenFileInfo($this->getPrefix());
 		}
-		
+
 		$file_name = '';
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
-			
+
 			// When no file is supplied via uploaded, create a new file
 			if ($info === FALSE || empty($info)) {
-				
+
 				$file_title = trim($this->attr('title'));
 				$file_title = preg_replace('/\s/', '_', $file_title);
 				$file_title = preg_replace('/[^A-Za-z0-9_\-]/', '', $file_title);
-								
-				$extension = 'txt';				
+
+				$extension = 'txt';
 				$file_name = $file_title . '.' . $extension;
 
 				$create_location = SQ_SYSTEM_ROOT.'/'.'data/temp';
 				// Create an temporary empty file
 				if (!fopen($create_location.'/'.$file_name, 'w+')) {
-					trigger_localised_error('SYS0025', E_USER_WARNING, $file_name. " from given title ".$file_title);
+					trigger_localised_error('SYS0025', sprintf(translate('Unable to create file: %s'), $file_name. " from given title ".$file_title), E_USER_WARNING)
 					return FALSE;
 				}
-				
+
 				// Create info array for the file just created
 
 				$info = Array();
-				
-				$info['name'] = $file_name; 
+
+				$info['name'] = $file_name;
 				$info['tmp_name'] = $create_location;
-				$info['created_file'] = TRUE;																
+				$info['created_file'] = TRUE;
 			}
 		}
 
@@ -117,7 +117,7 @@ class Text_File extends File
 			// Make grep sure the new web path is not already is use
 			$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 			if (!empty($bad_paths)) {
-				trigger_localised_error('CORE0086', E_USER_WARNING, $name);
+				trigger_localised_error('CORE0086', sprintf(translate('Unable to create file with name "%s", web path already exists?'), $name), E_USER_WARNING)
 				return FALSE;
 			}
 
@@ -127,8 +127,8 @@ class Text_File extends File
 		return parent::create($link, $info);
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Returns the editable content of this asset
 	*
@@ -142,7 +142,7 @@ class Text_File extends File
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$parse_file = $this->data_path.'/'.$this->name;
 		$content = file_to_string($parse_file);
-	
+
 		return trim($content);
 
 	}//end getContent()

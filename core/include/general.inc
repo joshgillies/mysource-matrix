@@ -861,7 +861,7 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE, $strip_ext
 			// if previous test failed, this one will probably not help, but before dying we try anyway
 			$host = array_get_index($_SERVER, 'SERVER_NAME', FALSE);
 			if (!$host) {
-				trigger_localised_error('SYS0107', E_USER_ERROR);
+				trigger_localised_error('SYS0107', translate('Unable to determine host for current URL'), E_USER_ERROR)
 			}
 		}
 		$uri = array_shift(explode('?',$_SERVER['REQUEST_URI']));
@@ -1326,7 +1326,7 @@ function implements_interface($class, $interface)
 	if (is_object($class)) {
 		return ($class instanceof $interface);
 	} else if (!class_exists($class)) {
-		trigger_localised_error('SYS0237', E_USER_ERROR, $class);
+		trigger_localised_error('SYS0237', sprintf(translate('Unable to check if "%s" implements an interface when it hasn\'t been declared'), $class), E_USER_ERROR)
 	}
 
 	// Must have been passed a string
@@ -1355,7 +1355,7 @@ function implements_interface($class, $interface)
 function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE, $encode=TRUE)
 {
 	if (empty($logname) || empty($level)) {
-		trigger_localised_error('SYS0099', E_USER_ERROR);
+		trigger_localised_error('SYS0099', translate('Unable to Log. An error has occurred'), E_USER_ERROR)
 		return FALSE;
 	}
 
@@ -1414,7 +1414,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 
 	$handle = fopen($logfile, 'a');
 	if (!fwrite($handle, $log_entry)) {
-		trigger_localised_error('SYS0051', E_USER_WARNING, $logfile);
+		trigger_localised_error('SYS0051', sprintf(translate('Unable to Write to log file %s'), $logfile), E_USER_WARNING)
 		return FALSE;
 	}
 	fclose($handle);
@@ -1444,7 +1444,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_ERROR)
 {
 	if (!is_string($message)) {
-		trigger_localised_error('SYS0191', E_USER_WARNING);
+		trigger_localised_error('SYS0191', translate('Invalid message format for error log'), E_USER_WARNING)
 		return FALSE;
 	}
 
@@ -1526,14 +1526,32 @@ function translate_error($code)
 * @return string
 * @access public
 */
-function trigger_localised_error($code, $error_level)
+function trigger_localised_error($code, $message, $error_level)
 {
-	$args = array_slice(func_get_args(),2);
-	if (!isset($GLOBALS['SQ_SYSTEM']) || !is_object($GLOBALS['SQ_SYSTEM']->lm)) {
-		trigger_error('Error occurred ['.$code.']'."\n".print_r($args, TRUE), $error_level);
-		return FALSE;
-	}
-	return $GLOBALS['SQ_SYSTEM']->lm->raiseError($code, $error_level, $args);
+	if (($error_level != E_USER_ERROR) && ($error_level != E_USER_WARNING) && ($error_level != E_USER_NOTICE)) {
+        $error_level = E_USER_ERROR;
+    }
+
+    $additional_info_array = Array();
+    if (SQ_CONF_DEBUG & 8) {
+        if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && !is_null($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
+            $additional_info_array['frontend_assetid'] = $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
+        }
+        $additional_info_array['frontend_url'] = current_url(TRUE);
+    }//end if
+
+    trigger_error($message.' ['.$code.']', $error_level);
+
+    // We are doing this only for frontend
+    if (!empty($additional_info_array)) {
+        $error_log_line   = 'Additional info for \''.$code.'\' error:'."\n";
+        $additional_info  = isset($additional_info_array['frontend_assetid']) ? 'Frontend assetid: #'.$additional_info_array['frontend_assetid'] : '';
+        if (!empty($additional_info) || strpos(current_url(), SQ_CONF_BACKEND_SUFFIX) === FALSE) {
+            $additional_info .= empty($additional_info) ? '' : "\n";
+            $additional_info .= isset($additional_info_array['frontend_url']) ? 'Current URL: '.$additional_info_array['frontend_url'] : '';
+        }
+        if (!empty($additional_info)) error_log($error_log_line.$additional_info);
+    }
 
 }//end trigger_localised_error()
 

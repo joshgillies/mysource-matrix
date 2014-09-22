@@ -373,7 +373,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$da = $am->getAsset($link['minorid'], $link['minor_type_code']);
 
 			if ($da->attr('id_name') == '') {
-				trigger_localised_error('CORE0154', E_USER_NOTICE, $da->id);
+				trigger_localised_error('CORE0154', sprintf(translate('Design Area #%s does not have an id_name set. Attempting to recover.'), $da->id), E_USER_NOTICE)
 				foreach ($links as $link) {
 					if ($link['minorid'] == $da->id) {
 						if (!empty($link['value'])) {

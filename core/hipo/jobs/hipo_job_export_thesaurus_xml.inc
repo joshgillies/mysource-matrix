@@ -154,14 +154,14 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	{
 		// to start regenerating metadata, we need to have a root assetid - default to root folder if none is supplied
 		if (is_null($this->_running_vars['thesaurus_id'])) {
-			trigger_localised_error('HIPO0072', E_USER_WARNING);
+			trigger_localised_error('HIPO0072', translate('Unable to initialise "Export Thesaurus XML" HIPO, thesaurus asset ID not specified'), E_USER_WARNING)
 			return FALSE;
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = $this->getThesaurusRef();
 		if (is_null($asset)) {
-			trigger_localised_error('HIPO0073', E_USER_WARNING, $this->_running_vars['thesaurus_id']);
+			trigger_localised_error('HIPO0073', sprintf(translate('Unable to initialise "Export Thesaurus XML" HIPO, invalid thesaurus asset ID specified (%s)'), $this->_running_vars['thesaurus_id']), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -291,7 +291,7 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 		}
 
 		if (!is_writable($filepath)) {
-			trigger_localised_error('HIPO0074', E_USER_WARNING, $filepath);
+			trigger_localised_error('HIPO0074', sprintf(translate('Unable to open XML file "%1$s" for writing'), $filepath), E_USER_WARNING)
 		}
 
 		$unprocessed =& $step_data['unprocessed'];

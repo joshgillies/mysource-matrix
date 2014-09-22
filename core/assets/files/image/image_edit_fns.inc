@@ -169,7 +169,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}
 
 		if (!$asset->saveAttributes()) {
-			trigger_localised_error('CORE0052', E_USER_WARNING);
+			trigger_localised_error('CORE0052', translate('Failed saving attributes for file'), E_USER_WARNING)
 			return FALSE;
 		}
 

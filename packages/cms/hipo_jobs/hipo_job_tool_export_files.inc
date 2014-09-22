@@ -244,7 +244,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 
 		$tmpdir = mkdir(SQ_TEMP_PATH.'/export-'.$export_date, 0777);
 		if (!$tmpdir) {
-			trigger_localised_error('CMS0105', E_USER_NOTICE);
+			trigger_localised_error('CMS0105', translate('Cannot complete the export. An error occured making the archive.'), E_USER_NOTICE)
 			return FALSE;
 		}
 
@@ -317,14 +317,14 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 			if (isset($value['path']) && !empty($value['path']) && !$value['dir']) {
 				$to_tmp = copy($value['path'], $filetmp);
 				if (!$to_tmp) {
-					trigger_localised_error('CMS0105', E_USER_NOTICE);
+					trigger_localised_error('CMS0105', translate('Cannot complete the export. An error occured making the archive.'), E_USER_NOTICE)
 					trigger_error($filetmp);
 					return FALSE;
 				}//end if
 			} else {
 				$mkdir = mkdir($filetmp, 0777);
 				if (!$mkdir) {
-					trigger_localised_error('CMS0105', E_USER_NOTICE);
+					trigger_localised_error('CMS0105', translate('Cannot complete the export. An error occured making the archive.'), E_USER_NOTICE)
 					trigger_error($filetmp);
 					return FALSE;
 				}//end if
@@ -342,7 +342,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 		$tar_ball = new Archive_Tar($save_location.'/'.$save_name, 'gz');
 		$result = $tar_ball->add($filelist);
 		if (PEAR::isError($result)) {
-			trigger_localised_error('CMS0105', E_USER_NOTICE);
+			trigger_localised_error('CMS0105', translate('Cannot complete the export. An error occured making the archive.'), E_USER_NOTICE)
 			return FALSE;
 		}
 
@@ -353,7 +353,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 		$cleanup = TRUE;
 		$cleanup = $this->_cleanup(SQ_TEMP_PATH.'/export-'.$export_date);
 		if (!$cleanup) {
-			trigger_localised_error('CMS0106', E_USER_NOTICE);
+			trigger_localised_error('CMS0106', translate('Cannot cleanup. An error occured cleaning up.'), E_USER_NOTICE)
 		}
 		return TRUE;
 
@@ -519,13 +519,13 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 				if (is_dir($current_file)) {
 					$next = $this->_cleanup($current_file);
 					if (!$next) {
-						trigger_localised_error('CMS0106', E_USER_NOTICE);
+						trigger_localised_error('CMS0106', translate('Cannot cleanup. An error occured cleaning up.'), E_USER_NOTICE)
 						return FALSE;
 					}
 				} else {
 					$delete_file = unlink($current_file);
 					if (!$delete_file) {
-						trigger_localised_error('CMS0106', E_USER_NOTICE);
+						trigger_localised_error('CMS0106', translate('Cannot cleanup. An error occured cleaning up.'), E_USER_NOTICE)
 						return FALSE;
 					}
 				}

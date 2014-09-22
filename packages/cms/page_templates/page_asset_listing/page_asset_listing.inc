@@ -74,7 +74,7 @@ class Page_Asset_Listing extends Listing_Engine
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) {
-			trigger_localised_error('CMS0019', E_USER_NOTICE);
+			trigger_localised_error('CMS0019', translate('No type settings have been configured for this page - no assets will be listed'), E_USER_NOTICE)
 			return Array();
 		}
 
@@ -169,7 +169,7 @@ class Page_Asset_Listing extends Listing_Engine
 					break;
 
 				}
-			
+
 				if (!$allowed) continue;
 
 				// Now, let's check that the asset(s) are under the root nodes
@@ -189,12 +189,12 @@ class Page_Asset_Listing extends Listing_Engine
 			}//end foreach
 
 			return $assets_to_list;
-			
-		} else {		
+
+		} else {
 			$dynamic_asset_selection = $parameter_map->getParameters();
 			if (in_array('asset_selection', $dynamic_asset_selection) && $this->attr('dynamic_asset_selection_option') == 'empty_result') {
 				return Array();
-			}		
+			}
 		}//end if
 
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
@@ -449,7 +449,7 @@ class Page_Asset_Listing extends Listing_Engine
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
 							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE, $link_value_wanted);
-							
+
 							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					} else {
@@ -539,7 +539,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 
 	/**
-	* Combines assets and root nodes together 
+	* Combines assets and root nodes together
 	*
 	* @param array	$assets		Set of assets
 	* @param array	$root_nodes	Set of root nodes

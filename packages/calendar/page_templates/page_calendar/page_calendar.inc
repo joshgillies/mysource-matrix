@@ -494,7 +494,7 @@ class Page_Calendar extends Page
 		// if we've somehow ended up with an invalid date, use today's
 		list($year, $month, $day) = explode('-', $cal_date);
 		if (!checkdate($month, $day, $year)) {
-			trigger_localised_error('CAL0022', E_USER_WARNING, $cal_date);
+			trigger_localised_error('CAL0022', sprintf(translate('Date passed to calendar page (%s) is not valid, using today\'s date as fallback'), $cal_date), E_USER_WARNING)
 			$cal_date = date('Y-m-d');
 		}
 
@@ -502,7 +502,7 @@ class Page_Calendar extends Page
 		$event_id = FALSE;
 		if (($cal_view == 'event') || ($cal_view == 'edit')) {
 			if (!isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
-				trigger_localised_error('CAL0023', E_USER_WARNING, ucfirst($cal_view));
+				trigger_localised_error('CAL0023', sprintf(translate('%s View requested but no Event ID supplied'), ucfirst($cal_view)), E_USER_WARNING)
 				return FALSE;
 			}
 			if (!assert_valid_assetid($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
@@ -1445,7 +1445,7 @@ class Page_Calendar extends Page
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o = new Limbo_Outputter();
 		if (!$event->id) {
-			trigger_localised_error('CAL0024', E_USER_WARNING, $event_id);
+			trigger_localised_error('CAL0024', sprintf(translate('Could not load calendar event asset #%s'), $event_id), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -1471,7 +1471,7 @@ class Page_Calendar extends Page
 
 		// Acquire the lock and print the interface
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($event_id, 'attributes')) {
-			trigger_localised_error('CAL0025', E_USER_WARNING, $event->name, $event_id);
+			trigger_localised_error('CAL0025', sprintf(translate('Couldn\'t acquire attributes lock to edit calendar event asset "%1$s" (#%2$s)'), $event->name, $event_id), E_USER_WARNING)
 			return $this->getEventView($event_id);
 		}
 		$o->addHiddenField('SQ_CALENDAR_VIEW', 'edit');
@@ -2264,7 +2264,7 @@ class Page_Calendar extends Page
 					}
 				}
 				if (!$found_bodycopy) {
-					trigger_localised_error('CAL0061', E_USER_WARNING, $assetid);
+					trigger_localised_error('CAL0061', sprintf(translate('Suitable bodycopy not fournt to print the event of %s'), $assetid), E_USER_WARNING)
 					continue;
 				}
 			}
@@ -2591,7 +2591,7 @@ class Page_Calendar extends Page
 
 		$root_ids = $this->_getRootNodeIds();
 		if (empty($root_ids)) {
-			trigger_localised_error('CAL0026', E_USER_WARNING);
+			trigger_localised_error('CAL0026', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING)
 			return Array();
 		}
 
@@ -2744,7 +2744,7 @@ class Page_Calendar extends Page
 		// get the where clauses ready for tree restrictions
 		$root_ids = $this->_getRootNodeIds();
 		if (empty($root_ids)) {
-			trigger_localised_error('CAL0027', E_USER_WARNING);
+			trigger_localised_error('CAL0027', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING)
 			return Array();
 		}
 
@@ -2865,7 +2865,7 @@ class Page_Calendar extends Page
 
 		$root_ids = $this->_getRootNodeIds();
 		if (empty($root_ids)) {
-			trigger_localised_error('CAL0028', E_USER_WARNING);
+			trigger_localised_error('CAL0028', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING)
 			return Array();
 		}
 
@@ -3097,7 +3097,7 @@ class Page_Calendar extends Page
 
 		$root_ids = $this->_getRootNodeIds();
 		if (empty($root_ids)) {
-			trigger_localised_error('CAL0029', E_USER_WARNING);
+			trigger_localised_error('CAL0029', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING)
 			return Array();
 		}
 
@@ -3389,7 +3389,7 @@ class Page_Calendar extends Page
 				$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
 				$matching_root_ids = array_intersect(array_keys($dynamic_parents), $original_root_ids);
 				if (empty($matching_root_ids)) {
-					trigger_localised_error('CAL0067', E_USER_WARNING, $dynamic_root, $this->id);
+					trigger_localised_error('CAL0067', sprintf(translate('Supplied dynamic root node (Id: #%1$s) is in an unauthorised part of the system.  Defaulting to static root node. See Asset (Id: #%2$s)'), $dynamic_root, $this->id), E_USER_WARNING)
 				} else {
 					$dynamic_root_nodes[] = $dynamic_root;
 				}
@@ -3513,7 +3513,7 @@ class Page_Calendar extends Page
 		$bodycopy->setAttrValue('name', "Page Contents (No Results)");
 
 		if (!$bodycopy->create($copy_link, $page_contents_data)) {
-			trigger_localised_error('CAL0062', E_USER_WARNING);
+			trigger_localised_error('CAL0062', translate('Could not link the contents to the no results bodycopy'), E_USER_WARNING)
 			return FALSE;
 		}
 

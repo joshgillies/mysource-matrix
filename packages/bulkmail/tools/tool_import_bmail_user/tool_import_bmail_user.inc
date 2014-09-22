@@ -106,13 +106,13 @@ class Tool_Import_Bmail_User extends Tool
 		// error: csv file not specified
 		$file_info = get_file_upload_info($type_code.'_file_upload');
 		if (empty($file_info)) {
-			trigger_localised_error('BML0011', E_USER_NOTICE);
+			trigger_localised_error('BML0011', translate('Import file not selected.'), E_USER_NOTICE)
 			return FALSE;
 		}
 
 		// error: user group not specified
 		if (!$_REQUEST[$type_code.'_create_in_assetid']['assetid']) {
-			trigger_localised_error('BML0012', E_USER_NOTICE);
+			trigger_localised_error('BML0012', translate('User group not selected.'), E_USER_NOTICE)
 			return FALSE;
 		}
 

@@ -731,7 +731,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, '404')) {
 					$ok = FALSE;
-					trigger_localised_error('CORE0027', E_USER_WARNING, $root->name, $root->id);
+					trigger_localised_error('CORE0027', sprintf(translate('Failed adding new 404 node "%1$s" [#%2$s]'), $root->name, $root->id), E_USER_WARNING)
 				}
 			}
 		}
@@ -927,7 +927,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			if (empty($remap_urls)) {
 				// Cannot export remap entries to CSV, there are no entries to export
-				trigger_localised_error('CORE0287', E_USER_WARNING);
+				trigger_localised_error('CORE0287', translate('Cannot export remap entries to CSV, there are no entries to export'), E_USER_WARNING)
 			} else {
 
 				require_once SQ_FUDGE_PATH.'/csv/csv.inc';

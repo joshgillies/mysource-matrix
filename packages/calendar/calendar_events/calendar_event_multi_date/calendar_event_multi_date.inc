@@ -61,7 +61,7 @@ class Calendar_Event_Multi_Date extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -95,7 +95,7 @@ class Calendar_Event_Multi_Date extends Asset
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0);
 		$bodycopy->setAttrValue('name', 'Page Contents');
 		if (!$bodycopy->create($copy_link)) return FALSE;
-		
+
 		// Process pending children
 		if (!empty($this->_tmp['pending_children'])) {
 			foreach ($this->_tmp['pending_children'] as $entry) {
@@ -407,7 +407,7 @@ class Calendar_Event_Multi_Date extends Asset
 
 		//make sure our data directory exist
 		if (!create_directory($this->data_path)) {
-			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -455,14 +455,14 @@ class Calendar_Event_Multi_Date extends Asset
 
 				if ($this->status == SQ_STATUS_EDITING_APPROVED) {
 					// Changes approved
-					$this->_cleanupSafeEdit();				
+					$this->_cleanupSafeEdit();
 				}// end $this->status == SQ_STATUS_EDITING_APPROVED
 			break;
 
 		}// end switch
 
 		return parent::processStatusChange($new_status, $update_parents);
-	
+
 	}//end processStatusChange()
 
 

@@ -115,7 +115,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;
-					trigger_localised_error('CMS0016', E_USER_WARNING, $root->name, $root->id);
+					trigger_localised_error('CMS0016', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name, $root->id), E_USER_WARNING)
 				}
 			}
 		}

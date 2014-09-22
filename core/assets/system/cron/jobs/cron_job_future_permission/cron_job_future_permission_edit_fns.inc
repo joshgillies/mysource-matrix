@@ -188,7 +188,7 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 			if ($when = $this->_processWhenBox($asset, $o, $prefix)) {
 				return ($asset->setAttrValue('when', $when));
 			} else {
-				trigger_localised_error('CRON0058', E_USER_NOTICE);
+				trigger_localised_error('CRON0058', translate('To add a future permission you must specify the date and time at which the permission should be changed'), E_USER_NOTICE)
 			}
 		}
 

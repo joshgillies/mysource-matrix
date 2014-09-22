@@ -119,11 +119,11 @@ class Online_Quiz_Question_Multichoice_Management extends Asset_Management
 				}
 
 				if (!$asset->setAttrValue('response_form', $question_options)) {
-					trigger_localised_error('CMS0039', E_USER_WARNING, '0.2');
+					trigger_localised_error('CMS0039', sprintf(translate('Listing Engine Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING)
 				}
 
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CMS0026', E_USER_WARNING, '0.2');
+					trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING)
 					return FALSE;
 				}
 

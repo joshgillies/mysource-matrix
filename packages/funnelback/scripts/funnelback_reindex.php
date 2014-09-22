@@ -37,7 +37,7 @@ $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 $fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 $collections = $fm->attr('collections');
 if (is_null($fm)) {
-	trigger_localised_error('FNB0020', E_USER_WARNING);
+	trigger_localised_error('FNB0020', translate('Unable to load Funnelback Manager, Funnelback Manager is not installed'), E_USER_WARNING)
 	exit();
 }//end if
 if (!$fm->attr('indexing')) {
@@ -54,7 +54,7 @@ if (!empty($root_collection) && !isset($collections[$root_collection])) {
 
 // Check for a lock file
 if (file_exists(SQ_TEMP_PATH.'/funnelback.indexer')) {
-	trigger_localised_error('FNB0019', E_USER_WARNING);
+	trigger_localised_error('FNB0019', translate('Lockfile found. Scripts cannot be run concurrently.'), E_USER_WARNING)
 	exit();
 }//end if
 

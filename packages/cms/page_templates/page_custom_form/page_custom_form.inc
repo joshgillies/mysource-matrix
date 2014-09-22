@@ -105,7 +105,7 @@ class Page_Custom_Form extends Page
 		$form = $this->getForm();
 
 		if (is_null($form) && !array_get_index($this->_tmp, '__creating__', FALSE)) {
-			trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
+			trigger_localised_error('CMS0023', sprintf(translate('Could not locate the form asset for Custom Form "%s"'), $this->name, $this->id), E_USER_ERROR)
 			return FALSE;
 		}
 
@@ -141,7 +141,7 @@ class Page_Custom_Form extends Page
 		// If we are still being created, we will not have the "form" asset yet (bug #5979)
 		if (!array_get_index($this->_tmp, '__creating__', FALSE)) {
 			if (is_null($form)) {
-				trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
+				trigger_localised_error('CMS0023', sprintf(translate('Could not locate the form asset for Custom Form "%s"'), $this->name, $this->id), E_USER_ERROR)
 				return FALSE;
 			}
 			$form->printBody();

@@ -93,7 +93,7 @@ class Trigger_Action_Update_Link extends Trigger_Action
 				$linkid = $links[0]['linkid'];
 				$result = $am->updateLink($linkid, $new_link_type, $new_value);
 			} else {
-				trigger_localised_error('TRIG0007', E_USER_NOTICE);
+				trigger_localised_error('TRIG0007', translate('More than one link found with the characteristics specified in \'Update Link\' Trigger Action.'), E_USER_NOTICE)
 				return FALSE;
 			}
 		}
@@ -134,7 +134,7 @@ class Trigger_Action_Update_Link extends Trigger_Action
 			<div>
 				<p class="sq-backend-section-subheading"><?php echo translate('Link Characteristics'); ?></p>
 
-				<p><?php echo translate('You may specify the exact link that you want updated otherwise you need to specify the link characteristics as linked to the Broadcasting Asset. <br /> 
+				<p><?php echo translate('You may specify the exact link that you want updated otherwise you need to specify the link characteristics as linked to the Broadcasting Asset. <br />
 	This trigger action will be executed if exactly one link is found, otherwise it will fail. Leave <em>\'Link Value\'</em > blank to match any link value.');?></p>
 
 				<?php

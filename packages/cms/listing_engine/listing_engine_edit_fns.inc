@@ -468,9 +468,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				// Tailor the error message depending on whether it's a customised
 				// row or an "all remaining rows" list
 				if ($row == 0) {
-					trigger_localised_error('CMS0061', E_USER_NOTICE);
+					trigger_localised_error('CMS0061', translate('The number of columns for "all remaining rows" must be at least 1. Resetting number of columns to 1.'), E_USER_NOTICE)
 				} else {
-					trigger_localised_error('CMS0060', E_USER_NOTICE, $row);
+					trigger_localised_error('CMS0060', sprintf(translate('The number of columns for row %s must be at least 1. Resetting number of columns to 1.'), $row), E_USER_NOTICE)
 				}
 				$column_layout[$row] = 1;
 			}
@@ -484,10 +484,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				if (!isset($column_layout[$new_row])) {
 					$column_layout[$new_row] = $new_column;
 				} else {
-					trigger_localised_error('CMS0040', E_USER_WARNING, $new_row);
+					trigger_localised_error('CMS0040', sprintf(translate('Failed adding customisation for row %s, row has already been customised'), $new_row), E_USER_WARNING)
 				}
 			} else {
-				trigger_localised_error('CMS0041', E_USER_WARNING, $new_row);
+				trigger_localised_error('CMS0041', sprintf(translate('Failed adding customisation for row %s, number of columns must be greater than zero'), $new_row), E_USER_WARNING)
 			}
 		}
 
@@ -827,7 +827,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
 		$new_type = array_get_index($_POST, $prefix.'_new_type', '');
 		if (isset($deleted_formats[$new_type])) {
-			trigger_localised_error('CMS0042', E_USER_WARNING, $new_type);
+			trigger_localised_error('CMS0042', sprintf(translate('You cant delete a format and create it at the same time. The current type format for type %s has not been deleted.'), $new_type), E_USER_WARNING)
 			unset($deleted_formats[$new_type]);
 			$new_type = '';
 		}
@@ -835,17 +835,17 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($deleted_formats as $type => $on) {
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type);
 			if (empty($current_link)) {
-				trigger_localised_error('CMS0043', E_USER_WARNING, $type);
+				trigger_localised_error('CMS0043', sprintf(translate('Failed deleting format for type %s, couldnt get format bodycopy link'), $type), E_USER_WARNING)
 			} else {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
-					trigger_localised_error('CMS0044', E_USER_WARNING, $type);
+					trigger_localised_error('CMS0044', sprintf(translate('Failed deleting format for type %s'), $type), E_USER_WARNING)
 				}
 			}
 		}
 
 		// check that the new type is valid
 		if ($new_type != '' && !isset($types[$new_type])) {
-			trigger_localised_error('CMS0045', E_USER_WARNING, $new_type);
+			trigger_localised_error('CMS0045', sprintf(translate('Cannot customise the format of type %s, type is not valid'), $new_type), E_USER_WARNING)
 			$new_type = '';
 		}
 
@@ -871,7 +871,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			} else {
-				trigger_localised_error('CMS0046', E_USER_WARNING, $new_type);
+				trigger_localised_error('CMS0046', sprintf(translate('Cannot customise type %s, it is already customised'), $new_type), E_USER_WARNING)
 			}
 		}
 		if (isset($asset->_tmp['formats']['type_formats'])) {
@@ -981,7 +981,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_position', Array());
 		$new_position = (int) array_get_index($_POST, $prefix.'_new_position', 0);
 		if (isset($deleted_formats[$new_position])) {
-			trigger_localised_error('CMS0047', E_USER_WARNING, $new_position);
+			trigger_localised_error('CMS0047', sprintf(translate('You cant delete a format and create it at the same time. The current list position format for position %s has not been deleted.'), $new_position), E_USER_WARNING)
 			unset($deleted_formats[$new_position]);
 			$new_position = 0;
 		}
@@ -989,10 +989,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($deleted_formats as $position => $on) {
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'position_'.$position);
 			if (empty($current_link)) {
-				trigger_localised_error('CMS0048', E_USER_WARNING, $position);
+				trigger_localised_error('CMS0048', sprintf(translate('Failed deleting format for position %s, couldnt get format bodycopy link'), $position), E_USER_WARNING)
 			} else {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
-					trigger_localised_error('CMS0049', E_USER_WARNING, $position);
+					trigger_localised_error('CMS0049', sprintf(translate('Failed deleting format for position %s'), $position), E_USER_WARNING)
 				}
 			}
 		}
@@ -1021,7 +1021,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			} else {
-				trigger_localised_error('CMS0050', E_USER_POSITION, $new_position);
+				trigger_localised_error('CMS0050', sprintf(translate('Cannot customise list position %s, it is already customised'), $new_position), E_USER_POSITION)
 			}
 		}
 		if (isset($asset->_tmp['formats']['position_formats'])) {
@@ -1449,7 +1449,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if (!empty($_POST[$prefix.'_new']['name'])) {
 			$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($_POST[$prefix.'_new']['type_code']);
 			if (empty($attributes)) {
-				trigger_localised_error('CMS0110', E_USER_WARNING);
+				trigger_localised_error('CMS0110', translate('The selected asset type does not have any attributes to be used for sorting.'), E_USER_WARNING)
 			} else {
 				$default_attr = array_shift(array_keys($attributes));
 				$option = Array(
@@ -2420,7 +2420,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$new_root = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;
-					trigger_localised_error('CMS0016', E_USER_WARNING, $new_root->name, $new_root->id);
+					trigger_localised_error('CMS0016', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $new_root->name, $new_root->id), E_USER_WARNING)
 					break;
 				}
 			}

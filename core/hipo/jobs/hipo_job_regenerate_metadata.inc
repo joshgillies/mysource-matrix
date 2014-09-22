@@ -195,7 +195,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	{
 		// to start regenerating metadata, we need to have a schema that has been updated
 		if (empty($this->_running_vars['schemaids'])) {
-			trigger_localised_error('HIPO0003', E_USER_WARNING);
+			trigger_localised_error('HIPO0003', translate('Unable to initialise Regenerate Metadata HIPO, no schemaID(s) specified'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -257,7 +257,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'metadata')) {
 					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
 
-					trigger_localised_error('HIPO0077', E_USER_WARNING, $asset->name, $assetid);
+					trigger_localised_error('HIPO0077', sprintf(translate('Unable to regenerate metadata on asset "%1$s" (Id: %2$s) as the lock has expired; aborting job - contact your system administrator to increase the lock length and try again'), $asset->name, $assetid), E_USER_WARNING)
 				}
 
 				if (!$asset->writeAccess('metadata')) {
@@ -265,7 +265,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 					// reason (eg. status = Archived), skip the asset
 					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
 
-					trigger_localised_error('HIPO0078', E_USER_WARNING, $asset->name, $assetid);
+					trigger_localised_error('HIPO0078', sprintf(translate('Skipped regenerating metadata on asset "%1$s" (Id: %2$s) as the current user does not have write access to the asset'), $asset->name, $assetid), E_USER_WARNING)
 				} else {
 					foreach ($this->_running_vars['contextids'] as $contextid) {
 						if (!$mm->regenerateMetadata($asset->id, $contextid)) return FALSE;

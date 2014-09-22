@@ -86,7 +86,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 					// only add valid tag id to the array
 					$tagid[] = $tmp_id;
 				} else {
-					trigger_localised_error('SYS0087', E_USER_WARNING, $tmp_id);
+					trigger_localised_error('SYS0087', sprintf(translate('Asset #%s does not exist'), $tmp_id), E_USER_WARNING)
 				}
 			}
 		} else {

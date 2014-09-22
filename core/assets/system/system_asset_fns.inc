@@ -54,7 +54,7 @@ function system_asset_fns_create_pre_check(Asset $asset)
 	}
 
 	if ($exists) {
-		trigger_localised_error('CORE0085', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'));
+		trigger_localised_error('CORE0085', sprintf(translate('Unable to create another "%s", it is a System Asset and you are only allowed one'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')), E_USER_WARNING)
 		return FALSE;
 	}
 

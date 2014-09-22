@@ -75,7 +75,7 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) {
-			trigger_localised_error('CMS0019', E_USER_NOTICE);
+			trigger_localised_error('CMS0019', translate('No type settings have been configured for this page - no assets will be listed'), E_USER_NOTICE)
 			return Array();
 		}
 
@@ -187,7 +187,7 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 
 	}//end getStaticRelators()
 
-	
+
 	/**
 	* Get the IDs of the thesauruses which are used to filter the related assets
 	*
@@ -205,8 +205,8 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 		return $res;
 
 	}//end _getThesaurusFilters()
-	
-	
+
+
 	/**
 	* Work out the unique cache key to represent the current page
 	* Add relatorsid to the parent cache key
@@ -217,9 +217,9 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 	function _getCacheKey()
 	{
 		return parent::_getCacheKey().'-REL:'.join(',', $this->getRelators());
-		
+
 	}//end _getCacheKey()
-	
+
 
 }//end class
 ?>

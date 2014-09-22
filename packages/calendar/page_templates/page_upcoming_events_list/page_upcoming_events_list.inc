@@ -190,11 +190,11 @@ class Page_Upcoming_Events_List extends Page
 				}
 			}
 			if (is_null($this->_tmp['tf_folder_id'])) {
-				trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
+				trigger_localised_error('CAL0059', sprintf(translate('Type formats folder not found for Rolling Calendar Page #%s'), $this->id), E_USER_WARNING)
 				return;
 			}
 			if (is_null($pb_bodycopy_id)) {
-				trigger_localised_error('CAL0060', E_USER_WARNING, $this->id);
+				trigger_localised_error('CAL0060', sprintf(translate('Page Contents Bodycopy not found for Rolling Calendar Page #%s'), $this->id), E_USER_WARNING)
 				return;
 			}
 
@@ -641,7 +641,7 @@ class Page_Upcoming_Events_List extends Page
 				$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
 				$matching_root_ids = array_intersect(array_keys($dynamic_parents), $original_root_ids);
 				if (empty($matching_root_ids)) {
-					trigger_localised_error('CAL0067', E_USER_WARNING, $dynamic_root, $this->id);
+					trigger_localised_error('CAL0067', sprintf(translate('Supplied dynamic root node (Id: #%1$s) is in an unauthorised part of the system.  Defaulting to static root node. See Asset (Id: #%2$s)'), $dynamic_root, $this->id), E_USER_WARNING)
 				} else {
 					$dynamic_root_nodes[$dynamic_root] = 1;
 				}
@@ -673,7 +673,7 @@ class Page_Upcoming_Events_List extends Page
 			$root_nodes = $this->attr('root_nodes');
 		}
 		if (empty($root_nodes)) {
-			trigger_localised_error('CAL0028', E_USER_WARNING);
+			trigger_localised_error('CAL0028', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING)
 			return Array();
 		}
 

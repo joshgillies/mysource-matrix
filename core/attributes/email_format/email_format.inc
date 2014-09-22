@@ -430,7 +430,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$value['send_mail_to_type'] = (isset($_REQUEST[$prefix.'_send_mail_to_type'])) ? $_REQUEST[$prefix.'_send_mail_to_type'] : SQ_EMAIL_FORMAT_SEND_TO_EMAIL;
 		// from address is not specified, print a warning message
 		if (isset($value['to']) && !empty($value['to']) && empty($value['from'])) {
-			trigger_localised_error('CORE0251', E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0251', sprintf(translate('"From" field is not set for %s.'), $this->name), E_USER_WARNING)
 		}
 
 		$this->processed = $this->setValue($value);
@@ -666,7 +666,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			// can't come up with a From: email address - bail for this email
 			if (empty($from)) {
-				trigger_localised_error('SYS0315', E_USER_WARNING);
+				trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING)
 				return;
 			}
 

@@ -87,7 +87,7 @@ class Trigger_Action_Set_Thesaurus_Terms extends Trigger_Action
 
 			// a normal uploaded file
 			if (!copy_file($settings['file_path'], $asset->getXmlFilePath())) {
-				trigger_localised_error('CORE0235', E_USER_WARNING, $info['tmp_name'], $asset->getXmlFilePath());
+				trigger_localised_error('CORE0235', sprintf(translate('Failed copying uploaded file (%1$s) to destination directory (%2$s)'), $info['tmp_name'], $asset->getXmlFilePath()), E_USER_WARNING)
 				return FALSE;
 			}
 		}

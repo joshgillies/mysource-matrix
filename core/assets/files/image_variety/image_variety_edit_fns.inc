@@ -255,7 +255,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$upload_ext = get_file_type($info['name']);
 
 		if ($img_ext != $upload_ext) {
-			trigger_localised_error('CORE0003', E_USER_WARNING);
+			trigger_localised_error('CORE0003', translate('An image uploaded for a variety MUST be of the same type as the original image.'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -273,7 +273,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			$up_to_date = $fv->upToDate($d_new_file);
 			if ($up_to_date & FUDGE_FV_OLD_VERSION) {
 				if (!$fv->checkOut($asset->data_path_suffix.'/'.$d_new_filename, $asset->data_path)) {
-					trigger_localised_error('CORE0103', E_USER_WARNING);
+					trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING)
 					return FALSE;
 				}
 			}
@@ -290,11 +290,11 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === TRUE) {
 			// we have special permission to move a non-uploaded file
 			if (!copy($info['tmp_name'], $d_new_file)) {
-				trigger_localised_error('CORE0036',E_USER_WARNING, $info['tmp_name'], $d_new_file);
+				trigger_localised_error('CORE0036', sprintf(translate('Failed copying non-uploaded file (%1$s) to destination directory (%2$s)'), $info['tmp_name'], $d_new_file), E_USER_WARNING)
 				return FALSE;
 			}
 		} else {
-			trigger_localised_error('CORE0067', E_USER_ERROR);
+			trigger_localised_error('CORE0067', translate('No file uploaded or non-uploaded, unable to process file upload'), E_USER_ERROR)
 			return FALSE;
 		}
 
@@ -307,7 +307,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			if (!$fv->checkOut($asset->data_path_suffix.'/'.$d_new_filename, $asset->data_path)) {
-				trigger_localised_error('CORE0103', E_USER_WARNING);
+				trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING)
 				return FALSE;
 			}
 

@@ -59,7 +59,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 		if (empty($settings['access_token']) === TRUE) {
 			// No access token
-			trigger_localised_error('CORE0289', E_USER_WARNING);
+			trigger_localised_error('CORE0289', translate('Cannot post a tweet without being properly authenticated'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -79,7 +79,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		replace_global_keywords($tweet_format);
 
 		if (strlen($tweet_format) === 0) {
-			trigger_localised_error('CORE0290', E_USER_WARNING);
+			trigger_localised_error('CORE0290', translate('Cannot post a tweet that is zero characters long'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -96,7 +96,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		switch ($settings['if_tweet_too_long']) {
 			case 'fail':
 				if ($tweet_length > 140) {
-					trigger_localised_error('CORE0291', E_USER_WARNING);
+					trigger_localised_error('CORE0291', translate('Tweet length is greater than 140 characters'), E_USER_WARNING)
 					return FALSE;
 				}
 
@@ -108,7 +108,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 				// It's still too long?
 				if ($tweet_length > 140) {
-					trigger_localised_error('CORE0292', E_USER_WARNING);
+					trigger_localised_error('CORE0292', translate('Tweet length is greater than 140 characters, and the trigger cannot reasonably condense it'), E_USER_WARNING)
 					return FALSE;
 				}
 
@@ -122,7 +122,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$result = json_decode_array($return);
 
 		if (isset($result['errors'])) {
-			trigger_localised_error('CORE0293', E_USER_WARNING, (string)$result['errors'][0]['message']);
+			trigger_localised_error('CORE0293', sprintf(translate('Twitter returned error while posting tweet: %s'), (string)$result['errors'][0]['message']), E_USER_WARNING)
 			return FALSE;
 		} else {
 			// Get the time that Twitter reported it as
@@ -180,7 +180,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 			// returns a "denied" param in the link it gives to callback (it
 			// does not callback automatically).
 			if ($settings['request_token'] === $_REQUEST['denied']) {
-				trigger_localised_error('CORE0294', E_USER_WARNING);
+				trigger_localised_error('CORE0294', translate('Cannot complete authentication from Twitter, you denied access to your account'), E_USER_WARNING)
 			}
 		}
 
@@ -207,10 +207,10 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 					if (((string)$response['error']) === 'Could not authenticate you.') {
 						$settings['access_token'] = NULL;
 						$settings['access_token_secret'] = NULL;
-						trigger_localised_error('CORE0295', E_USER_NOTICE);
+						trigger_localised_error('CORE0295', translate('You revoked posting access from within Twitter, please restart authentication process'), E_USER_NOTICE)
 					} else {
 						// Think it's a temporary issue
-						trigger_localised_error('CORE0296', E_USER_NOTICE, (string)$response['error']);
+						trigger_localised_error('CORE0296', sprintf(translate('Temporary issue with identifying credentials: %s'), (string)$response['error']), E_USER_NOTICE)
 					}
 				} else {
 					$cache_mgr->saveToCache($trigger->id, 'trigger', $cache_key, '1', FALSE, 60);
@@ -257,7 +257,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 		<p>When you complete the registration, it will provide you with a <strong>consumer key</strong> and a
 		<strong>consumer secret</strong> string, which you need to enter below. </p>
-		
+
 		<p>Apps are created Read Only by default. Make sure Read and Write is selected in the setting tab after registration.</p>') ?>
 
 		</div>

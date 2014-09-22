@@ -115,7 +115,7 @@ class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!is_null($search_page)) {
 				if (!$asset->createLink($search_page, SQ_LINK_NOTICE, 'search_page')) {
 					$ok = false;
-					trigger_localised_error('SCH0011', E_USER_WARNING, $search_page->name, $search_page->id);
+					trigger_localised_error('SCH0011', sprintf(translate('Failed adding new search page "%1$s" [#%2$s]'), $search_page->name, $search_page->id), E_USER_WARNING)
 				}
 			}
 		}

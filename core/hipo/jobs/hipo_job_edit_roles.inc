@@ -214,7 +214,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assets'])) {
-			trigger_localised_error('HIPO0075', E_USER_WARNING);
+			trigger_localised_error('HIPO0075', translate('Unable to initialise "Role Edit" HIPO, no asset(s) specified'), E_USER_WARNING)
 			return '';
 		}
 
@@ -227,7 +227,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 		for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 			if (empty($asset_info)) {
-				trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
+				trigger_localised_error('HIPO0013', sprintf(translate('Unable to initialise Edit Permissions HIPO, invalid asset ID specified (%s)'), $assetid), E_USER_WARNING)
 				return '';
 			}
 
@@ -295,11 +295,11 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 						unset($asset);
 					} else {
 						// we do not have admin access
-						trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
+						trigger_localised_error('SYS0313', sprintf(translate('Unable to set role for "%s", permission denied'), $asset->name), E_USER_WARNING)
 					}
 				} else {
 					// we do not acquire lock
-					trigger_localised_error('SYS0100', E_USER_WARNING, 'roles', $asset->name, ' skipping asset.');
+					trigger_localised_error('SYS0100', sprintf(translate('Unable to acquire "%1$s" lock on "%2$s", %3$s', 'roles'), $asset->name, ' skipping asset.'), E_USER_WARNING)
 				}
 			} else {
 				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);

@@ -221,7 +221,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	function prepare()
 	{
 		if (array_key_exists('contextid', $this->_running_vars) === FALSE) {
-			trigger_localised_error('SCH0031', E_USER_WARNING);
+			trigger_localised_error('SCH0031', translate('Cannot run Global Search and Replace HIPO, it does not know which context ID to search in'), E_USER_WARNING)
 			return FALSE;
 		}
 

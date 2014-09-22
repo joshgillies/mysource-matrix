@@ -141,7 +141,7 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 		return FALSE;
 
 	}//end morph()

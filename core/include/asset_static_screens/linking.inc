@@ -523,7 +523,7 @@ function processLinking(&$owner, &$o, &$ei)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
-					trigger_localised_error('SYS0232', E_USER_NOTICE);
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE)
 				}
 
 			}// end if

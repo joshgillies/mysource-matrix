@@ -353,7 +353,7 @@ class Ecommerce_Cart extends Listing_Engine
 		$checkout_cart_href   = '';
 		if (!empty($checkout_id) && !empty($children)) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($checkout_id)) {
-				trigger_localised_error('ECOM0003', E_USER_WARNING, $checkout_id);
+				trigger_localised_error('ECOM0003', sprintf(translate('Unable to locate the Ecommerce Checkout asset (#%s)'), $checkout_id), E_USER_WARNING)
 			} else {
 				$checkout_cart_href = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_id);
 				ob_start();
@@ -617,7 +617,7 @@ class Ecommerce_Cart extends Listing_Engine
 		$checkout_id = $this->attr('ecommerce_checkout_id');
 		if (!empty($checkout_id)) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($checkout_id)) {
-				trigger_localised_error('ECOM0003', E_USER_WARNING, $checkout_id);
+				trigger_localised_error('ECOM0003', sprintf(translate('Unable to locate the Ecommerce Checkout asset (#%s)'), $checkout_id), E_USER_WARNING)
 			} else {
 				$checkout_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_id);
 				if ($checkout_asset->attr('enforce_quantities')) {
@@ -857,7 +857,7 @@ class Ecommerce_Cart extends Listing_Engine
 			$checkout_id = $this->attr('ecommerce_checkout_id');
 			if (!empty($checkout_id)) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($checkout_id)) {
-					trigger_localised_error('ECOM0003', E_USER_WARNING, $checkout_id);
+					trigger_localised_error('ECOM0003', sprintf(translate('Unable to locate the Ecommerce Checkout asset (#%s)'), $checkout_id), E_USER_WARNING)
 				} else {
 					$checkout_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_id);
 					ob_start();

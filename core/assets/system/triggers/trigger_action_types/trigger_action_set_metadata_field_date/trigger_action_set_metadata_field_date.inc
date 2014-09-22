@@ -281,7 +281,7 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 			// Can we edit the destination field? If we can't then what's the point;
 			// we can't even change it through a trigger
 			if (!$metadata_field->attr('editable')) {
-				trigger_localised_error('CORE0246', E_USER_WARNING, $metadata_field->name, $metadata_field->id);
+				trigger_localised_error('CORE0246', sprintf(translate('Metadata field "%1$s" (Id: #%2$s) is marked as not editable; it cannot be set as the field to set'), $metadata_field->name, $metadata_field->id), E_USER_WARNING)
 				return FALSE;
 			}
 
@@ -294,7 +294,7 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 				if (array_key_exists($new_context, $contexts) === TRUE) {
 					$settings['contextid'] = $new_context;
 				} else {
-					trigger_localised_error('TRIG0005', E_USER_WARNING, $new_context);
+					trigger_localised_error('TRIG0005', sprintf(translate('Unable to select context #%1$s for use in trigger, the context no longer exists'), $new_context), E_USER_WARNING)
 				}
 			} else if ($new_context === '-default-') {
 				$settings['contextid'] = NULL;

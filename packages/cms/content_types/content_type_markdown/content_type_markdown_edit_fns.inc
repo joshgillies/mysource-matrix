@@ -188,7 +188,7 @@ class Content_Type_Markdown_Edit_Fns extends Content_Type_Edit_Fns
 							}
 						}
 					} else {
-						trigger_localised_error('CMS0107', E_USER_WARNING);
+						trigger_localised_error('CMS0107', translate('Markdown tool has not been configured correctly. Markdown content type could not be saved'), E_USER_WARNING)
 					}
 
 				}//end if

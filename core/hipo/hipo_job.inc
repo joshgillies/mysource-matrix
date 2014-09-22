@@ -268,7 +268,7 @@ class HIPO_Job extends MySource_Object
 	function setRunningVars(&$vars)
 	{
 		if (!is_array($vars)) {
-			trigger_localised_error('HIPO0045', E_USER_WARNING);
+			trigger_localised_error('HIPO0045', translate('Running Vars needs to be an array'), E_USER_WARNING)
 			return;
 		}
 		$this->_running_vars =& $vars;
@@ -288,7 +288,7 @@ class HIPO_Job extends MySource_Object
 	function setOption($name, $value)
 	{
 		if (!isset($this->_options[$name])) {
-			trigger_localised_error('HIPO0044', E_USER_WARNING, $name);
+			trigger_localised_error('HIPO0044', sprintf(translate('HIPO Option "%s" not known'), $name), E_USER_WARNING)
 			return;
 		}
 		$this->_options[$name] = $value;
@@ -307,7 +307,7 @@ class HIPO_Job extends MySource_Object
 	function getOption($name)
 	{
 		if (!isset($this->_options[$name])) {
-			trigger_localised_error('HIPO0044', E_USER_WARNING, $name);
+			trigger_localised_error('HIPO0044', sprintf(translate('HIPO Option "%s" not known'), $name), E_USER_WARNING)
 			return NULL;
 		}
 		return $this->_options[$name];
@@ -327,7 +327,7 @@ class HIPO_Job extends MySource_Object
 	function setHipoVar($name, $value)
 	{
 		if (!isset($this->_hipo_vars[$name])) {
-			trigger_localised_error('HIPO0044', E_USER_WARNING, $name);
+			trigger_localised_error('HIPO0044', sprintf(translate('HIPO Option "%s" not known'), $name), E_USER_WARNING)
 			return;
 		}
 		$this->_hipo_vars[$name] = $value;
@@ -346,7 +346,7 @@ class HIPO_Job extends MySource_Object
 	function getHipoVar($name)
 	{
 		if (!isset($this->_hipo_vars[$name])) {
-			trigger_localised_error('HIPO0044', E_USER_WARNING, $name);
+			trigger_localised_error('HIPO0044', sprintf(translate('HIPO Option "%s" not known'), $name), E_USER_WARNING)
 			return NULL;
 		}
 		return $this->_hipo_vars[$name];
@@ -447,7 +447,7 @@ class HIPO_Job extends MySource_Object
 			// if we are starting from a server script but this job needs the web to run,
 			// then we are in trouble, so get out of here
 			if ($source_initialise_mode == 'server' && $init_steps[$i]['running_mode'] == 'web') {
-				trigger_localised_error('HIPO0043', E_USER_WARNING);
+				trigger_localised_error('HIPO0043', translate('Unable to run a HIPO job requiring "web" running mode, when initialised from the server'), E_USER_WARNING)
 				return '';
 			// if we aren't using the server and we are in a web script
 			// make sure that all the steps are changed accordingly
@@ -455,7 +455,7 @@ class HIPO_Job extends MySource_Object
 				$init_steps[$i]['running_mode'] = 'web';
 
 			} else if ($init_steps[$i]['running_mode'] == 'server' && empty($init_steps[$i]['auto_step'])) {
-				trigger_localised_error('HIPO0042', E_USER_WARNING);
+				trigger_localised_error('HIPO0042', translate('Unable to have auto_step set to false on the HIPO Server'), E_USER_WARNING)
 				$init_steps[$i]['auto_step'] = TRUE;
 
 			}// end if
@@ -489,7 +489,8 @@ class HIPO_Job extends MySource_Object
 
 		if (!empty($existing)) {
 			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing['userid']);
-			trigger_localised_error('HIPO0041', E_USER_WARNING, $user->name, $user->id, $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($existing['last_updated'])));
+			trigger_localised_error('HIPO0041', sprintf('A HIPO Job with this code name is currently run by "%1$s" (Id: #%2$s)
+. last updated at %3$s', $user->name, $user->id, $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($existing['last_updated']))), E_USER_WARNING)
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return '';
@@ -644,7 +645,7 @@ class HIPO_Job extends MySource_Object
 		if (empty($result)) return FALSE;
 
 		if ($result['job_type'] != get_class($this)) {
-			trigger_localised_error('HIPO0040', E_USER_WARNING, $result['job_type'], get_class($this));
+			trigger_localised_error('HIPO0040', sprintf(translate('Attempted to load "%1$s" job into a "%2$s" object'), $result['job_type'], get_class($this)), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -706,11 +707,11 @@ class HIPO_Job extends MySource_Object
 									case 'error':
 									case 'dead':
 										$alive = FALSE;
-										trigger_localised_error('HIPO0048', E_USER_WARNING, $ack['msg'].' (TaskID #'.$this->_hipo_vars['server_taskid'].')');
+										trigger_localised_error('HIPO0048', sprintf(translate('HIPO Server Error : %s'), $ack['msg'].' (TaskID #'.$this->_hipo_vars['server_taskid'].')'), E_USER_WARNING)
 									break;
 
 									default :
-										trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, TRUE).' (TaskID #'.$this->_hipo_vars['server_taskid'].')');
+										trigger_localised_error('HIPO0047', sprintf(translate('Unexpected return from the HIPO Server : %s'), print_r($ack, TRUE).' (TaskID #'.$this->_hipo_vars['server_taskid'].')'), E_USER_WARNING)
 								}//end switch ($ack['result'])
 							}//end if (!is_null($ack))
 						}//end if ($client->write())
@@ -747,7 +748,7 @@ class HIPO_Job extends MySource_Object
 	function save($ignore_running_mode=FALSE)
 	{
 		if ((!$GLOBALS['SQ_SYSTEM']->userRoot()) && (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId())) {
-			trigger_localised_error('HIPO0039', E_USER_WARNING, $this->code_name);
+			trigger_localised_error('HIPO0039', sprintf(translate('Unable to process "%s" HIPO job that you do not own'), $this->code_name), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -1069,7 +1070,7 @@ class HIPO_Job extends MySource_Object
 	function paint(&$o, $nested=FALSE)
 	{
 		if ($this->_current_mode != 'web') {
-			trigger_localised_error('HIPO0038', E_USER_WARNING);
+			trigger_localised_error('HIPO0038', translate('Unable to paint the job when you are not in Web Mode'), E_USER_WARNING)
 			return;
 		}
 
@@ -1117,7 +1118,7 @@ class HIPO_Job extends MySource_Object
 					$o->openRaw();
 				}
 			} else {
-				trigger_localised_error('HIPO0037', E_USER_WARNING, $this->_hipo_vars['current_step']);
+				trigger_localised_error('HIPO0037', sprintf(translate('Step %s does not have any processing ability specified'), $this->_hipo_vars['current_step']), E_USER_WARNING)
 			}
 		}//end if
 
@@ -1139,7 +1140,7 @@ class HIPO_Job extends MySource_Object
 	function process()
 	{
 		if ((!$GLOBALS['SQ_SYSTEM']->userRoot()) && (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId())) {
-			trigger_localised_error('HIPO0036', E_USER_WARNING);
+			trigger_localised_error('HIPO0036', translate('Unable to process a HIPO job that you do not own'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -1207,11 +1208,11 @@ class HIPO_Job extends MySource_Object
 									break;
 
 									case 'error' :
-										trigger_localised_error('HIPO0054', E_USER_WARNING, $ack['msg']);
+										trigger_localised_error('HIPO0054', sprintf(translate('HIPO Server Error : %s'), $ack['msg']), E_USER_WARNING)
 									break;
 
 									default :
-										trigger_localised_error('HIPO0053', E_USER_WARNING, print_r($ack, TRUE));
+										trigger_localised_error('HIPO0053', sprintf(translate('Unexpected return from the HIPO Server : %s'), print_r($ack, TRUE)), E_USER_WARNING)
 
 								}// end switch
 							}// end if
@@ -1236,7 +1237,7 @@ class HIPO_Job extends MySource_Object
 				break;
 
 				default :
-					trigger_localised_error('HIPO0052', E_USER_WARNING, $this->_steps[$step]['running_mode']);
+					trigger_localised_error('HIPO0052', sprintf(translate('Unknown Running Mode "%s"'), $this->_steps[$step]['running_mode']), E_USER_WARNING)
 					$this->abort();
 					return FALSE;
 
@@ -1244,7 +1245,7 @@ class HIPO_Job extends MySource_Object
 
 		// if we aren't using the server this should never happen (because of what happens in initialise())
 		} else {
-			trigger_localised_error('HIPO0051', E_USER_ERROR);
+			trigger_localised_error('HIPO0051', translate('Something is not right with this HIPO, please consult your system administrator'), E_USER_ERROR)
 
 		}// endif
 
@@ -1322,7 +1323,7 @@ class HIPO_Job extends MySource_Object
 			}// end if
 
 		} else {
-			trigger_localised_error('HIPO0050', E_USER_WARNING, $this->_hipo_vars['current_step']);
+			trigger_localised_error('HIPO0050', sprintf(translate('Step %s does not have any processing ability specified'), $this->_hipo_vars['current_step']), E_USER_WARNING)
 
 		}// end if
 
@@ -1417,7 +1418,7 @@ class HIPO_Job extends MySource_Object
 			return TRUE;
 
 		} else {
-			trigger_localised_error('HIPO0050', E_USER_WARNING, $this->_hipo_vars['current_step']);
+			trigger_localised_error('HIPO0050', sprintf(translate('Step %s does not have any processing ability specified'), $this->_hipo_vars['current_step']), E_USER_WARNING)
 			return FALSE;
 
 		}// end if
@@ -1483,11 +1484,11 @@ class HIPO_Job extends MySource_Object
 							break;
 
 							case 'error' :
-								trigger_localised_error('HIPO0048', E_USER_WARNING, $ack['msg'].' (TaskID #'.$this->_hipo_vars['server_taskid'].')');
+								trigger_localised_error('HIPO0048', sprintf(translate('HIPO Server Error : %s'), $ack['msg'].' (TaskID #'.$this->_hipo_vars['server_taskid'].')'), E_USER_WARNING)
 							break;
 
 							default :
-								trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, TRUE).' (TaskID #'.$this->_hipo_vars['server_taskid'].')');
+								trigger_localised_error('HIPO0047', sprintf(translate('Unexpected return from the HIPO Server : %s'), print_r($ack, TRUE).' (TaskID #'.$this->_hipo_vars['server_taskid'].')'), E_USER_WARNING)
 
 						}// end switch
 
@@ -1499,7 +1500,7 @@ class HIPO_Job extends MySource_Object
 
 			if ($ret_val) return TRUE;
 
-			trigger_localised_error('HIPO0046', E_USER_WARNING);
+			trigger_localised_error('HIPO0046', translate('Forcing Abort of HIPO Job'), E_USER_WARNING)
 			// fall through and delete this job, set the running mode to allow the saving
 			$this->setRunningMode('web');
 

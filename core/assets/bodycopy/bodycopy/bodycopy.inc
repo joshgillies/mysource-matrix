@@ -103,7 +103,7 @@ class Bodycopy extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -197,7 +197,7 @@ class Bodycopy extends Asset
 
 
 	/**
-	* Provides extra checking and disable invalid status change on errors 
+	* Provides extra checking and disable invalid status change on errors
 	*
 	* @param int		$new_status		the new status to set for this asset
 	* @param boolean	$update_parents	Specify if we want to update the parent as well
@@ -211,7 +211,7 @@ class Bodycopy extends Asset
 
 		// make sure our data directories exists
 		if (!create_directory($this->data_path)) {
-			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -247,7 +247,7 @@ class Bodycopy extends Asset
 								if (isset($active_link['linkid'])) {
 									// Drop to a run level to allow the links to be shuffled out without a fuss
 									$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-									$this->deleteLink($active_link['linkid']);	
+									$this->deleteLink($active_link['linkid']);
 									$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 								}//end if
 							}//end if
@@ -279,7 +279,7 @@ class Bodycopy extends Asset
 	* @access public
 	*/
 	public function paintBackend(Backend_Outputter $o)
-	{	
+	{
 		if (!isset($_REQUEST['asset_ei_screen'])) {
 			return parent::paintBackend($o);
 		}
@@ -291,7 +291,7 @@ class Bodycopy extends Asset
 
 				if (in_array($include_file, $dir_listing)) {
 					require_once($include_dir.$include_file);
-				} 
+				}
 				exit();
 			default :
 				return parent::paintBackend($o);
@@ -320,7 +320,7 @@ class Bodycopy extends Asset
 
 				if (in_array($include_file, $dir_listing)) {
 					require_once($include_dir.$include_file);
-				} 
+				}
 				exit();
 			default :
 				return parent::printFrontend();
@@ -354,12 +354,12 @@ class Bodycopy extends Asset
 			if(isset($frontend_asset) && ($frontend_asset->id == $containers_main_asset) && !empty($containers_to_print) && is_array($containers_to_print)) {
 		       foreach (array_keys($containers) as $i) {
 	    	           $container =& $containers[$i];
-	        	       if(!in_array($container->id, $containers_to_print)) 
+	        	       if(!in_array($container->id, $containers_to_print))
 	            	           unset($containers[$i]);
 	            }
 			}
 		}
-		
+
 		// if conditional display of div is enabled
 		if(isset($GLOBALS['SQ_CONDITION']['conditional_div'])) {
 		    foreach (array_keys($containers) as $i) {
@@ -371,7 +371,7 @@ class Bodycopy extends Asset
 		    }
 		}
 		// if conditional keyword is used
-		if (isset($GLOBALS['SQ_CONDITION']['conditional_keywords'])) 
+		if (isset($GLOBALS['SQ_CONDITION']['conditional_keywords']))
 			$this->keyword_replacements = array_merge ($this->keyword_replacements, $GLOBALS['SQ_CONDITION']['conditional_keywords']);
 
 		// paint each container
@@ -530,7 +530,7 @@ class Bodycopy extends Asset
 
 
 	/**
-	* Compares the before and after state to check for div/table removal 
+	* Compares the before and after state to check for div/table removal
 	*
 	* @param array		$current_link	The info about the current link
 	* @param array		$before_links	An array of all the before links
@@ -556,12 +556,12 @@ class Bodycopy extends Asset
 
 		// Didn't find one, report that...
 		return FALSE;
-	
+
 	}//end _compareLink()
 
 
 	/**
-	* Cleaning up files after coming out of Safe Edit 
+	* Cleaning up files after coming out of Safe Edit
 	*
 	* @return void
 	* @access private
@@ -574,7 +574,7 @@ class Bodycopy extends Asset
 		if (file_exists($this->data_path.'/.safe_edit_before')) {
 			unlink($this->data_path.'/.safe_edit_before');
 		}//end if
-	
+
 	}//end _cleanupSafeEdit()
 
 

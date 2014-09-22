@@ -62,7 +62,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		// Now just make sure that current, hierarchy and normal entries all exist for the settings
 		for (reset($settings); NULL !== ($name = key($settings)); next($settings)) {
 			if (!isset($settings[$name]['normal'])) {
-				trigger_localised_error('CORE0172', E_USER_WARNING, $name, $asset->name);
+				trigger_localised_error('CORE0172', sprintf(translate('Setting "%1$s" has no corresponding "normal", in "%2$s" design area'), $name, $asset->name), E_USER_WARNING)
 				return FALSE;
 			}
 
@@ -107,7 +107,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 						// if there is a name and it's not the the same type as the current design area
 						if (empty($sub_element['attributes']['design_area'])) {
-							trigger_localised_error('CORE0144', E_USER_WARNING);
+							trigger_localised_error('CORE0144', translate('All sub menu design areas need to have a "design_area"'), E_USER_WARNING)
 							return FALSE;
 						}//end if
 
@@ -116,7 +116,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 						// first let's make sure that we are actually going to create a menu section type
 						$design_area_parent_types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($design_area);
 						if (!in_array('design_area_menu_type', $design_area_parent_types)) {
-							trigger_localised_error('CORE0170', E_USER_WARNING, $asset->name);
+							trigger_localised_error('CORE0170', sprintf(translate('Only Design Area Menu Types can be used in the sub section of the menu section "%s"'), $asset->name), E_USER_WARNING)
 							return FALSE;
 						}
 

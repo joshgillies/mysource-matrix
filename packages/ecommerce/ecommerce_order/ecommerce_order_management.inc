@@ -163,7 +163,7 @@ class Ecommerce_Order_Management extends Asset_Management
 					if (is_null($ecomm_checkout)) continue;
 
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', E_USER_WARNING, '0.2', $asset->name, $asset->id);
+						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.2'), $asset->name, $asset->id), E_USER_WARNING)
 						return FALSE;
 					}
 
@@ -180,7 +180,7 @@ class Ecommerce_Order_Management extends Asset_Management
 
 					$asset->setAttrValue('order_grand_total', $total_cost);
 					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', E_USER_WARNING, '0.2');
+						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING)
 						return FALSE;
 					}
 

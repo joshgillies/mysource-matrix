@@ -62,7 +62,7 @@ class Content_Type extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -173,7 +173,7 @@ class Content_Type extends Asset
 	public function saveAttributes($dont_run_updated=FALSE)
 	{
 		$contents_changed = isset($this->_tmp['vars_set']['html']);
-		
+
 		// Want to see if the content has been changed.
 		if ($contents_changed) {
 			// Yep, so we need to (re)generate our bodycopy container's content file
@@ -182,7 +182,7 @@ class Content_Type extends Asset
 				$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
 				$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 				$datapath = $container->data_path;
-				
+
 				// if default context attribute value changed
 				// remove all content files for alternate contexts to stay in sync with new attributes #3967
 				if($contextid === 0 && !empty($datapath)) {
@@ -191,16 +191,16 @@ class Content_Type extends Asset
 						$file = $datapath.'/content_file.'.$id.'.php';
 						if(file_exists($file)) 	unlink($file);
 					}
-					
+
 				}
 				// generate content file now
 				$edit_fns = $container->getEditFns();
 				$edit_fns->generateContentFile($container);
-			}		
+			}
 		}
 
 		$success = parent::saveAttributes($dont_run_updated);
-		
+
 		if ($contents_changed && $success) {
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'ContentsUpdated');
@@ -247,7 +247,7 @@ class Content_Type extends Asset
 
 	}//end linksUpdated()
 
-	
+
 	/**
 	 * Get all the available content types in the system
 	 *
@@ -256,7 +256,7 @@ class Content_Type extends Asset
 	 */
 	public static function getAvailableContentTypes() {
 		$content_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('content_type');
-		
+
 		if (isset($content_types['content_type_markdown'])) {
 			//if markdown is not enabled, remove it from the content type
 			$disable_markdown = TRUE;
@@ -280,12 +280,12 @@ class Content_Type extends Asset
 			}
 		}
 		return $content_types;
-		
+
 	}//end getAvailableContentTypes()
 
 	/**
-    * This function only takes care of 'html' attribute by checking for hyperlinks pointing to non-live assets and 
-    * by passing to the parent function. Other attributes will be passed directly to the parent function.   
+    * This function only takes care of 'html' attribute by checking for hyperlinks pointing to non-live assets and
+    * by passing to the parent function. Other attributes will be passed directly to the parent function.
     *
 	* @param string	$name	the name of the attribute
 	* @param string	$value	the new value of the attribute
@@ -297,7 +297,7 @@ class Content_Type extends Asset
 	{
 		if($this instanceof Content_Type_Nest_Content) return parent::setAttrValue($name, $value);
 
-		$live_link_only = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_LIVE_LINK_ONLY');				
+		$live_link_only = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_LIVE_LINK_ONLY');
 		if ($live_link_only && $this->status == SQ_STATUS_LIVE && $name === 'html') {
 			require_once SQ_FUDGE_PATH.'/general/www.inc';
 			$outcome = check_non_live_link($value, $this->id);

@@ -59,7 +59,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$parent =& $link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
-			trigger_localised_error('CAL0052', E_USER_ERROR);
+			trigger_localised_error('CAL0052', translate('Recurring Event Modifications can only be created underneath recurring events'), E_USER_ERROR)
 			return FALSE;
 		}
 
@@ -70,7 +70,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		if (!($link['value'] = $this->getStartDate())) {
-			trigger_localised_error('CAL0049', E_USER_ERROR);
+			trigger_localised_error('CAL0049', translate('You need to specify a start date before you can call create() for a modification event'), E_USER_ERROR)
 			return FALSE;
 		}
 
@@ -125,7 +125,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_localised_error('CAL0051', E_USER_WARNING, $this->getStartDate());
+			trigger_localised_error('CAL0051', sprintf(translate('There is no occurrence of the specified recurring event on the specified date, being %s'), $this->getStartDate()), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -168,7 +168,7 @@ class Calendar_Event_Modification extends Calendar_Event
 				// get the parent recurring event asset
 				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE));
 				if (empty($recurring_event_ids)) {
-					trigger_localised_error('CAL0052', E_USER_ERROR);
+					trigger_localised_error('CAL0052', translate('Recurring Event Modifications can only be created underneath recurring events'), E_USER_ERROR)
 					return FALSE;
 				}
 				$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);

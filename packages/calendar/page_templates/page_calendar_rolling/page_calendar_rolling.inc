@@ -269,11 +269,11 @@ class Page_Calendar_Rolling extends Page
 				}
 			}
 			if (is_null($this->_tmp['tf_folder_id'])) {
-				trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
+				trigger_localised_error('CAL0059', sprintf(translate('Type formats folder not found for Rolling Calendar Page #%s'), $this->id), E_USER_WARNING)
 				return;
 			}
 			if (is_null($pb_bodycopy_id)) {
-				trigger_localised_error('CAL0060', E_USER_WARNING, $this->id);
+				trigger_localised_error('CAL0060', sprintf(translate('Page Contents Bodycopy not found for Rolling Calendar Page #%s'), $this->id), E_USER_WARNING)
 				return;
 			}
 
@@ -738,7 +738,7 @@ class Page_Calendar_Rolling extends Page
 		// build sql to restrict the tree locations
 		$root_nodes = $this->attr('root_nodes');
 		if (empty($root_nodes)) {
-			trigger_localised_error('CAL0028', E_USER_WARNING);
+			trigger_localised_error('CAL0028', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING)
 			return Array();
 		}
 

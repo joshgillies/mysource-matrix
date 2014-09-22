@@ -316,7 +316,7 @@ class File_Prefs extends Prefs
 				if (empty($max_size)) $max_size = 0;
 
 				if (!empty($max_size) && !preg_match('|^[0-9]+[KM]$|', $max_size)) {
-					trigger_localised_error('CORE0002', E_USER_WARNING, $max_size);
+					trigger_localised_error('CORE0002', sprintf(translate('"%1$s" is not a valid file size'), $max_size), E_USER_WARNING)
 				} else {
 					$this->pref_vars['SQ_FILE_MAX_SIZE']['default'] = $max_size;
 				}
@@ -330,7 +330,7 @@ class File_Prefs extends Prefs
 				if (empty($max_size)) $max_size = 0;
 
 				if (!empty($max_size) && !preg_match('|^[0-9]+[KM]$|', $max_size)) {
-					trigger_localised_error('CORE0002', E_USER_WARNING, $max_size);
+					trigger_localised_error('CORE0002', sprintf(translate('"%1$s" is not a valid file size'), $max_size), E_USER_WARNING)
 				} else {
 					$this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['default'] = $max_size;
 				}

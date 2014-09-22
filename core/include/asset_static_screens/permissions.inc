@@ -527,7 +527,7 @@ function processPermissions(&$owner, &$o, &$ei)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
-					trigger_localised_error('SYS0232', E_USER_NOTICE);
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE)
 
 				}// end if
 
@@ -581,7 +581,7 @@ function processPermissions(&$owner, &$o, &$ei)
 			foreach ($post_data['new']['userid'] as $entry) {
 				if (!empty($entry['assetid'])) {
 					if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-						trigger_localised_error('SYS0269', E_USER_NOTICE);
+						trigger_localised_error('SYS0269', translate('You need to select whether to grant or deny access, as well as choosing a user or group'), E_USER_NOTICE)
 						break;
 					} else {
 						$permission_vars[] = Array(

@@ -68,7 +68,7 @@ $pid_prepare    = pcntl_fork();
             break;
         case 0:
             // Connect to DB within the child process
-            _connectToMatrixDatabase();          
+            _connectToMatrixDatabase();
 
             // log in as root
             $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
@@ -82,7 +82,7 @@ $pid_prepare    = pcntl_fork();
 
 			// Save the list into a file so we can access the list from the parent process
             file_put_contents(SYNCH_FILE, implode(',', $children));
-			
+
             // Disconnect from DB
             _disconnectFromMatrixDatabase();
 
@@ -125,7 +125,7 @@ while (!empty($chunk_children)) {
 	$pid = pcntl_fork();
 
 	switch ($pid) {
-		case -1: 
+		case -1:
 			trigger_error('Process failed to fork', E_USER_ERROR);
 			exit(1);
 			break;
@@ -134,12 +134,12 @@ while (!empty($chunk_children)) {
 			// Connect to DB within the child process
 			_connectToMatrixDatabase();
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			
+
 			$conn_id = MatrixDAL::getCurrentDbId();
-			
+
 			foreach ($current_child_list as $child_assetid) {
 				$child_asset    = $GLOBALS['SQ_SYSTEM']->am->getAsset($child_assetid);
-				
+
 				// Update lookups
 				if (!is_object($child_asset)) {
 				    log_to_file('Asset #'.$child_assetid.' does not exist, skipping', LOG_FILE);
@@ -176,7 +176,7 @@ while (!empty($chunk_children)) {
 
 echo "Done\n";
 
-log_to_file('======================= Finished updating lookups '.date('d-m-Y h:i:s').' =======================', LOG_FILE);    
+log_to_file('======================= Finished updating lookups '.date('d-m-Y h:i:s').' =======================', LOG_FILE);
 if (file_exists(SYNCH_FILE)) {
 	unlink(SYNCH_FILE);
 }//end if
@@ -210,7 +210,7 @@ function usage() {
  * @return void
  */
 function process_args(&$config) {
-	
+
 	$config['system_root'] = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 	if (empty($config['system_root'])) {
 		echo "ERROR: You need to supply the path to the System Root as the first argument\n";
@@ -223,7 +223,7 @@ function process_args(&$config) {
 		usage();
 		exit();
 	}
-	
+
 	$config['assetids'] = (isset($_SERVER['argv'][2])) ? trim($_SERVER['argv'][2]) : '';
 	if (empty($config['assetids']) || strpos($config['assetids'], '--') === 0) {
 		echo "\nWARNING: You are running this update lookup on the whole system.\nThis is fine but it may take a long time\n\nYOU HAVE 5 SECONDS TO CANCEL THIS SCRIPT... ";
@@ -233,13 +233,13 @@ function process_args(&$config) {
 		}
 		$config['assetids'] = '';
 	}
-	
+
 	$config['batch_size'] = (int) get_parameterised_arg('--batch-size', 1000);
 	$config['verbose'] = (int) get_boolean_arg('--verbose');
-	
+
 	echo "\n";
 	echo "Updating lookups from asset(s): {$config['assetids']}.\n";
-	echo "Batch size: {$config['batch_size']}\n";	
+	echo "Batch size: {$config['batch_size']}\n";
 	echo "\n";
 
 }//end function processArgs()
@@ -247,7 +247,7 @@ function process_args(&$config) {
 
 /**
  * Gets a boolean switch from the command line.
- * 
+ *
  * @param $arg
  * @return boolean
  */
@@ -258,13 +258,13 @@ function get_boolean_arg($arg) {
 	} else {
 		return FALSE;
 	}//end if
-	
+
 }//end get_boolean_arg()
 
 
 /**
  * Gets a parameterised switch from the command line.
- * 
+ *
  * @param $arg The parameter to get.
  * @param $default The default value if no parameter of value for parameter exists.
  * @return boolean
@@ -277,7 +277,7 @@ function get_parameterised_arg($arg, $default) {
 	} else {
 		return $default;
 	}
-	
+
 }//end get_parameterised_arg()
 
 
@@ -311,7 +311,7 @@ function _disconnectFromMatrixDatabase()
         MatrixDAL::restoreDb();
         MatrixDAL::dbClose($conn_id);
     }//end if
-        
+
 }//end _disconnectFromMatrixDatabase()
 
 
@@ -345,14 +345,14 @@ function getRootNodes($action)
 
     // Check if each of these rootnodes exists in the system
     $rootnodes_exists    = $GLOBALS['SQ_SYSTEM']->am->assetExists($rootnodes);
-    
+
     $not_exists         = array_diff($rootnodes, $rootnodes_exists);
     if (!empty($not_exists)) {
         $list_not_exists    = implode(', ', $not_exists);
         echo "These rootnode ids do not exists in the system: $list_not_exists \n";
         exit();
-    }//end if   
- 
+    }//end if
+
     return $rootnodes;
 }//end getRootNodes()
 
@@ -379,7 +379,7 @@ function getTreeSortedChildren($assetids)
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if ($asset instanceof Bridge) {
 				if (!method_exists($asset, 'getChildren')) {
-					trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
+					trigger_localised_error('SYS0204', translate('Shadow asset handler "%s" can not get children'), E_USER_WARNING, $asset->name);
 				} else {
 					$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren($assetid)));
 				}

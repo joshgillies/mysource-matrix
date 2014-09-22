@@ -93,12 +93,12 @@ class Apache_Config extends Config
 
 			// if we dont have access, go away
 			if (!$is_admin) {
-				trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
+				trigger_localised_error('SYS0267', sprintf(translate('You need to be either the Root User or a System Administrator to save the %s'), $this->name), E_USER_WARNING)
 				return FALSE;
 			}
 		}
 		if (!$this->writeAccess()) {
-				trigger_localised_error('SYS0026', E_USER_WARNING, $this->name);
+				trigger_localised_error('SYS0026', sprintf(translate('Unable to save "%s", permission denied'), $this->name), E_USER_WARNING)
 				return FALSE;
 			}
 			// attempt to load the config file to make sure we get any current settings
@@ -496,7 +496,7 @@ class Apache_Config extends Config
 
 		// double check name
 		if (in_array($req_note_name, array_keys($this->request_notes))) {
-			trigger_localised_error('SYS0314', E_USER_NOTICE);
+			trigger_localised_error('SYS0314', translate('Cannot set request note name for "%s". A request note with this name already exists.'), E_USER_NOTICE)
 			return Array();
 		}
 

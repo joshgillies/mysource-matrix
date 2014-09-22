@@ -102,7 +102,7 @@ class Thesaurus_Term extends Asset
 			$majorid = $link['asset']->_termid;
 		} else {
 			$type = method_exists($link['asset'], 'type') ? $link['asset']->type() : '';
-			trigger_localised_error('CORE0236', E_USER_WARNING, $type);
+			trigger_localised_error('CORE0236', sprintf(translate('Cannot create new Thesaurus Term under an asset of type "%1$s"'), $type), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -156,7 +156,7 @@ class Thesaurus_Term extends Asset
 		if (is_null($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			trigger_localised_error('CORE0237', E_USER_WARNING);
+			trigger_localised_error('CORE0237', translate('This term cannot be added because it already exists.'), E_USER_WARNING)
 			return FALSE;
 		}
 

@@ -164,7 +164,7 @@ class Limbo_Outputter extends Backend_Outputter
 		}
 
 		$this->loadViperEditor();
-			
+
 		foreach ($this->_css_includes as $file) {
 			$this->_paintCssInclude($file);
 		}
@@ -198,7 +198,7 @@ class Limbo_Outputter extends Backend_Outputter
 		foreach ($this->_js_includes as $file) {
 			$this->_paintJsInclude($file);
 		}
-		
+
 		// Event handlers
 		$this->_paintEventHandlers();
 
@@ -562,7 +562,7 @@ class Limbo_Outputter extends Backend_Outputter
 					break;
 
 					default :
-						trigger_localised_error('SYS0257', E_USER_ERROR, $section['areas'][$j]['area_type']);
+						trigger_localised_error('SYS0257', sprintf(translate('Unknown Area Type: "%s"'), $section['areas'][$j]['area_type']), E_USER_ERROR)
 
 				}//end switch area type
 

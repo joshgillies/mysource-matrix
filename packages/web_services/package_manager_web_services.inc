@@ -80,15 +80,15 @@ class Package_Manager_Web_Services extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_web_services');
 		$folder_link = Array(
-				'asset' 		=> &$root_folder, 
-				'link_type' 	=> SQ_LINK_TYPE_1, 
+				'asset' 		=> &$root_folder,
+				'link_type' 	=> SQ_LINK_TYPE_1,
 				'is_exclusive' 	=> 1,
 				'is_locked'		=> 1,
 			);
 		$web_services_folder = new Web_Folder_Web_Services();
 		$web_services_folder->setAttrValue('name', 'Web Services Folder');
 		if (!$web_services_folder->create($folder_link)) {
-			trigger_localised_error('CORE0001', E_USER_ERROR, 'Web Services Folder');
+			trigger_localised_error('CORE0001', sprintf(translate('%s NOT CREATED'), 'Web Services Folder'), E_USER_ERROR)
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('web_folder_web_services', $web_services_folder->id);
@@ -143,7 +143,7 @@ class Package_Manager_Web_Services extends Package_Manager
         $rest_manager = new Rest_Manager();
         $rest_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
         if (!$rest_manager->create($rest_manager_link)) {
-            trigger_localised_error('CORE0001', E_USER_ERROR, 'REST Manager');
+            trigger_localised_error('CORE0001', sprintf(translate('%s NOT CREATED'), 'REST Manager'), E_USER_ERROR)
         }
 
         $GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('rest_manager', $rest_manager->id);

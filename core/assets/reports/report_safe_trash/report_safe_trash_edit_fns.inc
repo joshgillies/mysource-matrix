@@ -69,13 +69,13 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($owner->data_path)) {
 				if (!create_directory($owner->data_path)) {
-					trigger_localised_error('CORE0198', E_USER_WARNING);
+					trigger_localised_error('CORE0198', translate('Unable to create data directory, report generation aborted'), E_USER_WARNING)
 					return FALSE;
 				}
 			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('CORE0201', E_USER_WARNING);
+				trigger_localised_error('CORE0201', translate('Unable to open temporary file, report generation aborted'), E_USER_WARNING)
 				return FALSE;
 			}
 			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
@@ -83,7 +83,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('CORE0201', E_USER_WARNING);
+				trigger_localised_error('CORE0201', translate('Unable to open temporary file, report generation aborted'), E_USER_WARNING)
 				return FALSE;
 			}
 		}
@@ -164,11 +164,11 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, "</assets>\n");
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
-				trigger_localised_error('CORE0200', E_USER_WARNING);
+				trigger_localised_error('CORE0200', translate('Unable to move temporary file, report generation aborted'), E_USER_WARNING)
 				return FALSE;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
-				trigger_localised_error('CORE0199', E_USER_WARNING);
+				trigger_localised_error('CORE0199', translate('Unable to delete temporary file, report generation continues'), E_USER_WARNING)
 			}
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);
@@ -213,7 +213,9 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 			}
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
-			// trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+			// trigger_localised_error('CORE0092', sprintf('Unable to read report file  %1$s
+%2$s
+%3$s', $report_path, $root->getMessage(), $root->getUserInfo()), E_USER_WARNING)
 			return;
 		}
 

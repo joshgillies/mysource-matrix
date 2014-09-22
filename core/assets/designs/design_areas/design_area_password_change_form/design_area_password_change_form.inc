@@ -70,7 +70,7 @@ class Design_Area_Password_Change_Form extends Design_Area
 			case 'password_new_box' :
 			case 'password_confirm_box' :
 				if ($this->_tmp['painting_section'] != 'password_change') {
-					trigger_localised_error('CORE0179', E_USER_WARNING, $var, $this->attr('id_name'));
+					trigger_localised_error('CORE0179', sprintf(translate('The "%1$s" var can only be printed inside the login section of the login_form design area "%2$s"'), $var, $this->attr('id_name')), E_USER_WARNING)
 					return FALSE;
 				}
 			break;

@@ -2345,7 +2345,7 @@ class Search_Page extends Listing_Engine
 		if (!empty($from_date)) {
 			// invalid FROM date?
 			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $from_date, $matches)) {
-				trigger_localised_error('CMS0053', E_USER_WARNING, $from_date);
+				trigger_localised_error('CMS0053', sprintf(translate('From date "%s" is not a valid date. No assets will be displayed.'), $from_date), E_USER_WARNING)
 				return;
 			}
 
@@ -2354,7 +2354,7 @@ class Search_Page extends Listing_Engine
 
 			// invalid FROM time?
 			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $from_time, $matches)) {
-				trigger_localised_error('CMS0054', E_USER_WARNING, $from_time);
+				trigger_localised_error('CMS0054', sprintf(translate('From time "%s" is not a valid time. No assets will be displayed.'), $from_time), E_USER_WARNING)
 				return;
 			}
 			$restrict_date_range_from = $from_date.' '.$from_time;
@@ -2365,7 +2365,7 @@ class Search_Page extends Listing_Engine
 		if (!empty($to_date)) {
 			// invalid TO date?
 			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $to_date, $matches)) {
-				trigger_localised_error('CMS0055', E_USER_WARNING, $to_date);
+				trigger_localised_error('CMS0055', sprintf(translate('To date "%s" is not a valid date. No assets will be displayed.'), $to_date), E_USER_WARNING)
 				return;
 			}
 
@@ -2374,7 +2374,7 @@ class Search_Page extends Listing_Engine
 
 			// invalid TO time?
 			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $to_time, $matches)) {
-				trigger_localised_error('CMS0056', E_USER_WARNING, $to_time);
+				trigger_localised_error('CMS0056', sprintf(translate('To time "%s" is not a valid time. No assets will be displayed.'), $to_time), E_USER_WARNING)
 				return;
 			}
 			$restrict_date_range_to = $to_date.' '.$to_time;
@@ -2466,7 +2466,7 @@ class Search_Page extends Listing_Engine
 			if ($value == $empty_dates) continue;
 
 			if (count($fields[$field_name]['data_sources']) == 0) {
-				trigger_localised_error('SCH0028', E_USER_NOTICE, $field_name);
+				trigger_localised_error('SCH0028', sprintf(translate('The datasource of the search field "%1$s" is not specified'), $field_name), E_USER_NOTICE)
 				continue;
 			}
 
@@ -2807,7 +2807,7 @@ class Search_Page extends Listing_Engine
 
 					case 'metadata' :
 						if (empty($data_source['params']['assetid'])) {
-							trigger_localised_error('SCH0027', E_USER_NOTICE, $field_name);
+							trigger_localised_error('SCH0027', sprintf(translate('You have not selected a metadata field asset for metadata search field "%1$s".  This search field will be ignored.'), $field_name), E_USER_NOTICE)
 							$queries[$field_name] = '';
 							break;
 						}

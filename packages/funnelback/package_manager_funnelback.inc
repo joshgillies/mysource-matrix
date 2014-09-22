@@ -17,7 +17,7 @@
 require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 
 /**
-* Funnelback 
+* Funnelback
 *
 * Purpose
 *    Manages the install and upgrade of the Funnelback package and Funnelback assets,
@@ -85,7 +85,7 @@ class Package_Manager_Funnelback extends Package_Manager
 		$funnelback_manager = new Funnelback_Manager();
 		$funnelback_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$funnelback_manager->create($funnelback_manager_link)) {
-			trigger_localised_error('FNB0010', E_USER_ERROR);
+			trigger_localised_error('FNB0010', translate('Unable to create the Funnelback Manager'), E_USER_ERROR)
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('funnelback_manager', $funnelback_manager->id);

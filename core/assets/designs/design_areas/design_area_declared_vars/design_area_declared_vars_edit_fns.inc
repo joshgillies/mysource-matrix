@@ -64,7 +64,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is a name and it's not the the same type as the current design area
 			if (empty($element['attributes']['name']) || empty($element['attributes']['type'])) {
-				trigger_localised_error('CORE0141', E_USER_WARNING);
+				trigger_localised_error('CORE0141', translate('All declared variables need to have a name and a type'), E_USER_WARNING)
 				continue;
 			}//end if
 
@@ -77,12 +77,12 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 			$name = preg_replace('/[^a-z0-9_]/i', '_', $element['attributes']['name']);
 			if ($name != $element['attributes']['name']) {
-				trigger_localised_error('CORE0150', E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'), $name);
+				trigger_localised_error('CORE0150', sprintf(translate('Declared Variable "%1$s" in "%2$s" contained illegal characters and has been changed to "%3$s"'), $element['attributes']['name'], $asset->attr('id_name'), $name), E_USER_WARNING)
 			}
 
 			// make sure this is a valid attribute type
 			if (!$GLOBALS['SQ_SYSTEM']->am->validAttributeType($element['attributes']['type'])) {
-				trigger_localised_error('CORE0152', E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['type']);
+				trigger_localised_error('CORE0152', sprintf(translate('Declared Variable "%1$s" in "%2$s" is specified as unknown in Attribute Type "%3$s"'), $name, $asset->attr('id_name'), $element['attributes']['type']), E_USER_WARNING)
 				return FALSE;
 			}//end if
 
@@ -91,7 +91,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			$class = 'Asset_Attribute_'.$element['attributes']['type'];
 			$attr = new $class();
 			if (!$attr->validateValue($element['attributes']['value'])) {
-				trigger_localised_error('CORE0151', E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['value'], $element['attributes']['type']);
+				trigger_localised_error('CORE0151', sprintf(translate('Declared Variable "%1$s" in "%2$s" has an invalid value "%3$s" for an "%4$s" attribute type'), $name, $asset->attr('id_name'), $element['attributes']['value'], $element['attributes']['type']), E_USER_WARNING)
 				return FALSE;
 			}//end if
 

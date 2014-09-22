@@ -691,7 +691,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 		// remove term cache
 		if (!delete_directory($term_dir_path)) {
-			trigger_localised_error('SCH0025', E_USER_WARNING);
+			trigger_localised_error('SCH0025', translate('Rollover aborted, raw stats could not be cleared'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -699,7 +699,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		$from = $generated_dir_path.'/'.$logname.'.html';
 		$to   = $generated_dir_path.'/'.$logname.'.'.$formatted_date.'.html';
 		if (!rename($from, $to)) {
-			trigger_localised_error('SCH0024', E_USER_WARNING);
+			trigger_localised_error('SCH0024', translate('Rollover failed, generated report could not be moved'), E_USER_WARNING)
 			return FALSE;
 		}
 

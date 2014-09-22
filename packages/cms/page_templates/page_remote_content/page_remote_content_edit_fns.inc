@@ -324,7 +324,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 										'value'	=> $value,
 									);
 			} else {
-				trigger_localised_error('CMS0059', E_USER_NOTICE);
+				trigger_localised_error('CMS0059', translate('Cannot add duplicate variable.'), E_USER_NOTICE)
 			}
 		}
 		return $asset->setAttrValue('post_variables', $post_variables);

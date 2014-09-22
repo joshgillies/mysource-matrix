@@ -182,7 +182,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 				$no_access_to_edit = TRUE;
 			}//end else if
 		} else {
-			trigger_localised_error('CORE0280', E_USER_WARNING);
+			trigger_localised_error('CORE0280', translate('Email link to process workflow is invalid because asset version is unknown or the workflow step has already been completed.'), E_USER_WARNING)
 		}
 
 	}//end if
@@ -232,7 +232,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					// shouldn't be able to changes status, so don't show anything
 					if ((!$can_publish) && (!$admin_access)) {
 						if ($no_access_to_edit) {
-							trigger_localised_error('CORE0281', E_USER_WARNING, $_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'));
+							trigger_localised_error('CORE0281', sprintf(translate('The workflow has already been %1$s or you do not have access to edit the workflow of the asset'), $_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed')), E_USER_WARNING)
 						}//end if
 						continue;
 					}
@@ -1038,7 +1038,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-			trigger_localised_error('SYS0268', E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
+			trigger_localised_error('SYS0268', sprintf(translate('You need to select the type of access in order to apply schema #%s'), $post_data['new']['schemaid']['assetid']), E_USER_NOTICE)
 		} else {
 
 			// Cascade changes to lower assets if "cascade" is set

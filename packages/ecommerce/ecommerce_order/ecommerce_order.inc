@@ -152,7 +152,7 @@ class Ecommerce_Order extends Asset
 	function _linkProducts($products)
 	{
 		if (empty($products)) {
-			trigger_localised_error('ECOM0014', E_USER_WARNING);
+			trigger_localised_error('ECOM0014', translate('Ecommerce Order can not be created without products'), E_USER_WARNING)
 			return false;
 		}
 
@@ -170,7 +170,7 @@ class Ecommerce_Order extends Asset
 			$product = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 
 			if ($GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $product, SQ_LINK_NOTICE) == 0) {
-				trigger_localised_error('ECOM0019', E_USER_WARNING);
+				trigger_localised_error('ECOM0019', translate('Ecommerce Order can not create Notice link to Product'), E_USER_WARNING)
 				$success = false;
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($product);

@@ -86,13 +86,13 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$parent = $this->am->getAsset($_REQUEST['parent_assetid']);
 				if (is_null($parent)) {
-					trigger_localised_error('SYS0200', E_USER_WARNING, $_REQUEST['parent_assetid']);
+					trigger_localised_error('SYS0200', sprintf(translate('Parent Asset #%s not found'), $_REQUEST['parent_assetid']), E_USER_WARNING)
 					break;
 				}
 
 				// make sure that we are allowed to link this type to the parent
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $_REQUEST['type_code'], $_REQUEST['link_type'])) !== TRUE) {
-					trigger_localised_error('SYS0303', E_USER_WARNING, $err_msg);
+					trigger_localised_error('SYS0303', sprintf(translate('Unable to link: %s'), $err_msg), E_USER_WARNING)
 					break;
 				}
 
@@ -140,7 +140,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$asset = $this->am->getAsset($_REQUEST['assetid']);
 				if (is_null($asset)) {
-					trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['assetid']);
+					trigger_localised_error('SYS0195', sprintf(translate('No Asset found for Id #%s'), $_REQUEST['assetid']), E_USER_WARNING)
 					return;
 				}
 				if (SQ_IN_LIMBO) {
@@ -197,7 +197,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					//To safeguard against this, there is no point of having locks if we are Archived/Safe Edit Approved as write access will be blocked.
 					if ($do_process_backend && !$asset->accessEffective()){
 						if (!$this->am->releaseLock($asset->id, 'attributes')) {
-							trigger_localised_error('SYS0182', E_USER_WARNING, 'attributes', $asset->name);
+							trigger_localised_error('SYS0182', sprintf(translate('Failed to release "%1$s" lock on "%2$s', 'attributes'), $asset->name), E_USER_WARNING)
 							$do_process_backend = FALSE;
 						}
 					}
@@ -207,12 +207,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						if (!empty($_POST['sq_lock_release']) && !empty($_POST['sq_lock_type'])) {
 							// committing changes and releasing the lock
 							if (!$this->am->releaseLock($asset->id, $_POST['sq_lock_type'])) {
-								trigger_localised_error('SYS0182', E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
+								trigger_localised_error('SYS0182', sprintf(translate('Failed to release "%1$s" lock on "%2$s'), $_POST['sq_lock_type'], $asset->name), E_USER_WARNING)
 							}
 						} else {
 							// not releasing the lock, so re-acquire
 							if (!$this->am->updateLock($asset->id, $_POST['sq_lock_type'])) {
-								trigger_localised_error('SYS0181', E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
+								trigger_localised_error('SYS0181', sprintf(translate('Failed to re-acquire "%1$s" lock on "%2$s'), $_POST['sq_lock_type'], $asset->name), E_USER_WARNING)
 							}
 						}
 					}//end if
@@ -259,7 +259,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			// they have confirmed their intention to forceably acquire the lock on this asset
 			$asset = $this->am->getAsset($_GET['assetid']);
 			if (is_null($asset)) {
-				trigger_localised_error('SYS0086', E_USER_WARNING, $_GET['assetid']);
+				trigger_localised_error('SYS0086', sprintf(translate('Asset #%s not found'), $_GET['assetid']), E_USER_WARNING)
 				return;
 			}
 
@@ -284,7 +284,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addFormActionGetVar('ignore_frames', '1');
 		$asset = $this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0086', E_USER_WARNING, $_GET['assetid']);
+			trigger_localised_error('SYS0086', sprintf(translate('Asset #%s not found'), $_GET['assetid']), E_USER_WARNING)
 			return;
 		}
 
@@ -389,7 +389,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						foreach ($lock['chained_assets'] as $chained_info) {
 							$chained_asset = $this->am->getAsset($chained_info['assetid']);
 							if (is_null($chained_asset)) {
-								trigger_localised_error('SYS0086', E_USER_WARNING, $chained_info['assetid']);
+								trigger_localised_error('SYS0086', sprintf(translate('Asset #%s not found'), $chained_info['assetid']), E_USER_WARNING)
 								continue;
 							}
 							echo '<li class="sq-backend-data">'.htmlspecialchars($chained_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</li>';

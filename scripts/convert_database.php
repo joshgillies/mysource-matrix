@@ -187,7 +187,7 @@ foreach ($packages as $package) {
 }
 
 /**
- * This is a list of tables where nulls 
+ * This is a list of tables where nulls
  * will be converted to an empty string.
  *
  * (no 'sq_' at the start!)
@@ -534,7 +534,7 @@ function parse_tables_xml($xml_file, $dest_db)
 
 	if (($root->getName() != 'schema') || !isset($root->tables) || !isset($root->sequences)) {
 		throw new Exception('Tables XML file is not valid.');
-		trigger_localised_error('SYS0012', E_USER_WARNING);
+		trigger_localised_error('SYS0012', translate('Invalid Schema for DB install'), E_USER_WARNING);
 		return FALSE;
 	}
 

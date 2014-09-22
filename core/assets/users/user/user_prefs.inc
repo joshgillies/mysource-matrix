@@ -729,7 +729,7 @@ class User_Prefs extends Prefs
 			include_once(SQ_INCLUDE_PATH.'/system_config.inc');
 			$system_conf = new System_Config();
 			if (!$system_conf->canAcquireLock()) {
-				trigger_localised_error('CORE0233', E_USER_NOTICE);
+				trigger_localised_error('CORE0233', translate('This operation requires the System Configuration lock to be acquired, but another user has that lock.  Please try again later.'), E_USER_NOTICE)
 				return FALSE;
 			}
 
@@ -771,7 +771,7 @@ class User_Prefs extends Prefs
 			if (!empty($this->int_am_frame_width->value)) {
 				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width->value;
 			} else {
-				trigger_localised_error('CORE0270', E_USER_NOTICE);
+				trigger_localised_error('CORE0270', translate('An invalid "Asset Map Width" value has been supplied. Default has been set'), E_USER_NOTICE)
 				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
 			}
 		}

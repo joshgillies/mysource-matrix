@@ -74,7 +74,7 @@ class Trigger_Manager extends Asset implements Bridge
 		$this->_loadComponent('trigger_event');
 
 	}//end constructor
-	
+
 
 	/**
 	* Wakeup.
@@ -84,13 +84,13 @@ class Trigger_Manager extends Asset implements Bridge
 	*
 	* @access public
 	*/
-	function __wakeup() 
+	function __wakeup()
 	{
 		// include base classes for conditions, actions, events
 		$this->_loadComponent('trigger_condition');
 		$this->_loadComponent('trigger_action');
 		$this->_loadComponent('trigger_event');
-		
+
 	}//end __wakeup()
 
 
@@ -989,7 +989,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 
 		// delete folder, that is deleting all triggers under this folder, not permitted
-		trigger_localised_error('SYS0069', E_USER_WARNING, $trigger_id);
+		trigger_localised_error('SYS0069', sprintf(translate('%s can not have its last significant link removed'), $trigger_id), E_USER_WARNING)
 
 		return FALSE;
 
@@ -1063,12 +1063,12 @@ class Trigger_Manager extends Asset implements Bridge
 		if (!$this->attr('enabled')) return TRUE;
 		// We've been told not to do this right now
 		if ($broadcaster->shouldFastTrack($event_name)) return FALSE;
-		
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// include the event asset
 		if (!$this->_loadComponent($event_name)) {
-			trigger_localised_error('CORE0219', E_USER_WARNING, $event_name);
+			trigger_localised_error('CORE0219', sprintf(translate('Cannot load event "%s"'), $event_name), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -1085,7 +1085,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 		// lookup triggers
 		$candidate_trigger_ids = $this->_lookupCandidateTriggers($state_hash);
-		
+
 		// Enhancement #5488: Trigger Batching Specify Trigger Ids
 		$specified_trigger_ids = !empty($parameters['specified_trigger_ids']) ? $parameters['specified_trigger_ids'] : $candidate_trigger_ids;
 		$candidate_trigger_ids = array_intersect($candidate_trigger_ids, $specified_trigger_ids);
@@ -1096,16 +1096,16 @@ class Trigger_Manager extends Asset implements Bridge
 			$status_message = NULL;
 			$msg_type = NULL;
 			// re-create a trigger
-			
-			
+
+
 			$trigger = $this->_loadTrigger($trigger_id);
 			// Timer!
 			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, $trigger['name']);
 			$status  = $this->_executeTrigger($trigger['data'], $state);
 			// End timer
 			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, $trigger['name']);
-			
-			
+
+
 			// get settings
 			$trigger_settings =& $trigger['data']['settings'];
 			$is_blocking      = array_get_index($trigger['data']['settings'], 'blocking', FALSE);
@@ -1128,7 +1128,7 @@ class Trigger_Manager extends Asset implements Bridge
 						$broadcast_status = FALSE;
 						break 2;
 					} else {
-						trigger_localised_error('CORE0127', E_USER_WARNING, $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name);
+						trigger_localised_error('CORE0127', sprintf(translate('FAILURE: Trigger "%2$s" (Trigger# %1$s), Event "%3$s" broadcast by "%5$s" (Id# %4$s)'), $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name), E_USER_WARNING)
 					}
 
 				break;
@@ -1254,9 +1254,9 @@ class Trigger_Manager extends Asset implements Bridge
 		$pseudo_state['asset'] = $asset;
 		$pseudo_state['assetid'] = $asset->id;
 		$pseudo_state['type'] = $asset->type();
-	
+
 		$pseudo_state['target_assetids'] = $state['target_assetids'];
-		
+
 		// Below trigger state data is not used or required by trigger actions
 		// and hence can be left to empty
 		$pseudo_state['immediate_parent_link_map'] = Array();
@@ -1614,13 +1614,13 @@ class Trigger_Manager extends Asset implements Bridge
 			if ($action_success === FALSE) {
 				if ($not_required) {
 					if (!$is_blocking) {
-						trigger_localised_error('CORE0134', E_USER_NOTICE, $action['type']);
+						trigger_localised_error('CORE0134', sprintf(translate('Trigger Action: %s Failed, but was not required. Trigger continues.'), $action['type']), E_USER_NOTICE)
 					}
 					continue;
 				} else {
 					$status = SQ_TRIG_RESULT_FAILURE;
 					if (!$is_blocking) {
-						trigger_localised_error('CORE0135', E_USER_NOTICE, $action['type']);
+						trigger_localised_error('CORE0135', sprintf(translate('Trigger Action: %s Failed'), $action['type']), E_USER_NOTICE)
 					}
 					break;
 				}
@@ -1745,7 +1745,7 @@ class Trigger_Manager extends Asset implements Bridge
 			}//end foreach
 
 		}//end if
-		
+
 		// Filter the selected assetids as per asset types filter setting
 		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, $selected_asset_types));
 
@@ -2242,7 +2242,7 @@ class Trigger_Manager extends Asset implements Bridge
 		if ($s) {
 			return $this->_saveTrigger($trigger);
 		} else {
-			trigger_localised_error('CORE0232', E_USER_WARNING);
+			trigger_localised_error('CORE0232', translate('Unable to create Trigger, incorrect format'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -2287,7 +2287,7 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 
 		if (empty($trigger_db)) {
-			// trigger_localised_error('CORE0133', E_USER_WARNING, $trigger_id);
+			// trigger_localised_error('CORE0133', sprintf(translate('Trigger #%s does not exist'), $trigger_id), E_USER_WARNING)
 			return NULL;
 		}
 

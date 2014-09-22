@@ -226,10 +226,10 @@ class Trigger extends Asset
 		$trigger_info['data']['actions']				= $this->attr('actions');
 		$trigger_info['active']							= $this->attr('active');
 		$trigger_info['category']						= $this->attr('category');
-		
+
 		// Name cannot be empty
 		if (empty($trigger_info['name'])) {
-			trigger_localised_error('TRIG0001', E_USER_NOTICE);
+			trigger_localised_error('TRIG0001', translate('Cannot save trigger without a name'), E_USER_NOTICE)
 			return FALSE;
 		}
 

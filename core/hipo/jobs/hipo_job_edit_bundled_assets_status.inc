@@ -169,7 +169,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	{
 		// We must have a bundle asset ID
 		if (array_key_exists('bundle_assetid', $this->_running_vars) === FALSE) {
-			trigger_localised_error('HIPO0092', E_USER_WARNING);
+			trigger_localised_error('HIPO0092', translate('Unable to run HIPO job; this job requires a bundle asset ID'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -179,13 +179,13 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 
 		// The asset doesn't exist...
 		if (count($type_code) === 0) {
-			trigger_localised_error('HIPO0093', E_USER_WARNING, $bundle_assetid);
+			trigger_localised_error('HIPO0093', sprintf(translate('Unable to run HIPO job; the passed bundle asset ID (#%s) does not exist'), $bundle_assetid), E_USER_WARNING)
 			return FALSE;
 		}
 
 		// It's not a bundle...
 		if ($type_code[$bundle_assetid] !== 'workflow_bundle') {
-			trigger_localised_error('HIPO0094', E_USER_WARNING, $bundle_assetid);
+			trigger_localised_error('HIPO0094', sprintf(translate('Unable to run HIPO job; the passed bundle asset ID (#%s) is not a Workflow Bundle asset'), $bundle_assetid), E_USER_WARNING)
 			return FALSE;
 		}
 

@@ -107,7 +107,7 @@ class Data_Source_DB extends Data_Source
 					}
 
 				} catch (DALException $e) {
-					trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
+					trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING)
 					$empty = Array();
 					return $empty;
 				}
@@ -219,7 +219,7 @@ class Data_Source_DB extends Data_Source
 				MatrixDAL::setOciCommitOnSuccess(FALSE);
 			} else {
 				$result = MatrixDAL::executeSqlAssoc($sql);
-				// if query returns a non-empty result but with empty rows, like when using 
+				// if query returns a non-empty result but with empty rows, like when using
 				// delete, update and insert queries, then make this result empty altogether
 				foreach($result as $row) {
 					if (!empty($row)) {
@@ -230,11 +230,11 @@ class Data_Source_DB extends Data_Source
 			}//end else
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
-			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
+			trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING)
 			MatrixDAL::restoreDb();
 			return Array();
 		}
-		
+
 		return $empty_result ? Array() : $result;
 
 	}//end _executeQuery()
@@ -266,17 +266,17 @@ class Data_Source_DB extends Data_Source
 			$dsn_lower = strtolower($dsn['DSN']);
 			if (substr($dsn_lower, 0, 7) == 'dbname=') {
 				$dsn['DSN'] = substr($dsn['DSN'], 7);
-			} 
+			}
 		}
 
 		try {
 			$this->_tmp['db_connection'] = MatrixDAL::dbConnect($dsn, 'data_source_db_'.$this->id);
 		} catch (Exception $e) {
-			$this->_tmp['db_conection_exception'] = $e;			
+			$this->_tmp['db_conection_exception'] = $e;
 			return FALSE;
 		}
 
-		
+
 		return $this->_tmp['db_connection'];
 
 	}//end connectToDB()
@@ -337,9 +337,9 @@ class Data_Source_DB extends Data_Source
 			$dsn_lower = strtolower($dsn);
 			if (substr($dsn_lower, 0, 7) == 'dbname=') {
 				$dsn = substr($dsn, 7);
-			} 
+			}
 		}
-				
+
 		return Array('DSN' => $dsn, 'user' => $user, 'password' => $password, 'type' => $type);
 
 	}//end constructDSNArray()

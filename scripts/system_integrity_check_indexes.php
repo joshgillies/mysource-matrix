@@ -526,7 +526,7 @@ function parse_tables_xml($xml_file, $db_type)
 
 	if (($root->getName() != 'schema') || !isset($root->tables) || !isset($root->sequences)) {
 		throw new Exception('Tables XML file is not valid.');
-		trigger_localised_error('SYS0012', E_USER_WARNING);
+		trigger_localised_error('SYS0012', translate('Invalid Schema for DB install'), E_USER_WARNING);
 		return FALSE;
 	}
 

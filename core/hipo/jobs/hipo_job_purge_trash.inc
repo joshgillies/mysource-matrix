@@ -203,7 +203,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 			// is the root in the trash?
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($purge_root->id)) {
-				trigger_localised_error('HIPO0083', E_USER_WARNING);
+				trigger_localised_error('HIPO0083', translate('Purge aborted, Purge root is not in the trash"'), E_USER_WARNING)
 				return FALSE;
 			}
 			$purge_root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id);
@@ -363,14 +363,14 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				// we have an asset ready to delete, but we need to check with
 				// the asset manager that we are allowed to delete it
 				if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
-					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
+					trigger_localised_error('HIPO0004', sprintf(translate('Purge aborted, unable to delete "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING)
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->_running_vars['trash_id'], 'all') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $this->_running_vars['trash_id'])) {
-					trigger_localised_error('HIPO0005', E_USER_WARNING, $asset->name, $asset->id);
+					trigger_localised_error('HIPO0005', sprintf(translate('Purge aborted, unable to lock the asset "%s"'), $asset->name, $asset->id), E_USER_WARNING)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -394,7 +394,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 				// the delete function will remove all links in which the asset is the minor party
 				if (!$asset->delete(FALSE, FALSE)) {
-					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
+					trigger_localised_error('HIPO0004', sprintf(translate('Purge aborted, unable to delete "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

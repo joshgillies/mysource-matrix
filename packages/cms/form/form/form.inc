@@ -3848,7 +3848,7 @@ class Form extends Asset implements Bridge
 			}
 
 			if (is_null($submissions_folder)) {
-				trigger_localised_error('CMS0069', E_USER_WARNING);
+				trigger_localised_error('CMS0069', translate('Cannot create form submission - submissions folder not found.  Upgrade may be required.'), E_USER_WARNING)
 				$null = NULL;
 				return $null;
 			}

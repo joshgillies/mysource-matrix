@@ -155,7 +155,7 @@ class Asset_Status_Live extends Asset_Status
 					}
 
 					if (!$wfm->startWorkflow($this->owner->id, false, $msg)) {
-						trigger_localised_error('SYS0262', E_USER_WARNING, $this->owner->name);
+						trigger_localised_error('SYS0262', sprintf(translate('Workflow failed to start for "%s"'), $this->owner->name), E_USER_WARNING)
 						return false;
 					}
 				}
@@ -188,7 +188,7 @@ class Asset_Status_Live extends Asset_Status
 			case SQ_STATUS_EDITING :
 				// we are safe editing
 				if (!$this->owner->saveSystemVersion()) {
-					trigger_localised_error('SYS0208', E_USER_WARNING);
+					trigger_localised_error('SYS0208', translate('Status change failed, could not save to cache'), E_USER_WARNING)
 					return false;
 				}
 			break;

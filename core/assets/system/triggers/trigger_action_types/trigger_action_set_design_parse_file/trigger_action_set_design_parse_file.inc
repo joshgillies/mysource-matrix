@@ -84,7 +84,7 @@ class Trigger_Action_Set_Design_Parse_File extends Trigger_Action
 		if (is_file($parse_file)) {
 			$new_version = TRUE;
 			if (!unlink($parse_file)) {
-				trigger_localised_error('CORE0164', E_USER_WARNING);
+				trigger_localised_error('CORE0164', translate('Failed deleting existing parse file'), E_USER_WARNING)
 				return FALSE;
 			}
 		}
@@ -110,20 +110,20 @@ class Trigger_Action_Set_Design_Parse_File extends Trigger_Action
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '')) {
-						trigger_localised_error('CORE0160', E_USER_WARNING);
+						trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING)
 					}
 				}
 			} else {
 				// attempt to add the parse file to the repository
 				if (!$fv->add($asset->data_path_suffix, $parse_file, '')) {
-					trigger_localised_error('CORE0157', E_USER_WARNING);
+					trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING)
 				}
 			}
 		}//end if file uploaded
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
-			trigger_localised_error('CORE0158', E_USER_WARNING);
+			trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING)
 			return FALSE;
 		}
 

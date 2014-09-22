@@ -136,7 +136,7 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['bridge_id'])) {
-			trigger_localised_error('SHAR0002', E_USER_WARNING);
+			trigger_localised_error('SHAR0002', translate('Unable to initialise Sync CMIS Bridge HIPO, no start CMIS Bridge asset ID specified.'), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -145,14 +145,14 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 		foreach ($bridge->attr('wsdl') as $service_name => $url){
 			$connected = $bridge->connect($service_name, TRUE);
 			if (!$connected) {
-				trigger_localised_error('SHAR0005', E_USER_WARNING, $bridge->id);
+				trigger_localised_error('SHAR0005', sprintf(translate('Unable to initialise Sync CMIS Bridge HIPO, CMIS Bridge (Id: #%s) is disconnected.'), $bridge->id), E_USER_WARNING)
 				return FALSE;
 			}
 		}
 
 		$repositoryId = $bridge->getRepositoryId();
 		if (empty($repositoryId)){
-			trigger_localised_error('SHAR0003', E_USER_WARNING, $bridge->id);
+			trigger_localised_error('SHAR0003', sprintf(translate('Unable to initialise Sync CMIS Bridge HIPO, invalid Repository Name supplied for CMIS Bridge (Id: #%s).'), $bridge->id), E_USER_WARNING)
 			return FALSE;
 		}
 

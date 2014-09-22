@@ -262,7 +262,7 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
         	 $field_id = (isset($_POST[$prefix.'_'.$property]['assetid'])) ? $_POST[$prefix.'_'.$property]['assetid'] : $current_field_id;
         	 if (!empty($field_id)){
         	 	if (!array_key_exists($field_id, $fields)){
-        	 		trigger_localised_error('SHAR0001', E_USER_WARNING, $field_id);
+        	 		trigger_localised_error('SHAR0001', sprintf(translate('Metadata field (Id: #%s) must belong to a schema applied to the bridge with cascades on.'), $field_id), E_USER_WARNING)
         	 		//revert to original value
         	 		$metadata_fields[$property]['field'] = $current_field_id;
         	 		continue;
@@ -270,14 +270,14 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
         	 	if ($property == 'cmis:objectId'){
         	 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($field_id, Array('metadata_field_text'));
         	 		if (empty($type_info)) {
-        	 			trigger_localised_error('SHAR0004', E_USER_WARNING, $info['display_name'], 'Metadata Text Field');
+        	 			trigger_localised_error('SHAR0004', sprintf(translate('Field \'%1$s\' must be a \'%2$s\'.'), $info['display_name'], 'Metadata Text Field'), E_USER_WARNING)
         	 			//revert to original value
         	 			$field_id = $current_field_id;
         	 		}
         	 	} else if ($property == 'cmis:lastModificationDate'){
         	 		 $type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($field_id, Array('metadata_field_date'));
         	 		 if (empty($type_info)) {
-        	 		 	trigger_localised_error('SHAR0004', E_USER_WARNING, $info['display_name'], 'Metadata Date Field');
+        	 		 	trigger_localised_error('SHAR0004', sprintf(translate('Field \'%1$s\' must be a \'%2$s\'.'), $info['display_name'], 'Metadata Date Field'), E_USER_WARNING)
         	 		 	//revert to original value
         	 			$field_id = $current_field_id;
         	 		 }

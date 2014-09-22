@@ -42,8 +42,8 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		parent::__construct($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -58,14 +58,14 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				trigger_localised_error('CRON0018', E_USER_WARNING);
+				trigger_localised_error('CRON0018', translate('Unable to create future lineage cron job, unable to acquire "links" lock'), E_USER_WARNING)
 				return FALSE;
 			}
 
 			$link = $this->_tmp['asset_in_link'];
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
-				trigger_localised_error('CRON0017', E_USER_WARNING);
+				trigger_localised_error('CRON0017', translate('Unable to create future lineage cron job, Unable to set asset in link'), E_USER_WARNING)
 				return FALSE;
 			}
 
@@ -98,7 +98,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		}
 
 	}//end _getName()
-	
+
 
 	/**
 	* Get cron job display name
@@ -111,7 +111,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		return $this->attr('display_name');
 
 	}//end displayName()
-	
+
 
 
 	/**
@@ -223,23 +223,23 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 	*/
 	protected function _exec(&$msg)
 	{
-		$form = $this->getAssetToUpdate();		
-		
-		if (!is_null($form) && $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($form->id, 'form_email')) {			
-			
-			$log_file_info = $this->_getFormSubmissionLogFile($form);				
-			
+		$form = $this->getAssetToUpdate();
+
+		if (!is_null($form) && $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($form->id, 'form_email')) {
+
+			$log_file_info = $this->_getFormSubmissionLogFile($form);
+
 			if (is_array($log_file_info)) {
-		
+
 				$email_format = $this->getAttribute('email_format');
 				$email_format_val = @unserialize($email_format->value);
-				
+
 				$text_email = array_get_index($email_format_val, 'text_format', '');
 				$html_email = array_get_index($email_format_val, 'html_format', '');
 				$email_subject = array_get_index($email_format_val, 'subject', '');
 				$email_from = array_get_index($email_format_val, 'from', '');
-				$email_reply_to = array_get_index($email_format_val, 'from', '');				
-				
+				$email_reply_to = array_get_index($email_format_val, 'from', '');
+
 				$keywords = extract_keywords($text_email.$html_email.$email_subject.$email_from.$email_reply_to);
 				$keyword_replacements = Array();
 				foreach($keywords as $full_keyword) {
@@ -257,9 +257,9 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 					}
 					$keyword_replacements[$full_keyword] = $keyword_value;
 				}
-				
+
 				$email_format->sendMail($keyword_replacements, Array($log_file_info['file']));
-				
+
 				// Mark the run time
 				$this->setAttrValue('previous_run', $log_file_info['till']);
 				$this->saveAttributes();
@@ -268,16 +268,16 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 				if (file_exists($log_file_info['file'])) {
 					unlink($log_file_info['file']);
 				}
-				
+
 				$msg = 'Submission log sent for form #'.$form->id.' (job #'.$this->id.')';
-				
+
 				return SQ_CRON_JOB_COMPLETED;
 			}
 		} else {
 			// asset not found
-			trigger_localised_error('CMS0120', E_USER_WARNING);
+			trigger_localised_error('CMS0120', translate('Cannot find form asset to get the submission log from'), E_USER_WARNING)
 		}
-		
+
 		return SQ_CRON_JOB_ERROR;
 
 	}//end _exec()
@@ -314,7 +314,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 
 	}//end getActiveJobs()
 
-	
+
 		/**
 	* Runs this job
 	*
@@ -335,7 +335,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 
 	}//end run()
 
-	
+
 	/**
 	* Get the sumbission log CSV file for the given form
 	*
@@ -345,9 +345,9 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 	* @access private
 	*/
 	function _getFormSubmissionLogFile($form)
-	{	
+	{
 		$edit_fns = $form->getEditFns();
-		
+
 		// Pick the submissions starting from this date
 		$start_date = str_replace('--:', '00:', str_replace(':--', ':00', $this->attr('submissions_from_date')));
 		// If the specified start date is relative
@@ -383,8 +383,8 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 
 		// Last time the job actually ran
 		$previous_run = $this->attr('previous_run');
-		
-		if ($this->attr('submissions_range') == 'last_run') {			
+
+		if ($this->attr('submissions_range') == 'last_run') {
 			if (!empty($previous_run)) {
 				// If the job ran previosuly, pick it from there
 				$from_ts = $previous_run;
@@ -398,48 +398,48 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		} else {
 			$from_ts = !empty($pick_from_date) ? $pick_from_date : $form->created;
 		}
-		
+
 		if (!$from_ts) {
-			trigger_localised_error('CMS0121', E_USER_WARNING);
+			trigger_localised_error('CMS0121', translate('Submission log "start" date not configured'), E_USER_WARNING)
 			return FALSE;
-		}		
-		
+		}
+
 		$till_ts = time();
 		$output = '';
 		switch($this->attr('logs_format')) {
 			case 'csv_nhr':
-			case 'csv':	
-				$csv = $edit_fns->createCSVSubmissionLogs($form, $from_ts, $till_ts);				
+			case 'csv':
+				$csv = $edit_fns->createCSVSubmissionLogs($form, $from_ts, $till_ts);
 				$delimiter = $this->attr('csv_delimiter');
 				$csv->setDeliminator(!empty($delimiter) ? $delimiter : ',');
-				
+
 				if ($this->attr('logs_format') == 'csv_nhr') {
 					$empty_header = FALSE;
 					$csv->setFieldHeaders($empty_header);
-				}				
-				ob_start();						
+				}
+				ob_start();
 					@$csv->export(TRUE);
 					$output = ob_get_contents();
 				ob_end_clean();
 			break;
-			
+
 			case 'xml':
 				$o = NULL;
-				ob_start();		
+				ob_start();
 					@$this->_processExportXML($form, $from_ts, $till_ts);
 					$output = ob_get_contents();
 				ob_end_clean();
-			break;			
-		
+			break;
+
 		}//end switch
-		
+
 		if (empty($output)) {
 			return FALSE;
 		}
 
 		// First three chars of "log_format" spells the extension
 		$extension = substr($this->attr('logs_format'), 0, 3);
-		$job_name = trim(preg_replace('|[^a-z0-9\-_]+|', '_', strtolower($this->displayName())), '_');		
+		$job_name = trim(preg_replace('|[^a-z0-9\-_]+|', '_', strtolower($this->displayName())), '_');
 		$file_name = SQ_TEMP_PATH.'/submissions_log_'.$job_name.'('.date('Y-m-d H_i', $from_ts).' to '.date('Y-m-d H_i', $till_ts).').'.$extension;
 		file_put_contents($file_name, $output);
 
@@ -448,10 +448,10 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 				'from' => $from_ts,
 				'till' => $till_ts,
 			);
-		
+
 	}//end getFormSubmissionLogFile()
-	
-	
+
+
 	/**
 	* Exports chosen submissions to an XML format
 	*
@@ -465,7 +465,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 	function _processExportXML($asset, $from_ts, $to_ts)
 	{
 		$edit_fns = $asset->getEditFns();
-		
+
 		$from_time = ts_iso8601($from_ts);
 		$to_time = ts_iso8601($to_ts);
 		$sub_folder = $asset->getSubmissionsFolder();
@@ -481,7 +481,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 						 );
 			$result = $edit_fns->_getSubmissionLog($bind_vars);
 		} catch (Exception $e) {
-			throw new Exception("Unable to get submission log due to database error: ".$e->getMessage());			
+			throw new Exception("Unable to get submission log due to database error: ".$e->getMessage());
 		}
 
 		echo "<submissions>\n";
@@ -495,11 +495,11 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 			if (trim($sub_asset->attr('xml')) == '') continue;
 			echo "\t".$sub_asset->attr('xml')."\n";
 		}
-		echo '</submissions>';		
+		echo '</submissions>';
 
 	}//end processExportXML()
-	
-	
+
+
 
 }//end class
 

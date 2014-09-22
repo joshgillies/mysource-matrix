@@ -719,7 +719,7 @@ function processSettings(&$owner, &$o, &$ei)
 	if ($owner->adminAccess('all')) {
 		if (isset($_POST[$prefix.'_version_update_version'])) {
 			if (!$owner->incrementVersion('major')) {
-				trigger_localised_error('SYS0184', E_USER_WARNING, $owner->name);
+				trigger_localised_error('SYS0184', sprintf(translate('Failed updating major version of "%s"'), $owner->name), E_USER_WARNING)
 			}
 		}
 	}
@@ -767,7 +767,7 @@ function processSettings(&$owner, &$o, &$ei)
 			if ($date_type == 'created') {
 				// make sure that the date that is specified is not null for the created date
 				if ($date_field->isEmpty()) {
-					trigger_localised_error('SYS0212', E_USER_WARNING);
+					trigger_localised_error('SYS0212', translate('The created date cannot be empty'), E_USER_WARNING)
 					continue;
 				}
 				$current_date   = $owner->created;
@@ -833,7 +833,7 @@ function processSettings(&$owner, &$o, &$ei)
 				// errors for morphing will get reported in the morph function
 				$owner->morph($_POST[$prefix.'_morph_new_type']);
 			} else {
-				trigger_localised_error('SYS0214', E_USER_WARNING);
+				trigger_localised_error('SYS0214', translate('The security key entered was incorrect. Asset type remains unchanged.'), E_USER_WARNING)
 			}
 		}
 	}
@@ -858,7 +858,7 @@ function processSettings(&$owner, &$o, &$ei)
 				$design_name .= strtolower($design_data['name']);
 
 				if ($GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', FALSE, $design_name)) {
-					trigger_localised_error('SYS0134', E_USER_WARNING, $design_data['name']);
+					trigger_localised_error('SYS0134', sprintf(translate('Design Name "%s" already in use'), $design_data['name']), E_USER_WARNING)
 					continue;
 				}// end if
 

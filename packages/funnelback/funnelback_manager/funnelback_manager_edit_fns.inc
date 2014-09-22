@@ -661,7 +661,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($source_asset);
 
 							if ($unrestricted_asset) {
-								trigger_localised_error('FNB0015', E_USER_WARNING);
+								trigger_localised_error('FNB0015', translate('Cannot use an unrestrict asset as a collection'), E_USER_WARNING)
 								return FALSE;
 							}
 							$collections[$collection_id]['asset'] = $source_assetid;
@@ -1780,7 +1780,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				$user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($user, '', TRUE);
 				if (!is_null($user_asset)) {
 					if (!$user_asset->comparePassword($asset->attr('password'))) {
-						trigger_localised_error('FNB0014', E_USER_WARNING);
+						trigger_localised_error('FNB0014', translate('Invalid Password: Incorrect user or password, correct for proper use'), E_USER_WARNING)
 						return FALSE;
 					}//end if
 

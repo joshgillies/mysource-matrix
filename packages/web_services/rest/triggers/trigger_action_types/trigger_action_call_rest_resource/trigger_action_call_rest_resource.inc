@@ -146,7 +146,7 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 				if (!empty($ret['output'])) {
 					$_SESSION[SQ_SESSION_SANDBOX_INDEX][$settings['js_session_var']] =  $ret['output'];
 				} else {
-					trigger_localised_error('REST0001', E_USER_WARNING, $state['asset']->id, $ret['error_message']);
+					trigger_localised_error('REST0001', sprintf(translate('%1$s: Keyword %2$s not found in REST response.'), $state['asset']->id, $ret['error_message']), E_USER_WARNING)
 				}
 			} else {
 				// Store the response in the session as an array

@@ -1299,7 +1299,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			$size = (isset($_POST[$prefix.'_size_'.$link['minorid']])) ? (int)$_POST[$prefix.'_size_'.$link['minorid']] : 0;
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($link['minorid'], 'online_quiz_question_multichoice', TRUE);
 			if (($size + ($size*$retries)) > (count($children))){
-				trigger_localised_error('CMS0113', E_USER_WARNING, $link['minorid']);
+				trigger_localised_error('CMS0113', sprintf(translate('Not enough questions in the pool for pool root node (Id: #%s).'), $link['minorid']), E_USER_WARNING)
 			}
 
 			$pool_setup[$link['minorid']] = Array (

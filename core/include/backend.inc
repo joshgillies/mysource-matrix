@@ -119,7 +119,7 @@ class Backend extends MySource_Object
 			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
 			$printing_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
 			if (is_null($printing_asset)) {
-				trigger_localised_error('SYS0195', E_USER_WARNING, $printing_assetid);
+				trigger_localised_error('SYS0195', sprintf(translate('No Asset found for Id #%s'), $printing_assetid), E_USER_WARNING)
 				return;
 			}
 			// lets ask the asset itself if we are allowed access to its backend interface
@@ -149,7 +149,7 @@ class Backend extends MySource_Object
 		if (isset($_REQUEST['a'])) {
 		    			$frontend_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
-				trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['a']);
+				trigger_localised_error('SYS0195', sprintf(translate('No Asset found for Id #%s'), $_REQUEST['a']), E_USER_WARNING)
 				return;
 			}
 			$frontend_asset->printFrontend();
@@ -217,7 +217,7 @@ class Backend extends MySource_Object
 				break;
 
 				default:
-					trigger_localised_error('SYS0097', E_USER_ERROR, $_REQUEST['SQ_BACKEND_PAGE']);
+					trigger_localised_error('SYS0097', sprintf(translate('Backend Page "%s" unknown'), $_REQUEST['SQ_BACKEND_PAGE']), E_USER_ERROR)
 
 			}//end switch
 
@@ -1770,7 +1770,7 @@ class Backend extends MySource_Object
 			break;
 
 			default :
-				trigger_localised_error('SYS0098', E_USER_ERROR, $_REQUEST['backend_section']);
+				trigger_localised_error('SYS0098', sprintf(translate('Backend Section "%s" not known'), $_REQUEST['backend_section']), E_USER_ERROR)
 
 		}//end switch
 

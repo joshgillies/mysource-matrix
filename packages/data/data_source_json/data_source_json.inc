@@ -159,7 +159,7 @@ class Data_Source_Json extends Data_Source
 			$responseDetails = fetch_url($source, $options);
 
 			if ($responseDetails['errornumber'] != 0) {
-				trigger_localised_error('CMS0063', E_USER_WARNING, $source, $responseDetails['errorstring']);
+				trigger_localised_error('CMS0063', sprintf(translate('Cannot connect to server while attempting to access "%1$s" - %2$s'), $source, $responseDetails['errorstring']), E_USER_WARNING)
 				return FALSE;
 			}
 

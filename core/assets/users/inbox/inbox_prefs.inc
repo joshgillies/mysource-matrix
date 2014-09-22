@@ -110,14 +110,14 @@ class Inbox_Prefs extends Prefs
 
 			// Not an integer = user mistake, or possible script injection?
 			if (!is_numeric($_POST['prefs']['SQ_INBOX_MAIL_PER_PAGE'])) {
-				trigger_localised_error('IBOX0001', E_USER_WARNING);
+				trigger_localised_error('IBOX0001', translate('The Number of emails per page must be an integer and at least 1'), E_USER_WARNING)
 				return FALSE;
 			}
 			$mail_number = (int)$_POST['prefs']['SQ_INBOX_MAIL_PER_PAGE'];
 
 			// Page size needs to be at least 1
 			if ($mail_number <= 0) {
-				trigger_localised_error('IBOX0001', E_USER_WARNING);
+				trigger_localised_error('IBOX0001', translate('The Number of emails per page must be an integer and at least 1'), E_USER_WARNING)
 				return FALSE;
 			}
 

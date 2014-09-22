@@ -197,7 +197,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	{
 		// to start updating lookups, we need to have an asset id to start updating lookups at
 		if (empty($this->_running_vars['assetids'])) {
-			trigger_localised_error('HIPO0001', E_USER_WARNING);
+			trigger_localised_error('HIPO0001', translate('Unable to initialise Update Lookups HIPO, no start asset IDs specified'), E_USER_WARNING)
 			return FALSE;
 		}
 		$db = MatrixDAL::getDb();
@@ -214,7 +214,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if ($asset instanceof Bridge) {
 					if (!method_exists($asset, 'getChildren')) {
-						trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
+						trigger_localised_error('SYS0204', sprintf(translate('Shadow asset handler "%s" can not get children'), $asset->name), E_USER_WARNING)
 					} else {
 						$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren($assetid)));
 					}

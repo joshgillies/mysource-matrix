@@ -93,7 +93,7 @@ class Design_Area_Declared_Vars extends Design_Area
 			require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
 			$attr_class = 'Asset_Attribute_'.$type;
 			if (!class_exists($attr_class)) {
-				trigger_localised_error('CORE0146', E_USER_WARNING, $type, $name);
+				trigger_localised_error('CORE0146', sprintf(translate('Attribute Type "%1$s" not found for "%2$s"'), $type, $name), E_USER_WARNING)
 				continue;
 			}
 			$attrs[$name] = new $attr_class(0, $data['value']);

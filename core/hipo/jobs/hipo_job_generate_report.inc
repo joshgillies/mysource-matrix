@@ -195,7 +195,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assetid'])) {
-			trigger_localised_error('HIPO0008', E_USER_WARNING);
+			trigger_localised_error('HIPO0008', translate('Unable to initialise Generate Report HIPO, no report asset ID specified'), E_USER_WARNING)
 			return FALSE;
 		}
 

@@ -986,7 +986,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$attributes['desc'] = $value;
 				$asset->setAttrValue('attributes', $attributes);
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CORE0121', E_USER_WARNING, $asset->name, $asset->id);
+					trigger_localised_error('CORE0121', sprintf(translate('You do not have permission to save the attributes of "%1$s" (#%2$s)'), $asset->name, $asset->id), E_USER_WARNING)
 					return FALSE;
 				}
 			} else {

@@ -314,7 +314,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			// delete message
 			$message = $ms->getMessageById($messageid);
 			if (!$message->updateStatus(SQ_MSG_DELETED)) {
-				trigger_localised_error('CORE0063', E_USER_WARNING, $messageid);
+				trigger_localised_error('CORE0063', sprintf(translate('Message %s was not deleted'), $messageid), E_USER_WARNING)
 			}
 		}
 
@@ -604,13 +604,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			$message = $ms->getMessageById($msgid);
 			if (in_array($msgid, $read) && $message->status == SQ_MSG_UNREAD) {
 				if (!$message->updateStatus(SQ_MSG_READ)) {
-					trigger_localised_error('CORE0076', E_USER_WARNING, $msgid);
+					trigger_localised_error('CORE0076', sprintf(translate('Status of message %s was not updated'), $msgid), E_USER_WARNING)
 				}
 				continue;
 			}
 			if (!in_array($msgid, $read) && $message->status == SQ_MSG_READ) {
 				if (!$message->updateStatus(SQ_MSG_UNREAD)) {
-					trigger_localised_error('CORE0076', E_USER_WARNING, $msgid);
+					trigger_localised_error('CORE0076', sprintf(translate('Status of message %s was not updated'), $msgid), E_USER_WARNING)
 				}
 			}
 		}
@@ -643,7 +643,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			$message = $ms->getMessageById($msgid);
 			if (in_array($msgid, $delete) && $message->status != SQ_MSG_DELETED) {
 				if (!$message->updateStatus(SQ_MSG_DELETED)) {
-					trigger_localised_error('CORE0063', E_USER_WARNING, $data['msgid']);
+					trigger_localised_error('CORE0063', sprintf(translate('Message %s was not deleted'), $data['msgid']), E_USER_WARNING)
 				}
 			}
 		}
@@ -822,7 +822,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// recover messages to inbox
 				$message = $ms->getMessageById($messageid);
 				if (!$message->updateStatus(SQ_MSG_READ)) {
-					trigger_localised_error('CORE0064', E_USER_WARNING, $messageid);
+					trigger_localised_error('CORE0064', sprintf(translate('Message %s was not recovered'), $messageid), E_USER_WARNING)
 				}
 			}
 		}
@@ -832,7 +832,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// delete messsage FOREVER
 				$message = $ms->getMessageById($messageid);
 				if (!$message->delete()) {
-					trigger_localised_error('CORE0063', E_USER_WARNING, $data['msgid']);
+					trigger_localised_error('CORE0063', sprintf(translate('Message %s was not deleted'), $data['msgid']), E_USER_WARNING)
 				}
 			}
 		}

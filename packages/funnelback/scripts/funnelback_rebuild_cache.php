@@ -42,7 +42,7 @@ if (($ROOT_NODE_ID > 1) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($ROOT_NODE_ID
 // THE INDEXING STATUS SHOULD BE TURNED ON
 $fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 if (is_null($fm)) {
-	trigger_localised_error('FNB0020', E_USER_WARNING);
+	trigger_localised_error('FNB0020', translate('Unable to load Funnelback Manager, Funnelback Manager is not installed'), E_USER_WARNING)
 	exit();
 }//end if
 if (!$fm->attr('indexing')) {
@@ -53,7 +53,7 @@ if (!$fm->attr('indexing')) {
 
 // Check for a lock file
 if (file_exists(SQ_TEMP_PATH.'/funnelback.rebuilder')) {
-	trigger_localised_error('FNB0019', E_USER_WARNING);
+	trigger_localised_error('FNB0019', translate('Lockfile found. Scripts cannot be run concurrently.'), E_USER_WARNING)
 	exit();
 }//end if
 

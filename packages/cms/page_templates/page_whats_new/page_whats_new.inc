@@ -72,7 +72,7 @@ class Page_Whats_New extends Listing_Engine
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) {
-			trigger_localised_error('CMS0010', E_USER_NOTICE);
+			trigger_localised_error('CMS0010', translate('No type settings have been configured for this page - no assets will be listed'), E_USER_NOTICE)
 			return Array();
 		}
 
@@ -183,7 +183,7 @@ class Page_Whats_New extends Listing_Engine
 		if (!empty($from_date)) {
 			// invalid FROM date?
 			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $from_date, $matches)) {
-				trigger_localised_error('CMS0053', E_USER_WARNING, $from_date);
+				trigger_localised_error('CMS0053', sprintf(translate('From date "%s" is not a valid date. No assets will be displayed.'), $from_date), E_USER_WARNING)
 				return Array();
 			}
 
@@ -192,7 +192,7 @@ class Page_Whats_New extends Listing_Engine
 
 			// invalid FROM time?
 			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $from_time, $matches)) {
-				trigger_localised_error('CMS0054', E_USER_WARNING, $from_time);
+				trigger_localised_error('CMS0054', sprintf(translate('From time "%s" is not a valid time. No assets will be displayed.'), $from_time), E_USER_WARNING)
 				return Array();
 			}
 			$where .= ' AND a.'.$field.' >= '.db_extras_todate(MatrixDAL::getDbType(), ':wn_from_date', FALSE);
@@ -204,7 +204,7 @@ class Page_Whats_New extends Listing_Engine
 		if (!empty($to_date)) {
 			// invalid TO date?
 			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $to_date, $matches)) {
-				trigger_localised_error('CMS0055', E_USER_WARNING, $to_date);
+				trigger_localised_error('CMS0055', sprintf(translate('To date "%s" is not a valid date. No assets will be displayed.'), $to_date), E_USER_WARNING)
 				return Array();
 			}
 
@@ -213,7 +213,7 @@ class Page_Whats_New extends Listing_Engine
 
 			// invalid TO time?
 			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $to_time, $matches)) {
-				trigger_localised_error('CMS0056', E_USER_WARNING, $to_time);
+				trigger_localised_error('CMS0056', sprintf(translate('To time "%s" is not a valid time. No assets will be displayed.'), $to_time), E_USER_WARNING)
 				return Array();
 			}
 			$where .= ' AND a.'.$field.' <= '.db_extras_todate(MatrixDAL::getDbType(), ':wn_to_date', FALSE);
@@ -222,7 +222,7 @@ class Page_Whats_New extends Listing_Engine
 
 		// if there are no date conditions - we dont display anything
 		if (empty($where)) {
-			trigger_localised_error('CMS0011', E_USER_NOTICE);
+			trigger_localised_error('CMS0011', translate('No date settings have been configured for this page - no assets will be listed'), E_USER_NOTICE)
 			return Array();
 		}
 

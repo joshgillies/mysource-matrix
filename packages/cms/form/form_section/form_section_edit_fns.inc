@@ -560,7 +560,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				// If we cannot create this asset for whatever reason, let
 				// the user know about it
 				if (!$new_section_asset->create($link)) {
-					trigger_localised_error('CMS0108', E_USER_WARNING, $new_section_name, $asset->name);
+					trigger_localised_error('CMS0108', sprintf(translate('Unable to create nested section "%1$s" underneath "%2$s"'), $new_section_name, $asset->name), E_USER_WARNING)
 				}
 			}
 

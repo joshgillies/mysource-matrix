@@ -62,7 +62,7 @@ class Design_Area extends Asset
 
 		$id_name = trim($this->attr('id_name'));
 		if ($id_name == '') {
-			trigger_localised_error('CORE0187', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0187', sprintf(translate('Unable to create a %s with a blank id name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
 			return FALSE;
 		}
 
@@ -519,7 +519,7 @@ class Design_Area extends Asset
 						// referencing another design area (which should already have been defined)
 						$da = $design->getDesignArea($item['attributes']['id_name']);
 						if (is_null($da)) {
-							trigger_localised_error('CORE0153', E_USER_NOTICE, $item['attributes']['id_name']);
+							trigger_localised_error('CORE0153', sprintf(translate('Design Area "%s" not found, ignoring print operation'), $item['attributes']['id_name']), E_USER_NOTICE)
 						} else {
 							if (isset($item['attributes']['var'])) {
 								// printing a particular var from the design area

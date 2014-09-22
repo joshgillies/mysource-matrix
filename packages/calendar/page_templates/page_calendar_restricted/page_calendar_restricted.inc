@@ -168,7 +168,7 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 	{
 		$end_date = substr($this->attr('end_date'), 0, 10);
 		if ($end_date == '----------') {
-			trigger_localised_error('CAL0063', E_USER_WARNING, $this->id);
+			trigger_localised_error('CAL0063', sprintf(translate('Lastest date to show for Restricted Period Calendar Page #%s has not been set.'), $this->id), E_USER_WARNING)
 			return;
 		}
 		parent::printBody();

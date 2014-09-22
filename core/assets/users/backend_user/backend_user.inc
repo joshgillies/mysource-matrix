@@ -61,7 +61,7 @@ class Backend_User extends User
 
 	}//end canAccessBackend()
 
-	
+
 	/*
 	* Delete backend user asset from the trash
 	*
@@ -73,7 +73,7 @@ class Backend_User extends User
 	* @access public
 	*/
 	public function delete($release_lock=TRUE, $check_locked=TRUE)
-	{	
+	{
 		$success = FALSE;
 
 		if (parent::delete($release_lock, $check_locked)) {
@@ -88,21 +88,21 @@ class Backend_User extends User
 			}
 
 			$success = TRUE;
-			
+
 			// Release all the locks held by this backend user
 			foreach($result as $key => $val) {
 				$lockid = $val['lockid'];
-				
+
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock($lockid)) !== TRUE) {
-					trigger_localised_error('SYS0109', E_USER_NOTICE, $lock_type, $asset->name, $err_msg);
+					trigger_localised_error('SYS0109', sprintf(translate('Unable to release "%1$s" lock on "%2$s", %3$s'), $lock_type, $asset->name, $err_msg), E_USER_NOTICE)
 					$success = FALSE;
 					continue;
-				}			
+				}
 			}// End foreach
 		}
 
 		return $success;
-	
+
 	}
 
 }//end class

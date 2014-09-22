@@ -190,14 +190,14 @@ class Asset_Status_Live_Approval extends Asset_Status
 				}
 
 				if (!$wfm->cancelWorkflow($this->owner->id, $msg)) {
-					trigger_localised_error('SYS0260', E_USER_WARNING);
+					trigger_localised_error('SYS0260', translate('Workflow cancel failed'), E_USER_WARNING)
 					return false;
 				}
 			}
 
 			// we are safe editing
 			if (!$this->owner->saveSystemVersion()) {
-				trigger_localised_error('SYS0208', E_USER_WARNING);
+				trigger_localised_error('SYS0208', translate('Status change failed, could not save to cache'), E_USER_WARNING)
 				return false;
 			}
 
@@ -244,13 +244,13 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
-						trigger_localised_error('SYS0261', E_USER_WARNING);
+						trigger_localised_error('SYS0261', translate('Workflow completion failed'), E_USER_WARNING)
 						return false;
 					}
 				} else {
 					// we are doing a workflow and someone has just approved the asset, so record this
 					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-						trigger_localised_error('SYS0077', E_USER_WARNING, $current_userid, $this->owner->name);
+						trigger_localised_error('SYS0077', sprintf(translate('Approval by user %1$s not set in processStatusChange for "%2$s"'), $current_userid, $this->owner->name), E_USER_WARNING)
 						return false;
 					}
 
@@ -258,7 +258,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 					// as long as all our metadata is also complete
 					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 						if (!$wfm->completeWorkflow($this->owner->id)) {
-							trigger_localised_error('SYS0261', E_USER_WARNING);
+							trigger_localised_error('SYS0261', translate('Workflow completion failed'), E_USER_WARNING)
 							return false;
 						}
 					}

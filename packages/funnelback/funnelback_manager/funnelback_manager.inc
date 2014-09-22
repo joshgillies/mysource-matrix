@@ -1049,7 +1049,7 @@ class Funnelback_Manager extends Asset
 			$status = create_directory($path);
 			if ($status === FALSE) {
 				// Error error error
-				trigger_localised_error('FNB0013', E_USER_WARNING);
+				trigger_localised_error('FNB0013', translate('Unable to create the collection path'), E_USER_WARNING)
 				$path = '';
 			}//end if
 		}//end if

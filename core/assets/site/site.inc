@@ -230,9 +230,9 @@ class Site extends Folder
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
 				if ($path !== $clean_path) {
 					if ($clean_path != '') {
-						trigger_localised_error('CORE0080', E_USER_WARNING, $save_urls[$save_urlid]['url'], $path, $clean_path);
+						trigger_localised_error('CORE0080', sprintf(translate('URL "%1$s" contains a path "%2$s" which was deemed to be not valid. A valid version is "%3$s"'), $save_urls[$save_urlid]['url'], $path, $clean_path), E_USER_WARNING)
 					} else {
-						trigger_localised_error('CORE0124', E_USER_WARNING, $save_urls[$save_urlid]['url'], $path);
+						trigger_localised_error('CORE0124', sprintf(translate('URL "%1$s" contains a path "%2$s" which was deemed to be not valid.'), $save_urls[$save_urlid]['url'], $path), E_USER_WARNING)
 					}
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -252,7 +252,7 @@ class Site extends Folder
 			}
 
 			if (!$found_root_url) {
-				trigger_localised_error('CORE0082', E_USER_WARNING, $save_urls[$save_urlid]['url']);
+				trigger_localised_error('CORE0082', sprintf(translate('URL "%s" is not based upon an existing System Root URL'), $save_urls[$save_urlid]['url']), E_USER_WARNING)
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -272,7 +272,7 @@ class Site extends Folder
 			if (!$found) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $save_urls[$save_urlid]['url'], TRUE, TRUE);
 				if (!is_null($asset)) {
-					trigger_localised_error('CORE0081', E_USER_WARNING, $save_urls[$save_urlid]['url'], $asset->name, $asset->id);
+					trigger_localised_error('CORE0081', sprintf(translate('URL "%1$s" is already in use by "%2$s" [#%3$s]'), $save_urls[$save_urlid]['url'], $asset->name, $asset->id), E_USER_WARNING)
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -318,7 +318,7 @@ class Site extends Folder
 				// we are not going to insert same url
 				foreach ($current_urls as $url) {
 				   if($save_urls[$save_urlid]['url'] === $url['url']) {
-					 trigger_localised_error('CORE0081', E_USER_WARNING, $save_urls[$save_urlid]['url'], $this->name, $this->id);
+					 trigger_localised_error('CORE0081', sprintf(translate('URL "%1$s" is already in use by "%2$s" [#%3$s]'), $save_urls[$save_urlid]['url'], $this->name, $this->id), E_USER_WARNING)
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
@@ -747,7 +747,7 @@ class Site extends Folder
 					return;
 				}
 			}
-			trigger_localised_error('CORE0065', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
+			trigger_localised_error('CORE0065', sprintf(translate('No Index Page Set for %1$s "%2$s" (Id #%3$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id), E_USER_NOTICE)
 			return;
 		}
 
@@ -953,7 +953,7 @@ class Site extends Folder
 			break;
 
 			default :
-				trigger_localised_error('CORE0075', E_USER_WARNING, $page);
+				trigger_localised_error('CORE0075', sprintf(translate('Special Page "%s" unknown'), $page), E_USER_WARNING)
 				return Array();
 		}
 

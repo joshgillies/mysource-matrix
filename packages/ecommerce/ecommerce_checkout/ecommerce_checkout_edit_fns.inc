@@ -130,7 +130,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				$new_node = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_node, SQ_LINK_NOTICE, 'delivery_method')) {
 					$ok = FALSE;
-					trigger_localised_error('CMS0016', E_USER_WARNING, $new_node->name, $new_node->id);
+					trigger_localised_error('CMS0016', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $new_node->name, $new_node->id), E_USER_WARNING)
 					break;
 				}
 			}

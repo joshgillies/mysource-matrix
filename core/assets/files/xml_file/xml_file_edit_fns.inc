@@ -138,7 +138,7 @@ class Xml_File_Edit_Fns extends File_Edit_Fns
 		$xsl = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'xsl_file', TRUE, 'transform');
 		$assetid = array_get_index($xsl, 'minorid', 0);
 		if (!class_exists('XSLTProcessor')) {
-			trigger_localised_error('XSL0001', E_USER_WARNING);
+			trigger_localised_error('XSL0001', translate('XSL Module is not installed. Feature is not available'), E_USER_WARNING)
 		} else {
 			if ($asset->writeAccess('links')) {
 				echo asset_finder($prefix.'_transform_xsl', $assetid, Array('xsl_file'=>'I'));

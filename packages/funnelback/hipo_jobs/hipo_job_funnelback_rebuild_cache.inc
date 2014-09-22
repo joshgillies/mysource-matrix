@@ -235,7 +235,7 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 			// so we have an assetid to start at, but make sure it is a valid assetid
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) {
-				trigger_localised_error('FNB0022', E_USER_WARNING, $assetid);
+				trigger_localised_error('FNB0022', sprintf(translate('Unable to initialise Funnelback Rebuild Cache HIPO, invalid root asset ID specified (%s)'), $assetid), E_USER_WARNING)
 				return FALSE;
 			}
 

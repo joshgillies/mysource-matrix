@@ -632,7 +632,7 @@ class Design_Area_Access_History extends Design_Area
 				preg_match('/(?P<type_code>\w+)(\[(?P<parameters>[012])\])?/', $type_content, $matches);
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($matches['type_code'])) {
-					trigger_localised_error('CORE0145', E_USER_WARNING, $matches['type_code']);
+					trigger_localised_error('CORE0145', sprintf(translate('Asset Type "%s" is not installed in this system, unable to set "type_codes"'), $matches['type_code']), E_USER_WARNING)
 					return FALSE;
 				}
 				if (empty($matches['parameters'])){

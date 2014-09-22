@@ -268,11 +268,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_new_vc']) && trim($_POST[$prefix.'_new_vc']) != '') {
 			$new_vc = trim($_POST[$prefix.'_new_vc']);
 			if (isset($current_vc[$new_vc])) {
-				trigger_localised_error('CORE0206', E_USER_WARNING, $contexted_asset->name);
+				trigger_localised_error('CORE0206', sprintf(translate('Value component "%1%s" already exists for field "%1$s"'), $contexted_asset->name), E_USER_WARNING)
 			} else if (preg_match('/^[1-9][0-9]+$/', $new_vc)) {
 				// we are not allowing just numbers because we want to use array_merge()
 				// and if there is only numbers it thinks the elements are in from an indexed array and it all goes bad.
-				trigger_localised_error('CORE0207', E_USER_WARNING);
+				trigger_localised_error('CORE0207', translate('Value components are can not allowed to contain only all numeric characters is the first character is zero'), E_USER_WARNING)
 			} else {
 				$current_vc[$new_vc] = '';
 				$updated = TRUE;

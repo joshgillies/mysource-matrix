@@ -91,13 +91,13 @@ class Cache_Storage_Default extends Cache_Storage
 			$status = mkdir(SQ_CACHE_PATH.'/'.$group, 0755);
 			clearstatcache();
 			if (!$status) {
-				trigger_localised_error('CORE0245', E_USER_WARNING, SQ_CACHE_PATH.'/'.$group);
+				trigger_localised_error('CORE0245', sprintf(translate('Unable to create cache directory "%s"'), SQ_CACHE_PATH.'/'.$group), E_USER_WARNING)
 				return FALSE;
 			}
 		}
 		$status = string_to_file($data, SQ_CACHE_PATH.'/'.$file_path);
 		if (!$status) {
-			trigger_localised_error('CORE0243', E_USER_WARNING, SQ_CACHE_PATH.'/'.$file_path);
+			trigger_localised_error('CORE0243', sprintf(translate('Unable to write to cache file "%s"'), SQ_CACHE_PATH.'/'.$file_path), E_USER_WARNING)
 			return FALSE;
 		}
 		umask($old_umask);
@@ -168,7 +168,7 @@ class Cache_Storage_Default extends Cache_Storage
 					if ($contents === FALSE) {
 						// if we cannot read from the cache file, remove this cache entry
 						$this->_deleteCache($cache_key, $perm_key, $url);
-						trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
+						trigger_localised_error('CORE0244', sprintf(translate('Unable to read from cache file "%s"'), SQ_CACHE_PATH.'/'.$cached['path']), E_USER_WARNING)
 						return FALSE;
 					}
 					return $contents;
@@ -272,14 +272,14 @@ class Cache_Storage_Default extends Cache_Storage
 	function cleanExpiredEntries()
 	{
 		$bind_vars = Array('now' => ts_iso8601(time()));
-		
+
 		try {
 			$paths  = MatrixDAL::executeAssoc('cache_storage_default', 'selectExpiredEntryPaths', 0, $bind_vars);
 		} catch (Exception $e) {
 			trigger_error('Unable to select expired cache entry paths due to database error: '.$e->getMessage(), E_USER_WARNING);
 			return FALSE;
 		}
-		
+
 		foreach ($paths as $k => $path) {
 			$cache_file = SQ_CACHE_PATH.'/'.$path;
 			if (is_file($cache_file) === TRUE) {
@@ -290,7 +290,7 @@ class Cache_Storage_Default extends Cache_Storage
 				}
 			}
 		}
-		
+
 		try {
 			MatrixDAL::executeQuery('cache_storage_default', 'deleteExpiredEntries', $bind_vars);
 		} catch (Exception $e) {
@@ -473,7 +473,7 @@ class Cache_Storage_Default extends Cache_Storage
 			$old_umask = umask(0);
 			$status = string_to_file($updated_content, SQ_CACHE_PATH.'/'.$file_path);
 			if (!$status) {
-				trigger_localised_error('CORE0243', E_USER_WARNING, SQ_CACHE_PATH.'/'.$file_path);
+				trigger_localised_error('CORE0243', sprintf(translate('Unable to write to cache file "%s"'), SQ_CACHE_PATH.'/'.$file_path), E_USER_WARNING)
 				return FALSE;
 			}
 			umask($old_umask);

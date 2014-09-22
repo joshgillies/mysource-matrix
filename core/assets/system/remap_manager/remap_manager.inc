@@ -181,7 +181,7 @@ class Remap_Manager extends Asset
 	{
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
-			trigger_localised_error('CORE0093', E_USER_WARNING);
+			trigger_localised_error('CORE0093', translate('Unable to remap URL, the URLs passed must both be strings'), E_USER_WARNING)
 			return 0;
 		}
 
@@ -193,7 +193,7 @@ class Remap_Manager extends Asset
 
 		// can't remap to a blank URL
 		if ($new_url === '') {
-			trigger_localised_error('CORE0271', E_USER_WARNING);
+			trigger_localised_error('CORE0271', translate('Adding remap entry failed in Trigger Action Add Remap'), E_USER_WARNING)
 			return 0;
 		}
 
@@ -215,7 +215,7 @@ class Remap_Manager extends Asset
 		if (in_array($new_url, $remap_urls)) return 1;
 
 		if (count($remap_urls) > 0) {
-			trigger_localised_error('CORE0024', E_USER_WARNING, $old_url);
+			trigger_localised_error('CORE0024', sprintf(translate('Failed adding URL remap, URL "%s" is already remapping to another URL'), $old_url), E_USER_WARNING)
 			return -1;
 		}
 
@@ -350,7 +350,7 @@ class Remap_Manager extends Asset
 			if ($url_data['http']) {
 				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires, $never_delete, FALSE);
 				if ($retval === 0) {
-					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
+					trigger_localised_error('CORE0039', sprintf(translate('Failed remapping all URLs for Asset #%1$s to "%2$s'), $assetid, $new_url), E_USER_WARNING)
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
@@ -360,7 +360,7 @@ class Remap_Manager extends Asset
 			if ($url_data['https']) {
 				$retval = @$this->addRemapURL('https://'.$url_data['url'], $new_url, $expires, $never_delete, FALSE);
 				if ($retval === 0) {
-					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
+					trigger_localised_error('CORE0039', sprintf(translate('Failed remapping all URLs for Asset #%1$s to "%2$s'), $assetid, $new_url), E_USER_WARNING)
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
@@ -381,7 +381,7 @@ class Remap_Manager extends Asset
 				}
 				$retval = @$this->addRemapURL($protocol.'://?a='.$assetid, $new_url, $expires, $never_delete, FALSE);
 				if ($retval !== 1) {
-					trigger_localised_error('CORE0040', E_USER_WARNING, $assetid, $new_url);
+					trigger_localised_error('CORE0040', sprintf(translate('Failed remapping the Asset ID #%1$s (?a=%1$s) to URL "%2$s"'), $assetid, $new_url), E_USER_WARNING)
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
