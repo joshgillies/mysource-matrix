@@ -297,7 +297,7 @@ class Ldap
 				$paginated_list_attr = NULL;
 				foreach($entry as $attr_name => $attr_val) {
 					// If the member list in member attribute is paginated
-					if (preg_match('/^[a-z\-_0-9];range=\d+\-\d+$/', $attr_name)) {
+					if (preg_match('/'.preg_quote($member_attribute).';range=\d+\-\d+$/', $attr_name)) {
 						$paginated_list_attr = $attr_name;
 					}
 				}//end foreach
@@ -310,7 +310,7 @@ class Ldap
 					$start_range = $page_size;
 					while(TRUE) {
 						// Get the group entry with the specified members range
-						$member_attr = 'member;range='.$start_range.'-'.($start_range + $page_size - 1);
+						$member_attr = $member_attribute.';range='.$start_range.'-'.($start_range + $page_size - 1);
 						$group_sr = @ldap_read($this->ptr, $entry['dn'], '(objectClass=*)', Array($member_attr));
 						if (!$group_sr) {
 							$ldap_error = ldap_err2str(ldap_errno($this->ptr));
@@ -335,7 +335,7 @@ class Ldap
 						unset($members['count']);
 						$members['count'] = count($members);
 						// Set the 'member' attribute to the complete member list
-						$entry['member'] = $members;
+						$entry[$member_attribute] = $members;
 					}
 				}//end if
 			}//end foreach
