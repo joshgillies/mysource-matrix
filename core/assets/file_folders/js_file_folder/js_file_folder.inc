@@ -208,6 +208,24 @@ class Js_File_Folder extends File_Folder
 
 
 	/**
+	* Minify the given JS content using the inbuilt 'JSMin.php' script
+	* This is used when using "Basic Minification" option
+	*
+	* @param string $content	File content
+	*
+	* @return string
+	* @access protected
+	*/
+	protected function _minify($content)
+	{
+		require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/jsmin.php';
+
+		return JSMin::minify($content);
+
+	}//end _minify()
+
+
+	/**
 	* Add additional Source Map files to the data dir(s)
 	*
 	* @param array $files
