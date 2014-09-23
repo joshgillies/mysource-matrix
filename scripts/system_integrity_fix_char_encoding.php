@@ -148,16 +148,55 @@ $tables = Array(
 				'values'		=> Array('term'),
 				'asset_assoc'	=> FALSE,
 			),
+			Array(
+				'table'			=> 'ast_lookup',
+				'values'		=> Array('url'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'ast_lookup_remap',
+				'values'		=> Array('url', 'remap_url'),
+				'asset_assoc'	=> FALSE,
+			),
+			Array(
+				'table'			=> 'ast_lookup_value',
+				'values'		=> Array('url', 'name'),
+				'asset_assoc'	=> FALSE,
+			),
+			Array(
+				'table'			=> 'ast_url',
+				'values'		=> Array('url'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'cache',
+				'values'		=> Array('url'),
+				'asset_assoc'	=> TRUE,
+			),
 	);
 
 $TABLES = getCLIArg('skip-tables');
 if (!empty($TABLES)) {
 	$skip_tables = explode(',', $TABLES);
+	$relevant_tables = Array();
 	foreach($tables as $index => $table_data) {
 		if (in_array($table_data['table'], $skip_tables)) {
 			unset($tables[$index]);
 		}//end if
+		$relevant_tables[] = $table_data['table'];
 	}//end forach
+
+	// Warn if the specified table is not relevant to this script
+	$invalid_tables = array_diff($skip_tables, $relevant_tables);
+	if (!empty($invalid_tables)) {
+		echo "WARNING: Unrecognised table name(s) entered in 'skip-tables' parameter. Make sure you are not using 'sq_' or 'sq_rb_' prefix:\n".implode($invalid_tables, "\n");
+		echo "\nContinue [y/N] ? ";
+		$response = trim(fgets(STDIN, 1024));
+		if (strtolower($response) != 'y') {
+			echo "\nAborting\n";
+			exit();
+		}
+	}
 }
 
 if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
@@ -405,6 +444,7 @@ function fix_db($root_node, $tables, $rollback)
 	// Counter to count the number of records accessed/processed
 	$count = 0;
 	foreach($tables as $table_data) {
+		$table_records_count = 0;
 
 		$table = isset($table_data['table']) ? $table_data['table'] : '';
 		if (empty($table)) {
@@ -442,28 +482,27 @@ function fix_db($root_node, $tables, $rollback)
 			$select_fields[] = 'assetid';
 		}
 		
-		if ($root_node == 1 && $asste_specific_table) {
-			// When running system wide, get the asset list from the respective db table
-			$sql = "SELECT DISTINCT assetid FROM ".$table;
-			$target_assetids = array_keys(MatrixDAL::executeSqlGrouped($sql));
+		if ($root_node == 1) {
+			if ($asste_specific_table) {
+				// When running system wide, get the asset list from the respective db table
+				$sql = "SELECT DISTINCT assetid FROM ".$table;
+				$target_assetids = array_keys(MatrixDAL::executeSqlGrouped($sql));
 
-			// Go through 50 assets at a time. Applicable to asset specific tables only
-	    	$chunks = array_chunk($target_assetids, 50);
-			$chunks_count = count($chunks);
+				// Go through 50 assets at a time. Applicable to asset specific tables only
+		    	$chunks = array_chunk($target_assetids, 50);
+			} else {
+				// Dummy assetids chuck just so that we can get into next loop
+				$chunks = Array(Array());
+			}
 		}
 
 		echo "\nChecking ".$table." .";
-
 		// For non-asset specific table, this loop will break at end of the very first iteration
 		foreach ($chunks as $chunk_index => $assetids) {
 			$sql  = 'SELECT '.implode(',', $select_fields).' FROM '.$table;
 			// For non-asset specific table, "where" condition not is required. We get the whole table in a single go
 			if ($asste_specific_table) {
 				$sql .= ' WHERE assetid IN (\''.implode('\',\'', $assetids).'\')';
-
-				// In the last chunk include all the assetids that does not exist in ast table
-				if (($chunk_index == ($chunks_count-1)) && $table != 'sq_ast' && $table != 'sq_rb_ast') {
-				}
 			} else if ($table == 'sq_internal_msg') {
 				// Special case for non-asset specific records for 'interal_msg' table
 				// Internal message has 'assetid' field but messages not associated with the asset will have empty assetid
@@ -472,8 +511,9 @@ function fix_db($root_node, $tables, $rollback)
 
 			$results = MatrixDAL::executeSqlAssoc($sql);
 			foreach($results as $record) {
+				$table_records_count++;
 				$count++;
-				if ($count % 100 == 0) {
+				if ($count % 10000 == 0) {
 					echo '.';
 				}
 
@@ -667,6 +707,8 @@ function fix_db($root_node, $tables, $rollback)
 			}
 
 		}//end foreach assetids chunk
+		echo " ".$table_records_count." records";
+
 	}//end foreach tables
 
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
