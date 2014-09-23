@@ -40,15 +40,21 @@ class Css_File_Folder extends File_Folder
 
 
 	/**
-	* Merge and minifiy the linked file into a single file
+	* Minify the given CSS content using the inbuilt 'CSSMin.php' script
+	* This is used when using "Basic Minification" option
 	*
-	* @return boolean
-	* @access public
+	* @param string $content    File content
+	*
+	* @return string
+	* @access protected
 	*/
-	public function _minifyFiles()
+	protected function _minify($content)
 	{
+		require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/cssmin.php';
 
-	}//end minifyFiles()
+		return CSSMin::minify($content);
+
+	}//end _minify()
 
 
 	/**

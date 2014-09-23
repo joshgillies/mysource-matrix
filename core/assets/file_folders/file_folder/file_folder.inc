@@ -215,11 +215,10 @@ class File_Folder extends File
 
 		// Minify the files if required
 		$minify = $this->attr('compiler_type') != 'none';
-		require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/jsmin.php';
 		$output = '';
 		foreach ($source_files as $source_file) {
 			$file_content = file_get_contents($source_file) ;
-			$output .= $minify ? JSMin::minify($file_content) : $file_content."\n";
+			$output .= $minify ? $this->_minify($file_content) : $file_content."\n";
 		}
 
 		// Write into the merged file
@@ -228,6 +227,21 @@ class File_Folder extends File
 		return TRUE;
 
 	}//end mergeFiles()
+
+
+	/**
+	* Minify the given file content using when using "Basic Minification" option
+	*
+	* @param string $content    File content
+	*
+	* @return string
+	* @access protected
+	*/
+	protected function _minify($content)
+	{
+		return '';
+
+	}//end _minify()
 
 
 	/**
@@ -324,7 +338,7 @@ class File_Folder extends File
 	{
 		return '';
 
-	}//end minifyFiles()
+	}//end getFileExtension()
 
 
 	/**
@@ -337,7 +351,7 @@ class File_Folder extends File
 	{
 		return '';
 
-	}//end minifyFiles()
+	}//end getFileAssetType()
 
 
 	/**
