@@ -297,7 +297,7 @@ class Ldap
 				$paginated_list_attr = NULL;
 				foreach($entry as $attr_name => $attr_val) {
 					// If the member list in member attribute is paginated
-					if (preg_match('/'.preg_quote($member_attribute).';range=\d+\-\d+$/', $attr_name)) {
+					if (preg_match('/^'.preg_quote($member_attribute).';range=\d+\-\d+$/', $attr_name)) {
 						$paginated_list_attr = $attr_name;
 					}
 				}//end foreach
