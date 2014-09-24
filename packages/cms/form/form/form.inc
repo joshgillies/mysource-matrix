@@ -4611,7 +4611,7 @@ class Form extends Asset implements Bridge
 		$replacement = NULL;
 		$keyword = parse_keyword($keyword, $modifiers);
 		$is_question_keyword = preg_match('/^question\_(.*)\_(\d+[\_\:]q\d+)$/', $keyword, $question_matches);
-		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
+		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?(\_file_content)?(\_file_size)?$/', $keyword, $response_matches);
 		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
 		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);
 
@@ -4703,15 +4703,34 @@ class Form extends Asset implements Bridge
 			}//end switch
 
 		} else if ($is_response_keyword) {
-			$raw_response = (count($response_matches) == 3);
+			$raw = (array_get_index($response_matches, 2, '') == '_raw');
+			$file_content = (array_get_index($response_matches, 3, '') == '_file_content');
+			$file_size = (array_get_index($response_matches, 4, '') == '_file_size');
+
+
 			list(, $assetid) = $response_matches;
 			$assetid = str_replace('_', ':', $assetid);
 
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (!empty($question_asset)) {
-				if ($raw_response) {
+				if ($raw) {
 					$replacement = htmlspecialchars($question_asset->getValue(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
-				} else {
+				}
+				else if($file_size && $question_asset instanceof Form_Question_Type_File_Upload) {
+					$path = $question_asset->getFilePath();
+					if(is_file($path))
+						$replacement = easy_filesize(filesize($question_asset->getFilePath()));
+					else 
+						$replacement = '';
+				}
+				else if($file_content && $question_asset instanceof Form_Question_Type_File_Upload) {
+						$path = $question_asset->getFilePath();
+						if(is_file($path))
+							$replacement = file_get_contents($question_asset->getFilePath());
+						else 
+							$replacement = '';
+				}
+				else {
 					$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 				}
 			}
@@ -5508,7 +5527,7 @@ class Form extends Asset implements Bridge
 					}
 				}
 
-			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?(_raw)?|', $keyword, $matches)) {
+			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?(_raw)?(_file_content)?(_file_size)?|', $keyword, $matches)) {
 				// Question response keywords, eg.
 				// %response_123_q4% ... question 4 from form/section ID 123
 				// %response_q4% ....... question 4 from the form
@@ -5523,6 +5542,8 @@ class Form extends Asset implements Bridge
 				}
 
 				$raw = (array_get_index($matches, 3, '') == '_raw');
+				$file_content = (array_get_index($matches, 4, '') == '_file_content');
+				$file_size = (array_get_index($matches, 5, '') == '_file_size');
 
 				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
 				if (!empty($question_asset)) {
@@ -5533,7 +5554,22 @@ class Form extends Asset implements Bridge
 						} else {
 							$replacement = '';
 						}
-					} else {
+					} 
+					else if($file_size && $question_asset instanceof Form_Question_Type_File_Upload) {
+						$path = $question_asset->getFilePath();
+						if(is_file($path))
+							$replacement = easy_filesize(filesize($question_asset->getFilePath()));
+						else 
+							$replacement = '';
+					}
+					else if($file_content && $question_asset instanceof Form_Question_Type_File_Upload) {
+						$path = $question_asset->getFilePath();
+						if(is_file($path))
+							$replacement = file_get_contents($question_asset->getFilePath());
+						else 
+							$replacement = '';
+					}
+					else {
 						$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 					}
 				}
