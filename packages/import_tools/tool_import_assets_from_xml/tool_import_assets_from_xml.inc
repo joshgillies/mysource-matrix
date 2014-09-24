@@ -109,7 +109,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 		// error: xml file not specified
 		$file_info = get_file_upload_info($type_code.'_file_upload');
 		if (empty($file_info)) {
-			trigger_localised_error('IMP0002', translate('No file selected to use'), E_USER_NOTICE)
+			trigger_localised_error('IMP0002', translate('No file selected to use'), E_USER_NOTICE);
 			return FALSE;
 		} else {
 
@@ -155,7 +155,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 		if($root_node_id != 0) {
 			$root_node 		= $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node_id);
 			if (is_null($root_node)) {
-				trigger_localised_error('IMP0003', translate('Provided Assetid is not for a valid Asset'), E_USER_NOTICE)
+				trigger_localised_error('IMP0003', translate('Provided Assetid is not for a valid Asset'), E_USER_NOTICE);
 				return FALSE;
 			}
 		}

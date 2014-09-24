@@ -94,13 +94,13 @@ class Trigger_Action_Update_Internal_Messages extends Trigger_Action
 	{
 		$message_action = array_get_index($settings, 'status', SQ_MSG_READ);
 		if (!in_array($message_action, array_keys(self::$_statii))) {
-			trigger_localised_error('CORE0322', sprintf(translate('Invalid message action "%1$s".'), $message_action), E_USER_WARNING)
+			trigger_localised_error('CORE0322', sprintf(translate('Invalid message action "%1$s".'), $message_action), E_USER_WARNING);
 			return FALSE;
 		}
 
 		$message_source = array_get_index($settings, 'source', SQ_MSG_READ);
 		if (!in_array($message_source, array_keys(self::$_msg_source))) {
-			trigger_localised_error('CORE0323', sprintf(translate('Invalid message source "%1$s".'), $message_source), E_USER_WARNING)
+			trigger_localised_error('CORE0323', sprintf(translate('Invalid message source "%1$s".'), $message_source), E_USER_WARNING);
 			return FALSE;
 		}
 

@@ -204,7 +204,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 	{
 		// to start the batch events, we need to have asset ids and the events to fire on each
 		if (empty($this->_running_vars['assets']) || empty($this->_running_vars['events'])) {
-			trigger_localised_error('HIPO0002', translate('Unable to initialise Trigger Batch Events HIPO, no assets or events specified'), E_USER_WARNING)
+			trigger_localised_error('HIPO0002', translate('Unable to initialise Trigger Batch Events HIPO, no assets or events specified'), E_USER_WARNING);
 			return false;
 		}
 

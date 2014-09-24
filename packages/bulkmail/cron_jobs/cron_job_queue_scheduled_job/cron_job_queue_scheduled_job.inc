@@ -124,7 +124,7 @@ class Cron_Job_Queue_Scheduled_Job extends Cron_Job
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 		return FALSE;
 
 	}//end morph()

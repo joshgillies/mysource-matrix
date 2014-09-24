@@ -80,7 +80,7 @@ class Trigger_Action_Delete_Future_Permission extends Trigger_Action
 				if ($cron_mgr->removeJob($job)) {
 					$jobids[] = $job->id;
 				} else {
-					trigger_localised_error('CRON0065', sprintf(translate('Unable to remove the future permission cron job id: %s'), $job->id), E_USER_WARNING)
+					trigger_localised_error('CRON0065', sprintf(translate('Unable to remove the future permission cron job id: %s'), $job->id), E_USER_WARNING);
 				}
 			}
 		}

@@ -417,7 +417,7 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 		// Get a list of all the installed authentication systems
 		$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR)
+			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 			return;
 		}
 

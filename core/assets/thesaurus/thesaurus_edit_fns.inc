@@ -93,14 +93,14 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			// Actually, do we need to create the data_path directory in _createAdditional() ?
 			if (!file_exists($asset->data_path)) {
 				if (!create_directory($asset->data_path)) {
-					trigger_localised_error('CORE0261', sprintf(translate('Cannot Create a Data Directory "%s" for a content xml file.'), $asset->data_path), E_USER_WARNING)
+					trigger_localised_error('CORE0261', sprintf(translate('Cannot Create a Data Directory "%s" for a content xml file.'), $asset->data_path), E_USER_WARNING);
 					return FALSE;
 				}
 			}
 
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $asset->getXmlFilePath())) {
-				trigger_localised_error('CORE0235', sprintf(translate('Failed copying uploaded file (%1$s) to destination directory (%2$s)'), $info['tmp_name'], $asset->getXmlFilePath()), E_USER_WARNING)
+				trigger_localised_error('CORE0235', sprintf(translate('Failed copying uploaded file (%1$s) to destination directory (%2$s)'), $info['tmp_name'], $asset->getXmlFilePath()), E_USER_WARNING);
 				return FALSE;
 			}
 		}

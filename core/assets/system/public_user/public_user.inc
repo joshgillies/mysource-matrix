@@ -99,7 +99,7 @@ class Public_User extends User
 	public function morph($new_type_code)
 	{
 		// trying to morph an unprivileged public user... why would you bother?
-		trigger_localised_error('CORE0091', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+		trigger_localised_error('CORE0091', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 		return FALSE;
 
 	}//end morph()
@@ -173,7 +173,7 @@ class Public_User extends User
 	public function setAttrValue($name, $value, $filter=NULL)
 	{
 		if ($name == 'username') {
-			trigger_localised_error('CORE0113', sprintf(translate('You are not able to alter the username for the "%s"'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+			trigger_localised_error('CORE0113', sprintf(translate('You are not able to alter the username for the "%s"'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 

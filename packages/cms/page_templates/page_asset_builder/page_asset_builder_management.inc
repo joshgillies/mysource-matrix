@@ -575,7 +575,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-					trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.2'), $asset->name, $asset->id), E_USER_WARNING)
+					trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.2'), $asset->name, $asset->id), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -584,7 +584,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset->setAttrValue('create_type', serialize($create_type));
 
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING)
+					trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -607,7 +607,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-					trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.1'), $asset->name, $asset->id), E_USER_WARNING)
+					trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.1'), $asset->name, $asset->id), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -635,7 +635,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset->setAttrValue('create_location_rules', $new_locations);
 
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.1'), E_USER_WARNING)
+					trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.1'), E_USER_WARNING);
 					return FALSE;
 				}
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
@@ -657,7 +657,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-					trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.2'), $asset->name, $asset->id), E_USER_WARNING)
+					trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.2'), $asset->name, $asset->id), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -671,7 +671,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 
 				$asset->setAttrValue('required_fields', $required_fields);
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING)
+					trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING);
 					return FALSE;
 				}
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
@@ -710,7 +710,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-					trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.3'), $asset->name, $asset->id), E_USER_WARNING)
+					trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.3'), $asset->name, $asset->id), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -784,7 +784,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset->setAttrValue('create_location_rules', $create_location_rules);
 
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CMS0027', sprintf(translate('Asset Builder Upgrade [from %s] FAILED - Couldn\'t save attributes'), '0.3'), E_USER_WARNING)
+					trigger_localised_error('CMS0027', sprintf(translate('Asset Builder Upgrade [from %s] FAILED - Couldn\'t save attributes'), '0.3'), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -793,7 +793,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				foreach (array_keys($content_assetids) as $assetid) {
 					$content_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.3'), $content_asset->name, $content_asset->id), E_USER_WARNING)
+						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.3'), $content_asset->name, $content_asset->id), E_USER_WARNING);
 						return FALSE;
 					}
 					$html = $content_asset->attr('html');
@@ -810,7 +810,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				foreach (array_keys($container_assetids) as $assetid) {
 					$container_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($container_asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.3'), $container_asset->name, $container_asset->id), E_USER_WARNING)
+						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.3'), $container_asset->name, $container_asset->id), E_USER_WARNING);
 						return FALSE;
 					}
 					$container_asset->saveSystemVersion();
@@ -822,7 +822,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CMS0027', sprintf(translate('Asset Builder Upgrade [from %s] FAILED - Couldn\'t save attributes'), '0.3'), E_USER_WARNING)
+					trigger_localised_error('CMS0027', sprintf(translate('Asset Builder Upgrade [from %s] FAILED - Couldn\'t save attributes'), '0.3'), E_USER_WARNING);
 					return FALSE;
 				}
 

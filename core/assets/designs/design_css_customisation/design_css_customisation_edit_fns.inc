@@ -367,14 +367,14 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			$da = $am->getAsset($link['minorid'], $link['minor_type_code']);
 
 			if ($da->attr('id_name') == '') {
-				trigger_localised_error('CORE0154', sprintf(translate('Design Area #%s does not have an id_name set. Attempting to recover.'), $da->id), E_USER_NOTICE)
+				trigger_localised_error('CORE0154', sprintf(translate('Design Area #%s does not have an id_name set. Attempting to recover.'), $da->id), E_USER_NOTICE);
 				foreach ($links as $link) {
 					if ($link['minorid'] == $da->id) {
 						if (!empty($link['value'])) {
 							$da->setAttrValue('id_name', $link['value']);
 							$da->saveAttributes();
 						} else {
-							trigger_localised_error('CORE0149', sprintf(translate('Could not recover id_name for design area #%s'), $da->id), E_USER_WARNING)
+							trigger_localised_error('CORE0149', sprintf(translate('Could not recover id_name for design area #%s'), $da->id), E_USER_WARNING);
 						}
 						break;
 					}

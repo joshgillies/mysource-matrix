@@ -149,7 +149,7 @@ class PDF_File extends File
 
 					    }//end switch
 
-					    trigger_localised_error('CORE0324', sprintf(translate('Error occurred while getting contents for pdf File Asset #%1$s : %2$s'), $this->id, $error_str), E_USER_WARNING)
+					    trigger_localised_error('CORE0324', sprintf(translate('Error occurred while getting contents for pdf File Asset #%1$s : %2$s'), $this->id, $error_str), E_USER_WARNING);
 					    return '';
 				    }//end if
 			    }//end if

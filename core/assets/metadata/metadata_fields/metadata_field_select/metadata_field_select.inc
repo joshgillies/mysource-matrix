@@ -70,7 +70,7 @@ class Metadata_Field_Select extends Metadata_Field
 			foreach($value as $key => $option) {
 				// Option keys cannot contain '; ' string
 				if (strpos($key, '; ') !== FALSE) {
-					trigger_localised_error('SYS0353', sprintf(translate('Cannot use the Metadata Select Field\'s reserved delimiter string "; " (semi-colon and space) as a part of the option key in "%1$s". Replacing "; " with ";".'), $key), E_USER_NOTICE)
+					trigger_localised_error('SYS0353', sprintf(translate('Cannot use the Metadata Select Field\'s reserved delimiter string "; " (semi-colon and space) as a part of the option key in "%1$s". Replacing "; " with ";".'), $key), E_USER_NOTICE);
 					$key = preg_replace('/;\s+/', ';', $key);
 				}
 				$validated_values[$key] = $option;
@@ -474,7 +474,7 @@ class Metadata_Field_Select extends Metadata_Field
 			if ($num_columns === 3) {
 				if (!$this->attr('multiple')) {
 					if (count($defaults) > 1) {
-						trigger_localised_error('CORE0309', translate('More than one default option was set in the CSV file, but the Metadat Field is not set for multiple selection. Only the first default option found will be used.'), E_USER_NOTICE)
+						trigger_localised_error('CORE0309', translate('More than one default option was set in the CSV file, but the Metadat Field is not set for multiple selection. Only the first default option found will be used.'), E_USER_NOTICE);
 					}
 					if (count($defaults) > 0) {
 						$defaults = Array($defaults[0]);

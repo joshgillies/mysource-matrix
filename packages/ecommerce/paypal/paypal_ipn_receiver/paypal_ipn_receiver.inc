@@ -254,7 +254,7 @@ class Paypal_IPN_Receiver extends Page
 		$payment_info['status_code'] = "A 404 status code was sent back to the client.";
 		$this->_logIncomingRequestInfo(FAIL_LOG_FILE, $payment_info);
 
-		trigger_localised_error('SYS0218', sprintf(translate('URL "%s" not found'), $protocol.'://'.$url), E_USER_NOTICE)
+		trigger_localised_error('SYS0218', sprintf(translate('URL "%s" not found'), $protocol.'://'.$url), E_USER_NOTICE);
 
 		exit(1);
 

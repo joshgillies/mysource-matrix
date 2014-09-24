@@ -230,7 +230,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	{
 		// to start acquiring locks, we need to have an asset id to acquire a lock on
 		if (empty($this->_running_vars['assetids']) || empty($this->_running_vars['lock_type'])) {
-			trigger_localised_error('HIPO0035', translate('Unable to initialise Acquire Locks HIPO, no start asset ID and/or lock type specified'), E_USER_WARNING)
+			trigger_localised_error('HIPO0035', translate('Unable to initialise Acquire Locks HIPO, no start asset ID and/or lock type specified'), E_USER_WARNING);
 			return false;
 		}
 

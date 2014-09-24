@@ -257,7 +257,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 				} else {
-					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE)
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE);
 				}
 			}
 			// remove job only, do not print error msg

@@ -40,7 +40,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'submit' as the form field, because it clashes
 	// with the submit() fn that the form has
 	if ($name == 'submit') {
-		trigger_localised_error('SYS0019', translate('Cannot use "submit" as the name of the Submit button'), E_USER_ERROR)
+		trigger_localised_error('SYS0019', translate('Cannot use "submit" as the name of the Submit button'), E_USER_ERROR);
 	}
 
 	if ($on_click) {
@@ -75,7 +75,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'reset' as the form field, because it clashes
 	// with the reset() fn that the form has
 	if ($name == 'reset') {
-		trigger_localised_error('SYS0018', translate('Cannot use "reset" as the name of your Reset button'), E_USER_ERROR)
+		trigger_localised_error('SYS0018', translate('Cannot use "reset" as the name of your Reset button'), E_USER_ERROR);
 	}
 
 	if ($on_click) {
@@ -601,34 +601,34 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 		break;
 
 		case UPLOAD_ERR_INI_SIZE  :
-			trigger_localised_error('SYS0022', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, strtoupper(easy_filesize($max_allowed_size))), E_USER_WARNING)
+			trigger_localised_error('SYS0022', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, strtoupper(easy_filesize($max_allowed_size))), E_USER_WARNING);
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_FORM_SIZE :
-			trigger_localised_error('SYS0021', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, strtoupper(easy_filesize($max_allowed_size))), E_USER_WARNING)
+			trigger_localised_error('SYS0021', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, strtoupper(easy_filesize($max_allowed_size))), E_USER_WARNING);
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_PARTIAL :
-			trigger_localised_error('SYS0023', sprintf(translate('The uploaded file "%s" was only partially uploaded.'), $nice_name), E_USER_WARNING)
+			trigger_localised_error('SYS0023', sprintf(translate('The uploaded file "%s" was only partially uploaded.'), $nice_name), E_USER_WARNING);
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_NO_TMP_DIR :
-			trigger_localised_error('SYS0350', sprintf(translate('Upload error for "%s" file: Missing a temporary folder to upload the file to.'), $nice_name), E_USER_WARNING)
+			trigger_localised_error('SYS0350', sprintf(translate('Upload error for "%s" file: Missing a temporary folder to upload the file to.'), $nice_name), E_USER_WARNING);
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_CANT_WRITE :
-			trigger_localised_error('SYS0351', sprintf(translate('Upload error for "%s" file: Failed to write file to disk. Please check the permission or the space on tmp directory.'), $nice_name), E_USER_WARNING)
+			trigger_localised_error('SYS0351', sprintf(translate('Upload error for "%s" file: Failed to write file to disk. Please check the permission or the space on tmp directory.'), $nice_name), E_USER_WARNING);
 			return FALSE;
 		break;
 
 		case 8 :
 			// this was introduced in PHP 5.2
 			if (PHP_VERSION_ID > 50200) {
-				trigger_localised_error('SYS0352', sprintf(translate('Upload error for "%s" file: A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.'), $nice_name), E_USER_WARNING)
+				trigger_localised_error('SYS0352', sprintf(translate('Upload error for "%s" file: A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.'), $nice_name), E_USER_WARNING);
 				return FALSE;
 			}
 		break;
@@ -672,7 +672,7 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 	$nice_name = str_replace('_', ' ', $name);
 
 	if ($max_size > 0 && $max_size < $info['size']) {
-		trigger_localised_error('SYS0020', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, easy_filesize($max_size)), E_USER_WARNING)
+		trigger_localised_error('SYS0020', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, easy_filesize($max_size)), E_USER_WARNING);
 		return FALSE;
 	}
 
@@ -689,7 +689,7 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 
 		// see $restrict_exts documentation in function header
 		if (($restrict_exts && !$in_arr) || (!$restrict_exts && $in_arr)) {
-			trigger_localised_error('SYS0002', sprintf(translate('%1$s files are not allowed for "%2$s"'), $ext, $nice_name), E_USER_WARNING)
+			trigger_localised_error('SYS0002', sprintf(translate('%1$s files are not allowed for "%2$s"'), $ext, $nice_name), E_USER_WARNING);
 			return FALSE;
 		}//end if
 	}//end if
@@ -699,7 +699,7 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 	// Doe dest exist and is it a directory ?
 	if (is_dir($dest)) {
 		if (!is_writable($dest)) {
-			trigger_localised_error('SYS0007', sprintf(translate('Destination Directory "%s" is not writable'), $dest), E_USER_WARNING)
+			trigger_localised_error('SYS0007', sprintf(translate('Destination Directory "%s" is not writable'), $dest), E_USER_WARNING);
 			return FALSE;
 		}
 		$dest .= '/'.$info['name'];
@@ -708,11 +708,11 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 	// Now we know we have a proper filename, if it exists are we allowed to write over it
 	if (file_exists($dest)) {
 		if (!$overwrite) {
-			trigger_localised_error('SYS0027', sprintf(translate('Unable to upload file "%s", filename already in use'), $info['name']), E_USER_WARNING)
+			trigger_localised_error('SYS0027', sprintf(translate('Unable to upload file "%s", filename already in use'), $info['name']), E_USER_WARNING);
 			return FALSE;
 		}
 		if (!is_writable($dest)) {
-			trigger_localised_error('SYS0008', sprintf(translate('Destination File "%s" is not writable'), $dest), E_USER_WARNING)
+			trigger_localised_error('SYS0008', sprintf(translate('Destination File "%s" is not writable'), $dest), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -722,17 +722,17 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 		$parent = dirname($dest);
 		// if the parent isn't a directory, can we create it ?
 		if (!is_dir($parent) && !create_directory($parent)) {
-			trigger_localised_error('SYS0015', sprintf(translate('Parent Directory "%s" does not exist'), $parent), E_USER_WARNING)
+			trigger_localised_error('SYS0015', sprintf(translate('Parent Directory "%s" does not exist'), $parent), E_USER_WARNING);
 			return FALSE;
 		} else if (!is_writable($parent)) {
-			trigger_localised_error('SYS0016', sprintf(translate('Parent Directory "%s" is not writable'), $parent), E_USER_WARNING)
+			trigger_localised_error('SYS0016', sprintf(translate('Parent Directory "%s" is not writable'), $parent), E_USER_WARNING);
 			return FALSE;
 		}
 	}//end dest exists
 
 	// Move file over
 	if (!move_uploaded_file($info['tmp_name'], $dest)) {
-		trigger_localised_error('SYS0025', sprintf(translate('Unable to create file: %s'), $dest), E_USER_WARNING)
+		trigger_localised_error('SYS0025', sprintf(translate('Unable to create file: %s'), $dest), E_USER_WARNING);
 		return FALSE;
 	}
 

@@ -239,7 +239,7 @@ class Locale_Manager extends MySource_Object
 			break;
 
 			default:
-				trigger_localised_error('SYS0193', sprintf(translate('Locale code "%s" does not seem to be valid'), $locale), E_USER_WARNING)
+				trigger_localised_error('SYS0193', sprintf(translate('Locale code "%s" does not seem to be valid'), $locale), E_USER_WARNING);
 				return FALSE;
 			break;
 		}//end switch

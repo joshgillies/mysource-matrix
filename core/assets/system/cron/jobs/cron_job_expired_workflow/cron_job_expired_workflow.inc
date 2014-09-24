@@ -194,7 +194,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 					if ($step['escalate']) {
 						// Escalate the job, at any time
 						if (!$wfm->escalateWorkflow($row['assetid'], $schemaid)) {
-							trigger_localised_error('CRON0052', sprintf(translate('Failed to escalate schema %1$s for asset %2$s.'), $schemaid, $assetid), E_USER_WARNING)
+							trigger_localised_error('CRON0052', sprintf(translate('Failed to escalate schema %1$s for asset %2$s.'), $schemaid, $assetid), E_USER_WARNING);
 						}
 					} else {
 						// Send a stale message, but only if this is the first

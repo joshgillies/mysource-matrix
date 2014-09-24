@@ -128,7 +128,7 @@ class Suite_Manager extends Page
 
 		// Create the data directory, ready for use
 		if (!create_directory($this->data_path)) {
-			trigger_localised_error('SYS0148', sprintf(translate('Failed clearing system version of asset "%s", could not create data directory'), $this->name), E_USER_WARNING)
+			trigger_localised_error('SYS0148', sprintf(translate('Failed clearing system version of asset "%s", could not create data directory'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 		return $linkid;
@@ -274,7 +274,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('suiteid' => $suiteid);
 			$results   = MatrixDAL::executeAssoc('squiz_suite_package', 'getProduct', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR)
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -306,7 +306,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('systemid' => $systemid);
 			$results   = MatrixDAL::executeAssoc('squiz_suite_package', 'getProductBySystemid', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR)
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -334,7 +334,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('systemid' => $systemid, 'url' => $url);
 			$results   = MatrixDAL::executeAssoc('squiz_suite_package', 'getProductBySystemidURL', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR)
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -365,7 +365,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('token' => $token);
 			$results   = MatrixDAL::executeAssoc('squiz_suite_package', 'getProductByToken', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR)
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -430,7 +430,7 @@ class Suite_Manager extends Page
 		try {
 			$results = MatrixDAL::executeAssoc('squiz_suite_package', 'getCurrentProduct', Array('is_current'=>'1'));
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR)
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -494,7 +494,7 @@ class Suite_Manager extends Page
 			MatrixDAL::bindValueToPdo($query, $attrName, $attrValue);
 			MatrixDAL::execPdoQuery($query);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR)
+			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FALSE;
 		}//end try-catch
@@ -539,7 +539,7 @@ class Suite_Manager extends Page
 	 					 );
 			MatrixDAL::executeQuery('squiz_suite_package', 'registerProduct', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR)
+			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return '';
 		}//end try-catch
@@ -566,7 +566,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('suiteid' => $suiteid, 'is_current'=>(int) $current);
 			MatrixDAL::executeQuery('squiz_suite_package', 'removeProduct', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR)
+			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FALSE;
 		}//end try-catch

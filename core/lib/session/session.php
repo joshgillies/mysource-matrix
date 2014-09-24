@@ -50,10 +50,10 @@ if ($primary_url == sq_web_path('root_url')) {
 
 	if (!isset($_REQUEST['sessionid']) || !preg_match('/^[a-z0-9]+$/i', $_REQUEST['sessionid'])) {
 		// something is definately wrong
-		trigger_localised_error('SYS0013', translate('Missing primary sessionid'), E_USER_ERROR)
+		trigger_localised_error('SYS0013', translate('Missing primary sessionid'), E_USER_ERROR);
 	}
 	if (is_null($site_network)) {
-		trigger_localised_error('SYS0014', translate('Missing site network'), E_USER_ERROR)
+		trigger_localised_error('SYS0014', translate('Missing site network'), E_USER_ERROR);
 	}
 
 	$session_handler_instance = new $session_handler();

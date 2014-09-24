@@ -176,7 +176,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (is_file($parse_file)) {
 			$new_version = TRUE;
 			if (!unlink($parse_file)) {
-				trigger_localised_error('CORE0164', translate('Failed deleting existing parse file'), E_USER_WARNING)
+				trigger_localised_error('CORE0164', translate('Failed deleting existing parse file'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -193,20 +193,20 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '')) {
-						trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING)
+						trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 					}
 				}
 			} else {
 				// attempt to add the parse file to the repository
 				if (!$fv->add($asset->data_path_suffix, $parse_file, '')) {
-					trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING)
+					trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING);
 				}
 			}
 		}//end if file uploaded
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
-			trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING)
+			trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -456,19 +456,19 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '')) {
-						trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING)
+						trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 					}
 				} else {
 					$changes = TRUE;
 				}
 
 			} else {
-				trigger_localised_error('CORE0167', translate('Failed writing parse file, trying to recover previous version from repository'), E_USER_WARNING)
+				trigger_localised_error('CORE0167', translate('Failed writing parse file, trying to recover previous version from repository'), E_USER_WARNING);
 			}
 
 			// make sure we have the latest version of our file
 			if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
-				trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING)
+				trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -802,7 +802,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($file_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$cloned->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING)
+				trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -817,7 +817,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($css_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$cloned->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0161', translate('Failed creating css file link to customisation'), E_USER_WARNING)
+				trigger_localised_error('CORE0161', translate('Failed creating css file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -948,14 +948,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is a name and it's not the the same type as the current design area
 			if (empty($element['attributes']['id_name']) || empty($element['attributes']['design_area'])) {
-				trigger_localised_error('CORE0143', translate('All design areas need to have an "id_name" and a "design_area"'), E_USER_WARNING)
+				trigger_localised_error('CORE0143', translate('All design areas need to have an "id_name" and a "design_area"'), E_USER_WARNING);
 				return FALSE;
 			}//end if
 
 			// validate id name
 			if (!preg_match('/^[a-z][a-z0-9_]*$/i', $element['attributes']['id_name']) || $element['attributes']['id_name'] != preg_replace('/__+/', '', $element['attributes']['id_name'])) {
-				trigger_localised_error('CORE0181', sprintf('The id_name "%s" contains illegal characters, the id_name must be an alpha character, optionally followed by any number of alphanumeric characters or underscores.
-NOTE: you cannot have more that one consecutive underscore', $element['attributes']['id_name']), E_USER_WARNING)
+				trigger_localised_error('CORE0181', sprintf('The id_name "%s" contains illegal characters, the id_name must be an alpha character, optionally followed by any number of alphanumeric characters or underscores. NOTE: you cannot have more that one consecutive underscore', $element['attributes']['id_name']), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -963,7 +962,7 @@ NOTE: you cannot have more that one consecutive underscore', $element['attribute
 
 			// if there is a name and it's not the the same type as the current design area
 			if (isset($id_names[$element['attributes']['id_name']])) {
-				trigger_localised_error('CORE0142', sprintf(translate('All design areas MUST have a unique id_name, "%s" is used at least twice'), $element['attributes']['id_name']), E_USER_WARNING)
+				trigger_localised_error('CORE0142', sprintf(translate('All design areas MUST have a unique id_name, "%s" is used at least twice'), $element['attributes']['id_name']), E_USER_WARNING);
 				return FALSE;
 			}//end if
 
@@ -1005,7 +1004,7 @@ NOTE: you cannot have more that one consecutive underscore', $element['attribute
 		foreach ($id_names as $id_name => $design_area) {
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->installed($design_area)) {
-				trigger_localised_error('CORE0327', sprintf(translate('Could not parse design file. Design Area "%s" is not installed in the system.'), $design_area), E_USER_WARNING)
+				trigger_localised_error('CORE0327', sprintf(translate('Could not parse design file. Design Area "%s" is not installed in the system.'), $design_area), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -1443,7 +1442,7 @@ NOTE: you cannot have more that one consecutive underscore', $element['attribute
 			if (is_file($current_parse_file)) {
 				$new_version = TRUE;
 				if (!unlink($current_parse_file)) {
-					trigger_localised_error('CORE0164', translate('Failed deleting existing parse file'), E_USER_WARNING)
+					trigger_localised_error('CORE0164', translate('Failed deleting existing parse file'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -1459,13 +1458,13 @@ NOTE: you cannot have more that one consecutive underscore', $element['attribute
 					$file_status = $fv->upToDate($parse_file);
 					if (FUDGE_FV_MODIFIED & $file_status) {
 						if (!$fv->commit($current_parse_file, '')) {
-							trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING)
+							trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 						}
 					}
 				} else {
 					// attempt to add the parse file to the repository
 					if (!$fv->add($asset->data_path_suffix, $current_parse_file, '')) {
-						trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING)
+						trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING);
 					}
 				}
 

@@ -195,7 +195,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	{
 		// to start editing schemas, we need to have an asset id to start editing schemas at
 		if (empty($this->_running_vars['schema_changes'])) {
-			trigger_localised_error('HIPO0010', translate('Unable to initialise Edit Workflow Schemas HIPO, no asset IDs specified'), E_USER_WARNING)
+			trigger_localised_error('HIPO0010', translate('Unable to initialise Edit Workflow Schemas HIPO, no asset IDs specified'), E_USER_WARNING);
 			return false;
 		}
 
@@ -213,7 +213,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 					if (is_null($asset)) {
-						trigger_localised_error('HIPO0009', sprintf(translate('Unable to initialise Edit Workflow Schemas HIPO, invalid asset ID specified (%s)'), $assetid), E_USER_WARNING)
+						trigger_localised_error('HIPO0009', sprintf(translate('Unable to initialise Edit Workflow Schemas HIPO, invalid asset ID specified (%s)'), $assetid), E_USER_WARNING);
 						return '';
 					}
 
@@ -358,7 +358,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					unset($asset);
 				} else {
 					// we do not acquire lock
-					trigger_localised_error('SYS0100', sprintf(translate('Unable to acquire "%1$s" lock on "%2$s", %3$s', 'workflow'), $asset->name, ' skipping asset.'), E_USER_WARNING)
+					trigger_localised_error('SYS0100', sprintf(translate('Unable to acquire "%1$s" lock on "%2$s", %3$s', 'workflow'), $asset->name, ' skipping asset.'), E_USER_WARNING);
 				}
 
 			} else {

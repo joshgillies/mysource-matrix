@@ -1820,7 +1820,7 @@ class Asset_Map
 
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset)) {
-				$this->_error('AMAP0017', sprintf(translate('Unable to Move Asset, asset to be moved (Asset #%s) not found', $link['minorid']));
+				$this->_error('AMAP0017', sprintf(translate('Unable to Move Asset, asset to be moved (Asset #%s) not found'), $link['minorid']));
 				return;
 			}
 
@@ -1966,7 +1966,7 @@ class Asset_Map
 
 		$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
-			$this->_error('AMAP0025', sprintf(translate('Unable to Create New Link, existing parent (Asset #%s) not found', $input->root->attributes['from_parent_assetid']));
+			$this->_error('AMAP0025', sprintf(translate('Unable to Create New Link, existing parent (Asset #%s) not found'), $input->root->attributes['from_parent_assetid']));
 			return;
 		}
 
@@ -2300,7 +2300,7 @@ class Asset_Map
 			// trying to clone deprecated asset type. Won't allow it
 			if ($asset->deprecated) {
 			    $clean_type_name = ucwords(str_replace('_', ' ', $asset->type()));
-				$this->_error('CORE0326', sprintf(translate('Asset of type "%1$s" have been deprecated since Matrix version %2$s and cannot be cloned.'), $clean_type_name, $asset->deprecated_since);
+				$this->_error('CORE0326', sprintf(translate('Asset of type "%1$s" have been deprecated since Matrix version %2$s and cannot be cloned.'), $clean_type_name, $asset->deprecated_since));
 				return;
 			}
 

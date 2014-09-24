@@ -349,7 +349,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 				if ($match_type == 'regex' && !empty($filter_value)) {
 					$valid_regex = @preg_match('/'.str_replace('/', '\/',$filter_value).'/', 'test');
 					if ($valid_regex === FALSE) {
-						trigger_localised_error('DATA0007', sprintf(translate('Specified string "%1$s" is not a valid regular expression'), $filter_value), E_USER_WARNING)
+						trigger_localised_error('DATA0007', sprintf(translate('Specified string "%1$s" is not a valid regular expression'), $filter_value), E_USER_WARNING);
 						$filter_value = '';
 					}
 				}

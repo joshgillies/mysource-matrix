@@ -108,7 +108,7 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 		$when_oo = $edit_fns->_processWhenBox($cron_job, $o, $prefix);
 
 		if (!$when_oo) {
-			trigger_localised_error('CMS0122', translate('To schedule a job you must specify the date at which the logs should be sent'), E_USER_WARNING)
+			trigger_localised_error('CMS0122', translate('To schedule a job you must specify the date at which the logs should be sent'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -116,13 +116,13 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 			&& $_REQUEST[$prefix.'_when_interval_hours'] == '--'
 			&& $_REQUEST[$prefix.'_when_interval_days'] == '-') {
 
-			trigger_localised_error('CMS0119', translate('You will need to specify the repetation parameter for the repeating cron job'), E_USER_WARNING)
+			trigger_localised_error('CMS0119', translate('You will need to specify the repetation parameter for the repeating cron job'), E_USER_WARNING);
 
 			return FALSE;
 		} else {
 			// repeat frequency is set, but start time not specified, error
 			if (!$when_oo) {
-				trigger_localised_error('CRON0050', sprintf(translate('Start time for %s is not defined.'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')), E_USER_WARNING)
+				trigger_localised_error('CRON0050', sprintf(translate('Start time for %s is not defined.'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -130,7 +130,7 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 			// mute warning as we are only using this bit to working out the start time
 			if (!@$cron_job->setAttrValue('when', $when_oo)) {
 				$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-				trigger_localised_error('CRON0048', sprintf(translate('Unable to schedule a repeating %1$s to be run before the next job run is scheduled (which is at %2$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun())), E_USER_WARNING)
+				trigger_localised_error('CRON0048', sprintf(translate('Unable to schedule a repeating %1$s to be run before the next job run is scheduled (which is at %2$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun())), E_USER_WARNING);
 				return FALSE;
 			}
 			$when_oo_str = $cron_job->attr('when');

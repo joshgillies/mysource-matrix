@@ -150,7 +150,7 @@ class EES_Login_Design_Management extends Asset_Management
 			$file_status = $fv->upToDate($file_path);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($file_path, '')) {
-					trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING)
+					trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 				}
 			}
 		} else {
@@ -159,7 +159,7 @@ class EES_Login_Design_Management extends Asset_Management
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($data_path_suffix.'/'.$file_name, $data_path)) {
-			trigger_localised_error('CORE0032', translate('Failed checking out latest version of file'), E_USER_WARNING)
+			trigger_localised_error('CORE0032', translate('Failed checking out latest version of file'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 

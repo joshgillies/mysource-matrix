@@ -197,7 +197,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		} catch (Exception $e) {
 			$GLOBALS['SQ_SYSTEM']->tm->rollback('trigger_action_db');
 			MatrixDAL::restoreDb();
-			trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING)
+			trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING);
 			return FALSE;
 		}
 

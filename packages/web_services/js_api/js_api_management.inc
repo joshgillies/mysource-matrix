@@ -597,7 +597,7 @@ class JS_Api_Management extends Asset_Management
 					if (is_null($asset)) continue;
 
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.2'), $asset->name, $asset->id), E_USER_WARNING)
+						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.2'), $asset->name, $asset->id), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -609,7 +609,7 @@ class JS_Api_Management extends Asset_Management
 					$asset->setAttrValue('set_asset_status', FALSE);
 
 					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING)
+						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -631,7 +631,7 @@ class JS_Api_Management extends Asset_Management
 					if (is_null($asset)) continue;
 
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.5'), $asset->name, $asset->id), E_USER_WARNING)
+						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.5'), $asset->name, $asset->id), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -646,7 +646,7 @@ class JS_Api_Management extends Asset_Management
 
 
 					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.5'), E_USER_WARNING)
+						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.5'), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -668,7 +668,7 @@ class JS_Api_Management extends Asset_Management
 					if (is_null($asset)) continue;
 
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.6'), $asset->name, $asset->id), E_USER_WARNING)
+						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.6'), $asset->name, $asset->id), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -677,7 +677,7 @@ class JS_Api_Management extends Asset_Management
 					$asset->setAttrValue('import_assets', FALSE);
 
 					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.6'), E_USER_WARNING)
+						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.6'), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -700,14 +700,14 @@ class JS_Api_Management extends Asset_Management
 					if (is_null($asset)) continue;
 
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.7'), $asset->name, $asset->id), E_USER_WARNING)
+						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.7'), $asset->name, $asset->id), E_USER_WARNING);
 						return FALSE;
 					}
 
 					$asset->setAttrValue('get_ga_statistics', FALSE);
 
 					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.7'), E_USER_WARNING)
+						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.7'), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -730,14 +730,14 @@ class JS_Api_Management extends Asset_Management
 					if (is_null($asset)) continue;
 
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.8'), $asset->name, $asset->id), E_USER_WARNING)
+						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.8'), $asset->name, $asset->id), E_USER_WARNING);
 						return FALSE;
 					}
 
 					$asset->setAttrValue('get_system_information', FALSE);
 
 					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.8'), E_USER_WARNING)
+						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.8'), E_USER_WARNING);
 						return FALSE;
 					}
 

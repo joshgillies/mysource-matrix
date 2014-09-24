@@ -74,7 +74,7 @@ class Page_Asset_Listing extends Listing_Engine
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) {
-			trigger_localised_error('CMS0019', translate('No type settings have been configured for this page - no assets will be listed'), E_USER_NOTICE)
+			trigger_localised_error('CMS0019', translate('No type settings have been configured for this page - no assets will be listed'), E_USER_NOTICE);
 			return Array();
 		}
 

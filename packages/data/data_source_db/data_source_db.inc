@@ -107,7 +107,7 @@ class Data_Source_DB extends Data_Source
 					}
 
 				} catch (DALException $e) {
-					trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING)
+					trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING);
 					$empty = Array();
 					return $empty;
 				}
@@ -230,7 +230,7 @@ class Data_Source_DB extends Data_Source
 			}//end else
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
-			trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING)
+			trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING);
 			MatrixDAL::restoreDb();
 			return Array();
 		}

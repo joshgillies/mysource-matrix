@@ -51,7 +51,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'form_close' :
 			case 'submit_button' :
 				if ($this->_tmp['painting_section'] != 'login' && $this->_tmp['painting_section'] != 'logout') {
-					trigger_localised_error('CORE0178', sprintf(translate('The "%1$s" var can only be printed inside the login or logout sections of the login_form design area "%2$s"'), $var, $this->attr('id_name')), E_USER_WARNING)
+					trigger_localised_error('CORE0178', sprintf(translate('The "%1$s" var can only be printed inside the login or logout sections of the login_form design area "%2$s"'), $var, $this->attr('id_name')), E_USER_WARNING);
 					return FALSE;
 				}
 			break;
@@ -60,7 +60,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'username_box' :
 			case 'password_box' :
 				if ($this->_tmp['painting_section'] != 'login') {
-					trigger_localised_error('CORE0179', sprintf(translate('The "%1$s" var can only be printed inside the login section of the login_form design area "%2$s"'), $var, $this->attr('id_name')), E_USER_WARNING)
+					trigger_localised_error('CORE0179', sprintf(translate('The "%1$s" var can only be printed inside the login section of the login_form design area "%2$s"'), $var, $this->attr('id_name')), E_USER_WARNING);
 					return FALSE;
 				}
 			break;

@@ -300,7 +300,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		// we get back for the users
 		$user = $asset->getAsset($asset->id.':'.$asset->attr('bind_dn'), '', FALSE, FALSE, TRUE);
 		if (is_null($user)) {
-			trigger_localised_error('LDAP0001', translate('Failed getting user attributes from LDAP directory'), E_USER_WARNING)
+			trigger_localised_error('LDAP0001', translate('Failed getting user attributes from LDAP directory'), E_USER_WARNING);
 			return;
 		}
 

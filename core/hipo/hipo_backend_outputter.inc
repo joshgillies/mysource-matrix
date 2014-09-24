@@ -307,7 +307,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 						break;
 
 						default :
-							trigger_localised_error('HIPO0059', sprintf(translate('Unknown Area Type : "%s"'), $section['areas'][$j]['area_type']), E_USER_ERROR)
+							trigger_localised_error('HIPO0059', sprintf(translate('Unknown Area Type : "%s"'), $section['areas'][$j]['area_type']), E_USER_ERROR);
 
 					}//end switch area type
 

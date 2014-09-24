@@ -87,7 +87,7 @@ class Data_Source_Graph extends Image
 		$this->_tmp['file_create_data'] = &$info;
 
 		if ($name == '') {
-			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 		if (!$this->validFile($info)) return FALSE;
@@ -100,7 +100,7 @@ class Data_Source_Graph extends Image
 		// make sure the new web path is not already is use
 		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 		if (!empty($bad_paths)) {
-			trigger_localised_error('CORE0086', sprintf(translate('Unable to create file with name "%s", web path already exists?'), $name), E_USER_WARNING)
+			trigger_localised_error('CORE0086', sprintf(translate('Unable to create file with name "%s", web path already exists?'), $name), E_USER_WARNING);
 			return FALSE;
 		}
 		$this->setAttrValue('name', $name);
@@ -147,7 +147,7 @@ class Data_Source_Graph extends Image
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $this->id);
 				if (!empty($bad_paths)) {
-					trigger_localised_error('CORE0055', translate('File upload failed, web path "%s" is already in use by another asset'), E_USER_WARNING)
+					trigger_localised_error('CORE0055', translate('File upload failed, web path "%s" is already in use by another asset'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -158,7 +158,7 @@ class Data_Source_Graph extends Image
 
 		// copy over the new uploaded file
 		if (!copy($info['path'], $this->data_path.'/'.$name)) {
-			trigger_localised_error('CORE0036', sprintf(translate('Failed copying non-uploaded file (%1$s) to destination directory (%2$s)'), $info['name'], $this->data_path.'/'.$name), E_USER_WARNING)
+			trigger_localised_error('CORE0036', sprintf(translate('Failed copying non-uploaded file (%1$s) to destination directory (%2$s)'), $info['name'], $this->data_path.'/'.$name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -171,13 +171,13 @@ class Data_Source_Graph extends Image
 		$this->_tmp['uploading_file'] = FALSE;
 		$name_changed = $this->setAttrValue('name', $name);
 		if (!$this->saveAttributes()) {
-			trigger_localised_error('CORE0052', translate('Failed saving attributes for file'), E_USER_WARNING)
+			trigger_localised_error('CORE0052', translate('Failed saving attributes for file'), E_USER_WARNING);
 			return FALSE;
 		}
 		$asset->_tmp['uploading_file'] = FALSE;
 
 		if (!$this->saveWebPaths(Array($name))) {
-			trigger_localised_error('CORE0054', translate('Failed saving web paths'), E_USER_WARNING)
+			trigger_localised_error('CORE0054', translate('Failed saving web paths'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -200,7 +200,7 @@ class Data_Source_Graph extends Image
 
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'all');
 		if (!$this->saveAttributes()) {
-			trigger_localised_error('CORE0052', translate('Failed saving attributes for file'), E_USER_WARNING)
+			trigger_localised_error('CORE0052', translate('Failed saving attributes for file'), E_USER_WARNING);
 			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
@@ -870,7 +870,7 @@ class Data_Source_Graph extends Image
 		// read the file
 		$content = file_get_contents($this->data_path.'/'.$this->name);
 		if ($content === FALSE) {
-			trigger_localised_error('DATA0003', sprintf(translate('Failed reading "%s" image into string'), $this->name), E_USER_WARNING)
+			trigger_localised_error('DATA0003', sprintf(translate('Failed reading "%s" image into string'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 		// cache dummy string, will be used later to check for expiry time of this image file
@@ -967,31 +967,31 @@ class Data_Source_Graph extends Image
 
 		// make sure our data directory exists
 		if (!create_directory($this->data_path)) {
-			trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// make sure our system directory exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_localised_error('CORE0050', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted system directory'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0050', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted system directory'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// make sure there is nothing in the system directory
 		if (!clear_directory($this->data_path.'/.sq_system')) {
-			trigger_localised_error('CORE0046', sprintf(translate('Failed saving asset "%s" to cache, could not clear restricted system directory'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0046', sprintf(translate('Failed saving asset "%s" to cache, could not clear restricted system directory'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
-			trigger_localised_error('CORE0051', sprintf(translate('Failed saving asset "%s" to cache, could not write object data file'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0051', sprintf(translate('Failed saving asset "%s" to cache, could not write object data file'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// update our lookup tables to not use __data
 		if (!parent::updateLookups()) {
-			trigger_localised_error('CORE0053', sprintf(translate('Failed saving file "%s" to cache, failed updating lookups'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0053', sprintf(translate('Failed saving file "%s" to cache, failed updating lookups'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1048,7 +1048,7 @@ class Data_Source_Graph extends Image
 			$existing = $this->getExistingFile();
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing)) {
-					trigger_localised_error('CORE0008', sprintf(translate('Unable to morph "%1$s" to type "%2$s", currently uploaded file "%3$s" is not a valid %4$s file (see above error)'), $this->name, $new_type_code, $existing['filename'], $new_type_code), E_USER_WARNING)
+					trigger_localised_error('CORE0008', sprintf(translate('Unable to morph "%1$s" to type "%2$s", currently uploaded file "%3$s" is not a valid %4$s file (see above error)'), $this->name, $new_type_code, $existing['filename'], $new_type_code), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -1085,14 +1085,14 @@ class Data_Source_Graph extends Image
 		if ($this->effectiveUnrestricted() && $this->attr('allow_unrestricted')) {
 			// make sure our data directory exists
 			if (!create_directory($this->data_path_public)) {
-				trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING)
+				trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 
 			if (!file_exists($unrestricted)) {
 				// copy the file to the public data directory
 				if (!copy($this->data_path.'/'.$this->name, $unrestricted)) {
-					trigger_localised_error('DATA0004', sprintf(translate('Failed removing "%s" from data directory'), $this->name), E_USER_WARNING)
+					trigger_localised_error('DATA0004', sprintf(translate('Failed removing "%s" from data directory'), $this->name), E_USER_WARNING);
 				} else {
 					$changed = TRUE;
 				}
@@ -1102,7 +1102,7 @@ class Data_Source_Graph extends Image
 			if (is_file($unrestricted)) {
 				// unlink the file
 				if (!unlink($unrestricted)) {
-					trigger_localised_error('DATA0004', sprintf(translate('Failed removing "%s" from data directory'), $this->name), E_USER_WARNING)
+					trigger_localised_error('DATA0004', sprintf(translate('Failed removing "%s" from data directory'), $this->name), E_USER_WARNING);
 				} else {
 					$changed = TRUE;
 				}
@@ -1205,12 +1205,12 @@ class Data_Source_Graph extends Image
 		// copy the file instead of a direct rename because removing the
 		// file from the repository will also remove it from the file system
 		if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
-			trigger_localised_error('CORE0026', translate('Failed adding file version'), E_USER_WARNING)
+			trigger_localised_error('CORE0026', translate('Failed adding file version'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!unlink($data_path.'/'.$old_filename)) {
-			trigger_localised_error('DATA0004', sprintf(translate('Failed removing "%s" from data directory'), $this->name), E_USER_WARNING)
+			trigger_localised_error('DATA0004', sprintf(translate('Failed removing "%s" from data directory'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 

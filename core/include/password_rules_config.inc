@@ -85,7 +85,7 @@ class Password_Rules_Config extends Config
 
 			// if we dont have access, go away
 			if (!$is_admin) {
-				trigger_localised_error('SYS0267', sprintf(translate('You need to be either the Root User or a System Administrator to save the %s'), $this->name), E_USER_WARNING)
+				trigger_localised_error('SYS0267', sprintf(translate('You need to be either the Root User or a System Administrator to save the %s'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 		}

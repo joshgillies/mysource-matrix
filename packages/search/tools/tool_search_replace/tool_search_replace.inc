@@ -137,29 +137,29 @@ class Tool_Search_Replace extends Tool
 	{
 		// ensure we have a search string
 		if ($_REQUEST[$type_code.'_search_string'] == '') {
-			trigger_localised_error('SCH0002', translate('Required search string was blank'), E_USER_NOTICE)
+			trigger_localised_error('SCH0002', translate('Required search string was blank'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_search_types'])) {
-			trigger_localised_error('SCH0003', translate('No asset types were selected'), E_USER_NOTICE)
+			trigger_localised_error('SCH0003', translate('No asset types were selected'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_statuses'])) {
-			trigger_localised_error('SCH0004', translate('No asset statuses were selected'), E_USER_NOTICE)
+			trigger_localised_error('SCH0004', translate('No asset statuses were selected'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		if (empty($_REQUEST[$type_code.'_root_assetid']['assetid']) && !isset($_REQUEST[$type_code.'_root_folder'])) {
-			trigger_localised_error('SCH0005', translate('No root has been specified'), E_USER_NOTICE)
+			trigger_localised_error('SCH0005', translate('No root has been specified'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		if (strlen($_REQUEST[$type_code.'_search_string']) < $sm->attr('min_word_length')) {
-			trigger_localised_error('SCH0026', sprintf(translate('The search term "%1$s" is too short - only words longer than %2$s characters are indexed by the search system'), $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length')), E_USER_NOTICE)
+			trigger_localised_error('SCH0026', sprintf(translate('The search term "%1$s" is too short - only words longer than %2$s characters are indexed by the search system'), $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length')), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -199,7 +199,7 @@ class Tool_Search_Replace extends Tool
 
 		// no matches were found, trigger error and paint getInterface
 		if (!$search_results) {
-			trigger_localised_error('SCH0006', sprintf(translate('No Matches for "%s" could be found'), $_REQUEST[$type_code.'_search_string']), E_USER_NOTICE)
+			trigger_localised_error('SCH0006', sprintf(translate('No Matches for "%s" could be found'), $_REQUEST[$type_code.'_search_string']), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -207,7 +207,7 @@ class Tool_Search_Replace extends Tool
 
 		// after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
-			trigger_localised_error('SCH0006', sprintf(translate('No Matches for "%s" could be found'), $_REQUEST[$type_code.'_search_string']), E_USER_NOTICE)
+			trigger_localised_error('SCH0006', sprintf(translate('No Matches for "%s" could be found'), $_REQUEST[$type_code.'_search_string']), E_USER_NOTICE);
 			return FALSE;
 		}
 

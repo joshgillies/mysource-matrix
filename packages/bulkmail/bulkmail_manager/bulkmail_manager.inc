@@ -150,7 +150,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function deleteLink($linkid)
 	{
-			trigger_localised_error('CORE0118', sprintf(translate('You cannot delete anything from the %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+			trigger_localised_error('CORE0118', sprintf(translate('You cannot delete anything from the %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 
 	}//end deleteLink()
@@ -232,7 +232,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		$recipients = $am->assetExists($recipients);
 		if (empty($recipients)) {
-			trigger_localised_error('BML0010', translate('Problematic recipient id found: %s.'), E_USER_ERROR)
+			trigger_localised_error('BML0010', translate('Problematic recipient id found: %s.'), E_USER_ERROR);
 			return FALSE;
 		}
 
@@ -293,7 +293,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$details_info = $this->generateJobDetails($job, $post_office);
 		$errors = $this->isValidJob($details_info, TRUE);
 		if (!empty($errors)) {
-			trigger_localised_error('BML0001', sprintf(translate('Invalid job. %s'), $errors[0]), E_USER_WARNING)
+			trigger_localised_error('BML0001', sprintf(translate('Invalid job. %s'), $errors[0]), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -390,7 +390,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$progress_info['last_updated'] = 0;
 			$data_dir = $this->getJobDataPath($job_id);
 			if (!array_to_file($progress_info, 'progress_info', $data_dir.'/progress_info')) {
-				trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $data_dir.'/progress_info'), E_USER_WARNING)
+				trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $data_dir.'/progress_info'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -553,7 +553,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 						 );
 
 		if (!array_to_file($progress_info, 'progress_info', $data_dir.'/progress_info')) {
-			trigger_localised_error('BML0007', sprintf(translate('Unable to create file: %s.'), $data_dir.'/progress_info'), E_USER_WARNING)
+			trigger_localised_error('BML0007', sprintf(translate('Unable to create file: %s.'), $data_dir.'/progress_info'), E_USER_WARNING);
 			return FALSE;
 		} else {
 			return TRUE;
@@ -660,7 +660,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 										 );
 
 		if (!array_to_file($details_info, 'details_info', $data_dir.'/details_info')) {
-			trigger_localised_error('BML0007', sprintf(translate('Unable to create file: %s.'), $data_dir.'/details_info'), E_USER_WARNING)
+			trigger_localised_error('BML0007', sprintf(translate('Unable to create file: %s.'), $data_dir.'/details_info'), E_USER_WARNING);
 			return FALSE;
 		} else {
 			return TRUE;

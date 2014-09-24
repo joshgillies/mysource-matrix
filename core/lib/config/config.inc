@@ -76,7 +76,7 @@ class Config extends MySource_Object
 	public function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		if (!$this->writeAccess()) {
-			trigger_localised_error('SYS0026', sprintf(translate('Unable to save "%s", permission denied'), $this->name), E_USER_WARNING)
+			trigger_localised_error('SYS0026', sprintf(translate('Unable to save "%s", permission denied'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 

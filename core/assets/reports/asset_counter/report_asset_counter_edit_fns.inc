@@ -128,7 +128,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($report_dir)) {
 				if (!create_directory($report_dir)) {
-					trigger_localised_error('CORE0011', translate('Unable to create data directory, report generation aborted'), E_USER_WARNING)
+					trigger_localised_error('CORE0011', translate('Unable to create data directory, report generation aborted'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -162,7 +162,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			// file manipulation section
 			$file_handler = fopen($xml_file_name, 'w');
 			if ($file_handler === FALSE) {
-				trigger_localised_error('CORE0017', translate('Unable to open report file, report generation aborted'), E_USER_WARNING)
+				trigger_localised_error('CORE0017', translate('Unable to open report file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 			fwrite($file_handler, $report_contents);

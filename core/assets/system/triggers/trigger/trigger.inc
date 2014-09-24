@@ -229,7 +229,7 @@ class Trigger extends Asset
 
 		// Name cannot be empty
 		if (empty($trigger_info['name'])) {
-			trigger_localised_error('TRIG0001', translate('Cannot save trigger without a name'), E_USER_NOTICE)
+			trigger_localised_error('TRIG0001', translate('Cannot save trigger without a name'), E_USER_NOTICE);
 			return FALSE;
 		}
 

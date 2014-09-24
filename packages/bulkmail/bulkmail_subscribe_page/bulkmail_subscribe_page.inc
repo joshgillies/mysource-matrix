@@ -456,8 +456,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 					$from_addr = $this->attr('verify_from_address');
 					$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
 					if (empty($from_addr)) {
-						trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING)
-						trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING)
+						trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
+						trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING);
 					} else {
 						$this->sendAlreadySubscribedEmail($email_address, $from_addr, $subscriptions);
 					}
@@ -472,8 +472,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$from_addr = $this->attr('verify_from_address');
 			$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
 			if (empty($from_addr)) {
-				trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING)
-				trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING)
+				trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
+				trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING);
 			} else {
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
 				$_email_address_trim = trim($email_address);
@@ -657,8 +657,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				$from_addr = $this->attr('verify_from_address');
 				$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
 				if (empty($from_addr)) {
-					trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING)
-					trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING)
+					trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
+					trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING);
 				} else {
 					$this->sendAlreadySubscribedEmail($current_user_email, $from_addr, $subscriptions);
 					$this->messages[] = sprintf(translate('A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.'), $current_user_email);
@@ -672,8 +672,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$from_addr = $this->attr('verify_from_address');
 			$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
 			if (empty($from_addr)) {
-				trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING)
-				trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING)
+				trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
+				trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING);
 			} else {
 				$this->sendConfirmationEmail($current_user_email, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
 				$this->messages[] = sprintf(translate('A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.'), $current_user_email);
@@ -846,7 +846,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$status = @$mail->send($to, $headers, $body);
 		if (PEAR::isError($status)) {
 			// unable to send verification email
-			trigger_localised_error('BML0018', translate('Unable to send verification email. Please contact your administrator.'), E_USER_WARNING)
+			trigger_localised_error('BML0018', translate('Unable to send verification email. Please contact your administrator.'), E_USER_WARNING);
 		}
 
 		return;
@@ -900,7 +900,7 @@ Your email address is already subscribed, therefore no action has been taken.'),
 		$status = $mail->send($to, $headers, $body);
 		if (PEAR::isError($status)) {
 			// unable to send verification email
-			trigger_localised_error('BML0018', translate('Unable to send verification email. Please contact your administrator.'), E_USER_WARNING)
+			trigger_localised_error('BML0018', translate('Unable to send verification email. Please contact your administrator.'), E_USER_WARNING);
 		}
 
 		return;

@@ -198,26 +198,26 @@ class HIPO_Job_Import_File extends HIPO_Job
 		$allowable_root_nodes = Array('physical_file', 'physical_folder', 'file_bridge');
 		// Parent (where to put the files/folders) bail if none set
 		if (empty($this->_running_vars['parent_assetid']) || is_null($GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['parent_assetid']))) {
-			trigger_localised_error('FIL0003', translate('No parent node specified'), E_USER_WARNING)
+			trigger_localised_error('FIL0003', translate('No parent node specified'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
 		// No root node is set, bail out...
 		if (is_null($this->_running_vars['root_assetid']) || empty($this->_running_vars['root_assetid'])) {
-			trigger_localised_error('FIL0001', translate('No root node specified'), E_USER_WARNING)
+			trigger_localised_error('FIL0001', translate('No root node specified'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 		foreach ($this->_running_vars['root_assetid'] as $assetid) {
 			// so we have an assetid to start at, but make sure it is a valid assetid
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) {
-				trigger_localised_error('FIL0001', translate('No root node specified'), E_USER_WARNING)
+				trigger_localised_error('FIL0001', translate('No root node specified'), E_USER_WARNING);
 				return FALSE;
 			}//end if
 
 			if (!in_array(strtolower($asset->type()), $allowable_root_nodes)) {
 				// What the heck..? We cannot import anything NOT under the file bridge
-				trigger_localised_error('FIL0002', sprintf(translate('Asset (#%s) is the wrong type'), $assetid), E_USER_WARNING)
+				trigger_localised_error('FIL0002', sprintf(translate('Asset (#%s) is the wrong type'), $assetid), E_USER_WARNING);
 				return FALSE;
 			}//end if
 

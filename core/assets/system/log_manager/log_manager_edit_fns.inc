@@ -459,7 +459,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (array_search($log_file, $valid_log_files) !== FALSE) {
 				$fp = fopen($log_file, 'r');
 				if ($fp === FALSE) {
-					trigger_localised_error('CORE0288', sprintf(translate('Cannot download log file "%1$s", it does not exist'), $download_file), E_USER_WARNING)
+					trigger_localised_error('CORE0288', sprintf(translate('Cannot download log file "%1$s", it does not exist'), $download_file), E_USER_WARNING);
 					return FALSE;
 				}
 

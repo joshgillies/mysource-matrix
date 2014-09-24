@@ -316,12 +316,12 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 			$min = (isset($_POST[$prefix.'_bodycopy_points_min_'.$assetid])) ? $_POST[$prefix.'_bodycopy_points_min_'.$assetid] : 0;
 
 			if (!is_numeric($max) || !is_numeric($min)) {
-				trigger_localised_error('CMS0115', translate('Min and Max values must be numeric for the bodycopy points range.'), E_USER_WARNING)
+				trigger_localised_error('CMS0115', translate('Min and Max values must be numeric for the bodycopy points range.'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			if ($min > $max){
-				trigger_localised_error('CMS0116', translate('The Min value can not be greater than the Max in the Points Range.'), E_USER_WARNING)
+				trigger_localised_error('CMS0116', translate('The Min value can not be greater than the Max in the Points Range.'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -383,7 +383,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 		for ($i = 0; $i < $to_create; $i++){
 			$no_bodycopies++;
 			if (!$asset->createResultBodycopy('Result Bodycopy '.$no_bodycopies, '')){
-				trigger_localised_error('CMS0117', translate('Failed to create the required number of result bodycopies.'), E_USER_WARNING)
+				trigger_localised_error('CMS0117', translate('Failed to create the required number of result bodycopies.'), E_USER_WARNING);
 				return FALSE;
 			}
 		}

@@ -147,7 +147,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		foreach ($file_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING)
+				trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -162,7 +162,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		foreach ($css_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0161', translate('Failed creating css file link to customisation'), E_USER_WARNING)
+				trigger_localised_error('CORE0161', translate('Failed creating css file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

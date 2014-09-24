@@ -118,7 +118,7 @@ class Tool_Delete_Bmail_Users extends Tool
 		// error: csv file not specified
 		$file_info = get_file_upload_info($type_code.'_file_upload');
 		if (empty($file_info)) {
-			trigger_localised_error('BML0011', translate('Import file not selected.'), E_USER_NOTICE)
+			trigger_localised_error('BML0011', translate('Import file not selected.'), E_USER_NOTICE);
 			return FALSE;
 		}
 

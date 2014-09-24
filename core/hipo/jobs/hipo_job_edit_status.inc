@@ -181,14 +181,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		// to start editing a status, we need to have an asset id to edit
 		if (!isset($this->_running_vars['assetid'])) {
-			trigger_localised_error('HIPO0012', translate('Unable to initialise Edit Status HIPO, no start asset ID specified'), E_USER_WARNING)
+			trigger_localised_error('HIPO0012', translate('Unable to initialise Edit Status HIPO, no start asset ID specified'), E_USER_WARNING);
 			return '';
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
-			trigger_localised_error('HIPO0011', sprintf(translate('Unable to initialise Edit Status HIPO, invalid start asset ID specified (%s)'), $this->_running_vars['assetid']), E_USER_WARNING)
+			trigger_localised_error('HIPO0011', sprintf(translate('Unable to initialise Edit Status HIPO, invalid start asset ID specified (%s)'), $this->_running_vars['assetid']), E_USER_WARNING);
 			return '';
 		}
 

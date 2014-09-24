@@ -642,7 +642,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					return TRUE;
 
 				} else {
-					trigger_localised_error('CRON0013', translate('The security key entered was incorrect.'), E_USER_NOTICE)
+					trigger_localised_error('CRON0013', translate('The security key entered was incorrect.'), E_USER_NOTICE);
 				}//end if
 			}//end if
 		}//endif

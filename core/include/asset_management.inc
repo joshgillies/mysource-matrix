@@ -89,7 +89,7 @@ class Asset_Management extends MySource_Object
 	{
 
 		if ((get_class($this) !== __CLASS__) && (get_parent_class($this) !== __CLASS__)) {
-			trigger_localised_error('SYS0274', sprintf(translate('Unable to Construct "%s" - all Asset Management classes MUST inherit directly from the Asset_Management class'), get_class($this)), E_USER_ERROR)
+			trigger_localised_error('SYS0274', sprintf(translate('Unable to Construct "%s" - all Asset Management classes MUST inherit directly from the Asset_Management class'), get_class($this)), E_USER_ERROR);
 		}
 
 
@@ -140,13 +140,13 @@ class Asset_Management extends MySource_Object
 		$asset_edit_fns_parent_type = preg_replace('/_edit_fns$/', '', strtolower(get_parent_class($type_code.'_edit_fns')));
 
 		if (($asset_xml_parent_type != $asset_parent_type) || ($asset_xml_parent_type != $asset_edit_fns_parent_type)) {
-			trigger_localised_error('SYS0254', sprintf(translate('Unable to update "%1$s". Parent is different between asset.xml, %2$s.inc and %3$s_edit_fns.inc'), $type_code, $type_code, $type_code), E_USER_WARNING)
+			trigger_localised_error('SYS0254', sprintf(translate('Unable to update "%1$s". Parent is different between asset.xml, %2$s.inc and %3$s_edit_fns.inc'), $type_code, $type_code, $type_code), E_USER_WARNING);
 			return false;
 		}
 
 		// if the parent asset type hasn't been installed, abort
 		if ($asset_xml_parent_type != 'asset' && !$this->_am->installed($asset_xml_parent_type)) {
-			trigger_localised_error('SYS0253', sprintf(translate('Unable to update "%1$s". Parent "%2$s" is not installed'), $type_code, $asset_xml_parent_type), E_USER_WARNING)
+			trigger_localised_error('SYS0253', sprintf(translate('Unable to update "%1$s". Parent "%2$s" is not installed'), $type_code, $asset_xml_parent_type), E_USER_WARNING);
 			return false;
 		}
 
@@ -181,7 +181,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		if (!is_file($from_icon_path)) {
-			trigger_localised_error('CORE0068', sprintf(translate('No icon file found for asset type "%s" or its ancestors.'), $type_code), E_USER_WARNING)
+			trigger_localised_error('CORE0068', sprintf(translate('No icon file found for asset type "%s" or its ancestors.'), $type_code), E_USER_WARNING);
 		} else {
 			if (!copy_file($from_icon_path, $to_icon_path)) {
 				return false;
@@ -541,7 +541,7 @@ class Asset_Management extends MySource_Object
 				foreach ($children as $child) {
 					// if attribute types don't match - cannot upgrade - fail
 					if ($child['type'] != $this->vars[$name]['type']) {
-						trigger_localised_error('SYS0233', sprintf(translate('Unable to add attribute "%1$s" to Asset "%2$s" because variable name is already used by it\'s children "%3$s"', $name, $type_code, implode('","'), $children)), E_USER_WARNING)
+						trigger_localised_error('SYS0233', sprintf(translate('Unable to add attribute "%1$s" to Asset "%2$s" because variable name is already used by it\'s children "%3$s"', $name, $type_code, implode('","'), $children)), E_USER_WARNING);
 						return false;
 					}
 
@@ -680,12 +680,12 @@ class Asset_Management extends MySource_Object
 
 		// make sure this is a valid attribute type
 		if (!$this->_am->validAttributeType($attr_info['type'])) {
-			trigger_localised_error('SYS0096', sprintf(translate('Attribute Type "%1$s" is not known (for the "%2$s" Asset Type) \''), $attr_info['type'], $this->getAssetType()), E_USER_WARNING)
+			trigger_localised_error('SYS0096', sprintf(translate('Attribute Type "%1$s" is not known (for the "%2$s" Asset Type) \''), $attr_info['type'], $this->getAssetType()), E_USER_WARNING);
 			return false;
 		}//end if
 
 		if (!$this->_validateAttributeDefault($attr_info['default_val'], $attr_info['type'], $attr_info['parameters'])) {
-			trigger_localised_error('SYS0130', sprintf(translate('Default value of attribute "%1$s" is not valid for Asset Type "%2$s'), $name, $this->getAssetType()), E_USER_WARNING)
+			trigger_localised_error('SYS0130', sprintf(translate('Default value of attribute "%1$s" is not valid for Asset Type "%2$s'), $name, $this->getAssetType()), E_USER_WARNING);
 			return false;
 		}
 
@@ -744,7 +744,7 @@ class Asset_Management extends MySource_Object
 		$attributeid = MatrixDAL::executePdoOne($query);
 
 		if (is_null($attributeid)) {
-			trigger_localised_error('SYS0050', sprintf(translate('Asset type %1$s has no attribute called %2$s'), $typecode, $name), E_USER_WARNING)
+			trigger_localised_error('SYS0050', sprintf(translate('Asset type %1$s has no attribute called %2$s'), $typecode, $name), E_USER_WARNING);
 			return false;
 		}
 
@@ -932,7 +932,7 @@ class Asset_Management extends MySource_Object
 
 					$parameters = unserialize($parameters_value);
 					if (!$this->_validateAttributeDefault($default_value, $curr_attr['type'], $parameters)) {
-						trigger_localised_error('SYS0130', sprintf(translate('Default value of attribute "%1$s" is not valid for Asset Type "%2$s'), $name, $this->getAssetType()), E_USER_WARNING)
+						trigger_localised_error('SYS0130', sprintf(translate('Default value of attribute "%1$s" is not valid for Asset Type "%2$s'), $name, $this->getAssetType()), E_USER_WARNING);
 						return false;
 					}
 
@@ -984,7 +984,7 @@ class Asset_Management extends MySource_Object
 
 		// make sure this is a valid attribute type
 		if (!$this->_am->validAttributeType($this->vars[$name]['type'])) {
-			trigger_localised_error('SYS0096', sprintf(translate('Attribute Type "%1$s" is not known (for the "%2$s" Asset Type) \''), $this->vars[$name]['type'], $this->getAssetType()), E_USER_WARNING)
+			trigger_localised_error('SYS0096', sprintf(translate('Attribute Type "%1$s" is not known (for the "%2$s" Asset Type) \''), $this->vars[$name]['type'], $this->getAssetType()), E_USER_WARNING);
 			return false;
 		}//end if
 
@@ -1016,7 +1016,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		if (!$this->_validateAttributeDefault($this->vars[$name]['default'], $this->vars[$name]['type'], (empty($this->vars[$name]['parameters']) ? Array() : $this->vars[$name]['parameters']))) {
-			trigger_localised_error('SYS0130', sprintf(translate('Default value of attribute "%1$s" is not valid for Asset Type "%2$s'), $name, $this->getAssetType()), E_USER_WARNING)
+			trigger_localised_error('SYS0130', sprintf(translate('Default value of attribute "%1$s" is not valid for Asset Type "%2$s'), $name, $this->getAssetType()), E_USER_WARNING);
 			return false;
 		}
 

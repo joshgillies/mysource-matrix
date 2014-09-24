@@ -265,7 +265,7 @@ function processLayouts(&$owner, &$o, &$ei)
 
 	// If url is not warn user and stop
 	if (empty($urls)) {
-		trigger_localised_error('SYS0330', translate('Unable to set a layout, no URL has been assigned to the asset'), E_USER_WARNING)
+		trigger_localised_error('SYS0330', translate('Unable to set a layout, no URL has been assigned to the asset'), E_USER_WARNING);
 	}
 
 	// Process Adding a new layout of type code xx

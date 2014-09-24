@@ -470,15 +470,15 @@ class Ecommerce_Cart_Processor
 		}
 
 		if (!($asset instanceof Donation) && !($asset instanceof Buyable)) {
-			trigger_localised_error('ECOM0005', sprintf(translate('Item added to cart (#%s) is not a donation or is not able to be purchased'), $assetid), E_USER_WARNING)
+			trigger_localised_error('ECOM0005', sprintf(translate('Item added to cart (#%s) is not a donation or is not able to be purchased'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if ($quantity <= 0) {
 			if ($asset instanceof Donation) {
-				trigger_localised_error('ECOM0025', translate('Cannot add a donation with value less than or equal to 0 to the cart'), E_USER_WARNING)
+				trigger_localised_error('ECOM0025', translate('Cannot add a donation with value less than or equal to 0 to the cart'), E_USER_WARNING);
 			} else if ($quantity < 0) { // quantity is less than zero, throw a hissy fit
-				trigger_localised_error('ECOM0004', translate('Cannot add an item with negative quantity to the cart'), E_USER_WARNING)
+				trigger_localised_error('ECOM0004', translate('Cannot add an item with negative quantity to the cart'), E_USER_WARNING);
 			}
 			return FALSE;
 		}
@@ -584,7 +584,7 @@ class Ecommerce_Cart_Processor
 
 		// Qty < 0, throw an error
 		if ($quantity < 0) {
-			trigger_localised_error('ECOM0010', translate('Cannot update an item with a negative quantity'), E_USER_WARNING)
+			trigger_localised_error('ECOM0010', translate('Cannot update an item with a negative quantity'), E_USER_WARNING);
 			return FALSE;
 		} else if ($quantity == 0) {
 			$this->removeItem($assetid);
@@ -795,7 +795,7 @@ class Ecommerce_Cart_Processor
 		// then silently return, otherwise error
 		if (!isset($this->cart[$assetid])) {
 			if ($quantity > 0) {
-				trigger_localised_error('ECOM0006', translate('Cannot remove items not in the cart'), E_USER_WARNING)
+				trigger_localised_error('ECOM0006', translate('Cannot remove items not in the cart'), E_USER_WARNING);
 			}
 			return FALSE;
 		}
@@ -809,13 +809,13 @@ class Ecommerce_Cart_Processor
 		// qty == 0, silently return - Qty < 0, throw an error
 		if ($quantity <= 0) {
 			if ($quantity < 0) {
-				trigger_localised_error('ECOM0007', translate('Quantity to remove from cart cannot be less than zero'), E_USER_WARNING)
+				trigger_localised_error('ECOM0007', translate('Quantity to remove from cart cannot be less than zero'), E_USER_WARNING);
 			}
 			return FALSE;
 		}
 
 		if ($quantity > $this->cart[$assetid]['quantity']) {
-			trigger_localised_error('ECOM0008', translate('Quantity to remove from cart cannot be more than how many of that product are actually in the cart'), E_USER_WARNING)
+			trigger_localised_error('ECOM0008', translate('Quantity to remove from cart cannot be more than how many of that product are actually in the cart'), E_USER_WARNING);
 			return FALSE;
 		} else if ($quantity == $this->cart[$assetid]['quantity']) {
 			unset($this->cart[$assetid]);

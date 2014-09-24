@@ -284,7 +284,7 @@ class Page_Password_Reset extends Page
 			$username = $_POST['username'];
 			$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 			if (is_null($auth_folder)) {
-				trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR)
+				trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 				return Array();
 			}
 			$auth_systems = $auth_folder->getAuthSystems();

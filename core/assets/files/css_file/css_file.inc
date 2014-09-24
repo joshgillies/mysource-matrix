@@ -92,7 +92,7 @@ class CSS_File extends File
 				$create_location = SQ_SYSTEM_ROOT.'/'.'data/temp';
 				// Create an temporary empty file
 				if (!fopen($create_location.'/'.$file_name, 'w+')) {
-					trigger_localised_error('SYS0025', sprintf(translate('Unable to create file: %s'), $file_name. " from given title ".$file_title), E_USER_WARNING)
+					trigger_localised_error('SYS0025', sprintf(translate('Unable to create file: %s'), $file_name. " from given title ".$file_title), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -127,7 +127,7 @@ class CSS_File extends File
 			// Make grep sure the new web path is not already is use
 			$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 			if (!empty($bad_paths)) {
-				trigger_localised_error('CORE0086', sprintf(translate('Unable to create file with name "%s", web path already exists?'), $name), E_USER_WARNING)
+				trigger_localised_error('CORE0086', sprintf(translate('Unable to create file with name "%s", web path already exists?'), $name), E_USER_WARNING);
 				return FALSE;
 			}
 

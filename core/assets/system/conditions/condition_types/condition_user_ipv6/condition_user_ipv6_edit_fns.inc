@@ -214,7 +214,7 @@ class Condition_User_IPv6_Edit_Fns extends Condition_Edit_Fns
 					$condition_data['default_grant'] = $_POST[$prefix]['default_grant'];
 					return $condition_data;
 				} else {
-					trigger_localised_error('CORE0249', translate('Ignoring uploaded IP ranges file as it appears to be invalid'), E_USER_WARNING)
+					trigger_localised_error('CORE0249', translate('Ignoring uploaded IP ranges file as it appears to be invalid'), E_USER_WARNING);
 				}
 			}
 		}
@@ -255,7 +255,7 @@ class Condition_User_IPv6_Edit_Fns extends Condition_Edit_Fns
 				// of the other kind of rule
 				$this_row['grant'] = !$this_row['grant'];
 				if (in_array($this_row, $ip_ranges)) {
-					trigger_localised_error('CORE0250', sprintf(translate('The IP/subnet combination "%1$s/%2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest'), $this_row['ip_address'], $this_row['cidr']), E_USER_WARNING)
+					trigger_localised_error('CORE0250', sprintf(translate('The IP/subnet combination "%1$s/%2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest'), $this_row['ip_address'], $this_row['cidr']), E_USER_WARNING);
 					continue;
 				}
 
@@ -266,7 +266,7 @@ class Condition_User_IPv6_Edit_Fns extends Condition_Edit_Fns
 					$this_row['grant'] = $post_data['grant'];
 					$ip_ranges[] = $this_row;
 				} else {
-					trigger_localised_error('CORE0248', sprintf(translate('The IP/subnet combination "%1$s/%2$s" does not represent a valid network IP - ignoring'), $this_row['ip_address'], $this_row['cidr']), E_USER_WARNING)
+					trigger_localised_error('CORE0248', sprintf(translate('The IP/subnet combination "%1$s/%2$s" does not represent a valid network IP - ignoring'), $this_row['ip_address'], $this_row['cidr']), E_USER_WARNING);
 				}
 			}//end if
 		}//end foreach
@@ -457,13 +457,13 @@ class Condition_User_IPv6_Edit_Fns extends Condition_Edit_Fns
 			// complain, then ignore it
 			$ip_range_field['grant'] = !$ip_range_field['grant'];
 			if (in_array($ip_range_field, $ip_ranges)) {
-				trigger_localised_error('CORE0250', sprintf(translate('The IP/subnet combination "%1$s/%2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest'), $ip_range_field['ip_address'], $ip_range_field['cidr']), E_USER_WARNING)
+				trigger_localised_error('CORE0250', sprintf(translate('The IP/subnet combination "%1$s/%2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest'), $ip_range_field['ip_address'], $ip_range_field['cidr']), E_USER_WARNING);
 				continue;
 			}
 
 			// is it a valid combination?
 			if (!self::_doesIPBeginSubnet($ip_range_field['ip_address'], $ip_range_field['cidr'])) {
-				trigger_localised_error('CORE0248', sprintf(translate('The IP/subnet combination "%1$s/%2$s" does not represent a valid network IP - ignoring'), $ip_range_field['ip_address'], $ip_range_field['cidr']), E_USER_WARNING)
+				trigger_localised_error('CORE0248', sprintf(translate('The IP/subnet combination "%1$s/%2$s" does not represent a valid network IP - ignoring'), $ip_range_field['ip_address'], $ip_range_field['cidr']), E_USER_WARNING);
 				continue;
 			}
 

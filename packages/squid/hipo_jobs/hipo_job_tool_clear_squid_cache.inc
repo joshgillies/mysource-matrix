@@ -250,7 +250,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 
 						// error_log("\n\t"."$path -h $hostname $port $options -m PURGE $protocol://$url \n". serialize($output)."\n");
 						if (empty($output)) {
-							trigger_localised_error('SQUID0002', translate('Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Squid Cache section of External Tools Configuration.'), E_USER_WARNING)
+							trigger_localised_error('SQUID0002', translate('Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Squid Cache section of External Tools Configuration.'), E_USER_WARNING);
 						} else {
 							// add a system log message if successful
 							$msg = $ms->newMessage();

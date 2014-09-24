@@ -549,7 +549,7 @@ Are you sure you want to proceed?'))) {
 			}
 
 			if (FALSE !== $error) {
-				trigger_localised_error('CORE0217', sprintf(translate('Condition %1$s (%2$s) not saved: %3$s'), $i, $type, $error), E_USER_NOTICE)
+				trigger_localised_error('CORE0217', sprintf(translate('Condition %1$s (%2$s) not saved: %3$s'), $i, $type, $error), E_USER_NOTICE);
 			}
 
 			$processed_components[] = Array(
@@ -973,7 +973,7 @@ Are you sure you want to proceed?'))) {
 									  );
 
 			if (FALSE !== $error) {
-				trigger_localised_error('CORE0130', sprintf(translate('Action %1$s (%2$s) not saved. %3$s'), $i, $type, $error), E_USER_NOTICE)
+				trigger_localised_error('CORE0130', sprintf(translate('Action %1$s (%2$s) not saved. %3$s'), $i, $type, $error), E_USER_NOTICE);
 			}
 			$i++;
 		}

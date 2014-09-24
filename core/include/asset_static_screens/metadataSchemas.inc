@@ -308,7 +308,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-			trigger_localised_error('SYS0268', sprintf(translate('You need to select the type of access in order to apply schema #%s'), $post_data['new']['schemaid']['assetid']), E_USER_NOTICE)
+			trigger_localised_error('SYS0268', sprintf(translate('You need to select the type of access in order to apply schema #%s'), $post_data['new']['schemaid']['assetid']), E_USER_NOTICE);
 		} else {
 			// Only cascade changes to lower assets if "cascade to new assets"
 			// is set.

@@ -59,14 +59,14 @@ class Cron_Job_Future_Status extends Cron_Job
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				trigger_localised_error('CRON0018', translate('Unable to create future lineage cron job, unable to acquire "links" lock'), E_USER_WARNING)
+				trigger_localised_error('CRON0018', translate('Unable to create future lineage cron job, unable to acquire "links" lock'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			$link = $this->_tmp['asset_in_link'];
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
-				trigger_localised_error('CRON0017', translate('Unable to create future lineage cron job, Unable to set asset in link'), E_USER_WARNING)
+				trigger_localised_error('CRON0017', translate('Unable to create future lineage cron job, Unable to set asset in link'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -165,13 +165,13 @@ class Cron_Job_Future_Status extends Cron_Job
 			case 'status' :
 				$value = (int) $value;
 				if (!in_array($value, array_keys($this->_getAllStatii()))) {
-					trigger_localised_error('CRON0031', translate('Unable to set the status, it is not valid'), E_USER_NOTICE)
+					trigger_localised_error('CRON0031', translate('Unable to set the status, it is not valid'), E_USER_NOTICE);
 					return FALSE;
 				}
 			break;
 
 			case 'type' :
-				trigger_localised_error('CRON0038', translate('Unable to set the type of a future lineage cron job; it can only be a one off event'), E_USER_NOTICE)
+				trigger_localised_error('CRON0038', translate('Unable to set the type of a future lineage cron job; it can only be a one off event'), E_USER_NOTICE);
 				return FALSE;
 			break;
 		}//end if
@@ -340,7 +340,7 @@ class Cron_Job_Future_Status extends Cron_Job
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed
-				trigger_localised_error('CRON0003', sprintf(translate('Failed changing Status of "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING)
+				trigger_localised_error('CRON0003', sprintf(translate('Failed changing Status of "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING);
 				// we have errors so dump them out too
 				foreach ($status_errors as $error) {
 					$line = '';
@@ -356,7 +356,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 		} else {
 			// asset not found
-			trigger_localised_error('CRON0020', translate('Unable to find asset to update the status of'), E_USER_WARNING)
+			trigger_localised_error('CRON0020', translate('Unable to find asset to update the status of'), E_USER_WARNING);
 		}
 
 		// we can be removed because the error is beyound our control

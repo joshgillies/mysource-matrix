@@ -630,17 +630,17 @@ class Internal_Message extends MySource_Object
 						switch ($type[1]) {
 							case 'linking' :
 								if (!isset($this->parameters['majorid'])) {
-									trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING)
+									trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING);
 								} else if (!isset($this->parameters['minorid'])) {
-									trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING)
+									trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING);
 								} else {
 									$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
 									if (is_null($major)) {
-										trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['majorid'], $this->type), E_USER_WARNING)
+										trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['majorid'], $this->type), E_USER_WARNING);
 									}
 									$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
 									if (is_null($minor)) {
-										trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['minorid'], $this->type), E_USER_WARNING)
+										trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['minorid'], $this->type), E_USER_WARNING);
 									}
 								}
 							break(2);
@@ -655,12 +655,12 @@ class Internal_Message extends MySource_Object
 
 					if (!isset($this->parameters['assetid'])) {
 						// cant send an asset message if we dont know which asset is affected
-						trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING)
+						trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING);
 					} else {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
 						if (is_null($asset)) {
 							// cant send an asset message if we dont know which asset is affected
-							trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['assetid'], $this->type), E_USER_WARNING)
+							trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['assetid'], $this->type), E_USER_WARNING);
 						}
 
 						$this->to = array_merge($this->to, $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false));

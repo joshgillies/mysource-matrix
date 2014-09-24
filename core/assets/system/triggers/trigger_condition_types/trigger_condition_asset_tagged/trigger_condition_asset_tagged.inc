@@ -58,7 +58,7 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 		$is_strict	= array_get_index($settings, 'is_strict', FALSE);
 
 		if (empty($tagids)) {
-			trigger_localised_error('TRIG0004', translate('No tag is specified in trigger condition: \'Asset is tagged\''), E_USER_WARNING)
+			trigger_localised_error('TRIG0004', translate('No tag is specified in trigger condition: \'Asset is tagged\''), E_USER_WARNING);
 			return FALSE;
 		}
 		return $tag_manager->isAssetTaggedWith($assetid, $tagids, $is_strict);

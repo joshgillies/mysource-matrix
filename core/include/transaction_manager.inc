@@ -123,12 +123,12 @@ class Transaction_Manager extends MySource_Object
 
 		if (empty($this->_levels[$dsn])) {
 			// TODO: -TOF- put that line back
-			//trigger_localised_error('SYS0219', translate('Unable to Commit, No Transaction is Open'), E_USER_WARNING)
+			//trigger_localised_error('SYS0219', translate('Unable to Commit, No Transaction is Open'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!empty($this->_rollback[$dsn])) {
-			trigger_localised_error('SYS0220', translate('Unable to Commit, Transaction has already been aborted'), E_USER_WARNING)
+			trigger_localised_error('SYS0220', translate('Unable to Commit, Transaction has already been aborted'), E_USER_WARNING);
 			try {
 				MatrixDAL::rollback();
 			} catch (DALException $e) {
@@ -170,7 +170,7 @@ class Transaction_Manager extends MySource_Object
 		if (isset($dsn_array['userName'])) $dsn .= ';user='.$dsn_array['userName'];
 
 		if (empty($this->_levels[$dsn])) {
-			trigger_localised_error('SYS0231', translate('Unable to Rollback, No Transaction is Open'), E_USER_WARNING)
+			trigger_localised_error('SYS0231', translate('Unable to Rollback, No Transaction is Open'), E_USER_WARNING);
 			return FALSE;
 		}
 

@@ -167,7 +167,7 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 
 			$points = (isset($_POST[$prefix.'_points_value_'.$rule])) ? $_POST[$prefix.'_points_value_'.$rule] : 0;
 			if (!is_numeric($points)) {
-				trigger_localised_error('CMS0114', translate('The Points Value field must be numeric for Answer Destinations.'), E_USER_NOTICE)
+				trigger_localised_error('CMS0114', translate('The Points Value field must be numeric for Answer Destinations.'), E_USER_NOTICE);
 				$points = 0;
 			}
 			$q_dest[$rule]['points_value'] = $points;

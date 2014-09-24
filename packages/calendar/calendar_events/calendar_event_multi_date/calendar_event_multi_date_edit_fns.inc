@@ -343,7 +343,7 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
 
 		if (is_null($bodycopy)) {
-			trigger_localised_error('CORE0016', sprintf(translate('Unable to locate the bodycopy for standard page "%s"'), $asset->name), E_USER_ERROR)
+			trigger_localised_error('CORE0016', sprintf(translate('Unable to locate the bodycopy for standard page "%s"'), $asset->name), E_USER_ERROR);
 			return FALSE;
 		}
 

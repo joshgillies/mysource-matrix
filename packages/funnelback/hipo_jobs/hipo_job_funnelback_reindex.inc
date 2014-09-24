@@ -202,7 +202,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 		$this->_running_vars['done_collections'] = Array();
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 		if (is_null($fm)) {
-			trigger_localised_error('FNB0020', translate('Unable to load Funnelback Manager, Funnelback Manager is not installed'), E_USER_WARNING)
+			trigger_localised_error('FNB0020', translate('Unable to load Funnelback Manager, Funnelback Manager is not installed'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 		$collections = $fm->getCollections();
@@ -303,7 +303,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 
 				// Check for permissions and show a fail if cannot write
 				if (!is_writable($data_path)) {
-					trigger_localised_error('FNB0030', translate('Unable to reindex'), E_USER_WARNING)
+					trigger_localised_error('FNB0030', translate('Unable to reindex'), E_USER_WARNING);
 					return FALSE;
 				}//end if
 
@@ -355,12 +355,12 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 					$final_status = $fm->runCommand($make_live_cmd, $output, NULL, $log_file, $coll_path);
 					if ($status !== 0) {
 						// Failed making live
-						trigger_localised_error('FNB0032', translate('Unable to make index live'), E_USER_WARNING)
+						trigger_localised_error('FNB0032', translate('Unable to make index live'), E_USER_WARNING);
 						return FALSE;
 					}//end if
 				} else {
 					// Fail....
-					trigger_localised_error('FNB0031', translate('Indexing failed'), E_USER_WARNING)
+					trigger_localised_error('FNB0031', translate('Indexing failed'), E_USER_WARNING);
 					return FALSE;
 				}//end if
 

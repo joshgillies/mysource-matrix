@@ -91,13 +91,13 @@ class Cache_Storage_Default extends Cache_Storage
 			$status = mkdir(SQ_CACHE_PATH.'/'.$group, 0755);
 			clearstatcache();
 			if (!$status) {
-				trigger_localised_error('CORE0245', sprintf(translate('Unable to create cache directory "%s"'), SQ_CACHE_PATH.'/'.$group), E_USER_WARNING)
+				trigger_localised_error('CORE0245', sprintf(translate('Unable to create cache directory "%s"'), SQ_CACHE_PATH.'/'.$group), E_USER_WARNING);
 				return FALSE;
 			}
 		}
 		$status = string_to_file($data, SQ_CACHE_PATH.'/'.$file_path);
 		if (!$status) {
-			trigger_localised_error('CORE0243', sprintf(translate('Unable to write to cache file "%s"'), SQ_CACHE_PATH.'/'.$file_path), E_USER_WARNING)
+			trigger_localised_error('CORE0243', sprintf(translate('Unable to write to cache file "%s"'), SQ_CACHE_PATH.'/'.$file_path), E_USER_WARNING);
 			return FALSE;
 		}
 		umask($old_umask);
@@ -168,7 +168,7 @@ class Cache_Storage_Default extends Cache_Storage
 					if ($contents === FALSE) {
 						// if we cannot read from the cache file, remove this cache entry
 						$this->_deleteCache($cache_key, $perm_key, $url);
-						trigger_localised_error('CORE0244', sprintf(translate('Unable to read from cache file "%s"'), SQ_CACHE_PATH.'/'.$cached['path']), E_USER_WARNING)
+						trigger_localised_error('CORE0244', sprintf(translate('Unable to read from cache file "%s"'), SQ_CACHE_PATH.'/'.$cached['path']), E_USER_WARNING);
 						return FALSE;
 					}
 					return $contents;
@@ -473,7 +473,7 @@ class Cache_Storage_Default extends Cache_Storage
 			$old_umask = umask(0);
 			$status = string_to_file($updated_content, SQ_CACHE_PATH.'/'.$file_path);
 			if (!$status) {
-				trigger_localised_error('CORE0243', sprintf(translate('Unable to write to cache file "%s"'), SQ_CACHE_PATH.'/'.$file_path), E_USER_WARNING)
+				trigger_localised_error('CORE0243', sprintf(translate('Unable to write to cache file "%s"'), SQ_CACHE_PATH.'/'.$file_path), E_USER_WARNING);
 				return FALSE;
 			}
 			umask($old_umask);

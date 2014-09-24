@@ -235,7 +235,7 @@ class Js_File_Folder extends File_Folder
 			// Copy the files to the asset data dir
 			if ($source_path != $this->data_path.'/'.$filename) {
 				if (!copy($source_path, $this->data_path.'/'.$filename)) {
-					trigger_localised_error('CORE0036', sprintf(translate('Failed copying non-uploaded file (%1$s) to destination directory (%2$s)'), $source_path, $this->data_path.'/'.$filename), E_USER_WARNING)
+					trigger_localised_error('CORE0036', sprintf(translate('Failed copying non-uploaded file (%1$s) to destination directory (%2$s)'), $source_path, $this->data_path.'/'.$filename), E_USER_WARNING);
 					$success = FALSE;
 					continue;
 				}
@@ -251,14 +251,14 @@ class Js_File_Folder extends File_Folder
 				}
 
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path)) {
-					trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING)
+					trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING);
 					$success = FALSE;
 					continue;
 				}
 
 			} else if ($file_status & FUDGE_FV_MODIFIED) {
 				if (!$fv->commit($this->data_path.'/'.$filename, '')) {
-					trigger_localised_error('CORE0034', translate('Failed committing file version'), E_USER_WARNING)
+					trigger_localised_error('CORE0034', translate('Failed committing file version'), E_USER_WARNING);
 					$success = FALSE;
 					continue;
 				}
@@ -282,7 +282,7 @@ class Js_File_Folder extends File_Folder
 			if (!in_array($filename, $safe_files) && in_array(pathinfo($filename, PATHINFO_EXTENSION), $allowed_exts)) {
 				$result = $fv->remove($this->data_path.'/'.$filename);
 				if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-					trigger_localised_error('CORE0042', translate('Failed removing file from repository'), E_USER_WARNING)
+					trigger_localised_error('CORE0042', translate('Failed removing file from repository'), E_USER_WARNING);
 					continue;
 				}
 				// Remove public file
@@ -329,7 +329,7 @@ class Js_File_Folder extends File_Folder
 				}
 
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
-					trigger_localised_error('CORE0032', translate('Failed checking out latest version of file'), E_USER_WARNING)
+					trigger_localised_error('CORE0032', translate('Failed checking out latest version of file'), E_USER_WARNING);
 					$success = FALSE;
 				}
 			}//end if
@@ -361,7 +361,7 @@ class Js_File_Folder extends File_Folder
 			$unrestricted = $this->data_path_public.'/'.$filename;
 			if (is_file($unrestricted)) {
 				if (!($fv->clearOut($unrestricted) & FUDGE_FV_OK)) {
-					trigger_localised_error('CORE0104', translate('Update failed deleting file from public data directory'), E_USER_WARNING)
+					trigger_localised_error('CORE0104', translate('Update failed deleting file from public data directory'), E_USER_WARNING);
 					$success = FALSE;
 				}
 			}
@@ -581,7 +581,7 @@ class Js_File_Folder extends File_Folder
 		}//end foreach
 
 		if (!string_to_file(serialize($files_version_info), $this->data_path.'/.sq_system/sq_system_version_no_additional_files')) {
-			trigger_localised_error('CORE0051', sprintf(translate('Failed saving asset "%s" to cache, could not write object data file'), $filename), E_USER_WARNING)
+			trigger_localised_error('CORE0051', sprintf(translate('Failed saving asset "%s" to cache, could not write object data file'), $filename), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -619,7 +619,7 @@ class Js_File_Folder extends File_Folder
 			$rep_path = $this->data_path_suffix.'/'.$se_filename;
 			// Check out the old version of the file into the private data directory
 			if (!$fv->checkOut($rep_path, $this->data_path, $file_version)) {
-				trigger_localised_error('CORE0044', sprintf(translate('Failed reverting file "%s" to system version, could not check-out latest version of file'), $se_filename), E_USER_WARNING)
+				trigger_localised_error('CORE0044', sprintf(translate('Failed reverting file "%s" to system version, could not check-out latest version of file'), $se_filename), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -629,7 +629,7 @@ class Js_File_Folder extends File_Folder
 
 			// Check out the new version
 			if (!$fv->checkOut($rep_path, $this->data_path)) {
-				trigger_localised_error('CORE0044', sprintf(translate('Failed reverting file "%s" to system version, could not check-out latest version of file'), $this->name), E_USER_WARNING)
+				trigger_localised_error('CORE0044', sprintf(translate('Failed reverting file "%s" to system version, could not check-out latest version of file'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -654,7 +654,7 @@ class Js_File_Folder extends File_Folder
 		foreach($edit_version_files as $ev_filename) {
 			$result = $fv->remove($this->data_path_suffix.'/'.$ev_filename, '');
 			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-				trigger_localised_error('CORE0042', translate('Failed removing file from repository'), E_USER_WARNING)
+				trigger_localised_error('CORE0042', translate('Failed removing file from repository'), E_USER_WARNING);
 				return FALSE;
 			}
 		}//end foreach

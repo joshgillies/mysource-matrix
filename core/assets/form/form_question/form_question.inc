@@ -189,7 +189,7 @@ class Form_Question extends Asset
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$form->writeAccess('attributes')) {
-			trigger_localised_error('CORE0121', sprintf(translate('You do not have permission to save the attributes of "%1$s" (#%2$s)'), $this->name, $this->id), E_USER_WARNING)
+			trigger_localised_error('CORE0121', sprintf(translate('You do not have permission to save the attributes of "%1$s" (#%2$s)'), $this->name, $this->id), E_USER_WARNING);
 			return FALSE;
 		}
 

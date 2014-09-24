@@ -143,12 +143,12 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 		$callback_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['callback_assetid']);
 
 		if (is_null($callback_asset)) {
-			trigger_localised_error('HIPO0080', sprintf(translate('Callback asset (#%s) is not valid'), $this->_running_vars['callback_assetid']), E_USER_ERROR)
+			trigger_localised_error('HIPO0080', sprintf(translate('Callback asset (#%s) is not valid'), $this->_running_vars['callback_assetid']), E_USER_ERROR);
 			return $NULL;
 		}
 
 		if (!method_exists($callback_asset, $this->_running_vars['callback_function'])) {
-			trigger_localised_error('HIPO0081', sprintf(translate('Callback method ("%s") is not valid'), $this->_running_vars['callback_function']), E_USER_ERROR)
+			trigger_localised_error('HIPO0081', sprintf(translate('Callback method ("%s") is not valid'), $this->_running_vars['callback_function']), E_USER_ERROR);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($callback_asset);
 			return $NULL;
 		}
@@ -168,7 +168,7 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 	{
 		// to start acquiring locks, we need to have an asset id to acquire a lock on
 		if (empty($this->_running_vars['items'])) {
-			trigger_localised_error('HIPO0079', sprintf(translate('Unable to initialise "%s" HIPO, nothing to process'), translate('Quick')), E_USER_WARNING)
+			trigger_localised_error('HIPO0079', sprintf(translate('Unable to initialise "%s" HIPO, nothing to process'), translate('Quick')), E_USER_WARNING);
 
 			return FALSE;
 		}

@@ -154,7 +154,7 @@ class Session_Handler_Redis extends Session_Handler
         $redis->connect($host_str);
 
         if (!is_array($session_contents)) {
-            trigger_localised_error('CORE0004', sprintf(translate('Array expected for second argument, got %s'), gettype($session_contents)), E_USER_WARNING)
+            trigger_localised_error('CORE0004', sprintf(translate('Array expected for second argument, got %s'), gettype($session_contents)), E_USER_WARNING);
             return FALSE;
         }
 

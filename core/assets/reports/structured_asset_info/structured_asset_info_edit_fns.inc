@@ -495,7 +495,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			// get the selected fields and store them in the running vars
 			if ($owner->attr('selected_asset_fields') == '') {
-				trigger_localised_error('RPRT0003', translate('No attributes were selected'), E_USER_WARNING)
+				trigger_localised_error('RPRT0003', translate('No attributes were selected'), E_USER_WARNING);
 			}
 			$job->_running_vars['selected_asset_fields'] = explode('|', $owner->attr('selected_asset_fields'));
 
@@ -505,7 +505,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			$root_id = $this->getRootAssetid($owner);
 			if (!$root_id) {
-				trigger_localised_error('RPRT0004', translate('Root node was not selected'), E_USER_WARNING)
+				trigger_localised_error('RPRT0004', translate('Root node was not selected'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -544,7 +544,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($report_dir)) {
 				if (!create_directory($report_dir)) {
-					trigger_localised_error('CORE0198', translate('Unable to create data directory, report generation aborted'), E_USER_WARNING)
+					trigger_localised_error('CORE0198', translate('Unable to create data directory, report generation aborted'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -552,7 +552,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			// file manipulation section
 			$temp_file = fopen($xml_file_name, 'w');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('CORE0017', translate('Unable to open report file, report generation aborted'), E_USER_WARNING)
+				trigger_localised_error('CORE0017', translate('Unable to open report file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
@@ -561,7 +561,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('RPRT0000', translate('Could not open temporary file, report generation aborted'), E_USER_WARNING)
+				trigger_localised_error('RPRT0000', translate('Could not open temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -667,11 +667,11 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			fwrite($temp_file, '</assets>'."\n");
 			// move the temp file to become the real report XML file
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
-				trigger_localised_error('RPRT0001', translate('Could not move temporary file, report generation aborted'), E_USER_WARNING)
+				trigger_localised_error('RPRT0001', translate('Could not move temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
-				trigger_localised_error('RPRT0002', translate('Could not delete temporary file, report generation continues'), E_USER_WARNING)
+				trigger_localised_error('RPRT0002', translate('Could not delete temporary file, report generation continues'), E_USER_WARNING);
 			}
 		} else {
 			$total = $job->_running_vars['total'];
@@ -860,7 +860,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 		// Parse the file
 
 		if (!xml_parse($xml_parser, file_get_contents($report_path), TRUE)) {
-			trigger_localised_error('CORE0257', sprintf(translate('Could not open XML input file "%1$s"'), $report_path), E_USER_WARNING)
+			trigger_localised_error('CORE0257', sprintf(translate('Could not open XML input file "%1$s"'), $report_path), E_USER_WARNING);
 			return FALSE;
 		}
 

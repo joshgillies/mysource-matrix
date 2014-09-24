@@ -409,7 +409,7 @@ class Log_Manager extends Asset
 			}
 			fclose($handle);
 		} else {
-			trigger_localised_error('CORE0018', sprintf(translate('Unable to read from logfile %s'), $file), E_USER_ERROR)
+			trigger_localised_error('CORE0018', sprintf(translate('Unable to read from logfile %s'), $file), E_USER_ERROR);
 			$result = FALSE;
 		}
 
@@ -785,7 +785,7 @@ class Log_Manager extends Asset
 			$content .= '</table><p align="center" style="font-size: 11px; margin-bottom: 7px;">End of log</p>';
 
 		} else {
-			trigger_localised_error('CORE0125', translate('Unknown action or invalid input'), E_USER_WARNING)
+			trigger_localised_error('CORE0125', translate('Unknown action or invalid input'), E_USER_WARNING);
 			return TRUE;
 		}
 

@@ -106,7 +106,7 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 
 		if ($comparison_size > $this->_maxUploadSize()) {
 			// something like "File size exceeds system-imposed limit of xx MB, resetting to this limit"
-			trigger_localised_error('CMS0003', sprintf(translate('Comparison size exceeds maximum file upload limit of %s, setting to this maximum'), easy_filesize($this->_maxUploadSize())), E_USER_NOTICE)
+			trigger_localised_error('CMS0003', sprintf(translate('Comparison size exceeds maximum file upload limit of %s, setting to this maximum'), easy_filesize($this->_maxUploadSize())), E_USER_NOTICE);
 			$comparison_size = $this->_maxUploadSize();
 		}
 

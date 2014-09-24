@@ -804,7 +804,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		if ($this->_isCircularReference($urls)) {
 			// Cannot update private URLs, the submitted set-up would cause a
 			// redirect loop
-			trigger_localised_error('CORE0269', translate('Could not update authentication redirects, the set-up submitted would cause a redirect loop'), E_USER_WARNING)
+			trigger_localised_error('CORE0269', translate('Could not update authentication redirects, the set-up submitted would cause a redirect loop'), E_USER_WARNING);
 			return FALSE;
 		} else {
 			// determine if there are any new or deleted urls, we are only interested in the deleted ones

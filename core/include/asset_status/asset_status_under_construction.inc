@@ -248,7 +248,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 				if (!$wfm->startWorkflow($this->owner->id)) {
-					trigger_localised_error('SYS0262', sprintf(translate('Workflow failed to start for "%s"'), $this->owner->name), E_USER_WARNING)
+					trigger_localised_error('SYS0262', sprintf(translate('Workflow failed to start for "%s"'), $this->owner->name), E_USER_WARNING);
 					return false;
 				}
 

@@ -175,7 +175,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 
 
 		if (empty($file_info)) {
-			trigger_localised_error('HIPO0095', translate('No file selected to use'), E_USER_NOTICE)
+			trigger_localised_error('HIPO0095', translate('No file selected to use'), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -185,7 +185,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		if($root_node_id != 0) {
 			$root_node 		= $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node_id);
 			if (is_null($root_node)) {
-				trigger_localised_error('HIPO0096', translate('Provided Assetid is not for a valid Asset'), E_USER_NOTICE)
+				trigger_localised_error('HIPO0096', translate('Provided Assetid is not for a valid Asset'), E_USER_NOTICE);
 				return FALSE;
 			}
 		}

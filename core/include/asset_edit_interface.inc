@@ -327,7 +327,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
 			// we cant find this screen, so we will use the details screen as a backup
-			trigger_localised_error('SYS0076', sprintf(translate('Active Screen "%s" unknown'), $active_screen), E_USER_WARNING)
+			trigger_localised_error('SYS0076', sprintf(translate('Active Screen "%s" unknown'), $active_screen), E_USER_WARNING);
 			$active_screen = 'details';
 		}
 
@@ -917,7 +917,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
 			// we cant find this screen, so we will use the details screen as a backup
-			trigger_localised_error('SYS0076', sprintf(translate('Active Screen "%s" unknown'), $active_screen), E_USER_WARNING)
+			trigger_localised_error('SYS0076', sprintf(translate('Active Screen "%s" unknown'), $active_screen), E_USER_WARNING);
 			$active_screen = 'details';
 		}
 
@@ -1090,7 +1090,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 									default:
 										if (!is_null($attr_tag)) {
-											trigger_localised_error('SYS0194', translate('More than one tag other than display_name or note found'), E_USER_WARNING)
+											trigger_localised_error('SYS0194', translate('More than one tag other than display_name or note found'), E_USER_WARNING);
 										} else {
 											$attr_tag = $sub_field;
 										}
@@ -1172,7 +1172,7 @@ class Asset_Edit_Interface extends MySource_Object
 						break;
 
 						default:
-							trigger_localised_error('SYS0140', sprintf(translate('Expected "field" or "note" tag in section, found "%s"'), $field->name), E_USER_WARNING)
+							trigger_localised_error('SYS0140', sprintf(translate('Expected "field" or "note" tag in section, found "%s"'), $field->name), E_USER_WARNING);
 							continue;
 
 					}//end switch
@@ -1710,7 +1710,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 									default:
 										if (!is_null($attr_tag)) {
-											trigger_localised_error('SYS0194', translate('More than one tag other than display_name or note found'), E_USER_WARNING)
+											trigger_localised_error('SYS0194', translate('More than one tag other than display_name or note found'), E_USER_WARNING);
 										} else {
 											$attr_tag = $sub_field;
 										}
@@ -2010,7 +2010,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// must be a normal screen
 				if (empty($this->_screens[$active_screen])) {
-					trigger_localised_error('SYS0076', sprintf(translate('Active Screen "%s" unknown'), $active_screen), E_USER_WARNING)
+					trigger_localised_error('SYS0076', sprintf(translate('Active Screen "%s" unknown'), $active_screen), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -2058,7 +2058,7 @@ class Asset_Edit_Interface extends MySource_Object
 							continue;
 						// There is something declared but it doesn't exist
 						} else if (!method_exists($this->_edit_fns, (string)$process_node->attributes()->name)) {
-							trigger_localised_error('SYS0188', sprintf(translate('Function not found for processing section "%s"'), $section->attributes()->name), E_USER_WARNING)
+							trigger_localised_error('SYS0188', sprintf(translate('Function not found for processing section "%s"'), $section->attributes()->name), E_USER_WARNING);
 						} else {
 							// if we are processing the create interface and this section function is not included in that, ignore it
 							if ($creating && !in_array((string)$process_node->attributes()->name, $create_sections[(string)$section->attributes()->name])) {
@@ -2135,7 +2135,7 @@ class Asset_Edit_Interface extends MySource_Object
 									continue;
 								// There is something declared but it doesn't exist
 								} else if (!method_exists($this->_edit_fns, (string)$process_node->attributes()->name)) {
-									trigger_localised_error('SYS0187', sprintf(translate('Function not found for processing field "%1$s/%2$s'), (string)$section->attributes()->name, (string)$last_child), E_USER_WARNING)
+									trigger_localised_error('SYS0187', sprintf(translate('Function not found for processing field "%1$s/%2$s'), (string)$section->attributes()->name, (string)$last_child), E_USER_WARNING);
 								} else {
 									if ($this->_edit_fns->{(string)$process_node->attributes()->name}($owner, $o, $prefix)) {
 										$ret_val = TRUE;
@@ -2189,7 +2189,7 @@ class Asset_Edit_Interface extends MySource_Object
 				if (!$edit_fns->$show_if_fn($owner, $prefix)) return 0;
 			} else {
 				// if show if function doesn't exist, error, then continue as normal
-				trigger_localised_error('SYS0136', sprintf(translate('Error: Show If function "%1$s" for %2$s not found.'), $show_if_fn, $node->name), E_USER_WARNING)
+				trigger_localised_error('SYS0136', sprintf(translate('Error: Show If function "%1$s" for %2$s not found.'), $show_if_fn, $node->name), E_USER_WARNING);
 				return 0;
 			}
 		}
@@ -2364,7 +2364,7 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 		if ( (!$file) && $throw_error) {
-			trigger_localised_error('SYS0065', sprintf(translate('%1$s not found for Asset Type "%2$s"'), $file_name, $this->_type_code), E_USER_WARNING)
+			trigger_localised_error('SYS0065', sprintf(translate('%1$s not found for Asset Type "%2$s"'), $file_name, $this->_type_code), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -2569,7 +2569,7 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		if (file_exists($file_name)) return $file_name;
 		if ($throw_error) {
-			trigger_localised_error('SYS0065', sprintf(translate('%1$s not found for Asset Type "%2$s"'), $file_name, $this->_type_code), E_USER_WARNING)
+			trigger_localised_error('SYS0065', sprintf(translate('%1$s not found for Asset Type "%2$s"'), $file_name, $this->_type_code), E_USER_WARNING);
 			return FALSE;
 		}
 

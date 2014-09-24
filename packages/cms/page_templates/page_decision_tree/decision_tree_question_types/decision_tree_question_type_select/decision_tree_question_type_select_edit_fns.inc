@@ -634,7 +634,7 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 			$points = (!empty($_POST[$prefix.'_points_value_'.$key])) ? $_POST[$prefix.'_points_value_'.$key] : 0;
 
 			if (!is_numeric($points)) {
-				trigger_localised_error('CMS0114', translate('The Points Value field must be numeric for Answer Destinations.'), E_USER_NOTICE)
+				trigger_localised_error('CMS0114', translate('The Points Value field must be numeric for Answer Destinations.'), E_USER_NOTICE);
 				$points = 0;
 			}
 			$q_dest[$key]['points_value'] = $points;

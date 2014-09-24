@@ -1189,7 +1189,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				if ($cron_mgr->addJob($rc, $GLOBALS['SQ_SYSTEM']->user)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} else {
-					trigger_localised_error('CRON0054', translate('Failed to add a refresh cache cron job.'), E_USER_WARNING)
+					trigger_localised_error('CRON0054', translate('Failed to add a refresh cache cron job.'), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return FALSE;
 				}
@@ -1309,7 +1309,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
 						if (!$cron_mgr->removeJob($jobs[$i])) {
-							trigger_localised_error('CRON0055', translate('Failed to delete a refresh cache cron job.'), E_USER_WARNING)
+							trigger_localised_error('CRON0055', translate('Failed to delete a refresh cache cron job.'), E_USER_WARNING);
 						}
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 					}

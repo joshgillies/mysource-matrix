@@ -48,7 +48,7 @@ class Page_Custom_Form_Ecommerce_Edit_Fns extends Page_Custom_Form_Edit_Fns
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'form_ecommerce', false, 'major', '', '1', '1');
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
 		if (is_null($form)) {
-			trigger_localised_error('ECOM0002', sprintf(translate('Unable to locate the Ecommerce Rules for ecommerce custom form page "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_ERROR)
+			trigger_localised_error('ECOM0002', sprintf(translate('Unable to locate the Ecommerce Rules for ecommerce custom form page "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_ERROR);
 			return false;
 		}
 

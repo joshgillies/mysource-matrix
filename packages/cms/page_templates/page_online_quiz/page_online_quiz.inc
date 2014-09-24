@@ -221,7 +221,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'submissions_folder', 'is_dependant' => 1, 'is_exclusive' =>      1);
 		if (!$folder->create($folder_link)) {
-			trigger_localised_error('CMS0070', translate('Cannot create form - problem creating submissions folder'), E_USER_WARNING)
+			trigger_localised_error('CMS0070', translate('Cannot create form - problem creating submissions folder'), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -270,7 +270,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$submission = new Online_Quiz_Submission();
 		$submissions_folder = $this->getSubmissionsFolder();
 		if (is_null($submissions_folder)) {
-			trigger_localised_error('CMS0069', translate('Cannot create form submission - submissions folder not found.  Upgrade may be required.'), E_USER_WARNING)
+			trigger_localised_error('CMS0069', translate('Cannot create form submission - submissions folder not found.  Upgrade may be required.'), E_USER_WARNING);
 			$null = NULL;
 			return $null;
 		}
@@ -710,7 +710,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// check that the new type is valid
 		if ($new_type != '' && !isset($types[$new_type])) {
-			trigger_localised_error('CMS0045', sprintf(translate('Cannot customise the format of type %s, type is not valid'), $new_type), E_USER_WARNING)
+			trigger_localised_error('CMS0045', sprintf(translate('Cannot customise the format of type %s, type is not valid'), $new_type), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -741,7 +741,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		} else {
-			trigger_localised_error('CMS0046', sprintf(translate('Cannot customise type %s, it is already customised'), $new_type), E_USER_WARNING)
+			trigger_localised_error('CMS0046', sprintf(translate('Cannot customise type %s, it is already customised'), $new_type), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1722,7 +1722,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 						reset($questions);
 						$question_id = key($questions);
 						if (empty($question_id)) {
-							trigger_localised_error('CMS0112', sprintf(translate('Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access.'), $pool_id), E_USER_WARNING)
+							trigger_localised_error('CMS0112', sprintf(translate('Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access.'), $pool_id), E_USER_WARNING);
 							break;
 						}
 						$question_pagination['pages_to_questions'][$page_no][$question_id] = $questions[$question_id]['type_code'];
@@ -1738,7 +1738,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 							reset($questions);
 							$question_id = key($questions);
 							if (empty($question_id)) {
-								trigger_localised_error('CMS0112', sprintf(translate('Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access.'), $pool_id), E_USER_WARNING)
+								trigger_localised_error('CMS0112', sprintf(translate('Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access.'), $pool_id), E_USER_WARNING);
 								break;
 							}
 							$question_pagination['pages_to_retry_questions'][$page_no][$question_id] = $questions[$question_id]['type_code'];

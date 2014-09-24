@@ -61,7 +61,7 @@ class Calendar_Event_Multi_Date extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -407,7 +407,7 @@ class Calendar_Event_Multi_Date extends Asset
 
 		//make sure our data directory exist
 		if (!create_directory($this->data_path)) {
-			trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 

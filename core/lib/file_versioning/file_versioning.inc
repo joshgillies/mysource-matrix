@@ -61,7 +61,7 @@ class File_Versioning
 	{
 		// if errors have occured, we can't be guaranteed that the system is integral, die
 		if (file_exists($dir.'/.FFV/error.log')) {
-			trigger_localised_error('FVER0024', sprintf(translate('Unable to use File Versioning, an error occurred and integrity needs to be restored, read %s/.FFV/error.log for more details, then remove this file'), $dir), E_USER_ERROR)
+			trigger_localised_error('FVER0024', sprintf(translate('Unable to use File Versioning, an error occurred and integrity needs to be restored, read %s/.FFV/error.log for more details, then remove this file'), $dir), E_USER_ERROR);
 		}
 		$this->_dir = $dir;
 
@@ -87,7 +87,7 @@ class File_Versioning
 		$dir = SQ_DATA_PATH.'/file_repository';
 		$this->_dir = $dir;
 		if (!create_directory($dir)) {
-			trigger_localised_error('FVER0022', sprintf(translate('Unable to initialise File Version system, unable to create directory "%s"'), $dir), E_USER_WARNING)
+			trigger_localised_error('FVER0022', sprintf(translate('Unable to initialise File Version system, unable to create directory "%s"'), $dir), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
@@ -203,14 +203,14 @@ class File_Versioning
 
 		$ffv = parse_ini_file($ffv_file);
 		if (!is_array($ffv)) {
-			trigger_localised_error('FVER0025', translate('File Versioning information corrupt'), E_USER_WARNING)
+			trigger_localised_error('FVER0025', translate('File Versioning information corrupt'), E_USER_WARNING);
 			return FUDGE_FV_ERROR;
 		}
 
 
 		$info = $this->_getFileInfoAtVersion($ffv['fileid'], (int) $ffv['version']);
 		if (empty($info)) {
-			trigger_localised_error('FVER0028', sprintf(translate('File versioning information at version %1$s missing for file #%2$s'), $ffv['version'], $ffv['fileid']), E_USER_WARNING)
+			trigger_localised_error('FVER0028', sprintf(translate('File versioning information at version %1$s missing for file #%2$s'), $ffv['version'], $ffv['fileid']), E_USER_WARNING);
 			return FUDGE_FV_ERROR;
 		}
 
@@ -218,7 +218,7 @@ class File_Versioning
 
 		if (empty($info['removal'])) {
 			if (!$this->_validateFileVersion($rep_file, $info)) {
-				trigger_localised_error('FVER0027', sprintf(translate('File "%1$s/%2$s" with version #%3$s not found in the repository'), $info['path'], $info['filename'], $info['version']), E_USER_NOTICE)
+				trigger_localised_error('FVER0027', sprintf(translate('File "%1$s/%2$s" with version #%3$s not found in the repository'), $info['path'], $info['filename'], $info['version']), E_USER_NOTICE);
 				return FUDGE_FV_ERROR;
 			}
 		}
@@ -376,7 +376,7 @@ class File_Versioning
 		$db = MatrixDAL::getDb();
 		// make sure we can get to the file
 		if (!is_file($real_file) || !is_readable($real_file)) {
-			trigger_localised_error('FVER0003', sprintf(translate('File "%s" doesn\'t exist or is not readable'), $real_file), E_USER_NOTICE)
+			trigger_localised_error('FVER0003', sprintf(translate('File "%s" doesn\'t exist or is not readable'), $real_file), E_USER_NOTICE);
 			return false;
 		}
 
@@ -386,7 +386,7 @@ class File_Versioning
 		// make sure there isn't already a .FFV entry for this file (or that it hasn't been removed)
 		$existing_ffv_info = $this->_getFileInfoFromRealFile($real_file);
 		if ($existing_ffv_info != FUDGE_FV_NOT_CHECKED_OUT && empty($existing_ffv_info['removal'])) {
-			trigger_localised_error('FVER0017', sprintf(translate('Unable to add file "%s", there is already a .FFV entry for this file'), $real_file), E_USER_NOTICE)
+			trigger_localised_error('FVER0017', sprintf(translate('Unable to add file "%s", there is already a .FFV entry for this file'), $real_file), E_USER_NOTICE);
 			return false;
 		}
 
@@ -399,12 +399,12 @@ class File_Versioning
 		foreach ($bits as $bit) {
 			// convert to upper for case insensitiveness
 			if (strtoupper($bit) == '.FFV') {
-				trigger_localised_error('FVER0015', sprintf(translate('Unable to add file "%1$s" to path "%2$s", name or somewhere in path is ".FFV"'), $real_file, $rep_path), E_USER_NOTICE)
+				trigger_localised_error('FVER0015', sprintf(translate('Unable to add file "%1$s" to path "%2$s", name or somewhere in path is ".FFV"'), $real_file, $rep_path), E_USER_NOTICE);
 				return false;
 			}
 
 			if (preg_match('/,FFV[0-9]+$/i', $bit)) {
-				trigger_localised_error('FVER0016', sprintf(translate('Unable to add file "%1$s" to path "%2$s", name or somewhere in path is ends in ",ffv" followed by only numeric chars'), $real_file, $rep_path), E_USER_NOTICE)
+				trigger_localised_error('FVER0016', sprintf(translate('Unable to add file "%1$s" to path "%2$s", name or somewhere in path is ends in ",ffv" followed by only numeric chars'), $real_file, $rep_path), E_USER_NOTICE);
 				return false;
 			}
 
@@ -413,7 +413,7 @@ class File_Versioning
 		$current_info = $this->_getFileInfoFromPath($rep_file);
 		// if there is a current file and it hasn't been "removed", you can't add a new file
 		if (!empty($current_info) && empty($current_info['removal'])) {
-			trigger_localised_error('FVER0004', sprintf(translate('File "%s" already exists in the repository'), $rep_file), E_USER_WARNING)
+			trigger_localised_error('FVER0004', sprintf(translate('File "%s" already exists in the repository'), $rep_file), E_USER_WARNING);
 			return false;
 
 		// if there is no current file, check that this new file's path isn't already is use
@@ -439,7 +439,7 @@ class File_Versioning
 			}
 
 			if (!empty($result)) {
-				trigger_localised_error('FVER0014', sprintf(translate('Unable to add file "%1$s" to path "%2$s", either the file already exists in the repository path or part of the repository path is already a file in the repository'), $real_file, $rep_path), E_USER_NOTICE)
+				trigger_localised_error('FVER0014', sprintf(translate('Unable to add file "%1$s" to path "%2$s", either the file already exists in the repository path or part of the repository path is already a file in the repository'), $real_file, $rep_path), E_USER_NOTICE);
 				return false;
 			}
 
@@ -475,7 +475,7 @@ class File_Versioning
 
 		// get the lock now that we have inserted the details
 		if (!$this->_lockFile($fileid)) {
-			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE)
+			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
@@ -598,7 +598,7 @@ class File_Versioning
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				$rep_dir = $this->_dir.'/'.$rep_path;
 				if (!is_dir($rep_dir) && !create_directory($rep_dir)) {
-					//trigger_localised_error('FVER0020', sprintf(translate('Unable to create directory "%s"'), $rep_dir), E_USER_NOTICE)
+					//trigger_localised_error('FVER0020', sprintf(translate('Unable to create directory "%s"'), $rep_dir), E_USER_NOTICE);
 					throw new Exception('There is no repository folder for file #'.$fileid);
 				}//end if
 
@@ -659,7 +659,7 @@ class File_Versioning
 				rename($ffv_file.'.bup', $ffv_file);
 			}//end if ffv_file exists
 		} else {
-			trigger_localised_error('FVER0020', sprintf(translate('Unable to create directory "%s"'), $ffv_dir), E_USER_NOTICE)
+			trigger_localised_error('FVER0020', sprintf(translate('Unable to create directory "%s"'), $ffv_dir), E_USER_NOTICE);
 
 		}//end if create ffv_dir
 
@@ -694,7 +694,7 @@ class File_Versioning
 		}
 
 		if (!$this->_lockFile($info['fileid'])) {
-			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE)
+			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE);
 			return false;
 		}
 
@@ -749,7 +749,7 @@ class File_Versioning
 			}
 
 			if (empty($ver_info)) {
-				trigger_localised_error('FVER0006', sprintf(translate('File "%1$s" does not have an available version for "%2$s"'), $rep_file, $nice_date), E_USER_NOTICE)
+				trigger_localised_error('FVER0006', sprintf(translate('File "%1$s" does not have an available version for "%2$s"'), $rep_file, $nice_date), E_USER_NOTICE);
 				$this->_releaseFile($info['fileid']);
 				return false;
 			}
@@ -778,7 +778,7 @@ class File_Versioning
 			}
 
 			if (empty($ver_info)) {
-				trigger_localised_error('FVER0005', sprintf(translate('File "%1$s" does not have a version "%2$s"'), $rep_file), E_USER_NOTICE)
+				trigger_localised_error('FVER0005', sprintf(translate('File "%1$s" does not have a version "%2$s"'), $rep_file), E_USER_NOTICE);
 				$this->_releaseFile($info['fileid']);
 				return false;
 			}
@@ -852,7 +852,7 @@ class File_Versioning
 		// attempt recovery from private
 		if (copy(SQ_DATA_PATH.'/private/'.$info['path'].'/'.$info['filename'], $destination)) {
 			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
-				trigger_localised_error('FVER0029', sprintf(translate('File version ffv%1$s was found to be corrupt. System has reverted to %2$s version'), $info['version'], translate('data').' '.translate('private')), E_USER_WARNING)
+				trigger_localised_error('FVER0029', sprintf(translate('File version ffv%1$s was found to be corrupt. System has reverted to %2$s version'), $info['version'], translate('data').' '.translate('private')), E_USER_WARNING);
 
 
 				return true;
@@ -862,7 +862,7 @@ class File_Versioning
 		// attempt recovery from public
 		if (@copy(SQ_DATA_PATH.'/public/'.$info['path'].'/'.$info['filename'], $destination)) {
 			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
-				trigger_localised_error('FVER0029', sprintf(translate('File version ffv%1$s was found to be corrupt. System has reverted to %2$s version'), $info['version'], translate('data').' '.translate('public')), E_USER_WARNING)
+				trigger_localised_error('FVER0029', sprintf(translate('File version ffv%1$s was found to be corrupt. System has reverted to %2$s version'), $info['version'], translate('data').' '.translate('public')), E_USER_WARNING);
 
 
 				return true;
@@ -892,12 +892,12 @@ class File_Versioning
 		// attempt recovery from a previous version, if we found a valid one
 		if ($exists && @copy($current,  $destination)) {
 			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
-				trigger_localised_error('FVER0029', sprintf(translate('File version ffv%1$s was found to be corrupt. System has reverted to %2$s version'), $info['version'], 'ffv'.$existing_version), E_USER_WARNING)
+				trigger_localised_error('FVER0029', sprintf(translate('File version ffv%1$s was found to be corrupt. System has reverted to %2$s version'), $info['version'], 'ffv'.$existing_version), E_USER_WARNING);
 				return true;
 			}
 		} else {
 			// we could do nothing to save it, manual user recovery time
-			trigger_localised_error('FVER0030', translate('Unable to recover file from any known source, you will have to add this file again yourself'), E_USER_WARNING)
+			trigger_localised_error('FVER0030', translate('Unable to recover file from any known source, you will have to add this file again yourself'), E_USER_WARNING);
 			return false;
 		}
 
@@ -961,7 +961,7 @@ class File_Versioning
 	{
 		// make sure we can save the file
 		if (!is_dir($dest_dir) || !is_writable($dest_dir)) {
-			trigger_localised_error('FVER0001', sprintf(translate('Directory "%s" doesn\'t exist or is not writable'), $dest_dir), E_USER_NOTICE)
+			trigger_localised_error('FVER0001', sprintf(translate('Directory "%s" doesn\'t exist or is not writable'), $dest_dir), E_USER_NOTICE);
 			return false;
 		}
 
@@ -1017,7 +1017,7 @@ class File_Versioning
 		if (empty($info)) return false;
 
 		if ($info['removal']) {
-			trigger_localised_error('FVER0013', sprintf(translate('There is no version available to be output for file "%s"'), $rep_file), E_USER_NOTICE)
+			trigger_localised_error('FVER0013', sprintf(translate('There is no version available to be output for file "%s"'), $rep_file), E_USER_NOTICE);
 			return false;
 		}
 
@@ -1041,25 +1041,25 @@ class File_Versioning
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
-				trigger_localised_error('FVER0002', sprintf(translate('Error occurred getting file information, unable to run %s()'), __FUNCTION__), E_USER_WARNING)
+				trigger_localised_error('FVER0002', sprintf(translate('Error occurred getting file information, unable to run %s()'), __FUNCTION__), E_USER_WARNING);
 			}
 			return $info;
 		}
 
 		if (!$this->_lockFile($info['fileid'])) {
-			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE)
+			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE);
 			return FUDGE_FV_ERROR;
 		}
 
 		$curr_ver_info = $this->_getFileInfoAtVersion($info['fileid']);
 		if (empty($curr_ver_info)) {
-			trigger_localised_error('FVER0026', sprintf(translate('No current information found for "%s"'), $real_file), E_USER_NOTICE)
+			trigger_localised_error('FVER0026', sprintf(translate('No current information found for "%s"'), $real_file), E_USER_NOTICE);
 			return FUDGE_FV_ERROR;
 		}
 
 		$file_ver_info = $this->_getFileInfoAtVersion($info['fileid'], $info['version']);
 		if (empty($file_ver_info)) {
-			trigger_localised_error('FVER0009', sprintf(translate('No information found for Version #%s'), $info['version']), E_USER_NOTICE)
+			trigger_localised_error('FVER0009', sprintf(translate('No information found for Version #%s'), $info['version']), E_USER_NOTICE);
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1107,7 +1107,7 @@ class File_Versioning
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
-				trigger_localised_error('FVER0002', sprintf(translate('Error occurred getting file information, unable to run %s()'), __FUNCTION__), E_USER_WARNING)
+				trigger_localised_error('FVER0002', sprintf(translate('Error occurred getting file information, unable to run %s()'), __FUNCTION__), E_USER_WARNING);
 			}
 			return $info;
 		}
@@ -1116,7 +1116,7 @@ class File_Versioning
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->_lockFile($info['fileid'])) {
-			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE)
+			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
@@ -1125,7 +1125,7 @@ class File_Versioning
 		// get the lastest current info about this file
 		$curr_ver_info = $this->_getFileInfoAtVersion($info['fileid']);
 		if (empty($curr_ver_info)) {
-			trigger_localised_error('FVER0011', sprintf(translate('No information found for the Current version of "%1$s/%2$s'), $info['path'], $info['filename']), E_USER_NOTICE)
+			trigger_localised_error('FVER0011', sprintf(translate('No information found for the Current version of "%1$s/%2$s'), $info['path'], $info['filename']), E_USER_NOTICE);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1135,7 +1135,7 @@ class File_Versioning
 		// get the info about the version that this file is current checked out as
 		$file_ver_info = $this->_getFileInfoAtVersion($info['fileid'], $info['version']);
 		if (empty($file_ver_info)) {
-			trigger_localised_error('FVER0010', sprintf(translate('No information found for Version #%1$s of "%2$s/%3$s"'), $info['version'], $info['path'], $info['filename']), E_USER_NOTICE)
+			trigger_localised_error('FVER0010', sprintf(translate('No information found for Version #%1$s of "%2$s/%3$s"'), $info['version'], $info['path'], $info['filename']), E_USER_NOTICE);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1145,7 +1145,7 @@ class File_Versioning
 		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to commit this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
-			trigger_localised_error('FVER0019', sprintf(translate('Unable to commit "%1$s/%2$s", it is checked out as version #%3$s, and needs to be updated to the latest version (#%4$s), before committing can occur'), $info['path'], $info['filename'], $file_ver_info['version'], $curr_ver_info['version']), E_USER_NOTICE)
+			trigger_localised_error('FVER0019', sprintf(translate('Unable to commit "%1$s/%2$s", it is checked out as version #%3$s, and needs to be updated to the latest version (#%4$s), before committing can occur'), $info['path'], $info['filename'], $file_ver_info['version'], $curr_ver_info['version']), E_USER_NOTICE);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1200,7 +1200,7 @@ class File_Versioning
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
-				trigger_localised_error('FVER0002', sprintf(translate('Error occurred getting file information, unable to run %s()'), __FUNCTION__), E_USER_WARNING)
+				trigger_localised_error('FVER0002', sprintf(translate('Error occurred getting file information, unable to run %s()'), __FUNCTION__), E_USER_WARNING);
 			}
 			return $info;
 		}
@@ -1209,7 +1209,7 @@ class File_Versioning
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->_lockFile($info['fileid'])) {
-			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE)
+			trigger_localised_error('FVER0018', translate('Unable to acquire lock'), E_USER_NOTICE);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
@@ -1218,7 +1218,7 @@ class File_Versioning
 		// get the lastest current info about this file
 		$curr_ver_info = $this->_getFileInfoAtVersion($info['fileid']);
 		if (empty($curr_ver_info)) {
-			trigger_localised_error('FVER0012', sprintf(translate('No information found for the Current version of "%1$s/%2$s", it has already been removed'), $info['path'], $info['filename']), E_USER_NOTICE)
+			trigger_localised_error('FVER0012', sprintf(translate('No information found for the Current version of "%1$s/%2$s", it has already been removed'), $info['path'], $info['filename']), E_USER_NOTICE);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1228,7 +1228,7 @@ class File_Versioning
 		// get the info about the version that this file is current checked out as
 		$file_ver_info = $this->_getFileInfoAtVersion($info['fileid'], $info['version']);
 		if (empty($file_ver_info)) {
-			trigger_localised_error('FVER0010', sprintf(translate('No information found for Version #%1$s of "%2$s/%3$s"'), $info['version'], $info['path'], $info['filename']), E_USER_NOTICE)
+			trigger_localised_error('FVER0010', sprintf(translate('No information found for Version #%1$s of "%2$s/%3$s"'), $info['version'], $info['path'], $info['filename']), E_USER_NOTICE);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1238,7 +1238,7 @@ class File_Versioning
 		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to remove this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
-			trigger_localised_error('FVER0023', sprintf(translate('Unable to remove "%1$s/%2$s", it is checked out as version #%3$s, and needs to be updated to the latest version (#%4$s), before removal can occur'), $info['path'], $info['filename'], $curr_ver_info['version']), E_USER_NOTICE)
+			trigger_localised_error('FVER0023', sprintf(translate('Unable to remove "%1$s/%2$s", it is checked out as version #%3$s, and needs to be updated to the latest version (#%4$s), before removal can occur'), $info['path'], $info['filename'], $curr_ver_info['version']), E_USER_NOTICE);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1295,7 +1295,7 @@ class File_Versioning
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
-				trigger_localised_error('FVER0002', sprintf(translate('Error occurred getting file information, unable to run %s()'), __FUNCTION__), E_USER_WARNING)
+				trigger_localised_error('FVER0002', sprintf(translate('Error occurred getting file information, unable to run %s()'), __FUNCTION__), E_USER_WARNING);
 			}
 			return $info;
 		}

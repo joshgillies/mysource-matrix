@@ -155,9 +155,9 @@ class Tool_Import_File extends Tool
 		} else {
 			// Fail
 			if (empty($importr) && $sanity_check) {
-				trigger_localised_error('FIL0001', translate('No root node specified'), E_USER_ERROR)
+				trigger_localised_error('FIL0001', translate('No root node specified'), E_USER_ERROR);
 			} else {
-				trigger_localised_error('FIL0003', translate('No parent node specified'), E_USER_ERROR)
+				trigger_localised_error('FIL0003', translate('No parent node specified'), E_USER_ERROR);
 			}//end if
 			return FALSE;
 		}//end if

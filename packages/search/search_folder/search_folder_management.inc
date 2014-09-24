@@ -102,7 +102,7 @@ class Search_Folder_Management extends Asset_Management
 				$asset->setAttrValue('settings', $settings);
 
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('SCH0009', translate('Search Folder Upgrade [to 0.3] FAILED - Couldn\'t save attributes'), E_USER_WARNING)
+					trigger_localised_error('SCH0009', translate('Search Folder Upgrade [to 0.3] FAILED - Couldn\'t save attributes'), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -130,7 +130,7 @@ class Search_Folder_Management extends Asset_Management
 					$asset->setAttrValue('settings', $settings);
 
 					if (!$asset->saveAttributes()) {
-						trigger_localised_error('SCH0009', translate('Search Folder Upgrade [to 0.3] FAILED - Couldn\'t save attributes'), E_USER_WARNING)
+						trigger_localised_error('SCH0009', translate('Search Folder Upgrade [to 0.3] FAILED - Couldn\'t save attributes'), E_USER_WARNING);
 						return FALSE;
 					}
 				}

@@ -302,7 +302,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 			$value = preg_split('/[ ,]+/', (string)$value);
 			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
-					trigger_localised_error('CORE0145', sprintf(translate('Asset Type "%s" is not installed in this system, unable to set "type_codes"'), $type_code), E_USER_WARNING)
+					trigger_localised_error('CORE0145', sprintf(translate('Asset Type "%s" is not installed in this system, unable to set "type_codes"'), $type_code), E_USER_WARNING);
 					return FALSE;
 				}
 			}

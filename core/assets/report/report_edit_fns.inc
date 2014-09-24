@@ -181,7 +181,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;
-					trigger_localised_error('CORE0029', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name), E_USER_WARNING)
+					trigger_localised_error('CORE0029', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name), E_USER_WARNING);
 				}
 			}
 		}
@@ -266,7 +266,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	*/
 	public function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
 	{
-		trigger_localised_error('CORE0079', translate('This report can not be generated'), E_USER_WARNING)
+		trigger_localised_error('CORE0079', translate('This report can not be generated'), E_USER_WARNING);
 		$step_data['percent_done'] = 100;
 		$step_data['complete'] = TRUE;
 		return TRUE;

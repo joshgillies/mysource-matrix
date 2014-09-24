@@ -60,14 +60,14 @@ class Cron_Job_Future_Permission extends Cron_Job
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				trigger_localised_error('CRON0059', translate('Unable to create future permission cron job, unable to acquire "links" lock'), E_USER_WARNING)
+				trigger_localised_error('CRON0059', translate('Unable to create future permission cron job, unable to acquire "links" lock'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			$link = $this->_tmp['asset_in_link'];
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
-				trigger_localised_error('CRON0060', translate('Unable to create future permission cron job, Unable to set asset in link'), E_USER_WARNING)
+				trigger_localised_error('CRON0060', translate('Unable to create future permission cron job, Unable to set asset in link'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -166,13 +166,13 @@ class Cron_Job_Future_Permission extends Cron_Job
 			case 'permission' :
 				$value = (int) $value;
 				if (!in_array($value, $this->_getAllPermissions())) {
-					trigger_localised_error('CRON0061', translate('Unable to set the permission, it is not valid'), E_USER_NOTICE)
+					trigger_localised_error('CRON0061', translate('Unable to set the permission, it is not valid'), E_USER_NOTICE);
 					return FALSE;
 				}
 			break;
 
 			case 'type' :
-				trigger_localised_error('CRON0062', translate('Unable to set the type of a future permission cron job; it can only be a one off event'), E_USER_NOTICE)
+				trigger_localised_error('CRON0062', translate('Unable to set the type of a future permission cron job; it can only be a one off event'), E_USER_NOTICE);
 				return FALSE;
 			break;
 		}//end if
@@ -380,12 +380,12 @@ class Cron_Job_Future_Permission extends Cron_Job
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed
-				trigger_localised_error('CRON0063', sprintf(translate('Failed changing Permission of "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING)
+				trigger_localised_error('CRON0063', sprintf(translate('Failed changing Permission of "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING);
 			}
 
 		} else {
 			// asset not found
-			trigger_localised_error('CRON0064', translate('Unable to find asset to update the permission of'), E_USER_WARNING)
+			trigger_localised_error('CRON0064', translate('Unable to find asset to update the permission of'), E_USER_WARNING);
 		}
 
 		// we can be removed because the error is beyound our control

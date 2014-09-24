@@ -29,7 +29,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/include/init.inc';
 
 // kick out the wrong types of people
 if (empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) {
-	trigger_localised_error('SYS0028', translate('You must be logged in as a backend user to upload files'), E_USER_ERROR)
+	trigger_localised_error('SYS0028', translate('You must be logged in as a backend user to upload files'), E_USER_ERROR);
 	exit();
 }
 
@@ -46,7 +46,7 @@ foreach ($_FILES as $id => $details) {
 				if (move_uploaded_file($_FILES[$id]['tmp_name'][$index], SQ_TEMP_PATH.'/'.$file_name)) {
 					print("\nOK ".$file_name."\n");
 				} else {
-					trigger_localised_error('SYS0009', translate('Error uploading file %s'), E_USER_WARNING)
+					trigger_localised_error('SYS0009', translate('Error uploading file %s'), E_USER_WARNING);
 				}
 			}
 		}
@@ -57,7 +57,7 @@ foreach ($_FILES as $id => $details) {
 			if (move_uploaded_file($_FILES[$id]['tmp_name'], SQ_TEMP_PATH.'/'.$file_name)) {
 				print("\nOK ".$file_name."\n");
 			} else {
-				trigger_localised_error('SYS0009', translate('Error uploading file %s'), E_USER_WARNING)
+				trigger_localised_error('SYS0009', translate('Error uploading file %s'), E_USER_WARNING);
 			}
 		}
 	}

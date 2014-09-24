@@ -58,14 +58,14 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				trigger_localised_error('CRON0018', translate('Unable to create future lineage cron job, unable to acquire "links" lock'), E_USER_WARNING)
+				trigger_localised_error('CRON0018', translate('Unable to create future lineage cron job, unable to acquire "links" lock'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			$link = $this->_tmp['asset_in_link'];
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
-				trigger_localised_error('CRON0017', translate('Unable to create future lineage cron job, Unable to set asset in link'), E_USER_WARNING)
+				trigger_localised_error('CRON0017', translate('Unable to create future lineage cron job, Unable to set asset in link'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -275,7 +275,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 			}
 		} else {
 			// asset not found
-			trigger_localised_error('CMS0120', translate('Cannot find form asset to get the submission log from'), E_USER_WARNING)
+			trigger_localised_error('CMS0120', translate('Cannot find form asset to get the submission log from'), E_USER_WARNING);
 		}
 
 		return SQ_CRON_JOB_ERROR;
@@ -400,7 +400,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		}
 
 		if (!$from_ts) {
-			trigger_localised_error('CMS0121', translate('Submission log "start" date not configured'), E_USER_WARNING)
+			trigger_localised_error('CMS0121', translate('Submission log "start" date not configured'), E_USER_WARNING);
 			return FALSE;
 		}
 

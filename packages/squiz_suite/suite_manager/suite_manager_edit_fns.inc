@@ -356,7 +356,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 			}
 
             if ($response['curlInfo']['http_code'] !== 200) {
-                trigger_localised_error('SQS0021', sprintf(translate('Unable to activate new product. Received %s error code.'), $response['curlInfo']['http_code']), E_USER_WARNING)
+                trigger_localised_error('SQS0021', sprintf(translate('Unable to activate new product. Received %s error code.'), $response['curlInfo']['http_code']), E_USER_WARNING);
             }//end if
         }//end foreach
 
@@ -480,7 +480,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
                 $suiteid    = $asset->registerProduct($tempid, $systemType, $product_url, $connection);
                 $asset->updateProduct($suiteid, 'status', 'pending');
             } else {
-                trigger_localised_error('SQS0020', sprintf(translate('Unable to register new product'), $response['curlInfo']['http_code']), E_USER_WARNING)
+                trigger_localised_error('SQS0020', sprintf(translate('Unable to register new product'), $response['curlInfo']['http_code']), E_USER_WARNING);
             }//end if
         }//end if
 

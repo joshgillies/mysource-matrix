@@ -297,14 +297,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		// there must be assets in the _running_vars to clone
 		if (empty($this->_running_vars['assets'])) {
-			trigger_localised_error('HIPO0031', translate('Unable to initialise Clone Asset HIPO, no assets specified'), E_USER_WARNING)
+			trigger_localised_error('HIPO0031', translate('Unable to initialise Clone Asset HIPO, no assets specified'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		foreach ($this->_running_vars['assets'] as $assetid => $info) {
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
-				trigger_localised_error('HIPO0084', sprintf(translate('Unable to clone asset "%1$s", shadow asset can not be cloned.'), $assetid), E_USER_WARNING)
+				trigger_localised_error('HIPO0084', sprintf(translate('Unable to clone asset "%1$s", shadow asset can not be cloned.'), $assetid), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -535,14 +535,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 		if (is_null($parent_asset)) {
-			trigger_localised_error('HIPO0030', sprintf(translate('Unable to clone asset, invalid destination asset ID specified (#%d)'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING)
+			trigger_localised_error('HIPO0030', sprintf(translate('Unable to clone asset, invalid destination asset ID specified (#%d)'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING);
 			return FALSE;
 		}
 
 		$orig = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		if (is_null($orig)) {
-			trigger_localised_error('HIPO0029', sprintf(translate('Unable to clone asset, invalid asset ID for cloning specified (#%d)'), $assetid), E_USER_WARNING)
+			trigger_localised_error('HIPO0029', sprintf(translate('Unable to clone asset, invalid asset ID for cloning specified (#%d)'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -586,7 +586,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, TRUE);
 		if (is_null($clone)) {
-			trigger_localised_error('HIPO0028', translate('Unable to clone asset and it\'s required components. Cloning failed.'), E_USER_WARNING)
+			trigger_localised_error('HIPO0028', translate('Unable to clone asset and it\'s required components. Cloning failed.'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -602,7 +602,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				$clone->setAttrValue('id_name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
 			}
 			if (!$clone->saveAttributes()) {
-				trigger_localised_error('HIPO0028', translate('Unable to clone asset and it\'s required components. Cloning failed.'), E_USER_WARNING)
+				trigger_localised_error('HIPO0028', translate('Unable to clone asset and it\'s required components. Cloning failed.'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -691,7 +691,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$step_data['message'] = 'Remapping "'.htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" and its dependant assets.';
 
 		if (!$asset->remapAssetids($map)) {
-			trigger_localised_error('HIPO0027', sprintf(translate('Remap failed for asset, Asset Id #%d'), $asset->id), E_USER_WARNING)
+			trigger_localised_error('HIPO0027', sprintf(translate('Remap failed for asset, Asset Id #%d'), $asset->id), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -740,7 +740,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 		if (is_null($parent)) {
-			trigger_localised_error('HIPO0018', sprintf(translate('Asset #%d not found'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING)
+			trigger_localised_error('HIPO0018', sprintf(translate('Asset #%d not found'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING);
 			return FALSE;
 		}
 

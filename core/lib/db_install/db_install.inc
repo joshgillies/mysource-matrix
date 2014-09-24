@@ -49,7 +49,7 @@ function parse_tables_xml($xml_file)
 
 	if (($root->getName() != 'schema') || !isset($root->tables) || !isset($root->sequences)) {
 		throw new Exception('Tables XML file is not valid.');
-		trigger_localised_error('SYS0012', translate('Invalid Schema for DB install'), E_USER_WARNING)
+		trigger_localised_error('SYS0012', translate('Invalid Schema for DB install'), E_USER_WARNING);
 		return FALSE;
 	}
 
@@ -622,7 +622,7 @@ function db_install($xml_file, $verbose=TRUE)
 
 	$cached_sequences_string = '<'.'?php $sequences = '.var_export($info['sequences'], TRUE).'; ?'.'>';
 	if (!string_to_file($cached_sequences_string, SQ_DATA_PATH.'/private/db/sequences.inc')) {
-		trigger_localised_error('SYS0010', translate('Failed writing database sequence column cache file'), E_USER_WARNING)
+		trigger_localised_error('SYS0010', translate('Failed writing database sequence column cache file'), E_USER_WARNING);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return FALSE;
 	}
@@ -637,7 +637,7 @@ function db_install($xml_file, $verbose=TRUE)
 
 	$cached_tables_string = '<'.'?php $tables = '.var_export($cached_table_info, TRUE).'; ?'.'>';
 	if (!string_to_file($cached_tables_string, SQ_DATA_PATH.'/private/db/table_columns.inc')) {
-		trigger_localised_error('SYS0011', translate('Failed writing database table column cache file'), E_USER_WARNING)
+		trigger_localised_error('SYS0011', translate('Failed writing database table column cache file'), E_USER_WARNING);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return FALSE;
 	}

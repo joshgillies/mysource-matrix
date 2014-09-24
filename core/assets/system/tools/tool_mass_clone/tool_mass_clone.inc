@@ -106,19 +106,19 @@ class Tool_Mass_Clone extends Tool
 	public static function processTool(&$o, $type_code)
 	{
 		if (!isset($_REQUEST['asset_to_clone']) || empty($_REQUEST['asset_to_clone']['assetid'])) {
-			trigger_localised_error('CORE0253', translate('Cannot process mass clone without an asset to clone'), E_USER_WARNING)
+			trigger_localised_error('CORE0253', translate('Cannot process mass clone without an asset to clone'), E_USER_WARNING);
 			return FALSE;
 		}
 		if (!isset($_REQUEST['clone_parent']) || empty($_REQUEST['clone_parent']['assetid'])) {
-			trigger_localised_error('CORE0254', translate('Cannot process mass clone without a parent for the cloned assets'), E_USER_WARNING)
+			trigger_localised_error('CORE0254', translate('Cannot process mass clone without a parent for the cloned assets'), E_USER_WARNING);
 			return FALSE;
 		}
 		if (empty($_REQUEST['number_of_clones'])) {
-			trigger_localised_error('CORE0255', translate('Cannot process mass clone without a specified number of clones to create'), E_USER_WARNING)
+			trigger_localised_error('CORE0255', translate('Cannot process mass clone without a specified number of clones to create'), E_USER_WARNING);
 			return FALSE;
 		}
 		if (empty($_REQUEST['link_type'])) {
-			trigger_localised_error('CORE0256', translate('Cannot process mass clone without a specified link type'), E_USER_WARNING)
+			trigger_localised_error('CORE0256', translate('Cannot process mass clone without a specified link type'), E_USER_WARNING);
 			return FALSE;
 		}
 		$vars = call_user_func(Array($type_code, 'getHipoRunningVars'), $type_code);

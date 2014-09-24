@@ -83,7 +83,7 @@ class Bodycopy_Container extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -164,7 +164,7 @@ class Bodycopy_Container extends Asset
 			// save a version of the container as it appears now
 			$edit = $this->getEditFns();
 			if (!$edit->generateContentFile($this)) {
-				trigger_localised_error('CORE0047', sprintf(translate('Failed saving asset "%s" to cache, could not create content file'), $this->name), E_USER_WARNING)
+				trigger_localised_error('CORE0047', sprintf(translate('Failed saving asset "%s" to cache, could not create content file'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -190,7 +190,7 @@ class Bodycopy_Container extends Asset
 
 		// save the links we currently use (./?a=xx)
 		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
-			trigger_localised_error('CORE0048', sprintf(translate('Failed saving asset "%s" to cache, could not create notice links file'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0048', sprintf(translate('Failed saving asset "%s" to cache, could not create notice links file'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -489,7 +489,7 @@ class Bodycopy_Container extends Asset
 			}
 
 			if (!is_file($this->data_path.'/'.$content_file_name)) {
-				trigger_localised_error('CORE0009', sprintf(translate('Content file failed to generate for bodycopy container %s'), $this->name), E_USER_WARNING)
+				trigger_localised_error('CORE0009', sprintf(translate('Content file failed to generate for bodycopy container %s'), $this->name), E_USER_WARNING);
 			} else {
 
 				// because we won't wait until mysource.inc to kick in to replace our global

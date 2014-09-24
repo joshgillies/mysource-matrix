@@ -251,15 +251,15 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assets'])) {
-			trigger_localised_error('HIPO0026', translate('Unable to initialise Create Link HIPO, no assets specified'), E_USER_WARNING)
+			trigger_localised_error('HIPO0026', translate('Unable to initialise Create Link HIPO, no assets specified'), E_USER_WARNING);
 			return '';
 		}
 		if (!isset($this->_running_vars['to_parent_assetid'])) {
-			trigger_localised_error('HIPO0025', translate('Unable to initialise Create Link HIPO, no new parent ID specified'), E_USER_WARNING)
+			trigger_localised_error('HIPO0025', translate('Unable to initialise Create Link HIPO, no new parent ID specified'), E_USER_WARNING);
 			return '';
 		}
 		if (!isset($this->_running_vars['to_parent_pos'])) {
-			trigger_localised_error('HIPO0024', translate('Unable to initialise Create Link HIPO, no new parent position specified'), E_USER_WARNING)
+			trigger_localised_error('HIPO0024', translate('Unable to initialise Create Link HIPO, no new parent position specified'), E_USER_WARNING);
 			return '';
 		}
 
@@ -994,14 +994,14 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 			if (is_null($new_parent)) {
-				trigger_localised_error('HIPO0023', sprintf(translate('Unable to create new link, invalid destination asset ID specified (#%d)'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING)
+				trigger_localised_error('HIPO0023', sprintf(translate('Unable to create new link, invalid destination asset ID specified (#%d)'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
 			if (is_null($asset)) {
-				trigger_localised_error('HIPO0022', sprintf(translate('Unable to create new link, invalid asset ID specified (%d)'), $assetid), E_USER_WARNING)
+				trigger_localised_error('HIPO0022', sprintf(translate('Unable to create new link, invalid asset ID specified (%d)'), $assetid), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -1014,7 +1014,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			if ($new_parent->id != $trash_folder->id) {
 				if (($value['link_type'] & SQ_SC_LINK_SIGNIFICANT) && $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($new_parent->id, $asset->id, SQ_SC_LINK_SIGNIFICANT)) {
 					$to_parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
-					trigger_localised_error('SYS0329', sprintf(translate('Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets'), $asset->name, $asset->id, $to_parent_asset->name, $to_parent_asset->id), E_USER_WARNING)
+					trigger_localised_error('SYS0329', sprintf(translate('Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets'), $asset->name, $asset->id, $to_parent_asset->name, $to_parent_asset->id), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($to_parent_asset);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1033,7 +1033,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$linkid = $new_parent->createLink($asset, $value['link_type'], $value['value'], $this->_running_vars['to_parent_pos']);
 
 			if (!$linkid) {
-				trigger_localised_error('HIPO0021', sprintf(translate('Unable to create link between "%1$s" and "%2$s".'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING)
+				trigger_localised_error('HIPO0021', sprintf(translate('Unable to create link between "%1$s" and "%2$s".'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -1056,7 +1056,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 			$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid']);
 			if ($link_info['locked'] == '1') {
-				trigger_localised_error('HIPO0087', sprintf(translate('Unable to move asset #%s, the link is locked. Please check the settings on the Linking screen'), $assetid), E_USER_WARNING)
+				trigger_localised_error('HIPO0087', sprintf(translate('Unable to move asset #%s, the link is locked. Please check the settings on the Linking screen'), $assetid), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -1118,7 +1118,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					if (!$safe_trash || ($safe_trash && !in_array($assetid, array_keys($this->_running_vars['do_not_trash'])))) {
 
 						if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], FALSE)) {
-							trigger_localised_error('HIPO0019', sprintf(translate('Failed to move asset #%s'), $assetid), E_USER_WARNING)
+							trigger_localised_error('HIPO0019', sprintf(translate('Failed to move asset #%s'), $assetid), E_USER_WARNING);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
@@ -1132,7 +1132,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					if (!$safe_trash || ($safe_trash && !in_array($assetid, array_keys($this->_running_vars['do_not_trash'])))) {
 
 						if (!$bridge->deleteAssetLink($value['linkid'])) {
-							trigger_localised_error('HIPO0019', sprintf(translate('Failed to move asset #%s'), $assetid), E_USER_WARNING)
+							trigger_localised_error('HIPO0019', sprintf(translate('Failed to move asset #%s'), $assetid), E_USER_WARNING);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
@@ -1156,7 +1156,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					// manner as when moving the link fails (see below)
 					if ($not_to_trash) {
 						if (($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) && $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['to_parent_assetid'], $asset->id, SQ_SC_LINK_SIGNIFICANT)) {
-							trigger_localised_error('SYS0329', sprintf(translate('Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets'), $asset->name, $asset->id, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name'], $this->_running_vars['to_parent_assetid']), E_USER_WARNING)
+							trigger_localised_error('SYS0329', sprintf(translate('Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets'), $asset->name, $asset->id, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name'], $this->_running_vars['to_parent_assetid']), E_USER_WARNING);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
@@ -1172,7 +1172,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
 					if (!$linkid) {
-						trigger_localised_error('HIPO0020', sprintf(translate('Unable to move asset with ID #%1$s to parent with asset ID #%2$s'), $assetid, $this->_running_vars['to_parent_assetid']), E_USER_WARNING)
+						trigger_localised_error('HIPO0020', sprintf(translate('Unable to move asset with ID #%1$s to parent with asset ID #%2$s'), $assetid, $this->_running_vars['to_parent_assetid']), E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
@@ -1182,7 +1182,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$asset    = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
 
 					if (is_null($asset)) {
-						trigger_localised_error('HIPO0019', sprintf(translate('Failed to move asset #%s'), $assetid), E_USER_WARNING)
+						trigger_localised_error('HIPO0019', sprintf(translate('Failed to move asset #%s'), $assetid), E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
@@ -1300,7 +1300,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 		if (is_null($parent)) {
-			trigger_localised_error('HIPO0018', sprintf(translate('Asset #%d not found'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING)
+			trigger_localised_error('HIPO0018', sprintf(translate('Asset #%d not found'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING);
 			return FALSE;
 		}
 

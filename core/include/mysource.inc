@@ -704,7 +704,7 @@ class MySource extends MySource_Object
 						}
 
 						// last resort, display little green error
-						trigger_localised_error('SYS0218', sprintf(translate('URL "%s" not found'), $protocol.'://'.$url), E_USER_NOTICE)
+						trigger_localised_error('SYS0218', sprintf(translate('URL "%s" not found'), $protocol.'://'.$url), E_USER_NOTICE);
 					}
 				}//end else
 
@@ -1248,7 +1248,7 @@ class MySource extends MySource_Object
 			if (is_null($current_asset)) {
 				$current_asset = $this->am->getSystemAsset('root_folder');
 				if (is_null($current_asset)) {
-					trigger_localised_error('SYS0248', translate('Unable to get Root Folder Asset'), E_USER_ERROR)
+					trigger_localised_error('SYS0248', translate('Unable to get Root Folder Asset'), E_USER_ERROR);
 				}
 			}
 
@@ -1323,7 +1323,7 @@ class MySource extends MySource_Object
 			if (is_null($current_asset)) {
 				$current_asset = $this->am->getSystemAsset('root_folder');
 				if (is_null($current_asset)) {
-					trigger_localised_error('SYS0248', translate('Unable to get Root Folder Asset'), E_USER_ERROR)
+					trigger_localised_error('SYS0248', translate('Unable to get Root Folder Asset'), E_USER_ERROR);
 				}
 			}
 
@@ -1543,7 +1543,7 @@ class MySource extends MySource_Object
 					if ($result && $this->user->status != SQ_STATUS_LIVE) {
 						$available_statuses = $this->user->getAvailableStatii();
 						if (!isset($available_statuses[SQ_STATUS_LIVE]) || !$this->user->processStatusChange(SQ_STATUS_LIVE)) {
-							trigger_localised_error('SYS0304', translate('Unable to set the status of user "%s" to live'), E_USER_ERROR)
+							trigger_localised_error('SYS0304', translate('Unable to set the status of user "%s" to live'), E_USER_ERROR);
 							return;
 						}
 					}
@@ -1573,7 +1573,7 @@ class MySource extends MySource_Object
 					// get a list of all the installed authentication systems
 					$auth_folder = $this->am->getSystemAsset('authentication_folder');
 					if (is_null($auth_folder)) {
-						trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR)
+						trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 						return;
 					}
 					$auth_systems = $auth_folder->getAuthSystems();
@@ -1920,7 +1920,7 @@ class MySource extends MySource_Object
 				$full_file_path = SQ_DATA_PATH.'/private/soap_action_file_responses/'.$sessionid.'/'.$filename;
 
 				if (!file_exists($full_file_path)) {
-					trigger_localised_error('FVER0007', sprintf(translate('File "%s" not found in the repository'), $filename), E_USER_WARNING)
+					trigger_localised_error('FVER0007', sprintf(translate('File "%s" not found in the repository'), $filename), E_USER_WARNING);
 					exit();
 				}
 
@@ -2031,7 +2031,7 @@ class MySource extends MySource_Object
 			// Get a list of all the installed authentication systems
 			$auth_folder = $this->am->getSystemAsset('authentication_folder');
 			if (is_null($auth_folder)) {
-				trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR)
+				trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 				return;
 			}
 			$auth_systems = $auth_folder->getAuthSystems();
@@ -2148,7 +2148,7 @@ class MySource extends MySource_Object
 		// get a list of all the installed authentication systems
 		$auth_folder = $this->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR)
+			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 			return;
 		}
 		$auth_systems = $auth_folder->getAuthSystems();
@@ -2181,7 +2181,7 @@ class MySource extends MySource_Object
 		// get a list of all the installed authentication systems
 		$auth_folder = $this->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR)
+			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 			return;
 		}
 		$auth_systems = $auth_folder->getAuthSystems();
@@ -2325,7 +2325,7 @@ class MySource extends MySource_Object
 	public function setCurrentUser(User $user)
 	{
 		if (!($user instanceof User)) {
-			trigger_localised_error('SYS0171', translate('Failed setting current user, passed object is not a user'), E_USER_WARNING)
+			trigger_localised_error('SYS0171', translate('Failed setting current user, passed object is not a user'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -3022,7 +3022,7 @@ class MySource extends MySource_Object
 	{
 		if (count($this->_context_stack) <= 0) {
 			// Cannot restore the context as the context stack is empty
-			trigger_localised_error('SYS0332', translate('Cannot restore the previous context; the context stack is empty'), E_USER_ERROR)
+			trigger_localised_error('SYS0332', translate('Cannot restore the previous context; the context stack is empty'), E_USER_ERROR);
 		} else {
 			array_pop($this->_context_stack);
 		}
@@ -3719,7 +3719,7 @@ class MySource extends MySource_Object
 	{
 		if (empty($this->_run_level_stack)) {
 			// there is no run level to restore
-			trigger_localised_error('SYS0110', translate('Unable to restore run level - no previous run level set'), E_USER_ERROR)
+			trigger_localised_error('SYS0110', translate('Unable to restore run level - no previous run level set'), E_USER_ERROR);
 		}
 
 		array_pop($this->_run_level_stack);
@@ -3762,7 +3762,7 @@ class MySource extends MySource_Object
 		$current_run_level = $this->getRunLevel();
 		if (is_null($current_run_level)) {
 			// there is no run level to check
-			trigger_localised_error('SYS0102', translate('Unable to check run level - no run level set'), E_USER_ERROR)
+			trigger_localised_error('SYS0102', translate('Unable to check run level - no run level set'), E_USER_ERROR);
 		}
 
 		return ($security_system & $current_run_level);

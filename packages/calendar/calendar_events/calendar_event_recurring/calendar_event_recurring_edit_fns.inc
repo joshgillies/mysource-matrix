@@ -267,17 +267,17 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		if (isset($_REQUEST[$prefix.'_stop_date_selected']) && ($_REQUEST[$prefix.'_stop_date_selected'])) {
 			$_REQUEST[$prefix.'_stop_year'] = (int)$_REQUEST[$prefix.'_stop_year'];
 			if (($_REQUEST[$prefix.'_stop_year'] < 1900) || ($_REQUEST[$prefix.'_stop_year'] > 2100)) {
-				trigger_localised_error('CAL0039', translate('You entered an invalid year value in the \'Stop Date\' field'), E_USER_WARNING)
+				trigger_localised_error('CAL0039', translate('You entered an invalid year value in the \'Stop Date\' field'), E_USER_WARNING);
 				return FALSE;
 			}
 			$_REQUEST[$prefix.'_stop_month'] = (int)$_REQUEST[$prefix.'_stop_month'];
 			if (($_REQUEST[$prefix.'_stop_month'] < 1) || ($_REQUEST[$prefix.'_stop_month'] > 12)) {
-				trigger_localised_error('CAL0040', translate('You entered an invalid month value in the \'Stop Date\' field'), E_USER_WARNING)
+				trigger_localised_error('CAL0040', translate('You entered an invalid month value in the \'Stop Date\' field'), E_USER_WARNING);
 				return FALSE;
 			}
 			$_REQUEST[$prefix.'_stop_day'] = (int)$_REQUEST[$prefix.'_stop_day'];
 			if (($_REQUEST[$prefix.'_stop_day'] < 1) || ($_REQUEST[$prefix.'_stop_day'] > 31)) {
-				trigger_localised_error('CAL0041', translate('You entered an invalid day value in the \'Stop Date\' field'), E_USER_WARNING)
+				trigger_localised_error('CAL0041', translate('You entered an invalid day value in the \'Stop Date\' field'), E_USER_WARNING);
 				return FALSE;
 			}
 			$res &= $asset->setAttrValue('stop_date', sprintf('%04d-%02d-%02d', $_REQUEST[$prefix.'_stop_year'],  $_REQUEST[$prefix.'_stop_month'], $_REQUEST[$prefix.'_stop_day']).' --:--:--');
@@ -303,7 +303,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				if ((($interval = (int)$_REQUEST[$prefix.'_num_days']) > 0)) {
 					$frequency = 'DED'.$interval;
 				} else {
-					trigger_localised_error('CAL0042', translate('You entered an invalid number of days in the "every x days" field - it must be between 1 and 30'), E_USER_WARNING)
+					trigger_localised_error('CAL0042', translate('You entered an invalid number of days in the "every x days" field - it must be between 1 and 30'), E_USER_WARNING);
 					return FALSE;
 				}
 			break;
@@ -312,7 +312,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				if ((($interval = (int)$_REQUEST[$prefix.'_num_weeks']) > 0)) {
 					$frequency = 'WEW'.$interval;
 				} else {
-					trigger_localised_error('CAL0043', translate('You entered an invalid number of weeks in the "every x weeks" field - it must be at least 1'), E_USER_WARNING)
+					trigger_localised_error('CAL0043', translate('You entered an invalid number of weeks in the "every x weeks" field - it must be at least 1'), E_USER_WARNING);
 					return FALSE;
 				}
 			break;
@@ -321,7 +321,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				if (isset($_REQUEST[$prefix.'_monthly_type']) && in_array($_REQUEST[$prefix.'_monthly_type'], Array('MFN', 'MFW', 'MRN', 'MRW'))) {
 					$frequency = $_REQUEST[$prefix.'_monthly_type'];
 				} else {
-					trigger_localised_error('CAL0044', translate('You entered an invalid type of monthly frequency'), E_USER_WARNING)
+					trigger_localised_error('CAL0044', translate('You entered an invalid type of monthly frequency'), E_USER_WARNING);
 					return FALSE;
 				}
 			break;
@@ -331,11 +331,11 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					if ((($interval = (int)$_REQUEST[$prefix.'_num_months']) > 0)) {
 						$frequency = $_REQUEST[$prefix.'_monthly_type'].$interval;
 					} else {
-						trigger_localised_error('CAL0045', translate('You entered an invalid number of months in the "every x months" field\' - it must be at least 1'), E_USER_WARNING)
+						trigger_localised_error('CAL0045', translate('You entered an invalid number of months in the "every x months" field\' - it must be at least 1'), E_USER_WARNING);
 						return FALSE;
 					}
 				} else {
-					trigger_localised_error('CAL0046', translate('You entered an invalid type of monthly frequency'), E_USER_WARNING)
+					trigger_localised_error('CAL0046', translate('You entered an invalid type of monthly frequency'), E_USER_WARNING);
 					return FALSE;
 				}
 			break;

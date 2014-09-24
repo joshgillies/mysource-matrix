@@ -87,7 +87,7 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 
 			// Okidoki, let's delete them
 			if (!$cron_mgr->removeJob($job)) {
-				trigger_localised_error('CORE0261', sprintf(translate('Cannot Create a Data Directory "%s" for a content xml file.'), $job->id), E_USER_WARNING)
+				trigger_localised_error('CORE0261', sprintf(translate('Cannot Create a Data Directory "%s" for a content xml file.'), $job->id), E_USER_WARNING);
 			} else {
 				$jobids[] = $job->id;
 			}

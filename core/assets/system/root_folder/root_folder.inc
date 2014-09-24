@@ -70,7 +70,7 @@ class Root_Folder extends Folder
 		if ($ret_val) {
 			if ($this->id != 1) {
 				throw new Exception('Unable to create root folder, as it did not receive asset ID #1. Fragments of another system may exist in the database; please ensure the database is clear of previous installations before installing.');
-				trigger_localised_error('CORE0077', translate('The new Root Folder Asset was not given assetid #1. This needs to be fixed by YOU, consider this system corrupted'), E_USER_ERROR)
+				trigger_localised_error('CORE0077', translate('The new Root Folder Asset was not given assetid #1. This needs to be fixed by YOU, consider this system corrupted'), E_USER_ERROR);
 				return FALSE;
 			}
 
@@ -82,7 +82,7 @@ class Root_Folder extends Folder
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				throw new Exception('Unable to create root folder, as it did not receive link ID #1. Fragments of another system may exist in the database; please ensure the database is clear of previous installations before installing.');
-				trigger_localised_error('CORE0078', translate('The new Root Folder Asset was not given linkid #1. This needs to be fixed by YOU, consider this system corrupted'), E_USER_ERROR)
+				trigger_localised_error('CORE0078', translate('The new Root Folder Asset was not given linkid #1. This needs to be fixed by YOU, consider this system corrupted'), E_USER_ERROR);
 				return FALSE;
 			}
 
@@ -275,7 +275,7 @@ class Root_Folder extends Folder
 	function setAttrValue($name, $value, $filter=NULL)
 	{
 		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
-			trigger_localised_error('CORE0112', translate('You are not able to alter the name for the root folder'), E_USER_WARNING)
+			trigger_localised_error('CORE0112', translate('You are not able to alter the name for the root folder'), E_USER_WARNING);
 			return FALSE;
 		}
 

@@ -147,7 +147,7 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 			}
 		} else {
 			// process failed
-			trigger_localised_error('SQUID0002', translate('Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Squid Cache section of External Tools Configuration.'), E_USER_WARNING)
+			trigger_localised_error('SQUID0002', translate('Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Squid Cache section of External Tools Configuration.'), E_USER_WARNING);
 		}
 
 		// we can be removed because the error is beyound our control

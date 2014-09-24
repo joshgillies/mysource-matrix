@@ -640,7 +640,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				$xml_results = $this->_querySquizSearch($search);
 				if (empty($xml_results)) {
 					// Something went wrong
-					trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING)
+					trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING);
 					return $search_results;
 				}//end if
 			break;
@@ -657,7 +657,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				$xml_results = $this->_queryFunnelback($url);
 				if (empty($xml_results)) {
 					// Something went wrong
-					trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING)
+					trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING);
 					return $search_results;
 				}//end if
 			break;
@@ -668,7 +668,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 				if ($xml_results === FALSE) {
 					// An error occurred in the search
-					trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING)
+					trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING);
 					return $search_results;
 				} else if (empty($xml_results)) {
 					// Empty Searches are not permitted
@@ -686,7 +686,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			$dom->loadXML($xml_results);
 		} catch (ErrorException $e) {
 			restore_error_handler();
-			trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING)
+			trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING);
 			return $search_results;
 		}
 
@@ -696,7 +696,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		if (isset($errorNode)) {
 			$errorMessage = $dom->getElementsByTagName('usermsg')->item(0);
 			$errorMsg = (isset($errorMessage)) ? $errorMessage->nodeValue : '';
-			trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING)
+			trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING);
 		} else {
 			// No errors so continue processing
 			// Process the search results
@@ -1859,7 +1859,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			if ($link) {
 				$this->_tmp['default_format_bc'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 			} else {
-				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Default'), E_USER_WARNING)
+				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Default'), E_USER_WARNING);
 				return;
 			}
 		}
@@ -1908,7 +1908,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			if ($link) {
 				$this->_tmp['featured_format_bc'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 			} else {
-				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Featured'), E_USER_WARNING)
+				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Featured'), E_USER_WARNING);
 				return;
 			}
 		}
@@ -1950,7 +1950,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			if ($link) {
 				$this->_tmp['fluster_format_bc'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 			} else {
-				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Context'), E_USER_WARNING)
+				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Context'), E_USER_WARNING);
 				return;
 			}
 		}
@@ -1993,7 +1993,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			if ($link) {
 				$this->_tmp['cluster_format_bc'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 			} else {
-				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Cluster'), E_USER_WARNING)
+				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Cluster'), E_USER_WARNING);
 				return;
 			}
 		}
@@ -2036,7 +2036,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			if ($link) {
 				$this->_tmp['nav_format_bc'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 			} else {
-				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Navigation'), E_USER_WARNING)
+				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Navigation'), E_USER_WARNING);
 				return;
 			}
 		}
@@ -2077,7 +2077,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			if ($link) {
 				$this->_tmp['spell_format_bc'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 			} else {
-				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Spell'), E_USER_WARNING)
+				trigger_localised_error('FNB0004', sprintf(translate('Cannot find the %s bodycopy'), 'Spell'), E_USER_WARNING);
 				return;
 			}
 		}
@@ -2165,7 +2165,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		// Check for required information
 		if (empty($funnelback_url) || empty($collection)) {
 			// No server set
-			trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING)
+			trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING);
 			return '';
 		}//end if
 
@@ -2263,13 +2263,13 @@ class Funnelback_Search_Page extends Listing_Engine
 	private function _queryFunnelback($url)
 	{
 		if (empty($url)) {
-			trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING)
+			trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
 		$url_ok = @parse_url($url);
 		if (!$url_ok) {
-			trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING)
+			trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -2287,7 +2287,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		$urlResponse = fetch_url($url, $options, $headers);
 		if ($urlResponse['errornumber'] != 0) {
-			trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING)
+			trigger_localised_error('FNB0002', translate('Invalid response from the Funnelback server'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -2437,7 +2437,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		// Check for required information
 		if (empty($systemid) || empty($collection)) {
 			// No server set
-			trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING)
+			trigger_localised_error('FNB0003', translate('No Funnelback server or collection is configured'), E_USER_WARNING);
 			return '';
 		}//end if
 

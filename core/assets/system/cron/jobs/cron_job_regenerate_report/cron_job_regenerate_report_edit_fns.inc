@@ -116,7 +116,7 @@ class Cron_Job_Regenerate_Report_Edit_Fns extends Cron_Job_Edit_Fns
 
 			// repeat frequency is set, but start time not specified, error
 			if (!$when_oo) {
-				trigger_localised_error('CRON0050', sprintf(translate('Start time for %s is not defined.'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')), E_USER_WARNING)
+				trigger_localised_error('CRON0050', sprintf(translate('Start time for %s is not defined.'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -124,7 +124,7 @@ class Cron_Job_Regenerate_Report_Edit_Fns extends Cron_Job_Edit_Fns
 			// mute warning as we are only using this bit to working out the start time
 			if (!@$cron_job->setAttrValue('when', $when_oo)) {
 				$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-				trigger_localised_error('CRON0048', sprintf(translate('Unable to schedule a repeating %1$s to be run before the next job run is scheduled (which is at %2$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun())), E_USER_WARNING)
+				trigger_localised_error('CRON0048', sprintf(translate('Unable to schedule a repeating %1$s to be run before the next job run is scheduled (which is at %2$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun())), E_USER_WARNING);
 				return FALSE;
 			}
 			$when_oo_str = $cron_job->attr('when');

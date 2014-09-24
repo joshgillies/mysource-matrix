@@ -200,19 +200,19 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$keyword_name = 'keywords'.(($contextid === 0) ? '' : ('.'.$contextid));
 
 		if (!string_to_file($content_file, $this->data_path.'/'.$file_name)) {
-			trigger_localised_error('CORE0047', sprintf(translate('Failed saving asset "%s" to cache, could not create content file'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0047', sprintf(translate('Failed saving asset "%s" to cache, could not create content file'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// Save the substitution keywords we will need to lookup for each asset display
 		create_directory($this->data_path);
 		if (!string_to_file(serialize(array_merge($required_substitution_keywords, $required_substitution_asset_keywords)), $this->data_path.'/keywords'))  {
-			trigger_localised_error('CORE0048', sprintf(translate('Failed saving asset "%s" to cache, could not create notice links file'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0048', sprintf(translate('Failed saving asset "%s" to cache, could not create notice links file'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/conditional_keywords_to_eval')) {
-			trigger_localised_error('CORE0048', sprintf(translate('Failed saving asset "%s" to cache, could not create notice links file'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0048', sprintf(translate('Failed saving asset "%s" to cache, could not create notice links file'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 

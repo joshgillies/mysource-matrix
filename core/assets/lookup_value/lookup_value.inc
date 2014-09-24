@@ -55,7 +55,7 @@ class Lookup_Value extends Asset
 	*/
 	public static function namePrefix()
 	{
-		trigger_localised_error('CORE0123', sprintf(translate('You need to override %1$s::%2$s()'), __CLASS__, __FUNCTION__), E_USER_ERROR)
+		trigger_localised_error('CORE0123', sprintf(translate('You need to override %1$s::%2$s()'), __CLASS__, __FUNCTION__), E_USER_ERROR);
 
 	}//end namePrefix()
 

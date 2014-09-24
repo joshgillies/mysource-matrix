@@ -799,7 +799,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$params['to']   = $_POST[$prefix.'_to'];
 			// check for valid range
 			if ($_POST[$prefix.'_to'] == $params['from']) {
-				trigger_localised_error('BML0014', translate('Exclude FROM and TO times cannot be equal.'), E_USER_NOTICE)
+				trigger_localised_error('BML0014', translate('Exclude FROM and TO times cannot be equal.'), E_USER_NOTICE);
 
 				if ($threshold[$key]['params']['to'] == $_POST[$prefix.'_to'] && $threshold[$key]['params']['from'] == $_POST[$prefix.'_from']) {
 					$remove = TRUE;
@@ -810,10 +810,10 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			if (!isset($_POST[$prefix.'_days']) && !isset($threshold[$key]['params']['days'])) {
-				trigger_localised_error('BML0015', translate('No days were selected.'), E_USER_NOTICE)
+				trigger_localised_error('BML0015', translate('No days were selected.'), E_USER_NOTICE);
 				$remove = TRUE;
 			} else if (!isset($_POST[$prefix.'_days']) && isset($threshold[$key]['params']['days'])) {
-				trigger_localised_error('BML0015', translate('No days were selected.'), E_USER_NOTICE)
+				trigger_localised_error('BML0015', translate('No days were selected.'), E_USER_NOTICE);
 				$params['days'] = $threshold[$key]['params']['days'];
 			} else {
 				$params['days'] = (isset($_POST[$prefix.'_days'])) ? $_POST[$prefix.'_days'] : Array();

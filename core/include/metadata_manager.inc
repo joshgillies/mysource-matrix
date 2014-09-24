@@ -257,23 +257,23 @@ class Metadata_Manager extends MySource_Object
 		$db_action = 'insert';
 		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error('SYS0047', sprintf(translate('Failed setting metadata schema, Schema Asset #%s does not exist'), $schemaid), E_USER_WARNING)
+			trigger_localised_error('SYS0047', sprintf(translate('Failed setting metadata schema, Schema Asset #%s does not exist'), $schemaid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!($schema instanceof Metadata_Schema)) {
-			trigger_localised_error('SYS0045', sprintf(translate('Failed setting metadata schema, "%1$s" (Asset #%2$s) is not a metadata schema'), $schema->name, $schemaid), E_USER_WARNING)
+			trigger_localised_error('SYS0045', sprintf(translate('Failed setting metadata schema, "%1$s" (Asset #%2$s) is not a metadata schema'), $schema->name, $schemaid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0046', sprintf(translate('Failed setting metadata schema, Asset #%s does not exist'), $assetid), E_USER_WARNING)
+			trigger_localised_error('SYS0046', sprintf(translate('Failed setting metadata schema, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->adminAccess('metadata')) {
-			trigger_localised_error('SYS0031', sprintf(translate('Unable to set metadata schema for "%s", permission denied'), $asset->name), E_USER_WARNING)
+			trigger_localised_error('SYS0031', sprintf(translate('Unable to set metadata schema for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -304,7 +304,7 @@ class Metadata_Manager extends MySource_Object
 					$new_access		= ($granted) ? 'apply'	: 'deny';
 					$current_access = ($granted) ? 'denied' : 'applied';
 
-					trigger_localised_error('SYS0032', sprintf(translate('Unable to to %1$s metadata schema "%2$s" on "%3$s" because this asset already has this schema %4$s'), $new_access, $schema->name, $asset->name, $current_access), E_USER_WARNING)
+					trigger_localised_error('SYS0032', sprintf(translate('Unable to to %1$s metadata schema "%2$s" on "%3$s" because this asset already has this schema %4$s'), $new_access, $schema->name, $asset->name, $current_access), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -395,12 +395,12 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0036', sprintf(translate('Failed deleting metadata schema, Asset #%s does not exist'), $assetid), E_USER_WARNING)
+			trigger_localised_error('SYS0036', sprintf(translate('Failed deleting metadata schema, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->adminAccess('metadata')) {
-			trigger_localised_error('SYS0029', sprintf(translate('Unable to delete metadata schema for "%s", permission denied'), $asset->name), E_USER_WARNING)
+			trigger_localised_error('SYS0029', sprintf(translate('Unable to delete metadata schema for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -560,7 +560,7 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0043', sprintf(translate('Failed getting metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING)
+			trigger_localised_error('SYS0043', sprintf(translate('Failed getting metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -591,7 +591,7 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error('SYS0044', sprintf(translate('Failed getting metadata, Schema #%s does not exist'), $schemaid), E_USER_WARNING)
+				trigger_localised_error('SYS0044', sprintf(translate('Failed getting metadata, Schema #%s does not exist'), $schemaid), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -715,7 +715,7 @@ class Metadata_Manager extends MySource_Object
 
 		$schema = $am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error('SYS0040', sprintf(translate('Failed getting default metadata, schema #%s does not exist'), $schemaid), E_USER_WARNING)
+			trigger_localised_error('SYS0040', sprintf(translate('Failed getting default metadata, schema #%s does not exist'), $schemaid), E_USER_WARNING);
 			return Array();
 		}
 
@@ -820,7 +820,7 @@ class Metadata_Manager extends MySource_Object
 		$field_values = Array();
 
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0038', sprintf(translate('Failed generating keyword replacements, Asset #%s does not exist'), $assetid), E_USER_WARNING)
+			trigger_localised_error('SYS0038', sprintf(translate('Failed generating keyword replacements, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 			return $field_values;
 		}
@@ -904,12 +904,12 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0043', sprintf(translate('Failed getting metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING)
+			trigger_localised_error('SYS0043', sprintf(translate('Failed getting metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->writeAccess('metadata')) {
-			trigger_localised_error('SYS0030', sprintf(translate('Unable to set metadata for "%s", permission denied'), $asset->name), E_USER_WARNING)
+			trigger_localised_error('SYS0030', sprintf(translate('Unable to set metadata for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1320,7 +1320,7 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0034', sprintf(translate('Failed caching metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING)
+			trigger_localised_error('SYS0034', sprintf(translate('Failed caching metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 			return FALSE;
 		}
@@ -1345,13 +1345,13 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error('SYS0035', sprintf(translate('Failed caching metadata, Schema #%s does not exist'), $schemaid), E_USER_WARNING)
+				trigger_localised_error('SYS0035', sprintf(translate('Failed caching metadata, Schema #%s does not exist'), $schemaid), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return FALSE;
 			}
 
 			if (!($schema instanceof Metadata_Schema)) {
-				trigger_localised_error('SYS0033', sprintf(translate('Failed caching metadata, "%1$s" (Asset #%2$s) is not a metadata schema'), $schema->name, $schemaid), E_USER_WARNING)
+				trigger_localised_error('SYS0033', sprintf(translate('Failed caching metadata, "%1$s" (Asset #%2$s) is not a metadata schema'), $schema->name, $schemaid), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return FALSE;
 			}
@@ -2168,7 +2168,7 @@ class Metadata_Manager extends MySource_Object
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
 			$has_errors = TRUE;
 			if (!$mute_errors) {
-				trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING)
+				trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING);
 			}
 			return NULL;
 		}
@@ -2187,7 +2187,7 @@ class Metadata_Manager extends MySource_Object
 			$has_errors = TRUE;
 			if (!$mute_errors) {
 				// SYS0307: Asset #<assetid> does not have the schema for field #<field assetid> applied
-				trigger_localised_error('SYS0307', sprintf(translate('Asset #%1$s does not have the schema for field #%2$s applied'), $assetid, $field_assetid), E_USER_WARNING)
+				trigger_localised_error('SYS0307', sprintf(translate('Asset #%1$s does not have the schema for field #%2$s applied'), $assetid, $field_assetid), E_USER_WARNING);
 			}
 			return NULL;
 		}
@@ -2363,7 +2363,7 @@ class Metadata_Manager extends MySource_Object
 
 		// Whoops, the asset ID passed isn't a metadata field
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
-			trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING)
+			trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING);
 		}
 
 		// If the current context is the default context, this has to get the default value in
@@ -2452,7 +2452,7 @@ class Metadata_Manager extends MySource_Object
 
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
-			trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING)
+			trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING);
 		}
 
 		// If the current context is the default context, this has to get the default value in

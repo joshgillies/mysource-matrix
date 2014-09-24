@@ -307,7 +307,7 @@ class Asset_Attribute extends MySource_Object
 	function setValue(&$value, $validate=TRUE)
 	{
 		if ($validate && !$this->validateValue($value)) {
-			trigger_localised_error('SYS0073', sprintf(translate('"%1$s" is not a valid value for attribute "%2$s"'), $value, $this->type()), E_USER_WARNING)
+			trigger_localised_error('SYS0073', sprintf(translate('"%1$s" is not a valid value for attribute "%2$s"'), $value, $this->type()), E_USER_WARNING);
 			return FALSE;
 		}
 		$this->value = $value;
@@ -329,8 +329,7 @@ class Asset_Attribute extends MySource_Object
 	{
 
 		if (strtolower($node->getName()) != strtolower($this->type())) {
-			trigger_localised_error('SYS0300', sprintf('XML Tree Node type "%1$s" not compatible with attribute type "%2$s"
-Full Node Contents %3$s', $node->getName(), $this->type(), '<pre>'.htmlspecialchars($node->asXml()).'</pre>'), E_USER_WARNING)
+			trigger_localised_error('SYS0300', sprintf(translate('XML Tree Node type "%1$s" not compatible with attribute type "%2$s". Full Node Contents %3$s'), $node->getName(), $this->type(), '<pre>'.htmlspecialchars($node->asXml()).'</pre>'), E_USER_WARNING);
 			return FALSE;
 		}
 		return TRUE;
@@ -356,7 +355,7 @@ Full Node Contents %3$s', $node->getName(), $this->type(), '<pre>'.htmlspecialch
 			$this->_edit_params[$field] = $value;
 			return TRUE;
 		} else {
-			trigger_localised_error('SYS0258', sprintf(translate('Unknown edit parameter %1$s for attribute type %2$s'), $field, $this->type()), E_USER_NOTICE)
+			trigger_localised_error('SYS0258', sprintf(translate('Unknown edit parameter %1$s for attribute type %2$s'), $field, $this->type()), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -381,7 +380,7 @@ Full Node Contents %3$s', $node->getName(), $this->type(), '<pre>'.htmlspecialch
 			$this->_params[$field] = $value;
 			return TRUE;
 		} else {
-			trigger_localised_error('SYS0258', sprintf(translate('Unknown edit parameter %1$s for attribute type %2$s'), $field, $this->type()), E_USER_NOTICE)
+			trigger_localised_error('SYS0258', sprintf(translate('Unknown edit parameter %1$s for attribute type %2$s'), $field, $this->type()), E_USER_NOTICE);
 			return FALSE;
 		}
 

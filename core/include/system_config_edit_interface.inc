@@ -201,7 +201,7 @@ class System_Config_Edit_Interface extends MySource_Object
 				$this->paintActiveLocks($o);
 				return;
 			default :
-				trigger_localised_error('SYS0076', sprintf(translate('Active Screen "%s" unknown'), $active_screen), E_USER_WARNING)
+				trigger_localised_error('SYS0076', sprintf(translate('Active Screen "%s" unknown'), $active_screen), E_USER_WARNING);
 		}// end switch
 
 	}//end paint()

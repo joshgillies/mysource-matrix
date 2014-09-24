@@ -303,7 +303,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type);
 			if (!empty($current_link)) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
-					trigger_localised_error('FNB0006', sprintf(translate('Unable to delete Bodycopy (%s)'), $type), E_USER_WARNING)
+					trigger_localised_error('FNB0006', sprintf(translate('Unable to delete Bodycopy (%s)'), $type), E_USER_WARNING);
 				}//end if
 			}//end if
 		}//end foreach
@@ -331,7 +331,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			} else {
-				trigger_localised_error('FNB0005', sprintf(translate('Bodycopy (%s) already exists'), $new_type), E_USER_WARNING)
+				trigger_localised_error('FNB0005', sprintf(translate('Bodycopy (%s) already exists'), $new_type), E_USER_WARNING);
 			}//end if
 		}//end if
 

@@ -187,7 +187,7 @@ class Product_Price extends MySource_Object
 				} else {
 					$val = floatval($val);
 					if ($val < 0) {
-						trigger_localised_error('ECOM0001', translate('Price Value cannot be negative'), E_USER_WARNING)
+						trigger_localised_error('ECOM0001', translate('Price Value cannot be negative'), E_USER_WARNING);
 						return false;
 					}
 				}

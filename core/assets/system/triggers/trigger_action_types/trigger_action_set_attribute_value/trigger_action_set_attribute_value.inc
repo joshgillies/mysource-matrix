@@ -98,7 +98,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 						eval('$value = '.$value.';');
 					} else {
-						trigger_localised_error('TRIG0003', translate('The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted'), E_USER_WARNING)
+						trigger_localised_error('TRIG0003', translate('The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted'), E_USER_WARNING);
 						return FALSE;
 					}
 				break;
@@ -327,7 +327,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				case 'Asset_Attribute_Parameter_Map' :
 				case 'Asset_Attribute_Email_Format' :
 					if (!Trigger_Action_Set_Attribute_Value::_safeToEval($settings['value'])) {
-						trigger_localised_error('TRIG0002', translate('You have chosen to set the value of a non-scalar attribute, but the value you have supplied does not qualify to be evaluated as a PHP expression.  The only allowable components for these expressions are the \'array\' keyword, single- and double-quoted strings, digits and necessary punctuation.  The value has not been saved.'), E_USER_NOTICE)
+						trigger_localised_error('TRIG0002', translate('You have chosen to set the value of a non-scalar attribute, but the value you have supplied does not qualify to be evaluated as a PHP expression.  The only allowable components for these expressions are the \'array\' keyword, single- and double-quoted strings, digits and necessary punctuation.  The value has not been saved.'), E_USER_NOTICE);
 						$settings['value'] = '';
 					}
 				break;

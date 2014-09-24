@@ -390,7 +390,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				// display notice if user chose a specific date/time as well
 				foreach (Array('year', 'month', 'day', 'hour', 'minute') as $field) {
 				if ($fields[$field] != '--') {
-					trigger_localised_error('CRON0044', translate('You have specified both absolute and relative times for the future status change. Only the relative time has been saved'), E_USER_NOTICE)
+					trigger_localised_error('CRON0044', translate('You have specified both absolute and relative times for the future status change. Only the relative time has been saved'), E_USER_NOTICE);
 					break;
 				}
 			}
@@ -424,7 +424,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 						}//end switch
 
 					} else if ($type_prefix) {
-						trigger_localised_error('CRON0040', sprintf(translate('Unable to create a %1$s %2$s with empty %3$s field'), Cron_Job::whenTypeName($type_prefix), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $field), E_USER_WARNING)
+						trigger_localised_error('CRON0040', sprintf(translate('Unable to create a %1$s %2$s with empty %3$s field'), Cron_Job::whenTypeName($type_prefix), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $field), E_USER_WARNING);
 						return FALSE;
 					}//end if
 
@@ -442,7 +442,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				$parsed_date = date('Y-m-d', $timestamp).substr($when_str, 10);
 
 				if (strcmp($parsed_date, $when_str) != 0) {
-					trigger_localised_error('SYS0311', sprintf(translate('%1$s is not a valid date/time.  The field value has been adjusted to the closest valid value.'), $when_str), E_USER_NOTICE)
+					trigger_localised_error('SYS0311', sprintf(translate('%1$s is not a valid date/time.  The field value has been adjusted to the closest valid value.'), $when_str), E_USER_NOTICE);
 					$when_str = $parsed_date;
 				}
 

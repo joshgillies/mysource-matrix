@@ -94,7 +94,7 @@ class Backend_User extends User
 				$lockid = $val['lockid'];
 
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock($lockid)) !== TRUE) {
-					trigger_localised_error('SYS0109', sprintf(translate('Unable to release "%1$s" lock on "%2$s", %3$s'), $lock_type, $asset->name, $err_msg), E_USER_NOTICE)
+					trigger_localised_error('SYS0109', sprintf(translate('Unable to release "%1$s" lock on "%2$s", %3$s'), $lock_type, $asset->name, $err_msg), E_USER_NOTICE);
 					$success = FALSE;
 					continue;
 				}

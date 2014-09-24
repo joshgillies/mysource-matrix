@@ -161,7 +161,7 @@ class Funnelback_Log_Iterator
 			}
 			fclose($handle);
 		} else {
-			trigger_localised_error('CORE0018', sprintf(translate('Unable to read from logfile %s'), $file), E_USER_ERROR)
+			trigger_localised_error('CORE0018', sprintf(translate('Unable to read from logfile %s'), $file), E_USER_ERROR);
 			$result = FALSE;
 		}
 

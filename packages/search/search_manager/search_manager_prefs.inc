@@ -142,7 +142,7 @@ class Search_Manager_Prefs extends Prefs
 
 			// Not an integer = user mistake, or possible script injection?
 			if (!is_numeric($_POST['prefs']['SQ_SEARCH_BACKEND_PAGE_SIZE'])) {
-				trigger_localised_error('SCH0029', translate('The Backend Search Page Size must be an integer and at least 1'), E_USER_WARNING)
+				trigger_localised_error('SCH0029', translate('The Backend Search Page Size must be an integer and at least 1'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -150,7 +150,7 @@ class Search_Manager_Prefs extends Prefs
 
 			// Page size needs to be at least 1
 			if ($page_size <= 0) {
-				trigger_localised_error('SCH0029', translate('The Backend Search Page Size must be an integer and at least 1'), E_USER_WARNING)
+				trigger_localised_error('SCH0029', translate('The Backend Search Page Size must be an integer and at least 1'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -163,7 +163,7 @@ class Search_Manager_Prefs extends Prefs
 
 			// Not an integer = user mistake, or possible script injection?
 			if (!is_numeric($_POST['prefs']['SQ_SEARCH_BACKEND_RESULT_LIMIT'])) {
-				trigger_localised_error('SCH0030', translate('The Backend Search Result Limit must be an integer and at least 0'), E_USER_WARNING)
+				trigger_localised_error('SCH0030', translate('The Backend Search Result Limit must be an integer and at least 0'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -171,7 +171,7 @@ class Search_Manager_Prefs extends Prefs
 
 			// Page size needs to be at least 1
 			if ($result_limit < 0) {
-				trigger_localised_error('SCH0030', translate('The Backend Search Result Limit must be an integer and at least 0'), E_USER_WARNING)
+				trigger_localised_error('SCH0030', translate('The Backend Search Result Limit must be an integer and at least 0'), E_USER_WARNING);
 				return FALSE;
 			}
 

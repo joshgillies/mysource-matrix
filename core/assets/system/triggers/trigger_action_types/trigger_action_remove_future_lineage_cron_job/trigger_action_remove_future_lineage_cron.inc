@@ -80,7 +80,7 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 
 			if ($settings['job_type'] == SQ_REMOVE_FUTURE_LINEAGE_CRON_BOTH || $settings['job_type'] == $job_type) {
 				if (!$cron_mgr->removeJob($job)) {
-					trigger_localised_error('CORE0308', sprintf(translate('Cannot remove future lineage cron job #%1$s'), $job->id), E_USER_WARNING)
+					trigger_localised_error('CORE0308', sprintf(translate('Cannot remove future lineage cron job #%1$s'), $job->id), E_USER_WARNING);
 				} else {
 					$jobids[] = $job->id;
 				}

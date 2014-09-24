@@ -732,7 +732,7 @@ class Page_Asset_Builder extends Page
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
 					// know what they want - let them get back to us with something we can use
 					if (empty($create_locations)) {
-						trigger_localised_error('CMS0033', sprintf(translate('Unable to determine where to create this %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_asset->type(), 'name')), E_USER_WARNING)
+						trigger_localised_error('CMS0033', sprintf(translate('Unable to determine where to create this %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_asset->type(), 'name')), E_USER_WARNING);
 						break;
 					}
 
@@ -975,11 +975,11 @@ class Page_Asset_Builder extends Page
 
 								$link_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
 								if (is_null($link_parent)) {
-									trigger_localised_error('CMS0034', sprintf(translate('Asset %s was null'), $link_parentid), E_USER_WARNING)
+									trigger_localised_error('CMS0034', sprintf(translate('Asset %s was null'), $link_parentid), E_USER_WARNING);
 									continue;
 								}
 								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $new_asset, $link_type, $link_value)) {
-									trigger_localised_error('CMS0035', sprintf(translate('Failed to create link to asset %s'), $link_parent->id), E_USER_WARNING)
+									trigger_localised_error('CMS0035', sprintf(translate('Failed to create link to asset %s'), $link_parent->id), E_USER_WARNING);
 									continue;
 								}
 
@@ -1172,7 +1172,7 @@ class Page_Asset_Builder extends Page
 					}
 				}
 			} else if (!$details['allow_empty']) {
-				trigger_localised_error('CMS0036', sprintf(translate('You must select an option from the %s'), $set_name), E_USER_WARNING)
+				trigger_localised_error('CMS0036', sprintf(translate('You must select an option from the %s'), $set_name), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -1431,7 +1431,7 @@ class Page_Asset_Builder extends Page
 					if (!$details['allow_multiple']) break;
 				}
 			} else if (!$details['allow_empty']) {
-				trigger_localised_error('CMS0036', sprintf(translate('You must select an option from the %s'), $set_name), E_USER_WARNING)
+				trigger_localised_error('CMS0036', sprintf(translate('You must select an option from the %s'), $set_name), E_USER_WARNING);
 				return Array();
 			}
 		}

@@ -103,7 +103,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 				// exec populate $return with 0 if successful. If not successful, $return will be an exit status code and
 				// we don't have a usable compressed file for the user to download
 				if ($return !== 0) {
-					trigger_localised_error('EXP0001', sprintf(translate('Could not compress the exported file for download. System Exit Status Code %1$d'), $return), E_USER_ERROR)
+					trigger_localised_error('EXP0001', sprintf(translate('Could not compress the exported file for download. System Exit Status Code %1$d'), $return), E_USER_ERROR);
 					return;
 				}
 			}
@@ -130,7 +130,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 			// if we don't have a valid filesize, there isn't much point going fruther as the user will end up downloading an unusable file
 			$filesize = filesize($export_dir.'/export.tgz');
 			if (!$filesize) {
-				trigger_localised_error('EXP0002', translate('Invalid filesize detected'), E_USER_ERROR)
+				trigger_localised_error('EXP0002', translate('Invalid filesize detected'), E_USER_ERROR);
 				return;
 			}
 
@@ -230,7 +230,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 	{
 		$import_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');
 		if(!$GLOBALS['SQ_SYSTEM']->am->acquireLock($import_mgr->id, 'attributes')) {
-			trigger_localised_error('EXP0003', translate('Can not acquire lock of Import Tools Manager. Probably someone else is doing export right now.'), E_USER_ERROR)
+			trigger_localised_error('EXP0003', translate('Can not acquire lock of Import Tools Manager. Probably someone else is doing export right now.'), E_USER_ERROR);
 			return FALSE;
 		}
 

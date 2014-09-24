@@ -106,7 +106,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 						 );
 			$parsed_datetime = date('Y-m-d H:i:s', $timestamp);
 			if (strcmp($parsed_datetime, $datetime) != 0) {
-				trigger_localised_error('SYS0311', sprintf(translate('%1$s is not a valid date/time.  The field value has been adjusted to the closest valid value.'), $datetime), E_USER_NOTICE)
+				trigger_localised_error('SYS0311', sprintf(translate('%1$s is not a valid date/time.  The field value has been adjusted to the closest valid value.'), $datetime), E_USER_NOTICE);
 			}
 
 			// Set a one-off job to run based on the supplied attribute value

@@ -93,7 +93,7 @@ class Trigger_Action_Update_Link extends Trigger_Action
 				$linkid = $links[0]['linkid'];
 				$result = $am->updateLink($linkid, $new_link_type, $new_value);
 			} else {
-				trigger_localised_error('TRIG0007', translate('More than one link found with the characteristics specified in \'Update Link\' Trigger Action.'), E_USER_NOTICE)
+				trigger_localised_error('TRIG0007', translate('More than one link found with the characteristics specified in \'Update Link\' Trigger Action.'), E_USER_NOTICE);
 				return FALSE;
 			}
 		}

@@ -77,13 +77,13 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($owner->data_path)) {
 				if (!create_directory($owner->data_path)) {
-					trigger_localised_error('CMS0005', translate('Could not create data directory, report generation aborted'), E_USER_WARNING)
+					trigger_localised_error('CMS0005', translate('Could not create data directory, report generation aborted'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('RPRT0000', translate('Could not open temporary file, report generation aborted'), E_USER_WARNING)
+				trigger_localised_error('RPRT0000', translate('Could not open temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
@@ -91,7 +91,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('RPRT0000', translate('Could not open temporary file, report generation aborted'), E_USER_WARNING)
+				trigger_localised_error('RPRT0000', translate('Could not open temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -270,11 +270,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, '</links>');
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
-				trigger_localised_error('RPRT0001', translate('Could not move temporary file, report generation aborted'), E_USER_WARNING)
+				trigger_localised_error('RPRT0001', translate('Could not move temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
-				trigger_localised_error('RPRT0002', translate('Could not delete temporary file, report generation continues'), E_USER_WARNING)
+				trigger_localised_error('RPRT0002', translate('Could not delete temporary file, report generation continues'), E_USER_WARNING);
 			}
 			// send broken link notification, if enabled
 			if ($owner->attr('report_broken_links')) {
@@ -1407,7 +1407,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		if (!$_POST[$prefix.'_export_switch']) return TRUE;
 		if (headers_sent()) {
-			trigger_localised_error('CORE0273', translate('The report could not be exported as another error has occurred. Please check previous error messages.'), E_USER_WARNING)
+			trigger_localised_error('CORE0273', translate('The report could not be exported as another error has occurred. Please check previous error messages.'), E_USER_WARNING);
 		} else {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 			$csv = new CSV();
@@ -1717,7 +1717,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
-					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE)
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE);
 				}// end if
 			}// end if
 

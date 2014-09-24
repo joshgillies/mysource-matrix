@@ -474,7 +474,7 @@ class Page_Decision_Tree extends Page
 
 		// check that the new type is valid
 		if ($new_type != '' && !in_array($new_type, $types)) {
-			trigger_localised_error('CMS0045', sprintf(translate('Cannot customise the format of type %s, type is not valid'), $new_type), E_USER_WARNING)
+			trigger_localised_error('CMS0045', sprintf(translate('Cannot customise the format of type %s, type is not valid'), $new_type), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -505,7 +505,7 @@ class Page_Decision_Tree extends Page
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		} else {
-			trigger_localised_error('CMS0046', sprintf(translate('Cannot customise type %s, it is already customised'), $new_type), E_USER_WARNING)
+			trigger_localised_error('CMS0046', sprintf(translate('Cannot customise type %s, it is already customised'), $new_type), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -712,7 +712,7 @@ class Page_Decision_Tree extends Page
 
 		$first_question = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'decision_tree_question', FALSE, 'first_question');
 		if (empty($first_question)) {
-			trigger_localised_error('CMS0118', sprintf(translate('The Decision Tree Page Id: #%s does not have a first question!.'), $this->id), E_USER_NOTICE)
+			trigger_localised_error('CMS0118', sprintf(translate('The Decision Tree Page Id: #%s does not have a first question!.'), $this->id), E_USER_NOTICE);
 			return $replacement;
 		}
 

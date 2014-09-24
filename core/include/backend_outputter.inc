@@ -441,7 +441,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_screens)) {
-			trigger_localised_error('SYS0202', sprintf(translate('Screen Code "%s" already in use'), $name), E_USER_ERROR)
+			trigger_localised_error('SYS0202', sprintf(translate('Screen Code "%s" already in use'), $name), E_USER_ERROR);
 		}
 		$this->_screens[$url] = $name;
 
@@ -461,7 +461,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_static_screens)) {
-			trigger_localised_error('SYS0207', sprintf(translate('Static Screen Code "%s" already in use'), $name), E_USER_ERROR)
+			trigger_localised_error('SYS0207', sprintf(translate('Static Screen Code "%s" already in use'), $name), E_USER_ERROR);
 		}
 		$this->_static_screens[$url] = $name;
 
@@ -1534,7 +1534,7 @@ class Backend_Outputter
 						break;
 
 						default :
-							trigger_localised_error('SYS0257', sprintf(translate('Unknown Area Type: "%s"'), $section['areas'][$j]['area_type']), E_USER_ERROR)
+							trigger_localised_error('SYS0257', sprintf(translate('Unknown Area Type: "%s"'), $section['areas'][$j]['area_type']), E_USER_ERROR);
 
 					}//end switch area type
 

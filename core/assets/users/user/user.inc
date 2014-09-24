@@ -75,7 +75,7 @@ class User extends Asset
 			if (!array_get_index($this->_tmp, 'username_set') || !array_get_index($this->_tmp, 'password_set')) {
 				// in this case they have tried to create without even trying to set the username or password, so
 				// we error here.  Otherwise errors have already been thrown so we don't throw them now.
-				trigger_localised_error('CORE0084', sprintf(translate('Unable to create a %s without a username and password'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+				trigger_localised_error('CORE0084', sprintf(translate('Unable to create a %s without a username and password'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			}
 			return FALSE;
 		}
@@ -100,7 +100,7 @@ class User extends Asset
 		if (!parent::_createAdditional($link)) return FALSE;
 
 		if (!$this->makeAndSaveInitialWebPath(strtolower($this->attr('username')), $link)) {
-			trigger_localised_error('CORE0019', sprintf(translate('Unable to set an initial web path for "%s"'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0019', sprintf(translate('Unable to set an initial web path for "%s"'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -109,7 +109,7 @@ class User extends Asset
 
 		// give the user admin access to him/herself
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, TRUE)) {
-			trigger_localised_error('CORE0015', sprintf(translate('Unable to create user - permission could not be set on user asset "%s"'), $this->name), E_USER_WARNING)
+			trigger_localised_error('CORE0015', sprintf(translate('Unable to create user - permission could not be set on user asset "%s"'), $this->name), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			return FALSE;
@@ -201,7 +201,7 @@ class User extends Asset
 		} else if ($name == 'username') {
 			$this->_tmp['username_set'] = TRUE; // so we know at create time whether to throw an extra error
 			if (!$this->_catchBlankSetUserName(trim($value))) {
-				trigger_localised_error('CORE0110', translate('Username cannot be blank'), E_USER_WARNING)
+				trigger_localised_error('CORE0110', translate('Username cannot be blank'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -413,7 +413,7 @@ class User extends Asset
 			if ($add_system_message) {
 				$GLOBALS['SQ_SYSTEM']->addMessage(translate('Password cannot be blank'));
 			} else {
-				trigger_localised_error('CORE0247', translate('Password cannot be blank'), E_USER_NOTICE)
+				trigger_localised_error('CORE0247', translate('Password cannot be blank'), E_USER_NOTICE);
 			}
 			$this->_tmp['password_validation_error'] = TRUE;
 			return FALSE;

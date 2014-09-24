@@ -85,7 +85,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		if (empty($state['treeid'])) {
 			// not stored, need to retrieve
 			$state['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($assetid);
-			if (empty($state['treeid'])) trigger_localised_error('TRIG0006', translate('Unable to determine Tree ID of the asset the trigger condition: \'Tree Location\' is executing on. Revise your Trigger setup.'), E_USER_WARNING)
+			if (empty($state['treeid'])) trigger_localised_error('TRIG0006', translate('Unable to determine Tree ID of the asset the trigger condition: \'Tree Location\' is executing on. Revise your Trigger setup.'), E_USER_WARNING);
 		}
 
 		if (!is_array($state['treeid'])) {

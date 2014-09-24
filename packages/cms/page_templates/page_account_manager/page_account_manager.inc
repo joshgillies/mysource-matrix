@@ -760,7 +760,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							+ $selected_create_locations;
 
 		if (empty($create_locations)) {
-			trigger_localised_error('CMS0071', translate('This user asset cannot be validated because no create locations to move it to have been found'), E_USER_WARNING)
+			trigger_localised_error('CMS0071', translate('This user asset cannot be validated because no create locations to move it to have been found'), E_USER_WARNING);
 			return FALSE;
 		}
 

@@ -62,14 +62,14 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				trigger_localised_error('CRON0018', translate('Unable to create future lineage cron job, unable to acquire "links" lock'), E_USER_WARNING)
+				trigger_localised_error('CRON0018', translate('Unable to create future lineage cron job, unable to acquire "links" lock'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			foreach ($this->_tmp['asset_in_link'] as $side_of_link => $link) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($asset) || !$this->setAssetInLink($asset, $side_of_link)) {
-					trigger_localised_error('CRON0017', translate('Unable to create future lineage cron job, Unable to set asset in link'), E_USER_WARNING)
+					trigger_localised_error('CRON0017', translate('Unable to create future lineage cron job, Unable to set asset in link'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -162,7 +162,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		switch ($name) {
 			case 'type':
-				trigger_localised_error('CRON0039', translate('Unable to set the type of a future status cron job; it can only be a one off event'), E_USER_NOTICE)
+				trigger_localised_error('CRON0039', translate('Unable to set the type of a future status cron job; it can only be a one off event'), E_USER_NOTICE);
 				return FALSE;
 			break;
 			case 'delete_linkid':
@@ -194,12 +194,12 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	public function setAssetInLink(Asset $asset, $side_of_link)
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor') {
-			trigger_localised_error('CRON0033', sprintf(translate('Unknown Side of Link "%s"'), $side_of_link), E_USER_WARNING)
+			trigger_localised_error('CRON0033', sprintf(translate('Unknown Side of Link "%s"'), $side_of_link), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!($asset instanceof Asset)) {
-			trigger_localised_error('CRON0030', translate('Unable to set asset to update, the asset must be a asset object'), E_USER_WARNING)
+			trigger_localised_error('CRON0030', translate('Unable to set asset to update, the asset must be a asset object'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -228,7 +228,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		$null = NULL; // because we need to return by ref
 		if ($side_of_link != 'major' && $side_of_link != 'minor') {
-			trigger_localised_error('CRON0033', sprintf(translate('Unknown Side of Link "%s"'), $side_of_link), E_USER_WARNING)
+			trigger_localised_error('CRON0033', sprintf(translate('Unknown Side of Link "%s"'), $side_of_link), E_USER_WARNING);
 			return $null;
 		}
 
@@ -375,7 +375,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 
 		if (is_null($main_asset)) {
-			trigger_localised_error('CRON0019', translate('Unable to find Minor Asset to use to update the lineage'), E_USER_WARNING)
+			trigger_localised_error('CRON0019', translate('Unable to find Minor Asset to use to update the lineage'), E_USER_WARNING);
 			return $failed_ret_val;
 		}
 
@@ -421,7 +421,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			// if moving to the trash, and it is not safe to do so, throw an error
 			$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($major->id == $trash_folder->id && !$can_safe_trash) {
-				trigger_localised_error('CRON0051', sprintf(translate('Unable to set future lineage, asset %s is not safe to be trashed.'), $minor->id), E_USER_WARNING)
+				trigger_localised_error('CRON0051', sprintf(translate('Unable to set future lineage, asset %s is not safe to be trashed.'), $minor->id), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $failed_ret_val;
@@ -452,7 +452,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			$create_ok = ($linkid > 0);
 
 			if (!$create_ok) {
-				trigger_localised_error('CRON0004', sprintf(translate('Failed to create New Link under "%1$s" (Id: #%2$s)'), $major->name, $major->id), E_USER_WARNING)
+				trigger_localised_error('CRON0004', sprintf(translate('Failed to create New Link under "%1$s" (Id: #%2$s)'), $major->name, $major->id), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $failed_ret_val;
@@ -480,7 +480,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		$vars = Array('assetids' => $this->_tmp['_update_lookups_assets']);
 		$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		if (!empty($lookup_errors)) {
-			trigger_localised_error('CRON0008', sprintf(translate('Future Lineage of "%1$s" (Id: #%2$s) failed updating lookups'), $main_asset->name, $main_asset->id), E_USER_WARNING)
+			trigger_localised_error('CRON0008', sprintf(translate('Future Lineage of "%1$s" (Id: #%2$s) failed updating lookups'), $main_asset->name, $main_asset->id), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $failed_ret_val;
@@ -520,7 +520,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 
 		if (!$delete_ok) {
-			trigger_localised_error('CRON0007', sprintf(translate('Delete of Link #%s Failed'), $linkid), E_USER_WARNING)
+			trigger_localised_error('CRON0007', sprintf(translate('Delete of Link #%s Failed'), $linkid), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;

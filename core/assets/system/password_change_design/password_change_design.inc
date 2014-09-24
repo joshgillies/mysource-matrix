@@ -115,7 +115,7 @@ class Password_Change_Design extends Design
 		if ($file_contents == '') {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			trigger_localised_error('CORE0094', translate('Unable to restore login design - No parse file contents found'), E_USER_WARNING)
+			trigger_localised_error('CORE0094', translate('Unable to restore login design - No parse file contents found'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -130,7 +130,7 @@ class Password_Change_Design extends Design
 		if (!string_to_file($file_contents, $parse_file)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			trigger_localised_error('CORE0095', translate('Unable to restore login design - save parse file contents failed'), E_USER_WARNING)
+			trigger_localised_error('CORE0095', translate('Unable to restore login design - save parse file contents failed'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -145,7 +145,7 @@ class Password_Change_Design extends Design
 		if (!$file_exists) {
 			// attempt to add the file to the repository
 			if (!$fv->add($this->data_path_suffix, $parse_file, '')) {
-				trigger_localised_error('CORE0025', translate('Failed adding design file version'), E_USER_WARNING)
+				trigger_localised_error('CORE0025', translate('Failed adding design file version'), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -155,7 +155,7 @@ class Password_Change_Design extends Design
 			$file_status = $fv->upToDate($parse_file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($parse_file, '')) {
-					trigger_localised_error('CORE0033', translate('Failed committing design file version'), E_USER_WARNING)
+					trigger_localised_error('CORE0033', translate('Failed committing design file version'), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
@@ -165,7 +165,7 @@ class Password_Change_Design extends Design
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($this->data_path_suffix.'/parse.txt', $this->data_path)) {
-			trigger_localised_error('CORE0031', translate('Failed checking out latest version of design file'), E_USER_WARNING)
+			trigger_localised_error('CORE0031', translate('Failed checking out latest version of design file'), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -183,7 +183,7 @@ class Password_Change_Design extends Design
 				$info['tmp_name'] = $source_dir.'/files/'.$file;
 				$info['non_uploaded_file'] = TRUE;
 				if (!$ef->_processUploadedFile($this, $info)) {
-					trigger_localised_error('CORE0030', sprintf(translate('Failed attaching file "%s" to login design'), $file), E_USER_WARNING)
+					trigger_localised_error('CORE0030', sprintf(translate('Failed attaching file "%s" to login design'), $file), E_USER_WARNING);
 				}
 			}
 			closedir($handle);
@@ -207,14 +207,14 @@ class Password_Change_Design extends Design
 
 		// make ourselves LIVE
 		if (!$this->processStatusChange(SQ_STATUS_LIVE)) {
-			trigger_localised_error('CORE0062', translate('Login design failed setting status to LIVE'), E_USER_WARNING)
+			trigger_localised_error('CORE0062', translate('Login design failed setting status to LIVE'), E_USER_WARNING);
 		}
 
 		// Give public user read permission - we have to do this differently though,
 		// because the system assets list won't have been saved yet
 		$public_userids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('public_user');
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $public_userids[0], SQ_PERMISSION_READ, '1')) {
-			trigger_localised_error('CORE0060', translate('Login design failed setting public user read permission'), E_USER_WARNING)
+			trigger_localised_error('CORE0060', translate('Login design failed setting public user read permission'), E_USER_WARNING);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
@@ -228,10 +228,10 @@ class Password_Change_Design extends Design
 				return FALSE;
 			}
 			if (!$dep_asset->processStatusChange(SQ_STATUS_LIVE)) {
-				trigger_localised_error('CORE0061', sprintf(translate('Login design failed setting status to LIVE for asset "%1$s" (#%2$s)'), $dep_asset->name, $dep_asset->id), E_USER_WARNING)
+				trigger_localised_error('CORE0061', sprintf(translate('Login design failed setting status to LIVE for asset "%1$s" (#%2$s)'), $dep_asset->name, $dep_asset->id), E_USER_WARNING);
 			}
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($dep_asset->id, $public_userids[0], SQ_PERMISSION_READ, '1')) {
-				trigger_localised_error('CORE0059', sprintf(translate('Login design failed setting public read permission for asset "%1$s" (#%2$s)'), $dep_asset->name, $dep_asset->id), E_USER_WARNING)
+				trigger_localised_error('CORE0059', sprintf(translate('Login design failed setting public read permission for asset "%1$s" (#%2$s)'), $dep_asset->name, $dep_asset->id), E_USER_WARNING);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_asset->id, 'permissions');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_asset);

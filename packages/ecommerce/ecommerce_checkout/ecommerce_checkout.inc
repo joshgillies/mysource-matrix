@@ -915,7 +915,7 @@ class Ecommerce_Checkout extends Page
 											);
 								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 								if (!$mm->setMetadata($assetid, $metadata) || !$mm->generateContentFile($assetid)) {
-									trigger_localised_error('ECOM0024', sprintf(translate('Unable to update product quantity information for asset with Id: #%s'), $assetid), E_USER_WARNING)
+									trigger_localised_error('ECOM0024', sprintf(translate('Unable to update product quantity information for asset with Id: #%s'), $assetid), E_USER_WARNING);
 									$this->print_context = 'failure';
 								}
 								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -940,7 +940,7 @@ class Ecommerce_Checkout extends Page
 								$asset->setAttrValue($quantity_attribute, $new_quantity);
 								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 								if (!$asset->saveAttributes()) {
-									trigger_localised_error('ECOM0024', sprintf(translate('Unable to update product quantity information for asset with Id: #%s'), $assetid), E_USER_WARNING)
+									trigger_localised_error('ECOM0024', sprintf(translate('Unable to update product quantity information for asset with Id: #%s'), $assetid), E_USER_WARNING);
 									$this->print_context = 'failure';
 								}
 								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -969,14 +969,14 @@ class Ecommerce_Checkout extends Page
 	{
 		$bodycopy_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
 		if (empty($bodycopy_folder_link)) {
-			trigger_localised_error('ECOM0017', translate('Ecommerce Checkout Bodycopy Folder is missing'), E_USER_WARNING)
+			trigger_localised_error('ECOM0017', translate('Ecommerce Checkout Bodycopy Folder is missing'), E_USER_WARNING);
 			return;
 		}
 
 		$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, $this->print_context);
 		$content_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($content_bodycopy_link['minorid'], $content_bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
-			trigger_localised_error('ECOM0018', translate('Unable to create Ecommerce Order'), E_USER_WARNING)
+			trigger_localised_error('ECOM0018', translate('Unable to create Ecommerce Order'), E_USER_WARNING);
 			return;
 		}
 

@@ -349,7 +349,7 @@ class Listing_Engine extends Page
 					// something went wrong during the dependants cloning
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					trigger_localised_error('CMS0068', translate('Cannot complete the cloning. Group Formats folder was not properly created'), E_USER_WARNING)
+					trigger_localised_error('CMS0068', translate('Cannot complete the cloning. Group Formats folder was not properly created'), E_USER_WARNING);
 					return FALSE;
 				} else {
 					$links_to_bodycopy = $am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
@@ -3203,7 +3203,7 @@ class Listing_Engine extends Page
 						// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
 						$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
 						if (empty($matching_root_ids)) {
-							trigger_localised_error('CMS0020', sprintf(translate('Supplied dynamic root node (Id: #%1$s) is in an unauthorised part of the system.  Defaulting to static root node. See Asset (Id: #%2$s)'), $dynamic_root, $this->id), E_USER_WARNING)
+							trigger_localised_error('CMS0020', sprintf(translate('Supplied dynamic root node (Id: #%1$s) is in an unauthorised part of the system.  Defaulting to static root node. See Asset (Id: #%2$s)'), $dynamic_root, $this->id), E_USER_WARNING);
 						} else {
 							$dynamic_root_nodes[] = $dynamic_root;
 						}

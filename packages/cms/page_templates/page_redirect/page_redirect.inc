@@ -390,7 +390,7 @@ class Page_Redirect extends Page
 		}//end if
 
 		if ($url == '') {
-			trigger_localised_error('CMS0037', sprintf(translate('No URL or Asset selected for %1$s "%2$s" (Id #%3$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id), E_USER_WARNING)
+			trigger_localised_error('CMS0037', sprintf(translate('No URL or Asset selected for %1$s "%2$s" (Id #%3$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id), E_USER_WARNING);
 			return '';
 		}
 

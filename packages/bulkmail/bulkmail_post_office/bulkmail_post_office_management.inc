@@ -42,7 +42,7 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 		parent::__construct($pm);
 
 		if (!strlen(SQ_CONF_DEFAULT_EMAIL)) {
-			trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING)
+			trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
 		}
 
 		$this->vars = Array(

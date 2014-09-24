@@ -375,11 +375,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				$new_select_val  = trim($_POST[$prefix.'_new_val']);
 
 				if (strpos($new_select_key, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING)
+					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
 					$new_select_key = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_select_key);
 				}
 				if (strpos($new_select_val, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING)
+					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
 					$new_select_val = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_select_val);
 				}
 

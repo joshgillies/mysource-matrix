@@ -989,7 +989,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 
 		// delete folder, that is deleting all triggers under this folder, not permitted
-		trigger_localised_error('SYS0069', sprintf(translate('%s can not have its last significant link removed'), $trigger_id), E_USER_WARNING)
+		trigger_localised_error('SYS0069', sprintf(translate('%s can not have its last significant link removed'), $trigger_id), E_USER_WARNING);
 
 		return FALSE;
 
@@ -1068,7 +1068,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 		// include the event asset
 		if (!$this->_loadComponent($event_name)) {
-			trigger_localised_error('CORE0219', sprintf(translate('Cannot load event "%s"'), $event_name), E_USER_WARNING)
+			trigger_localised_error('CORE0219', sprintf(translate('Cannot load event "%s"'), $event_name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1128,7 +1128,7 @@ class Trigger_Manager extends Asset implements Bridge
 						$broadcast_status = FALSE;
 						break 2;
 					} else {
-						trigger_localised_error('CORE0127', sprintf(translate('FAILURE: Trigger "%2$s" (Trigger# %1$s), Event "%3$s" broadcast by "%5$s" (Id# %4$s)'), $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name), E_USER_WARNING)
+						trigger_localised_error('CORE0127', sprintf(translate('FAILURE: Trigger "%2$s" (Trigger# %1$s), Event "%3$s" broadcast by "%5$s" (Id# %4$s)'), $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name), E_USER_WARNING);
 					}
 
 				break;
@@ -1614,13 +1614,13 @@ class Trigger_Manager extends Asset implements Bridge
 			if ($action_success === FALSE) {
 				if ($not_required) {
 					if (!$is_blocking) {
-						trigger_localised_error('CORE0134', sprintf(translate('Trigger Action: %s Failed, but was not required. Trigger continues.'), $action['type']), E_USER_NOTICE)
+						trigger_localised_error('CORE0134', sprintf(translate('Trigger Action: %s Failed, but was not required. Trigger continues.'), $action['type']), E_USER_NOTICE);
 					}
 					continue;
 				} else {
 					$status = SQ_TRIG_RESULT_FAILURE;
 					if (!$is_blocking) {
-						trigger_localised_error('CORE0135', sprintf(translate('Trigger Action: %s Failed'), $action['type']), E_USER_NOTICE)
+						trigger_localised_error('CORE0135', sprintf(translate('Trigger Action: %s Failed'), $action['type']), E_USER_NOTICE);
 					}
 					break;
 				}
@@ -2242,7 +2242,7 @@ class Trigger_Manager extends Asset implements Bridge
 		if ($s) {
 			return $this->_saveTrigger($trigger);
 		} else {
-			trigger_localised_error('CORE0232', translate('Unable to create Trigger, incorrect format'), E_USER_WARNING)
+			trigger_localised_error('CORE0232', translate('Unable to create Trigger, incorrect format'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -2287,7 +2287,7 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 
 		if (empty($trigger_db)) {
-			// trigger_localised_error('CORE0133', sprintf(translate('Trigger #%s does not exist'), $trigger_id), E_USER_WARNING)
+			// trigger_localised_error('CORE0133', sprintf(translate('Trigger #%s does not exist'), $trigger_id), E_USER_WARNING);
 			return NULL;
 		}
 

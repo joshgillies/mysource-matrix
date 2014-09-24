@@ -64,7 +64,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		// Check if the provided condition exists on the system
 		$condition = $asset->attr('condition');
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed('condition_'.$condition)) {
-			trigger_localised_error('CORE0148', sprintf(translate('Condition %1$s not found for asset "%2$s" design area'), $condition, $asset->name), E_USER_WARNING)
+			trigger_localised_error('CORE0148', sprintf(translate('Condition %1$s not found for asset "%2$s" design area'), $condition, $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -79,7 +79,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 							return FALSE;
 						}
 					} else {
-						trigger_localised_error('CORE0214', sprintf(translate('Cannot have more than one mysource_then section in "%s" design area'), $asset->name), E_USER_WARNING)
+						trigger_localised_error('CORE0214', sprintf(translate('Cannot have more than one mysource_then section in "%s" design area'), $asset->name), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -95,7 +95,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 							return FALSE;
 						}
 					} else {
-						trigger_localised_error('CORE0147', sprintf(translate('Cannot have more than one mysource_else section in "%s" design area'), $asset->name), E_USER_WARNING)
+						trigger_localised_error('CORE0147', sprintf(translate('Cannot have more than one mysource_else section in "%s" design area'), $asset->name), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -110,7 +110,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		}//end foreach
 
 		if (!$then_element && !$else_element) {
-			trigger_localised_error('CORE0169', sprintf(translate('Must have at least a mysource_then or a mysource_else section in "%s" design area'), $asset->name), E_USER_WARNING)
+			trigger_localised_error('CORE0169', sprintf(translate('Must have at least a mysource_then or a mysource_else section in "%s" design area'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 

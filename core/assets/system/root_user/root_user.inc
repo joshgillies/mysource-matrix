@@ -97,7 +97,7 @@ class Root_User extends System_User
 	function morph($new_type_code)
 	{
 		// you cant morph a root user... GEZZZ get serious
-		trigger_localised_error('CORE0091', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+		trigger_localised_error('CORE0091', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 		return FALSE;
 
 	}//end morph()
@@ -155,7 +155,7 @@ class Root_User extends System_User
 	function setAttrValue($name, $value, $filter=NULL)
 	{
 		if ($name == 'username') {
-			trigger_localised_error('CORE0113', sprintf(translate('You are not able to alter the username for the "%s"'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING)
+			trigger_localised_error('CORE0113', sprintf(translate('You are not able to alter the username for the "%s"'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 

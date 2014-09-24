@@ -365,7 +365,7 @@ function asset_link_treeid_convert($value, $encode)
 			$i = floor($i / SQ_CONF_ASSET_TREE_BASE);
 		}
 		if (strlen($str) > SQ_CONF_ASSET_TREE_SIZE) {
-			trigger_localised_error('SYS0213', sprintf(translate('The length of the encoded value of %1$s size larger than than stored with %2$s digits - the range is 0 to %3$s inclusive'), (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1)), E_USER_WARNING)
+			trigger_localised_error('SYS0213', sprintf(translate('The length of the encoded value of %1$s size larger than than stored with %2$s digits - the range is 0 to %3$s inclusive'), (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1)), E_USER_WARNING);
 			return NULL;
 		} else {
 			return str_pad($str, SQ_CONF_ASSET_TREE_SIZE, $digits[0], STR_PAD_LEFT);
@@ -421,13 +421,13 @@ function make_valid_web_paths($paths, $fallback_path='')
 
 		// get rid of paths that are the same as the backend suffix
 		if ($path == SQ_CONF_BACKEND_SUFFIX || $path == SQ_CONF_LIMBO_SUFFIX || $path == SQ_CONF_LOGIN_SUFFIX || $path == SQ_CONF_NOCACHE_SUFFIX || $path == SQ_CONF_NOPROXYCACHE_SUFFIX) {
-			trigger_localised_error('SYS0114', sprintf(translate('Unable to set web path to "%s", this is reserved for backend access'), $path), E_USER_WARNING)
+			trigger_localised_error('SYS0114', sprintf(translate('Unable to set web path to "%s", this is reserved for backend access'), $path), E_USER_WARNING);
 			continue;
 		}
 
 		// get rid of paths that start with the two underscores
 		if (preg_match('/^__/', $path)) {
-			trigger_localised_error('SYS0115', translate('Unable to set web path to start with two underscores ("__"), these are reserved for system use only'), E_USER_WARNING)
+			trigger_localised_error('SYS0115', translate('Unable to set web path to start with two underscores ("__"), these are reserved for system use only'), E_USER_WARNING);
 			continue;
 		}
 
