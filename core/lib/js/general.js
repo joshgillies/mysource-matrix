@@ -162,6 +162,29 @@ function check_all(f, match_name, on) {
 
 
 /*
+* Check all checkboxes within the specified parent block that match a certain name. This is usually added to the
+* onClick event of a "Check All" style checkbox
+*
+* @param HTMLElement		e			the block that has the checkboxes
+* @param string				match_name	regular expression matching the controlled checkboxes
+* @param boolean			on			the checked state of the check all checkbox
+*
+* @return null
+*/
+function check_all_by_parent(e, match_name, on) {
+
+	re = new RegExp(match_name);
+	var items = e.getElementsByTagName('input');
+	for(i=0; i < items.length; i++){
+		if (items[i].type == 'checkbox' && re.test(items[i].name)) {
+			items[i].checked = on;
+		}
+	}
+
+}//end check_all_by_parent()
+
+
+/*
 * Add this function to the onClick event of all checkboxes controlled by a
 * "check all" checkbox
 *
