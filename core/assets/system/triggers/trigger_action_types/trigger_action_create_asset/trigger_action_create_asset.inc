@@ -196,7 +196,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			ob_start();
 				if ($write_access) {
 					echo '<br />';
-					check_box($prefix.'[parentid]', 'current_asset', $parent_broadcasted);
+					check_box($prefix.'[use_current_asset]', 'current_asset', $parent_broadcasted);
 					label(translate('trigger_create_under_broadcaster'), $prefix.'[parentid]');
 					echo '<b>&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;&nbsp;&nbsp;</b>';
 					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
@@ -333,7 +333,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 	public static function processInterface(&$settings, $request_data)
 	{
 		// make sure the parentid isn't blank
-		if (($request_data['parentid'] != 'current_asset') && empty($request_data['parentid']['assetid'])) {
+		if (!array_get_index($request_data, 'use_current_asset', FALSE) && ($request_data['parentid'] != 'current_asset') && empty($request_data['parentid']['assetid'])) {
 			return translate('parent_to_create_under_is_missing');
 		}
 
@@ -342,11 +342,12 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			return translate('link_type_missing');
 		}
 
-		if (is_array($request_data['parentid'])) {
+		if (is_array($request_data['parentid']) && !empty($request_data['parentid']['assetid'])) {
 			$settings['parentid']  = $request_data['parentid']['assetid'];
 		} else {
-			$settings['parentid']  = $request_data['parentid'];
+			$settings['parentid'] = 'current_asset';
 		}
+
 		$settings['link_type'] = $request_data['link_type'];
 
 		$type_code = array_get_index($request_data, 'type_code', FALSE);
