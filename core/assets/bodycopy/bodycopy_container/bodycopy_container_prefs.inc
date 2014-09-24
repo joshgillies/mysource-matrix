@@ -293,7 +293,11 @@ class Bodycopy_Container_Prefs extends Prefs
 
 				$merged_prefs[$var_name]['name']		= $prefs1[$var_name]['name'];
 				$merged_prefs[$var_name]['description']	= $prefs1[$var_name]['description'];
-				$merged_prefs[$var_name]['protected']	= ($prefs1[$var_name]['protected'] || $prefs2[$var_name]['protected']);
+				if (isset($prefs2[$var_name]['protected'])) {
+					$merged_prefs[$var_name]['protected'] = ($prefs1[$var_name]['protected'] || $prefs2[$var_name]['protected']);
+				} else {
+					$merged_prefs[$var_name]['protected'] = $prefs1[$var_name]['protected'];
+				}
 			}
 		}
 
