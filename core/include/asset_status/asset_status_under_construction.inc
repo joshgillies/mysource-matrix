@@ -276,7 +276,11 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$log->replacements = $msg_reps;
 
 					$log->type = 'asset.workflow.log.started';
-					$log->parameters['assetid'] = $this->owner->id;
+					$log->subject = translate('Workflow Started');
+                    $log->body    = translate('User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.')."\n\n".
+                                        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                    $log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);
 
@@ -298,7 +302,11 @@ class Asset_Status_Under_Construction extends Asset_Status
 								$msg->from = $schema->attr('schema_from_email_address');
 							}
 
-							$msg->to = array_merge($msg->to, $publishers);
+							$msg->subject = translate('Workflow Started');
+							$msg->body = translate('User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.')."\n\n".
+                                        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                            $msg->to = array_merge($msg->to, $publishers);
 							$msg->replacements = $msg_reps;
 							$msg->parameters['assetid'] = $this->owner->id;
 							$ms->enqueueMessage($msg);

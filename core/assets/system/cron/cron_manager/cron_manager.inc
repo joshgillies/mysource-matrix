@@ -554,6 +554,12 @@ class Cron_Manager extends Asset
 				$msg->to           = array_merge(Array(0, $root_user->id), $config_user);
 				$msg->from         = 0; // a system message
 				$msg->type         = 'cron.deadlock';
+				$msg->subject      = translate('POTENTIAL SCHEDULED JOBS MANAGER DEAD LOCK ISSUE');
+				$msg->body         = translate('The Scheduled Jobs Manager for the system "%system_name%" has attempted to run %num_attempts% times, but has not been able to for one of two reasons:')."\n".
+                                        translate('1) An existing Scheduled Jobs Manager is currently running an extremely long running job.')."\n".
+                                        translate('2) Something has caused the Scheduled Jobs Manager to exit uncleanly and the lock wasn\'t able to be removed.')."\n\n".
+                                        translate('Check the cron error log (in %error_log_path%) for any information.')."\n\n".
+                                        translate('(System Root Urls : %root_urls%)');
 				$msg->replacements = $msg_reps;
 
 				$msg->send();
@@ -692,6 +698,9 @@ class Cron_Manager extends Asset
 									$msg->to           = Array($user->id, $root_user->id, $sys_admins->id);
 									$msg->from         = 0; // a system message
 									$msg->type         = 'cron.forced_fail';
+									$msg->subject      = translate('FORCED FAILURE of %cron_type_code%');
+									$msg->body         = translate('The job "%cron_job_name%" (#%assetid%) has failed to run %num_attempts% times.')."\n".
+									                        translate('It will be removed from the Scheduled Jobs Manager and will NOT be run again.');
 									$msg->replacements = $msg_reps;
 
 									$ms->enqueueMessage($msg);
@@ -1093,9 +1102,13 @@ class Cron_Manager extends Asset
 			$msg->replacements = $msg_reps;
 
 			// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
-			$msg->to   = Array(0, $root_user->id, $sys_admins->id);
-			$msg->from = 0; // a system message
-			$msg->type = 'cron.term';
+			$msg->to      = Array(0, $root_user->id, $sys_admins->id);
+			$msg->from    = 0; // a system message
+			$msg->type    = 'cron.term';
+			$msg->subject = translate('TERMINATION of Scheduled Jobs Manager');
+			$msg->body    = translate('The Scheduled Jobs Manager for the system "%system_name%" fatally triggered an error, terminating the Scheduled Jobs Manager\'s run.')."\n".
+			                    translate('Check the cron error log (in "%error_log_path%") for any information.')."\n\n".
+                                translate('(System Root Urls : %root_urls%)');
 
 			$msg->send();
 

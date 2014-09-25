@@ -340,6 +340,10 @@ class Report_Links extends Report
 							$msg->to           = $asset_admins[$assetid];
 							$msg->from         = 0;
 							$msg->type         = 'asset.report.brokenlink';
+							$msg->subject      = translate('Broken Link(s) found in "%link_report_name%" (Id# %link_report_id%)');
+							$msg->body         = translate('A broken %type% link was found in asset #%assetid%')."\n".
+							                        translate('Link URL: %link%')."\n".
+							                        translate('Comment: %description%');
 							$msg->replacements = $msg_reps;
 							$ms->enqueueMessage($msg);
 						}

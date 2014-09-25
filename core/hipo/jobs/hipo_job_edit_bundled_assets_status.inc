@@ -549,13 +549,51 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 		$msg_types = Array();
 
 		// Convert from our message types to internal message type codes
-		$im_types = Array(
-						'start'				=> 'asset.workflow.bundle.invitation',
-						'progress'				=> 'asset.workflow.bundle.invitation.progress',
-						'approve'				=> 'asset.workflow.bundle.announce.approve',
-						'reject'				=> 'asset.workflow.bundle.announce.reject',
-						'auto_approve_progress'	=> 'asset.workflow.bundle.started',
-					);
+		$im_types = Array();
+
+		$im_types['start'] = Array(
+		    'subject' => translate('Workflow Approval Required'),
+		    'body'    => translate('The bundle "%bundle_name%" has been placed into workflow, along with its bundled assets.')."\n\n".
+                            translate('There are assets within this bundle that require your review, and you are now required to approve or reject the changes made to them so the workflow process can continue:')."\n\n".
+                            '%asset_list%'."\n\n".
+                            translate('You can approve or reject the above assets one at a time. Clicking on the asset name will take you to its Workflow screen, where you may take action.')."\n".
+                            translate('You may also <SQ_MSG_LINK href="%bundle_approve_url%">Approve</SQ_MSG_LINK> all assets for which you have access to workflow, or <SQ_MSG_LINK href="%bundle_reject_url%">Reject</SQ_MSG_LINK> the entire bundle\'s changes.'),
+		    'code'    => 'asset.workflow.bundle.invitation',
+		);
+
+		$im_types['progress'] = Array(
+		    'subject' => translate('Workflow Approval Required'),
+		    'body'    => translate('The bundle "%bundle_name%" has been placed into workflow, along with its bundled assets.')."\n\n".
+                            translate('There are assets within this bundle that have progressed in their workflow, and now require your review. You are now required to approve or reject the changes made to them so the workflow process can continue:')."\n\n".
+                            '%asset_list%'."\n\n".
+                            translate('You can approve or reject the above assets one at a time. Clicking on the asset name will take you to its Workflow screen, where you may take action.')."\n".
+                            translate('You may also <SQ_MSG_LINK href="%bundle_approve_url%">Approve</SQ_MSG_LINK> all assets for which you have access to workflow, or <SQ_MSG_LINK href="%bundle_reject_url%">Reject</SQ_MSG_LINK> the entire bundle\'s changes.'),
+		    'code'    => 'asset.workflow.bundle.invitation.progress',
+		);
+
+		$im_types['approve'] = Array(
+		    'subject' => translate('Asset Changes Approved'),
+		    'body'    => translate('User "%workflow_user%" has approved the changes to the following assets in the bundle "%bundle_name%":')."\n\n".'%asset_list%',
+		    'code'    => 'asset.workflow.bundle.announce.approve',
+		);
+
+		$im_types['reject'] = Array(
+		    'subject' => translate('Asset Changes Rejected'),
+		    'body'    => translate('User "%workflow_user%" has approved the changes to the following assets in the bundle "%bundle_name%":')."\n\n".
+		                    '%asset_list%'."\n\n".
+		                    translate('The status of the bundle "%bundle_name%" is now "%new_status%"'),
+		    'code'    => 'asset.workflow.bundle.announce.reject',
+		);
+
+		$im_types['auto_approve_progress'] = Array(
+		    'subject' => translate('Workflow Approval Required'),
+		    'body'    => translate('The bundle "%bundle_name%" has been placed into workflow, along with its bundled assets.')."\n\n".
+                            translate('There are assets within this bundle that require your review, and you are now required to approve or reject the changes made to them so the workflow process can continue:')."\n\n".
+                            '%asset_list%'."\n\n".
+                            translate('You can approve or reject the above assets one at a time. Clicking on the asset name will take you to its Workflow screen, where you may take action.')."\n".
+                            translate('You may also <SQ_MSG_LINK href="%bundle_approve_url%">Approve</SQ_MSG_LINK> all assets for which you have access to workflow, or <SQ_MSG_LINK href="%bundle_reject_url%">Reject</SQ_MSG_LINK> the entire bundle\'s changes.'),
+		    'code'    => 'asset.workflow.bundle.started',
+		);
 
 		$msg_types = $this->_getRequiredBundleMessages($this->_running_vars['bundle_current_status'], $this->_running_vars['new_status']);
 
@@ -603,13 +641,19 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 						$replacements['workflow_user_last_name'] = $GLOBALS['SQ_SYSTEM']->user->attr('last_name');
 						$replacements['workflow_user_email'] = $GLOBALS['SQ_SYSTEM']->user->attr('email');
 
-						$msg = $ms->newMessage(Array($userid), $im_types[$msg_type], $replacements);
+						$msg = $ms->newMessage(Array($userid), $im_types[$msg_type]['code'], $replacements);
 						if ($subject !== '') {
 							$msg->subject = $subject;
+						} else {
+						    $msg->subject = $im_types[$msg_type]['subject'];
 						}
+
 						if ($body !== '') {
 							$msg->body = $body;
+						} else {
+						    $msg->body = $im_types[$msg_type]['body'];
 						}
+
 						$msg_list[] = $msg;
 					}//end foreach item in this filter
 

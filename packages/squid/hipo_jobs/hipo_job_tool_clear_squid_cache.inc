@@ -256,7 +256,8 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 							$msg = $ms->newMessage();
 							$msg->type = 'purge.squid.cache';
 							$msg->from = 0; // a system message
-
+							$msg->subject = translate('Purge Squid Cache');
+							$msg->body = '%command%'."\n".'%result%';
 							$command_str = $system_log_command;
 							$repopulate = ($this->_running_vars['repopulate']) ? translate('Yes') : translate('No');
 

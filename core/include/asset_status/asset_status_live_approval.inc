@@ -182,7 +182,12 @@ class Asset_Status_Live_Approval extends Asset_Status
 								);
 				$msg->replacements = $msg_reps;
 				$msg->type = 'asset.workflow.review.cancel';
-				$asset_edt_fns = $this->owner->getEditFns();
+				$msg->subject = translate('Asset Review Cancelled');
+                $msg->body    = translate('User "%workflow_user%" has started a safe edit of %type_code% "%asset_name%" during a review. The review has been cancelled and the status of "%asset_name%" is now %status%.')."\n\n".
+                                    translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                    translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+
+                $asset_edt_fns = $this->owner->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
 					$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 				} else {
@@ -224,7 +229,11 @@ class Asset_Status_Live_Approval extends Asset_Status
 					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 				}
 
-				$log->type = 'asset.workflow.log.review.cancel';
+				$log->subject = translate('Asset Review Cancelled');
+                $log->body    = translate('User "%workflow_user%" has started a safe edit of %type_code% "%asset_name%" during a review. The review has been cancelled and the status of "%asset_name%" is now %status%.')."\n\n".
+                                    translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                    translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                $log->type = 'asset.workflow.log.review.cancel';
 				$log->parameters['assetid'] = $this->owner->id;
 				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 				$log->send();
@@ -293,7 +302,11 @@ class Asset_Status_Live_Approval extends Asset_Status
 						$log->replacements = $msg_reps;
 						//$log->to = Array(0);
 						$log->type = 'asset.workflow.log.review.complete';
-						$asset_edt_fns = $this->owner->getEditFns();
+						$log->subject = translate('Review Complete');
+                        $log->body    = translate('The review process for %type_code% "%asset_name%" has been completed. "%asset_name%" is now live.')."\n\n".
+                                            translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                            translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                        $asset_edt_fns = $this->owner->getEditFns();
 						if (isset($asset_edt_fns->static_screens['preview'])) {
 							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 						} else {

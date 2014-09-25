@@ -1134,14 +1134,22 @@ class Trigger_Manager extends Asset implements Bridge
 				break;
 
 				case SQ_TRIG_RESULT_SUCCESS:
-					$msg_type = 'trigger.success';
+					$msg_type    = 'trigger.success';
+					$msg_subject = 'Trigger Execution Success';
+					$msg_body    = translate('SUCCESS')."\n".
+					                translate('Trigger "%trigger_name%" (#%triggerid%), Event: "%event%" broadcast by Asset: "%asset_name%" (#%assetid%))');
+
 				break;
 
 				case SQ_TRIG_RESULT_INVALID:
-					$msg_type = 'trigger.invalid';
+					$msg_type    = 'trigger.invalid';
+					$msg_subject = 'Trigger Execution FAILURE';
+					$msg_body    = translate('INVALID (Trigger components could not be loaded)')."\n".
+					                translate('Trigger "%trigger_name%" (#%triggerid%), Event: "%event%" broadcast by Asset: "%asset_name%" (#%assetid%))');
 				break;
 
 				default:
+				    // No default.
 			}
 
 			if (!empty($msg_type)) {
@@ -1149,6 +1157,8 @@ class Trigger_Manager extends Asset implements Bridge
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = $msg_subject;
+				$message->body    = $msg_body;
 				$message->send();
 			}
 

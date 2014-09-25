@@ -687,11 +687,25 @@ class Cron_Job extends Asset
 
 		// Exec failed
 		if ($exec_result & SQ_CRON_JOB_ERROR) {
-			$msg->type 	   = 'cron.job.fail';
+			$msg->type 	  = 'cron.job.fail';
+			$msg->subject = translate('%cron_type_code% Failure');
+			$msg->body    = '%cron_job_name%'."\n".
+                                translate('Scheduled : %cron_job_when%')."\n".
+                                translate('Failed')."\n\n".
+                                '%exec_msg%'."\n\n".
+                                translate('Error Messages :')."\n".
+                                '%errors%';
 
 		// Exec successful and completed
 		} else if ($exec_result & SQ_CRON_JOB_COMPLETED) {
 			$msg->type 	   = 'cron.job.success';
+			$msg->subject = translate('%cron_type_code% Success');
+			$msg->body    = '%cron_job_name%'."\n".
+                                translate('Scheduled : %cron_job_when%')."\n".
+                                translate('Completed Successfully')."\n\n".
+                                '%exec_msg%'."\n\n".
+                                translate('Error Messages :')."\n".
+                                '%errors%';
 
 			// If we are a one off type and we aren't yet being removed do so
 			if ($this->attr('type') == 'one_off' && !($exec_result & SQ_CRON_JOB_REMOVE)) {
@@ -712,6 +726,13 @@ class Cron_Job extends Asset
 		// Exec successful and but still more to do
 		} else if ($exec_result & SQ_CRON_JOB_NOT_COMPLETE) {
 			$msg->type 	   = 'cron.job.success.incomplete';
+			$msg->subject = translate('%cron_type_code% Success');
+			$msg->body    = '%cron_job_name%'."\n".
+                                translate('Scheduled : %cron_job_when%')."\n".
+                                translate('Successful, but there is more work to do')."\n\n".
+                                '%exec_msg%'."\n\n".
+                                translate('Error Messages :')."\n".
+                                '%errors%';
 
 		// Exec stuffed up, email the sys admins - SHOULD NEVER HAPPEN ;)
 		} else {
@@ -719,6 +740,17 @@ class Cron_Job extends Asset
 			$msg_reps['result']      = $exec_result;
 			$msg_reps['result_bits'] = implode(', ', get_bit_names('SQ_CRON_JOB_', $exec_result, TRUE));
 			$msg->type 	             = 'cron.job.error';
+			$msg->subject = translate('%cron_type_code% ERROR');
+			$msg->body    = '%cron_job_name%'."\n".
+                                translate('Scheduled : %cron_job_when%')."\n".
+                                '###################################################################'."\n".
+                                '#  '.translate('RETURNED AN INVALID RESULT FROM _exec()')."\n".
+                                '#  '.translate('Returned Value : %result%')."\n".
+                                '#  '.translate('(Translated : %result_bits%)')."\n".
+                                '###################################################################'."\n\n".
+                                '%exec_msg%'."\n\n".
+                                translate('Error Messages :')."\n".
+                                '%errors%';
 
 			$root_user  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			$sys_admins = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
@@ -831,6 +863,10 @@ class Cron_Job extends Asset
 			$msg->to           = Array(0, $user->id, $root_user->id, $sys_admins->id);
 			$msg->from         = 0; // a system message
 			$msg->type         = 'cron.job.term';
+			$msg->subject      = translate('TERMINATION of %cron_type_code%');
+			$msg->body         = translate('The job "%asset_name%" (#%assetid%) fatally triggered an error and terminated the cron script. It has been removed from the Scheduled Jobs Manager.')."\n".
+                                    translate('Error Messages :')."\n".
+                                    '%errors%';
 			$msg->replacements = $msg_reps;
 
 			$msg->send();
@@ -1049,7 +1085,10 @@ class Cron_Job extends Asset
 						$msg->to           = Array($root_user->id, $sys_admins->id);
 						$msg->from         = 0; // a system message
 						$msg->type         = 'cron.job.startfail';
-						$msg->replacements = $msg_reps;
+						$msg->subject      = translate('Another instance of %cron_type_code% is still running');
+                        $msg->body         = translate('The job "%asset_name%" (#%assetid%) is still running while another instance tries to start at %run_time%.')." ".
+                                                translate('Please increase the time interval between each run.');
+                        $msg->replacements = $msg_reps;
 
 						$ms->enqueueMessage($msg);
 						$ms->closeQueue();

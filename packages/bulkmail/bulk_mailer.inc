@@ -513,6 +513,8 @@ class Bulk_Mailer
 												);
 									$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 									$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+									$message->subject = translate('Bulkmail Test Mode');
+									$message->body    = translate('Mail request for %to% with a subject of \'%subject%\'');
 									$message->parameters['assetid'] = $job_id;
 									$message->send();
 
@@ -580,6 +582,8 @@ class Bulk_Mailer
 
 				if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
 					$message_type = 'bulkmail.job.testmode.completed';
+					$msg_subject  = translate('Bulkmail Test Mode Completed');
+					$msg_body     = translate('Bulkmail Test mode was completed. Mail was requested for %num_recip% recipients.');
 					$msg_reps = Array(
 									'num_recip'		=> number_format($progress_info['total_count']),
 									'num_problem'	=> number_format(count($progress_info['problematic'])),
@@ -587,20 +591,30 @@ class Bulk_Mailer
 								);
 				} else {
 					$subtype = '';
+					$msg_subject = translate('Bulkmail Job Completed');
+					$msg_body    = translate('<strong>Mail successfully sent to %num_recip% recipients.</strong>');
 					if (count($progress_info['problematic']) > 0) {
 						trigger_localised_error('BML0010', sprintf(translate('Problematic recipient id found: %s.', implode(','), $progress_info['problematic'])), E_USER_WARNING);
 						$subtype = '.error';
+                        $msg_subject = translate('Bulkmail Job Completed with Error');
+                        $msg_body   .= '<br/>'.translate('%num_problem% recipients were skipped due to problems in generation.');
 					}
 
 					if (isset($progress_info['filtered']) && (count($progress_info['filtered']) > 0)) {
+                        $msg_body .= '<br/>'.translate('%num_filtered% recipients were also skipped as their bulkmail\'s contents failed to match the enabled Body filter.');
 						trigger_localised_error('BML0019', sprintf(translate('Recipient id skipped due to body filter failing to match: %s.', implode(','), $progress_info['filtered'])), E_USER_WARNING);
 						if (empty($subtype)) {
-							$subtype = '.filtered';
-						} else {
-							$subtype = '+filtered';
+							$subtype     = '.filtered';
+							$msg_subject = translate('Bulkmail Job Completed, some Filtered');
+                        } else {
+							$subtype    .= '+filtered';
+							$msg_subject = translate('Bulkmail Job Completed with Error and some Filtered');
 						}
 					}
 
+					if ($subtype !== '') {
+					     $msg_body .= ' '.translate('Please check the Bulkmail Error log for details.');
+					}
 					$message_type = 'bulkmail.job.completed'.$subtype;
 
 					// format recipient count with grouped thousands
@@ -614,6 +628,8 @@ class Bulk_Mailer
 				// Send the message
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+				$message->subject = $msg_subject;
+				$message->body    = $msg_body;
 				$message->parameters['assetid'] = $job_id;
 				$message->send();
 				$am->forgetAsset($message);
@@ -937,7 +953,7 @@ class Bulk_Mailer
 				// Log in as generator
 				$generator_user = $am->getAsset($job_details['content_gen_as']);
 				if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($generator_user)) {
-					trigger_localised_error('BML0017', translate('Could not change to the correct user for content generation'), E_USER_WARNING) // localise
+					trigger_localised_error('BML0017', translate('Could not change to the correct user for content generation'), E_USER_WARNING);
 					return '';
 				}
 

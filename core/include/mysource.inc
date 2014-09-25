@@ -375,6 +375,8 @@ class MySource extends MySource_Object
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 				$ms = $this->getMessagingService();
 				$log = $ms->newMessage(Array(), 'system.security.alert', Array());
+				$log->subject = translate('Security Alert');
+				$log->body    = translate('Possible attempt to steal session detected!');
 				$log->parameters['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 				$log->parameters['sessionid'] = session_id();
 				$log->parameters['userid'] = $_SESSION['userid'];
@@ -1368,7 +1370,9 @@ class MySource extends MySource_Object
 			if (!SQ_SOAP_AUTH) {
 				if (isset($_SESSION['activated']) === FALSE || $_SESSION['activated'] != 1) {
 					// IP Address has changed, and we are not authenticating via SOAP.
-					$this->_logSecurityMsg('system.security.logout.ip_change', Array('old_ip' => $_SESSION['remote_addr'], 'new_ip' => $_SERVER['REMOTE_ADDR']));
+					$subject = translate('User Automatically Logged Out');
+					$body    = translate('User "%user_name%" was logged out since their IP address changed from %old_ip% to %new_ip%');
+					$this->_logSecurityMsg('system.security.logout.ip_change', $subject, $body, Array('old_ip' => $_SESSION['remote_addr'], 'new_ip' => $_SERVER['REMOTE_ADDR']));
 					$this->_clearSession();
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
@@ -1432,7 +1436,9 @@ class MySource extends MySource_Object
 			// See if it's been too long since their last MatrixActivity(R)
 			if (!empty($user_prefs['timeout'])) {
 				if (time() - $_SESSION['user_last_access'] > $user_prefs['timeout']) {
-					$this->_logSecurityMsg('system.security.logout.idle', Array('timeout' => $user_prefs['timeout']));
+				    $subject = translate('User Automatically Logged Out');
+				    $body    = translate('User "%user_name%" was logged out since they were inactive for %timeout% seconds');
+					$this->_logSecurityMsg('system.security.logout.idle', $subject, $body, Array('timeout' => $user_prefs['timeout']));
 					$this->_clearSession();
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
@@ -1450,9 +1456,11 @@ class MySource extends MySource_Object
 					$session_expiry_ts = $_SESSION['user_last_authentication'] + $user_prefs['max_length'];
 					$today_start_ts = strtotime('00:00:01 today');
 					$tomorrow_start_ts = strtotime('00:00:01 tomorrow');
-					if ($session_expiry_ts < $today_start_ts) {
+					$subject = translate('User Automatically Logged Out');
+                    $body    = translate('User "%user_name%" was logged out since they hadn\'t authenticated for %timeout% seconds');
+                    if ($session_expiry_ts < $today_start_ts) {
 						// it expired yesterday so clear the session / force a login right now
-						$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $user_prefs['max_length']));
+						$this->_logSecurityMsg('system.security.logout.staleauth', $subject, $body, Array('timeout' => $user_prefs['max_length']));
 						$this->_clearSession();
 						$this->loginPublicUser();
 						$this->generateLoginKey(TRUE);
@@ -1461,7 +1469,7 @@ class MySource extends MySource_Object
 						if (time() - $_SESSION['user_last_access'] > SQ_CONF_EDITING_TIME) {
 							// because they haven't done anything for a while we assume it's safe to log them out
 							// and ask for re-authentication
-							$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $user_prefs['max_length']));
+							$this->_logSecurityMsg('system.security.logout.staleauth', $subject, $body, Array('timeout' => $user_prefs['max_length']));
 							$this->_clearSession();
 							$this->loginPublicUser();
 							$this->generateLoginKey(TRUE);
@@ -1631,7 +1639,9 @@ class MySource extends MySource_Object
 
 					$this->addMessage($display_message);
 					// log failed attempt
-					$this->_logSecurityMsg('system.security.login.failed', Array('login_name' => $login_username, 'failure_reason' => $failure_reason), TRUE);
+					$subject = translate('User Login Failed');
+                    $body    = translate('User "%login_name%" failed to login (%failure_reason%)');
+					$this->_logSecurityMsg('system.security.login.failed', $subject, $body, Array('login_name' => $login_username, 'failure_reason' => $failure_reason), TRUE);
 
 				} else {
 
@@ -1648,9 +1658,13 @@ class MySource extends MySource_Object
 
 				// Log a slightly different system message if we logging out from secondary user session (after using "Login As...")
 				if (isset($_SESSION['login_as_invoker_user_full_name'])) {
-					$this->_logSecurityMsg('system.security.logout.secondary.manual', Array('secondary_user_name' => $_SESSION['login_as_invoker_user_full_name']));
+					$subject = translate('User Logged Out Secondary User');
+                    $body    = translate('User "%secondary_user_name%" has logged out from the account of "%user_name%" after user switching');
+					$this->_logSecurityMsg('system.security.logout.secondary.manual', $subject, $body, Array('secondary_user_name' => $_SESSION['login_as_invoker_user_full_name']));
 				} else {
-					$this->_logSecurityMsg('system.security.logout.manual');
+					$subject = translate('User Logged Out');
+                    $body    = translate('User "%user_name%" logged themselves out');
+					$this->_logSecurityMsg('system.security.logout.manual', $subject, $body);
 				}
 
 				// code below is added with respect to #5731 Login as and
@@ -1724,7 +1738,9 @@ class MySource extends MySource_Object
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_before_user_logout', $old_user, NULL);
 				}
-				$this->_logSecurityMsg('system.security.logout.manual');
+				$subject = translate('User Logged Out');
+                $body    = translate('User "%user_name%" logged themselves out');
+                $this->_logSecurityMsg('system.security.logout.manual', $subject, $body);
 				$this->_clearSession();
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
@@ -2016,7 +2032,9 @@ class MySource extends MySource_Object
 
 			// Log out the invoking user (System Admin)
 			$this->broadcastTriggerEvent('trigger_event_before_user_logout', $this->user, NULL);
-			$this->_logSecurityMsg('system.security.logout.manual');
+			$subject = translate('User Logged Out');
+            $body    = translate('User "%user_name%" logged themselves out');
+            $this->_logSecurityMsg('system.security.logout.manual', $subject, $body);
 
 			// Prepare a new session
 			$this->_clearSession();
@@ -2053,7 +2071,9 @@ class MySource extends MySource_Object
 					// are certain that we are logging back in to the correct account type
 					if ($resuming_session && ($secondary_user->id != $resuming_user_id_match)) {
 						// No go
-						$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('User cannot be accessed when user switching')), TRUE);
+						$subject = translate('User Secondary Login Failed');
+                        $body    = translate('Login to user account "%secondary_login_name%" failed from account "%login_name%" (%failure_reason%)');
+                        $this->_logSecurityMsg('system.security.login.secondary.failed', $subject, $body, Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('User cannot be accessed when user switching')), TRUE);
 
 						return FALSE;
 					}
@@ -2123,7 +2143,9 @@ class MySource extends MySource_Object
 
 
 			// Log failed attempt
-			$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => $failure_reason), TRUE);
+			$subject = translate('User Secondary Login Failed');
+            $body    = translate('Login to user account "%secondary_login_name%" failed from account "%login_name%" (%failure_reason%)');
+            $this->_logSecurityMsg('system.security.login.secondary.failed', $subject, $body, Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => $failure_reason), TRUE);
 		}
 
 		return FALSE;
@@ -2242,9 +2264,13 @@ class MySource extends MySource_Object
 
 		// log a message so we know someone has logged in
 		if (empty($invoking_user_full_name)) {
-			$this->_logSecurityMsg('system.security.login');
+			$subject = translate('User Logged In');
+            $body    = translate('User "%user_name%" logged in');
+            $this->_logSecurityMsg('system.security.login', $subject, $body);
 		} else {
-			$this->_logSecurityMsg('system.security.login.secondary', Array('secondary_user_name' => $invoking_user_full_name));
+			$subject = translate('User Logged In As Secondary User');
+            $body    = translate('User "%secondary_user_name%" logged in as "%user_name%" from user switching');
+            $this->_logSecurityMsg('system.security.login.secondary', $subject, $body, Array('secondary_user_name' => $invoking_user_full_name));
 		}
 
 		// Get login context if any. If the value returned is numeric, it's
@@ -2741,7 +2767,7 @@ class MySource extends MySource_Object
 	* @return void
 	* @access private
 	*/
-	protected function _logSecurityMsg($code, $extra_replacements=Array(), $failed_login=FALSE)
+	protected function _logSecurityMsg($code, $subject, $body, $extra_replacements=Array(), $failed_login=FALSE)
 	{
 		if ($this->userPublic($this->user) && !$failed_login) {
 			return;
@@ -2749,6 +2775,8 @@ class MySource extends MySource_Object
 		$ms = $this->getMessagingService();
 		$msg_reps = Array('user_name' => $this->user->name) + $extra_replacements;
 		$log = $ms->newMessage(Array(), $code, $msg_reps);
+		$log->subject = $subject;
+		$log->body    = $body;
 		$log->parameters['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		$log->parameters['sessionid'] = session_id();
 		$log->send();

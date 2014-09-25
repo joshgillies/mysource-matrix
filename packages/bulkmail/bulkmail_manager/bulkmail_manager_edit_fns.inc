@@ -140,6 +140,8 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 										);
 							$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$message = $ms->newMessage(Array(), 'bulkmail.job.cancelled', $msg_reps);
+							$message->subject = translate('Bulkmail Job Cancelled');
+							$message->body    = translate('Job was cancelled by <SQ_MSG_TAGLINE>%user_id%</SQ_MSG_TAGLINE>');
 							$message->parameters['assetid'] = $job_id;
 							$message->send();
 						}

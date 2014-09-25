@@ -883,6 +883,8 @@ class HIPO_Herder extends MySource_Object
 								'hipo_code_name'	=> $source_code_name,
 							);
 				$message = $ms->newMessage(Array(), 'hipo.force_kill', $msg_reps);
+				$message->subject = translate('HIPO Herder');
+				$message->body    = translate('FORCE KILL %hipo_code_name%');
 				$message->send();
 
 			}//end if have lock, and forece kill is set
@@ -913,6 +915,8 @@ class HIPO_Herder extends MySource_Object
 									'hipo_code_name'	=> $code_name,
 								);
 					$message = $ms->newMessage(Array(), 'hipo.orphan_kill', $msg_reps);
+                    $message->subject = translate('HIPO Herder');
+                    $message->body    = translate('ORPHAN KILL %hipo_code_name%');
 					$message->send();
 				}
 

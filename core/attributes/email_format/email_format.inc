@@ -780,6 +780,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			$msg = $ms->newMessage($to_assetids, 'internal.message', $replacements, $from);
 			// Asset triggering the send mail process
 			$msg->parameters['assetid'] = array_get_index($current_value, 'triggering_assetid', '');
+			$msg->subject = $subject;
+			$msg->body    = $html_body ? $html_body : $text_body;
+
 			// Send the message to the user's Matrix inbox
 			$msg->send(TRUE);
 		}//end if send type = "Matrix inbox"

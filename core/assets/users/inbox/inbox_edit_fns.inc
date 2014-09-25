@@ -155,6 +155,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 			$message = $ms->newMessage($recepients, 'inbox.message', $msg_reps);
 			$message->priority = $_POST[$prefix.'_Priority'];
+			$message->subject  = $msg_reps['subject'];
+			$message->body     = $msg_reps['body'];
 			$message->send();
 
 			foreach ($recepients as $key => $sender) {
@@ -164,6 +166,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				$message->from = $sender;
 				$message->status = 'R';
 				$message->priority = $_POST[$prefix.'_Priority'];
+                $message->subject  = $msg_reps['subject'];
+                $message->body     = $msg_reps['body'];
 				$message->send();
 			}
 

@@ -1005,6 +1005,8 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 		$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
 		$message->parameters['assetid'] = $owner->id;
 		$message->parameters['version'] = substr($owner->version, 0, strrpos($owner->version, '.'));
+		$message->subject = translate('Workflow User Log');
+		$message->body    = $message_body;
 		$message->send();
 		$updated = TRUE;
 	}

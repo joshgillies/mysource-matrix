@@ -221,6 +221,8 @@ class Authentication_Default extends Authentication
 										'num_attempts'	=> (int)SQ_CONF_MAX_LOGIN_ATTEMPTS,
 									);
 						$log = $ms->newMessage(Array(), 'system.security.locked', $msg_reps);
+						$log->subject = translate('User Account Locked');
+						$log->body    = translate('User "%user_name%" has had their account locked after %num_attempts% unsuccessful login attempts');
 						$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 						$log->parameters['sessionid'] = session_id();
 						$log->send();

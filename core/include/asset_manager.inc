@@ -2582,6 +2582,8 @@ class Asset_Manager extends MySource_Object
 									'old_user_name'	=> $user->name,
 								);
 					$log = $ms->newMessage(Array(), 'asset.locking.forced', $msg_reps);
+					$log->subject = translate('Asset Lock Forcibly Acquired');
+					$log->body    = translate('User "%user_name%" has forcibly acquired the %lock_type% lock on %type_code% "%asset_name%", formerly held by user "%old_user_name%"');
 					$log->parameters['assetid'] = $locked_asset->id;
 					$log->parameters['former_userid'] = $user->id;
 					$ms->logMessage($log);
@@ -5766,6 +5768,8 @@ class Asset_Manager extends MySource_Object
 						'minor_name'	=> $minor->name,
 					);
 		$message = $ms->newMessage(Array(), 'asset.linking.create', $msg_reps);
+		$message->subject = translate('Asset Link Created');
+		$message->body    = translate('"%minor_name%" was successfully linked to "%major_name%"');
 		$message->parameters['majorid'] = $major->id;
 		$message->parameters['minorid'] = $minor->id;
 		$message->parameters['linkid']  = $linkid;
@@ -6327,6 +6331,8 @@ class Asset_Manager extends MySource_Object
 							'new_link_type'	=> link_type_name($link_type),
 						);
 			$message = $ms->newMessage(Array(), 'asset.linking.type', $msg_reps);
+			$message->subject = translate('Asset Link Type Updated');
+			$message->body    = translate('The type of link #%linkid% (between "%major_name%" and "%minor_name%") was successfully changed from %old_link_type% to %new_link_type%');
 			$message->parameters['majorid']  = $major->id;
 			$message->parameters['minorid']  = $minor->id;
 			$message->parameters['linkid']   = $linkid;
@@ -6346,6 +6352,8 @@ class Asset_Manager extends MySource_Object
 							'new_link_value'	=> $value,
 						);
 			$message = $ms->newMessage(Array(), 'asset.linking.value', $msg_reps);
+			$message->subject = translate('Asset Link Value Updated');
+			$message->body    = translate('The value on link #%linkid% (between "%major_name%" and "%minor_name%") was successfully changed from %old_link_value% to %new_link_value%');
 			$message->parameters['majorid']   = $major->id;
 			$message->parameters['minorid']   = $minor->id;
 			$message->parameters['linkid']    = $linkid;
@@ -6366,6 +6374,8 @@ class Asset_Manager extends MySource_Object
 
 						);
 			$message = $ms->newMessage(Array(), 'asset.linking.locked', $msg_reps);
+			$message->subject = translate('Asset Link Locked Status Update');
+			$message->body    = translate('The link #%linkid% (between "%major_name%" and "%minor_name%") is now %link_locked_value%');
 			$message->parameters['majorid']   = $major->id;
 			$message->parameters['minorid']   = $minor->id;
 			$message->parameters['linkid']    = $linkid;
@@ -6453,6 +6463,8 @@ class Asset_Manager extends MySource_Object
 								'new_sort_order'	=> $sort_order,
 							);
 				$message = $ms->newMessage(Array(), 'asset.linking.order', $msg_reps);
+				$message->subject = translate('Asset Link Sort Order Updated');
+				$message->body    = translate('The sort order of link #%linkid% (between "%major_name%" and "%minor_name%") was successfully changed from %old_sort_order% to %new_sort_order%');
 				$message->parameters['majorid'] = $major->id;
 				$message->parameters['minorid'] = $minor->id;
 				$message->parameters['linkid']  = $linkid;
@@ -6931,6 +6943,8 @@ class Asset_Manager extends MySource_Object
 					'minor_name'	=> $minor->name,
 					);
 			$message = $ms->newMessage(Array(), 'asset.linking.delete', $msg_reps);
+			$message->subject = translate('Asset Link Deleted');
+			$message->body    = translate('"%minor_name%" was successfully unlinked from "%major_name%"');
 			$message->parameters['majorid'] = $major->id;
 			$message->parameters['minorid'] = $minor->id;
 			$message->parameters['linkid']  = $linkid;
@@ -7554,6 +7568,12 @@ class Asset_Manager extends MySource_Object
 						'user_name'		=> $user_name,
 					);
 		$message = $ms->newMessage(Array(), 'asset.permissions.'.($granted ? 'grant' : 'deny'), $msg_reps);
+        $message->subject = translate('Asset Permission Set');
+        if ($granted === 'grant') {
+		    $message->body = translate('%perm_name% permission has been granted on asset "%asset_name%" for "%user_name%"');
+		} else {
+		    $message->body = translate('%perm_name% permission has been denied on asset "%asset_name%" for "%user_name%"');
+		}
 		$message->parameters['assetid'] = $asset->id;
 		$message->send();
 
@@ -7669,6 +7689,8 @@ class Asset_Manager extends MySource_Object
 						'user_name'		=> $user_name,
 					);
 		$message = $ms->newMessage(Array(), 'asset.permissions.delete', $msg_reps);
+		$message->subject = translate('Asset Permission Deleted');
+		$message->body    = translate('%perm_name% permission has been deleted on asset "%asset_name%" for "%user_name%"');
 		$message->parameters['assetid'] = $asset->id;
 		$message->send();
 

@@ -245,6 +245,8 @@ class Asset_Status_Editing extends Asset_Status
 								);
 					$log->replacements = $msg_reps;
 					$log->type = 'asset.workflow.log.safeedit.cancel';
+					$log->subject = translate('Asset Safe Edit Cancelled');
+					$log->body    = translate('User "%workflow_user%" has cancelled the safe edit of %type_code% "%asset_name%". "%asset_name%" has reverted to the previously saved version and the status of "%asset_name%" is now %status%');
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
@@ -288,7 +290,11 @@ class Asset_Status_Editing extends Asset_Status
 					}
 					$log->replacements = $msg_reps;
 
-					$log->type = 'asset.workflow.log.started';
+					$log->type    = 'asset.workflow.log.started';
+					$log->subject = translate('Workflow Started');
+					$log->body    = translate('User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.')."\n\n".
+translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);
@@ -312,7 +318,11 @@ class Asset_Status_Editing extends Asset_Status
 							}
 
 							$msg->to = array_merge($msg->to, $publishers);
-							$msg->replacements = $msg_reps;
+							$msg->subject = translate('Workflow Started');
+                            $msg->body    = translate('User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.')."\n\n".
+        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                            $msg->replacements = $msg_reps;
 							$msg->parameters['assetid'] = $this->owner->id;
 							$ms->enqueueMessage($msg);
 						}

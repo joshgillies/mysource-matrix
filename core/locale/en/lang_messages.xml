@@ -194,10 +194,10 @@
 		<body>Event Listeners Done</body>
 	</message>
 	<message type="cron.deadlock">
-		<subject>POTENTIAL CRON MANAGER DEAD LOCK ISSUE</subject>
-		<body>The cron manager for the system "%system_name%" has attempted to run %num_attempts% times, but has not been able to for one of two reasons:
-1) An existing cron manager is currently running an extremely long running job.
-2) Something has caused the cron manager to exit uncleanly and the lock wasn't able to be removed.
+		<subject>POTENTIAL SCHEDULED JOBS MANAGER DEAD LOCK ISSUE</subject>
+		<body>The Scheduled Jobs Manager for the system "%system_name%" has attempted to run %num_attempts% times, but has not been able to for one of two reasons:
+1) An existing Scheduled Jobs Manager is currently running an extremely long running job.
+2) Something has caused the Scheduled Jobs Manager to exit uncleanly and the lock wasn't able to be removed.
 
 Check the cron error log (in %error_log_path%) for any information.
 
@@ -206,11 +206,11 @@ Check the cron error log (in %error_log_path%) for any information.
 	<message type="cron.forced_fail">
 		<subject>FORCED FAILURE of %cron_type_code%</subject>
 		<body>The job "%cron_job_name%" (#%assetid%) has failed to run %num_attempts% times.
-It will be removed from the cron manager and will NOT be run again.</body>
+It will be removed from the Scheduled Jobs Manager and will NOT be run again.</body>
 	</message><!--cron-type-code / cron-job-name, cron-job-assetid, #-attempts, cron-manager-name -->
 	<message type="cron.term">
 		<subject>TERMINATION of Cron Manager</subject>
-		<body>The cron manager for the system "%system_name%" fatally triggered an error, terminating the cron manager's run.
+		<body>The Scheduled Jobs Manager for the system "%system_name%" fatally triggered an error, terminating the Scheduled Jobs Manager's run.
 Check the cron error log (in "%error_log_path%") for any information.
 
 (System Root Urls : %root_urls%)</body>
@@ -265,7 +265,7 @@ Error Messages :
 	</message>
 	<message type="cron.job.term">
 		<subject>TERMINATION of %cron_type_code%</subject>
-		<body>The job "%asset_name%" (#%assetid%) fatally triggered an error and terminated the cron script. It has been removed from the cron manager.
+		<body>The job "%asset_name%" (#%assetid%) fatally triggered an error and terminated the cron script. It has been removed from the Scheduled Jobs Manager.
 
 Error Messages :
 %errors%</body><!-- cron-job-type / name, assetid, (errors) -->

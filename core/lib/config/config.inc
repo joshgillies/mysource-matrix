@@ -153,17 +153,24 @@ class Config extends MySource_Object
 			foreach ($changed_vars as $var_name => $values) {
 				if (array_get_index($this->config_vars[$var_name], 'skip_mailing', FALSE)) {
 					$msg_reps = Array(
+									'screen_name' => $this->name,
 									'setting'	=> $var_name,
 								);
 					$message = $ms->newMessage(Array(), 'config.'.get_class_lower($this).'.no_show_values', $msg_reps);
+					$msg_body = translate('Value (not shown here) for %setting% has been changed');
 				} else {
 					$msg_reps = Array(
-									'setting'	=> $var_name,
-									'old_value'	=> var_export($values['old'], true),
-									'new_value'	=> var_export($values['new'], true),
+					                'screen_name' => $this->name,
+									'setting'	  => $var_name,
+									'old_value'   => var_export($values['old'], true),
+									'new_value'	  => var_export($values['new'], true),
 								);
 					$message = $ms->newMessage(Array(), 'config.'.get_class_lower($this), $msg_reps);
+					$msg_body = translate('%setting% changed from %old_value% to %new_value%');
 				}
+
+				$message->subject = translate('%screen_name% Updated');
+				$message->body    = $msg_body;
 
 				$ms->enqueueMessage($message);
 			}//end foreach

@@ -198,6 +198,8 @@ function cleanup_asset_types($asset_types)
 		'type_code_list'	=> implode("\n", $asset_types),
 	);
 	$message = $ms->newMessage(Array(), 'install.asset_type.uninstall', $msg_reps);
+	$message->subject = translate('Install');
+	$message->body    = translate('UNINSTALLED the following asset types as they are no longer recognised by any package:')."\n".'%type_code_list%';
 	$message->send();
 }
 
@@ -353,6 +355,8 @@ function uninstall_package($package, $cleanDb=TRUE)
 					'package'	=> $package,
 				);
 	$message = $ms->newMessage(Array(), 'install.package.uninstall', $msg_reps);
+	$message->subject = translate('Install');
+	$message->body    = translate('Uninstalled %package_name% Package');
 	$message->send();
 }//end uninstall_package()
 
@@ -494,7 +498,7 @@ function disable_missing_packages()
 	foreach ($missing_packages as $package_name => $package_code) {
 		uninstall_package($package_code, FALSE);
 	}
-	
+
 
 	// Clean up the missing type codes though.
 	// If the package becomes available again, they will be re-installed.
@@ -543,6 +547,12 @@ function install_core($package_list=Array())
 					'package'	=> 'Core',
 				);
 	$message = $ms->newMessage(Array(), 'install.package.'.($result ? 'success' : 'fail'), $msg_reps);
+	$message->subject = translate('Install');
+    if ($result) {
+        $message->body = translate('%package_name% Package Installed Succesfully');
+    } else {
+        $message->body = translate('%package_name% Package Install FAILED');
+    }
 	$message->send();
 
 	if (!$result) exit(1);
@@ -557,6 +567,12 @@ function install_core($package_list=Array())
 						'num_assets'	=> $result,
 					);
 		$message = $ms->newMessage(Array(), 'install.system_assets.'.($result != -1 ? 'success' : 'fail'), $msg_reps);
+		if ($result !== -1) {
+		    $message->body = translate('%package_name% Package System Asset Creation Succeeded : %num_assets% Assets Created');
+		} else {
+		    $message->body = translate('%package_name% Package System Asset Creation FAILED');
+		}
+		$message->subject = translate('Install');
 		$message->send();
 
 	}
@@ -682,6 +698,8 @@ function install_package($package, $package_assets=Array())
 						'package'	=> $package,
 					);
 		$message = $ms->newMessage(Array(), 'install.package.deferred', $msg_reps);
+		$message->subject = translate('Install');
+		$message->body    = translate('%package_name% Package Deferred for Dependency Resolution');
 		$message->send();
 		return $result;
 	}
@@ -691,6 +709,12 @@ function install_package($package, $package_assets=Array())
 					'package'	=> $package,
 				);
 	$message = $ms->newMessage(Array(), 'install.package.'.($result ? 'success' : 'fail'), $msg_reps);
+	$message->subject = translate('Install');
+    if ($result) {
+        $message->body = translate('%package_name% Package Installed Succesfully');
+    } else {
+        $message->body = translate('%package_name% Package Install FAILED');
+    }
 	$message->send();
 
 	if (!$result) exit(1);
@@ -702,6 +726,12 @@ function install_package($package, $package_assets=Array())
 					);
 		$message_body = strtoupper($package).' SYSTEM ASSET CREATION '.(($result == -1) ? 'FAILED' : (': '.$result.' NEW ASSETS CREATED'));
 		$message = $ms->newMessage(Array(), 'install.system_assets.'.($result ? 'success' : 'fail'), $msg_reps);
+		$message->subject = translate('Install');
+		if ($result !== -1) {
+		    $message->body = translate('%package_name% Package System Asset Creation Succeeded : %num_assets% Assets Created');
+		} else {
+		    $message->body = translate('%package_name% Package System Asset Creation FAILED');
+		}
 		$message->send();
 	}
 
@@ -781,6 +811,8 @@ function install_authentication_types()
 							'assetid'			=> $auth->id,
 						);
 			$message = $ms->newMessage(Array(), 'install.authentication', $msg_reps);
+			$message->subject = translate('Install');
+			$message->body    = translate('%auth_type_name% Authentication Type Created : %assetid%');
 			$message->send();
 
 		}
@@ -835,6 +867,8 @@ function generate_global_preferences()
 
 	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message = $ms->newMessage(Array(), 'install.prefs', Array());
+	$message->subject = translate('Install');
+	$message->body    = translate('Global Preferences Done');
 	$message->send();
 
 	return TRUE;
@@ -959,6 +993,8 @@ function install_event_listeners()
 
 	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message = $ms->newMessage(Array(), 'install.event_listeners', Array());
+	$message->subject = translate('Install');
+	$message->body    = translate('Event Listeners Done');
 	$message->send();
 
 	return TRUE;

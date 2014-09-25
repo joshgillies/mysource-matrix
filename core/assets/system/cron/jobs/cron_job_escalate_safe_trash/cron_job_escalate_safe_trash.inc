@@ -170,6 +170,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$messages = Array();
 
+					$subject = translate('Safe Trash Warning: %asset_name%');
 					if (!empty($trash_errors['status'])) {
 						// unsafe status
 						$type = 'cron.safetrash.notify.status';
@@ -185,6 +186,10 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 
 						if (empty($asset_admins)) $asset_admins = Array(0);
 						$msg = $ms->newMessage($asset_admins, $type, $replacements);
+						$msg->subject = $subject;
+						$msg->body    = translate('You have administrator access to the asset "%asset_name%" (Id: #%assetid%), which was marked to be safe-trashed by "%trashing_user%". The asset has been marked since %trash_date%.')."\n\n".
+translate('This asset is currently at a status of "%asset_status%". It cannot be trashed until the asset is "Placed Under Construction" or "Archived".')."\n\n".
+translate('Please rectify the above issue (by changing the status of the asset) so it can be trashed as soon as possible, or consult the user who marked the asset for safe trashing.');
 						$messages[] = $msg;
 					}
 
@@ -207,6 +212,10 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 
 							if (empty($asset_admins)) $asset_admins = Array(0);
 							$msg = $ms->newMessage($asset_admins, $type, $replacements);
+                            $msg->subject = $subject;
+                            $msg->body    = translate('You have administrator access to the asset "%link_asset_name%" (Id: #%link_assetid%), which is linked to asset "%asset_name%" (Id: #%assetid%). The linked asset was marked to be safe-trashed by "%trashing_user%", and has been marked since %trash_date%.')."\n\n".
+                                                translate('Your asset currently contains links to "%asset_name%" that are hidden to the asset map (of type TYPE_3 or NOTICE - often this is due to links within bodycopies). "%asset_name%" cannot be trashed until all TYPE_3 or NOTICE links to it are removed.')."\n\n".
+                                                translate('Please rectify the above issue (by removing the links) so the asset can be trashed as soon as possible, or consult the user who marked the asset for safe trashing.');
 							$messages[] = $msg;
 						}
 
@@ -232,6 +241,10 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 
 							if (empty($asset_admins)) $asset_admins = Array(0);
 							$msg = $ms->newMessage($asset_admins, $type, $replacements);
+                            $msg->subject = $subject;
+                            $msg->body    = translate('You have administrator access to the asset "%link_asset_name%" (Id: #%link_assetid%), which is a child of asset "%asset_name%" (Id: #%assetid%). The parent asset was marked to be safe-trashed by "%trashing_user%", and has been marked since %trash_date%.')."\n\n".
+                                                translate('"%asset_name%" cannot be trashed until all of its children also meet safe-trash conditions. Your asset is currently blocking this safe-trashing. This could be for one of two reasons. Your asset could be at a status of "Live" or higher. Or, your asset could contain links to other assets that are hidden to the asset map.')."\n\n".
+                                                translate('Please rectify the above issues so the asset can be trashed as soon as possible, or consult the user who marked the asset for safe trashing.</body>');
 							$messages[] = $msg;
 						}
 					}

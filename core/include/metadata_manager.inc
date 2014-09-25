@@ -321,6 +321,8 @@ class Metadata_Manager extends MySource_Object
 		$msg_type = 'asset.metadata.schema.set.fulllog';
 		$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 		$message->parameters['assetid'] = $asset->id;
+		$message->subject = translate('Asset Metadata Schema Applied');
+		$message->body    = translate('The metadata schema "%metadata_schema%" was applied to asset "%asset_name%"');
 		$ms->logMessage($message);
 
 		try {
@@ -420,6 +422,8 @@ class Metadata_Manager extends MySource_Object
 		$msg_type = 'asset.metadata.schema.delete.fulllog';
 		$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 		$message->parameters['assetid'] = $asset->id;
+		$message->subject = translate('Asset Metadata Schema Removed');
+		$message->body    = translate('The metadata schema "%metadata_schema%" was removed from asset "%asset_name%"');
 		$ms->logMessage($message);
 
 		try {
@@ -1014,6 +1018,8 @@ class Metadata_Manager extends MySource_Object
 							);
 				$msg_type = 'asset.metadata.set.fulllog';
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = translate('Asset Metadata Field Updated');
+				$message->body    = translate('The metadata field "%metadata_field%" of asset "%asset_name%" was updated from "%metadata_old%" to "%metadata_new%"');
 				$message->parameters['assetid'] = $asset->id;
 				$ms->logMessage($message);
 			}

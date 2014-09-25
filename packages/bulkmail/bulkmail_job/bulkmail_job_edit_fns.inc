@@ -444,6 +444,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$message = $ms->newMessage(Array(), 'bulkmail.preview', $msg_reps);
+			$message->subject = translate('Bulkmail Previewed');
+			$message->body    = translate('<SQ_MSG_TAGLINE>%assetid%</SQ_MSG_TAGLINE> has sent a preview email to %email_addr%');
 
 			$message->parameters['assetid'] = $asset->id;
 			$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));

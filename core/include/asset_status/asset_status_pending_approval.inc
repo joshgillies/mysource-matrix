@@ -184,7 +184,11 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					} else {
 						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 					}
-					$log->type    = 'asset.workflow.log.reject';
+					$log->subject = translate('Asset Changes Rejected');
+                    $log->body    = translate('User "%workflow_user%" has rejected the changes made to %type_code% "%asset_name%". The status of "%asset_name%" has reverted to %status%.')."\n\n".
+                                        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                    $log->type    = 'asset.workflow.log.reject';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
@@ -232,7 +236,6 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 					if (!$wfm->silentWorkflowParty($this->owner->id)) {
 						$log = $ms->newMessage();
-						$log->subject = 'Workflow Completed';
 						$msg_reps = Array(
 										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 										'asset_name'	=> $this->owner->name,
@@ -247,7 +250,11 @@ class Asset_Status_Pending_Approval extends Asset_Status
 							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 						}
 
-						$log->type    = 'asset.workflow.log.complete';
+						$log->subject = translate('Workflow Completed');
+                        $log->body    = translate('The workflow process for %type_code% "%asset_name%" has been completed. "%asset_name%" is now approved and can be made live by an administrator.')."\n\n".
+                                            translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                            translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                        $log->type    = 'asset.workflow.log.complete';
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 						$ms->enqueueMessage($log);

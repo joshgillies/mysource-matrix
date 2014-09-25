@@ -304,12 +304,17 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		// Does this step have a custom message for stale workflow?
 		if (isset($step_data['message_stale']) && trim($step_data['message_stale']) !== '' ) {
 			$msg->body = trim($step_data['message_stale']);
+		} else {
+		    $msg->body = translate('Asset "%asset_name%" [#%assetid%] has been in step %step_id% "%step_name%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.').'  '.
+		                    translate('You may want to consider intervening to progress this workflow by visiting the asset\'s <SQ_MSG_LINK href="%workflow_url%">workflow screen</SQ_MSG_LINK>.');
 		}
 
 		// Does this step have a custom subject for stale workflow?
 		if (isset($step_data['subject_stale']) && trim($step_data['subject_stale']) !== '' ) {
-			$subject = trim(array_get_index($step_data, 'subject_stale', 'Stale Workflow Step'));
-			$msg->subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
+			$subject = trim(array_get_index($step_data, 'subject_stale', translate('Stale Workflow Step')));
+			$msg->subject = (!empty($subject)) ? $subject : translate('Stale Workflow Step');
+		} else {
+		    $msg->subject = translate('Stale Workflow Step');
 		}//end if
 
 		if (!is_null($schema_asset)) {

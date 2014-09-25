@@ -352,6 +352,8 @@ class Asset extends MySource_Object
 						'asset_name'	=> $this->name,
 					);
 		$message = $ms->newMessage(Array(), 'asset', $msg_reps);
+		$message->subject = translate('Asset Created');
+		$message->body    = translate('New %type_code% "%asset_name%" created');
 		$message->parameters['assetid'] = $this->id;
 		$message->send();
 
@@ -2703,6 +2705,8 @@ class Asset extends MySource_Object
 							'new_status'	=> get_status_description($new_status),
 						);
 			$message = $ms->newMessage(Array(), 'asset.status', $msg_reps);
+			$message->subject = translate('Asset Status Changed');
+			$message->body    = translate('The status of "%asset_name%" was successfully changed from "%old_status%" to "%new_status%"');
 			$message->parameters['assetid'] = $this->id;
 			$message->send();
 
@@ -2824,6 +2828,8 @@ class Asset extends MySource_Object
 						'new_date'		=> $new_date_string,
 					);
 		$message = $ms->newMessage(Array(), 'asset.dates', $msg_reps);
+		$message->subject = translate('Asset Date Changed');
+		$message->body    = translate('The %date_type% date of "%asset_name%" was successfully changed from "%old_date%" to "%new_date%"');
 		$message->parameters['assetid'] = $this->id;
 		$message->send();
 
@@ -3267,13 +3273,17 @@ class Asset extends MySource_Object
 								'attr_name'		=> $attribute->name,
 							);
 				$msg_type = 'asset.attributes.fulllog';
+				$msg_body = translate('The value of attribute "%attr_name%" for asset "%asset_name%" has been changed');
 				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
 					// Completely obscure the password attribute value in the logs
 					$msg_reps['old_value'] = $password_attr ? '*****' : $var_data['old_value'];
 					$msg_reps['new_value'] = $password_attr ? '*****' : $attr_value;
 					$msg_type .= '.scalar';
+					$msg_body = translate('The value of attribute "%attr_name%" for asset "%asset_name%" has been changed from "%old_value%" to "%new_value%"');
 				}
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = translate('Asset Attribute Changed');
+				$message->body    = $msg_body;
 				$message->parameters['assetid'] = $this->id;
 				$ms->logMessage($message);
 
@@ -3287,6 +3297,8 @@ class Asset extends MySource_Object
 				}
 
 				$sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$sml_message->subject = translate('Asset Attribute Changed');
+				$sml_message->body    = $msg_body;
 				$sml_message->parameters['assetid'] = $this->id;
 				$ms->logMessage($sml_message);
 			}
@@ -6472,8 +6484,9 @@ class Asset extends MySource_Object
 
 		// send a message to tell everyone the good news
 		$msg = $ms->newMessage();
-		$msg->subject = 'Asset Lookups Updated';
-		$msg->type = 'asset.lookups.updated';
+		$msg->subject = translate('Asset Lookups Updated');
+		$msg->body    = translate('Asset "%asset_name%" has successfully updated its lookups');
+		$msg->type    = 'asset.lookups.updated';
 
 		$msg_reps = Array(
 						'asset_name'	=> $this->name,

@@ -136,7 +136,11 @@ class Asset_Status_Live extends Asset_Status
 				if (!empty($schemas)) {
 					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$msg = $ms->newMessage();
-					$msg->subject = 'Asset Up For Review';
+					$msg->subject = translate('Asset Up For Review');
+					$msg->body    = translate('User "%workflow_user%" has placed %type_code% "%asset_name%" up for review.')."\n".
+                                        translate('You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.')."\n\n".
+                                        translate('<SQ_MSG_LINK href="%workflow_url%">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 					$msg->type = 'asset.workflow.review';
 
 					$msg_reps = Array(
@@ -163,6 +167,10 @@ class Asset_Status_Live extends Asset_Status
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
 					$log->type = 'asset.workflow.log.review';
+					$log->subject = translate('Asset Up For Review');
+					$log->body    = translate('User "%workflow_user%" has placed %type_code% "%asset_name%" up for review.')."\n\n".
+                                        translate('<SQ_MSG_LINK href="%workflow_url%">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
 									'workflow_user' => $user->name,

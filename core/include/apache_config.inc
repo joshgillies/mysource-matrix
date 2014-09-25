@@ -160,14 +160,15 @@ class Apache_Config extends Config
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$ms->openQueue();
 				foreach ($changed_vars as $var_name => $values) {
-					$message_body = $var_name.' changed from '.var_export($values['old'], TRUE).' to '.var_export($values['new'], TRUE)."\n";
-					$config_name = ucwords(str_replace('_', ' ', get_class($this)));
 					$msg_reps = Array(
-									'setting'	=> $var_name,
-									'old_value'	=> var_export($values['old'], TRUE),
-									'new_value'	=> var_export($values['new'], TRUE),
+					                'screen_name' => $this->name,
+									'setting'	  => $var_name,
+									'old_value'	  => var_export($values['old'], TRUE),
+									'new_value'	  => var_export($values['new'], TRUE),
 								);
 					$message = $ms->newMessage(Array(), 'config.'.get_class($this), $msg_reps);
+                    $message->subject = translate('%screen_name% Updated');
+                    $message->body    = translate('%setting% changed from %old_value% to %new_value%');
 					$ms->enqueueMessage($message);
 				}
 				$ms->closeQueue();

@@ -372,6 +372,8 @@ class System_Config_Edit_Interface extends MySource_Object
 									'new_value'	=> var_export($values['new'], true),
 								);
 					$message = $ms->newMessage(Array(), 'prefs.system', $msg_reps);
+					$message->subject = translate('Global Preferences Updated');
+					$message->body    = translate('%type_code% preference variable %setting% changed from %old_value% to %new_value%');
 					$ms->enqueueMessage($message);
 				}
 				$ms->closeQueue();
