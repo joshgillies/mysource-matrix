@@ -436,22 +436,34 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 					return FALSE;
 				}
 
+				$windows_system = isset($_SERVER['HTTP_USER_AGENT']) ? strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== FALSE : FALSE;
+				if ($windows_system) {
+					// For Windows, copy the log file into a temp file and replace the "line feed" with "carriage return + line feed"
+					$temp_file = SQ_TEMP_PATH.'/'.uniqid().'_'.$download_file;
+					if (file_put_contents($temp_file, '') !== FALSE) {
+						while (feof($fp) === FALSE) {
+							$chunk = fread($fp, 4096);
+							if ($chunk === FALSE) {
+								exit(1);
+							} else {
+								 file_put_contents($temp_file, preg_replace('/(?<!\r)\n/', "\r\n", $chunk), FILE_APPEND);
+							}
+						}//end while
+						$log_file = $temp_file;
+					}//end if
+				}
+				fclose($fp);
+
 				// Only do the headers if we were able to read the file
 				header('Content-Type: text/plain');
 				header('Content-Disposition: attachment; filename="'.$download_file.SQ_CONF_LOG_EXTENSION.'"');
 				header('Content-Length: '.filesize($log_file));
 				header('Last-Modified: '.gmdate('r', filemtime($log_file)));
 
-				while (feof($fp) === FALSE) {
-					$chunk = fread($fp, 4096);
-					if ($chunk === FALSE) {
-						// Uh oh...
-						exit(1);
-					} else {
-						echo $chunk;
-					}
-				}
-				fclose($fp);
+				readfile($log_file);
+
+				// Clear the temp file if exists
+				@unlink($temp_file);
 
 				exit(0);
 			}
