@@ -572,6 +572,26 @@ The install order for these assets could not be established: %2$s', $this->getPa
 			$as = new $type_code();
 			$ef = $as->getEditFns();
 
+			$allowed_links = $as->_getAllowedLinks();
+			unset($allowed_links[SQ_LINK_NOTICE]);
+			unset($allowed_links[SQ_LINK_TYPE_3]);
+			foreach ($allowed_links as $link_type => $type_links) {
+			    foreach (array_keys($type_links) as $asset_type) {
+			        if (((bool) array_get_index($type_links[$asset_type], 'dependant', FALSE)) === TRUE) {
+			            unset($allowed_links[$link_type][$asset_type]);
+			        }
+
+			        if (((bool) array_get_index($type_links[$asset_type], 'exclusive', FALSE)) === TRUE) {
+			            unset($allowed_links[$link_type][$asset_type]);
+			        }
+			    }
+
+			    if (empty($type_links)) {
+			        unset($allowed_links[$link_type]);
+			    };
+			}
+			$type_node->addAttribute('allowed_links', json_encode($allowed_links));
+
 			// Ensure that the Details screen is first
 			if (!empty($ef->static_screens['details'])) {
 			    $screen_node = $type_node->addChild('screen', $ef->static_screens['details']['name']);

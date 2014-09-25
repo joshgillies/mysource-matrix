@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Submission Information">
+	<section name="Submission Information"  limbo_access="1">
 		<field>
 			<display_name>IP Address</display_name>
 			<function_call>
@@ -30,10 +30,12 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Answers To Global Questions" write_access="write:attributes">
+	<section name="Answers To Global Questions" write_access="write:attributes"  limbo_access="1">
+		<field write_access="write:menu">
 			<function_call>
 				<paint_function name="paintSubmissionAnswers" />
 				<process_function name="processSubmissionAnswers" />
 			</function_call>
+		</field>
 	</section>
 </contents>

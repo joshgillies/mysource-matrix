@@ -120,8 +120,8 @@ var JS_Asset_Map = new function() {
 	 * @var {Object}
 	 */
 	var currentNewWindow = null;
-	
-	
+
+
 	/**
 	 * The trash folder assetid.
 	 *
@@ -578,18 +578,18 @@ var JS_Asset_Map = new function() {
 
 		return supported;
 	};
-	
+
 	this.isMac = function() {
 		var isMac = false;
 		var ua    = navigator.userAgent;
-		
+
 		if (/Mac OS/.test(ua) === true) {
 			isMac = true;
 		}
-		
+
 		return isMac;
 	}
-	
+
 	this.ctrlKey = function(e) {
 		if (this.isMac() === true) {
 			return e.metaKey;
@@ -721,6 +721,7 @@ var JS_Asset_Map = new function() {
 
 				var parentType = typeinfo['_attributes']['parent_type'];
 				assetTypeCache[typecode] = typeinfo['_attributes'];
+				assetTypeCache[typecode]['allowed_links'] = JSON.parse(assetTypeCache[typecode]['allowed_links']);
 				assetTypeCache[typecode]['screens'] = {};
 
 				if (parentType !== 'asset') {
@@ -787,7 +788,7 @@ var JS_Asset_Map = new function() {
 		options.teleportLink = options.teleportLink  || '';
 		options.simple       = true;
 		dfx.addClass(assetMapContainer, 'simple');
-		
+
 		if (options.initialSelection !== '') {
 			var selParts = options.initialSelection.split('~');
 			options.initialSelection = null;
@@ -842,7 +843,8 @@ var JS_Asset_Map = new function() {
 
 				var parentType = typeinfo['_attributes']['parent_type'];
 				assetTypeCache[typecode] = typeinfo['_attributes'];
-				assetTypeCache[typecode]['screens'] = {};
+				assetTypeCache[typecode]['allowed_links'] = JSON.parse(assetTypeCache[typecode]['allowed_links']);
+				assetTypeCache[typecode]['screens']       = {};
 
 				if (parentType !== 'asset') {
 					assetTypeParents[typecode] = parentType;
@@ -874,7 +876,7 @@ var JS_Asset_Map = new function() {
 					);
 				}
 			});
-			
+
 			self.selectTree(0);
 			self.initEvents();
 
@@ -933,7 +935,7 @@ var JS_Asset_Map = new function() {
 
 		dfx.addEvent(dfx.getId('asset_map_button_collapse'), 'click', function() {
 			var tree = self.getCurrentTreeElement();
-			
+
 			var childIndents  = dfx.getClass('childIndent', tree);
 			var branchButtons = dfx.getClass('branch-status', tree);
 
@@ -1338,7 +1340,7 @@ var JS_Asset_Map = new function() {
 
 							self.positionMenu(menu, dragStatus.startPoint);
 						}
-						
+
 						self.cancelDrag();
 					} else if (which === 1) {
 						if ((e.shiftKey === true) && (options.simple === false)) {
@@ -1442,7 +1444,7 @@ var JS_Asset_Map = new function() {
 								// the scrollbar.
 								treeCoords.x2 = treeCoords.x1 + tree.clientWidth;
 								treeCoords.y2 = treeCoords.y1 + tree.clientHeight;
-								
+
 								var oldScrollTop  = tree.scrollTop;
 								var oldScrollLeft = tree.scrollLeft;
 								if (((mousePos.y - treeCoords.y1) >= 0) && ((mousePos.y - treeCoords.y1) < 15)) {
@@ -1462,7 +1464,7 @@ var JS_Asset_Map = new function() {
 								} else if (((treeCoords.x2 - mousePos.x) > 0) && ((treeCoords.x2 - mousePos.x) <= 15)) {
 									// Scrolling to the right.
 									scrollAmount        = Math.round(Math.pow(15 - (treeCoords.x2 - mousePos.x), moveFactor));
-									tree.scrollLeft    += scrollAmount;                            
+									tree.scrollLeft    += scrollAmount;
 								}
 
 								if (scrollAmount > 0) {
@@ -1475,9 +1477,9 @@ var JS_Asset_Map = new function() {
 						}, 50)
 					};
 				}
-				
+
 				timeouts.scrollDrag.mousePos = mousePos;
-					
+
 				if (dragStatus.selectionDrag) {
 					if (insideTree) {
 						if (!timeouts.selectionDrag) {
@@ -1527,7 +1529,7 @@ var JS_Asset_Map = new function() {
 							x: e.clientX,
 							y: e.clientY
 						});
-						
+
 						// If we double-back on ourselves make sure it also resizes there.
 						dfx.addEvent(selectionRect, 'mousemove', function(e) {
 							self.setSelectionRect(selectionRect, dragStatus.startPoint, {
@@ -1586,7 +1588,7 @@ var JS_Asset_Map = new function() {
 								var mousePos     = dfx.getMouseEventPosition(e);
 								if (timeouts.scrollDrag) {
 									timeouts.scrollDrag.mousePos = mousePos;
-								
+
 								}
 
 								var treeCoords   = dfx.getBoundingRectangle(self.getCurrentTreeElement(), true);
@@ -1783,7 +1785,7 @@ var JS_Asset_Map = new function() {
 					} else {
 						var initialAsset = dragStatus.assetDrag.initialAsset;
 						self.handleDoubleClick(initialAsset);
-						
+
 						// IE8 has incorrect handling of the second click (no mousedown)
 						// so we will instead look for the double-click event as the
 						// sign of a second click, rather than a second firing of the
@@ -1794,7 +1796,7 @@ var JS_Asset_Map = new function() {
 								self.handleDoubleClick(initialAsset);
 							});
 						}
-						
+
 						self.moveMe.cancel();
 					}//end if (dragged by enough)
 				}//end if
@@ -1908,7 +1910,7 @@ var JS_Asset_Map = new function() {
 		}//end if (container exists)
 
 	};
-	
+
 	/**
 	 * Given start and end point coordinates, return height and width from the
 	 * start point.
@@ -1927,30 +1929,30 @@ var JS_Asset_Map = new function() {
 			x: startPoint.x,
 			y: startPoint.y
 		};
-		
+
 		var endPoint = {
 			x: endPoint.x,
 			y: endPoint.y
 		};
-		
+
 		// Adjust for the current scroll offsets.
 		if (dragStatus.scrollX) {
 			startPoint.x += dragStatus.scrollX;
 			endPoint.x   += dragStatus.scrollX;
 		}
-		
+
 		if (dragStatus.scrollY) {
 			startPoint.y += dragStatus.scrollY;
 			endPoint.y   += dragStatus.scrollY;
 		}
-		
+
 		var dimensions = {
 			x1: Math.min(startPoint.x, endPoint.x),
 			y1: Math.min(startPoint.y, endPoint.y),
 			width: endPoint.x - startPoint.x,
 			height: endPoint.y - startPoint.y
 		};
-		
+
 		return dimensions;
 	}
 
@@ -1959,7 +1961,7 @@ var JS_Asset_Map = new function() {
 			x: startPoint.x,
 			y: startPoint.y
 		}
-		
+
 		var endPoint = {
 			x: endPoint.x,
 			y: endPoint.y
@@ -1967,43 +1969,43 @@ var JS_Asset_Map = new function() {
 		var assetMapCoords = dfx.getElementCoords(assetMapContainer);
 		var treeCoords     = dfx.getElementCoords(self.getCurrentTreeElement());
 		var treeDims       = dfx.getElementDimensions(self.getCurrentTreeElement(), true);
-		
+
 		if (dragStatus.scrollX) {
 			startPoint.x -= (2 * dragStatus.scrollX);
 			endPoint.x   -= dragStatus.scrollX;
 		}
-		
+
 		if (dragStatus.scrollY) {
 			startPoint.y -= (2 * dragStatus.scrollY);
 			endPoint.y   -= dragStatus.scrollY;
 		}// Adjust for the current scroll offsets.
-		
+
 		// Get the initial rectangle.
 		var rectCoords = this.getSelectionRectCoords(startPoint, endPoint);
-		
+
 		dfx.setCoords(rect, (rectCoords.x1 - assetMapCoords.x), (rectCoords.y1 - assetMapCoords.y));
 		dfx.setStyle(rect, 'width', Math.abs(rectCoords.width) + 'px');
 		dfx.setStyle(rect, 'height', Math.abs(rectCoords.height) + 'px');
-		
+
 		var clipRect = {top: 'auto', right: 'auto', bottom: 'auto', left: 'auto'};
-		
+
 		if (rectCoords.y1 < treeCoords.y) {
 			clipRect.top = (treeCoords.y - rectCoords.y1) + 'px';
 		}
-		
+
 		if (rectCoords.x1 < treeCoords.x) {
 			clipRect.left = (treeCoords.x - rectCoords.x1) + 'px';
 		}
-		
+
 		if (rectCoords.y2 >= assetMapCoords.y + treeDims.height) {
 			clipRect.bottom = (assetMapCoords.y + treeDims.height - rectCoords.y1) + 'px';
 		}
-		
+
 		if (rectCoords.x2 >= assetMapCoords.x + treeDims.width) {
 			clipRect.right = (assetMapCoords.x + treeDims.width - rectCoords.x1) + 'px';
 		}
 		dfx.setStyle(rect, 'clip', 'rect(' + clipRect.top + ', ' + clipRect.right + ', ' + clipRect.bottom + ', ' + clipRect.left + ')');
-		
+
 	}
 
 	this.setHoverTab = function(treeid, callback) {
@@ -2345,7 +2347,7 @@ var JS_Asset_Map = new function() {
 		topDoc.appendChild(menu);
 		var elementHeight = topDoc.clientHeight;
 		var submenuHeight = dfx.getElementHeight(menu);
-		
+
 		var pageStart = 0;
 		if (dfx.getClass('sq-iframe', topDoc).length > 0) {
 			var pageStart = dfx.getElementCoords(dfx.getClass('sq-iframe', dfx.getClass('sidenav', topDoc))[0]).y;
@@ -2353,7 +2355,7 @@ var JS_Asset_Map = new function() {
 			var mainDoc   = window.top.frames['sq_wysiwyg_popup_main'].document;
 			var pageStart = dfx.getElementCoords(dfx.getId('asset_map', mainDoc)).y;
 		}
-		
+
 		dfx.setStyle(
 			menu,
 			'left',
@@ -2597,13 +2599,13 @@ var JS_Asset_Map = new function() {
 		}
 
 		var treeDivs = dfx.getClass('tree');
-		
+
 		if (dfx.hasClass(assetMapContainer, 'simple') === true) {
 			assetMapContainer.style.height = (document.documentElement.clientHeight) + 'px';
 		} else {
 			assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
 		}
-		
+
 		for (var i = 0; i < treeDivs.length; i++) {
 			treeDivs[i].style.height = Math.max(50, (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight)) + 'px';
 		}
@@ -2736,7 +2738,7 @@ var JS_Asset_Map = new function() {
 		confirmDiv.appendChild(bodyDiv);
 		confirmDiv.appendChild(bottomDiv);
 		assetMapContainer.appendChild(confirmDiv);
-		
+
 		buttonYesDiv.focus();
 
 		dfx.addEvent(buttonYesDiv, 'click', function() {
@@ -2802,7 +2804,7 @@ var JS_Asset_Map = new function() {
 		assetMapContainer.appendChild(errorDiv);
 
 		buttonDiv.focus();
-		
+
 		dfx.addEvent(buttonDiv, 'click', function() {
 			self.overlay.hide();
 			dfx.remove(errorDiv);
@@ -2845,7 +2847,7 @@ var JS_Asset_Map = new function() {
 
 		if ((!defaultView.frameElement) || (defaultView.frameElement.name === 'sq_sidenav')) {
 			var topDoc = defaultView.top.document.documentElement;
-		} else if (defaultView.frameElement.name === 'sq_wysiwyg_popup_sidenav') { 
+		} else if (defaultView.frameElement.name === 'sq_wysiwyg_popup_sidenav') {
 			var topDoc = defaultView.parent.document.documentElement;
 		} else {
 			var topDoc = target.ownerDocument.documentElement;
@@ -3080,7 +3082,7 @@ var JS_Asset_Map = new function() {
 		dividerText.innerHTML = js_translate('Status colour key');
 
 		divider.appendChild(dividerText);
-		
+
 		var containerInner = _createEl('div');
 		dfx.addClass(containerInner, 'statusListInner');
 		container.appendChild(containerInner);
@@ -3306,7 +3308,7 @@ var JS_Asset_Map = new function() {
 					thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
 					thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
 					thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
-	
+
 					var assetid = thisAsset._attributes.assetid;
 					var linkid  = thisAsset._attributes.linkid;
 					if (String(assetid) === '1') {
@@ -3317,14 +3319,14 @@ var JS_Asset_Map = new function() {
 							var assetNode     = assetNodes[j];
 							var newNode       = _formatAsset(thisAsset._attributes);
 							newNode.className = assetNode.className;
-	
+
 							newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
 							newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
 							newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
-	
+
 							assetNode.parentNode.replaceChild(newNode, assetNode);
 						}//end for
-	
+
 						var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
 						if (expansions.length > 0) {
 							treeRefresh.push(assetid);
@@ -3652,19 +3654,19 @@ var JS_Asset_Map = new function() {
 						} else {
 						    sortOrder = Number(Math.floor(sortOrder / options.assetsPerPage) * options.assetsPerPage);
 						}
-	
+
 						var container = _createChildContainer(thisAsset._attributes.assetid);
 						container.setAttribute('data-offset', sortOrder);
 						container.setAttribute('data-total', thisAsset._attributes.num_kids);
-	
+
 						var branchTarget = dfx.getClass('branch-status', assetLine);
 						dfx.addClass(branchTarget, 'expanded');
 						assetLine.parentNode.insertBefore(container, assetLine.nextSibling);
 						self.drawTree(assetLine, thisAsset, container, sortOrder, thisAsset._attributes.num_kids);
-	
+
 						var nextAssetid = allAssetids[i];
 						assetLine       = dfx.find(container, 'div[data-assetid="' + nextAssetid + '"]')[0];
-	
+
 						if (i < (response.asset.length - 1)) {
 							dfx.addClass(assetLine, 'located');
 						} else {
@@ -3762,10 +3764,10 @@ var JS_Asset_Map = new function() {
 				var target     = dfx.getMouseEventTarget(e);
 				var tree       = self.parent.getCurrentTreeElement();
 				var treeCoords = dfx.getElementCoords(tree);
-				
+
 				if (((e.clientX - treeCoords.x) >= tree.clientWidth) || ((e.clientY - treeCoords.y) >= tree.clientHeight)) {
 					// Can't count the click if it's on the scrollbars
-				} else {                        
+				} else {
 					if (dfx.hasClass(target, 'branch-status') === false) {
 						e.preventDefault();
 						if (self.selection) {
@@ -3773,7 +3775,7 @@ var JS_Asset_Map = new function() {
 								self.doneCallback.call(self, self.source, self.selection, e);
 							}
 						}
-		
+
 						// if there's no valid target when they click, then that's too bad.
 						self.cancel();
 					}
@@ -4001,19 +4003,19 @@ var JS_Asset_Map = new function() {
 	this.getUseMeFrame = function() {
 		var win    = this.getDefaultView(assetMapContainer);
 		var retval = win;
-		
-		// if use me frame is opened from a new window 
+
+		// if use me frame is opened from a new window
 		if(typeof(this.currentNewWindow) !== 'undefined' &&  this.currentNewWindow !== null && !this.currentNewWindow.closed) {
 			return this.currentNewWindow;
 		}
-		
+
 		// We're inside a frame, so check for the main frame.
 		if (win.frameElement) {
 			retval = win.top.frames.sq_main;
 			if (!retval) {
 				retval = win.top.frames.sq_wysiwyg_popup_main;
 			}
-			
+
 			if (!retval) {
 				// Main frame isn't there.
 				retval = win;
@@ -4050,7 +4052,7 @@ var JS_Asset_Map = new function() {
 			if (typeFilter) {
 				var typeFilter = [].concat(typeFilter);
 			}
-			
+
 			var sourceFrame = self.getUseMeFrame();
 			var oldOnUnload = sourceFrame.onunload;
 			dfx.addEvent(sourceFrame, 'unload', function() {
@@ -4188,9 +4190,9 @@ var JS_Asset_Map = new function() {
 
 			document.cookie = 'lastSelectedLinkId=' + escape(linkid);
 			document.cookie = 'lastSelectedAssetId=' + escape(assetid);
-			
-			
-			
+
+
+
 			// provide a few extra attributes of image to the caller, such as alt attribute of image
 			// callback the caller
 			if(typeof useMeStatus.returnAttributes !== 'undefined' && useMeStatus.returnAttributes) {
@@ -4219,9 +4221,9 @@ var JS_Asset_Map = new function() {
 					useMeStatus.doneCallback(data);
 				}
 			}
-			
+
 			self.cancelUseMeMode();
-			
+
 		});
 		container.appendChild(menuItem);
 
@@ -4327,44 +4329,47 @@ var JS_Asset_Map = new function() {
 		// TODO: try to do this where no children are allowed for an asset type
 		//       (needs additional handling in asset_map.inc).
 		if (assetType !== 'trash_folder') {
-			if (lastCreatedType === null) {
-				var menuItem = this.drawMenuItem(js_translate('No Previous Child'), null);
+		    // If we don't have any allowed links, don't post these.
+		    // Apparently empty lists are being sent as arrays as opposed to objects,
+		    // so the logic here is a little odd.
+			if (!(assetTypeCache[assetType]['allowed_links'].length === 0)) {
+                if (lastCreatedType === null) {
+                    var menuItem = this.drawMenuItem(js_translate('asset_map_menu_no_previous_child'), null);
+                    dfx.addClass(menuItem, 'disabled');
+                } else {
+                    var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_previous', assetTypeCache[lastCreatedType].name), lastCreatedType);
+                    dfx.addEvent(menuItem, 'click', function(e) {
+                        self.clearMenus();
+                        self.addAsset(lastCreatedType, assetid, -1);
+                    });
+                }
+                container.appendChild(menuItem);
 
-				dfx.addClass(menuItem, 'disabled');
-			} else {
-				var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_previous', assetTypeCache[lastCreatedType].name), lastCreatedType);
-				dfx.addEvent(menuItem, 'click', function(e) {
-					self.clearMenus();
-					self.addAsset(lastCreatedType, assetid, -1);
-				});
-			}
-			container.appendChild(menuItem);
+			    var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_child'), null, true);
+                container.appendChild(menuItem);
 
-			var menuItem = this.drawMenuItem(js_translate('New Child'), null, true);
+                dfx.addEvent(menuItem, 'mouseover', function(e) {
+                    if (timeouts.addTypeSubmenu) {
+                        clearTimeout(timeouts.addTypeSubmenu);
+                        timeouts.addTypeSubmenu = null;
+                    }
+                    e.stopPropagation();
 
-			container.appendChild(menuItem);
+                    var target   = dfx.getMouseEventTarget(e);
 
-			dfx.addEvent(menuItem, 'mouseover', function(e) {
-				if (timeouts.addTypeSubmenu) {
-					clearTimeout(timeouts.addTypeSubmenu);
-					timeouts.addTypeSubmenu = null;
-				}
-				e.stopPropagation();
-
-				var target   = dfx.getMouseEventTarget(e);
-
-				var existingMenu = dfx.getClass('assetMapMenu.addMenu', self.topDocumentElement(target));
-				if (existingMenu.length === 0) {
-					var menu     = self.drawAddMenu(false, assetid);
-					self.topDocumentElement(target).appendChild(menu);
-					var elementHeight = self.topDocumentElement(assetMapContainer).clientHeight;
-					var submenuHeight = dfx.getElementHeight(menu);
-					var targetRect = dfx.getBoundingRectangle(target);
-					dfx.setStyle(menu, 'left', (Math.max(10, targetRect.x2) + 'px'));
-					dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, targetRect.y1) + 'px'));
-				}
-			});
-		}
+                    var existingMenu = dfx.getClass('assetMapMenu.addMenu', self.topDocumentElement(target));
+                    if (existingMenu.length === 0) {
+                        var menu = self.drawAddMenu(false, assetid, assetType);
+                        self.topDocumentElement(target).appendChild(menu);
+                        var elementHeight = self.topDocumentElement(assetMapContainer).clientHeight;
+                        var submenuHeight = dfx.getElementHeight(menu);
+                        var targetRect = dfx.getBoundingRectangle(target);
+                        dfx.setStyle(menu, 'left', (Math.max(10, targetRect.x2) + 'px'));
+                        dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, targetRect.y1) + 'px'));
+                    }
+                });
+            }//end if
+		}//end if
 
 		return container;
 	};
@@ -4573,7 +4578,7 @@ var JS_Asset_Map = new function() {
 	 *
 	 * @returns {Node}
 	 */
-	this.drawAddMenu = function(clear, parentid) {
+	this.drawAddMenu = function(clear, parentid, parentType) {
 		var self = this;
 		if (clear !== false) {
 			this.clearMenus();
@@ -4596,9 +4601,54 @@ var JS_Asset_Map = new function() {
 
 		// Load up the asset category names so we can sort them.
 		var assetCatSort = [];
-		for (i in assetCategories) {
-			assetCatSort.push(i);
-		}
+		var usedCats     = {};
+		var ungroupedAssets = [];
+
+		if (arguments.length < 2) {
+            for (i in assetCategories) {
+                assetCatSort.push(i);
+            }
+
+            for (typeCode in assetTypeCache) {
+                var catid = assetTypeCache[typeCode].flash_menu_path;
+                if (!catid) {
+                    // Ungrouped assets; typically folder.
+                    if ((Number(assetTypeCache[typeCode].instantiable) === 1) && (assetTypeCache[typeCode].allowed_access !== 'system')) {
+                        ungroupedAssets.push(typeCode);
+                    }
+                }
+            }
+        } else {
+            var links = assetTypeCache[parentType].allowed_links;
+            for (typeCode in assetTypeCache) {
+                var found = false;
+                if ((Number(assetTypeCache[typeCode].instantiable) === 1) && (assetTypeCache[typeCode].allowed_access !== 'system')) {
+                    for (linktype in links) {
+                        for (linktypeAsset in links[linktype]) {
+                            if ((typeCode === linktypeAsset) || (_isAncestorType(typeCode, linktypeAsset))) {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found === true) {
+                            break;
+                        }
+                    }//end for
+                }//end if
+
+                if (found === true) {
+                    var catid = assetTypeCache[typeCode].flash_menu_path;
+                    if (!catid) {
+                        // Ungrouped assets; typically folder.
+                        ungroupedAssets.push(typeCode);
+                    } else if (!usedCats[catid]) {
+                        assetCatSort.push(catid);
+                        usedCats[catid] = true;
+                    }
+                }
+            }
+        }//end if
 
 		assetCatSort.sort();
 
@@ -4616,7 +4666,7 @@ var JS_Asset_Map = new function() {
 
 				if ((existingMenu.length === 0) || (existingMenu[0].getAttribute('data-category') !== target.getAttribute('data-category'))) {
 					dfx.remove(existingMenu);
-					var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'), parentid);
+					var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'), parentid, parentType);
 					self.topDocumentElement(assetMapContainer).appendChild(submenu);
 					var elementHeight = self.topDocumentElement(assetMapContainer).clientHeight;
 					var submenuHeight = dfx.getElementHeight(submenu);
@@ -4628,27 +4678,33 @@ var JS_Asset_Map = new function() {
 		}
 
 		// Folder always sits at the bottom.
-		var menuItem = this.drawMenuItem('Folder', 'folder');
-		dfx.addEvent(menuItem, 'click', function(e) {
-			self.clearMenus();
-			if (parentid !== undefined) {
-				self.addAsset('folder', parentid, -1);
-			} else {
-				self.moveMe.enable(null, function(source, selection, e) {
-					self.moveMe.cancel();
-					self.cancelDrag();
-					var createMenu = self.drawCreateHereMenu(function() {
-						self.addAsset('folder', selection.parentid, selection.before);
-					});
-					e.stopImmediatePropagation();
-					self.topDocumentElement(assetMapContainer).appendChild(createMenu);
-					var mousePos = dfx.getMouseEventPosition(e);
-					dfx.setStyle(createMenu, 'left', (mousePos.x) + 'px');
-					dfx.setStyle(createMenu, 'top', (mousePos.y) + 'px');
-				});
-			}
+		ungroupedAssets.map(function(typeCode) {
+		    var type = assetTypeCache[typeCode];
+            var menuItem = self.drawMenuItem(type.name, typeCode);
+            menuItem.setAttribute('data-typecode', typeCode);
+
+            dfx.addEvent(menuItem, 'click', function(e) {
+                self.clearMenus();
+                if (parentid !== undefined) {
+                    self.addAsset(typeCode, parentid, -1);
+                } else {
+                    self.moveMe.enable(null, function(source, selection, e) {
+                        self.moveMe.cancel();
+                        self.cancelDrag();
+                        var createMenu = self.drawCreateHereMenu(function() {
+                            self.addAsset(typeCode, selection.parentid, selection.before);
+                        });
+                        e.stopImmediatePropagation();
+                        self.topDocumentElement(assetMapContainer).appendChild(createMenu);
+                        var mousePos = dfx.getMouseEventPosition(e);
+                        dfx.setStyle(createMenu, 'left', (mousePos.x) + 'px');
+                        dfx.setStyle(createMenu, 'top', (mousePos.y) + 'px');
+                    });
+                }
+            });
+
+            container.appendChild(menuItem);
 		});
-		container.appendChild(menuItem);
 
 		return container;
 	};
@@ -4665,7 +4721,7 @@ var JS_Asset_Map = new function() {
 	 *
 	 * @returns {Node}
 	 */
-	this.drawAssetTypeMenu = function(category, parentid) {
+	this.drawAssetTypeMenu = function(category, parentid, parentType) {
 		var self = this;
 		this.clearMenus('subtype');
 		var container = _createEl('div');
@@ -4679,11 +4735,38 @@ var JS_Asset_Map = new function() {
 
 		// Load up the asset type names so we can sort them.
 		var assetTypeSort = [];
-		for (var i = 0; i < assetCategories[category].length; i++) {
-			var typeCode = assetCategories[category][i];
-			var type     = assetTypeCache[typeCode];
-			assetTypeSort.push(type);
-		}
+        if (!parentid) {
+		    for (var i = 0; i < assetCategories[category].length; i++) {
+                var typeCode = assetCategories[category][i];
+		        var type     = assetTypeCache[typeCode];
+		        assetTypeSort.push(type);
+		    }
+		} else {
+            var links = assetTypeCache[parentType].allowed_links;
+            for (var i = 0; i < assetCategories[category].length; i++) {
+                var typeCode = assetCategories[category][i];
+                var found = false;
+                if ((Number(assetTypeCache[typeCode].instantiable) === 1) && (assetTypeCache[typeCode].allowed_access !== 'system')) {
+                    for (linktype in links) {
+                        for (linktypeAsset in links[linktype]) {
+                            if ((typeCode === linktypeAsset) || (_isAncestorType(typeCode, linktypeAsset))) {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found === true) {
+                            break;
+                        }
+                    }//end for
+                }//end if
+
+                if (found === true) {
+                    var type = assetTypeCache[typeCode];
+                    assetTypeSort.push(type);
+                }
+            }//end for
+        }//end if
 
 		assetTypeSort.sort(function(a, b) {
 			if (a.name > b.name) {
@@ -4927,7 +5010,7 @@ var JS_Asset_Map = new function() {
 						}
 					}
 				};
-				
+
 				var mainWin      = JS_Asset_Map.getUseMeFrame();
 				var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
 				if (JS_Asset_Map.isInUseMeMode(name) === true) {
@@ -4946,7 +5029,6 @@ var JS_Asset_Map = new function() {
 					}
 		
 					changeButton.setAttribute('value', js_translate('Cancel'));
-
 					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, false, function() {
 							closeOnExit();
 							if (dfx.isFn(doneCallback) === true) {
