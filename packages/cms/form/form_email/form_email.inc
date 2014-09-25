@@ -20,6 +20,11 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 
+
+define('SQ_FORM_ACTION_BEFORE_CREATE', 1);
+define('SQ_FORM_ACTION_BEFORE_SUBMIT', 2);
+define('SQ_FORM_ACTION_AFTER_SUBMIT', 3);
+
 /**
 * Form_Email
 *
@@ -344,6 +349,31 @@ class Form_Email extends Form
 
 
 	/**
+	* Actions to carry out before creating the form submission
+	* Applies to single page form only
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected function _preCreateForm()
+	{
+		// For multi page form, 'before create' actions will execute before finishing the submission
+		/// See: self::_preFinishForm()
+		if ($this->getTotalPages(FALSE) > 1) {
+			return TRUE;
+		}
+
+		// Perform submission actions that are to be executed before finishing the form
+		if (!$this->performSubmissionActions(SQ_FORM_ACTION_BEFORE_CREATE)) {
+			return FALSE;
+		}
+
+		return parent::_preCreateForm();
+
+	}//end _preCreateForm()
+
+
+	/**
 	* Actions to carry out before finishing the form submission
 	*
 	* @return boolean
@@ -351,8 +381,13 @@ class Form_Email extends Form
 	*/
 	protected function _preFinishForm()
 	{
+		// Execute the 'before create' actions for multi page form
+		if ($this->getTotalPages(FALSE) > 1 && !$this->performSubmissionActions(SQ_FORM_ACTION_BEFORE_CREATE)) {
+			return FALSE;
+		}
+
 		// Perform submission actions that are to be executed before finishing the form
-		if (!$this->performSubmissionActions(TRUE)) {
+		if (!$this->performSubmissionActions(SQ_FORM_ACTION_BEFORE_SUBMIT)) {
 			return FALSE;
 		}
 
@@ -378,7 +413,7 @@ class Form_Email extends Form
 		$this->sendToFriends();
 
 		// Perform submission actions that are to be executed after finishing the form
-		$this->performSubmissionActions();
+		$this->performSubmissionActions(SQ_FORM_ACTION_AFTER_SUBMIT);
 
 		// Perform selective actions
 		$this->runSelectiveEmails();
@@ -725,10 +760,11 @@ class Form_Email extends Form
 	/**
 	* Perform any submission actions that are valid and active
 	*
-	* @param boolean	$before_submit	perform action before form gets submitted?
-	* @return void
+	* @param int $submit_at	At what point to run the form actions
+	*
+	* @return boolean
 	*/
-	public function performSubmissionActions($before_submit = FALSE)
+	public function performSubmissionActions($submit_at=SQ_FORM_ACTION_AFTER_SUBMIT)
 	{
 		$success = TRUE;
 		$actions = $this->attr('actions');
@@ -736,10 +772,14 @@ class Form_Email extends Form
 			$action_type = $action['type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
 
-			// If need to perform 'before_submit' actions, skip those 'after_submit' action
-			if ($before_submit && !isset($action['settings']['before_submit'])) continue;
-			// If need to perform 'after_submit' actions, skip those 'before_submit' action
-			if (!$before_submit && isset($action['settings']['before_submit'])) continue;
+			// If need to perform 'before create' actions, skip other actions
+			if ($submit_at == SQ_FORM_ACTION_BEFORE_CREATE && !isset($action['settings']['before_create'])) continue;
+
+			// If need to perform 'before submit' actions, skip other actions
+			if ($submit_at == SQ_FORM_ACTION_BEFORE_SUBMIT && !isset($action['settings']['before_submit'])) continue;
+
+			// If need to perform 'after submit' actions, skip other actions
+			if ($submit_at == SQ_FORM_ACTION_AFTER_SUBMIT && (isset($action['settings']['before_create']) || isset($action['settings']['before_submit']))) continue;
 
 			if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $this, $action['settings'])) {
 				$success &= call_user_func(Array($action_type, 'execute'), $this, $action['settings'], $action_id);

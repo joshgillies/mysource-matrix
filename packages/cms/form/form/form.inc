@@ -1892,7 +1892,7 @@ class Form extends Asset implements Bridge
 				$success = $this->processPage($current_page, $validate_page, $mute_errors);
 
 				// Run the step submission actions for current page, if any
-				$success = $success && (!$validate_page || $this->performFormSectionActions($current_page)) && empty($this->submission_errors);
+				$success = $success && (!$validate_page || $this->performFormSectionActions($current_page)) && empty($this->submission_errors) && $this->_preCreateForm();
 
 				if ($success) {
 
@@ -2720,9 +2720,11 @@ class Form extends Asset implements Bridge
 	*
 	* In either case, if the confirmation page is enabled, add one page.
 	*
+	* @param boolean $count_conformation_page
+	*
 	* @return int
 	*/
-	public function getTotalPages()
+	public function getTotalPages($count_conformation_page=TRUE)
 	{
 		if ($this->attr('multi_page')) {
 			$pages = $this->getSectionCount() + ($this->getQuestionCount() > 0 ? 1 : 0);
@@ -2731,7 +2733,7 @@ class Form extends Asset implements Bridge
 		}
 
 		// if confirmation page exists, add 1 page
-		if ($this->attr('use_confirmation_page')) {
+		if ($count_conformation_page && $this->attr('use_confirmation_page')) {
 			$pages++;
 		}
 
@@ -3692,6 +3694,20 @@ class Form extends Asset implements Bridge
 		unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 
 	}//end finishForm()
+
+
+	/**
+	* Actions to carry out before creating the form submission
+	* Applies to single page form only
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected function _preCreateForm()
+	{
+			return TRUE;
+
+	}//end _preCreateForm()
 
 
 	/**

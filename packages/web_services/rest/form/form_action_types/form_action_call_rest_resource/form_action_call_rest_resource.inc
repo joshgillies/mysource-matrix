@@ -228,16 +228,18 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 		}//end if
 
 		// if validation is enabled, we need to run this submission action before submitting the form so that
-		// a validation failure can be picked up and prevent the form from being submitted.
+		// a validation failure can be picked up and prevent the form submission from being submitted.
 		// if the validation is not enabled, then we just need to run this submission action at the normal timing
 		// after submitting the form along with other submission actions.
+		// When validation is enabled, for single page form this action will run before submission is created 
+		// for multi page form, it will run before form is submitted.
 		if ($settings['validation_enabled']) {
-			$settings['before_submit'] = TRUE;
+			$settings['before_create'] = TRUE;
 		} else {
 			// whether the submission action should be run or not is checked by the existence of
-			// the 'before_submit' key, so, we'll remove the key from settings if we don't have to validate
+			// the 'before_create' key, so, we'll remove the key from settings if we don't have to validate
 			// so that this action will run after submitting the form
-			unset($settings['before_submit']);
+			unset($settings['before_create']);
 		}
 
 		return TRUE;
@@ -562,7 +564,6 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 					self::_addFormKeywordReplacements($form, $target_value, $replacements);
 					replace_keywords($target_value, $replacements);
 					replace_global_keywords($target_value);
-					log_dump($target_value);
 					break;
 				default:
 					$target_value = NULL;
