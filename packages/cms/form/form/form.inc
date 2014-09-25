@@ -1981,11 +1981,14 @@ class Form extends Asset implements Bridge
 			}
 
 			if (!$finished) {
-				echo $this->getFormHeader();
+				
 				// Print the current page or the Confirmation Page if we're confirming things
 				$total_pages = $this->getTotalPages();
+				$use_confirmation = ($current_page == $total_pages) && $this->attr('use_confirmation_page');
 
-				if (($current_page == $total_pages) && $this->attr('use_confirmation_page')) {
+				echo $this->getFormHeader($use_confirmation);
+
+				if ($use_confirmation) {
 					echo $this->getConfirmationPageContents();
 				}
 				else {
@@ -2018,17 +2021,17 @@ class Form extends Asset implements Bridge
 	/**
 	* Returns the header of the form, ie. the start form tags and anything else
 	* needed by them
-	*
+	* @param int	$use_confirmation	No need to print JS validation code on confirmation page
 	* @return string
 	*/
-	public function getFormHeader()
+	public function getFormHeader($use_confirmation = FALSE)
 	{
 		$form_prefix = $this->getPrefix();
 		$form_action = $this->getFormAction();
 
 		$header = '';
 		$extra_attribute = $this->attr('form_extra_attribute');
-		if ($this->attr('use_client_side')) {
+		if ($this->attr('use_client_side') && !$use_confirmation) {
 			$on_submit = 'onsubmit="return beforeSubmit_'.$form_prefix.'(this);"';
 			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.' '.$extra_attribute.' >';
 			$header .= $this->getClientSideFunction();

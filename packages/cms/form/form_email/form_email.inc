@@ -132,13 +132,14 @@ class Form_Email extends Form
 	*
 	* Form Email adds a hidden URL field specifying the referral URL, which can
 	* be used by emails (in particular, generic send-to-a-friend type emails).
+	* @param int	$use_confirmation	No need to print JS validation code on confirmation page
 	*
 	* @return boolean
 	* @access public
 	*/
-	function getFormHeader()
+	function getFormHeader($use_confirmation = FALSE)
 	{
-		$header = parent::getFormHeader();
+		$header = parent::getFormHeader($use_confirmation);
 
 		$prefix = $this->getPrefix();
 
