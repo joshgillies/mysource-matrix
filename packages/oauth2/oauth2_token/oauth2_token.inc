@@ -290,13 +290,21 @@ class Oauth2_Token extends Page
 	    $token = Array();
 	    $token['access_token'] = $info['access_token'];
 	    if(isset($info['expires']))
-		$expire = $info['expires'];
+			$expire = $info['expires'];
 	    if(isset($info['expires_in']))
-		$expire = $info['expires_in'];
+			$expire = $info['expires_in'];
+
+		// if we have override expiry setting
+		$override_expiry = $this->attr('token_expiry');
+		if($override_expiry > 0) {
+			$expire = $override_expiry;
+		}
+
 	    if(isset($expire))
-		$token['expires_at'] = time() + $expire;
-	     if(isset($info['refresh_token']))
-		 $token['refresh_token'] = $info['refresh_token'];
+			$token['expires_at'] = time() + $expire;
+	    if(isset($info['refresh_token']))
+			$token['refresh_token'] = $info['refresh_token'];
+
 	    $this->saveTokenToStorage($token);
 	    
 	    return ($token);

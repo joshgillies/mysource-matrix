@@ -57,6 +57,9 @@
 		<field attribute="verify_ssl_peer">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="token_expiry">
+			<int />
+		</field>
 	</section>
 	<section name="Access Token" write_access="write:attributes">
     		<field attribute="token_storage">
