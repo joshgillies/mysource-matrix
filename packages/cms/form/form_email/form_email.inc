@@ -743,6 +743,8 @@ class Form_Email extends Form
 
 			if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $this, $action['settings'])) {
 				$success &= call_user_func(Array($action_type, 'execute'), $this, $action['settings'], $action_id);
+				// if a submission action fails, we must stop rest of actions
+				if(!$success) break;
 			}
 		}
 
