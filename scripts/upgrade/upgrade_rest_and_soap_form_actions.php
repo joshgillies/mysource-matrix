@@ -76,7 +76,7 @@ foreach($assetids as $assetid) {
 		if (!$report_only) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 				$form->setAttrValue('actions', $actions);
-				$form->saveAttributes();
+				$form->saveAttributes(TRUE);
 			 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			 echo ".";
 		} else {
