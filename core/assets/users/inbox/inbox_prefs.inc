@@ -33,7 +33,6 @@ class Inbox_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_INBOX_MAIL_PER_PAGE'	=> Array(
-														'name'			=> 'inbox_pref_backend_mail_per_page',
 														'description'	=> 'You can specify the number of emails per page',
 														'default'		=> 20,
 														'protected'		=> FALSE,
@@ -69,7 +68,7 @@ class Inbox_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_INBOX_MAIL_PER_PAGE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_INBOX_MAIL_PER_PAGE']['name']));
+				$o->openField(translate('Messages per page'));
 			}
 
 			if ($have_lock && $is_admin) {

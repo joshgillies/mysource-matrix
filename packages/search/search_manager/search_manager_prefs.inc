@@ -74,15 +74,17 @@ class Search_Manager_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (is_null($pref) || $pref == 'SQ_SEARCH_BACKEND_PAGE_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE']['name']));
+				$o->openField(translate('Backend Search Page Size'));
 			}
 
 			if ($have_lock && $is_admin) {
+			    ob_start();
 				text_box('prefs[SQ_SEARCH_BACKEND_PAGE_SIZE]', $this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE']['default'], 10);
+				$repl = ob_get_clean();
 			} else {
-				echo array_get_index($this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE'], 'default', 5);
+				$repl = array_get_index($this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE'], 'default', 5);
 			}
-			echo ' '.translate('asset(s)');
+			echo sprintf(translate('%s asset(s)'), $repl);
 
 
 			echo $o->note(translate('Sets how many assets will be shown per page when a keyword search is peformed through the Quick Search box.'));
@@ -92,7 +94,7 @@ class Search_Manager_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_SEARCH_BACKEND_RESULT_LIMIT') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT']['name']));
+				$o->openField(translate('Backend Search Result Limit'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -101,9 +103,8 @@ class Search_Manager_Prefs extends Prefs
 				$result_limit = array_get_index($this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT'], 'default', 0);
 				if ($result_limit == '0') {
 					echo translate('Unlimited');
-
 				} else {
-					echo $result_limit.' '.translate('asset(s)');
+					echo sprintf(translate('%s asset(s)'), $result_limit);
 
 				}
 			}

@@ -69,7 +69,7 @@ class Site_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['name']));
+				$o->openField(translate('Child Creation Type 2 Link Restriction'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -81,7 +81,7 @@ class Site_Prefs extends Prefs
 				}
 				echo '</ul>';
 			}
-			echo '<div class="sq-backend-note">'.$this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['description'].'</div>';
+			echo '<div class="sq-backend-note">'.translate('Link type options prior to asset creation will be restricted to a TYPE 2 link for any asset to be located anywhere under the specified Site Asset IDs. Link type can still be changed after creation e.g. via Linking Screen.').'</div>';
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
@@ -105,7 +105,7 @@ class Site_Prefs extends Prefs
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$is_admin || !$have_lock) return FALSE;
-		
+
 		if (is_null($pref) || $pref == 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT') {
 			if (isset($_POST['prefs']['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT'])) {
 				$site_assets = $_POST['prefs']['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT'];
@@ -115,7 +115,7 @@ class Site_Prefs extends Prefs
 						$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_info['assetid'], 'site');
 						if (!empty($type_info)) $save_assets[] = $asset_info['assetid'];
 					}//end if
-				}//end foreach 			
+				}//end foreach
 				$this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['default'] = $save_assets;
 			}
 		}

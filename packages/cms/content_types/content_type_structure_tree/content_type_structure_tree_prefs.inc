@@ -85,7 +85,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_FORMATTING') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['name']));
+				$o->openField(translate('Structured Tree Formatting Options'));
 			}
 				$format_options = $this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default'];
 				?>
@@ -197,16 +197,20 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 		}//end if
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_NODE_CLASSES') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['name']));
+				$o->openField(translate('Structured Tree CSS Classes'));
 			}
 				$classes = $this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['default'];
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 				<?php
+				    $class_text = Array(
+				                   'node_text'     => translate('Node Text'),
+				                   'node_branches' => translate('Node Branches'),
+				                  );
 					foreach ($classes as $name => $class) {
 				?>
 						<tr>
-							<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate($name); ?></td>
+							<td class="sq-backend-table-header" nowrap="nowrap"><?php echo $class_text[$name]; ?></td>
 							<td class="sq-backend-table-cell" style="width: 100%;">
 							<?php
 								if ($have_lock && $is_admin) {

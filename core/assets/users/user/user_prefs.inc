@@ -129,7 +129,7 @@ class User_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_USER_SESSION_PREFS']['name']));
+				$o->openField(translate('Session Expiry Rules'));
 			}
 			$session_settings = $this->pref_vars['SQ_USER_SESSION_PREFS']['default'];
 			?>
@@ -310,7 +310,7 @@ class User_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_LINEAGE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['name']));
+				$o->openField(translate('Asset Map Root Asset'));
 			}
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
@@ -344,7 +344,7 @@ class User_Prefs extends Prefs
 		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_SAFE_TYPE3_TRASH') {
-		if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['name']));
+		if (is_null($pref)) $o->openField(translate('Safe Trash'));
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php
@@ -367,7 +367,7 @@ class User_Prefs extends Prefs
 
 
 		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
-			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['name']));
+			if (is_null($pref)) $o->openField(translate('Asset Map Width'));
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php
@@ -397,13 +397,13 @@ class User_Prefs extends Prefs
 		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_COMMIT_BUTTON_POS') {
-			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['name']));
+			if (is_null($pref)) $o->openField(translate('Commit Button Position'));
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php
 				$options = Array(
-								FALSE	=> 'Bottom of page',
-								TRUE	=> 'Anchored to bottom of frame',
+								FALSE	=> translate('Bottom of page'),
+								TRUE	=> translate('Anchored to bottom of frame'),
 							   );
 
 				$position = $this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['default'];
@@ -422,22 +422,22 @@ class User_Prefs extends Prefs
 		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_LIMBO_HIDE_FRAMES') {
-			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['name']));
+			if (is_null($pref)) $o->openField(translate('Hide frames in the Simple Edit Interface?'));
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php
 				$options = Array(
-								FALSE	=> 'Do not hide frames',
-								TRUE	=> 'Hide frames',
+								FALSE	=> translate('Do not hide frames'),
+								TRUE	=> translate('Hide frames'),
 								);
 				$hide_frames = $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'];
 				if ($have_lock && $is_admin) {
 					combo_box('prefs[SQ_USER_LIMBO_HIDE_FRAMES]', $options, FALSE, $hide_frames, 0, 'id="prefs_SQ_USER_LIMBO_HIDE_FRAMES"');
-					$o->note('If set to "Do not hide frames", Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.');
-				} else {
+                } else {
 					echo $options[$hide_frames];
-					$o->note('If set to "Do not hide frames", Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.');
 				}
+
+				$o->note(translate('If set to "Do not hide frames", Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.'));
 			?>
 			</div>
 			<?php
@@ -446,7 +446,7 @@ class User_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_USER_ATTRIBUTE_IMAGE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['name']));
+				$o->openField(translate('Settings for using Image keyword replacements'));
 			}
 			$attribute_settings = $this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['default'];
 			?>
@@ -563,10 +563,10 @@ class User_Prefs extends Prefs
 
 
 		if (is_null($pref) || $pref == 'SQ_USER_SET_CONTEXT_ON_LOGIN') {
-			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['name']));
+			if (is_null($pref)) $o->openField(translate('Set context on login'));
 			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			$options = Array(
-						'default'	=> 'Do not change context on login',
+						'default'	=> translate('Do not change context on login'),
 						'sep'		=> '-----------',
 					   );
 			foreach ($contexts as $contextid => $context_data) {
@@ -607,13 +607,13 @@ class User_Prefs extends Prefs
 		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_FILTER_FRONT_END_INPUT') {
-			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['name']));
+			if (is_null($pref)) $o->openField(translate('Filter Front End User Input'));
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php
 				$options = Array(
-								FALSE	=> 'Do not filter input',
-								TRUE	=> 'Filter input',
+								FALSE	=> translate('Do not filter input'),
+								TRUE	=> translate('Filter input'),
 								);
 				$filter_input = $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['default'];
 				if ($have_lock && $is_admin) {
@@ -621,7 +621,7 @@ class User_Prefs extends Prefs
 				} else {
 					echo $options[$filter_input];
 				}
-				$o->note('If set to "Filter Input", Matrix will '.$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['description']);
+				$o->note(translate('If set to "Filter Input", Matrix will filter (strip keywords, strip script tags and escape HTML) any input by the user from the front end.'));
 			?>
 			</div>
 			<?php

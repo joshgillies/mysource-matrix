@@ -122,7 +122,7 @@ class Content_Type_Image_Prefs extends Prefs
 		$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_DEFAULTS') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['name']));
+				$o->openField(translate('Image Content Type Value Defaults'));
 			}
 				$value_defaults = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['default'];
 				?>
@@ -254,7 +254,7 @@ class Content_Type_Image_Prefs extends Prefs
 		}//end if
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_FIELDS') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_CONTENT_TYPE_IMAGE_FIELDS']['name']));
+				$o->openField(translate('Image Fields to Show'));
 			}
 			$fields = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_FIELDS']['default'];
 			?>
@@ -287,7 +287,7 @@ class Content_Type_Image_Prefs extends Prefs
 		if (is_null($pref)) $o->closeField();
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_CLASSES') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_CONTENT_TYPE_IMAGE_CLASSES']['name']));
+				$o->openField(translate('Image CSS Classes'));
 			}
 			$classes = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default'];
 			?>
@@ -317,7 +317,7 @@ class Content_Type_Image_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_PREVIEW') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['name']));
+				$o->openField(translate('Image Preview CSS Classes'));
 			}
 			$classes = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default'];
 			?>

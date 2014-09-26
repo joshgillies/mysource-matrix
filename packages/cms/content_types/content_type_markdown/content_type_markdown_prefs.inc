@@ -73,7 +73,7 @@ class Content_Type_Markdown_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (is_null($pref) || $pref == 'SQ_MARKDOWN_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_MARKDOWN_SIZE']['name']));
+				$o->openField(translate('Markdown Editor Size'));
 			}
 				$markdown_size = $this->pref_vars['SQ_MARKDOWN_SIZE']['default'];
 				?>

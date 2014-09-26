@@ -174,7 +174,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {
 
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['name']));
+				$o->openField(translate('Enable Edit+ Editor in Admin Mode'));
 			}
 
 			$pref_var =& $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'];
@@ -197,7 +197,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_VIPER_PLUGINS') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_VIPER_PLUGINS']['name']));
+				$o->openField(translate('Edit+ Editor Plugins'));
 			}
 
 			$viper_plugins = Array();
@@ -231,7 +231,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_STYLE']['name']));
+				$o->openField(translate('WYSIWYG Style'));
 			}
 
 				$wysiwyg_style = $this->pref_vars['SQ_WYSIWYG_STYLE']['default'];
@@ -320,7 +320,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {
 
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['name']));
+				$o->openField(translate('Apply CSS Styles'));
 			}
 
 			$pref_var =& $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'];
@@ -342,7 +342,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_PLUGINS']['name']));
+				$o->openField(translate('WYSIWYG Plugins'));
 			}
 
 			$plugins = Array();
@@ -399,7 +399,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['name']));
+				$o->openField(translate('WYSIWYG Disable Image Resize'));
 			}
 				$wysiwyg_disable_image_resize = $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'];
 				?>
@@ -429,7 +429,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('thesaurus') && (is_null($pref) || $pref == 'SQ_THESAURUS')) {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_THESAURUS']['name']));
+				$o->openField(translate('Thesaurus'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -452,7 +452,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			$pref_var =& $this->pref_vars['SQ_WYSIWYG_LINK_TYPES'];
 
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['name']));
+				$o->openField(translate('Protocol Templates'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -537,7 +537,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {
 
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_LIVE_LINK_ONLY']['name']));
+				$o->openField(translate('In Live Asset, Only Allow Creating Hyperlink to Live Asset'));
 			}
 
 			$pref_var =& $this->pref_vars['SQ_LIVE_LINK_ONLY']['default'];

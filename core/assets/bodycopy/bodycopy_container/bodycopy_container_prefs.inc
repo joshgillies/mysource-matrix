@@ -86,7 +86,7 @@ class Bodycopy_Container_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_DEFAULT_CONTENT_TYPE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['name']));
+				$o->openField(translate('Default Content Type'));
 			}
 
 				$default_content_type = $this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['default'];
@@ -122,7 +122,7 @@ class Bodycopy_Container_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_DEFAULT_PRESENTATION_TYPE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['name']));
+				$o->openField(translate('Default Presentation Type'));
 			}
 
 				$default_pres_type = $this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['default'];
@@ -149,7 +149,7 @@ class Bodycopy_Container_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_CREATE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_DIV_DISABLE_CREATE']['name']));
+				$o->openField(translate('Disable Creating Content Containers'));
 			}
 				$div_disable_create = $this->pref_vars['SQ_DIV_DISABLE_CREATE']['default'];
 				?>
@@ -190,7 +190,7 @@ class Bodycopy_Container_Prefs extends Prefs
 					<tr>
 						<td class="sq-backend-table-header" nowrap="nowrap">
 						<?php
-							echo translate('Disable');
+							echo translate('Disable Deleting Content Containers');
 
 						?>
 						</td>

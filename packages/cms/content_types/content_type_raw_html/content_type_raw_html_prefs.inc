@@ -73,7 +73,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (is_null($pref) || $pref == 'SQ_RAW_HTML_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_RAW_HTML_SIZE']['name']));
+				$o->openField(translate('Raw HTML Editor Size'));
 			}
 				$html_size = $this->pref_vars['SQ_RAW_HTML_SIZE']['default'];
 				?>

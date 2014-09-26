@@ -244,7 +244,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentInputSizeBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate($this->pref_vars['SQ_COMMENT_INPUT_SIZE']['name']));
+			$o->openField(translate('Input Box Size'));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -301,7 +301,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentMaxLengthBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate($this->pref_vars['SQ_COMMENT_MAX_LENGTH']['name']));
+			$o->openField(translate('Maximum Comment Length'));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -338,7 +338,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate($this->pref_vars[$pref_name]['name']));
+			$o->openField(translate('HTML in comments'));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -374,7 +374,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentDisableKeywordReplacementsBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate($this->pref_vars[$pref_name]['name']));
+			$o->openField(translate('Disable Keyword Replacements'));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -410,7 +410,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentMaxRatingBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate($this->pref_vars[$pref_name]['name']));
+			$o->openField(translate('Maximum Rating'));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -614,7 +614,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentImgRatedBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate($this->pref_vars[$pref_name]['name']));
+			$o->openField(translate('Rated Image'));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -691,7 +691,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentImgBlankBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate($this->pref_vars[$pref_name]['name']));
+			$o->openField(translate('Blank Image'));
 		} else {
 			$o->openField('&nbsp;');
 		}

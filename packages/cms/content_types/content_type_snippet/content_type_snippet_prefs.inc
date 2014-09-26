@@ -75,7 +75,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 		// print the asset finder for admin to set snippet root node
 		if (is_null($pref) || $pref == 'SQ_SNIPPET_ROOT') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_SNIPPET_ROOT']['name']));
+				$o->openField(translate('Snippet Root Node'));
 			}
 			?>
 
@@ -109,7 +109,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 		// Allows Turn Off Keywords Permission Check
 		if (is_null($pref) || $pref == 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['name']));
+				$o->openField(translate('Snippet Keywords Permission Check'));
 			}
 
 			$value = $this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default'];

@@ -67,7 +67,7 @@ class Calendar_Event_Recurring_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_CALENDAR_EVENTS_FREQUENCY') {
 			if (is_null($pref)) {
-				$o->openField("Events frequency threshold");
+				$o->openField(translate('Events frequency threshold'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -75,8 +75,8 @@ class Calendar_Event_Recurring_Prefs extends Prefs
 			} else {
 				echo array_get_index($this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY'], 'default', 5);
 			}
-			
-			 echo '<div class="sq-backend-note">'.$this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY']['description'].'</div>';
+
+			 echo '<div class="sq-backend-note">'.translate('Recurrence event frequency threshold in days. If set to a non-zero positive value, the recurring event will be displayed only once in listing pages when its frequency is less than the specified threshold value.').'</div>';
 
 			if (is_null($pref)) $o->closeField();
 		}//end if
@@ -107,18 +107,18 @@ class Calendar_Event_Recurring_Prefs extends Prefs
 
 			// Not an integer = user mistake, or possible script injection?
 			if (!is_numeric($_POST['prefs']['SQ_CALENDAR_EVENTS_FREQUENCY'])) {
-				trigger_error("Recurring events frequency threshold must be an integer", E_USER_WARNING);
+				trigger_error('Recurring events frequency threshold must be an integer', E_USER_WARNING);
 				return FALSE;
 			}
 			$frequency_threshold = (int)$_POST['prefs']['SQ_CALENDAR_EVENTS_FREQUENCY'];
 
 			// Frequency threshold shouldnt be than zero
 			if ($frequency_threshold < 0) {
-				trigger_error("Recurring events frequency threshold must be an integer", E_USER_WARNING);
+				trigger_error('Recurring events frequency threshold must be an integer', E_USER_WARNING);
 				return FALSE;
 			}
 
-			$this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY']['default'] = $frequency_threshold;			
+			$this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY']['default'] = $frequency_threshold;
 		}
 
 		return TRUE;

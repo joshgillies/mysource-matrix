@@ -128,7 +128,7 @@ class File_Prefs extends Prefs
 		// Max File Size Upload
 		if (is_null($pref) || $pref == 'SQ_FILE_MAX_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate( $this->pref_vars['SQ_FILE_MAX_SIZE']['name']));
+				$o->openField(translate('Max File Upload'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -169,7 +169,7 @@ class File_Prefs extends Prefs
 		// Max Pre-uploaded File Size
 		if (is_null($pref) || $pref == 'SQ_FILE_PREUPLOADED_MAX_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['name']));
+				$o->openField(translate('Pre-uploaded Max File Size'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -196,7 +196,7 @@ class File_Prefs extends Prefs
 		// Allow No Extension
 		if (is_null($pref) || $pref == 'SQ_FILE_ALLOW_NO_EXTENSION') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['name']));
+				$o->openField(translate('Allow File with No Extension'));
 			}
 
 			$value = $this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['default'];
@@ -214,7 +214,7 @@ class File_Prefs extends Prefs
 		// Allowed File Extensions
 		if (is_null($pref) || $pref == 'SQ_FILE_ALLOWED_TYPES') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_FILE_ALLOWED_TYPES']['name']));
+				$o->openField(translate('Allowed File Extensions to Upload'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -244,7 +244,7 @@ class File_Prefs extends Prefs
 		// Allowed File Extensions for Pre-uploaded
 		if (is_null($pref) || $pref == 'SQ_FILE_ALLOWED_PREUPLOADED_TYPES') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['name']));
+				$o->openField(translate('Allowed File Extensions for Pre-Uploaded files'));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -274,7 +274,7 @@ class File_Prefs extends Prefs
 		// File summary defination
 		if (is_null($pref) || $pref == 'SQ_FILE_ASSET_SUMMARY') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_FILE_ASSET_SUMMARY']['name']));
+				$o->openField(translate('File Summary Format'));
 			}
 
 			if ($have_lock && $is_admin) {
