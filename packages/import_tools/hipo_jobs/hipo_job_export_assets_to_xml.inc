@@ -970,8 +970,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		    preg_match_all($re, $value, $condition_matches, PREG_SET_ORDER);
 		    $matches += $condition_matches;
 		}
-		
-		
+
 		$searches = array();
 		$replaces = array();
 		foreach ($matches as $match) {
@@ -982,8 +981,20 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				$globals_processed = TRUE;
 			}
 		}
-		
-		
+
+		// Fix the question assetid in the form content's sort order attribute
+		if ($attribute_name === 'sort_order' && ($asset_type === 'form_email' || $asset_type === 'form_section')) {
+			preg_match_all('!\'(?P<id>\d+)(:q\d+)\'!msi', $value, $matches, PREG_SET_ORDER);
+			foreach($matches as $match) {
+				$id = $match['id'];
+				if (isset($this->_running_vars['asset_id_map'][$id])) {
+					$searches[] = $match[0];
+					$replaces[] = "'".'[[output://create_'.$this->_running_vars['asset_id_map'][$id].'.assetid]]'.$match[2]."'";
+					$globals_processed = TRUE;
+				}//end if
+			}//end foreach
+		}
+
 		if ($globals_processed) {
 			$value = str_replace($searches, $replaces, $value);
 		}
