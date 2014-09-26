@@ -2881,9 +2881,9 @@ class MySource extends MySource_Object
 
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group = $this->am->getSystemAsset('system_user_group');
-		$sys_admins = $this->am->getLinks($sys_admin_group->id, SQ_LINK_TYPE_1);
-		foreach ($sys_admins as $data) {
-			if ($data['minorid'] == $user->id) return TRUE;
+		$sys_admins = $this->am->getChildren($sys_admin_group->id, '', TRUE, NULL, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, Array(SQ_LINK_TYPE_1), TRUE);
+		foreach (array_keys($sys_admins) as $user_asset_id) {
+			if ($user_asset_id == $user->id) return TRUE;
 		}
 		return FALSE;
 

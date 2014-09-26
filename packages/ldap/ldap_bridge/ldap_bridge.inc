@@ -267,6 +267,7 @@ class LDAP_Bridge extends Asset implements Bridge
 			}
 
 			$required_attrs = $this->attr('attributes');
+			$member_attribute = !empty($required_attrs['gm']) ? $required_attrs['gm'] : '';
 			$shadowid = $this->decodeString($shadowid);
 			if (!$get_all_attr) {
 				$user_attrs = $this->attr('user_attributes');
@@ -278,9 +279,9 @@ class LDAP_Bridge extends Asset implements Bridge
 										Array('objectclass')
 							);
 
-				$result = $ldap->searchEntries($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_values(array_unique($attr_req)));
+				$result = $ldap->searchEntries($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_values(array_unique($attr_req)), Array(), $member_attribute);
 			} else {
-				$result = $ldap->searchEntries($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
+				$result = $ldap->searchEntries($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, Array(), Array(), $member_attribute);
 			}
 
 			// Save the LDAP search result to cache

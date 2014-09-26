@@ -148,16 +148,55 @@ $tables = Array(
 				'values'		=> Array('term'),
 				'asset_assoc'	=> FALSE,
 			),
+			Array(
+				'table'			=> 'ast_lookup',
+				'values'		=> Array('url'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'ast_lookup_remap',
+				'values'		=> Array('url', 'remap_url'),
+				'asset_assoc'	=> FALSE,
+			),
+			Array(
+				'table'			=> 'ast_lookup_value',
+				'values'		=> Array('url', 'name'),
+				'asset_assoc'	=> FALSE,
+			),
+			Array(
+				'table'			=> 'ast_url',
+				'values'		=> Array('url'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'cache',
+				'values'		=> Array('url'),
+				'asset_assoc'	=> TRUE,
+			),
 	);
 
 $TABLES = getCLIArg('skip-tables');
 if (!empty($TABLES)) {
 	$skip_tables = explode(',', $TABLES);
+	$relevant_tables = Array();
 	foreach($tables as $index => $table_data) {
 		if (in_array($table_data['table'], $skip_tables)) {
 			unset($tables[$index]);
 		}//end if
+		$relevant_tables[] = $table_data['table'];
 	}//end forach
+
+	// Warn if the specified table is not relevant to this script
+	$invalid_tables = array_diff($skip_tables, $relevant_tables);
+	if (!empty($invalid_tables)) {
+		echo "WARNING: Unrecognised table name(s) entered in 'skip-tables' parameter. Make sure you are not using 'sq_' or 'sq_rb_' prefix:\n".implode($invalid_tables, "\n");
+		echo "\nContinue [y/N] ? ";
+		$response = trim(fgets(STDIN, 1024));
+		if (strtolower($response) != 'y') {
+			echo "\nAborting\n";
+			exit();
+		}
+	}
 }
 
 if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
@@ -379,11 +418,18 @@ function fix_db($root_node, $tables, $rollback)
 	$sql = "SELECT attrid FROM sq_ast_attr WHERE type IN ('".implode("','", $serialsed_attrs)."')";
 	$serialise_attrids = array_keys(MatrixDAL::executeSqlGrouped($sql));
 
-	$target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
-	// Since we include the root node, target assetids will always contain atleast one asset id
-	array_unshift($target_assetids, $root_node);
+	if ($root_node != 1) {
+		// Get the targetted asset list
+		$target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
+		// Since we include the root node, target assetids will always contain atleast one asset id
+		array_unshift($target_assetids, $root_node);
+		echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
+	
+		// Go through 50 assets at a time. Applicable to asset specific tables only
+	    $chunks = array_chunk($target_assetids, 50);
+		$chunks_count = count($chunks);
+	}
 
-	echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
 
 	$errors_count = 0;
 	$warnings_count = 0;
@@ -395,12 +441,10 @@ function fix_db($root_node, $tables, $rollback)
 
 	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
-	// Go through 50 assets at a time. Applicable to asset specific tables only
-    $chunks = array_chunk($target_assetids, 50);
-
 	// Counter to count the number of records accessed/processed
 	$count = 0;
 	foreach($tables as $table_data) {
+		$table_records_count = 0;
 
 		$table = isset($table_data['table']) ? $table_data['table'] : '';
 		if (empty($table)) {
@@ -437,11 +481,24 @@ function fix_db($root_node, $tables, $rollback)
 		if ($asste_specific_table && !in_array('assetid', $select_fields)) {
 			$select_fields[] = 'assetid';
 		}
+		
+		if ($root_node == 1) {
+			if ($asste_specific_table) {
+				// When running system wide, get the asset list from the respective db table
+				$sql = "SELECT DISTINCT assetid FROM ".$table;
+				$target_assetids = array_keys(MatrixDAL::executeSqlGrouped($sql));
+
+				// Go through 50 assets at a time. Applicable to asset specific tables only
+		    	$chunks = array_chunk($target_assetids, 50);
+			} else {
+				// Dummy assetids chuck just so that we can get into next loop
+				$chunks = Array(Array());
+			}
+		}
 
 		echo "\nChecking ".$table." .";
-
 		// For non-asset specific table, this loop will break at end of the very first iteration
-		foreach ($chunks as $assetids) {
+		foreach ($chunks as $chunk_index => $assetids) {
 			$sql  = 'SELECT '.implode(',', $select_fields).' FROM '.$table;
 			// For non-asset specific table, "where" condition not is required. We get the whole table in a single go
 			if ($asste_specific_table) {
@@ -454,8 +511,9 @@ function fix_db($root_node, $tables, $rollback)
 
 			$results = MatrixDAL::executeSqlAssoc($sql);
 			foreach($results as $record) {
+				$table_records_count++;
 				$count++;
-				if ($count % 100 == 0) {
+				if ($count % 10000 == 0) {
 					echo '.';
 				}
 
@@ -649,6 +707,8 @@ function fix_db($root_node, $tables, $rollback)
 			}
 
 		}//end foreach assetids chunk
+		echo " ".$table_records_count." records";
+
 	}//end foreach tables
 
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

@@ -592,7 +592,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		// Rename the cloned asset if specified
 		if (isset($this->_running_vars['clone_assets'][$assetid]['new_name']) && !empty($this->_running_vars['clone_assets'][$assetid]['new_name'])) {
-			if (isset($clone->vars['name'])) {
+			if ($clone instanceof File && isset($clone->vars['title'])) {
+				$clone->setAttrValue('title', $this->_running_vars['clone_assets'][$assetid]['new_name']);
+			} else if (isset($clone->vars['name'])) {
 				$clone->setAttrValue('name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
 			}
 			if (isset($clone->vars['short_name'])) {

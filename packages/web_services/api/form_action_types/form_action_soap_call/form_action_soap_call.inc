@@ -407,7 +407,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		Soap_Common::processSoapAuthenticationFields($prefix, $settings, $o);
 
 		// This submission needs to be executed before form get submitted
-		$settings['before_submit']			= TRUE;
+		$settings['before_create']			= TRUE;
 
 		if(isset ($settings['wsdl']) && !empty($settings['wsdl'])) {
 

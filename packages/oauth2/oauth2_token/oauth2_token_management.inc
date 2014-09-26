@@ -132,6 +132,11 @@ class Oauth2_Token_Management extends Asset_Management
 												'allow_empty'   => FALSE,
 										    ),
 									    ),
+						'token_expiry'			=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'			=> '',
+												   ),
 						
 			          );
 

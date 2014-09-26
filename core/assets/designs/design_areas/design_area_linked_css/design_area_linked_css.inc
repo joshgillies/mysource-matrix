@@ -157,6 +157,10 @@ class Design_Area_Linked_Css extends Design_Area
 		if (empty($css_assetid)) return TRUE;
 
 		$css_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
+		if(empty($css_asset) || !method_exists($css_asset, 'getCacheFileId')) {
+			trigger_localised_error('CORE0329', sprintf(translate('Linked Design CSS #%s does not exist in the system.', $css_assetid), E_USER_NOTICE);
+			return;
+		}
 		$cache_file_assetid = $css_asset->getCacheFileId();
 
 		// The code we are about to add to the design file will check if caching

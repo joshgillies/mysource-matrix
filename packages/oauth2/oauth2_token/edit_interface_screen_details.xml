@@ -89,6 +89,11 @@
             <note />
             <selection style="list" />
         </field>
+        <field attribute="token_expiry">
+            <display_name>Access Token Expiry</display_name>
+            <note>A Refresh Token will be used to renew the Access Token upon expiration. In this field, specify the expiry time of the Access Token (in seconds). You will only need to configure this setting if the OAuth server does not provide a default expiry time. If a default expiry time is provided, the value in this field (greater than 0) will override the default expiry time.</note>
+            <int />
+        </field>
         <field>
             <display_name>Access Token</display_name>
             <function_call>

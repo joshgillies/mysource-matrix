@@ -492,6 +492,68 @@ class Form_Submission extends Asset
 			return $elt['answer'];
 		}
 
+		if (preg_match('/question\_answer\_file(_size)?(_content)?_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
+			$attrs = $this->attr('attributes');
+			if (!isset($attrs['answers'])) return '';
+			$elt = array_get_index($attrs['answers'], $matches[4].':q'.$matches[5], Array('extra_data' => ''));
+			if(!isset($elt['extra_data'])) {
+				$result = '';
+				apply_keyword_modifiers($result, $modifiers, Array('assetid' => $this->id));
+				return $result;
+			}
+
+			$path = '';
+			$value = reset($elt['extra_data']);
+			$key   = key($elt['extra_data']);
+
+			switch($key) {
+				case 'temp_filesystem_path' :
+				case 'filesystem_path' :
+						// if using relative path
+				if(!empty($value) && strpos($value, '/') !== 0) {
+					$value = SQ_SYSTEM_ROOT . '/'. $value;
+					if (is_file($value)) {
+						$path = $value;
+					}
+				}	
+
+
+				break;
+
+				case 'new_file_assetid' :
+				case 'existing_file_assetid' :
+				if (!empty($value)){
+					$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
+					$file_info = $file_asset->getExistingFile();
+					$path = $file_info['path'];
+				}
+
+				break;
+			}
+
+			if(!is_file($path)) {
+				$result = '';
+				apply_keyword_modifiers($result, $modifiers, Array('assetid' => $this->id));
+				return $result;
+			}
+			$is_file_size = (array_get_index($matches, 1, '') == '_size');
+			$is_file_content = (array_get_index($matches, 2, '') == '_content');
+
+			if($is_file_size) {
+				$file_size = filesize($path);
+				$file_size = easy_filesize($file_size);
+				apply_keyword_modifiers($file_size, $modifiers, Array('assetid' => $this->id));
+				return $file_size;
+			}
+			else if ($is_file_content) {
+				$file_content = file_get_contents($path);
+				apply_keyword_modifiers($file_content, $modifiers, Array('assetid' => $this->id));
+				return $file_content;
+			}
+			
+		}
+
+
 		if (preg_match('/question\_answer\_key\_q([0-9]+)/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');			
 			foreach ($attrs['answers'] as $name => $value) {

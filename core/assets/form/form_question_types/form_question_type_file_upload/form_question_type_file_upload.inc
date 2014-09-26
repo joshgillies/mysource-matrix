@@ -347,6 +347,85 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 
 	/**
+	* returns the path to the file uploaded in this question
+	*
+	* @return string
+	* @access public
+	*/
+	function getFilePath()
+	{
+			$path = '';
+			if (!empty($this->extra_data)) {
+				$value = reset($this->extra_data);
+				$key   = key($this->extra_data);
+
+				switch($key) {
+					case 'temp_filesystem_path' :
+					case 'filesystem_path' :
+						// if using relative path
+						if(!empty($value) && strpos($value, '/') !== 0) {
+						    $value = SQ_SYSTEM_ROOT . '/'. $value;
+						    if (is_file($value)) {
+								$path = $value;
+							}
+						}	
+
+
+					break;
+
+					case 'new_file_assetid' :
+					case 'existing_file_assetid' :
+						if (!empty($value)){
+								$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
+								$file_info = $file_asset->getExistingFile();
+								$path = $file_info['path'];
+						}
+
+					break;
+				}
+
+			} else {
+				// Check that we are not going to have web path conflicts
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+				$valid_names = make_valid_web_paths(Array($this->getValue()));
+				$name = array_shift($valid_names);
+
+				$sql = 'SELECT
+							a.assetid
+						FROM
+							'.SQ_TABLE_RUNNING_PREFIX.'ast a
+								JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+								ON a.assetid = l.minorid
+						WHERE
+							l.majorid = :majorid
+							AND a.name = :name';
+
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'majorid', $this->attr('create_location'));
+					MatrixDAL::bindValueToPdo($query, 'name', $name);
+					$existing_file = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get summary of answers for: '.$name.' due to database error: '.$e->getMessage());
+				}
+
+				if (!empty($existing_file)) {
+					$existing_file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
+					$info = $existing_file_asset->getExistingFile();
+					$path = $file_info['path'];
+				}
+			}//end if Extra Data exists
+
+		//}//end if temp summary exists
+
+		return $path;
+
+	}//end getFilePath()
+
+
+
+	/**
 	* Returns whether questions of this type can be edited once the form has been initially submitted
 	*
 	* @return boolean

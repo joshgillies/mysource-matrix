@@ -858,7 +858,7 @@ class User_Prefs extends Prefs
 	{
 		// For the preferences that cannot be meraged (i.e. not defined here), get the preferences from first settings data
 		$res = $prefs2;
-		if (isset($prefs1['SQ_USER_SESSION_PREFS']['default']) && isset($prefs2['SQ_USER_SESSION_PREFS']['default'])) {
+		if (isset($prefs1['SQ_USER_SESSION_PREFS']['default']) && isset($prefs2['SQ_USER_SESSION_PREFS'])) {
 			// Follow the princple that the most-open option (the one with the check disabled,
 			// or with the longest timeout) wins.
 			$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];

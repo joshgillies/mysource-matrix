@@ -186,16 +186,24 @@ class System_User_Group extends User_Group
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(
-									'user'	=> Array(
-												'card'		=> 'M',
-												'exclusive'	=> FALSE,
-											   ),
+									'user'			=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
+									'user_group'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
 								   ),
 				SQ_LINK_TYPE_2	=> Array(
-									'user'	=> Array(
-												'card'		=> 'M',
-												'exclusive'	=> FALSE,
-											   ),
+									'user'			=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
+									'user_group'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
 								   ),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(),

@@ -283,7 +283,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				$o->openSection(Cron_Job::whenTypeName($type), 'new_line');
 					$o->openField('','wide_col');
 					?>
-						<table class="sq-backend-table">
+						<table class="sq-backend-table" id="<?php echo $prefix.'_'.$type.'_block' ?>">
 							<tr>
 								<th style="width:25%;">
 									<?php echo translate('When'); ?>
@@ -301,8 +301,10 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 								if ($asset->writeAccess('links')) {
 								?>
 								<th style="text-align: center;" style="width:10%;">
-									<?php echo translate('Delete?'); ?>
-
+									<?php 
+									echo label(translate('Delete?'), $prefix.'_'.$type).'<br />'; 
+									check_box($prefix.'_'.$type, '1', FALSE, 'check_all_by_parent('.$prefix.'_'.$type.'_block, \''.$prefix.'_remove_jobs\' , this.checked)');	
+									?>
 								</th>
 								<?php
 								}//end if

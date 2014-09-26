@@ -1894,7 +1894,7 @@ class Form extends Asset implements Bridge
 				$success = $this->processPage($current_page, $validate_page, $mute_errors);
 
 				// Run the step submission actions for current page, if any
-				$success = $success && (!$validate_page || $this->performFormSectionActions($current_page)) && empty($this->submission_errors);
+				$success = $success && (!$validate_page || $this->performFormSectionActions($current_page)) && empty($this->submission_errors) && $this->_preCreateForm();
 
 				if ($success) {
 
@@ -1983,11 +1983,14 @@ class Form extends Asset implements Bridge
 			}
 
 			if (!$finished) {
-				echo $this->getFormHeader();
+				
 				// Print the current page or the Confirmation Page if we're confirming things
 				$total_pages = $this->getTotalPages();
+				$use_confirmation = ($current_page == $total_pages) && $this->attr('use_confirmation_page');
 
-				if (($current_page == $total_pages) && $this->attr('use_confirmation_page')) {
+				echo $this->getFormHeader($use_confirmation);
+
+				if ($use_confirmation) {
 					echo $this->getConfirmationPageContents();
 				}
 				else {
@@ -2020,17 +2023,17 @@ class Form extends Asset implements Bridge
 	/**
 	* Returns the header of the form, ie. the start form tags and anything else
 	* needed by them
-	*
+	* @param int	$use_confirmation	No need to print JS validation code on confirmation page
 	* @return string
 	*/
-	public function getFormHeader()
+	public function getFormHeader($use_confirmation = FALSE)
 	{
 		$form_prefix = $this->getPrefix();
 		$form_action = $this->getFormAction();
 
 		$header = '';
 		$extra_attribute = $this->attr('form_extra_attribute');
-		if ($this->attr('use_client_side')) {
+		if ($this->attr('use_client_side') && !$use_confirmation) {
 			$on_submit = 'onsubmit="return beforeSubmit_'.$form_prefix.'(this);"';
 			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.' '.$extra_attribute.' >';
 			$header .= $this->getClientSideFunction();
@@ -2719,9 +2722,11 @@ class Form extends Asset implements Bridge
 	*
 	* In either case, if the confirmation page is enabled, add one page.
 	*
+	* @param boolean $count_conformation_page
+	*
 	* @return int
 	*/
-	public function getTotalPages()
+	public function getTotalPages($count_conformation_page=TRUE)
 	{
 		if ($this->attr('multi_page')) {
 			$pages = $this->getSectionCount() + ($this->getQuestionCount() > 0 ? 1 : 0);
@@ -2730,7 +2735,7 @@ class Form extends Asset implements Bridge
 		}
 
 		// if confirmation page exists, add 1 page
-		if ($this->attr('use_confirmation_page')) {
+		if ($count_conformation_page && $this->attr('use_confirmation_page')) {
 			$pages++;
 		}
 
@@ -3694,6 +3699,20 @@ class Form extends Asset implements Bridge
 		unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 
 	}//end finishForm()
+
+
+	/**
+	* Actions to carry out before creating the form submission
+	* Applies to single page form only
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected function _preCreateForm()
+	{
+			return TRUE;
+
+	}//end _preCreateForm()
 
 
 	/**
@@ -4682,7 +4701,7 @@ class Form extends Asset implements Bridge
 		$replacement = NULL;
 		$keyword = parse_keyword($keyword, $modifiers);
 		$is_question_keyword = preg_match('/^question\_(.*)\_(\d+[\_\:]q\d+)$/', $keyword, $question_matches);
-		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
+		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?(\_file_content)?(\_file_size)?$/', $keyword, $response_matches);
 		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
 		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);
 
@@ -4774,15 +4793,34 @@ class Form extends Asset implements Bridge
 			}//end switch
 
 		} else if ($is_response_keyword) {
-			$raw_response = (count($response_matches) == 3);
+			$raw = (array_get_index($response_matches, 2, '') == '_raw');
+			$file_content = (array_get_index($response_matches, 3, '') == '_file_content');
+			$file_size = (array_get_index($response_matches, 4, '') == '_file_size');
+
+
 			list(, $assetid) = $response_matches;
 			$assetid = str_replace('_', ':', $assetid);
 
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (!empty($question_asset)) {
-				if ($raw_response) {
+				if ($raw) {
 					$replacement = htmlspecialchars($question_asset->getValue(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
-				} else {
+				}
+				else if($file_size && $question_asset instanceof Form_Question_Type_File_Upload) {
+					$path = $question_asset->getFilePath();
+					if(is_file($path))
+						$replacement = easy_filesize(filesize($question_asset->getFilePath()));
+					else 
+						$replacement = '';
+				}
+				else if($file_content && $question_asset instanceof Form_Question_Type_File_Upload) {
+						$path = $question_asset->getFilePath();
+						if(is_file($path))
+							$replacement = file_get_contents($question_asset->getFilePath());
+						else 
+							$replacement = '';
+				}
+				else {
 					$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 				}
 			}
@@ -5588,7 +5626,7 @@ class Form extends Asset implements Bridge
 					}
 				}
 
-			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?(_raw)?|', $keyword, $matches)) {
+			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?(_raw)?(_file_content)?(_file_size)?|', $keyword, $matches)) {
 				// Question response keywords, eg.
 				// %response_123_q4% ... question 4 from form/section ID 123
 				// %response_q4% ....... question 4 from the form
@@ -5603,6 +5641,8 @@ class Form extends Asset implements Bridge
 				}
 
 				$raw = (array_get_index($matches, 3, '') == '_raw');
+				$file_content = (array_get_index($matches, 4, '') == '_file_content');
+				$file_size = (array_get_index($matches, 5, '') == '_file_size');
 
 				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
 				if (!empty($question_asset)) {
@@ -5613,7 +5653,22 @@ class Form extends Asset implements Bridge
 						} else {
 							$replacement = '';
 						}
-					} else {
+					} 
+					else if($file_size && $question_asset instanceof Form_Question_Type_File_Upload) {
+						$path = $question_asset->getFilePath();
+						if(is_file($path))
+							$replacement = easy_filesize(filesize($question_asset->getFilePath()));
+						else 
+							$replacement = '';
+					}
+					else if($file_content && $question_asset instanceof Form_Question_Type_File_Upload) {
+						$path = $question_asset->getFilePath();
+						if(is_file($path))
+							$replacement = file_get_contents($question_asset->getFilePath());
+						else 
+							$replacement = '';
+					}
+					else {
 						$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 					}
 				}

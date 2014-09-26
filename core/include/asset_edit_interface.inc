@@ -1195,6 +1195,36 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$this->_edit_fns->paintCreateLink($owner, $o, $prefix);
 			$o->closeSection();
+			$o->openRaw();
+			?>
+				<script type="text/javascript">
+					var inputs = document.getElementsByTagName('input');
+					var FORM_ALREADY_SUBMITTED = false;
+
+					function checkAlreadySubmitted(event)
+					{
+						var key = event.keyCode || event.which;
+						if (key == 13) {
+							if (FORM_ALREADY_SUBMITTED) {
+								alert(js_translate('form_already_submitted'));
+								document.onkeypress = function(event) {if (event.keyCode || event.which == 13) event.preventDefault();}
+								return;
+							}
+							FORM_ALREADY_SUBMITTED = true;
+							return true;
+						}
+						return;
+					}
+
+					for (var i = 0; i < inputs.length; i++) {
+						if (inputs[i].type.toLowerCase() == 'text' && inputs[i].name.indexOf('<?php echo $prefix; ?>') == 0) {
+							inputs[i].addEventListener("keypress", checkAlreadySubmitted);
+						}
+					}
+
+				</script>
+			<?php
+			$o->closeRaw();
 		}
 		return $print_commit_button;
 
