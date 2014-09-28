@@ -53,6 +53,7 @@ class Squiz_Server_Config extends Config
 	{
 		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/squiz_server.inc';
+		$this->name = translate('Squiz Server Configuration');
 
 	}//end constructor
 

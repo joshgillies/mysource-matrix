@@ -326,21 +326,6 @@ class Config extends MySource_Object
 			require_once $this->config_file;
 		}
 
-		$map_array = Array (
-						'system_config'					=> 'system_configuration',
-						'squiz_server_config'			=> 'squiz_server_configuration',
-						'apache_config'					=> 'apache_configuration',
-						'hipo_config'					=> 'hipo_configuration',
-						'external_tools_config'			=> 'external_tools_configuration',
-						'password_rules_config'			=> 'password_rules_configuration',
-						'messaging_service_config'		=> 'messaging_service_configuration',
-						'proxy_authentication_config'	=> 'proxy_configuration',
-						'context_config'				=> 'context_configuration',
-						'system_maintenance_config'		=> 'system_maintenance_configuration',
-					 );
-
-		$config_screen = $map_array[strtolower(get_class($this))];
-
 		$lock = $this->getLockInfo();
 		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
 
@@ -377,7 +362,7 @@ class Config extends MySource_Object
 									$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
 
 									if ($have_lock) {
-										echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), translate($config_screen));
+										echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), $this->name);
 
 
 									}
@@ -388,7 +373,7 @@ class Config extends MySource_Object
 									echo ' '.$expires_in.'.';
 
 								} else {
-									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), translate($config_screen));
+									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), $this->name);
 
 
 								}

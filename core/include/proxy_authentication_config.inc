@@ -63,6 +63,7 @@ class Proxy_Authentication_Config extends Config
 	{
 		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
+		$this->name = translate('Proxy Configuration');
 
 	}//end constructor
 

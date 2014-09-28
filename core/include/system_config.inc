@@ -146,6 +146,7 @@ class System_Config extends Config
 	{
 		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/main.inc';
+		$this->name = translate('System Configuration');
 
 	}//end constructor
 

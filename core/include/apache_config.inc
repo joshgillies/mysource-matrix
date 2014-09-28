@@ -71,6 +71,8 @@ class Apache_Config extends Config
 			$this->request_notes = $request_notes;
 		}
 
+		$this->name = translate('Apache Configuration');
+
 	}//end constructor
 
 

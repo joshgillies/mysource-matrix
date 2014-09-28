@@ -55,6 +55,7 @@ class Messaging_Service_Config extends Config
 	{
 		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/messaging_service.inc';
+		$this->name = translate('Messaging Service Configuration');
 
 	}//end constructor
 

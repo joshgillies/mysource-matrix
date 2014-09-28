@@ -91,25 +91,15 @@ class System_Config_Edit_Interface extends MySource_Object
 		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 		$config_screens = Array(
 							'system_config'					=> translate('System Configuration'),
-
 							'squiz_server_config'			=> translate('Squiz Server Configuration'),
-
 							'apache_config'					=> translate('Apache Configuration'),
-
 							'hipo_config'					=> translate('HIPO Configuration'),
-
 							'external_tools_config'			=> translate('External Tools Configuration'),
-
 							'user_prefs'					=> translate('Global Preferences'),
-
 							'password_rules_config'			=> translate('Password Rules Configuration'),
-
 							'messaging_service_config'		=> translate('Messaging Service Configuration'),
-
 							'proxy_authentication_config'	=> translate('Proxy Configuration'),
-
 							'context_config'				=> translate('Context Configuration'),
-
 							'locks'							=> translate('Active Locks'),
 
 						  );

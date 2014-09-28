@@ -79,6 +79,7 @@ class Context_Config extends Config
 
 		parent::__construct();
 		$this->config_file = NULL;
+		$this->name = translate('Context Configuration');
 
 	}//end constructor
 

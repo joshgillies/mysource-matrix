@@ -60,6 +60,7 @@ class System_Maintenance_Config extends Config
 
 						'SQ_MAINTENANCE_RETRY_AFTER'			=> Array('editable' => 1, 'default' => 3600),
 					   );
+		$this->name = translate('System Maintenance');
 
 	}//end constructor
 

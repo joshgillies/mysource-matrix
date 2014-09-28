@@ -51,6 +51,7 @@ class HIPO_Config extends Config
 		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/hipo.inc';
 		$this->_loadJobConfigVars();
+		$this->name = translate('HIPO Configuration');
 
 	}//end constructor
 

@@ -91,6 +91,7 @@ class External_Tools_Config extends Config
 	{
 		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/tools.inc';
+		$this->name = translate('External Tools Configuration');
 
 	}//end constructor
 
