@@ -1034,7 +1034,27 @@ class SOAP_Common
 		$password_field_name = $array_fields ? $prefix.'[password]' : $prefix.'_password';
 
 		// Authentication note locale string
-		$auth_note_locale_string = 'soap_api_authentication_'.strtolower(array_get_index($settings, 'auth_type', 'HTTP_BASIC'));
+		$auth_type = strtolower(array_get_index($settings, 'auth_type', 'HTTP_BASIC'));
+		switch ($auth_type) {
+		    case 'http_basic':
+            case 'wss_username_token':
+            case 'wss_password_digest':
+		        $auth_note_locale_string = translate('The username and password options can be used to supply the authentication credentials.');
+		    break;
+
+		    case 'jsessionid':
+		        $auth_note_locale_string = translate('WS login URL needs to be supplied along with the username and password to obtain the sessionid.');
+		    break;
+
+		    case 'marketo_signature':
+		        $auth_note_locale_string = translate('Access key (User ID) and Secret Key (Encryption Key) needs to be supplied for the authentication.');
+		    break;
+
+		    default:
+		        $auth_note_locale_string = '';
+		    break;
+		}//end switch
+		 'soap_api_authentication_'.;
 
 		if ($paint_o) {
 			$new_section ? $o->openSection() : '';
@@ -1055,7 +1075,7 @@ class SOAP_Common
 				}
 				$o->closeField();
 
-				$o->sectionNote(translate($auth_note_locale_string));
+				$o->sectionNote($auth_note_locale_string);
 			$new_section ? $o->closeSection() : '';
 
 		} else {
@@ -1084,7 +1104,7 @@ class SOAP_Common
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2"><?php echo translate($auth_note_locale_string); ?>.</td>
+					<td colspan="2"><?php echo $auth_note_locale_string; ?></td>
 				</tr>
 			<?php
 		}

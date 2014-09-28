@@ -66,15 +66,15 @@ class Tool_Clear_Squid_Cache extends Tool
 		$preferencesBroken = array();
 		$squid_hostnames = trim(SQ_TOOL_SQUID_CACHE_HOSTNAMES);
 		if (empty($squid_hostnames) === TRUE) {
-			$preferencesBroken[] = 'squid_tool_no_hostnames';
+			$preferencesBroken[] = translate('Please make sure there is at least one hostname in the Squid Cache section of External Tools Configuration.');
 		}
 
 		$squidclient_path = trim(SQ_TOOL_SQUID_CACHE_PATH);
 		if (empty($squidclient_path) === TRUE) {
-			$preferencesBroken[] = 'squid_tool_path_empty';
+			$preferencesBroken[] = translate('Please make sure you set the path to squidclient in the Squid Cache section of External Tools Configuration.');
 		} else {
 			if (is_file($squidclient_path) === FALSE) {
-				$preferencesBroken[] = 'squid_tool_path_invalid';
+				$preferencesBroken[] = translate('The squidclient path is invalid. Please check it in the Squid Cache section of External Tools Configuration.');
 			}
 		}
 
@@ -82,7 +82,7 @@ class Tool_Clear_Squid_Cache extends Tool
 			$o->openField(translate('Squid Cache is not configured'));
 
 			foreach ($preferencesBroken as $brokenItem) {
-				$o->note(translate($brokenItem));
+				$o->note($brokenItem);
 			}
 			$o->closeField();
 			$o->closeSection();

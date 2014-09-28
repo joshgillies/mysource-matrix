@@ -432,7 +432,13 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			$wa = $asset->writeAccess('attributes');
 			$i = 0;
 			if (!empty($attr_val) || ($wa)) {
-				echo '<br /><b>'.translate($attr.'_info').'</b>';
+			    if ($mode === 'add_channel') {
+			        $section_name = translate('Add New Channel Info');
+			    } else {
+			        $section_name = translate('Add New Image Info');
+			    }
+
+				echo '<br /><b>'.$section_name.'</b>';
 				?>
 				<table class="sq-backend-table" width="100%">
 					<tr>

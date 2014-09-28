@@ -700,9 +700,13 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 									?><td class="sq-backend-table-header"><?php echo translate('Assetid'); ?></td><?php
 
 								}
-								$type_col_name = ($screen == 'asset') ? 'asset_name' : 'asset_type';
+								if ($screen === 'asset') {
+								    $type_col_name = translate('Asset Name');
+								} else {
+								    $type_col_name = translate('Asset Type');
+								}
 								?>
-								<td class="sq-backend-table-header"><?php echo translate($type_col_name); ?></td>
+								<td class="sq-backend-table-header"><?php echo $type_col_name; ?></td>
 								<?php
 									if ($write_access) {
 										echo '<td class="sq-backend-table-header">'.translate('Remove').'?</td>';

@@ -2460,23 +2460,23 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			switch ($group_by_option['group_type']) {
 				case 'parent_asset':
-					$option_name = 'cms_listing_parent_asset';
+					$option_name = translate('Parent Asset');
 				break;
 
 				case 'metadata':
-					$option_name = 'asset_metadata';
+					$option_name = translate('Asset Metadata');
 				break;
 
 				case 'standard_asset':
-					$option_name = 'standard_asset_field';
+					$option_name = translate('Standard Asset Field');
 				break;
 
 				case 'attribute':
-					$option_name = 'asset_attribute';
+					$option_name = translate('Asset Attribute');
 				break;
 
 				case 'keyword':
-					$option_name = 'keyword';
+					$option_name = translate('Keyword');
 				break;
 
 				default:
@@ -2484,7 +2484,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				break;
 			}
 
-			$o->openSection('Group Level '.($level+1).': '.translate($option_name));
+			$group_name = sprintf(translate('Group Level %s: %s'), ($level+1), $option_name);
+			$o->openSection($group_name);
 
 				switch ($group_by_option['group_type']) {
 					case 'parent_asset':

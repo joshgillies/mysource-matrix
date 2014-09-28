@@ -204,12 +204,23 @@ class Funnelback_Search_Page extends Listing_Engine
 						'spell_format'		=> 'folder',
 					 );
 
+		$format_names = Array(
+		    'fluster_format'    => translate('Contextual Navigation Format'),
+		    'type_format'       => translate('Type Formats'),
+		    'cluster_format'    => translate('Item Format'),
+		    'navigation_format' => translate('Navigation Format'),
+		    'context_format'    => translate('Layout Format'),
+		    'featured_format'   => translate('Featured Result Format'),
+		    'default_format'    => translate('Default Format'),
+		    'spell_format'      => translate('Spelling Format'),
+		);
+
 		$type_formats = NULL;
 		foreach ($sub_assets as $name => $type) {
 			$asset = new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-			$asset->setAttrValue('name', translate($name));
+			$asset->setAttrValue('name', $format_names[$name]);
 			if (!$asset->create($copy_link)) return FALSE;
 
 			// Add in the extra bodycopies
@@ -218,7 +229,7 @@ class Funnelback_Search_Page extends Listing_Engine
 					foreach (Array('cluster_format', 'navigation_format', 'context_format') as $extra_format) {
 						$bc2_asset = new Bodycopy();
 						$bc2_copy_link = Array('asset' => &$asset, 'value' => $extra_format, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-						$bc2_asset->setAttrValue('name', translate($extra_format));
+						$bc2_asset->setAttrValue('name', $format_names[$extra_format]);
 						$bc2_args = Array('content' => $this->_getDefaultBodycopyContent($extra_format));
 						if (!$bc2_asset->create($bc2_copy_link, $bc2_args)) return FALSE;
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bc2_asset);
@@ -230,7 +241,7 @@ class Funnelback_Search_Page extends Listing_Engine
 					foreach (Array('featured_format', 'default_format') as $extra_format) {
 						$bc2_asset = new Bodycopy();
 						$bc2_copy_link = Array('asset' => &$asset, 'value' => $extra_format, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-						$bc2_asset->setAttrValue('name', translate($extra_format));
+						$bc2_asset->setAttrValue('name', $format_names[$extra_format]);
 						$bc2_args = Array('content' => $this->_getDefaultBodycopyContent($extra_format));
 						if (!$bc2_asset->create($bc2_copy_link, $bc2_args)) return FALSE;
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bc2_asset);
@@ -242,7 +253,7 @@ class Funnelback_Search_Page extends Listing_Engine
 					$extra_format = 'spell_format';
 					$bc_asset = new Bodycopy();
 					$bc_copy_link = Array('asset' => &$asset, 'value' => $extra_format, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-					$bc_asset->setAttrValue('name', translate($extra_format));
+					$bc_asset->setAttrValue('name', $format_names[$extra_format]);
 					$bc_args = Array('content' => $this->_getDefaultBodycopyContent($extra_format));
 					if (!$bc_asset->create($bc_copy_link, $bc_args)) return FALSE;
 				break;
