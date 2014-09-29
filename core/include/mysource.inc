@@ -1265,6 +1265,7 @@ class MySource extends MySource_Object
 			}
 
 			if (!is_null($design)) {
+				header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 				ob_start();
 				$design->paint($current_asset);
 				$content = ob_get_clean();
