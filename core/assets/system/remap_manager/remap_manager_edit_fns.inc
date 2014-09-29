@@ -174,11 +174,12 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
 
 		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
-			$remap_entries_tag = 'remap_entries_filtered';
-			$no_entries_tag = 'no_url_remappings_filtered';
+			$remap_entries_tag = translate('Remap entries').' ('.translate('filtered').')';
+			$no_entries_tag = translate('There are no URL remappings matching your filter.').' '.
+			    translate('Please remove or try different filter criteria.');
 		} else {
-			$remap_entries_tag = 'remap_entries';
-			$no_entries_tag = 'no_url_remappings';
+			$remap_entries_tag = translate('Remap entries');
+			$no_entries_tag = translate('There are no URL remappings in the system.');
 		}
 
 		$page_num = array_get_index($_POST, $prefix.'_remap_urls_page', 1);
@@ -213,7 +214,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openField('&nbsp;', 'wide_col');
 
 		if (empty($remap_urls)) {
-			echo translate($no_entries_tag);
+			echo $no_entries_tag;
 			return FALSE;
 		}
 
@@ -226,7 +227,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_remap_urls_page');
 
 		}
-		$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $this->num_per_page + 1, $total_assets, $total_assets, strtolower(translate($remap_entries_tag)));
+		$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $this->num_per_page + 1, $total_assets, $total_assets, strtolower($remap_entries_tag));
 
 
 		$links = Array(

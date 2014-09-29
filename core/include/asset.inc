@@ -483,7 +483,7 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 			}
-		
+
 		}//end if creating link
 
 
@@ -3864,73 +3864,84 @@ class Asset extends MySource_Object
 	{
 
 		$keywords = Array();
+		$time_formats_text = Array(
+		                        'sql'          => 'yyyy-mm-dd hh:mm:ss',
+		                        'short'        => 'yyyy-mm-dd',
+		                        'readable'     => 'dd m yyyy h:mm[am pm]',
+		                        'readabletime' => translate('time only').' - h:mm[am pm]',
+		                        'readabledate' => translate('date only').' - dd m yyyy',
+		                        'iso8601'      => translate('ISO8601 format'),
+		                        'rfc2822'      => translate('RFC2822 format'),
+		                        'ical'         => translate('iCalendar format'),
+		                     );
+
 		$default_keywords = Array(
-								'asset_assetid',
-								'asset_name',
-								'asset_type',
-								'asset_short_name',
-								'asset_version',
-								'asset_version_major',
-								'asset_version_minor',
-								'asset_version_micro',
-								'asset_created',
-								'asset_updated',
-								'asset_created_short',
-								'asset_updated_short',
-								'asset_created_readable',
-								'asset_updated_readable',
-								'asset_created_readabledate',
-								'asset_updated_readabledate',
-								'asset_created_readabletime',
-								'asset_updated_readabletime',
-								'asset_created_iso8601',
-								'asset_updated_iso8601',
-								'asset_created_rfc2822',
-								'asset_updated_rfc2822',
-								'asset_created_ical',
-								'asset_updated_ical',
-								'asset_created_by_name',
-								'asset_updated_by_name',
-								'asset_published',
-								'asset_published_short',
-								'asset_published_readable',
-								'asset_published_readabledate',
-								'asset_published_readabletime',
-								'asset_published_iso8601',
-								'asset_published_rfc2822',
-								'asset_published_ical',
-								'asset_published_by_name',
-								'asset_status_changed',
-								'asset_status_changed_short',
-								'asset_status_changed_readable',
-								'asset_status_changed_readabledate',
-								'asset_status_changed_readabletime',
-								'asset_status_changed_iso8601',
-								'asset_status_changed_rfc2822',
-								'asset_status_changed_ical',
-								'asset_status_changed_by_name',
-								'asset_url',
-								'asset_href',
-								'asset_thumbnail',
-								'asset_thumbnail_url',
-								'asset_thumbnail_caption',
-								'asset_thumbnail_assetid',
-								'asset_thumbnail_title',
-								'asset_thumbnail_name',
-								'asset_status_description',
-								'asset_status_colour',
+								'asset_assetid'                     => translate('The ID of the asset'),
+								'asset_name'                        => translate('The name of the asset'),
+								'asset_type'                        => translate('Asset ID'),
+								'asset_short_name'                  => translate('Short name of the asset'),
+								'asset_version'                     => translate('Version of the asset being displayed'),
+								'asset_version_major'               => translate('Major version component of the asset being displayed'),
+								'asset_version_minor'               => translate('Minor version component of the asset being displayed'),
+								'asset_version_micro'               => translate('Micro version component of the asset being displayed'),
+								'asset_created'                     => translate('The date and time the asset was created').' ('.$time_formats_text['sql'].')',
+								'asset_updated'                     => translate('The date and time the asset was last updated').' ('.$time_formats_text['sql'].')',
+								'asset_created_short'               => translate('The date and time the asset was created').' ('.$time_formats_text['short'].')',
+								'asset_updated_short'               => translate('The date and time the asset was last updated').' ('.$time_formats_text['short'].')',
+								'asset_created_readable'            => translate('The date and time the asset was created').' ('.$time_formats_text['readable'].')',
+								'asset_updated_readable'            => translate('The date and time the asset was last updated').' ('.$time_formats_text['readable'].')',
+								'asset_created_readabledate'        => translate('The date and time the asset was created').' ('.$time_formats_text['readabledate'].')',
+								'asset_updated_readabledate'        => translate('The date and time the asset was last updated').' ('.$time_formats_text['readabledate'].')',
+								'asset_created_readabletime'        => translate('The date and time the asset was created').' ('.$time_formats_text['readabletime'].')',
+								'asset_updated_readabletime'        => translate('The date and time the asset was last updated').' ('.$time_formats_text['readabletime'].')',
+								'asset_created_iso8601'             => translate('The date and time the asset was created').' ('.$time_formats_text['iso8601'].')',
+								'asset_updated_iso8601'             => translate('The date and time the asset was last updated').' ('.$time_formats_text['iso8601'].')',
+								'asset_created_rfc2822'             => translate('The date and time the asset was created').' ('.$time_formats_text['rfc2822'].')',
+								'asset_updated_rfc2822'             => translate('The date and time the asset was last updated').' ('.$time_formats_text['rfc2822'].')',
+								'asset_created_ical'                => translate('The date and time the asset was created').' ('.$time_formats_text['ical'].')',
+								'asset_updated_ical'                => translate('The date and time the asset was last updated').' ('.$time_formats_text['ical'].')',
+								'asset_created_by_name'             => translate('The name of the user who created this asset'),
+								'asset_updated_by_name'             => translate('The name of the user who last updated this asset'),
+								'asset_published'                   => translate('The date when the asset was last published').' ('.$time_formats_text['sql'].')',
+								'asset_published_short'             => translate('The date when the asset was last published').' ('.$time_formats_text['short'].')',
+								'asset_published_readable'          => translate('The date when the asset was last published').' ('.$time_formats_text['readable'].')',
+								'asset_published_readabledate'      => translate('The date when the asset was last published').' ('.$time_formats_text['readabledate'].')',
+								'asset_published_readabletime'      => translate('The date when the asset was last published').' ('.$time_formats_text['readabletime'].')',
+								'asset_published_iso8601'           => translate('The date when the asset was last published').' ('.$time_formats_text['iso8601'].')',
+								'asset_published_rfc2822'           => translate('The date when the asset was last published').' ('.$time_formats_text['rfc2822'].')',
+								'asset_published_ical'              => translate('The date when the asset was last published').' ('.$time_formats_text['ical'].')',
+								'asset_published_by_name'           => translate('The name of the user who last published this asset'),
+								'asset_status_changed'              => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['sql'].')',
+								'asset_status_changed_short'        => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['short'].')',
+								'asset_status_changed_readable'     => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['readable'].')',
+								'asset_status_changed_readabledate' => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['readabledate'].')',
+								'asset_status_changed_readabletime' => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['readabletime'].')',
+								'asset_status_changed_iso8601'      => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['iso8601'].')',
+								'asset_status_changed_rfc2822'      => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['rfc2822'].')',
+								'asset_status_changed_ical'         => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['ical'].')',
+								'asset_status_changed_by_name'      => translate('The name of the user who last changed the status of this asset'),
+								'asset_url'                         => translate('The absolute url to the asset'),
+								'asset_href'                        => translate('The relative href to the asset'),
+								'asset_thumbnail'                   => translate('The img tag for the thumbnail attached to the asset'),
+								'asset_thumbnail_url'               => translate('The URL only for the thumbnail attached to the asset'),
+								'asset_thumbnail_caption'           => translate('The caption for the thumbnail attached to the asset'),
+								'asset_thumbnail_assetid'           => translate('The asset id for the thumbnail attached to the asset'),
+								'asset_thumbnail_title'             => translate('The friendly name for the thumbnail attached to the asset'),
+								'asset_thumbnail_name'              => translate('The file name for the thumbnail attached to the asset'),
+								'asset_status_description'          => translate('The description of the asset\'s status'),
+								'asset_status_colour'               => translate('The colour that corresponds to the asset\'s status'),
 							);
 
 		// add default keywords first
-		foreach ($default_keywords as $keyword) {
-			$keywords[$keyword] = translate($keyword);
+		foreach ($default_keywords as $keyword => $str) {
+			$keywords[$keyword] = $str;
 		}
 
 		// add attribute
 		foreach ($this->vars as $name => $info) {
 			$attr = $this->getAttribute($name);
 			if (!$attr->is_admin) {
-				$keywords['asset_attribute_'.$name] = empty($attr->description) ? 'Asset Attribute: '.$name : $attr->description;
+				$keywords['asset_attribute_'.$name] = empty($attr->description) ? sprintf(translate('Asset Attribute: %s'), $name) : $attr->description;
 			}
 		}
 

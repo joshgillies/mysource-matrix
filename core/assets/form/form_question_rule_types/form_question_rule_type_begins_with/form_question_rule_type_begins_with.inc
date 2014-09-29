@@ -192,14 +192,30 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$operator = array_get_index($rule_data, 'operator', 1);
+	    $errors = Array(
+                    'true_q'             => translate('The response to "%1$s" must begin with the response to question "%2$s" (%3$s)'),
+                    'false_q'            => translate('The response to "%1$s" must NOT begin with the response to question "%2$s" (%3$s)'),
+                    'true'               => translate('The response to "%1$s" must begin with "%2$s" (%3$s)'),
+                    'false'              => translate('The response to "%1$s" must NOT begin with "%2$s" (%3$s)'),
+                    'true_q_accessible'  => translate('The response must begin with the response to question "%2$s" (%3$s).'),
+                    'false_q_accessible' => translate('The response must NOT begin with the response to question "%2$s" (%3$s).'),
+                    'true_accessible'    => translate('The response must begin with "%2$s" (%3$s).'),
+                    'false_accessible'   => translate('The response must NOT begin with "%2$s" (%3$s).'),
+        );
+
+        $case_options = Array(
+                            0 => translate('not case-sensitive'),
+                            1 => translate('case sensitive'),
+        );
+
+        $operator = array_get_index($rule_data, 'operator', 1);
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
 
-		$string_code = 'core_form_rule_begins_with_desc_'.($operator ? 'true' : 'false');
+		$string_code = ($operator ? 'true' : 'false');
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 
 		if ($cq_id != 0) {
@@ -209,12 +225,17 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 		} else {	// sent just a value
 			$value = array_get_index($rule_data, 'value', '');
 		}
-		if($use_accessible_string)
-		    $error_str = translate($string_code.'_accessible', $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
-		else
-		    $error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
+		if ($use_accessible_string) {
+		    $string_code .= '_accessible';
+		}
 
-		return $error_str;
+	    $error_str = sprintf(
+	        $errors[$string_code],
+	        $q_asset->name,
+	        $value,
+	        $case_options[(int) $case_sensitive]
+	    );
+	    return $error_str;
 
 	}//end ruleDescription()
 

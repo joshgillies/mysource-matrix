@@ -182,7 +182,7 @@ class Bodycopy_Container_Prefs extends Prefs
 
 			if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_DELETE') {
 			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_DIV_DISABLE_DELETE']['name']));
+				$o->openField(translate('Disable Deleting Content Containers'));
 			}
 				$div_disable_delete = $this->pref_vars['SQ_DIV_DISABLE_DELETE']['default'];
 				?>
@@ -190,7 +190,7 @@ class Bodycopy_Container_Prefs extends Prefs
 					<tr>
 						<td class="sq-backend-table-header" nowrap="nowrap">
 						<?php
-							echo translate('Disable Deleting Content Containers');
+							echo translate('Disable');
 
 						?>
 						</td>

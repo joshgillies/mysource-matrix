@@ -121,27 +121,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	// list of the plugins available to us. For further details for this
 	// please see RM issue #5323 Add global preferences for Edit+ WYSIWYG
 	// plugin options (https://squizmap.squiz.net/matrix/5323)
-	var $_viper_plugins = Array(
-							'ViperAccessibilityPlugin'	=> 'accessibility_viper',
-							'ViperLangToolsPlugin'		=> 'choose_lang_tool_viper',
-							'ViperCursorAssistPlugin'	=> 'cursor_assist_viper',
-							'ViperCoreStylesPlugin'		=> 'format_core_style_viper',
-							'ViperFormatPlugin'			=> 'format_viper',
-							'ViperHistoryPlugin'		=> 'history_viper',
-							'ViperInlineToolbarPlugin'	=> 'inline_toolbar_viper',
-							'MatrixImagePlugin'			=> 'insert_image_viper_matrix',
-							'MatrixLinkPlugin'			=> 'insert_link_viper_matrix',
-							'ViperKeyboardEditorPlugin'	=> 'keyboard_editor_viper',
-							'MatrixKeywordsPlugin'		=> 'keyword_plugin_viper_matrix',
-							'ViperListPlugin'			=> 'list_viper',
-							'MatrixCopyPastePlugin'		=> 'matrix_edit_copy_paste',
-							'ViperSearchReplacePlugin'	=> 'search_and_replace_viper',
-							'ViperCharMapPlugin'		=> 'special_char_map_viper',
-							'ViperTableEditorPlugin'	=> 'table_editor_viper',
-							'ViperToolbarPlugin'		=> 'toolbar_viper',
-							'ViperSourceViewPlugin'		=> 'view_source_viper',
-							'ViperCopyPastePlugin'		=> 'viper_edit_copy_paste',
-						  );
+	var $_viper_plugins = Array();
 
 
 	/**
@@ -151,6 +131,28 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	function Content_Type_WYSIWYG_Prefs($pref_file='')
 	{
 		$this->Prefs($pref_file);
+
+		$_viper_plugins = Array(
+            'ViperAccessibilityPlugin'	=> translate('Accessibility'),
+            'ViperLangToolsPlugin'		=> translate('Choose Language'),
+            'ViperCursorAssistPlugin'	=> translate('Cursor Assist'),
+            'ViperCoreStylesPlugin'		=> translate('Core Styles'),
+            'ViperFormatPlugin'			=> translate('Formatting'),
+            'ViperHistoryPlugin'		=> translate('History'),
+            'ViperInlineToolbarPlugin'	=> translate('Inline Toolbar'),
+            'MatrixImagePlugin'			=> translate('Insert Image'),
+            'MatrixLinkPlugin'			=> translate('Insert Link'),
+            'ViperKeyboardEditorPlugin'	=> translate('Keyboard Editor'),
+            'MatrixKeywordsPlugin'		=> translate('Keywords <i>(Asset-based & snippets)</i>'),
+            'ViperListPlugin'			=> translate('Listing'),
+            'MatrixCopyPastePlugin'		=> translate('Matrix Editing Tools <i>(specific to editing Matrix-based URLs)</i>'),
+            'ViperSearchReplacePlugin'	=> translate('Search and Replace'),
+            'ViperCharMapPlugin'		=> translate('Special Characters'),
+            'ViperTableEditorPlugin'	=> translate('Table Editing'),
+            'ViperToolbarPlugin'		=> translate('Main (Top) Toolbar'),
+            'ViperSourceViewPlugin'		=> translate('View Source'),
+            'ViperCopyPastePlugin'		=> translate('Editing Tools <i>(Copy, Paste, etc.)</i>'),
+          );
 
 	}//end constructor
 
@@ -209,7 +211,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if ($have_lock && $is_admin) {
 				foreach ($this->_viper_plugins as $index => $plugin_name) {
 					check_box('prefs[SQ_VIPER_PLUGINS]['.$index.']', 1,($all || in_array($index, $viper_plugins)));
-					label(translate($plugin_name), 'prefs[SQ_VIPER_PLUGINS]['.$index.']');
+					label($plugin_name, 'prefs[SQ_VIPER_PLUGINS]['.$index.']');
 					echo '<br/>';
 				}
 			} else {
@@ -219,7 +221,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				} else {
 					echo '<ul>';
 					foreach ($viper_plugins as $plugin_name) {
-						echo '<li class="sq-backend-data">'.translate($this->_viper_plugins[$plugin_name]).'</li>';
+						echo '<li class="sq-backend-data">'.$this->_viper_plugins[$plugin_name].'</li>';
 					}
 					echo '</ul>';
 				}

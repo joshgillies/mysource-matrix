@@ -197,6 +197,33 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
+	    $errors = Array(
+                    '==_q'            => translate('The response to "%1$s" must be equal to the response to question "%2$s"'),
+                    '=='              => translate('The response to "%1$s" must be equal to "%2$s"'),
+                    '!=_q'            => translate('The response to "%1$s" must NOT be equal to the response to question "%2$s"'),
+                    '!='              => translate('The response to "%1$s" must NOT be equal to "%2$s"'),
+                    '>_q'             => translate('The response to "%1$s" must be greater than the response to question "%2$s"'),
+                    '>'               => translate('The response to "%1$s" must be greater than "%2$s"'),
+                    '<_q'             => translate('The response to "%1$s" must be less than the response to question "%2$s"'),
+                    '<'               => translate('The response to "%1$s" must be less than "%2$s"'),
+                    '>=_q'            => translate('The response to "%1$s" must be greater than or equal to the response to question "%2$s"'),
+                    '>='              => translate('The response to "%1$s" must be greater than or equal to "%2$s"'),
+                    '<=_q'            => translate('The response to "%1$s" must be less than or equal to the response to question "%2$s"'),
+                    '<='              => translate('The response to "%1$s" must be less than or equal to "%2$s"'),
+                    '==_accessible'   => translate('The response must be equal to "%1$s".'),
+                    '==_q_accessible' => translate('The response must be equal to the response to question "%1$s".'),
+                    '!=_accessible'   => translate('The response must NOT be equal to "%1$s".'),
+                    '!=_q_accessible' => translate('The response must NOT be equal to the response to question "%1$s".'),
+                    '>_accessible'    => translate('The response must be greater than "%1$s".'),
+                    '>_q_accessible'  => translate('The response must be greater than the response to question "%1$s".'),
+                    '<_accessible'    => translate('The response must be less than "%1$s".'),
+                    '<_q_accessible'  => translate('The response must be less than the response to question "%1$s".'),
+                    '>=_accessible'   => translate('The response must be greater than or equal to "%1$s".'),
+                    '>=_q_accessible' => translate('The response must be greater than or equal to the response to question "%1$s".'),
+                    '<=_accessible'   => translate('The response must be less than or equal to "%1$s".'),
+                    '<=_q_accessible' => translate('The response must be less than or equal to question "%1$s".'),
+        );
+
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 		$value = array_get_index($rule_data, 'value', '');
@@ -216,7 +243,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 			}
 		} else {
 			$operator_list = $this->getOperators();
-			$string_code = 'core_form_rule_comparison_desc_'.$operator;
+			$string_code = $operator;
 
 			if ($cq_id != 0) {
 				$string_code .= '_q';
@@ -225,11 +252,13 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 			} else {	// sent just a value
 				$value = array_get_index($rule_data, 'value', '');
 			}
-			if($use_accessible_string)
-			    $error_str = translate($string_code.'_accessible', $value);
-			else
-			    $error_str = translate($string_code, $q_asset->name, $value);
-		}
+
+			if ($use_accessible_string) {
+			    $string_code .= '_accessible';
+			}
+
+			$error_str = sprintf($string_code, $q_asset->name, $value);
+		}//end if
 
 		return $error_str;
 

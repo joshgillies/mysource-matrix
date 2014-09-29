@@ -241,7 +241,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				echo '<em>'.translate('No values selected').'.</em>';
 
 			} else {
-				echo translate($is_default ? 'thesaurus_using_default_values' : 'thesaurus_using_non_default_values');
+				echo ($is_default ? translate('Using default value') : translate('Using non-default values'));
 				?>
 				<table class="sq-backend-table" border="1" style="margin-left: 0px">
 					<tr>

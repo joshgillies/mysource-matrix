@@ -870,7 +870,7 @@ class Context_Config extends Config
 				ob_start();
 					combo_box($this->prefix.'new_condition_type', $option_types, FALSE, Array(), 0, ' disabled="disabled"');
 				$combo_box = ob_get_clean();
-				echo $check_box.' '.translate('Add a new condition of type: %s'), $combo_box);
+				echo $check_box.' '.sprintf(translate('Add a new condition of type: %s'), $combo_box);
 			$o->closeField();
 		}
 
@@ -1029,7 +1029,7 @@ class Context_Config extends Config
 				$case_ch = ob_get_clean();
 
 				echo sprintf(
-                    translate('Match if the header named %1$s %2$s %3$s %4$s %5$s Case sensitive?',
+                    translate('Match if the header named %1$s %2$s %3$s %4$s %5$s').' '.translate('Case sensitive?'),
                     $header_tb,
                     $logic_cb,
                     $type_cb,
@@ -1088,7 +1088,7 @@ class Context_Config extends Config
 				$case_ch = ob_get_clean();
 
                 echo sprintf(
-                    translate('Match if the %1$s variable named %2$s %3$s %4$s %5$s %6$s Case sensitive?',
+                    translate('Match if the %1$s variable named %2$s %3$s %4$s %5$s %6$s').' '.translate('Case sensitive?'),
                     strtoupper($condition_type),
                     $var_tb,
                     $logic_cb,

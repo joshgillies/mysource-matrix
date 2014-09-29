@@ -502,6 +502,11 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 						echo ($tree_info['depth'] === 0 ? '' : '</span>');
 
+						$cascades_str = translate('No');
+						if ($tree_info['cascades'] === '1') {
+						    $cascades_str = translate('Yes');
+						}
+
 						?></td>
 						<td class="sq-backend-table-cell">
 							<strong><span style="color: <?php echo (($tree_info['granted'] == '0') ? 'red' : 'green'); ?>"><?php echo (($tree_info['granted'] == '0') ? translate('Denied') : translate('Applied')) ?></span></strong>
@@ -509,7 +514,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 						</td>
 						<td class="sq-backend-table-cell">
-							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo translate($tree_info['cascades'] === '1' ? 'yes' : 'no'); ?>" />
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo $cascades_str; ?>" />
 						</td>
 					</tr>
 					<?php

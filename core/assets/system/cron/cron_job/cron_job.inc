@@ -496,14 +496,22 @@ class Cron_Job extends Asset
 			case 'TI' :
 				if ($when_arr['minute'] != '') {
 					$interval_unit = 'minute';
+					$interval_str  = translate('%2$s minutes');
 				} else if ($when_arr['hour'] != '') {
 					$interval_unit = 'hour';
+					$interval_str  = translate('%2$s hours');
 				} else if ($when_arr['day'] != '') {
 					$interval_unit = 'day';
+					$interval_str  = translate('%2$s days');
 				}
+
 				// format date, eg. 02:00 on 21 Jan, 2006
 				$next_run = date('H:i \o\n j M, Y',$when_arr['duration']);
-				$ret_val = translate('cron_run_repeat',$next_run, $when_arr[$interval_unit], translate($interval_unit.'s'));
+				$ret_val = sprintf(
+				    translate('Next run %1$s. Repeating every %2$s'),
+				    $next_run,
+				    $when_arr[$interval_unit]
+				);
 			break;
 
 		}//end switch

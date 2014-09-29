@@ -177,6 +177,12 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 								SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 								SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
 							   );
+
+		$section_titles = Array(
+		                    'new_link_type'   => translate('New Link Type'),
+		                    'new_link_parent' => translate('New Link Parent'),
+		                    'at'              => translate('At')
+
 		ob_start();
 			combo_box($prefix.'[link_type]', $editable_link_types, FALSE, $settings['link_type']);
 		$output['new_link_type'] = ob_get_clean();
@@ -253,7 +259,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		ob_start();
 			?><table class="sq-backend-table"><?php
 				foreach ($output as $title => $text) {
-					?><tr><th><?php echo translate($title); ?></th><td><?php echo $text; ?></td></tr><?php
+					?><tr><th><?php echo $section_titles[$title]; ?></th><td><?php echo $text; ?></td></tr><?php
 				}
 			?></table><?php
 		return ob_get_clean();

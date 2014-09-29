@@ -110,9 +110,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 
 		$type_of_search = Array(
 							'exact'		=> translate('Exact Match'),
-
 							'partial'	=> translate('Partial Match'),
-
 							'regex'		=> translate('RegEx Match'),
 
 						  );
@@ -146,7 +144,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 			if ($write_access) {
 				combo_box($prefix.'[match]', $type_of_search, FALSE, $settings['match']);
 			} else {
-				echo translate($settings['match'].'_match');
+				echo $type_of_search[$settings['match']];
 			}
 			$match_component = ob_get_contents();
 		ob_end_clean();

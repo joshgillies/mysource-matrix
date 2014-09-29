@@ -240,7 +240,7 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 		if ($write_access) {
 			combo_box($prefix.'_date_field', $date_field_types, FALSE, $settings['date_field']);
 		} else {
-			echo '<strong>'.translate($settings['date_field']).'</strong>';
+			echo '<strong>'.$date_field_types[$settings['date_field']].'</strong>';
 		}
 		echo '</p>';
 
@@ -435,12 +435,9 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 	protected static function _getValidDateTypes()
 	{
 		$date_types = Array(
-						'created'	=> translate('Created Date'),
-
-						'published'	=> translate('Published Date'),
-
-						'updated'	=> translate('Last updated date'),
-
+						'created'	        => translate('Created Date'),
+						'published'      	=> translate('Published Date'),
+						'updated'	        => translate('Last Updated Date'),
 						'status_changed'	=> translate('Status Changed Date'),
 
 					  );
