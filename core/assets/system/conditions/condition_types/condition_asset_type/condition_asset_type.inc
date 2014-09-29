@@ -60,7 +60,7 @@ class Condition_Asset_Type extends Condition
 		if (!isset($condition_data['types'])) {
 			return FALSE;
 		}
-		
+
 		$current_type = get_class($asset);
 		$asset_types = explode(',', $condition_data['types']);
 		foreach ($asset_types as $asset_type) {
@@ -68,10 +68,31 @@ class Condition_Asset_Type extends Condition
 				return TRUE;
 			}
 		}
-		
+
 		return FALSE;
 
 	}//end evaluate()
+
+
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The current asset is of any of the following types'),
+							'0' => translate('The current asset is NOT of any of the following types'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
 
 
 }//end class

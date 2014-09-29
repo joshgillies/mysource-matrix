@@ -59,6 +59,27 @@ class Condition_In_Maintenance_Mode extends Condition
 	}//end evaluate()
 
 
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The system is in Maintenance Mode'),
+							'0' => translate('The system is NOT in Maintenance Mode'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
+
+
 }//end class
 
 ?>

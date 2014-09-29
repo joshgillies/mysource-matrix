@@ -65,7 +65,7 @@ class Condition_User_Frequency extends Condition
 	{
 		$result = FALSE;
 		if(empty($prefix)) $prefix = '';
-		
+
 		// Retrieve the cookie or initialise it
 		if (isset($_COOKIE['user_frequency_cond_'.$prefix]) && (FALSE !== strpos($_COOKIE['user_frequency_cond_'.$prefix], '__'))) {
 			$data = Array();
@@ -143,6 +143,27 @@ class Condition_User_Frequency extends Condition
 		return $result;
 
 	}//end evaluate()
+
+
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The following amount of time or activity has passed'),
+							'0' => translate('The following amount of time or activity has NOT passed'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
 
 
 }//end class

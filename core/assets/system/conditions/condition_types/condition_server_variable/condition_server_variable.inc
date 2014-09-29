@@ -68,6 +68,27 @@ class Condition_Server_Variable extends Condition
 	}//end evaluate()
 
 
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The following server variable matches the specified pattern'),
+							'0' => translate('The following server variable does NOT match the specified pattern'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
+
+
 }//end class
 
 ?>

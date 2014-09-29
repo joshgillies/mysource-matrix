@@ -131,18 +131,31 @@ class Context_Config extends Config
 		}
 
 		// Summary list of contexts
-		$o->openSection(translate($this->prefix.'list_of_contexts'));
+		$o->openSection(translate('List of Current Contexts'));
 			$o->openRaw('');
 				$this->paintSummary($o, $contexts, $write_access, $current_context);
 			$o->closeRaw();
-			$o->sectionNote(translate($this->prefix.'note'));
+
+			$section_note = '<p>'.translate('The <strong>Conditions for Context Detection</strong> column states the conditions that must be satisfied for a context to be selected through the context detection process.').' '.
+			    translate('Context detection will occur on <strong>every request</strong>, unless a context has been forced through another method, either by user group preference or by global action.').' '.
+			    translate('Alternate contexts are evaluated top to bottom, and the first one that matches is selected.').' '.
+			    translate('If none match, the base context for the URL of the request is used, as set through the relevant Site asset (or the default context if no current URL exists, eg. in a CLI script).').'</p><p>'.
+			    translate('Conditions do not affect a context\'s ability to be used through methods outside context detection, such as through global action, or User Group override.').' '.
+			    translate('If you do not want a context to be selected through context detection, simply leave its conditions blank.').' '.
+			    translate('The <strong>Valid?</strong> column states whether a context\'s conditions are achievable, based on the number of valid conditions and the set logic (either "All" or "At least").').' '.
+			    translate('A context\'s conditions may be marked "not valid" if:').'</p><ul><li>'.
+			    translate('A context contains no valid conditions.').'</li><li>'.
+			    translate('A context is set to require "at least" a certain number of matches, but does not have enough valid conditions to meet the requirement.').' '.
+			    translate('If some conditions are invalid, but not all, the conditions can still be "valid" if there enough valid ones.)').'</li></ul><p>'.
+			    translate('Adding a new context <b>will not</b> generate Metadata for it. This will need to be done manually by the user.').'</p>';
+			$o->sectionNote($section_note);
 
 		$o->closeSection();
 
 		// Edit currently selected context (as selected through the post var)
 		if (($write_access === TRUE) && (is_null($current_context) === FALSE)) {
 			if (isset($contexts[$current_context]) === TRUE) {
-				$o->openSection(translate($this->prefix.'edit_selected_context'));
+				$o->openSection(translate('Edit Selected Context'));
 					$this->paintSelectedContext($o, $contexts, $current_context);
 				$o->closeSection();
 			}
@@ -203,13 +216,13 @@ class Context_Config extends Config
 	<tr class="sq-table-row">
 		<th class="sq-backend-table-header-header" colspan="6">
 			<?php
-				echo translate($this->prefix.'default_name'); ?>
+				echo translate('Default Context'); ?>
 		</th>
 	</tr>
 	<tr>
 		<th><?php echo translate('Edit?'); ?></th>
 
-		<th><?php echo translate($this->prefix.'context_name'); ?></th>
+		<th><?php echo translate('Context Name'); ?></th>
 		<th colspan="4"></th>
 	</tr>
 	<?php
@@ -224,7 +237,7 @@ class Context_Config extends Config
 	<tr class="<?php echo $row_class; ?>">
 		<td class="sq-backend-table-cell" align="center"><?php
 			if (($write_access === TRUE) && ((int)$contextid !== $current_context)) { ?>
-			<p><a href="#" onclick="document.getElementById('<?php echo $this->prefix; ?>selected').value = <?php echo $contextid ?>; document.main_form.submit(); return false;"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 15, 15, translate($this->prefix.'edit_alt_text', $context_name), NULL, ' border="0"')); ?></a></p><?php
+			<p><a href="#" onclick="document.getElementById('<?php echo $this->prefix; ?>selected').value = <?php echo $contextid ?>; document.main_form.submit(); return false;"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 15, 15, sprintf(translate('Edit context "%s"'), $context_name), NULL, ' border="0"')); ?></a></p><?php
 			}
 		?>
 		</td>
@@ -237,13 +250,15 @@ class Context_Config extends Config
 		</td>
 		<td class="sq-backend-table-cell"><?php
 			if ($contextid === 0) {
-				echo translate($this->prefix.'default_explanation');
+				echo translate('The <em>default context</em> will be used as a fallback when there is no current URL - for instance, as the initial context in a command-line script.').' '.
+				        translate('It can also be explicitly selected as a User Group preference, or as a base context for a URL.').' '.
+				        translate('You may change the default context\'s displayed name, but otherwise there are no conditions to configure, and its order cannot be edited.');
 				$valid = TRUE;
 			} else {
 				if ($context['at_least'] === NULL) {
-					echo translate($this->prefix.'table_all_description', count($context['conditions']));
+					echo sprintf(translate('All of the following %s condition(s) must be met:'), count($context['conditions']));
 				} else {
-					echo translate($this->prefix.'table_at_least_description', $context['at_least'], count($context['conditions']));
+					echo sprintf(translate('At least %1$s of the following %2$s condition(s) must be met:'), $context['at_least'], count($context['conditions']));
 				}
 
 				?><ul>
@@ -293,11 +308,13 @@ class Context_Config extends Config
 				if ($condition_err_count > 0) {
 					if ($valid === TRUE) {
 						?><p><?php
-							echo translate($this->prefix.'invalid_cond_but_still_valid');
+							echo translate('There are conditions above that are not valid. However, there are still enough valid conditions to allow this context to be selected.').'<br/>'.
+							        translate('Fixing the invalid condition(s) may increase this context\'s ability to be selected.');
 						?></p><?php
 					} else {
 						?><p class="sq-backend-warning"><?php
-							echo translate($this->prefix.'not_enough_valid_cond_to_be_valid');
+							echo translate('There are not enough valid conditions to satisfy the minimum number required for this context to be selected.').'<br/>'.
+							        translate('Fixing the invalid condition(s) may make this context eligible for selection.');
 						?></p><?php
 					}
 				}
@@ -311,9 +328,9 @@ class Context_Config extends Config
 			//  AT LEAST <x> conditions are required, and
 			//    there are at least that many valid conditions.
 			if ($valid) {
-				echo trim(sq_get_icon(sq_web_path('lib').'/web/images/tick.gif', 15, 15, translate($this->prefix.'valid_alt_text', $context_name), NULL, ' border="0"'));
+				echo trim(sq_get_icon(sq_web_path('lib').'/web/images/tick.gif', 15, 15, sprintf(translate('Conditions for context "%s" are valid'), $context_name), NULL, ' border="0"'));
 			} else {
-				echo trim(sq_get_icon(sq_web_path('lib').'/web/images/cross.gif', 15, 15, translate($this->prefix.'not_valid_alt_text', $context_name), NULL, ' border="0"'));
+				echo trim(sq_get_icon(sq_web_path('lib').'/web/images/cross.gif', 15, 15, sprintf(translate('Conditions for context "%s" are NOT valid'), $context_name), NULL, ' border="0"'));
 			}
 		?>
 		</td>
@@ -321,13 +338,13 @@ class Context_Config extends Config
 			// reorder link
 			if ($write_access === TRUE) {
 				if ($alt_context_num > 1) {
-					?><a href="#" onclick="return false;" class="reorder-up"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/up_arrow.png', 15, 15, translate($this->prefix.'reorder_up_alt_text', $context_name), NULL, ' border="0"')); ?></a><?php
+					?><a href="#" onclick="return false;" class="reorder-up"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/up_arrow.png', 15, 15, sprintf(translate('Move context "%s" up'), $context_name), NULL, ' border="0"')); ?></a><?php
 				} else {
 					//no need to print anything
 				}
 				?> <?php
 				if (($contextid !== 0) && ($alt_context_num < count($contexts) - 1)) {
-					?><a href="#" onclick="return false;" class="reorder-down"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/down_arrow.png', 15, 15, translate($this->prefix.'reorder_down_alt_text', $context_name), NULL, ' border="0"')); ?></a><?php
+					?><a href="#" onclick="return false;" class="reorder-down"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/down_arrow.png', 15, 15, sprintf(translate('Move context "%s" down'), $context_name), NULL, ' border="0"')); ?></a><?php
 				} else {
 					//no need to print anything
 				}
@@ -337,8 +354,10 @@ class Context_Config extends Config
 		<td class="sq-backend-table-cell" align="center"><?php
 			// delete link
 			if (($write_access === TRUE) && ($contextid !== 0) && (($contextid !== $current_context))) {
-				?><p><a href="#" onclick="if (confirm('<?php echo str_replace("\n", '\\n', translate($this->prefix.'delete_warning', $context_name)); ?>') == true) { document.getElementById('<?php echo $this->prefix; ?>deleted').value = <?php echo $contextid ?>; document.main_form.submit(); } return false;"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/delete.png', 15, 15, translate($this->prefix.'delete_alt_text', $context_name), NULL, ' border="0"')); ?></a></p><?php
-
+			    $confirm_note = translate('Are you sure you want to delete alternate context "%s"?')."\n\n".
+			        translate('If you click "OK", this context - and the attribute and metadata values associated with this context - will be deleted.').' '.
+			        translate('This cannot be undone.');
+				?><p><a href="#" onclick="if (confirm('<?php echo str_replace("\n", '\\n', htmlentities(sprintf($confirm_note, $context_name))); ?>') == true) { document.getElementById('<?php echo $this->prefix; ?>deleted').value = <?php echo $contextid ?>; document.main_form.submit(); } return false;"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/delete.png', 15, 15, sprintf(translate('Delete context "%s"'), $context_name), NULL, ' border="0"')); ?></a></p><?php
 			}
 		?>
 		</td>
@@ -351,7 +370,7 @@ class Context_Config extends Config
 	<tr class="sq-table-row">
 		<th class="sq-backend-table-header-header" colspan="6">
 			<?php
-				echo translate($this->prefix.'alternate_contexts'); ?>
+				echo translate('Alternate Contexts'); ?>
 		</th>
 	</tr><?php
 				if (count($contexts) > 1) {
@@ -360,8 +379,8 @@ class Context_Config extends Config
 	<tr class="sq-table-row">
 		<th><?php echo translate('Edit?'); ?></th>
 
-		<th><?php echo translate($this->prefix.'context_name'); ?></th>
-		<th><?php echo translate($this->prefix.'context_details'); ?></th>
+		<th><?php echo translate('Context Name'); ?></th>
+		<th><?php echo translate('Conditions for Context Detection'); ?></th>
 		<th style="text-align: center"><?php echo translate('Valid?'); ?></th>
 
 		<th style="text-align: center"><?php echo translate('Reorder?'); ?></th>
@@ -375,7 +394,7 @@ class Context_Config extends Config
 		?>
 	<tr class="sq-table-row">
 		<td class="sq-backend-table-cell"></td>
-		<td class="sq-backend-table-cell" colspan="5"><?php echo translate($this->prefix.'no_alternate_contexts'); ?></td>
+		<td class="sq-backend-table-cell" colspan="5"><strong><?php echo translate('There are no alternate contexts defined.') ?></strong> <?php translate('The default context will always be used, and context switching of content will not be available.'); ?></td>
 	</tr><?php
 				}
 			}
@@ -389,7 +408,7 @@ class Context_Config extends Config
 		<tr class="sq-table-row">
 			<th class="sq-backend-table-header-header" colspan="6">
 				<?php
-					echo translate($this->prefix.'new_alternate_context'); ?>
+					echo translate('Create a new alternate context...'); ?>
 			</th>
 		</tr>
 		<tr>
@@ -402,10 +421,10 @@ class Context_Config extends Config
 				ob_start();
 					text_box($this->prefix.'new_alternate_context_name', '', 20, 0, FALSE, ' disabled="disabled"');
 				$text_box = ob_get_clean();
-				echo translate($this->prefix.'new_alternate_context_line', $check_box, $text_box);
+				echo $check_box.' '.sprintf(translate('Create a new alternate context called: %s'), $text_box);
 			} else {
 				?><br/><?php
-				echo translate($this->prefix.'lock_to_add_alternate');
+				echo translate('To create an alternate context, you must lock the screen first.');
 			}
 			?>
 			</td>
@@ -555,38 +574,126 @@ class Context_Config extends Config
 		foreach ($conditions as $condition_id => $condition_details) {
 			$options = $condition_details['options'];
 
+			$case_sensitive_options = Array(
+			    0 => translate('Not case sensitive'),
+			    1 => translate('Case sensitive'),
+			);
+
 			switch ($condition_details['type']) {
 				case 'accept-language':
 					$locales = $this->_getAcceptLanguageOptions();
-					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_accept-language', $locales[$options['language']], number_format($options['min_q'], 1));
+					$condition_text[$condition_id] = sprintf(translate('An "Accept-language" header exists with the language <strong>%1$s</strong>, and a minimum quality value of <strong>%2$s</strong>'), $locales[$options['language']], number_format($options['min_q'], 1));
 				break;
 
 				case 'header':
+				    $translated_text = Array(
+				        'exists'    => translate('The header <strong>%1$s exists</strong> in the request'),
+				        '!exists'   => translate('The header <strong>%1$s does not exist</strong> in the request'),
+				        'exact'     => translate('The header <strong>%1$s is "%2$s"</strong> (%3$s)'),
+				        '!exact'    => translate('The header <strong>%1$s is not "%2$s"</strong> (%3$s)'),
+				        'begins'    => translate('The header <strong>%1$s begins with "%2$s"</strong> (%3$s)'),
+				        '!begins'   => translate('The header <strong>%1$s does not begin with "%2$s"</strong> (%3$s)'),
+				        'ends'      => translate('The header <strong>%1$s ends with "%2$s"</strong> (%3$s)'),
+				        '!ends'     => translate('The header <strong>%1$s does not end with "%2$s"</strong> (%3$s)'),
+				        'contains'  => translate('The header <strong>%1$s contains "%2$s"</strong> (%3$s)'),
+				        '!contains' => translate('The header <strong>%1$s does not contain "%2$s"</strong> (%3$s)'),
+				    );
+
 					$translate_suffix = ((int)$options['match_logic'] === 1 ? '' : '!').$options['match_type'];
-					$case_sensitive_text = ((int)($options['case_sensitive']) === 1 ? '' : 'not_').'case_sensitive';
-					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_header_'.$translate_suffix, $options['header_name'], $options['match_value'], translate($case_sensitive_text));
+					$condition_text[$condition_id] = sprintf(
+					    $translated_text[$translate_suffix],
+					    $options['header_name'],
+					    $options['match_value'],
+					    $case_sensitive_options[(int) $options['case_sensitive']]
+					);
 				break;
 
 				case 'get':
-				case 'post':
+				    $translated_text = Array(
+				        'exists'    => translate('The GET variable <strong>%1$s exists</strong> in the request\'s query string'),
+				        '!exists'   => translate('The GET variable <strong>%1$s does not exist</strong> in the request\'s query string'),
+				        'exact'     => translate('The GET variable <strong>%1$s is "%2$s"</strong> (%3$s)'),
+				        '!exact'    => translate('The GET variable <strong>%1$s is not "%2$s"</strong> (%3$s)'),
+				        'begins'    => translate('The GET variable <strong>%1$s begins with "%2$s"</strong> (%3$s)'),
+				        '!begins'   => translate('The GET variable <strong>%1$s does not begin with "%2$s"</strong> (%3$s)'),
+				        'ends'      => translate('The GET variable <strong>%1$s ends with "%2$s"</strong> (%3$s)'),
+				        '!ends'     => translate('The GET variable <strong>%1$s does not end with "%2$s"</strong> (%3$s)'),
+				        'contains'  => translate('The GET variable <strong>%1$s contains "%2$s"</strong> (%3$s)'),
+				        '!contains' => translate('The GET variable <strong>%1$s does not contain "%2$s"</strong> (%3$s)'),
+				    );
+
 					$translate_suffix = ((int)$options['match_logic'] === 1 ? '' : '!').$options['match_type'];
-					$case_sensitive_text = ((int)($options['case_sensitive']) === 1 ? '' : 'not_').'case_sensitive';
-					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_'.$condition_details['type'].'_'.$translate_suffix, $options['var_name'], $options['match_value'], translate($case_sensitive_text));
+					$condition_text[$condition_id] = sprintf(
+					    $translated_text[$translate_suffix],
+					    $options['header_name'],
+					    $options['match_value'],
+					    $case_sensitive_options[(int) $options['case_sensitive']]
+					);
+				break;
+
+				case 'post':
+					$translated_text = Array(
+				        'exists'    => translate('The POST variable <strong>%1$s exists</strong> in the posted data of the request'),
+				        '!exists'   => translate('The POST variable <strong>%1$s does not exist</strong> in the posted data of the request'),
+				        'exact'     => translate('The POST variable <strong>%1$s is "%2$s"</strong> (%3$s)'),
+				        '!exact'    => translate('The POST variable <strong>%1$s is not "%2$s"</strong> (%3$s)'),
+				        'begins'    => translate('The POST variable <strong>%1$s begins with "%2$s"</strong> (%3$s)'),
+				        '!begins'   => translate('The POST variable <strong>%1$s does not begin with "%2$s"</strong> (%3$s)'),
+				        'ends'      => translate('The POST variable <strong>%1$s ends with "%2$s"</strong> (%3$s)'),
+				        '!ends'     => translate('The POST variable <strong>%1$s does not end with "%2$s"</strong> (%3$s)'),
+				        'contains'  => translate('The POST variable <strong>%1$s contains "%2$s"</strong> (%3$s)'),
+				        '!contains' => translate('The POST variable <strong>%1$s does not contain "%2$s"</strong> (%3$s)'),
+				    );
+
+					$translate_suffix = ((int)$options['match_logic'] === 1 ? '' : '!').$options['match_type'];
+					$condition_text[$condition_id] = sprintf(
+					    $translated_text[$translate_suffix],
+					    $options['header_name'],
+					    $options['match_value'],
+					    $case_sensitive_options[(int) $options['case_sensitive']]
+					);
 				break;
 
 				case 'url':
+					$translated_text = Array(
+				        'exact'     => translate('The requested URL <strong>%1$s is "%2$s"</strong> (%3$s)'),
+				        '!exact'    => translate('The requested URL <strong>is not "%s"</strong>'),
+				        'begins'    => translate('The requested URL <strong>begins with "%s"</strong>'),
+				        '!begins'   => translate('The requested URL <strong>does not begin with "%s"</strong>'),
+				        'ends'      => translate('The requested URL <strong>ends with "%s"</strong>'),
+				        '!ends'     => translate('The requested URL <strong>does not end with "%s"</strong>'),
+				        'contains'  => translate('The requested URL <strong>contains "%s"</strong>'),
+				        '!contains' => translate('The requested URL <strong>does not contain "%s"</strong>'),
+				    );
+
 					$translate_suffix = ((int)$options['match_logic'] === 1 ? '' : '!').$options['match_type'];
-					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_url_'.$translate_suffix, $options['match_value']);
+					$condition_text[$condition_id] = sprintf(
+					    $translated_text[$translate_suffix],
+					    $options['match_value']
+					);
 				break;
 
 				case 'port':
-					$translate_suffix = ($options['match_type'] === 'is' ? '' : '_!');
-					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_port'.$translate_suffix, $options['match_value']);
+					$translated_text = Array(
+				        'exact'  => translate('The request is being made to <strong>port %s</strong>'),
+				        '!exact' => translate('The request is <strong>not</strong> being made to <strong>port %s</strong>'),
+				    );
+
+					$translate_suffix = ((int)$options['match_logic'] === 'is' ? '' : '!').'exact';
+					$condition_text[$condition_id] = sprintf(
+					    $translated_text[$translate_suffix],
+					    $options['match_value']
+					);
 				break;
 
 				case 'secure':
-					$translate_suffix = ($options['match_value'] === 1 ? '' : '_!');
-					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_secure'.$translate_suffix);
+					$translated_text = Array(
+				        'secure'  => translate('The connection to Squiz Matrix is <strong>secure (using HTTPS protocol)</strong>'),
+				        '!secure' => translate('The connection to Squiz Matrix is <strong>not secure (using HTTP protocol)</strong>'),
+				    );
+
+					$translate_suffix = ($options['match_value'] === 1 ? '' : '_!').'secure';
+					$condition_text[$condition_id] = $translated_text[$translate_suffix];
 				break;
 			}
 		}
@@ -629,9 +736,14 @@ class Context_Config extends Config
 		$context_errors = Array();
 
 		if (count($context['conditions']) < 1) {
-			$context_errors['context'][] = translate($this->prefix.'context_has_no_conditions');
+			$context_errors['context'][] = translate('This context has no conditions defined.');
 		} else if ((is_numeric($context['at_least']) === TRUE) && ($context['at_least'] > count($context['conditions']))) {
-			$context_errors['context'][] = translate($this->prefix.'context_at_least_too_many', $context['at_least'], count($context['conditions']));
+			$context_errors['context'][] = sprintf(
+			    translate('This context requires "at least %1$s" conditions to match, however it only contains %2$s conditions, making this context impossible to select.').'<br/>'.
+			        translate('Either reduce the minimum number of matches (or set to "all"), or add more conditions, to make this context valid.'),
+			    $context['at_least'],
+			    count($context['conditions'])
+			);
 		} else {
 			foreach ($context['conditions'] as $condition_id => $condition) {
 				$condition_type    = $condition['type'];
@@ -640,26 +752,26 @@ class Context_Config extends Config
 				switch ($condition_type) {
 					case 'url':
 						if ($condition_options['match_value'] === '') {
-							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_url_no_match_value');
+							$context_errors[$condition_id][] = translate('This condition has no URL fragment to match with.');
 						}
 					break;
 
 					case 'header':
 						if ($condition_options['header_name'] === '') {
-							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_header_no_header_name');
+							$context_errors[$condition_id][] = translate('This condition has no header name set.');
 						}
 						if ($condition_options['match_value'] === '') {
-							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_header_no_match_value');
+							$context_errors[$condition_id][] = translate('This condition has no comparison value with which to match the header contents.');
 						}
 					break;
 
 					case 'get':
 					case 'post':
 						if ($condition_options['var_name'] === '') {
-							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_no_request_var_name');
+							$context_errors[$condition_id][] = translate('This condition has no variable name set.');
 						}
 						if ($condition_options['match_value'] === '') {
-							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_request_var_no_match_value');
+							$context_errors[$condition_id][] = translate('This condition has no comparison value with which to match the variable contents.');
 						}
 					break;
 				}
@@ -705,7 +817,7 @@ class Context_Config extends Config
 				$conditions = Array();
 			}
 
-			$o->openField(translate($this->prefix.'minimum_matches'));
+			$o->openField(translate('Minimum Matches'));
 				$list_options = Array(
 							'At least'	=> translate('At least'),
 
@@ -729,7 +841,7 @@ class Context_Config extends Config
 				ob_start();
 					int_text_box($this->prefix.'at_least', $at_least, FALSE, 3, 1, NULL, 2, FALSE, FALSE, ' onchange="if (this.value != \'\') document.getElementById(\''.$this->prefix.'minimum_matches\').selectedIndex = 0;');
 				$tb = ob_get_clean();
-				echo translate($this->prefix.'minimum_matches_interface', $cb, $tb);
+				echo sprintf(translate('%1$s %2$s condition(s) must match before this alternate context can be considered for selection.'), $cb, $tb);
 				?>
 				<?php
 			$o->closeField();
@@ -740,13 +852,13 @@ class Context_Config extends Config
 			$o->closeField();
 
 			$option_types = Array(
-								'accept-language'	=> translate($this->prefix.'type_accept-language'),
-								'header'			=> translate($this->prefix.'type_header'),
-								'url'				=> translate($this->prefix.'type_url'),
-								'port'				=> translate($this->prefix.'type_port'),
-								'secure'			=> translate($this->prefix.'type_secure'),
-								'get'				=> translate($this->prefix.'type_get'),
-								'post'				=> translate($this->prefix.'type_post'),
+								'accept-language'	=> translate('Accept-Language request header'),
+								'header'			=> translate('Other request header'),
+								'url'				=> translate('URL of request'),
+								'port'				=> translate('Destination port'),
+								'secure'			=> translate('Secure/insecure connection'),
+								'get'				=> translate('GET variable'),
+								'post'				=> translate('POST variable'),
 							);
 
 			$o->openField(translate('New Condition?'));
@@ -758,7 +870,7 @@ class Context_Config extends Config
 				ob_start();
 					combo_box($this->prefix.'new_condition_type', $option_types, FALSE, Array(), 0, ' disabled="disabled"');
 				$combo_box = ob_get_clean();
-				echo translate($this->prefix.'new_condition_line', $check_box, $combo_box);
+				echo $check_box.' '.translate('Add a new condition of type: %s'), $combo_box);
 			$o->closeField();
 		}
 
@@ -785,17 +897,27 @@ class Context_Config extends Config
 	</colgroup>
 	<tbody>
 	<tr class="sq-table-row">
-		<th><?php echo translate($this->prefix.'condition_type'); ?></th>
-		<th><?php echo translate($this->prefix.'condition_details'); ?></th>
+		<th><?php echo translate('Condition Type'); ?></th>
+		<th><?php echo translate('Condition Details'); ?></th>
 		<th style="text-align: center"><?php echo translate('Delete?'); ?></th>
 
 	</tr><?php
+	    $option_types = Array(
+            'accept-language'	=> translate('Accept-Language request header'),
+            'header'			=> translate('Other request header'),
+            'url'				=> translate('URL of request'),
+            'port'				=> translate('Destination port'),
+            'secure'			=> translate('Secure/insecure connection'),
+            'get'				=> translate('GET variable'),
+            'post'				=> translate('POST variable'),
+        );
+
 		foreach ($conditions as $condition_id => &$condition_options) {
 		?>
 		<tr><?php
 			$condition_type = $conditions[$condition_id]['type'];
 			?>
-			<td><p><strong><?php echo translate($this->prefix.'type_'.$condition_type); ?></strong></p></td><?php
+			<td><p><strong><?php echo $option_types[$condition_type]; ?></strong></p></td><?php
 			?>
 			<td><?php
 				$this->_paintCondition($o, $conditions, $condition_id);
@@ -838,7 +960,7 @@ class Context_Config extends Config
 				ob_start();
 					combo_box($this->prefix.$condition_id.'_language', $locales, FALSE, Array($current_language));
 				$language_cb = ob_get_clean();
-				echo translate($this->prefix.'type_accept-language_param_language', $language_cb);
+				echo sprintf(translate('Match the following language: %s'), $language_cb);
 				?></li>
 				<li><?php
 					ob_start();
@@ -854,12 +976,16 @@ class Context_Config extends Config
 						}
 						text_box($this->prefix.$condition_id.'_min_q', $min_q, 5, 0, FALSE, ' onblur="val = parseFloat(this.value); if (isNaN(val)) {this.value = \'\'; } else {val = Math.min(Math.max(val, 0), 1); if (val == parseInt(this.value)) {this.value = parseInt(this.value) + \'.0\'; } }"');
 					$min_q_box = ob_get_clean();
-					echo translate($this->prefix.'type_accept-language_param_min_q', $min_q_box);
+					echo sprintf(htmlentities(translate('Only match the language if quality >= %s (must be between 0.0 and 1.0)')), $min_q_box);
 				?>
 				</li>
 				</ul>
 				<p><?php
-					echo translate($this->prefix.'type_accept-language_param_explanation');
+				    $param_note = translate('This condition will match if the language specified is found at any point in the "Accept-language" header in the request.').' '.
+				        translate('If no Accept-language header is provided, the condition will fail.').'<br/>'.
+				        translate('If a quality value is set, the condition will only match if the request specifies a quality value of at least the set amount, or omits it entirely (which implies a quality of 1.0).').'<br/>'.
+				        translate('If a language is specified without a locale (eg. "English" instead of "English (Australia)"), the rule will match any entry in the header that includes that language, whether or not it is further qualified with a locale.');
+					echo $param_note;
 				?></p><?php
 			break;
 
@@ -874,16 +1000,16 @@ class Context_Config extends Config
 				$case_sensitive = $condition_details['case_sensitive'];
 
 				$logic_options = Array(
-									1	=> translate($this->prefix.'type_header_option_1'),
-									0	=> translate($this->prefix.'type_header_option_0'),
+									1	=> translate('does'),
+									0	=> translate('does not'),
 							     );
 
 				$type_options = Array(
-									'exists'	=> translate($this->prefix.'type_header_option_exists'),
-									'exact'		=> translate($this->prefix.'type_header_option_exact'),
-									'begins'	=> translate($this->prefix.'type_header_option_begins'),
-									'ends'		=> translate($this->prefix.'type_header_option_ends'),
-									'contains'	=> translate($this->prefix.'type_header_option_contains'),
+									'exists'	=> translate('exist'),
+									'exact'		=> translate('exactly match:'),
+									'begins'	=> translate('begin with:'),
+									'ends'		=> translate('end with:'),
+									'contains'	=> translate('contain:'),
 							     );
 
 				ob_start();
@@ -901,12 +1027,23 @@ class Context_Config extends Config
 				ob_start();
 					check_box($this->prefix.$condition_id.'_case_sensitive', '1', $case_sensitive);
 				$case_ch = ob_get_clean();
-				echo translate($this->prefix.'type_header_param', $header_tb, $logic_cb, $type_cb, $value_tb, $case_ch);
+
+				echo sprintf(
+                    translate('Match if the header named %1$s %2$s %3$s %4$s %5$s Case sensitive?',
+                    $header_tb,
+                    $logic_cb,
+                    $type_cb,
+                    $value_tb,
+                    $case_ch
+                );
 				?>
 				</li>
 				</ul>
 				<p><?php
-					echo translate($this->prefix.'type_header_param_explanation');
+				    $param_note = translate('This condition will match if the header matches the condition specified.').' '.
+				        translate('You can specify whether a header existed in the request or not, or matches a certain string.').'<br/>'.
+				        translate('If the match type is "does/does not exist", no value needs to be entered into the text box.');
+					echo $param_note;
 				?></p><?php
 			break;
 
@@ -922,16 +1059,16 @@ class Context_Config extends Config
 				$case_sensitive = $condition_details['case_sensitive'];
 
 				$logic_options = Array(
-									1	=> translate($this->prefix.'type_header_option_1'),
-									0	=> translate($this->prefix.'type_header_option_0'),
+									1	=> translate('does'),
+									0	=> translate('does not'),
 							     );
 
 				$type_options = Array(
-									'exists'	=> translate($this->prefix.'type_header_option_exists'),
-									'exact'		=> translate($this->prefix.'type_header_option_exact'),
-									'begins'	=> translate($this->prefix.'type_header_option_begins'),
-									'ends'		=> translate($this->prefix.'type_header_option_ends'),
-									'contains'	=> translate($this->prefix.'type_header_option_contains'),
+									'exists'	=> translate('exist'),
+									'exact'		=> translate('exactly match:'),
+									'begins'	=> translate('begin with:'),
+									'ends'		=> translate('end with:'),
+									'contains'	=> translate('contain:'),
 							     );
 
 				ob_start();
@@ -949,12 +1086,30 @@ class Context_Config extends Config
 				ob_start();
 					check_box($this->prefix.$condition_id.'_case_sensitive', '1', $case_sensitive);
 				$case_ch = ob_get_clean();
-				echo translate($this->prefix.'type_'.$condition_type.'_param', $var_tb, $logic_cb, $type_cb, $value_tb, $case_ch);
-				?>
-				</li>
+
+                echo sprintf(
+                    translate('Match if the %1$s variable named %2$s %3$s %4$s %5$s %6$s Case sensitive?',
+                    strtoupper($condition_type),
+                    $var_tb,
+                    $logic_cb,
+                    $type_cb,
+                    $value_tb,
+                    $case_ch
+                );
+				?></li>
 				</ul>
 				<p><?php
-					echo translate($this->prefix.'type_header_param_explanation');
+				    if ($condition_type === 'get') {
+                        $param_note = translate('This condition will match if the value of the entered GET variable matches the condition specified.').' '.
+                            translate('You can specify whether a GET variable existed in the query string or not, or matches a certain string.').'<br/>'.
+                            translate('If the match type is "does/does not exist", no value needs to be entered into the text box.');
+					} else {
+				        $param_note = translate('This condition will match if the value of the entered POST variable matches the condition specified.').' '.
+				            translate('You can specify whether a POST variable existed in posted data or not, or matches a certain string.').'<br/>'.
+                            translate('If the match type is "does/does not exist", no value needs to be entered into the text box.');
+					}
+
+					echo $param_note;
 				?></p><?php
 			break;
 
@@ -967,15 +1122,15 @@ class Context_Config extends Config
 				$match_value = $condition_details['match_value'];
 
 				$logic_options = Array(
-									1	=> translate($this->prefix.'type_url_option_1'),
-									0	=> translate($this->prefix.'type_url_option_0'),
+									1	=> translate('does'),
+									0	=> translate('does not'),
 							     );
 
 				$type_options = Array(
-									'exact'		=> translate($this->prefix.'type_url_option_exact'),
-									'begins'	=> translate($this->prefix.'type_url_option_begins'),
-									'ends'		=> translate($this->prefix.'type_url_option_ends'),
-									'contains'	=> translate($this->prefix.'type_url_option_contains'),
+									'exact'		=> translate('exactly match:'),
+									'begins'	=> translate('begin with:'),
+									'ends'		=> translate('end with:'),
+									'contains'	=> translate('contain:'),
 							     );
 
 				ob_start();
@@ -987,12 +1142,18 @@ class Context_Config extends Config
 				ob_start();
 					text_box($this->prefix.$condition_id.'_match_value', $match_value, 30);
 				$value_tb = ob_get_clean();
-				echo translate($this->prefix.'type_url_param', $logic_cb, $type_cb, $value_tb);
+				echo sprintf(
+				    translate('Match if the request URL %1$s %2$s %3$s'),
+				    $logic_cb,
+				    $type_cb,
+				    $value_tb
+				);
 				?>
 				</li>
 				</ul>
 				<p><?php
-					echo translate($this->prefix.'type_url_param_explanation');
+					echo translate('This condition will match if the URL used to access an asset matches (or does not match) the condition specified.').' '.
+					    translate('Note that this is the URL used by Squiz Matrix and will not include protocol, query strings or port numbers.');
 				?></p><?php
 			break;
 
@@ -1003,8 +1164,8 @@ class Context_Config extends Config
 				$match_type = $condition_details['match_type'];
 				$port = $condition_details['match_value'];
 				$options = Array(
-							'is'		=> translate($this->prefix.'type_port_option_1'),
-							'is_not'	=> translate($this->prefix.'type_port_option_0'),
+							'is'		=> translate('is'),
+							'is_not'	=> translate('is not'),
 						   );
 				ob_start();
 					combo_box($this->prefix.$condition_id.'_match_type', $options, FALSE, Array($match_type));
@@ -1012,12 +1173,17 @@ class Context_Config extends Config
 				ob_start();
 					int_text_box($this->prefix.$condition_id.'_match_value', $port, FALSE, 7, 0, 65535);
 				$tb = ob_get_clean();
-				echo translate($this->prefix.'type_port_param', $cb, $tb);
+				echo sprintf(
+				    translate('Match if the connection %1$s made on port: %2$s'),
+				    $cb,
+				    $tb
+				);
 				?>
 				</li>
 				</ul>
 				<p><?php
-					echo translate($this->prefix.'type_port_param_explanation');
+					echo translate('This condition will match if the port used to access Squiz Matrix matches (or does not match) the port specified.').' '.
+					    translate('This is generally specified in the entered URL; where not specified, the default port for HTTP requests is 80; for HTTPS (secure) requests it is port 443.');
 				?></p><?php
 			break;
 
@@ -1027,18 +1193,23 @@ class Context_Config extends Config
 				<li><?php
 				$match = $condition_details['match_value'];
 				$options = Array(
-							0	=> translate($this->prefix.'type_secure_option_0'),
-							1	=> translate($this->prefix.'type_secure_option_1'),
+							0	=> translate('Not secure (HTTP)'),
+							1	=> translate('Secure (HTTPS)'),
 						   );
 				ob_start();
 					combo_box($this->prefix.$condition_id.'_match_value', $options, FALSE, Array($match));
 				$cb = ob_get_clean();
-				echo translate($this->prefix.'type_secure_param', $cb);
+				echo sprintf(
+				    translate('Match if the connection is: %s'),
+				    $cb
+				);
 				?>
 				</li>
 				</ul>
 				<p><?php
-					echo translate($this->prefix.'type_secure_param_explanation');
+					echo translate('This condition will match if a secure connection is (or is not) being used to access Squiz Matrix.').'<br/>'.
+					    translate('Please note that this may be affected by proxies such as SSL accelerators, unless configured properly on the Proxy Configuration page.').' '.
+					    translate('The system can only use what protocol is presented to it.');
 				?></p><?php
 			break;
 		}

@@ -178,6 +178,27 @@ class Condition_Logical extends Condition
 	}//end getRequiredKeywords()
 
 
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The following combination of keywords evaluates to TRUE'),
+							'0' => translate('The following combination of keywords evaluates to FALSE'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
+
+
 }//end class
 
 ?>

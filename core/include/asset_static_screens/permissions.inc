@@ -141,10 +141,57 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 	$admin_access = $owner->adminAccess('permissions');
 	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
+	$section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Read Permissions'),
+	    SQ_PERMISSION_WRITE => translate('Write Permissions'),
+	    SQ_PERMISSION_ADMIN => translate('Admin Permissions'),
+	);
+
+	$existing_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Existing Read Permissions'),
+	    SQ_PERMISSION_WRITE => translate('Existing Write Permissions'),
+	    SQ_PERMISSION_ADMIN => translate('Existing Admin Permissions'),
+	);
+
+	$granted_section_titles = Array(
+	    '0' => Array(
+            SQ_PERMISSION_READ  => translate('Denied Read Permissions'),
+            SQ_PERMISSION_WRITE => translate('Denied Write Permissions'),
+            SQ_PERMISSION_ADMIN => translate('Denied Admin Permissions'),
+        ),
+	    '1' => Array(
+            SQ_PERMISSION_READ  => translate('Granted Read Permissions'),
+            SQ_PERMISSION_WRITE => translate('Granted Write Permissions'),
+            SQ_PERMISSION_ADMIN => translate('Granted Admin Permissions'),
+        ),
+	);
+
+	$existing_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Existing Read Permissions'),
+	    SQ_PERMISSION_WRITE => translate('Existing Write Permissions'),
+	    SQ_PERMISSION_ADMIN => translate('Existing Admin Permissions'),
+	);
+
+	$add_new_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Add New Read Permissions'),
+	    SQ_PERMISSION_WRITE => translate('Add New Write Permissions'),
+	    SQ_PERMISSION_ADMIN => translate('Add New Admin Permissions'),
+	);
+
+	$public_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Public Read Permission'),
+	    SQ_PERMISSION_WRITE => translate('Public Write Permission'),
+	    SQ_PERMISSION_ADMIN => translate('Public Admin Permission'),
+	);
+
+	$specific_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Specific Read Permission To'),
+	    SQ_PERMISSION_WRITE => translate('Specific Write Permission To'),
+	    SQ_PERMISSION_ADMIN => translate('Specific Admin Permission To'),
+	);
 
 	foreach ($perms as $title => $perm) {
-		$o->openSection(sprintf(translate('%1$s Permissions'), translate($title)));
-
+		$o->openSection($section_titles[$perm]);
 
 		$permissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm);
 
@@ -160,7 +207,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 		ksort($direct);
 
-		$o->openSection(sprintf(translate('Existing %s Permissions'), translate($title)));
+		$o->openSection($existing_section_titles[$perm]);
 
 			$o->openRaw();
 
@@ -170,7 +217,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 						<table class="sq-backend-table">
 							<tr>
 								<th>
-									<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('Denied') : translate('Granted')).' '.translate($title).' '.translate('Permissions'); ?></span>
+									<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo $granted_section_titles[$granted][$perm]; ?></span>
 
 
 
@@ -227,7 +274,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 
 		if ($admin_access) {
 
-			$o->openSection(sprintf(translate('Add New %s Permissions'), translate($title)));
+			$o->openSection($add_new_section_titles[$perm]);
 
 				$o->openField(translate('New'));
 
@@ -244,7 +291,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 								combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('Grant'), '0' => translate('Deny')), FALSE, '');
 
 
-								echo ' '.sprintf(translate('Public <strong>%1$s</strong> Permission'), translate($title));
+								echo ' '.$public_section_titles[$perm];
 
 								?>
 								</span>
@@ -260,7 +307,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 								combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('Grant'), '0' => translate('Deny')), FALSE, '');
 
 
-								echo ' '.sprintf(translate('Specific <strong>%1$s</strong> Permission'), translate($title)).' '.translate('To');
+								echo ' '.$specific_section_titles[$perm];
 
 
 								?>

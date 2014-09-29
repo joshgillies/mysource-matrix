@@ -80,8 +80,29 @@ class Condition_Has_Children extends Condition
 
 		$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, $asset_types, TRUE, NULL, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, $link_types);
 		return !empty($children);
-		
+
 	}//end evaluate()
+
+
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The current asset has children of any of the following types'),
+							'0' => translate('The current asset does NOT have children of any of the following types'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
 
 
 }//end class

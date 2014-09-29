@@ -3858,17 +3858,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$perms = Array(
-					'read'	=> SQ_PERMISSION_READ,
-					'write'	=> SQ_PERMISSION_WRITE,
-					'admin'	=> SQ_PERMISSION_ADMIN,
+		$perm_options = Array(
+					SQ_PERMISSION_READ  => translate('Read'),
+					SQ_PERMISSION_WRITE => translate('Write'),
+					SQ_PERMISSION_ADMIN => translate('Admin'),
 				 );
-
-		// translate permissions
-		$perm_options = Array();
-		foreach ($perms as $title => $perm) {
-			$perm_options[$perm] = translate($title);
-		}
 		$conf_perm = $asset->attr('list_permission');
 		$conf_eff  = $asset->attr('list_effective');
 

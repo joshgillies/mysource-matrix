@@ -706,11 +706,11 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 						<?php
 						if ($link_type <= 2) {
 							$lock_status = ($link_locking == '1') ? 'tick' : 'cross';
-							$lock_status_desc = ($link_locking == '1') ? 'locked' : 'unlocked';
+							$lock_status_desc = ($link_locking == '1') ? translate('Locked') : translate('Unlocked');
 							if ($can_edit) {
 								check_box($prefix.'_link_locked['.$linkid.']', '1', (($link_locking == '1') ? TRUE : FALSE));
 							} else {
-								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$lock_status.'.gif" alt="'.translate($lock_status_desc).'" style="border: 0;" />';
+								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$lock_status.'.gif" alt="'.$lock_status_desc.'" style="border: 0;" />';
 							}//end if
 						}//end if
 						?>

@@ -154,7 +154,11 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 					if ((string) $field['children'][0]['name'] !== 'display_name') {
-						$display_name = translate($date_type.'_date');
+					    if (strtolower((string) $field['code']) === 'date_created_date') {
+					        $display_name = translate('Created Date');
+						} else {
+					        $display_name = translate('Last Published Date');
+						}
 					} else {
 						$display_name = (string) $field['children'][0]['content'];
 					}
