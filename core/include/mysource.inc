@@ -549,7 +549,8 @@ class MySource extends MySource_Object
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 
 			if ($require_password_change) {
-				$this->paintPasswordChange(translate('change_password'), translate('must_change_password_to_access_backend'));
+				$error_message = SQ_IN_LIMBO ? translate('must_change_password_to_access_edit_mode') : translate('must_change_password_to_access_admin_mode');
+				$this->paintPasswordChange(translate('change_password'), $error_message);
 				exit();
 			}
 
@@ -587,11 +588,12 @@ class MySource extends MySource_Object
 					$backend->paint();
 				ob_end_flush();
 			} else {
-				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
+				$error_message = SQ_IN_LIMBO ? translate('must_login_to_access_edit_mode') : translate('must_login_to_access_admin_mode');
+				$this->paintLogin(translate('login'), $error_message);
 			}
 
 		} else if (SQ_IN_LOGIN) {
-			$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
+			$this->paintLogin(translate('login'), translate('must_login_to_access_admin_mode'));
 
 		} else {
 			// we are on the frontend
@@ -755,7 +757,7 @@ class MySource extends MySource_Object
 			// In _performance view mode
 			if (SQ_IN_PERFORMANCE) {
 				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || !$asset->writeAccess()) {
-					$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
+					$this->paintLogin(translate('login'), translate('must_login_to_access_performance_mode'));
 				} else {
 					$this->pm->printFrames($asset);
 				}

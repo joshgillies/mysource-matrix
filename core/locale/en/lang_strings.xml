@@ -1860,9 +1860,12 @@
 	<string source="refresh_now">Refresh Now</string>
 
 	<string source="expression_must_be">Expression must be %s</string>
-	<string source="must_login_to_access_backend">You need to login before you can access Admin Mode</string>
+	<string source="must_login_to_access_admin_mode">You need to login before you can access Admin Mode</string>
+	<string source="must_login_to_access_edit_mode">You need to login before you can access Edit Mode</string>
+	<string source="must_login_to_access_performance_mode">You need to login to access Performance Mode</string>
 	<string source="must_be_backend_user">You need to be a backend user in order to access Admin Mode</string>
-	<string source="must_change_password_to_access_backend">You need to change your password before you can access Admin Mode</string>
+	<string source="must_change_password_to_access_admin_mode">You need to change your password before you can access Admin Mode</string>
+	<string source="must_change_password_to_access_edit_mode">You need to change your password before you can access Edit Mode</string>
 	<string source="must_change_password_to_access_asset">You need to change your password before you can access &lt;%s&gt;</string>
 	<string source="must_change_password_to_access_this_page">You need to change your password before you can access this page</string>
 	<string source="change_password">Change Password</string>
