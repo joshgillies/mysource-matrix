@@ -1689,7 +1689,7 @@ class DAL
 	 */
 	public static function getOvenPath($system=NULL)
 	{
-		$path = dirname(__FILE__).'/Oven';
+		$path = SQ_DATA_PATH.'/private/Oven';
 
 		if ($system !== '') {
 			$path .= '/'.$system;
@@ -1708,7 +1708,7 @@ class DAL
 	 */
 	public static function getQueryStorePath()
 	{
-		$path = dirname(__FILE__).'/QueryStore';
+		$path = SQ_DATA_PATH.'/private/QueryStore';
 		return $path;
 
 	}//end getQueryStorePath()

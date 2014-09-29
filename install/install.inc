@@ -1067,7 +1067,7 @@ function minify_css_files()
 {
 	require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/jsmin.php';
 
-	$file = SQ_SYSTEM_ROOT.'/core/lib/js/matrix.min.js';
+	$file = SQ_DATA_PATH.'/public/matrix.min.js';
 
 	$source_files = Array (
 	SQ_SYSTEM_ROOT.'/fudge/var_serialise/var_serialise.js',
