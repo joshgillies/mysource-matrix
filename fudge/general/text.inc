@@ -721,10 +721,10 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 
 		if (!is_null($toMatch) && preg_match_all('/'.$toMatch.'/', $text, $matches)) {
 			if (isset($matches[0]) && count($matches[0]) > 0) {
-				return $success ? $success : count($matches[0]);
+				return !is_null($success) ? $success : count($matches[0]);
 			}
 		}
-		return $failure ? $failure : 0;
+		return !is_null($failure) ? $failure : 0;
 
 	 case "as_asset":
 		$asset_keyword = array_get_index($modifier['args'], 0, '');
