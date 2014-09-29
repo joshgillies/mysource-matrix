@@ -44,9 +44,14 @@ class Inbox_Prefs extends Prefs
 	* Constructor
 	*
 	*/
-	function inboxPrefs($pref_file='')
+	function Inbox_Prefs($pref_file='')
 	{
 		$this->Prefs($pref_file);
+		$this->pref_names = Array(
+		                         'SQ_INBOX_MAIL_PER_PAGE' => Array(
+                                     'name' => translate('Messages per page'),
+                                 ),
+                            );
 
 	}//end inboxPrefs()
 
@@ -63,22 +68,11 @@ class Inbox_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $is_admin  = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $have_lock = $have_lock && $is_admin;
 
-		if (is_null($pref) || $pref == 'SQ_INBOX_MAIL_PER_PAGE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Messages per page'));
-			}
-
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_INBOX_MAIL_PER_PAGE]', $this->pref_vars['SQ_INBOX_MAIL_PER_PAGE']['default'], 5);
-			} else {
-				echo array_get_index($this->pref_vars['SQ_INBOX_MAIL_PER_PAGE'], 'default', 5);
-			}
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
+	    // Messages per page.
+		$this->paintTextField($o, $have_lock, $pref, 'SQ_INBOX_MAIL_PER_PAGE', 5, '%s message(s)');
 
 		return TRUE;
 

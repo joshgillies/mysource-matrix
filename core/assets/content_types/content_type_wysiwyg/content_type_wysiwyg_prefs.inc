@@ -132,7 +132,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	{
 		$this->Prefs($pref_file);
 
-		$_viper_plugins = Array(
+		$this->_viper_plugins = Array(
             'ViperAccessibilityPlugin'	=> translate('Accessibility'),
             'ViperLangToolsPlugin'		=> translate('Choose Language'),
             'ViperCursorAssistPlugin'	=> translate('Cursor Assist'),

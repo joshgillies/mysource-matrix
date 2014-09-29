@@ -66,6 +66,25 @@ class Bodycopy_Container_Prefs extends Prefs
 	{
 		parent::__construct($pref_file);
 
+		$this->pref_names = Array(
+		                         'SQ_DEFAULT_CONTENT_TYPE' => Array(
+                                     'name' => translate('Default Content Type'),
+                                     'desc' => translate('When new Content Containers are created they will use this content type.'),
+                                 ),
+		                         'SQ_DEFAULT_PRESENTATION_TYPE' => Array(
+                                     'name' => translate('Default Presentation Type'),
+                                     'desc' => translate('When new Content Containers are created they will use this presentation type. by default. This can be changed for a particular Content Container at any time.'),
+                                 ),
+                                 'SQ_DIV_DISABLE_CREATE' => Array(
+                                     'name' => translate('Disable Creating Content Containers'),
+                                     'desc' => translate('Allows you to stop users from being able to create Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.'),
+                                 ),
+                                 'SQ_DIV_DISABLE_DELETE' => Array(
+                                     'name' => translate('Disable Deleting Content Containers'),
+                                     'desc' => translate('Allows you to stop users from being able to delete Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.'),
+                                 ),
+                            );
+
 	}//end constructor
 
 
@@ -81,140 +100,48 @@ class Bodycopy_Container_Prefs extends Prefs
 	*/
 	public function paintBackend(Backend_Outputter $o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $is_admin  = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $have_lock = $have_lock && $is_admin;
 
-		if (is_null($pref) || $pref == 'SQ_DEFAULT_CONTENT_TYPE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Default Content Type'));
-			}
+	    // Default content type.
+		$all_content_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('content_type');
 
-				$default_content_type = $this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['default'];
-				if ($have_lock) {
-					$all_content_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('content_type');
+        // If markdown is not enabled, remove it from the list
+        $markdown_key = array_search('content_type_markdown', $all_content_types);
+        if ($markdown_key !== FALSE) {
+            $disable_markdown = TRUE;
+            require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+            if (SQ_TOOL_MARKDOWN_ENABLED && is_file(SQ_TOOL_MARKDOWN_PATH)) {
+                include_once SQ_TOOL_MARKDOWN_PATH;
+                if (function_exists('Markdown')) {
+                    $disable_markdown = FALSE;
+                }
+            }
+            if ($disable_markdown) {
+                unset($all_content_types[$markdown_key]);
+            }
+        }
 
-					//if markdown is not enabled, remove it from the content type
-					$markdown_key = array_search('content_type_markdown', $all_content_types);
-					if ($markdown_key !== FALSE) {
-						$disable_markdown = TRUE;
-						require_once SQ_DATA_PATH.'/private/conf/tools.inc';
-						if (SQ_TOOL_MARKDOWN_ENABLED && is_file(SQ_TOOL_MARKDOWN_PATH)) {
-							include_once SQ_TOOL_MARKDOWN_PATH;
-							if (function_exists('Markdown')) {
-								$disable_markdown = FALSE;
-							}
-						}
-						if ($disable_markdown) {
-							unset($all_content_types[$markdown_key]);
-						}
-					}
+        $content_type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($all_content_types, 'name');
+		$this->paintComboField($o, $have_lock, $pref, 'SQ_DEFAULT_CONTENT_TYPE', $content_type_names);
 
-					$content_type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($all_content_types, 'name');
-					combo_box('prefs[SQ_DEFAULT_CONTENT_TYPE]', $content_type_names, FALSE, $default_content_type);
-					echo '<div class="sq-backend-note">'.translate('When new bodycopy containers are created they will use this content type.').'</div>';
+	    // Default presentation type.
+        $possible_types = Array(
+                            'div'	=> translate('Block (div)'),
+                            'span'	=> translate('Inline (span)'),
+                            'none'	=> translate('Raw (no formatting)'),
+                          );
+		$this->paintComboField($o, $have_lock, $pref, 'SQ_DEFAULT_PRESENTATION_TYPE', $possible_types);
 
-				} else {
-					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($default_content_type, 'name');
-				}
+		// Disable create and delete.
+        $options = Array(
+                    'yes' => translate('Yes'),
+                    'no'  => translate('No'),
+                   );
+		$this->paintComboField($o, $have_lock, $pref, 'SQ_DIV_DISABLE_CREATE', $options);
+		$this->paintComboField($o, $have_lock, $pref, 'SQ_DIV_DISABLE_DELETE', $options);
 
-			if (is_null($pref)) $o->closeField();
-		}
-
-		if (is_null($pref) || $pref == 'SQ_DEFAULT_PRESENTATION_TYPE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Default Presentation Type'));
-			}
-
-				$default_pres_type = $this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['default'];
-				$possible_types = Array(
-									'div'	=> translate('Block (div)'),
-
-									'span'	=> translate('Inline (span)'),
-
-									'none'	=> translate('Raw (no formatting)'),
-
-								  );
-
-				if ($have_lock) {
-					combo_box('prefs[SQ_DEFAULT_PRESENTATION_TYPE]', $possible_types, FALSE, $default_pres_type);
-					echo '<div class="sq-backend-note">'.translate('When new bodycopy Divs are created they will use this presentation type by default. This can be changed for a particular Div container at any time.').'</div>';
-
-				} else {
-					echo $possible_types[$default_pres_type];
-				}
-
-			if (is_null($pref)) $o->closeField();
-		}
-
-
-		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_CREATE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Disable Creating Content Containers'));
-			}
-				$div_disable_create = $this->pref_vars['SQ_DIV_DISABLE_CREATE']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 100px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">
-						<?php
-							echo translate('Disable');
-
-						?>
-						</td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							combo_box('prefs[SQ_DIV_DISABLE_CREATE][default]', Array('yes' => 'Yes', 'no' => 'No'), FALSE, $div_disable_create);
-						} else {
-							echo ucfirst($div_disable_create);
-						}
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			$o->note(translate('Allows you to stop users from being able to create Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.'));
-
-
-			if (is_null($pref)) $o->closeField();
-
-		}//end if show SQ_DIV_DISABLE_CREATE
-
-			if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_DELETE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Disable Deleting Content Containers'));
-			}
-				$div_disable_delete = $this->pref_vars['SQ_DIV_DISABLE_DELETE']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 100px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">
-						<?php
-							echo translate('Disable');
-
-						?>
-						</td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							combo_box('prefs[SQ_DIV_DISABLE_DELETE][default]', Array('yes' => 'Yes', 'no' => 'No'), FALSE, $div_disable_delete);
-						} else {
-							echo ucfirst($div_disable_delete);
-						}
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			$o->note(translate('Allows you to stop users from being able to delete Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.'));
-
-
-			if (is_null($pref)) $o->closeField();
-
-		}//end if show SQ_DIV_DISABLE_DELETE
 		return TRUE;
-
-
 
 	}//end paintBackend()
 
@@ -250,14 +177,14 @@ class Bodycopy_Container_Prefs extends Prefs
 		// Div DISABLE CREATE
 		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_CREATE') {
 			if (isset($_POST['prefs']['SQ_DIV_DISABLE_CREATE'])) {
-				$this->pref_vars['SQ_DIV_DISABLE_CREATE']['default'] = $_POST['prefs']['SQ_DIV_DISABLE_CREATE']['default'];
+				$this->pref_vars['SQ_DIV_DISABLE_CREATE']['default'] = $_POST['prefs']['SQ_DIV_DISABLE_CREATE'];
 			}
 		}
 
 		// Div DISABLE DELETE
 		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_DELETE') {
 			if (isset($_POST['prefs']['SQ_DIV_DISABLE_DELETE'])) {
-				$this->pref_vars['SQ_DIV_DISABLE_DELETE']['default'] = $_POST['prefs']['SQ_DIV_DISABLE_DELETE']['default'];
+				$this->pref_vars['SQ_DIV_DISABLE_DELETE']['default'] = $_POST['prefs']['SQ_DIV_DISABLE_DELETE'];
 			}
 		}
 

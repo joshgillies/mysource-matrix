@@ -44,6 +44,20 @@ class Prefs extends MySource_Object
 
 
 	/**
+	* Names and descriptions of preferences.
+	*
+	* To be initialised inside the constructor, because we want them translated
+	* and you can't do that in a instance variable definition.
+	*
+	* Each element is:
+	* (string key) => [name => (string), description (string)]
+	*
+	* @var array
+	*/
+	var $pref_names = Array();
+
+
+	/**
 	* Constructor
 	*
 	*/
@@ -103,6 +117,118 @@ class Prefs extends MySource_Object
 		return false;
 
 	}//end processBackend()
+
+
+	/**
+	 * Default paint for a field.
+	 *
+	 * @param object Backend_Outputter    &$o           Reference to the backend outputter.
+	 * @param boolean                     $have_lock    FALSE means paint as read-only.
+	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
+	 * @param string                      $pref         Preference to paint.
+	 * @param callback                    $paintFn      Paint function
+	 * @param mixed                       $extra        Extra things to pass to paint function.
+	 *
+	 * @return boolean
+	 */
+	function paintField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $paintFn, $extra=NULL)
+	{
+	    $commit = FALSE;
+
+	    if (is_null($all_prefs) || $all_prefs == 'SQ_INBOX_MAIL_PER_PAGE') {
+            if (array_key_exists($pref, $this->pref_vars) === TRUE) {
+                $pref_value = $this->pref_vars[$pref]['default'];
+            }
+
+            if (is_null($all_prefs)) {
+                $o->openField($this->pref_names[$pref]['name']);
+            }
+
+            // Paint the field.
+            $commit = $paintFn($o, $have_lock, $pref, $extra);
+
+            if (array_key_exists('desc', $this->pref_names[$pref]) === TRUE) {
+                $o->note($this->pref_names[$pref]['desc']);
+            }
+
+            if (is_null($all_prefs)) {
+                $o->closeField();
+            }
+
+            $commit = $commit && $have_lock;
+        }
+
+	    return $commit;
+
+	}//end defaultPaintField();
+
+
+	/**
+	 * Paint a simple text field.
+	 *
+	 * @param object Backend_Outputter    &$o           Reference to the backend outputter.
+	 * @param boolean                     $have_lock    FALSE means paint as read-only.
+	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
+	 * @param string                      $pref         Preference to paint.
+	 * @param array                       $width        Width of the text box.
+	 * @param string|callback             $format       Formatting string (sprintf) or callback.
+	 *
+	 * @return boolean
+	 */
+	function paintTextField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $width, $format='%s')
+	{
+	    $options = Array(
+	        'width'  => $width,
+	        'format' => $format,
+	    );
+
+		return $this->paintField($o, $have_lock, $all_prefs, $pref, function($o, $have_lock, $pref, $options) {
+		    $default = $this->pref_vars[$pref]['default'];
+
+            if ($have_lock) {
+				text_box('prefs['.$pref.']', $default, $options['width']);
+            } else {
+                if (is_callable($options['format'])) {
+                    echo $options['format']($default);
+                } else {
+                    echo sprintf($options['format'], $default);
+                }
+            }
+
+			return $have_lock;
+		}, $options);
+	}
+
+
+	/**
+	 * Paint a simple combo field.
+	 *
+	 * @param object Backend_Outputter    &$o           Reference to the backend outputter.
+	 * @param boolean                     $have_lock    FALSE means paint as read-only.
+	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
+	 * @param string                      $pref         Preference to paint.
+	 * @param array                       $options      Array of options for the combo box.
+	 *
+	 * @return boolean
+	 */
+	function paintComboField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $options)
+	{
+	    $options = Array(
+	                'options' => $options,
+	               );
+
+        return $this->paintField($o, $have_lock, $all_prefs, $pref, function($o, $have_lock, $pref, $options) {
+		    $default = $this->pref_vars[$pref]['default'];
+
+            if ($have_lock) {
+                combo_box('prefs['.$pref.']', $options['options'], FALSE, $default);
+            } else {
+                echo $options['options'][$default];
+            }
+
+			return $have_lock;
+		}, $options);
+	}
 
 
 	/**
