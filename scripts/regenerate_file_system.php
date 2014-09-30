@@ -22,7 +22,7 @@
  * @version $Revision: 1.2 $
  * @package MySource_Matrix
 **/
-
+error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
 /**
  * Error Handler
  *
@@ -67,6 +67,12 @@ class MErrorHandler
 	 * @access public
 	**/
 	public function throwError($errorNumber,$errorMessage,$errorFile,$errorLine) {
+	
+		$current_level = error_reporting();
+
+		// this error level is not set, so dont show the error, like all those php strict errors
+        if (($errorNumber & $current_level) == 0) return;
+
 		switch ($errorNumber) {
 			case E_USER_ERROR:
 				$type="ERROR";
@@ -106,6 +112,9 @@ class MErrorHandler
 	public function output($message) {
 		$message=sprintf('[%s] %s'."\n",date('d/m/Y H:i:s'),$message);
 		if (!file_put_contents($this->errorLogFile,$message,FILE_APPEND)) {
+            while (ob_get_level()) {
+                ob_end_flush();
+            }
 			print $message;
 		}
 	}
