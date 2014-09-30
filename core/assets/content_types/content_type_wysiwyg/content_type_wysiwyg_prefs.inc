@@ -178,6 +178,9 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
             translate('The styles are defined in CSS files used as Associated Files for the current asset.').' '.
             translate('The Matrix Apply Design plugin must be enabled for this setting to take effect.');
 
+        $this->pref_vars['SQ_THESAURUS']['name'] = translate('Thesaurus');
+        $this->pref_vars['SQ_THESAURUS']['desc'] = translate('The thesaurus asset used by the Matrix Expand Keywords plugin.');
+
 	}//end constructor
 
 
@@ -395,26 +398,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
                    );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE', $options);
 
-		if ($GLOBALS['SQ_SYSTEM']->am->installed('thesaurus') && (is_null($pref) || $pref == 'SQ_THESAURUS')) {
-			if (is_null($pref)) {
-				$o->openField(translate('Thesaurus'));
-			}
-
-			if ($have_lock && $is_admin) {
-				asset_finder('prefs[SQ_THESAURUS]', $this->pref_vars['SQ_THESAURUS']['default'], Array('thesaurus'=>'A'));
-				$o->note(translate('The thesaurus asset used by the Matrix Expand Keywords plugin.'));
-
-			} else {
-				if (!$this->pref_vars['SQ_THESAURUS']['default']) {
-					echo '('.translate('None selected').')';
-
-				} else {
-					$name = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->pref_vars['SQ_THESAURUS']['default']), 'thesaurus', TRUE, 'name'));
-					echo $name.' (#'.$this->pref_vars['SQ_THESAURUS']['default'].')';
-				}
-			}
-			if (is_null($pref)) $o->closeField();
-		}//end if show SQ_THESAURUS
+        // Thesaurus selection.
+        $this->paintAssetMapField($o, $have_lock, $pref, 'SQ_THESAURUS', FALSE, Array('thesaurus' => 'A'), translate('No Thesaurus asset selected'));
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_LINK_TYPES') {
 			$pref_var =& $this->pref_vars['SQ_WYSIWYG_LINK_TYPES'];

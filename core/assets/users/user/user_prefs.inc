@@ -112,6 +112,9 @@ class User_Prefs extends Prefs
 		$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['name'] = translate('Asset Map Root Asset');
 		$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['desc'] = translate('The asset that will be displayed as the Asset Map\'s root node');
 
+		$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['name'] = translate('Asset Map Width');
+		$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['desc'] = translate('The asset map frame width in pixels.');
+
 		$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['name'] = translate('Enforce Safe Trash');
         $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['desc'] = translate('If this setting is enabled, the system will prohibit the deletion of an asset until all notice links are removed.');
 
@@ -335,35 +338,8 @@ class User_Prefs extends Prefs
                    );
 		$this->paintComboField($o, $have_lock, $pref, 'SQ_USER_SAFE_TYPE3_TRASH', $options);
 
-		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
-			if (is_null($pref)) $o->openField(translate('Asset Map Width'));
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
-
-			if ($have_lock && $is_admin) {
-
-				if (isset($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'])) {
-					$asset_map_settings = $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'];
-				} else {
-					$asset_map_settings = '';
-				}
-				$this->int_am_frame_width->value = $asset_map_settings;
-				$this->int_am_frame_width->paint($pref.'_am_frame_width', !$have_lock);
-			} else {
-				if (!empty($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'])) {
-					echo sprintf(translate('%s pixels'), $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default']);
-				}
-			}
-			?>
-			<?php
-			$o->note($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['description']);
-			?>
-			</div>
-			<?php
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
+	    // Asset map width.
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_USER_ASSET_MAP_WIDTH', 10, translate('%s pixel(s)'), 0);
 
 		// Commit button anchor options.
         $options = Array(
@@ -662,14 +638,22 @@ class User_Prefs extends Prefs
 			}
 		}
 
+        if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_LINEAGE') {
+			// update asset map pref
+			if (isset($_POST['prefs']['SQ_USER_ASSET_MAP_LINEAGE'])) {
+			    $this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'] = $_POST['prefs']['SQ_USER_ASSET_MAP_LINEAGE']['assetid'];
+			}
+		}
 
-		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
-			@$this->int_am_frame_width->process($pref.'_am_frame_width');
-			if (!empty($this->int_am_frame_width->value)) {
-				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width->value;
-			} else {
-				trigger_localised_error('CORE0270', translate('An invalid "Asset Map Width" value has been supplied. Default has been set'), E_USER_NOTICE);
-				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
+        if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
+			// update asset map pref
+			if (isset($_POST['prefs']['SQ_USER_ASSET_MAP_WIDTH'])) {
+			    if (is_numeric($_POST['prefs']['SQ_USER_ASSET_MAP_WIDTH']) === FALSE) {
+                    trigger_localised_error('CORE0270', translate('An invalid "Asset Map Width" value has been supplied. Default has been set'), E_USER_NOTICE);
+                    $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
+			    } else {
+			        $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $_POST['prefs']['SQ_USER_ASSET_MAP_WIDTH'];
+				}
 			}
 		}
 
