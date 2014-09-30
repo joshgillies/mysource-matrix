@@ -386,11 +386,11 @@ function print_usage()
 {
 	echo "\nThis search and replaces the given string in the webpath system wide.";
 
-	echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --search=<SEARCH_STRING> [--replace=<REPLACE_STRING>] [--include-site-urls]\n\n";
-	echo "\t<SYSTEM_ROOT>		: The root directory of Matrix system.\n";
-	echo "\t<SEARCH_STRING>		: String to search in webpath.\n";
-	echo "\t<REPLACE_STRING>	: String to replace in webpath. If ommited, search string will be removed from the webpath.\n";
-	echo "\t[--include-site-urls]		: Whether to include site URLs\n";
+	echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --search=<SEARCH_STRING> --replace=<REPLACE_STRING> [--include-site-urls]\n\n";
+	echo "\t<SYSTEM_ROOT>        : The root directory of Matrix system.\n";
+	echo "\t<SEARCH_STRING>      : String to search in webpath. Allowed chars [a-zA-Z0-9\-$_@.!*~(),].\n";
+	echo "\t<REPLACE_STRING>     : String to replace in webpath. Allowed chars [a-zA-Z0-9\-$_@.!*~(),], including empty string..\n";
+	echo "\t[--include-site-urls]: Whether to include site URLs\n";
 	echo "\n";
 
 }//end print_usage()
