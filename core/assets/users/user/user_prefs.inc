@@ -91,7 +91,6 @@ class User_Prefs extends Prefs
 													   ),
 					 );
 
-	var $int_am_frame_width;
 	var $int_am_frame_width_default = 300;
 
 
@@ -102,12 +101,6 @@ class User_Prefs extends Prefs
 	function User_Prefs($pref_file='')
 	{
 		$this->Prefs($pref_file);
-
-		// attribute for input of SQ_COMMENT_MAX_LENGTH
-		$this->int_am_frame_width = new Asset_Attribute_Int();
-		$this->int_am_frame_width->setParam('allow_negative', FALSE);
-		$this->int_am_frame_width->setParam('allow_empty', FALSE);
-		$this->int_am_frame_width->setParam('range_lower', $this->int_am_frame_width_default);
 
 		$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['name'] = translate('Asset Map Root Asset');
 		$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['desc'] = translate('The asset that will be displayed as the Asset Map\'s root node');
