@@ -109,6 +109,21 @@ class User_Prefs extends Prefs
 		$this->int_am_frame_width->setParam('allow_empty', FALSE);
 		$this->int_am_frame_width->setParam('range_lower', $this->int_am_frame_width_default);
 
+		$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['name'] = translate('Enforce Safe Trash');
+        $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['desc'] = translate('If this setting is enabled, the system will prohibit the deletion of an asset until all notice links are removed.');
+
+        $this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['name'] = translate('Commit Button Position');
+        $this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['desc'] = translate('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode.');
+
+        $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['name'] = translate('Hide frames in the Simple Edit Interface?');
+        $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['desc'] = translate('If set to "Do not hide frames", Squiz Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.');
+
+        $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['name'] = translate('Set Context on Login');
+        $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['desc'] = translate('Set the default context when a user logs in.');
+
+        $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['name'] = translate('Filter Front End User Input');
+        $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['desc'] = translate('If set to "Filter Input", Matrix will filter (strip keywords, strip script tags and escape HTML) any input by the user from the front end.');
+
 	}//end constructor
 
 
@@ -343,28 +358,12 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
-		if (is_null($pref) || $pref == 'SQ_USER_SAFE_TYPE3_TRASH') {
-		if (is_null($pref)) $o->openField(translate('Safe Trash'));
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
-				$safe_trash = $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['default'];
-				if ($have_lock && $is_admin) {
-					check_box('prefs[SQ_USER_SAFE_TYPE3_TRASH]', 1, ($safe_trash), '', 'id="prefs_SQ_USER_SAFE_TYPE3_TRASH"');
-					label(translate('Yes'), 'prefs_SQ_USER_SAFE_TYPE3_TRASH');
-
-					$o->note('Check this box if you want to prohibit the deletion of an asset until all notice links are removed.');
-				} else {
-					echo '<img src="'.sq_web_path('lib').'/web/images/'.($safe_trash ? 'tick' : 'cross').'.gif" />';
-					echo('If this setting is enabled, the system will prohibit the deletion of an asset until all notice links are removed.');
-				}
-			?>
-			</div>
-			<?php
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
-
+		// Enforce safe trash.
+        $options = Array(
+                        1 => translate('Yes'),
+                        0 => translate('No'),
+                   );
+		$this->paintComboField($o, $have_lock, $pref, 'SQ_USER_SAFE_TYPE3_TRASH', $options);
 
 		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
 			if (is_null($pref)) $o->openField(translate('Asset Map Width'));
@@ -383,7 +382,7 @@ class User_Prefs extends Prefs
 				$this->int_am_frame_width->paint($pref.'_am_frame_width', !$have_lock);
 			} else {
 				if (!empty($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'])) {
-					echo $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'];
+					echo sprintf(translate('%s pixels'), $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default']);
 				}
 			}
 			?>
@@ -396,53 +395,19 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
-		if (is_null($pref) || $pref == 'SQ_USER_COMMIT_BUTTON_POS') {
-			if (is_null($pref)) $o->openField(translate('Commit Button Position'));
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
-				$options = Array(
-								FALSE	=> translate('Bottom of page'),
-								TRUE	=> translate('Anchored to bottom of frame'),
-							   );
+		// Commit button anchor options.
+        $options = Array(
+                       FALSE => translate('Bottom of page'),
+                       TRUE	 => translate('Anchored to bottom of frame'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_COMMIT_BUTTON_POS', $options);
 
-				$position = $this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['default'];
-				if ($have_lock && $is_admin) {
-					combo_box('prefs[SQ_USER_COMMIT_BUTTON_POS]', $options, FALSE, $position, 0, 'id="prefs_SQ_USER_COMMIT_BUTTON_POS"');
-					$o->note('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode.');
-				} else {
-					echo $options[$position];
-					$o->note('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode');
-				}
-			?>
-			</div>
-			<?php
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
-
-		if (is_null($pref) || $pref == 'SQ_USER_LIMBO_HIDE_FRAMES') {
-			if (is_null($pref)) $o->openField(translate('Hide frames in the Simple Edit Interface?'));
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
-				$options = Array(
-								FALSE	=> translate('Do not hide frames'),
-								TRUE	=> translate('Hide frames'),
-								);
-				$hide_frames = $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'];
-				if ($have_lock && $is_admin) {
-					combo_box('prefs[SQ_USER_LIMBO_HIDE_FRAMES]', $options, FALSE, $hide_frames, 0, 'id="prefs_SQ_USER_LIMBO_HIDE_FRAMES"');
-                } else {
-					echo $options[$hide_frames];
-				}
-
-				$o->note(translate('If set to "Do not hide frames", Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.'));
-			?>
-			</div>
-			<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if
+        // Hide frames in Simple Edit?
+        $options = Array(
+                       FALSE => translate('Do not hide frames'),
+                       TRUE	 => translate('Hide frames'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_LIMBO_HIDE_FRAMES', $options);
 
 		if (is_null($pref) || $pref == 'SQ_USER_ATTRIBUTE_IMAGE') {
 			if (is_null($pref)) {
@@ -460,15 +425,10 @@ class User_Prefs extends Prefs
 						$font_files = list_files(SQ_LIB_PATH.'/fonts');
 						$fonts_installed = Array(
 											1	=> translate('Built in font 1'),
-
 											2	=> translate('Built in font 2'),
-
 											3	=> translate('Built in font 3'),
-
 											4	=> translate('Built in font 4'),
-
 											5	=> translate('Built in font 5'),
-
 										   );
 						foreach ($font_files as $font_file) {
 							$result = preg_match('/(.*)\.ttf$/i', $font_file, $matches);
@@ -561,72 +521,39 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
+        // Set Context on Login
+        $options = Array(
+                    'default'	=> translate('Do not change context on login'),
+                    'sep'		=> '-----------',
+                   );
 
-		if (is_null($pref) || $pref == 'SQ_USER_SET_CONTEXT_ON_LOGIN') {
-			if (is_null($pref)) $o->openField(translate('Set context on login'));
-			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-			$options = Array(
-						'default'	=> translate('Do not change context on login'),
-						'sep'		=> '-----------',
-					   );
-			foreach ($contexts as $contextid => $context_data) {
-				$options[$contextid] = $context_data['name'];
-			}
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
+        $contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+        foreach ($contexts as $contextid => $context_data) {
+            $options[$contextid] = $context_data['name'];
+        }
 
-			if ($have_lock && $is_admin) {
-				if (isset($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'])) {
-					$set_context_on_login = $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'];
-					if (array_key_exists($set_context_on_login, $contexts) === FALSE) {
-						$set_context_on_login = 'default';
-					} else {
-						$set_context_on_login = (int)$set_context_on_login;
-					}
-				} else {
-					$set_context_on_login = 'default';
-				}
+        // Ensure the context that is currently set actually exists. If not,
+        // set it back to "don't change on login".
+        if (isset($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'])) {
+            $set_context_on_login = $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'];
+            if (array_key_exists($set_context_on_login, $contexts) === FALSE) {
+                $set_context_on_login = 'default';
+            } else {
+                $set_context_on_login = (int)$set_context_on_login;
+            }
+        } else {
+            $set_context_on_login = 'default';
+        }
 
-				$default = $set_context_on_login;
+        $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'] = $set_context_on_login;
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_SET_CONTEXT_ON_LOGIN', $options);
 
-				combo_box('prefs[SQ_USER_SET_CONTEXT_ON_LOGIN]', $options, FALSE, Array($default));
-			} else {
-				if (!empty($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'])) {
-					echo $options[$this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default']];
-				}
-			}
-			?>
-			<?php
-			$o->note($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['description']);
-			?>
-			</div>
-			<?php
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
-
-		if (is_null($pref) || $pref == 'SQ_USER_FILTER_FRONT_END_INPUT') {
-			if (is_null($pref)) $o->openField(translate('Filter Front End User Input'));
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
-				$options = Array(
-								FALSE	=> translate('Do not filter input'),
-								TRUE	=> translate('Filter input'),
-								);
-				$filter_input = $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['default'];
-				if ($have_lock && $is_admin) {
-					combo_box('prefs[SQ_USER_FILTER_FRONT_END_INPUT]', $options, FALSE, $filter_input, 0, 'id="prefs_SQ_USER_FILTER_FRONT_END_INPUT"');
-				} else {
-					echo $options[$filter_input];
-				}
-				$o->note(translate('If set to "Filter Input", Matrix will filter (strip keywords, strip script tags and escape HTML) any input by the user from the front end.'));
-			?>
-			</div>
-			<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if
+        // Filter Front-End Input?
+        $options = Array(
+                       FALSE => translate('Do not filter input'),
+                       TRUE	 => translate('Filter input'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_FILTER_FRONT_END_INPUT', $options);
 		return TRUE;
 
 	}//end paintBackend()

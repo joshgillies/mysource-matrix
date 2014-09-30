@@ -32,26 +32,18 @@ class Bodycopy_Container_Prefs extends Prefs
 {
 	public $pref_vars = Array(
 							'SQ_DEFAULT_CONTENT_TYPE'		=> Array(
-																'name'			=> 'default_content_type',
-																'description'	=> 'When bodycopy containers are created they will have this content type by default',
 																'default'		=> 'content_type_wysiwyg',
 																'protected'		=> FALSE,
 															   ),
 							'SQ_DEFAULT_PRESENTATION_TYPE'	=> Array(
-																'name'			=> 'default_presentation_type',
-																'description'	=> 'When bodycopy containers are created they will have this presentation type by default',
 																'default'		=> 'div',
 																'protected'		=> FALSE,
 															),
 							'SQ_DIV_DISABLE_CREATE'	=> Array(
-																'name'			=> 'div_disable_create',
-																'description'	=> 'If bodycopy containers are disabled for creating, they can not be created in Edit Content Screen',
 																'default'		=> 'no',
 																'protected'		=> FALSE,
 															),
 							'SQ_DIV_DISABLE_DELETE'	=> Array(
-																'name'			=> 'div_disable_delete',
-																'description'	=> 'If bodycopy containers are disabled for deleting, they can not be deleted in Edit Content Screen',
 																'default'		=> 'no',
 																'protected'		=> FALSE,
 															   ),
@@ -66,24 +58,17 @@ class Bodycopy_Container_Prefs extends Prefs
 	{
 		parent::__construct($pref_file);
 
-		$this->pref_names = Array(
-		                         'SQ_DEFAULT_CONTENT_TYPE' => Array(
-                                     'name' => translate('Default Content Type'),
-                                     'desc' => translate('When new Content Containers are created they will use this content type.'),
-                                 ),
-		                         'SQ_DEFAULT_PRESENTATION_TYPE' => Array(
-                                     'name' => translate('Default Presentation Type'),
-                                     'desc' => translate('When new Content Containers are created they will use this presentation type. by default. This can be changed for a particular Content Container at any time.'),
-                                 ),
-                                 'SQ_DIV_DISABLE_CREATE' => Array(
-                                     'name' => translate('Disable Creating Content Containers'),
-                                     'desc' => translate('Allows you to stop users from being able to create Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.'),
-                                 ),
-                                 'SQ_DIV_DISABLE_DELETE' => Array(
-                                     'name' => translate('Disable Deleting Content Containers'),
-                                     'desc' => translate('Allows you to stop users from being able to delete Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.'),
-                                 ),
-                            );
+		$this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['name'] = translate('Default Content Type');
+        $this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['desc'] = translate('When new Content Containers are created they will use this content type.');
+
+		$this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['name'] = translate('Default Presentation Type');
+        $this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['desc'] = translate('When new Content Containers are created they will use this presentation type. by default. This can be changed for a particular Content Container at any time.');
+
+        $this->pref_vars['SQ_DIV_DISABLE_CREATE']['name'] = translate('Disable Creating Content Containers');
+        $this->pref_vars['SQ_DIV_DISABLE_CREATE']['desc'] = translate('Allows you to stop users from being able to create Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.');
+
+        $this->pref_vars['SQ_DIV_DISABLE_DELETE']['name'] = translate('Disable Deleting Content Containers');
+        $this->pref_vars['SQ_DIV_DISABLE_DELETE']['desc'] = translate('Allows you to stop users from being able to delete Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.');
 
 	}//end constructor
 

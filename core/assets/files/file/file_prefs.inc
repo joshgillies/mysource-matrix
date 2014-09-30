@@ -80,6 +80,14 @@ class File_Prefs extends Prefs
 	{
 		$this->Prefs($pref_file);
 
+		$this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['name'] = translate('Allow File with No Extension');
+
+		$this->pref_vars['SQ_FILE_ALLOWED_TYPES']['name'] = translate('Allowed File Extensions to Upload');
+		$this->pref_vars['SQ_FILE_ALLOWED_TYPES']['desc'] = translate('Type the allowed file extensions, separated by commas. For example: jpg,png,txt,mov');
+
+		$this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['name'] = translate('Allowed File Extensions for Pre-Uploaded files');
+		$this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['desc'] = translate('Type the allowed file extensions, separated by commas. For example: jpg,png,txt,mov');
+
 	}//end constructor
 
 
@@ -125,6 +133,7 @@ class File_Prefs extends Prefs
 		}
 		$php_max_file_size = min($ini_size, $post_size, $mem_limit_size);
 
+
 		// Max File Size Upload
 		if (is_null($pref) || $pref == 'SQ_FILE_MAX_SIZE') {
 			if (is_null($pref)) {
@@ -134,11 +143,6 @@ class File_Prefs extends Prefs
 			if ($have_lock && $is_admin) {
 				text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);
 				echo $o->note(sprintf(translate('The maximum file size can be entered in shorthand notation: \'K\' for kilobytes, \'M\' for megabytes. The maximum file size allowed by PHP on this system is "%s".'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
-
-				if ($ini_size > $post_size) {
-					echo $o->note(sprintf(translate('<font color="red"><b>NOTE: </b>Make sure the PHP defined \'max_post_size\' (currently set to %s) is greater than PHP\'s \'upload_max_filesize\' config otherwise PHP will blank out POST array if the data is over limit and no error is reported in Matrix.</font>'), '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
-
-				}
 			} else {
 				if (!$this->pref_vars['SQ_FILE_MAX_SIZE']['default']) {
 					echo sprintf(translate('You have not set a maximum file upload size. The current PHP limit of %s will be applied to all file uploads.'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
@@ -157,12 +161,16 @@ class File_Prefs extends Prefs
 					} else {
 						echo strtoupper(easy_filesize($max_file_size));
 					}
-					if ($ini_size > $post_size) {
-						echo $o->note(sprintf(translate('<font color="red"><b>NOTE: </b>Make sure the PHP defined \'max_post_size\' (currently set to %s) is greater than PHP\'s \'upload_max_filesize\' config otherwise PHP will blank out POST array if the data is over limit and no error is reported in Matrix.</font>'), '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
-
-					}
 				}
 			}
+
+			// If the maximum POST size is too small, throw a message about it
+            if ($ini_size > $post_size) {
+                echo '<div class="sq-warning-message">';
+                echo sprintf(translate('<strong>Warning: Your PHP settings relating to uploads appear to be misconfigured.</strong><br/>Your \'max_post_size\' (<strong>%s</strong>) is greater than \'upload_max_filesize\' (<strong>%s</strong>). The \'max_post_size\' setting should be the larger of the two - otherwise silent errors may be introduced, as PHP will blank out POST data if an uploaded file is larger than the \'max_post_size\' setting.'), strtoupper(easy_filesize($post_size)), strtoupper(easy_filesize($ini_size)));
+                echo '</div>';
+            }
+
 			if (is_null($pref)) $o->closeField();
 		}
 
@@ -193,83 +201,36 @@ class File_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 
-		// Allow No Extension
-		if (is_null($pref) || $pref == 'SQ_FILE_ALLOW_NO_EXTENSION') {
-			if (is_null($pref)) {
-				$o->openField(translate('Allow File with No Extension'));
-			}
+        // Allow File assets with no extension?
+        $options = Array(
+                       1 => translate('Yes'),
+                       0 => translate('No'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_FILE_ALLOW_NO_EXTENSION', $options);
 
-			$value = $this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['default'];
-			if ($have_lock && $is_admin) {
-				$options = Array(1 => 'Yes', 0 => 'No');
-				combo_box('prefs[SQ_FILE_ALLOW_NO_EXTENSION]', $options, FALSE, $value);
-			} else {
-				echo ($value) ? translate('Yes') : translate('No');
+        // Allowed file extensions - for uploaded and pre-uploaded files.
+        $restrictionFn = function($value) {
+            if (empty($value)) {
+                echo translate('No file type restriction.');
+            } else {
+                $exts = explode(',', $value);
+                $num_exts = count($exts);
+                if ($num_exts == 1) {
+                    $ext_str = array_pop($exts);
+                } else if ($num_exts > 1) {
+                    $ext_str = implode(', ', array_slice($exts, 0, -1)).' and '.$exts[$num_exts - 1];
+                }
 
-
-			}
-			if (is_null($pref)) $o->closeField();
-		}
-
-		// Allowed File Extensions
-		if (is_null($pref) || $pref == 'SQ_FILE_ALLOWED_TYPES') {
-			if (is_null($pref)) {
-				$o->openField(translate('Allowed File Extensions to Upload'));
-			}
-
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_FILE_ALLOWED_TYPES]', $this->pref_vars['SQ_FILE_ALLOWED_TYPES']['default'], 20);
-				echo $o->note(translate('Type the allowed file extensions with comma separated. For example: jpg,png,txt,mov'));
-
-			} else {
-				$value = $this->pref_vars['SQ_FILE_ALLOWED_TYPES']['default'];
-				if (empty($value)) {
-					echo translate('No file type restriction.');
-
-				} else {
-					$exts = explode(',', $value);
-					$num_exts = count($exts);
-					if ($num_exts == 1) {
-						$ext_str = array_pop($exts);
-					} else if ($num_exts > 1) {
-						$ext_str = implode(', ', array_slice($exts, 0, -1)).' and '.$exts[$num_exts - 1];
-					}
-					echo sprintf(translate('Allowed extension%1$s'), (($num_exts > 1) ? 's are ' : ' is ').$ext_str);
-
-				}
-			}
-			if (is_null($pref)) $o->closeField();
-		}
-
-		// Allowed File Extensions for Pre-uploaded
-		if (is_null($pref) || $pref == 'SQ_FILE_ALLOWED_PREUPLOADED_TYPES') {
-			if (is_null($pref)) {
-				$o->openField(translate('Allowed File Extensions for Pre-Uploaded files'));
-			}
-
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_FILE_ALLOWED_PREUPLOADED_TYPES]', $this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['default'], 20);
-				echo $o->note(translate('Type the allowed file extensions with comma separated. For example: jpg,png,txt,mov'));
-
-			} else {
-				$value = $this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['default'];
-				if (empty($value)) {
-					echo translate('No file type restriction.');
-
-				} else {
-					$exts = explode(',', $value);
-					$num_exts = count($exts);
-					if ($num_exts == 1) {
-						$ext_str = array_pop($exts);
-					} else if ($num_exts > 1) {
-						$ext_str = implode(', ', array_slice($exts, 0, -1)).' and '.$exts[$num_exts - 1];
-					}
-					echo sprintf(translate('Allowed extension%1$s'), (($num_exts > 1) ? 's are ' : ' is ').$ext_str);
-
-				}
-			}
-			if (is_null($pref)) $o->closeField();
-		}
+                // TODO: Translate plural.
+                if ($num_exts > 1) {
+                    echo sprintf(translate('Allowed extensions are %s'), $ext_str);
+                } else {
+                    echo sprintf(translate('Allowed extension is %s'), $ext_str);
+                }
+            }
+        };
+        $this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_ALLOWED_TYPES', 20, $restrictionFn);
+        $this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_ALLOWED_PREUPLOADED_TYPES', 20, $restrictionFn);
 
 		// File summary defination
 		if (is_null($pref) || $pref == 'SQ_FILE_ASSET_SUMMARY') {

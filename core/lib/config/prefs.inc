@@ -141,14 +141,14 @@ class Prefs extends MySource_Object
             }
 
             if (is_null($all_prefs)) {
-                $o->openField($this->pref_names[$pref]['name']);
+                $o->openField($this->pref_vars[$pref]['name']);
             }
 
             // Paint the field.
             $commit = $paintFn($o, $have_lock, $pref, $extra);
 
-            if (array_key_exists('desc', $this->pref_names[$pref]) === TRUE) {
-                $o->note($this->pref_names[$pref]['desc']);
+            if (array_key_exists('desc', $this->pref_vars[$pref]) === TRUE) {
+                $o->note($this->pref_vars[$pref]['desc']);
             }
 
             if (is_null($all_prefs)) {
@@ -160,7 +160,7 @@ class Prefs extends MySource_Object
 
 	    return $commit;
 
-	}//end defaultPaintField();
+	}//end paintField()
 
 
 	/**
@@ -197,7 +197,8 @@ class Prefs extends MySource_Object
 
 			return $have_lock;
 		}, $options);
-	}
+
+	}//end paintTextField()
 
 
 	/**
@@ -228,7 +229,8 @@ class Prefs extends MySource_Object
 
 			return $have_lock;
 		}, $options);
-	}
+
+	}//end paintComboField()
 
 
 	/**

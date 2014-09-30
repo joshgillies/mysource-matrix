@@ -33,7 +33,6 @@ class Inbox_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_INBOX_MAIL_PER_PAGE'	=> Array(
-														'description'	=> 'You can specify the number of emails per page',
 														'default'		=> 20,
 														'protected'		=> FALSE,
 														),
@@ -47,11 +46,8 @@ class Inbox_Prefs extends Prefs
 	function Inbox_Prefs($pref_file='')
 	{
 		$this->Prefs($pref_file);
-		$this->pref_names = Array(
-		                         'SQ_INBOX_MAIL_PER_PAGE' => Array(
-                                     'name' => translate('Messages per page'),
-                                 ),
-                            );
+
+		$this->pref_vars['SQ_INBOX_MAIL_PER_PAGE']['name'] = translate('Messages per page');
 
 	}//end inboxPrefs()
 

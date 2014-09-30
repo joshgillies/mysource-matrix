@@ -154,6 +154,30 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
             'ViperCopyPastePlugin'		=> translate('Editing Tools <i>(Copy, Paste, etc.)</i>'),
           );
 
+        $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['name'] = translate('Enable Edit+ Editor in Admin Mode');
+        $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['desc'] = translate('If this option is enabled, the new Edit+ editor will be used for the WYSIWYG content type and attributes.').' '.
+            sprintf(
+                translate('As a result, the following WYSIWYG preferences will not be applied: %s, %s, %s, %s, %s and %s.'),
+                translate('WYSIWYG Style'),
+                translate('Apply CSS Styles'),
+                translate('WYSIWYG Plugins'),
+                translate('WYSIWYG Disable Image Resize'),
+                translate('Thesaurus'),
+                translate('Protocol Templates')
+            );
+
+        $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['name'] = translate('Apply CSS Styles');
+        $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['desc'] = translate('If yes, CSS styles will be applied to the WYSIWYG.').' '.
+            translate('The styles are defined in CSS files used as Associated Files for the current asset.').' '.
+            translate('The Matrix Apply Design plugin must be enabled for this setting to take effect.');
+
+        $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['name'] = translate('WYSIWYG Disable Image Resize');
+
+        $this->pref_vars['SQ_LIVE_LINK_ONLY']['name'] = translate('In Live Asset, Only Allow Creating Hyperlink to Live Asset');
+        $this->pref_vars['SQ_LIVE_LINK_ONLY']['desc'] = translate('If yes, editors of Live assets will only able permitted to create hyperlinks to other Live assets.').' '.
+            translate('The styles are defined in CSS files used as Associated Files for the current asset.').' '.
+            translate('The Matrix Apply Design plugin must be enabled for this setting to take effect.');
+
 	}//end constructor
 
 
@@ -172,30 +196,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
-		// enable viper editor?
-		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {
-
-			if (is_null($pref)) {
-				$o->openField(translate('Enable Edit+ Editor in Admin Mode'));
-			}
-
-			$pref_var =& $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'];
-
-			if ($have_lock && $is_admin) {
-				$options = Array(1 => 'Yes', 0 => 'No');
-				combo_box('prefs[SQ_ENABLE_VIPER_EDITOR]', $options, FALSE, $pref_var);
-				echo $o->note(translate('If this option is enabled, the new Edit+ editor will be used for the WYSIWYG content type and attributes. As a result, the following WSIWYG preferences will not be applied: WYSIWYG Style, Apply CSS Styles, WYSIWYG Plugins, WYSIWYG Disable Image Resize, Thesaurus and Protocol Templates.'));
-
-			} else {
-				echo ($pref_var) ? translate('Yes') : translate('No');
-
-
-			}
-
-			if (is_null($pref)) $o->closeField();
-
-		}//end if show SQ_ENABLE_VIPER_EDITOR
-
+        // Enable Edit+ (Viper) Editor in Admin Mode?
+        $options = Array(
+                       1 => translate('Yes'),
+                       0 => translate('No'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_ENABLE_VIPER_EDITOR', $options);
 
 		if (is_null($pref) || $pref == 'SQ_VIPER_PLUGINS') {
 			if (is_null($pref)) {
@@ -229,7 +235,6 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 			if (is_null($pref)) $o->closeField();
 		}//end if show SQ_VIPER_PLUGINS
-
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
 			if (is_null($pref)) {
@@ -319,28 +324,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		}//end if show SQ_WYSIWYG_STYLE
 
-		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {
-
-			if (is_null($pref)) {
-				$o->openField(translate('Apply CSS Styles'));
-			}
-
-			$pref_var =& $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'];
-			if ($have_lock && $is_admin) {
-				$options = Array(1 => 'Yes', 0 => 'No');
-				combo_box('prefs[SQ_WYSIWYG_APPLY_DESIGN_STYLE]', $options, FALSE, $pref_var);
-				echo $o->note(translate('If yes, it will apply CSS styles to the WYSIWYG. The styles are defined in CSS files under the design used for current asset. Matrix Apply Design plugin must be enabled.'));
-
-			} else {
-				echo ($pref_var) ? translate('Yes') : translate('No');
-
-
-			}
-
-			if (is_null($pref)) $o->closeField();
-
-		}//end if show SQ_WYSIWYG_APPLY_DESIGN_STYLE
-
+        // Apply CSS styles to (classic) WYSIWYG?
+        $options = Array(
+                       1 => translate('Yes'),
+                       0 => translate('No'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_APPLY_DESIGN_STYLE', $options);
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
 			if (is_null($pref)) {
@@ -399,35 +388,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		}//end if show SQ_WYSIWYG_PLUGINS
 
-		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
-			if (is_null($pref)) {
-				$o->openField(translate('WYSIWYG Disable Image Resize'));
-			}
-				$wysiwyg_disable_image_resize = $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 100px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">
-						<?php
-							echo translate('Disable');
-
-						?>
-						</td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							combo_box('prefs[SQ_WYSIWYG_DISABLE_IMAGE_RESIZE][default]', Array('yes' => 'Yes', 'no' => 'No'), FALSE, $wysiwyg_disable_image_resize);
-						} else {
-							echo ucfirst($wysiwyg_disable_image_resize);
-						}
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			if (is_null($pref)) $o->closeField();
-
-		}//end if show SQ_WYSIWYG_DISABLE_IMAGE_RESIZE
+        // Disable image resizing in (classic) WYSIWYG?
+        $options = Array(
+                       'yes' => translate('Yes'),
+                       'no'  => translate('No'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE', $options);
 
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('thesaurus') && (is_null($pref) || $pref == 'SQ_THESAURUS')) {
 			if (is_null($pref)) {
@@ -536,27 +502,19 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}// end if show SQ_WYSIWYG_LINK_TYPES
 
-		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {
+        // Disable image resizing in (classic) WYSIWYG?
+        $options = Array(
+                       'yes' => translate('Yes'),
+                       'no'  => translate('No'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE', $options);
 
-			if (is_null($pref)) {
-				$o->openField(translate('In Live Asset, Only Allow Creating Hyperlink to Live Asset'));
-			}
-
-			$pref_var =& $this->pref_vars['SQ_LIVE_LINK_ONLY']['default'];
-			if ($have_lock && $is_admin) {
-				$options = Array(1 => 'Yes', 0 => 'No');
-				combo_box('prefs[SQ_LIVE_LINK_ONLY]', $options, FALSE, $pref_var);
-				echo $o->note(translate('If yes, it will stop user creating a hyperlink from a Live asset to a non-live asset.'));
-
-			} else {
-				echo ($pref_var) ? translate('Yes') : translate('No');
-
-
-			}
-
-			if (is_null($pref)) $o->closeField();
-
-		}//end if show SQ_LIVE_LINK_ONLY
+        // Disable WYSIWYG linking from Live to Non-Live assets?
+        $options = Array(
+                       1 => translate('Yes'),
+                       0 => translate('No'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_LIVE_LINK_ONLY', $options);
 
 		return TRUE;
 
@@ -667,7 +625,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		// WYSIWYG DISABLE IMAGE RESIZE
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
 			if (isset($_POST['prefs']['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE'])) {
-				$this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'] = $_POST['prefs']['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'];
+				$this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'] = $_POST['prefs']['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE'];
 			}
 		}
 
