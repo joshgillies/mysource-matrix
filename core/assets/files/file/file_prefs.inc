@@ -80,6 +80,17 @@ class File_Prefs extends Prefs
 	{
 		$this->Prefs($pref_file);
 
+		// work out the max file size that PHP is allowing
+		$file_sizes = $this->_getMaxFileSizes();
+		$this->pref_vars['SQ_FILE_MAX_SIZE']['name'] = translate('Max File Upload');
+		$this->pref_vars['SQ_FILE_MAX_SIZE']['desc'] = sprintf(
+		    translate('The maximum file size can be entered in shorthand notation: \'K\' for kilobytes, \'M\' for megabytes. The maximum file size allowed by PHP on this system is "<strong>%s</strong>"'),
+		    strtoupper(easy_filesize($file_sizes['effective_max_size']))
+		);
+
+		$this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['name'] = translate('Pre-uploaded Max File Size');
+		$this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['desc'] = translate('The maximum file size can be created from the pre-uploaded files. This can be entered in shorthand notation: \'K\' for kilobytes, \'M\' for megabytes. When the value is zero, this option will be ignored.');
+
 		$this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['name'] = translate('Allow File with No Extension');
 
 		$this->pref_vars['SQ_FILE_ALLOWED_TYPES']['name'] = translate('Allowed File Extensions to Upload');
@@ -88,28 +99,14 @@ class File_Prefs extends Prefs
 		$this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['name'] = translate('Allowed File Extensions for Pre-Uploaded files');
 		$this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['desc'] = translate('Type the allowed file extensions, separated by commas. For example: jpg,png,txt,mov');
 
+		$this->pref_vars['SQ_FILE_ASSET_SUMMARY']['name'] = translate('File Summary Format');
+		$this->pref_vars['SQ_FILE_ASSET_SUMMARY']['desc'] = translate('File summary format for \'asset_summary_X\' keyword replacement');
+
 	}//end constructor
 
 
-	/**
-	* Paints the backend interface to edit preferences
-	*
-	* @param object		&$o			reference to the Backend Outputter object
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to paint
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintBackend(&$o, $have_lock, $pref=NULL)
-	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-
-
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		// work out the max file size that PHP is allowing
+	private function _getMaxFileSizes() {
+        // work out the max file size that PHP is allowing
 		$ini_size = strtolower(ini_get('upload_max_filesize'));
 		if (substr($ini_size, -1) == 'k') {
 			$ini_size = $ini_size * 1024;
@@ -133,73 +130,88 @@ class File_Prefs extends Prefs
 		}
 		$php_max_file_size = min($ini_size, $post_size, $mem_limit_size);
 
+		return Array(
+		    'upload_max_filesize' => $ini_size,
+		    'post_max_size'       => $post_size,
+		    'memory_limit'        => $mem_limit_size,
+		    'effective_max_size'  => $php_max_file_size,
+		);
 
-		// Max File Size Upload
-		if (is_null($pref) || $pref == 'SQ_FILE_MAX_SIZE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Max File Upload'));
-			}
+	}//end _getMaxFileSizes()
 
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);
-				echo $o->note(sprintf(translate('The maximum file size can be entered in shorthand notation: \'K\' for kilobytes, \'M\' for megabytes. The maximum file size allowed by PHP on this system is "%s".'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
-			} else {
-				if (!$this->pref_vars['SQ_FILE_MAX_SIZE']['default']) {
-					echo sprintf(translate('You have not set a maximum file upload size. The current PHP limit of %s will be applied to all file uploads.'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
 
-				} else {
-					$max_file_size = strtolower($this->pref_vars['SQ_FILE_MAX_SIZE']['default']);
-					if (substr($max_file_size, -1) == 'k') {
-						$max_file_size = $max_file_size * 1024;
-					} else if (substr($max_file_size, -1) == 'm') {
-						$max_file_size = $max_file_size * 1024 * 1024;
-					}
+	/**
+	* Paints the backend interface to edit preferences
+	*
+	* @param object		&$o			reference to the Backend Outputter object
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to paint
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintBackend(&$o, $have_lock, $pref=NULL)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-					if ($max_file_size > $php_max_file_size) {
-						echo sprintf(translate('The current setting of %1$s is greater than than the PHP limit of %2$s. The PHP limit will be applied to all file uploads.'), '<b>'.strtoupper(easy_filesize($max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
+		// work out the max file size that PHP is allowing
+		$ini_sizes = $this->_getMaxFileSizes();
 
-					} else {
-						echo strtoupper(easy_filesize($max_file_size));
-					}
-				}
-			}
+		$this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_MAX_SIZE', 10, 1, function($max_file_size) use ($ini_sizes) {
+            if ((int) $max_file_size === 0) {
+                return sprintf(
+                    translate('You have not set a maximum file upload size. The current PHP limit of <strong>%s</strong> will be applied to all file uploads.'),
+                    strtoupper(easy_filesize($ini_sizes['effective_max_size']))
+                );
+            } else {
+                if (substr($max_file_size, -1) == 'k') {
+                    $max_file_size = $max_file_size * 1024;
+                } else if (substr($max_file_size, -1) == 'm') {
+                    $max_file_size = $max_file_size * 1024 * 1024;
+                }
 
-			// If the maximum POST size is too small, throw a message about it
-            if ($ini_size > $post_size) {
-                echo '<div class="sq-warning-message">';
-                echo sprintf(translate('<strong>Warning: Your PHP settings relating to uploads appear to be misconfigured.</strong><br/>Your \'max_post_size\' (<strong>%s</strong>) is greater than \'upload_max_filesize\' (<strong>%s</strong>). The \'max_post_size\' setting should be the larger of the two - otherwise silent errors may be introduced, as PHP will blank out POST data if an uploaded file is larger than the \'max_post_size\' setting.'), strtoupper(easy_filesize($post_size)), strtoupper(easy_filesize($ini_size)));
-                echo '</div>';
+                if ($max_file_size > $ini_sizes['effective_max_size']) {
+                    return sprintf(
+                        translate('The current setting of <strong>%1$s</strong> is greater than than the PHP limit of <strong>%2$s</strong>. The PHP limit will be applied to all file uploads.'),
+                        strtoupper(easy_filesize($max_file_size)),
+                        strtoupper(easy_filesize($ini_sizes['effective_max_size']))
+                    );
+                } else {
+                    return strtoupper(easy_filesize($max_file_size));
+                }
             }
+        });
 
-			if (is_null($pref)) $o->closeField();
-		}
+        // If the maximum POST size is too small, throw a message about it
+        if ($ini_sizes['upload_max_filesize'] > $ini_sizes['post_max_size']) {
+            $o->openField('');
+            echo '<div class="sq-warning-message">';
+            echo sprintf(
+                '<strong>'.translate('Warning: Your PHP settings relating to uploads appear to be misconfigured.').'</strong><br/>'.
+                    translate('The setting \'max_post_size\' (<strong>%s</strong>) is smaller than \'upload_max_filesize\' (<strong>%s</strong>).').' '.
+                    translate('The \'max_post_size\' setting should be the larger of the two - otherwise silent errors may be introduced, as PHP will blank out POST data if an uploaded file is larger than the \'max_post_size\' setting.'),
+                strtoupper(easy_filesize($ini_sizes['post_max_size'])),
+                strtoupper(easy_filesize($ini_sizes['upload_max_filesize']))
+            );
+            echo '</div>';
+            $o->closeField();
+        }
 
-		// Max Pre-uploaded File Size
-		if (is_null($pref) || $pref == 'SQ_FILE_PREUPLOADED_MAX_SIZE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Pre-uploaded Max File Size'));
-			}
-
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_FILE_PREUPLOADED_MAX_SIZE]', $this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['default'], 10);
-				echo $o->note(sprintf(translate('The maximum file size can be created from the pre-uploaded files. When the value is zero, this option will be ignored.'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
-
-			} else {
-				if (!$this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['default']) {
-					echo sprintf(translate('The maximum file size can be created from the pre-uploaded files. When the value is zero, this option will be ignored.'), '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
-
-				} else {
-					$max_file_size = strtolower($this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['default']);
-					if (substr($max_file_size, -1) == 'k') {
-						$max_file_size = $max_file_size * 1024;
-					} else if (substr($max_file_size, -1) == 'm') {
-						$max_file_size = $max_file_size * 1024 * 1024;
-					}
-					echo strtoupper(easy_filesize($max_file_size));
-				}
-			}
-			if (is_null($pref)) $o->closeField();
-		}
+        $this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_PREUPLOADED_MAX_SIZE', 20, 1, function($max_file_size) {
+            $max_file_size = strtolower($max_file_size);
+            if ((int) $max_file_size === 0) {
+                return translate('Unlimited');
+            } else {
+                if (substr($max_file_size, -1) == 'k') {
+                    $max_file_size = (int) $max_file_size * 1024;
+                } else if (substr($max_file_size, -1) == 'm') {
+                    $max_file_size = (int) $max_file_size * 1024 * 1024;
+                }
+                return strtoupper(easy_filesize($max_file_size));
+            }
+        });
 
         // Allow File assets with no extension?
         $options = Array(
@@ -223,31 +235,15 @@ class File_Prefs extends Prefs
 
                 // TODO: Translate plural.
                 if ($num_exts > 1) {
-                    echo sprintf(translate('Allowed extensions are %s'), $ext_str);
+                    return sprintf(translate('Allowed extensions are %s'), $ext_str);
                 } else {
-                    echo sprintf(translate('Allowed extension is %s'), $ext_str);
+                    return sprintf(translate('Allowed extension is %s'), $ext_str);
                 }
             }
         };
-        $this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_ALLOWED_TYPES', 20, $restrictionFn);
-        $this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_ALLOWED_PREUPLOADED_TYPES', 20, $restrictionFn);
-
-		// File summary defination
-		if (is_null($pref) || $pref == 'SQ_FILE_ASSET_SUMMARY') {
-			if (is_null($pref)) {
-				$o->openField(translate('File Summary Format'));
-			}
-
-			if ($have_lock && $is_admin) {
-				text_area('prefs[SQ_FILE_ASSET_SUMMARY]', $this->pref_vars['SQ_FILE_ASSET_SUMMARY']['default'], 60, 5);
-				echo $o->note(translate('File summary format for \'asset_summary_X\' keyword replacement'));
-
-			} else {
-				$value = $this->pref_vars['SQ_FILE_ASSET_SUMMARY']['default'];
-				echo $value;
-			}
-			if (is_null($pref)) $o->closeField();
-		}
+        $this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_ALLOWED_TYPES', 20, 1, $restrictionFn);
+        $this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_ALLOWED_PREUPLOADED_TYPES', 20, 1, $restrictionFn);
+        $this->paintTextField($o, $have_lock, $pref, 'SQ_FILE_ASSET_SUMMARY', 60, 5);
 
 		return TRUE;
 

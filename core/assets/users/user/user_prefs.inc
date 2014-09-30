@@ -109,6 +109,9 @@ class User_Prefs extends Prefs
 		$this->int_am_frame_width->setParam('allow_empty', FALSE);
 		$this->int_am_frame_width->setParam('range_lower', $this->int_am_frame_width_default);
 
+		$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['name'] = translate('Asset Map Root Asset');
+		$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['desc'] = translate('The asset that will be displayed as the Asset Map\'s root node');
+
 		$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['name'] = translate('Enforce Safe Trash');
         $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['desc'] = translate('If this setting is enabled, the system will prohibit the deletion of an asset until all notice links are removed.');
 
@@ -322,41 +325,8 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
-
-		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_LINEAGE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Asset Map Root Asset'));
-			}
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
-
-			if ($have_lock && $is_admin) {
-
-				if (isset($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'])) {
-					$asset_map_settings = $this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'];
-				} else {
-					$asset_map_settings = '';
-				}
-				asset_finder('prefs[SQ_USER_ASSET_MAP_LINEAGE]', $asset_map_settings);
-			} else {
-				if (!empty($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'])) {
-					echo get_asset_tag_line($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default']);
-				} else {
-					echo translate('Root Folder');
-
-				}
-			}
-			?>
-			<?php
-			$o->note(translate('The asset that will be displayed as the Asset Map\'s root node'));
-
-			?>
-			</div>
-			<?php
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
+		// Asset Map root asset.
+        $this->paintAssetMapField($o, $have_lock, $pref, 'SQ_USER_ASSET_MAP_LINEAGE', FALSE, Array(), translate('Root Folder'));
 
 		// Enforce safe trash.
         $options = Array(

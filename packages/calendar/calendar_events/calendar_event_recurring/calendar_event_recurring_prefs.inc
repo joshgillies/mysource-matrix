@@ -47,6 +47,9 @@ class Calendar_Event_Recurring_Prefs extends Prefs
 	{
 		parent::__construct($pref_file);
 
+		$this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY']['name'] = translate('Events frequency threshold');
+		$this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY']['desc'] = translate('Recurrence event frequency threshold in days. If set to a non-zero positive value, the recurring event will be displayed only once in listing pages when its frequency is less than the specified threshold value.');
+
 	}//end constructor
 
 
@@ -62,24 +65,11 @@ class Calendar_Event_Recurring_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $is_admin  = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $have_lock = $have_lock && $is_admin;
 
-		if (is_null($pref) || $pref == 'SQ_CALENDAR_EVENTS_FREQUENCY') {
-			if (is_null($pref)) {
-				$o->openField(translate('Events frequency threshold'));
-			}
-
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_CALENDAR_EVENTS_FREQUENCY]', $this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY']['default'], 5);
-			} else {
-				echo array_get_index($this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY'], 'default', 5);
-			}
-
-			 echo '<div class="sq-backend-note">'.translate('Recurrence event frequency threshold in days. If set to a non-zero positive value, the recurring event will be displayed only once in listing pages when its frequency is less than the specified threshold value.').'</div>';
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
+	    // Messages per page.
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_CALENDAR_EVENTS_FREQUENCY', 5, '%s day(s)', 0);
 
 		return TRUE;
 

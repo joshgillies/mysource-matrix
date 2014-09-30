@@ -21,19 +21,6 @@ require_once SQ_ATTRIBUTES_PATH.'/boolean/boolean.inc';
 require_once SQ_ATTRIBUTES_PATH.'/url/url.inc';
 
 
-if (!defined('SQ_COMMENT_HTML_ALLOW')) {
-	define ('SQ_COMMENT_HTML_ALLOW',	0);
-}
-
-if (!defined('SQ_COMMENT_HTML_ESCAPE')) {
-	define ('SQ_COMMENT_HTML_ESCAPE',	1);
-}
-
-if (!defined('SQ_COMMENT_HTML_STRIP')) {
-	define ('SQ_COMMENT_HTML_STRIP',	2);
-}
-
-
 /**
 * Comment_Prefs
 *
@@ -159,6 +146,27 @@ class Comment_Prefs extends Prefs
 	{
 		$this->Prefs($pref_file);
 
+		$this->pref_vars['SQ_COMMENT_INPUT_SIZE']['name'] = translate('Input Box Size');
+
+		$this->pref_vars['SQ_COMMENT_MAX_LENGTH']['name'] = translate('Maximum Comment Length');
+		$this->pref_vars['SQ_COMMENT_MAX_LENGTH']['desc'] = translate('This setting limits the number of characters that may be entered in the comment input box. When the value is zero, this option will be ignored.');
+
+		$this->pref_vars['SQ_COMMENT_HTML_CONF']['name']  = translate('HTML in comments');
+		$this->pref_vars['SQ_COMMENT_HTML_CONF']['desc']  = translate('Determines whether HTML is allowed, escaped or removed.');
+
+		$this->pref_vars['SQ_COMMENT_MAX_RATING']['name'] = translate('Maximum Rating');
+		$this->pref_vars['SQ_COMMENT_MAX_RATING']['desc'] = translate('Sets the upper bound for comment ratings.');
+
+		$this->pref_vars['SQ_COMMENT_IMG_RATED']['name']  = translate('Rated Image');
+		$this->pref_vars['SQ_COMMENT_IMG_RATED']['desc']  = translate('Image to be used for the "filled" portion of a comment rating. (For instance, if a rating is 3 out of 5, this will be used for the three "filled" rating images.)').' '.
+		    translate('If left empty, the default image is used.');
+
+		$this->pref_vars['SQ_COMMENT_IMG_BLANK']['name']  = translate('Blank Image');
+		$this->pref_vars['SQ_COMMENT_IMG_BLANK']['desc']  = translate('Image to be used for the "unfilled" portion of a comment rating. (For instance, if a rating is 3 out of 5, this will be used for the two remaining "unfilled" rating images.)').' '.
+		    translate('If left empty, the default image is used.');
+
+		$this->pref_vars['SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS']['name'] = translate('Disable Keyword Replacements');
+
 		// we'll use these attributes to print the inputs for SQ_COMMENT_INPUT_SIZE
 		$this->css_dimension_width = new Asset_Attribute_CSS_Dimension();
 		$this->css_dimension_height = new Asset_Attribute_CSS_Dimension();
@@ -182,11 +190,7 @@ class Comment_Prefs extends Prefs
 											);
 
 		$this->html_conf_options = Array(
-									SQ_COMMENT_HTML_ALLOW	=> translate('Allow'),
 
-									SQ_COMMENT_HTML_ESCAPE	=> translate('Escape'),
-
-									SQ_COMMENT_HTML_STRIP	=> translate('Strip'),
 
 								   );
 
@@ -207,8 +211,6 @@ class Comment_Prefs extends Prefs
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		$print_sub_title = TRUE;
-		if (!is_null($pref)) $print_sub_title = FALSE;
 
 		$prefs = array_keys($this->pref_vars);
 		if (!is_null($pref) && in_array($pref, array_keys($this->pref_vars))) {
@@ -221,7 +223,7 @@ class Comment_Prefs extends Prefs
 
 			// call individual paint function for each pref
 			if (is_null($pref) || $pref == $pref_value) {
-				$this->$fn($o, $have_lock, $pref_value, $print_sub_title, $is_root, $is_admin);
+				$this->$fn($o, $have_lock, $pref, $is_root, $is_admin);
 			}
 		}
 
@@ -233,7 +235,7 @@ class Comment_Prefs extends Prefs
 	*
 	* @param object		&$o					reference to the backend outputter instance
 	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
-	* @param string		$pref_name			a particular preference to paint
+	* @param string		$pref			a particular preference to paint
 	* @param string		$print_sub_title	if TRUE print the sub title
 	* @param boolean	$is_root			are we the root user?
 	* @param boolean	$is_admin			are we an admin user?
@@ -241,14 +243,15 @@ class Comment_Prefs extends Prefs
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentInputSizeBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
+	function paintSqCommentInputSizeBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		if ($print_sub_title) {
+		if ($pref === NULL) {
 			$o->openField(translate('Input Box Size'));
 		} else {
 			$o->openField('&nbsp;');
 		}
 
+		$pref_name = 'SQ_COMMENT_INPUT_SIZE';
 			$comment_size = $this->pref_vars['SQ_COMMENT_INPUT_SIZE']['default'];
 
 			?><table class="sq-backend-table" style="width: 350px;">
@@ -290,7 +293,7 @@ class Comment_Prefs extends Prefs
 	*
 	* @param object		&$o					reference to the backend outputter instance
 	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
-	* @param string		$pref_name			a particular preference to paint
+	* @param string		$pref			a particular preference to paint
 	* @param string		$print_sub_title	if TRUE print the sub title
 	* @param boolean	$is_root			are we the root user?
 	* @param boolean	$is_admin			are we an admin user?
@@ -298,26 +301,16 @@ class Comment_Prefs extends Prefs
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentMaxLengthBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
+	function paintSqCommentMaxLengthBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		if ($print_sub_title) {
-			$o->openField(translate('Maximum Comment Length'));
-		} else {
-			$o->openField('&nbsp;');
-		}
-
-			$comment_length = $this->pref_vars['SQ_COMMENT_MAX_LENGTH']['default'];
-
-			if ($have_lock && $is_admin) {
-				$this->int_max_length->value = $comment_length;
-				$this->int_max_length->paint($pref_name.'_max_length', !$have_lock);
-			} else {
-				echo $comment_length;
-			}
-			$o->note(translate('This setting limits the number of characters that may be entered in the comment input box. When the value is zero, this option will be ignored.'));
-
-
-		$o->closeField();
+	    $have_lock = ($have_lock && $is_admin);
+        $this->paintIntTextField($o, $have_lock, $pref, 'SQ_COMMENT_MAX_LENGTH', 10, function($value) {
+		     if ((int) $value === 0) {
+		         return translate('Unlimited');
+		     } else {
+		         return sprintf(translate('%s character(s)', $value));
+		     }
+		}, 0);
 
 	}//end paintSqCommentMaxLengthBackend()
 
@@ -327,7 +320,7 @@ class Comment_Prefs extends Prefs
 	*
 	* @param object		&$o					reference to the backend outputter instance
 	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
-	* @param string		$pref_name			a particular preference to paint
+	* @param string		$pref			a particular preference to paint
 	* @param string		$print_sub_title	if TRUE print the sub title
 	* @param boolean	$is_root			are we the root user?
 	* @param boolean	$is_admin			are we an admin user?
@@ -335,25 +328,16 @@ class Comment_Prefs extends Prefs
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
+	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref,$is_root, $is_admin)
 	{
-		if ($print_sub_title) {
-			$o->openField(translate('HTML in comments'));
-		} else {
-			$o->openField('&nbsp;');
-		}
+	    $have_lock = ($have_lock && $is_admin);
 
-			$current_conf = $this->pref_vars[$pref_name]['default'];
-
-			$readonly = !($have_lock && $is_admin);
-
-			if ($readonly) {
-				echo array_get_index($this->html_conf_options, $current_conf);
-			} else {
-				combo_box($pref_name, $this->html_conf_options, FALSE, $current_conf);
-			}
-
-		$o->closeField();
+        $options = Array(
+                       0 => translate('Allow'),
+                       1 => translate('Escape'),
+                       2 => translate('Strip'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_COMMENT_HTML_CONF', $options);
 
 	}//end paintSqCommentHtmlConfBackend()
 
@@ -363,7 +347,7 @@ class Comment_Prefs extends Prefs
 	*
 	* @param object		&$o					reference to the backend outputter instance
 	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
-	* @param string		$pref_name			a particular preference to paint
+	* @param string		$pref			a particular preference to paint
 	* @param string		$print_sub_title	if TRUE print the sub title
 	* @param boolean	$is_root			are we the root user?
 	* @param boolean	$is_admin			are we an admin user?
@@ -371,25 +355,15 @@ class Comment_Prefs extends Prefs
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentDisableKeywordReplacementsBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
+	function paintSqCommentDisableKeywordReplacementsBackend(&$o, $have_lock, $pref,$is_root, $is_admin)
 	{
-		if ($print_sub_title) {
-			$o->openField(translate('Disable Keyword Replacements'));
-		} else {
-			$o->openField('&nbsp;');
-		}
+	    $have_lock = ($have_lock && $is_admin);
 
-			$current_conf = $this->pref_vars[$pref_name]['default'];
-
-			$readonly = !($have_lock && $is_admin);
-
-			if ($readonly) {
-				echo array_get_index($this->disable_keyword_replacements, $current_conf);
-			} else {
-				combo_box($pref_name, $this->disable_keyword_replacements, FALSE, $current_conf);
-			}
-
-		$o->closeField();
+        $options = Array(
+                       1 => translate('Yes'),
+                       0 => translate('No'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS', $options);
 
 	}//end paintSqCommentDisableKeywordReplacementBackend()
 
@@ -399,7 +373,7 @@ class Comment_Prefs extends Prefs
 	*
 	* @param object		&$o					reference to the backend outputter instance
 	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
-	* @param string		$pref_name			a particular preference to paint
+	* @param string		$pref			a particular preference to paint
 	* @param string		$print_sub_title	if TRUE print the sub title
 	* @param boolean	$is_root			are we the root user?
 	* @param boolean	$is_admin			are we an admin user?
@@ -407,22 +381,10 @@ class Comment_Prefs extends Prefs
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentMaxRatingBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
+	function paintSqCommentMaxRatingBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		if ($print_sub_title) {
-			$o->openField(translate('Maximum Rating'));
-		} else {
-			$o->openField('&nbsp;');
-		}
-
-		$max_rating = $this->pref_vars[$pref_name]['default'];
-
-		$readonly = !($have_lock && $is_admin);
-
-		$this->int_max_rating->value = $max_rating;
-		$this->int_max_rating->paint($pref_name, $readonly);
-
-		$o->closeField();
+	    $have_lock = ($have_lock && $is_admin);
+        $this->paintIntTextField($o, $have_lock, $pref, 'SQ_COMMENT_MAX_RATING', 10, '%s', 0);
 
 	}//end paintSqCommentMaxRatingBackend()
 
@@ -510,14 +472,13 @@ class Comment_Prefs extends Prefs
 	*/
 	function processSqCommentMaxLengthBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		if (isset($_POST[$pref.'_max_length'])) {
-
-			$this->int_max_length->process($pref.'_max_length');
-			$this->pref_vars['SQ_COMMENT_MAX_LENGTH']['default'] = $this->int_max_length->value;
-
-			return TRUE;
+		if (is_null($pref) || $pref == 'SQ_COMMENT_MAX_LENGTH') {
+			if (isset($_POST['prefs']['SQ_COMMENT_MAX_LENGTH'])) {
+				$this->pref_vars['SQ_COMMENT_MAX_LENGTH']['default'] = $_POST['prefs']['SQ_COMMENT_MAX_LENGTH'];
+			}
 		}
-		return FALSE;
+
+		return TRUE;
 
 	}//end processSqCommentMaxLengthBackend()
 
@@ -536,14 +497,13 @@ class Comment_Prefs extends Prefs
 	*/
 	function processSqCommentHtmlConfBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$new_setting = array_get_index($_POST, $pref);
-
-		if (!is_null($new_setting)) {
-			$this->pref_vars[$pref]['default'] = $new_setting;
-
-			return TRUE;
+		if (is_null($pref) || $pref == 'SQ_COMMENT_HTML_CONF') {
+			if (isset($_POST['prefs']['SQ_COMMENT_HTML_CONF'])) {
+				$this->pref_vars['SQ_COMMENT_HTML_CONF']['default'] = $_POST['prefs']['SQ_COMMENT_HTML_CONF'];
+			}
 		}
-		return FALSE;
+
+		return TRUE;
 
 	}//end processSqCommentHtmlConfBackend()
 
@@ -562,14 +522,13 @@ class Comment_Prefs extends Prefs
 	*/
 	function processSqCommentDisableKeywordReplacementsBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$new_setting = array_get_index($_POST, $pref);
-
-		if (!is_null($new_setting)) {
-			$this->pref_vars[$pref]['default'] = $new_setting;
-
-			return TRUE;
+		if (is_null($pref) || $pref == 'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS') {
+			if (isset($_POST['prefs']['SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS'])) {
+				$this->pref_vars['SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS']['default'] = $_POST['prefs']['SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS'];
+			}
 		}
-		return FALSE;
+
+		return TRUE;
 
 	}//end processSqCommentDisableKeywordReplacementBackend()
 
@@ -588,10 +547,11 @@ class Comment_Prefs extends Prefs
 	*/
 	function processSqCommentMaxRatingBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$this->int_max_rating->process($pref);
-		if (!$this->int_max_rating->processed) return FALSE;
-
-		$this->pref_vars[$pref]['default'] = $this->int_max_rating->value;
+		if (is_null($pref) || $pref == 'SQ_COMMENT_MAX_RATING') {
+			if (isset($_POST['prefs']['SQ_COMMENT_MAX_RATING'])) {
+				$this->pref_vars['SQ_COMMENT_MAX_RATING']['default'] = $_POST['prefs']['SQ_COMMENT_MAX_RATING'];
+			}
+		}
 
 		return TRUE;
 
@@ -603,7 +563,7 @@ class Comment_Prefs extends Prefs
 	*
 	* @param object		&$o					reference to the backend outputter instance
 	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
-	* @param string		$pref_name			a particular preference to paint
+	* @param string		$pref			a particular preference to paint
 	* @param string		$print_sub_title	if TRUE print the sub title
 	* @param boolean	$is_root			are we the root user?
 	* @param boolean	$is_admin			are we an admin user?
@@ -611,14 +571,15 @@ class Comment_Prefs extends Prefs
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentImgRatedBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
+	function paintSqCommentImgRatedBackend(&$o, $have_lock, $pref,$is_root, $is_admin)
 	{
-		if ($print_sub_title) {
+		if ($pref === NULL) {
 			$o->openField(translate('Rated Image'));
 		} else {
 			$o->openField('&nbsp;');
 		}
 
+		$pref_name = 'SQ_COMMENT_IMG_RATED';
 		$current_setting = $this->pref_vars[$pref_name]['default'];
 
 		$read_only = !($have_lock && $is_admin);
@@ -680,7 +641,7 @@ class Comment_Prefs extends Prefs
 	*
 	* @param object		&$o					reference to the backend outputter instance
 	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
-	* @param string		$pref_name			a particular preference to paint
+	* @param string		$pref			a particular preference to paint
 	* @param string		$print_sub_title	if TRUE print the sub title
 	* @param boolean	$is_root			are we the root user?
 	* @param boolean	$is_admin			are we an admin user?
@@ -688,14 +649,15 @@ class Comment_Prefs extends Prefs
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentImgBlankBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
+	function paintSqCommentImgBlankBackend(&$o, $have_lock, $pref,$is_root, $is_admin)
 	{
-		if ($print_sub_title) {
+		if ($pref === NULL) {
 			$o->openField(translate('Blank Image'));
 		} else {
 			$o->openField('&nbsp;');
 		}
 
+		$pref_name = 'SQ_COMMENT_IMG_BLANK';
 		$current_setting = $this->pref_vars[$pref_name]['default'];
 
 		$read_only = !($have_lock && $is_admin);

@@ -54,6 +54,12 @@ class Content_Type_Snippet_Prefs extends Prefs
 	{
 		$this->Prefs($pref_file);
 
+		$this->pref_vars['SQ_SNIPPET_ROOT']['name'] = translate('Snippet Root Node');
+		$this->pref_vars['SQ_SNIPPET_ROOT']['desc'] = translate('All content types found under this asset will be available in the Snippet Content Type dropdown.');
+
+		$this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['name'] = translate('Snippet Keywords Permission Check');
+		$this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['desc'] = translate('Turn off WYSIWYG snippet keywords permission check to improve performance.');
+
 	}//end constructor
 
 
@@ -69,64 +75,16 @@ class Content_Type_Snippet_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		$is_admin  = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $have_lock = $have_lock && $is_admin;
 
-		// print the asset finder for admin to set snippet root node
-		if (is_null($pref) || $pref == 'SQ_SNIPPET_ROOT') {
-			if (is_null($pref)) {
-				$o->openField(translate('Snippet Root Node'));
-			}
-			?>
+		$this->paintAssetMapField($o, $have_lock, $pref, 'SQ_SNIPPET_ROOT');
 
-			<?php
-
-			if ($have_lock && $is_admin) {
-				if (isset($this->pref_vars['SQ_SNIPPET_ROOT']['default'])) {
-					$asset_map_settings = $this->pref_vars['SQ_SNIPPET_ROOT']['default'];
-				} else {
-					$asset_map_settings = '';
-				}
-				asset_finder('prefs[SQ_SNIPPET_ROOT]', $asset_map_settings);
-			} else {
-				if (!empty($this->pref_vars['SQ_SNIPPET_ROOT']['default'])) {
-					echo get_asset_tag_line($this->pref_vars['SQ_SNIPPET_ROOT']['default']);
-				} else {
-					echo translate('Root Folder');
-
-				}
-			}
-			?>
-			<?php
-			$o->note(translate('All content types found under this asset will be available in the snippet content type dropdown.'));
-
-			?>
-			<?php
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
-
-		// Allows Turn Off Keywords Permission Check
-		if (is_null($pref) || $pref == 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK') {
-			if (is_null($pref)) {
-				$o->openField(translate('Snippet Keywords Permission Check'));
-			}
-
-			$value = $this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default'];
-
-			if ($have_lock && $is_admin) {
-				$options = Array(1 => 'Yes', 0 => 'No');
-				combo_box('prefs[SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK]', $options, FALSE, $value);
-			} else {
-				echo ($value) ? translate('Yes') : translate('No');
-
-
-			}
-			echo $o->note(translate('Turn off WYSIWYG snippet keywords permission check to improve performance.'));
-
-			if (is_null($pref)) $o->closeField();
-		}
-
+        $options = Array(
+                    1 => translate('Yes'),
+                    0 => translate('No'),
+                   );
+		$this->paintComboField($o, $have_lock, $pref, 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK', $options);
 
 		return TRUE;
 
@@ -151,7 +109,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_SNIPPET_ROOT') {
 			// update snippet root node pref
 			if (isset($_POST['prefs']['SQ_SNIPPET_ROOT'])) {
-				$this->pref_vars['SQ_SNIPPET_ROOT']['default'] = $_POST['prefs']['SQ_SNIPPET_ROOT']['assetid'];
+			    $this->pref_vars['SQ_SNIPPET_ROOT']['default'] = $_POST['prefs']['SQ_SNIPPET_ROOT']['assetid'];
 			}
 		}
 

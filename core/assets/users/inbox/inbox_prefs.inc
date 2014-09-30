@@ -68,7 +68,7 @@ class Inbox_Prefs extends Prefs
 	    $have_lock = $have_lock && $is_admin;
 
 	    // Messages per page.
-		$this->paintTextField($o, $have_lock, $pref, 'SQ_INBOX_MAIL_PER_PAGE', 5, '%s message(s)');
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_INBOX_MAIL_PER_PAGE', 5, translate('%s message(s)'), 0);
 
 		return TRUE;
 
