@@ -441,7 +441,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				$screen_size_options = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_PREVIEW_SCREEN_SIZES');
 				if (isset($screen_size_options['options']) && $screen_size_options['options'] > 0) {
 					// Global preference 'selected' value points to the index key of the selected screen size
-					$selected_size = array_get_index($_SESSION, 'preview_screen_size', array_get_index($screen_size_options, 'selected', 'auto'));
+					if (!empty($_SESSION['preview_screen_size'])) {
+						$selected_size = $_SESSION['preview_screen_size'];
+					} else {
+						$selected_size = array_get_index($screen_size_options, 'selected', 'auto');
+					}
 					$options = Array('auto' => ucfirst(translate('auto')).' (100% x 100%)');
 					foreach($screen_size_options['options'] as $key => $row) {
 						if (empty($row['width']) || empty($row['height']) || empty($row['name'])) {

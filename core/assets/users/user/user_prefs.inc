@@ -927,7 +927,7 @@ class User_Prefs extends Prefs
 			$this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['default'] = $new_prefs;
 		}//end if
 
-		if (is_null($pref) || $pref == 'SQ_USER_PREVIEW_SCREEN_SIZES') {
+		if ((is_null($pref) || $pref == 'SQ_USER_PREVIEW_SCREEN_SIZES') && isset($_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES'])) {
 			$new_prefs = Array('options' => Array());
 			$new_prefs['selected'] = $_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES']['selected'];
 			unset($_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES']['selected']);
