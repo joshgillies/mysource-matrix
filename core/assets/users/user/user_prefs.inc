@@ -97,22 +97,22 @@ class User_Prefs extends Prefs
 																								Array(
 																									'name'  => 'Desktop',
 																									'width' => '1920',
-																									'heigh' => '1080',
+																									'height' => '1080',
 																								),
 																								Array(
 																									'name'  => 'Laptop',
 																									'width' => '1366',
-																									'heigh' => '768',
+																									'height' => '768',
 																								),
 																								Array(
 																									'name'  => 'Tablet',
 																									'width' => '768',
-																									'heigh' => '1024',
+																									'height' => '1024',
 																								),
 																								Array(
 																									'name'  => 'Mobile',
 																									'width' => '320',
-																									'heigh' => '568',
+																									'height' => '568',
 																								),
 																							),
 																					'selected' => -1
