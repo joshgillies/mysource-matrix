@@ -400,6 +400,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				function autoResizeIframe(el)
 				{
 					el.style.width = '100%';
+					el.style.height = '';
 					el.style.height = el.contentWindow.document.body.scrollHeight + "px";
 
 				}//end autoResizeIframe()
@@ -565,6 +566,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					$selected_size_parts = explode(',', $selected_size);
 					$size_dispay_string = '<strong>'.$selected_size_parts[0].' x '.$selected_size_parts[1].'</strong>';
 					$size_style = 'width: '.$selected_size_parts[0].'px; height:'.$selected_size_parts[1].'px;';
+				} else {
+					$size_style = 'width: 100%; height:800px;';
 				}
 
 				?>
@@ -577,7 +580,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						?></span>
 				</p>
 				<div align="center">
-					<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="<?php echo isset($size_style) ? $size_style : '';?> border: 1px solid #C3C3C3;" <?php echo !isset($size_style) ? 'onload="autoResizeIframe(this)"' : ''; ?>></iframe>
+					<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="<?php echo isset($size_style) ? $size_style : '';?> border: 1px solid #C3C3C3;"</iframe>
 				</div>
 				<?php
 			$o->closeRaw();
