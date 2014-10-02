@@ -37,6 +37,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 {
+	// If the 'preview size' has been changed, set it in the session
+	if (!empty($_GET['preview_screen_size'])) {
+		$_SESSION['preview_screen_size'] = $_GET['preview_screen_size'];
+		exit;
+	}
+
 	// turning off error reporting for get size function
 	// `since a wrong url will display all unwanted error messgae...
 	error_reporting(0);
@@ -215,7 +221,43 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				if(open_new_window) {
 				    window.open(preview_url);
 				}
-				
+
+				function update_preview_size(size_changed)
+				{
+					if (size_changed == null) {
+						size_changed = false;
+					}
+
+					var pc = document.getElementById('preview_size');
+					if (pc != null) {
+						if (pc.value == 'auto') {
+							autoResizeIframe(document.getElementById('sq_preview_frame'));
+							preview_size_string = '';
+						} else {
+							var preview_size = pc.value.replace(' ', '').split(',');
+							var preview_size_string = ' - <?php echo translate('currently_previewing_screen_size') ?> <strong>'+preview_size[0]+' x '+preview_size[1]+'</strong>';
+							var preview_width = preview_size[0]+'px'
+							var preview_height = preview_size[1]+'px'
+							document.getElementById('sq_preview_frame').style.width = preview_width;
+							document.getElementById('sq_preview_frame').style.height = preview_height;
+						}
+
+						document.getElementById('sq_preview_size_display').innerHTML = preview_size_string;
+						// Set the preview size in the session via ajax request
+						if (size_changed) {
+							backend_preview_url = preview_url.replace('/_nocache', '/_admin/');
+							if(backend_preview_url.indexOf('/_admin') == -1) {
+							    backend_preview_url += "/_admin/";
+							}
+							backend_preview_url += backend_preview_url.indexOf('?') == -1 ? '?' : '&';
+							backend_preview_url += 'SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=<?php echo $owner->id ?>&asset_ei_screen=preview&preview_screen_size='+pc.value;
+							ajax_request(backend_preview_url);
+						}
+					}
+
+				}//end update_preview_size()
+
+
 				function update_preview_url()
 				{
 					var url = document.getElementById('preview_url').value;
@@ -327,7 +369,6 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					url_calculate = url_calculate+"&sid="+Math.random();
 					console.log(url_calculate);
 
-			
 					xmlHttp.onreadystatechange = stateChanged;
 					xmlHttp.open("GET",url_calculate,true);
 					xmlHttp.send(null);
@@ -355,6 +396,14 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					    link.innerHTML = 'View conditions preview options';
 					}	
 				}
+
+				function autoResizeIframe(el)
+				{
+					el.style.width = '100%';
+					el.style.height = el.contentWindow.document.body.scrollHeight + "px";
+
+				}//end autoResizeIframe()
+
 
 			</script>
 		<?php
@@ -385,6 +434,29 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				} else {
 					echo ($has_default_design) ? 'Default Frontend Design' : 'None';
 				}
+			$o->closeField();
+
+			$o->openField(translate('preview_screen_screen_size'));
+				$screen_size_options = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_PREVIEW_SCREEN_SIZES');
+				if (isset($screen_size_options['options']) && $screen_size_options['options'] > 0) {
+					// Global preference 'selected' value points to the index key of the selected screen size
+					$selected_size = array_get_index($_SESSION, 'preview_screen_size', array_get_index($screen_size_options, 'selected', 'auto'));
+					$options = Array('auto' => ucfirst(translate('auto')).' (100% x 100%)');
+					foreach($screen_size_options['options'] as $key => $row) {
+						if (empty($row['width']) || empty($row['height']) || empty($row['name'])) {
+							continue;
+						}
+						$options[$row['width'].','.$row['height']] = $row['name'].' ('.$row['width'].' x '.$row['height'].')';
+						if ($selected_size == $key && $selected_size != 'auto') {
+							$selected_size = $row['width'].','.$row['height'];
+						}
+					}
+					if (!isset($options[$selected_size])) {
+						$selected_size = 'auto';
+					}
+					combo_box('preview_size', $options, FALSE, $selected_size, 1, 'onchange="update_preview_size(true)"');
+				}
+
 			$o->closeField();
 
 			$o->openField(translate('context'));
@@ -487,11 +559,26 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('open_preview_in_new_window'); ?></a><?php
 					$replacements_link = ob_get_contents();
 				ob_end_clean();
+
+				$selected_size_parts = Array();
+				if (isset($selected_size) && $selected_size != 'auto') {
+					$selected_size_parts = explode(',', $selected_size);
+					$size_dispay_string = '<strong>'.$selected_size_parts[0].' x '.$selected_size_parts[1].'</strong>';
+					$size_style = 'width: '.$selected_size_parts[0].'px; height:'.$selected_size_parts[1].'px;';
+				}
+
 				?>
 				<p>
-					<?php echo translate('currently_previewing', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
+					<span><?php echo translate('currently_previewing', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?></span>
+					<span id='sq_preview_size_display'><?php
+							if (!empty($size_dispay_string)) {
+								echo ' - '.translate('currently_previewing_screen_size').$size_dispay_string;
+							}
+						?></span>
 				</p>
-				<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
+				<div align="center">
+					<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="<?php echo isset($size_style) ? $size_style : '';?> border: 1px solid #C3C3C3;" <?php echo !isset($size_style) ? 'onload="autoResizeIframe(this)"' : ''; ?>></iframe>
+				</div>
 				<?php
 			$o->closeRaw();
 		$o->closeSection();

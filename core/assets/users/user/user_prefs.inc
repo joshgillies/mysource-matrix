@@ -89,6 +89,37 @@ class User_Prefs extends Prefs
 														'default'		=> TRUE,
 														'protected'		=> FALSE,
 													   ),
+						'SQ_USER_PREVIEW_SCREEN_SIZES'		=> Array(
+															'name'			=> 'user_prefs_preview_screen_size',
+															'description'	=> 'Screen sizes for the preview screen',
+															'default'		=> Array(
+																				'options' => Array(
+																								Array(
+																									'name'  => 'Desktop',
+																									'width' => '1920',
+																									'heigh' => '1080',
+																								),
+																								Array(
+																									'name'  => 'Laptop',
+																									'width' => '1366',
+																									'heigh' => '768',
+																								),
+																								Array(
+																									'name'  => 'Tablet',
+																									'width' => '768',
+																									'heigh' => '1024',
+																								),
+																								Array(
+																									'name'  => 'Mobile',
+																									'width' => '320',
+																									'heigh' => '568',
+																								),
+																							),
+																					'selected' => -1
+																				),
+
+															'protected'		=> FALSE,
+														   ),
 					 );
 
 	var $int_am_frame_width;
@@ -572,27 +603,123 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
-		if (is_null($pref) || $pref == 'SQ_USER_FILTER_FRONT_END_INPUT') {
-			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['name']));
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
-				$options = Array(
-								FALSE	=> 'Do not filter input',
-								TRUE	=> 'Filter input',
-								);
-				$filter_input = $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['default'];
-				if ($have_lock && $is_admin) {
-					combo_box('prefs[SQ_USER_FILTER_FRONT_END_INPUT]', $options, FALSE, $filter_input, 0, 'id="prefs_SQ_USER_FILTER_FRONT_END_INPUT"');
-				} else {
-					echo $options[$filter_input];
+		if (is_null($pref) || $pref == 'SQ_USER_PREVIEW_SCREEN_SIZES') {
+			$pref_var = $this->pref_vars['SQ_USER_PREVIEW_SCREEN_SIZES'];
+
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_USER_PREVIEW_SCREEN_SIZES']['name']));
+			}
+
+			$selected = isset($pref_var['default']['selected']) ? (int)$pref_var['default']['selected'] : NULL;
+			echo '<table class="sq-backend-table" style="width:auto">';
+			echo '<tr>';
+			echo '<th>'.translate('name').'</th>';
+			echo '<th>'.translate('width').'</th>';
+			echo '<th>'.translate('height').'</th>';
+			echo '<th>'.translate('default').'</th>';
+
+			if ($have_lock && $is_admin) {
+				echo '<th>'.translate('delete_question').'</ht>';
+			}
+			echo '</tr>';
+
+			// Default size 'auto'
+			echo '<tr>';
+			echo '<td><em>'.ucfirst(translate('auto')).'</em></td>';
+			echo '<td>100%</td>';
+			echo '<td>100%</td>';
+			echo '<td align="center">';
+			radio_button('prefs[SQ_USER_PREVIEW_SCREEN_SIZES][selected]', '-1', is_null($selected) || $selected === -1, '', $have_lock && $is_admin ? '' : 'disabled');
+			echo '</td>';
+			if ($have_lock && $is_admin) {
+				echo '<td>&nbsp;</td>';
+			}
+			echo '</tr>';
+			if ($have_lock && $is_admin) {
+				foreach ($pref_var['default']['options'] as $key => $row) {
+					echo '<tr>';
+					echo '<td>';
+					text_box('prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][name]', $row['name'], 15);
+					echo '</td>';
+
+					echo '<td>';
+					text_box('prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][width]', $row['width'], 8);
+					echo '</td>';
+
+					echo '<td>';
+					text_box('prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][height]', $row['height'], 8);
+					echo '</td>';
+
+					echo '<td align="center">';
+					radio_button('prefs[SQ_USER_PREVIEW_SCREEN_SIZES][selected]', $key, $selected === $key);
+					echo '</td>';
+
+
+					echo '<td align="center">';
+					$onclick_js = 'document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][name]").disabled = this.checked;
+									document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][width]").disabled = this.checked;
+									document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][height]").disabled = this.checked;
+									document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][selected]").disabled = this.checked;';
+					check_box('prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][delete]', 1, FALSE, $onclick_js);
+					echo '</td>';
+					echo '</tr>';
+				}//end foreach
+				?>
+				<tr>
+					<td colspan="5"><a href="#" id="prefs[SQ_USER_PREVIEW_SCREEN_SIZES][add]" onclick="sq_preview_screen_size_add_another(this.parentNode.parentNode); return false;">Add another...</a></td>
+				</tr>
+				<script>
+					var sq_preview_screen_size_next_index = <?php echo (int)count($pref_var['default']['options']); ?>;
+					function sq_preview_screen_size_add_another(node) {
+						var parent = node.parentNode;
+
+						// create a new row
+						tr = document.createElement('tr');
+
+						// build the cells
+						td1 = document.createElement('td');
+						td1.innerHTML = '<input type="text" name="prefs[SQ_USER_PREVIEW_SCREEN_SIZES][' + sq_preview_screen_size_next_index + '][name]" value="" size="15" />';
+						td2 = document.createElement('td');
+						td2.innerHTML = '<input type="text" name="prefs[SQ_USER_PREVIEW_SCREEN_SIZES][' + sq_preview_screen_size_next_index + '][width]" value="" size="8" />';
+						td3 = document.createElement('td');
+						td3.innerHTML = '<input type="text" name="prefs[SQ_USER_PREVIEW_SCREEN_SIZES][' + sq_preview_screen_size_next_index + '][height]" value=""  size="8" />';
+						td4 = document.createElement('td');
+						td4.innerHTML = '<input type="radio" name="prefs[SQ_USER_PREVIEW_SCREEN_SIZES][selected]" value="' + sq_preview_screen_size_next_index + '" />';
+						td5 = document.createElement('td');
+						td5.innerHTML = '<em>new</em>';
+
+						// Now put them all together
+						tr.appendChild(td1);
+						tr.appendChild(td2);
+						tr.appendChild(td3);
+						tr.appendChild(td4);
+						parent.insertBefore(tr, node);
+
+						// Go to next index
+						sq_preview_screen_size_next_index++;
+					}
+				</script>
+				<?php
+
+			} else {
+				foreach ($pref_var['default']['options'] as $key => $row) {
+					echo '<tr>';
+					echo '<td>'.$row['name'].'</td>';
+					echo '<td>'.$row['width'].'</td>';
+					echo '<td>'.$row['height'].'</td>';
+					echo '<td>';
+					radio_button('prefs[SQ_USER_PREVIEW_SCREEN_SIZES][selected]', $key, $key === $selected, '', 'disabled');
+					echo '</td>';
+					echo '</tr>';
 				}
-				$o->note('If set to "Filter Input", Matrix will '.$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['description']);
-			?>
-			</div>
-			<?php
+			}
+			echo '</table>';
+
+			$o->note(translate('user_prefs_preview_screen_size_note'));
 			if (is_null($pref)) $o->closeField();
-		}//end if
+
+		}// end if show SQ_USER_PREVIEW_SCREEN_SIZES
+
 		return TRUE;
 
 	}//end paintBackend()
@@ -800,6 +927,30 @@ class User_Prefs extends Prefs
 			$this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['default'] = $new_prefs;
 		}//end if
 
+		if (is_null($pref) || $pref == 'SQ_USER_PREVIEW_SCREEN_SIZES') {
+			$new_prefs = Array('options' => Array());
+			$new_prefs['selected'] = $_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES']['selected'];
+			unset($_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES']['selected']);
+
+			foreach($_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES'] as $key => $row) {
+				$row['height'] = preg_replace('/[^\d]/', '', array_get_index($row, 'height', ''));
+				$row['width'] = preg_replace('/[^\d]/', '', array_get_index($row, 'width', ''));
+				$row['name'] = trim(array_get_index($row, 'name', ''));
+
+				if (isset($row['delete']) || (empty($row['name']) && empty($row['height']) && empty($row['width']))) {
+					if ($new_prefs['selected'] == $key) {
+						$new_prefs['selected'] = -1;
+					} else if ($new_prefs['selected'] > $key) {
+						$new_prefs['selected']--;
+					}
+					continue;
+				} else {
+					$new_prefs['options'][] = $row;
+				}
+			}//end if
+
+			$this->pref_vars['SQ_USER_PREVIEW_SCREEN_SIZES']['default'] = $new_prefs;
+		}
 
 		return TRUE;
 
@@ -857,7 +1008,7 @@ class User_Prefs extends Prefs
 				$asset_map_settings1 = $asset_map_settings2;
 				$asset_map_settings2 = '';
 			}
-			
+
 			if (is_array($res['SQ_USER_ASSET_MAP_LINEAGE'])) {
 				$res['SQ_USER_ASSET_MAP_LINEAGE']['default'] = $asset_map_settings1;
 			} else {

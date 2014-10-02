@@ -1850,7 +1850,9 @@
 	<string source="sq_pager_prompt_js" js="1">Enter a page number between %1$s and %2$s:</string>
 	<string source="item_range"><![CDATA[Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s]]></string>
 
-	<string source="currently_previewing">Currently previewing &lt;strong&gt;"%1$s"&lt;/strong&gt; (%2$s)</string>
+	<string source="currently_previewing">Currently previewing: &lt;strong&gt;"%1$s"&lt;/strong&gt; (%2$s) </string>
+	<string source="currently_previewing_screen_size">Screen size: </string>
+	<string source="preview_screen_screen_size">Screen size</string>
 	<string source="show_in_new_window">show in new window</string>
 	<string source="open_in_new_window">Open in new window</string>
 	<string source="open_preview_in_new_window">Open preview in new window</string>
