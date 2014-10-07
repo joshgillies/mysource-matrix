@@ -367,7 +367,6 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					url_calculate += "SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=<?php echo $owner->id ?>&asset_ei_screen=preview";
 					url_calculate = url_calculate+"&calc=calculate";
 					url_calculate = url_calculate+"&sid="+Math.random();
-					console.log(url_calculate);
 
 					xmlHttp.onreadystatechange = stateChanged;
 					xmlHttp.open("GET",url_calculate,true);
@@ -569,9 +568,12 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				if (isset($selected_size) && $selected_size != 'auto') {
 					$selected_size_parts = explode(',', $selected_size);
 					$size_dispay_string = '<strong>'.$selected_size_parts[0].' x '.$selected_size_parts[1].'</strong>';
-					$size_style = 'width: '.$selected_size_parts[0].'px; height:'.$selected_size_parts[1].'px;';
+					$iframe_style = 'width: '.$selected_size_parts[0].'px; height:'.$selected_size_parts[1].'px;';
+					$iframe_onload = '';
 				} else {
-					$size_style = 'width: 100%; height:800px;';
+					// Hide while loading, as we will be auto-resizing once its finished loading
+					$iframe_style = 'visibility: hidden;';
+					$iframe_onload = 'onload="autoResizeIframe(this); this.style.visibility = \'visible\'";';
 				}
 
 				?>
@@ -584,7 +586,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						?></span>
 				</p>
 				<div align="center">
-					<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="<?php echo isset($size_style) ? $size_style : '';?> border: 1px solid #C3C3C3;"</iframe>
+					<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" <?php echo $iframe_onload; ?> style="<?php echo $iframe_style;?> border: 1px solid #C3C3C3;"</iframe>
 				</div>
 				<?php
 			$o->closeRaw();
