@@ -227,8 +227,12 @@ class Js_Api_Enhanced_Function_List
 		/**
 		* Validates options and returns merged data
 		*/
-		_options: function(required,defaults,options)
+		_options: function(required,defaults,options,discard)
 		{
+		    if (arguments.length < 4) {
+		        discard = true;
+		    }
+
 			// Required data
 			for (var i = 0, l = required.length; i<l; i+=1) {
 				if (!options.hasOwnProperty(required[i])) {
@@ -237,9 +241,11 @@ class Js_Api_Enhanced_Function_List
 			}// end for
 
 			// Merge options and defaults
-			for (var def in defaults) {
-				if (defaults.hasOwnProperty(def)){
+			for (var def in options) {
+			    if (defaults.hasOwnProperty(def)){
 					defaults[def] = (options.hasOwnProperty(def)) ? options[def] : defaults[def];
+				} else if ((discard === false) && (options.hasOwnProperty(def))) {
+				    defaults[def] = options[def];
 				}//end if
 			}// end for
 
@@ -1137,22 +1143,41 @@ class Js_Api_Enhanced_Function_List
 			// Extract some configuration and use it to build
 			// parameters for the post call
 			var fnConfig = this[fnName].call(this);
-			options = this._options(fnConfig.required,fnConfig.defaults,options);
+			options = this._options(fnConfig.required,fnConfig.defaults,options,(options.extra_attributes === 0));
 
 			options.is_dependant = (convertToBoolean(options.is_dependant)) ? 1 : 0;
 			options.is_exclusive = (convertToBoolean(options.is_exclusive)) ? 1 : 0;
 
-			this._doPost(fnName,[
-				['id', options.parent_id],
-				['type_code', options.type_code],
-				['asset_name', this._cleanUrlParam(options.asset_name)],
-				['link_type', options.link_type],
-				['link_value',this._cleanUrlParam(options.link_value)],
-				['sort_order', options.sort_order],
-				['is_dependant', options.is_dependant],
-				['is_exclusive', options.is_exclusive],
-				['extra_attributes', options.extra_attributes + '&' + options.attributes]
-			],options);
+			if (options.extra_attributes === 1) {
+			    var params = [];
+			    for (x in options) {
+			        if (x === 'dataCallback') {
+			            // Ignore, we use this for our own purposes
+			        } else if (x === 'parent_id') {
+			            // Re-name this variable
+			            params.push(['id', options[x]]);
+			        } else if ((x === 'asset_name') || (x === 'link_value')) {
+			            // Need to clean these.
+			            params.push([x, this._cleanUrlParam(options[x])]);
+			        } else {
+			            params.push([x, options[x]]);
+			        }
+			    }
+			} else {
+                var params = [
+                    ['id', options.parent_id],
+                    ['type_code', options.type_code],
+                    ['asset_name', this._cleanUrlParam(options.asset_name)],
+                    ['link_type', options.link_type],
+                    ['link_value',this._cleanUrlParam(options.link_value)],
+                    ['sort_order', options.sort_order],
+                    ['is_dependant', options.is_dependant],
+                    ['is_exclusive', options.is_exclusive],
+                    ['extra_attributes', options.extra_attributes]
+                ];
+			}
+
+			this._doPost(fnName,params,options);
 
 		},// end createAsset
 
