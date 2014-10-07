@@ -235,7 +235,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 						$wysiwyg = new Asset_Attribute_WYSIWYG();
 						$wysiwyg->process($wysiwyg_prefix);
 						$content = $wysiwyg->value;
-						if (!empty($content)) {
+						if (!empty($content) && trim($content) !== '<p></p>') {
 							$text = trim($content);
 						}
 					}
@@ -263,7 +263,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 			$text = $wysiwyg->value;
 
 			$new_option = trim($text);
-			if (!empty($new_option)) {
+			if (!empty($new_option) && $new_option !== '<p></p>') {
 				if ($option_key_counter > ord('z')) {
 					$option_key_counter = ord('a');
 					$option_key_rollover++;
