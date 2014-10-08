@@ -15,6 +15,7 @@
 */
 
 
+require_once SQ_LIB_PATH.'/DAL/DAL.inc';
 require_once SQ_LIB_PATH.'/DAL/DALBaker.inc';
 require_once SQ_LIB_PATH.'/FileSystem/FileSystem.inc';
 require_once SQ_LIB_PATH.'/XML/XML.inc';
@@ -174,7 +175,7 @@ class MatrixDALBaker extends DALBaker
         }
 
         // Write the file.
-        $ovenDir = SQ_LIB_PATH.'/DAL/Oven/'.$systemName;
+        $ovenDir = DAL::getOvenPath($systemName);
 
         if (file_exists($ovenDir) === FALSE) {
             mkdir($ovenDir);
@@ -456,7 +457,7 @@ class MatrixDALBaker extends DALBaker
      */
     protected static function _queryRequiresRollback($systemName, $queryName)
     {
-        $filePath = realpath(SQ_SYSTEM_ROOT).'/core/lib/DAL/Oven/'.$systemName.'/'.$queryName.'.xml';
+        $filePath = realpath(SQ_SYSTEM_ROOT).'/data/private/Oven/'.$systemName.'/'.$queryName.'.xml';
         $doc = new DOMDocument();
         $doc->loadXML(file_get_contents($filePath));
         $xpath = new DOMXPath($doc);
@@ -497,7 +498,7 @@ class MatrixDALBaker extends DALBaker
         // the core queries haven't yet been installed, assume that there are
         // no packages installed.
         // TODO:
-        $ovenDir = SQ_LIB_PATH.'/DAL/Oven/core/coreQueries.xml';
+        $ovenDir = DAL::getOvenPath('core').'/coreQueries.xml';
 
         try {
             $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
@@ -591,7 +592,7 @@ class MatrixDALBaker extends DALBaker
         // the core queries haven't yet been installed, assume that there are
         // no packages installed.
         // TODO:
-        $ovenDir = SQ_LIB_PATH.'/DAL/Oven/core/coreQueries.xml';
+        $ovenDir = DAL::getOvenPath('core').'/coreQueries.xml';
 
         try {
             $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();

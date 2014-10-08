@@ -952,9 +952,9 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			(?P<prefix>%(
 				globals_asset_[a-z]+:
 				|asset_summary_
-				|begin_[a-z_]+:
-				|else_[a-z_]+:
-				|end_[a-z_]+:
+				|begin_[a-z0-9_]+:
+				|else_[a-z0-9_]+:
+				|end_[a-z0-9_]+:
 			))
 			(?P<id>\d+(\:\w+)?)
 			(?P<suffix>%)
@@ -965,12 +965,13 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		if(($attribute_name === 'conditions' && $asset_type === 'page_standard')
 		|| ($attribute_name === 'attributes' && $asset_type === 'bodycopy_div')) {
 		    $re = '!
-			    (?P<prefix>(div)?_)
+			    (?P<prefix>[a-z0-9_]+(:|_))
 			    (?P<id>\d+)
-			    (?P<suffix>\')
+			    (?P<suffix>)
 			    !msixS';
 		    preg_match_all($re, $value, $condition_matches, PREG_SET_ORDER);
 		    $matches += $condition_matches;
+
 		}
 
 		$searches = array();

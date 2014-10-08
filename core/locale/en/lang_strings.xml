@@ -1852,7 +1852,9 @@
 	<string source="sq_pager_prompt_js" js="1">Enter a page number between %1$s and %2$s:</string>
 	<string source="item_range"><![CDATA[Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s]]></string>
 
-	<string source="currently_previewing">Currently previewing &lt;strong&gt;"%1$s"&lt;/strong&gt; (%2$s)</string>
+	<string source="currently_previewing">Currently previewing: &lt;strong&gt;"%1$s"&lt;/strong&gt; (%2$s) </string>
+	<string source="currently_previewing_screen_size">Screen size: </string>
+	<string source="preview_screen_screen_size">Screen size</string>
 	<string source="show_in_new_window">show in new window</string>
 	<string source="open_in_new_window">Open in new window</string>
 	<string source="open_preview_in_new_window">Open preview in new window</string>
@@ -1862,9 +1864,12 @@
 	<string source="refresh_now">Refresh Now</string>
 
 	<string source="expression_must_be">Expression must be %s</string>
-	<string source="must_login_to_access_backend">You need to login before you can access the backend</string>
-	<string source="must_be_backend_user">You need to be a backend user in order to access the backend</string>
-	<string source="must_change_password_to_access_backend">You need to change your password before you can access the backend</string>
+	<string source="must_login_to_access_admin_mode">You need to login before you can access Admin Mode</string>
+	<string source="must_login_to_access_edit_mode">You need to login before you can access Edit Mode</string>
+	<string source="must_login_to_access_performance_mode">You need to login to access Performance Mode</string>
+	<string source="must_be_backend_user">You need to be a backend user in order to access Admin Mode</string>
+	<string source="must_change_password_to_access_admin_mode">You need to change your password before you can access Admin Mode</string>
+	<string source="must_change_password_to_access_edit_mode">You need to change your password before you can access Edit Mode</string>
 	<string source="must_change_password_to_access_asset">You need to change your password before you can access &lt;%s&gt;</string>
 	<string source="must_change_password_to_access_this_page">You need to change your password before you can access this page</string>
 	<string source="change_password">Change Password</string>

@@ -551,9 +551,8 @@ class MySource extends MySource_Object
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 
 			if ($require_password_change) {
-				$this->paintPasswordChange(translate('Change Password'), translate('You need to change your password before you can access the backend'));
-
-
+				$error_message = SQ_IN_LIMBO ? translate('You need to change your password before you can access Edit Mode') : translate('You need to change your password before you can access Admin Mode');
+				$this->paintPasswordChange(translate('Change Password'), $error_message);
 				exit();
 			}
 
@@ -591,15 +590,13 @@ class MySource extends MySource_Object
 					$backend->paint();
 				ob_end_flush();
 			} else {
-				$this->paintLogin(translate('Login'), translate('You need to login before you can access the backend'));
 
-
+				$error_message = SQ_IN_LIMBO ? translate('You need to login before you can access Edit Mode') : translate('You need to login before you can access Admin Mode');
+				$this->paintLogin(translate('login'), $error_message);
 			}
 
 		} else if (SQ_IN_LOGIN) {
-			$this->paintLogin(translate('Login'), translate('You need to login before you can access the backend'));
-
-
+			$this->paintLogin(translate('login'), translate('You need to login before you can access Admin Mode'));
 
 		} else {
 			// we are on the frontend
@@ -765,9 +762,13 @@ class MySource extends MySource_Object
 			// In _performance view mode
 			if (SQ_IN_PERFORMANCE) {
 				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || !$asset->writeAccess()) {
+<<<<<<< HEAD
 					$this->paintLogin(translate('Login'), translate('You need to login before you can access the backend'));
 
 
+=======
+					$this->paintLogin(translate('login'), translate('must_login_to_access_performance_mode'));
+>>>>>>> master
 				} else {
 					$this->pm->printFrames($asset);
 				}
@@ -1341,6 +1342,7 @@ class MySource extends MySource_Object
 			}
 
 			if (!is_null($design)) {
+				header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 				ob_start();
 				$design->paint($current_asset);
 				$content = ob_get_clean();

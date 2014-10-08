@@ -785,7 +785,7 @@ class DALBaker
      */
     public static function generateQueryXML($systemName, $queryName)
     {
-        $systemPath = dirname(__FILE__).'/Oven/'.$systemName;
+        $systemPath = DAL::getOvenPath($systemName);
         $fileName   = $systemPath.'/'.$queryName.'.xml';
 
         if (file_exists($systemPath) === FALSE) {
@@ -816,7 +816,7 @@ class DALBaker
      */
     public static function queryXMLExists($systemName, $queryName)
     {
-        $systemPath = dirname(__FILE__).'/Oven/'.$systemName;
+        $systemPath = DAL::getOvenPath($systemName);
         $fileName   = $systemPath.'/'.$queryName.'.xml';
 
         return file_exists($fileName);
@@ -836,7 +836,7 @@ class DALBaker
      */
     public static function getQueryXML($systemName, $queryName)
     {
-        $systemPath = dirname(__FILE__).'/Oven/'.$systemName;
+        $systemPath = DAL::getOvenPath($systemName);
         $fileName   = $systemPath.'/'.$queryName.'.xml';
 
         if (self::queryXMLExists($systemName, $queryName) === FALSE) {
@@ -863,7 +863,7 @@ class DALBaker
      */
     public static function saveQueryXML($system, $queryName, DomDocument $doc)
     {
-        $systemPath = dirname(__FILE__).'/Oven/'.$system;
+        $systemPath = DAL::getOvenPath($system);
         $fileName   = $systemPath.'/'.$queryName.'.xml';
 
         if (file_exists($fileName)) {
@@ -1138,7 +1138,7 @@ class DALBaker
         }
 
         // Write the file.
-        $ovenDir = dirname(__FILE__).'/Oven/'.$systemName;
+        $ovenDir = DAL::getOvenPath($systemName);
 
         if (file_exists($ovenDir) === FALSE) {
             mkdir($ovenDir);

@@ -6245,8 +6245,8 @@ class Asset extends MySource_Object
 
 		// edit layouts applied to the asset
 		$edit_layouts = Array();
-		foreach($our_edit_layouts as $layout_url => $layouts) {
-			foreach($layouts as $name => $layout_data) {
+		foreach($our_edit_layouts as $layout_url => $url_layouts) {
+			foreach($url_layouts as $name => $layout_data) {
 				if (!isset($edit_layouts[$name])) {
 					$edit_layouts[$name] = Array(
 											'value' => $layout_data['value'],

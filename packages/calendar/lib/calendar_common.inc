@@ -188,7 +188,14 @@ class Calendar_Common
 							(MOD('.$now['ms'].' - start_date_ms, period) < MOD('.$now['ms'].' - end_date_ms, period))
 					) OR (
 						/* An instance ends this month */
-						((start_date_ms != end_date_ms) AND (MOD('.$now['ms'].' - end_date_ms, period) = 0))
+						((start_date_ms != end_date_ms) 
+					   AND 
+					   /* There may be events that finish in current month (say: Sep) but not this year.
+						  Example on SquizMap bug #6061 Calender Page throwing fatal db error for the Recurring Event asset with bad setting
+						  In that case check to see if the event is a year long event (duh!) and if the event start year was before the current year */
+					    ((end_date_year = start_date_year) OR (end_date_year > start_date_year AND start_date_year > '.$now['year'].'))
+					   AND
+					    (MOD('.$now['ms'].' - end_date_ms, period) = 0))
 					   AND (
 						   /* its end is PROBABLY after our view date - we can only be ~90% sure here */
 							((frequency = '.MatrixDAL::quote('MFN').')

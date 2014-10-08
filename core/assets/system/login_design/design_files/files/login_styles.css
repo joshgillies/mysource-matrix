@@ -52,6 +52,7 @@ form {
   line-height: 16px;
   margin: 8px 0 8px;
   text-shadow: 0 -1px 0 #000;
+  text-align: center;
 }
 .sq-login-message strong{
   color: #fff;

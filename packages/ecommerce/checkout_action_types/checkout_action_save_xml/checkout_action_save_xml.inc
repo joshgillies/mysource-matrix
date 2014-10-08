@@ -99,7 +99,7 @@ class Checkout_Action_Save_Xml extends Checkout_Action
 	* @access public
 	* @return boolean
 	*/
-	public static function processInlineInterface(Ecommerce_Checkout $checkout, $settings, Backend_Outputter $o, $prefix)
+	public static function processInlineInterface(Ecommerce_Checkout $checkout, &$settings, Backend_Outputter $o, $prefix)
 	{
 		if (!isset($settings['save_xml'])) {
 			$xml_settings = Array();

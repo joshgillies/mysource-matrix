@@ -50,6 +50,10 @@
 	<string source="show_user_held_locks_details">Show User Held Lock Details</string>
 	<string source="hide_user_held_locks_details">Hide User Held Lock Details</string>
 	<string source="filter_front_end_user_input">Filter Front End User Input</string>
+	
+	<string source="user_prefs_preview_screen_size">Preview Screen Size Options</string>
+	<string source="user_prefs_preview_screen_size_note">These options will be available as resolution options when using the Preview screen on assets that have a web path applied. The "100%" height option will attempt to set the screen to the height of the page if previewing web paths on the same domain as the current admin interface.</string>
+
 
 	<string source="user_email_image">User Email Image</string>
 	<string source="user_prefs_attribute_image">Settings for using Image keyword replacements</string>
