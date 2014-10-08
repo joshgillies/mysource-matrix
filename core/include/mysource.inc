@@ -762,13 +762,7 @@ class MySource extends MySource_Object
 			// In _performance view mode
 			if (SQ_IN_PERFORMANCE) {
 				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || !$asset->writeAccess()) {
-<<<<<<< HEAD
-					$this->paintLogin(translate('Login'), translate('You need to login before you can access the backend'));
-
-
-=======
-					$this->paintLogin(translate('login'), translate('must_login_to_access_performance_mode'));
->>>>>>> master
+					$this->paintLogin(translate('Login'), translate('You need to login before you can access Performance Mode'));
 				} else {
 					$this->pm->printFrames($asset);
 				}
