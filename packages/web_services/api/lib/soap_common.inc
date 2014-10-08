@@ -1054,7 +1054,6 @@ class SOAP_Common
 		        $auth_note_locale_string = '';
 		    break;
 		}//end switch
-		 'soap_api_authentication_'.;
 
 		if ($paint_o) {
 			$new_section ? $o->openSection() : '';

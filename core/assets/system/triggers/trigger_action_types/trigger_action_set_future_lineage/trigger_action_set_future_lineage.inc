@@ -181,7 +181,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$section_titles = Array(
 		                    'new_link_type'   => translate('New Link Type'),
 		                    'new_link_parent' => translate('New Link Parent'),
-		                    'at'              => translate('At')
+		                    'at'              => translate('At'),
+		                  );
 
 		ob_start();
 			combo_box($prefix.'[link_type]', $editable_link_types, FALSE, $settings['link_type']);
