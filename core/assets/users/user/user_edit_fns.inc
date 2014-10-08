@@ -160,11 +160,11 @@ class User_Edit_Fns extends Asset_Edit_Fns
 							$edit_fns_classname = $restriction['name'].'_edit_fns';
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($restriction['name'], TRUE);
 
+							$match_options = call_user_func(Array($restriction['name'], 'getMatchKeywords'), $restriction['name']);
 							if ($admin_access) {
-								$match_options = call_user_func(Array($restriction['name'], 'getMatchKeywords'), $restriction['name']);
 								combo_box($condition_prefix.'_match', $match_options, FALSE, $restriction['match']);
 							} else {
-								echo translate($restriction['name'].'_'.($restriction['match'] ? 'true' : 'false'));
+								echo $match_options[$restriction['match']];
 							}
 							echo '<br />';
 							call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $restriction['condition_data'], $o, $condition_prefix, $admin_access, Array());

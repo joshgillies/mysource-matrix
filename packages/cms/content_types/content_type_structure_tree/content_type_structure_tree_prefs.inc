@@ -34,8 +34,6 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_STRUCTURE_TREE_FORMATTING'		=> Array(
-																'name'			=> 'structure_tree_title',
-																'description'	=> 'This preference allows you to change the text options that are displayed',
 																'default'		=> Array(
 																					'bold'			=> TRUE,
 																					'underline'		=> TRUE,
@@ -47,8 +45,6 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 																'protected'		=> FALSE,
 															   ),
 						'SQ_STRUCTURE_TREE_NODE_CLASSES'	=> Array(
-																'name'			=> 'tree_class_title',
-																'description'	=> 'This preference allows you to change the class used for each Node',
 																'default'		=> Array(
 																					'node_text'		=> 'tree_node_text',
 																					'node_branches'	=> 'tree_node_branches',
@@ -62,9 +58,12 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 	* Constructor
 	*
 	*/
-	function Content_Type_Structure_Tree_Prefs($pref_file='')
+	function __construct($pref_file='')
 	{
-		$this->Prefs($pref_file);
+		parent::__construct($pref_file);
+
+		$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['name']   = translate('Structured Tree Formatting Options');
+		$this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['name'] = translate('Structured Tree CSS Classes');
 
 	}//end constructor
 
@@ -81,153 +80,145 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_FORMATTING') {
-			if (is_null($pref)) {
-				$o->openField(translate('Structured Tree Formatting Options'));
-			}
-				$format_options = $this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 350px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Formatting Options to Show'); ?></td>
+        $is_admin  = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $have_lock = $have_lock && $is_admin;
 
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							check_box('SQ_STRUCTURE_SHOW_BOLD', '1', $format_options['bold']);
-							echo translate('Bold').'<br />';
+	    $this->paintField($o, $have_lock, $pref, 'SQ_STRUCTURE_TREE_FORMATTING', function($format_options) use ($have_lock) {
+            ?>
+            <table class="sq-backend-table" style="width: 350px;">
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Formatting Options to Show'); ?></td>
 
-							check_box('SQ_STRUCTURE_SHOW_UNDERLINE', '1', $format_options['underline']);
-							echo translate('Underline').'<br />';
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if ($have_lock) {
+                        check_box('SQ_STRUCTURE_SHOW_BOLD', '1', $format_options['bold']);
+                        echo translate('Bold').'<br />';
 
-							check_box('SQ_STRUCTURE_SHOW_ITALIC', '1', $format_options['italic']);
-							echo translate('Italic').'<br />';
+                        check_box('SQ_STRUCTURE_SHOW_UNDERLINE', '1', $format_options['underline']);
+                        echo translate('Underline').'<br />';
 
-							check_box('SQ_STRUCTURE_SHOW_DELETE', '1', $format_options['delete']);
-							echo translate('Delete').'<br />';
+                        check_box('SQ_STRUCTURE_SHOW_ITALIC', '1', $format_options['italic']);
+                        echo translate('Italic').'<br />';
 
-							check_box('SQ_STRUCTURE_SHOW_INSERT', '1', $format_options['delete']);
-							echo translate('Insert').'<br />';
+                        check_box('SQ_STRUCTURE_SHOW_DELETE', '1', $format_options['delete']);
+                        echo translate('Delete').'<br />';
 
-							check_box('SQ_STRUCTURE_SHOW_CONNECTIONS', '1', $format_options['connections']);
-							echo translate('Connections').'<br />';
+                        check_box('SQ_STRUCTURE_SHOW_INSERT', '1', $format_options['delete']);
+                        echo translate('Insert').'<br />';
 
-						} else {
-							$tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
-							$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
-							?>
-							<table>
-								<tr>
-									<td>
-										<?php echo translate('Bold'); ?>&nbsp;
+                        check_box('SQ_STRUCTURE_SHOW_CONNECTIONS', '1', $format_options['connections']);
+                        echo translate('Connections').'<br />';
 
-									</td>
-									<td>
-										<?php
-										echo ($format_options['bold'] == TRUE) ? $tick : $cross;
-										?>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<?php echo translate('Underline'); ?>&nbsp;
+                    } else {
+                        $tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
+                        $cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
+                        ?>
+                        <table>
+                            <tr>
+                                <td>
+                                    <?php echo translate('Bold'); ?>&nbsp;
 
-									</td>
-									<td>
-										<?php
-										echo ($format_options['underline'] == TRUE) ? $tick : $cross;
-										?>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<?php echo translate('Italic'); ?>&nbsp;
+                                </td>
+                                <td>
+                                    <?php
+                                    echo ($format_options['bold'] == TRUE) ? $tick : $cross;
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <?php echo translate('Underline'); ?>&nbsp;
 
-									</td>
-									<td>
-										<?php
-										echo ($format_options['italic'] == TRUE) ? $tick : $cross;
-										?>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<?php echo translate('Delete'); ?>&nbsp;
+                                </td>
+                                <td>
+                                    <?php
+                                    echo ($format_options['underline'] == TRUE) ? $tick : $cross;
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <?php echo translate('Italic'); ?>&nbsp;
 
-									</td>
-									<td>
-										<?php
-										echo ($format_options['delete'] == TRUE) ? $tick : $cross;
-										?>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<?php echo translate('Insert'); ?>&nbsp;
+                                </td>
+                                <td>
+                                    <?php
+                                    echo ($format_options['italic'] == TRUE) ? $tick : $cross;
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <?php echo translate('Delete'); ?>&nbsp;
 
-									</td>
-									<td>
-										<?php
-										echo ($format_options['insert'] == TRUE) ? $tick : $cross;
-										?>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<?php echo translate('Connections'); ?>&nbsp;
+                                </td>
+                                <td>
+                                    <?php
+                                    echo ($format_options['delete'] == TRUE) ? $tick : $cross;
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <?php echo translate('Insert'); ?>&nbsp;
 
-									</td>
-									<td>
-										<?php
-										echo ($format_options['connections'] == TRUE) ? $tick : $cross;
-										?>
-									</td>
-								</tr>
-							</table>
-							<?php
-						}//end else
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if
-		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_NODE_CLASSES') {
-			if (is_null($pref)) {
-				$o->openField(translate('Structured Tree CSS Classes'));
-			}
-				$classes = $this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 350px;">
-				<?php
-				    $class_text = Array(
-				                   'node_text'     => translate('Node Text'),
-				                   'node_branches' => translate('Node Branches'),
-				                  );
-					foreach ($classes as $name => $class) {
-				?>
-						<tr>
-							<td class="sq-backend-table-header" nowrap="nowrap"><?php echo $class_text[$name]; ?></td>
-							<td class="sq-backend-table-cell" style="width: 100%;">
-							<?php
-								if ($have_lock && $is_admin) {
-									text_box('SQ_STRUCTURE_TREE_NODE_CLASSES['.$name.']', $class, '20');
-								} else {
-									echo $class;
-								}
-								?>
-							</td>
-						</tr>
-				<?php
-					}
-				?>
-				</table>
-				<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if
+                                </td>
+                                <td>
+                                    <?php
+                                    echo ($format_options['insert'] == TRUE) ? $tick : $cross;
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <?php echo translate('Connections'); ?>&nbsp;
+
+                                </td>
+                                <td>
+                                    <?php
+                                    echo ($format_options['connections'] == TRUE) ? $tick : $cross;
+                                    ?>
+                                </td>
+                            </tr>
+                        </table>
+                        <?php
+                    }//end else
+                    ?>
+                    </td>
+                </tr>
+            </table>
+            <?php
+		});//end SQ_STRUCTURE_TREE_FORMATTING
+
+		$this->paintField($o, $have_lock, $pref, 'SQ_STRUCTURE_TREE_NODE_CLASSES', function($classes) use ($have_lock) {
+            ?>
+            <table class="sq-backend-table" style="width: 350px;">
+            <?php
+                $class_text = Array(
+                               'node_text'     => translate('Node Text'),
+                               'node_branches' => translate('Node Branches'),
+                              );
+                foreach ($classes as $name => $class) {
+            ?>
+                    <tr>
+                        <td class="sq-backend-table-header" nowrap="nowrap"><?php echo $class_text[$name]; ?></td>
+                        <td class="sq-backend-table-cell" style="width: 100%;">
+                        <?php
+                            if ($have_lock) {
+                                text_box('SQ_STRUCTURE_TREE_NODE_CLASSES['.$name.']', $class, '20');
+                            } else {
+                                echo $class;
+                            }
+                            ?>
+                        </td>
+                    </tr>
+            <?php
+                }
+            ?>
+            </table>
+            <?php
+		});//end if
 
 		return TRUE;
 

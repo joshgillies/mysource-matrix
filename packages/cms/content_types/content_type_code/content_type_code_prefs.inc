@@ -34,14 +34,10 @@ class Content_Type_Code_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_CODE_EDITOR_SIZE'			=> Array(
-															'name'			=> 'code_editor_size',
-															'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
 															'default'		=> Array('width' => '400', 'height' => '400'),
 															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_HTML_CLASSES'	=> Array(
-															'name'			=> 'html_code_classes',
-															'description'	=> 'Changes the CSS classes used to display the code of Highlighted HTML',
 															'default'		=> Array(
 																				'attribute_names'	=> 'html_attribute',
 																				'attribute_value'	=> 'html_attribute_values',
@@ -52,8 +48,6 @@ class Content_Type_Code_Prefs extends Prefs
 															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_PHP_CLASSES'	=> Array(
-															'name'			=> 'php_code_classes',
-															'description'	=> 'Changes the CSS classes used to display the code of Highlighted PHP',
 															'default'		=> Array(
 																				'background'	=> 'php_background',
 																				'default'		=> 'php_default',
@@ -65,8 +59,6 @@ class Content_Type_Code_Prefs extends Prefs
 															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_JS_CLASSES'		=> Array(
-															'name'			=> 'javascript_code_classes',
-															'description'	=> 'Changes the CSS classes used to display the code of Highlighted Javascript',
 															'default'		=> Array(
 																				'reserved'	=> 'js_reserved',
 																				'function'	=> 'js_function',
@@ -78,8 +70,6 @@ class Content_Type_Code_Prefs extends Prefs
 															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_LINE_NUMBERS'	=> Array(
-															'name'			=> 'line_numbers',
-															'description'	=> 'Whether to use line numbers, and what options to use',
 															'default'		=> Array(
 																				'use_line_numbers'	=> FALSE,
 																				'line_number_left'	=> TRUE,
@@ -103,6 +93,12 @@ class Content_Type_Code_Prefs extends Prefs
 		$this->css_dimension_width = new Asset_Attribute_CSS_Dimension();
 		$this->css_dimension_height = new Asset_Attribute_CSS_Dimension();
 
+		$this->pref_vars['SQ_CODE_EDITOR_SIZE']['name']         = translate('Code Editor Size');
+		$this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['name'] = translate('HTML Code Highlighting Classes');
+		$this->pref_vars['SQ_CODE_EDITOR_PHP_CLASSES']['name']  = translate('PHP Code Highlighting Classes');
+		$this->pref_vars['SQ_CODE_EDITOR_JS_CLASSES']['name']   = translate('JavaScript Code Highlighting Classes');
+		$this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['name'] = translate('Line Numbers');
+
 	}//end constructor
 
 
@@ -118,54 +114,45 @@ class Content_Type_Code_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $is_root   = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin  = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+        $have_lock = ($have_lock && $is_admin);
 
-		// Width and Height
-		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_SIZE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Code Editor Size'));
-			}
-				$code_editor_size = $this->pref_vars['SQ_CODE_EDITOR_SIZE']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 350px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
+		$this->paintField($o, $have_lock, $pref, 'SQ_CODE_EDITOR_SIZE', function($code_editor_size) use ($have_lock) {
+            ?>
+            <table class="sq-backend-table" style="width: 350px;">
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
 
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							$this->css_dimension_width->paint('code_width', $have_lock, $code_editor_size['width']);
-						} else {
-							echo $code_editor_size['width'];
-						}
-						?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height') ?></td>
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if ($have_lock) {
+                        $this->css_dimension_width->paint('code_width', $have_lock, $code_editor_size['width']);
+                    } else {
+                        echo $code_editor_size['width'];
+                    }
+                    ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height') ?></td>
 
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							$this->css_dimension_height->paint('code_height', $have_lock, $code_editor_size['height']);
-						} else {
-							echo $code_editor_size['height'];
-						}
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if all prefs, or code_editor_size
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if ($have_lock) {
+                        $this->css_dimension_height->paint('code_height', $have_lock, $code_editor_size['height']);
+                    } else {
+                        echo $code_editor_size['height'];
+                    }
+                    ?>
+                    </td>
+                </tr>
+            </table>
+            <?php
+        });//end closure (SQ_CODE_EDITOR_SIZE)
 
-		// Classes
-		if (is_null($pref)) {
-			$o->openField(translate('HTML Code Highlighting Classes'));
-		}
-		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_HTML_CLASSES') {
-			$html_classes = $this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['default'];
+		// HTML Classes
+		$this->paintField($o, $have_lock, $pref, 'SQ_CODE_EDITOR_HTML_CLASSES', function($html_classes) use ($have_lock) {
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 			<?php
@@ -177,7 +164,7 @@ class Content_Type_Code_Prefs extends Prefs
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
-					if ($have_lock && $is_admin) {
+					if ($have_lock) {
 						text_box('SQ_CODE_EDITOR_HTML_CLASSES['.$class_name.']', $choice);
 					} else {
 						echo $choice;
@@ -190,14 +177,10 @@ class Content_Type_Code_Prefs extends Prefs
 				?>
 			</table>
 			<?php
-			if (is_null($pref)) $o->closeField();
-		}
-		if (is_null($pref)) {
-			$o->openField(translate('PHP Code Highlighting Classes'));
-		}
+		});//end closure (SQ_CODE_EDITOR_HTML_CLASSES)
 
-		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_PHP_CLASSES') {
-			$php_classes = $this->pref_vars['SQ_CODE_EDITOR_PHP_CLASSES']['default'];
+		// Classes for PHP code
+		$this->paintField($o, $have_lock, $pref, 'SQ_CODE_EDITOR_PHP_CLASSES', function($php_classes) use ($have_lock) {
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 			<?php
@@ -209,7 +192,7 @@ class Content_Type_Code_Prefs extends Prefs
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
-					if ($have_lock && $is_admin) {
+					if ($have_lock) {
 						text_box('SQ_CODE_EDITOR_PHP_CLASSES['.$class_name.']', $choice);
 					} else {
 						echo $choice;
@@ -222,13 +205,10 @@ class Content_Type_Code_Prefs extends Prefs
 				?>
 			</table>
 			<?php
-			if (is_null($pref)) $o->closeField();
-		}
-		if (is_null($pref)) {
-			$o->openField(translate('JavaScript Code Highlighting Classes'));
-		}
-		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_JS_CLASSES') {
-			$js_classes = $this->pref_vars['SQ_CODE_EDITOR_JS_CLASSES']['default'];
+		});//end closure (SQ_CODE_EDITOR_PHP_CLASSES)
+
+		// Classes for JavaScript code
+		$this->paintField($o, $have_lock, $pref, 'SQ_CODE_EDITOR_JS_CLASSES', function($js_classes) use ($have_lock) {
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 			<?php
@@ -240,7 +220,7 @@ class Content_Type_Code_Prefs extends Prefs
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
-					if ($have_lock && $is_admin) {
+					if ($have_lock) {
 						text_box('SQ_CODE_EDITOR_JS_CLASSES['.$class_name.']', $choice);
 					} else {
 						echo $choice;
@@ -253,14 +233,10 @@ class Content_Type_Code_Prefs extends Prefs
 				?>
 			</table>
 			<?php
-		}
+		});//end closure (SQ_CODE_EDITOR_JS_CLASSES)
 
-		// Line Numbers
-		if (is_null($pref)) {
-			$o->openField(translate('Line Numbers'));
-		}
-		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_LINE_NUMBERS') {
-			$line_prefs = $this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['default'];
+		// Line Number settings.
+		$this->paintField($o, $have_lock, $pref, 'SQ_CODE_EDITOR_LINE_NUMBERS', function($line_prefs) use ($have_lock) {
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 				<tr>
@@ -270,7 +246,7 @@ class Content_Type_Code_Prefs extends Prefs
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
-					if ($have_lock && $is_admin) {
+					if ($have_lock) {
 						check_box('SQ_CODE_show_line_numbers', '1', $line_prefs['use_line_numbers']);
 					} else {
 						echo ($line_prefs['use_line_numbers'] == TRUE) ? translate('Yes') : translate('No');
@@ -287,7 +263,7 @@ class Content_Type_Code_Prefs extends Prefs
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
-					if ($have_lock && $is_admin) {
+					if ($have_lock) {
 						radio_button('SQ_CODE_line_number_left', 'left', $line_prefs['line_number_left'] == TRUE);
 						label(translate('Left'), 'SQ_CODE_line_number_left');
 
@@ -309,7 +285,7 @@ class Content_Type_Code_Prefs extends Prefs
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
-					if ($have_lock && $is_admin) {
+					if ($have_lock) {
 						combo_box('SQ_CODE_line_style', Array('span'=>'Span','list'=>'List'), FALSE, $line_prefs['line_number_style']);
 					} else {
 						echo ucwords($line_prefs['line_number_style']);
@@ -324,7 +300,7 @@ class Content_Type_Code_Prefs extends Prefs
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
-					if ($have_lock && $is_admin) {
+					if ($have_lock) {
 						text_box('SQ_CODE_line_class', $line_prefs['line_number_class']);
 					} else {
 						echo $line_prefs['line_number_class'];
@@ -334,8 +310,7 @@ class Content_Type_Code_Prefs extends Prefs
 				</tr>
 			</table>
 			<?php
-		}//end if line numbers
-		if (is_null($pref)) $o->closeField();
+		});//end closure (SQ_CODE_EDITOR_LINE_NUMBERS)
 
 		return TRUE;
 

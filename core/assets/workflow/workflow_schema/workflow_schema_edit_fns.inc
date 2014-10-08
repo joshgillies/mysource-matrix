@@ -882,7 +882,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 
 						</td>
 						<td class="sq-backend-table-cell">
-							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo translate($tree_info['cascades'] === '1' ? 'yes' : 'no'); ?>" />
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo ($tree_info['cascades'] === '1' ? translate('Yes') : translate('No')); ?>" />
 						</td>
 					</tr>
 					<?php

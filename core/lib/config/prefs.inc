@@ -127,15 +127,14 @@ class Prefs extends MySource_Object
 	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
 	 * @param string                      $pref         Preference to paint.
 	 * @param callback                    $paintFn      Paint function
-	 * @param mixed                       $extra        Extra things to pass to paint function.
 	 *
 	 * @return boolean
 	 */
-	function paintField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $paintFn, $extra=NULL)
+	function paintField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $paintFn)
 	{
 	    $commit = FALSE;
 
-	    if (is_null($all_prefs) || $all_prefs == 'SQ_INBOX_MAIL_PER_PAGE') {
+	    if (is_null($all_prefs) || $all_prefs === $pref) {
             if (array_key_exists($pref, $this->pref_vars) === TRUE) {
                 $pref_value = $this->pref_vars[$pref]['default'];
             }
@@ -144,16 +143,12 @@ class Prefs extends MySource_Object
                 $o->openField($this->pref_vars[$pref]['name']);
             }
 
-            echo '<div style="background-color: #fe9">';
-
             // Paint the field.
-            $commit = $paintFn($o, $have_lock, $pref, $extra);
+            $commit = $paintFn($pref_value);
 
             if (array_key_exists('desc', $this->pref_vars[$pref]) === TRUE) {
                 $o->note($this->pref_vars[$pref]['desc']);
             }
-
-            echo '</div>';
 
             if (is_null($all_prefs)) {
                 $o->closeField();
@@ -184,20 +179,18 @@ class Prefs extends MySource_Object
 	 */
 	function paintTextField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $width, $height=1, $format='%s')
 	{
-		return $this->paintField($o, $have_lock, $all_prefs, $pref, function($o, $have_lock, $pref) use ($width, $height, $format) {
-		    $default = $this->pref_vars[$pref]['default'];
-
-            if ($have_lock) {
+		return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $width, $height, $format) {
+		   if ($have_lock) {
                 if ($height === 1) {
-                    text_box('prefs['.$pref.']', $default, $width);
+                    text_box('prefs['.$pref.']', $pref_value, $width);
 				} else {
-				    text_area('prefs['.$pref.']', $default, $width, $height);
+				    text_area('prefs['.$pref.']', $pref_value, $width, $height);
 				}
             } else {
                 if (is_callable($format)) {
-                    echo $format($default);
+                    echo $format($pref_value);
                 } else {
-                    echo sprintf($format, $default);
+                    echo sprintf($format, $pref_value);
                 }
             }
 
@@ -224,16 +217,14 @@ class Prefs extends MySource_Object
 	 */
 	function paintIntTextField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $width, $format='%s', $range_min=NULL, $range_max=NULL)
 	{
-		return $this->paintField($o, $have_lock, $all_prefs, $pref, function($o, $have_lock, $pref) use ($width, $range_min, $range_max, $format) {
-		    $default = $this->pref_vars[$pref]['default'];
-
-            if ($have_lock) {
-                int_text_box('prefs['.$pref.']', $default, TRUE, $width, $range_min, $range_max, '', FALSE, FALSE, '', FALSE, TRUE);
+		return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $width, $range_min, $range_max, $format) {
+		    if ($have_lock) {
+                int_text_box('prefs['.$pref.']', $pref_value, TRUE, $width, $range_min, $range_max, '', FALSE, FALSE, '', FALSE, TRUE);
             } else {
                 if (is_callable($format)) {
-                    echo $format($default);
+                    echo $format($pref_value);
                 } else {
-                    echo sprintf($format, $default);
+                    echo sprintf($format, $pref_value);
                 }
             }
 
@@ -256,13 +247,11 @@ class Prefs extends MySource_Object
 	 */
 	function paintComboField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $options)
 	{
-        return $this->paintField($o, $have_lock, $all_prefs, $pref, function($o, $have_lock, $pref) use ($options) {
-		    $default = $this->pref_vars[$pref]['default'];
-
-            if ($have_lock) {
-                combo_box('prefs['.$pref.']', $options, FALSE, $default);
+        return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $options) {
+		    if ($have_lock) {
+                combo_box('prefs['.$pref.']', $options, FALSE, $pref_value);
             } else {
-                echo $options[$default];
+                echo $options[$pref_value];
             }
 
 			return $have_lock;
@@ -284,24 +273,22 @@ class Prefs extends MySource_Object
 	 */
 	function paintAssetMapField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $multiple=FALSE, $types=Array(), $callback=NULL)
 	{
-        return $this->paintField($o, $have_lock, $all_prefs, $pref, function($o, $have_lock, $pref) use ($multiple, $types, $callback) {
-		    $default = $this->pref_vars[$pref]['default'];
-
-            if ($have_lock) {
+        return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $multiple, $types, $callback) {
+		    if ($have_lock) {
                 if ($multiple === TRUE) {
-                    if (is_array($default) === FALSE) {
-                        $default = Array();
+                    if (is_array($pref_value) === FALSE) {
+                        $pref_value = Array();
                     }
-                    multiple_asset_finder('prefs['.$pref.']', $default, $types);
+                    multiple_asset_finder('prefs['.$pref.']', $pref_value, $types);
                 } else {
-                    asset_finder('prefs['.$pref.']', $default, $types);
+                    asset_finder('prefs['.$pref.']', $pref_value, $types);
                 }
             } else {
                 if (is_callable($callback) === TRUE) {
-                    echo $callback($default);
+                    echo $callback($pref_value);
                 } else {
                     if ($multiple === TRUE) {
-                        if (empty($default) === TRUE) {
+                        if (empty($pref_value) === TRUE) {
                             if (is_string($callback) === TRUE) {
                                 echo $callback;
                             } else {
@@ -309,20 +296,20 @@ class Prefs extends MySource_Object
                             }
                         } else {
                             echo '<ul>';
-                            foreach ($default as $asset) {
+                            foreach ($pref_value as $asset) {
                                 echo '<li>'.get_asset_tag_line($asset).'</li>';
                             }
                             echo '</ul>';
                         }
                     } else {
-                        if (empty($default) === TRUE) {
+                        if (empty($pref_value) === TRUE) {
                             if (is_string($callback) === TRUE) {
                                 echo $callback;
                             } else {
                                 echo translate('No asset selected');
                             }
                         } else {
-                            echo get_asset_tag_line($default);
+                            echo get_asset_tag_line($pref_value);
                         }
                     }
                 }

@@ -32,14 +32,10 @@ class Content_Type_Snippet_Prefs extends Prefs
 {
 	var $pref_vars = Array(
 						'SQ_SNIPPET_ROOT'	=> Array(
-												'name'			=> 'snippet_root_node',
-												'description'	=> 'Allows you to specify the root node of where all snippets are located',
 												'default'		=> '',
 												'protected'		=> FALSE,
 											   ),
 						'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK'	=> Array(
-												'name'			=> 'snippet_keywords_permission_check',
-												'description'	=> 'Allows you to turn off snippet keywords permission check to speed up WYSIWYG loading',
 												'default'		=> '1',
 												'protected'		=> FALSE,
 											   ),

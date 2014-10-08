@@ -34,8 +34,6 @@ class Content_Type_Markdown_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_MARKDOWN_SIZE'	=> Array(
-												'name'			=> 'cms_ct_markdown_pref_editor_size',
-												'description'	=> 'This preference allows you to change the size of the Markdown editor',
 												'default'		=> Array('width' => '70em', 'height' => '20em'),
 												'protected'		=> FALSE,
 											   ),
@@ -54,6 +52,8 @@ class Content_Type_Markdown_Prefs extends Prefs
 		$this->css_dimension_width = new Asset_Attribute_CSS_Dimension();
 		$this->css_dimension_height = new Asset_Attribute_CSS_Dimension();
 
+		$this->pref_vars['SQ_MARKDOWN_SIZE']['name'] = translate('Markdown Editor Size');
+
 	}//end constructor
 
 
@@ -69,45 +69,42 @@ class Content_Type_Markdown_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (is_null($pref) || $pref == 'SQ_MARKDOWN_SIZE') {
-			if (is_null($pref)) {
-				$o->openField(translate('Markdown Editor Size'));
-			}
-				$markdown_size = $this->pref_vars['SQ_MARKDOWN_SIZE']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 350px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
+	    $is_root   = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin  = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+        $have_lock = ($have_lock && $is_admin);
 
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							$this->css_dimension_width->paint('markdown_width', $have_lock, $markdown_size['width']);
-						} else {
-							echo $markdown_size['width'];
-						}
-						?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height') ?></td>
+		$this->paintField($o, $have_lock, $pref, 'SQ_MARKDOWN_SIZE', function($markdown_size) use ($have_lock) {
+            ?>
+            <table class="sq-backend-table" style="width: 350px;">
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
 
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							$this->css_dimension_height->paint('markdown_height', $have_lock, $markdown_size['height']);
-						} else {
-							echo $markdown_size['height'];
-						}
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if ($have_lock) {
+                        $this->css_dimension_width->paint('markdown_width', $have_lock, $markdown_size['width']);
+                    } else {
+                        echo $markdown_size['width'];
+                    }
+                    ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height') ?></td>
+
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if ($have_lock) {
+                        $this->css_dimension_height->paint('markdown_height', $have_lock, $markdown_size['height']);
+                    } else {
+                        echo $markdown_size['height'];
+                    }
+                    ?>
+                    </td>
+                </tr>
+            </table>
+            <?php
+		});
 
 		return TRUE;
 

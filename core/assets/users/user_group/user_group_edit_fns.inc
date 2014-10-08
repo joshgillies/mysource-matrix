@@ -370,7 +370,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 				foreach ($pref_vars as $var_name => $var_data) {
 					if(!isset($var_data['name'])) continue;
-					$o->openField(translate($var_data['name']));
+					$o->openField($var_data['name']);
 						if (isset($custom_preferences[$type_code][$var_name])) {
 							echo '<p>'.translate('This preference is currently customised. The global preference setting is currently being overridden for users in this user group.');
 

@@ -97,8 +97,12 @@ class Content_Type_Image_Prefs extends Prefs
 	*/
 	function Content_Type_Image_Prefs($pref_file='')
 	{
+        $this->Prefs($pref_file);
 
-			$this->Prefs($pref_file);
+        $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['name'] = translate('Image Content Type Value Defaults');
+        $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_FIELDS']['name']   = translate('Image Fields to Show');
+        $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_CLASSES']['name']  = translate('Image CSS Classes');
+        $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['name']  = translate('Image Preview CSS Classes');
 
 	}//end constructor
 
@@ -115,149 +119,144 @@ class Content_Type_Image_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $is_root   = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin  = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+        $have_lock = ($have_lock && $is_admin);
+
 		// Images for readonly mode on checkboxes
 		$tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
 		$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
-		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_DEFAULTS') {
-			if (is_null($pref)) {
-				$o->openField(translate('Image Content Type Value Defaults'));
-			}
-				$value_defaults = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 350px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption]', array_get_index($value_defaults, 'caption', ''), '30');
-								} else {
-									echo $value_defaults['caption'];
-								}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption Position'); ?>:</td>
+		$this->paintField($o, $have_lock, $pref, 'SQ_CONTENT_TYPE_IMAGE_DEFAULTS', function($value_defaults) use ($have_lock, $tick, $cross) {
+            ?>
+            <table class="sq-backend-table" style="width: 350px;">
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption_position]', Array('bottom' => 'Bottom', 'top' => 'Top'), FALSE, array_get_index($value_defaults, 'caption_position', ''));
-									} else {
-										echo ucwords($value_defaults['caption_position']);
-									}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Use Caption Attribute'); ?>:</td>
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption]', array_get_index($value_defaults, 'caption', ''), '30');
+                            } else {
+                                echo $value_defaults['caption'];
+                            }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption Position'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[use_caption_attr]', '1', array_get_index($value_defaults, 'use_caption_attr', FALSE));
-								} else {
-									echo ($value_defaults['use_caption_attr'] == TRUE) ? $tick : $cross;
-								}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width'); ?>:</td>
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption_position]', Array('bottom' => 'Bottom', 'top' => 'Top'), FALSE, array_get_index($value_defaults, 'caption_position', ''));
+                                } else {
+                                    echo ucwords($value_defaults['caption_position']);
+                                }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Use Caption Attribute'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[width]', array_get_index($value_defaults, 'width', ''), '10');
-								} else {
-									echo $value_defaults['width'];
-								}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height'); ?>:</td>
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[use_caption_attr]', '1', array_get_index($value_defaults, 'use_caption_attr', FALSE));
+                            } else {
+                                echo ($value_defaults['use_caption_attr'] == TRUE) ? $tick : $cross;
+                            }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[height]', array_get_index($value_defaults, 'height', ''), '10');
-								} else {
-									echo $value_defaults['height'];
-								}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Constrain Proportions'); ?>:</td>
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[width]', array_get_index($value_defaults, 'width', ''), '10');
+                            } else {
+                                echo $value_defaults['width'];
+                            }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[constrain_proportions]', '1', array_get_index($value_defaults, 'constrain_proportions', FALSE));
-								} else {
-									echo (array_get_index($value_defaults, 'constrain_proportions', FALSE) == TRUE) ? $tick : $cross;
-								}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Shrink/Stretch to Dimensions'); ?>:</td>
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[height]', array_get_index($value_defaults, 'height', ''), '10');
+                            } else {
+                                echo $value_defaults['height'];
+                            }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Constrain Proportions'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[fit_dimensions]', '1', array_get_index($value_defaults, 'fit_dimensions', FALSE));
-								} else {
-									echo (array_get_index($value_defaults, 'fit_dimensions', FALSE) == TRUE) ? $tick : $cross;
-								}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('On Click'); ?>:</td>
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[constrain_proportions]', '1', array_get_index($value_defaults, 'constrain_proportions', FALSE));
+                            } else {
+                                echo (array_get_index($value_defaults, 'constrain_proportions', FALSE) == TRUE) ? $tick : $cross;
+                            }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Shrink/Stretch to Dimensions'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									$GLOBALS['SQ_SYSTEM']->am->includeAsset('content_type_image');
-									$dummy_asset = new Content_Type_Image();
-									$onclick = $dummy_asset->getAttribute('on_click');
-									$onclick->value = $value_defaults['on_click'];
-									$onclick->paint('content_type_image_on_click');
-								} else {
-									echo ucwords($value_defaults['on_click']);
-								}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('HTML Layout'); ?>:</td>
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[fit_dimensions]', '1', array_get_index($value_defaults, 'fit_dimensions', FALSE));
+                            } else {
+                                echo (array_get_index($value_defaults, 'fit_dimensions', FALSE) == TRUE) ? $tick : $cross;
+                            }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('On Click'); ?>:</td>
 
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock && $is_admin) {
-									combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[html_layout]', Array('table' => 'Table', 'div' => 'Div'), FALSE, array_get_index($value_defaults, 'html_layout', ''));
-								} else {
-									echo ucwords($value_defaults['html_layout']);
-								}
-							?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if
-		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_FIELDS') {
-			if (is_null($pref)) {
-				$o->openField(translate('Image Fields to Show'));
-			}
-			$fields = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_FIELDS']['default'];
-			?>
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                $GLOBALS['SQ_SYSTEM']->am->includeAsset('content_type_image');
+                                $dummy_asset = new Content_Type_Image();
+                                $onclick = $dummy_asset->getAttribute('on_click');
+                                $onclick->value = $value_defaults['on_click'];
+                                $onclick->paint('content_type_image_on_click');
+                            } else {
+                                echo ucwords($value_defaults['on_click']);
+                            }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('HTML Layout'); ?>:</td>
+
+                    <td class="sq-backend-table-cell" nowrap="nowrap">
+                        <?php
+                            if ($have_lock) {
+                                combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[html_layout]', Array('table' => 'Table', 'div' => 'Div'), FALSE, array_get_index($value_defaults, 'html_layout', ''));
+                            } else {
+                                echo ucwords($value_defaults['html_layout']);
+                            }
+                        ?>
+                    </td>
+                </tr>
+            </table>
+            <?php
+        });//end closure (SQ_CONTENT_TYPE_IMAGE_DEFAULTS)
+
+		$this->paintField($o, $have_lock, $pref, 'SQ_CONTENT_TYPE_IMAGE_FIELDS', function($fields) use ($have_lock, $tick, $cross) {
+            ?>
 			<table class="sq-backend-table" style="width: 200px;">
 				<?php
 				foreach ($fields as $field_name => $value) {
@@ -265,7 +264,7 @@ class Content_Type_Image_Prefs extends Prefs
 					<tr>
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
-								if ($have_lock && $is_admin) {
+								if ($have_lock) {
 									check_box('SQ_CONTENT_TYPE_IMAGE_FIELDS['.$field_name.']', '1', $value, '', 'id="image_content_'.$field_name.'"');
 									label(ucwords(str_replace('_', ' ', $field_name)), 'image_content_'.$field_name);
 								} else {
@@ -283,13 +282,9 @@ class Content_Type_Image_Prefs extends Prefs
 			?>
 			</table>
 			<?php
-		}//end if
-		if (is_null($pref)) $o->closeField();
-		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_CLASSES') {
-			if (is_null($pref)) {
-				$o->openField(translate('Image CSS Classes'));
-			}
-			$classes = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default'];
+		});//end closure (SQ_CONTENT_TYPE_IMAGE_FIELDS)
+
+		$this->paintField($o, $have_lock, $pref, 'SQ_CONTENT_TYPE_IMAGE_CLASSES', function($classes) use ($have_lock) {
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 				<?php
@@ -299,7 +294,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-header"><?php echo ucwords(str_replace('_', ' ', $name)); ?></td>
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
-								if ($have_lock && $is_admin) {
+								if ($have_lock) {
 									text_box('SQ_CONTENT_TYPE_IMAGE_CLASSES['.$name.']', $class);
 								} else {
 									echo $class;
@@ -312,14 +307,9 @@ class Content_Type_Image_Prefs extends Prefs
 				?>
 			</table>
 			<?php
-		}//end if
-		if (is_null($pref)) $o->closeField();
+		});//end closure (SQ_CONTENT_TYPE_IMAGE_CLASSES)
 
-		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_PREVIEW') {
-			if (is_null($pref)) {
-				$o->openField(translate('Image Preview CSS Classes'));
-			}
-			$classes = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default'];
+		$this->paintField($o, $have_lock, $pref, 'SQ_CONTENT_TYPE_IMAGE_PREVIEW', function($classes) use ($have_lock) {
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 				<?php
@@ -329,7 +319,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-header"><?php echo ucwords(str_replace('_', ' ', $name)); ?></td>
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
-								if ($have_lock && $is_admin) {
+								if ($have_lock) {
 									text_box('SQ_CONTENT_TYPE_IMAGE_PREVIEW['.$name.']', $class);
 								} else {
 									echo $class;
@@ -342,9 +332,7 @@ class Content_Type_Image_Prefs extends Prefs
 				?>
 			</table>
 			<?php
-		}//end if
-		if (is_null($pref)) $o->closeField();
-
+		});//end closure (SQ_CONTENT_TYPE_IMAGE_PREVIEW)
 
 		return TRUE;
 

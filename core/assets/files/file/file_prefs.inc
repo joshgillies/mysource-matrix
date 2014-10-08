@@ -33,39 +33,26 @@ class File_Prefs extends Prefs
 
 	var $pref_vars = Array(
 						'SQ_FILE_MAX_SIZE'					=> Array(
-																'name'			=> 'max_file_upload',
-																'description'	=> 'This preference allows you to change the maximum size of files that can be uploaded',
 																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_FILE_PREUPLOADED_MAX_SIZE'		=> Array(
-																'name'			=> 'preuploaded_max_file_upload',
-																'description'	=> 'This preference allows you to change the maximum size of files that can be created from pre-uploaded ones',
 																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_FILE_ALLOW_NO_EXTENSION'		=> Array(
-																'name'			=> 'allow_file_with_no_extension',
-																'description'	=> 'This preference allows you to use file with no extension.',
 																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_FILE_ALLOWED_TYPES'				=> Array(
-																'name'			=> 'allowed_file_extensions_to_upload',
-																'description'	=> 'This preference allows you to restrict the allowed types of files to upload',
 																'default'		=> 'jpg,jpeg,gif,png,zip,tar,rar,mov,mkv,avi,flv,fla,psd,css,js,txt,html,pdf,xls,rtf,doc,docx,ppt',
 																'protected'		=> FALSE,
 															   ),
 						'SQ_FILE_ALLOWED_PREUPLOADED_TYPES'	=> Array(
-																'name'			=> 'allowed_file_extentions_for_pre_uploaded_files',
-																'description'	=> 'This preference allows you to restrict the allowed types of pre-uploaded files',
 																'default'		=> 'jpg,jpeg,gif,png,zip,tar,rar,mov,mkv,avi,flv,fla,psd,css,js,txt,html,pdf,xls,rtf,doc,docx,ppt',
 																'protected'		=> FALSE,
 															   ),
-
 						'SQ_FILE_ASSET_SUMMARY'				=> Array(
-																'name'			=> 'file_asset_summary',
-																'description'	=> 'This preference allows user to customize the content for asset_summary_X keyword replacement',
 																'default'		=> '%file_type^uppercase%, %asset_file_size_in_bytes^divide:1024^round:2% KB',
 																'protected'		=> FALSE,
 															   ),

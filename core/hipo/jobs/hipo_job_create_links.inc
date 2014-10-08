@@ -734,11 +734,25 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}
 				$details .= '</ul>';
 
-				$code = ($problem_child_count == 1) ? 'hipo_safe_trash_child_label_one' : 'hipo_safe_trash_child_label_many';
-				$sub_code = ($problem_child_count == 1) ? '1_child' : 'n_children';
-				echo '<li>'.translate($code, sprintf(translate('"%1$s" [#%2$s]'), $data['name'], $id), '<u class="clickable" onclick="toggleNextElt(this, \'UL\')" title="'.translate('Click to show/hide details').'">'.translate($sub_code, $problem_child_count).'</u>');
-
-
+				// TODO: translate plural
+				if ($problem_child_count) {
+				    $main_text = sprintf(
+				        translate('%1$s [#%2$s] has <u>%3$s child</u> that does not satisfy the Safe-Trash restrictions'),
+				        $data['name'],
+				        $id,
+				        $problem_child_count
+				    );
+				} else {
+				    $main_text = sprintf(
+				        translate('%1$s [#%2$s] has <u>%3$s children</u> that do not satisfy the Safe-Trash restrictions'),
+				        $data['name'],
+				        $id,
+				        $problem_child_count
+				    );
+				}
+				$main_text = str_replace('<u>', '<u class="clickable" onclick="toggleNextElt(this, \'UL\')" title="'.translate('Click to show/hide details').'">', $main_text);
+				echo '<li>';
+				echo $main_text;
 				echo $details;
 				echo '</li>';
 			}
