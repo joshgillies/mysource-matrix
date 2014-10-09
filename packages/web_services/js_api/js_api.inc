@@ -416,7 +416,7 @@ class JS_Api extends Page
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_LIMBO_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_BACKEND_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'].'/';
-				$_REQUEST['force_simple_edit'] = $this->attr('force_simple_edit');
+				$_REQUEST['force_simple_edit'] = TRUE;
 			}
 
 			// If 'PHP_SELF' was updated, set the same to 'REQUEST_URI'
