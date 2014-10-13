@@ -1,0 +1,334 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Squiz Matrix - News Package\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Luke Wright <lwright@squiz.com.au>\n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.9\n"
+
+# do sprawdzenia
+msgid "This asset is used in RSS Feed generation by the RSS Page Feed"
+msgstr ""
+"Ten element jest używany w kanale RSS generowanym przez kanał RSS dla strony"
+
+msgid "No Listing Engine Assets  Found To Get Assets For RSS"
+msgstr ""
+
+msgid "No Channel Info Or Items Found To Genereate RSS"
+msgstr ""
+
+msgid "Required Attribute Term Is Not Assigned"
+msgstr ""
+
+msgid "Required Tag  Title Or Description Missing"
+msgstr ""
+
+msgid "Required Attribute"
+msgstr ""
+
+msgid "Missing For Channel"
+msgstr ""
+
+#, fuzzy
+msgid "Missing Image Info"
+msgstr "Informacje o obrazie"
+
+msgid "Missing For Image"
+msgstr ""
+
+msgid "Choose Asset Type"
+msgstr "Wybierz rodzaj elementu"
+
+#, fuzzy
+msgid "Select Keyword"
+msgstr "Dodaj słowo kluczowe"
+
+#, fuzzy
+msgid "Choose /Enter Keyword"
+msgstr "Wybierz/wpisz słowo kluczowe"
+
+msgid "Choose Tag"
+msgstr "Wybierz tag"
+
+# What’s that about? What’s the context?
+# > RSS Feed asset - Build RSS screen. I'm not entirely sure but it's about taking the contents of
+# > the linked listing asset and turning them into particular subtags of the RSS "item" tag.
+# > http://manuals.matrix.squizsuite.net/news/chapters/rss-feed Search for "Keywords as Items" for Admin Mode image.
+msgid "Tag Represented"
+msgstr ""
+
+msgid "Add New Channel Info"
+msgstr "Dodaj nowe informacje o kanale"
+
+msgid "Add New Image Info"
+msgstr "Dodaj nowe informacje o obrazie"
+
+msgid "Tag"
+msgstr "Tag"
+
+msgid "Link Text"
+msgstr "Tekst linka"
+
+msgid "Number of allowed characters in comment body"
+msgstr "Liczba dozwolonych znaków w treści komentarza"
+
+msgid "Input Box Size"
+msgstr "Rozmiar pola"
+
+msgid "Maximum Comment Length"
+msgstr "Maks. długość komentarza"
+
+msgid ""
+"This setting limits the number of characters that may be entered in the "
+"comment input box. When the value is zero, this option will be ignored."
+msgstr ""
+"To ustawienie ogranicza liczbę znaków, które można wpisać do pola "
+"komentarza. Gdy wartość wynosi zero, ta opcja zostanie zignorowana."
+
+msgid "HTML in comments"
+msgstr "HTML w komentarzach"
+
+msgid "Determines whether HTML is allowed, escaped or removed."
+msgstr ""
+
+msgid "Maximum Rating"
+msgstr "Maks. ocena"
+
+msgid "Sets the upper bound for comment ratings."
+msgstr ""
+
+msgid ""
+"Changing this value will affect ratings in existing comments are displayed, "
+"as comment ratings are internally stored as percentages."
+msgstr ""
+
+# context?
+# > Comment Preferences. The image used when painting the "filled" portion a rating graphic
+# > (so if something is rated 3 out of 5, three of these images). By default, a yellow star as opposed to
+# > a grey star for "blank image").
+# > http://manuals.matrix.squizsuite.net/system-configuration/chapters/global-preferences#Comment-Preferences
+msgid "Rated Image"
+msgstr ""
+
+msgid ""
+"Image to be used for the \"filled\" portion of a comment rating. (For "
+"instance, if a rating is 3 out of 5, this will be used for the three \"filled"
+"\" rating images.)"
+msgstr ""
+
+msgid "If left empty, the default image is used."
+msgstr ""
+
+msgid "Blank Image"
+msgstr "Pusty obraz"
+
+msgid ""
+"Image to be used for the \"unfilled\" portion of a comment rating. (For "
+"instance, if a rating is 3 out of 5, this will be used for the two remaining "
+"\"unfilled\" rating images.)"
+msgstr ""
+
+msgid "Allow"
+msgstr ""
+
+msgid "Escape"
+msgstr ""
+
+msgid "Strip"
+msgstr ""
+
+msgid "Current Image: %s"
+msgstr ""
+
+msgid "RSS Formats"
+msgstr "Formaty RSS"
+
+msgid "Use HTTP Authentication ?"
+msgstr "Użyć uwierzytelnienia HTTP?"
+
+msgid "Select Listing Engine Assets"
+msgstr "Wybierz elementy będące źródłem listingu"
+
+msgid "Number Of Assets To Be Added In The RSS"
+msgstr ""
+
+msgid ""
+"The asset list from these listing engine assets are used to create the RSS "
+"feeds."
+msgstr ""
+"Lista elementów z tych elementów będących źródłem listingu używana jest do "
+"utworzenia kanałów RSS."
+
+msgid ""
+"Leave this to Zero to have all the assets from the asset listing of the "
+"listing engine assets to be added as items. Or enter a value to restrict the "
+"number of assets being added as items in the feed."
+msgstr ""
+
+msgid "Keywords Selected"
+msgstr "Wybrane słowa kluczowe"
+
+msgid "Add Keyword"
+msgstr "Dodaj słowo kluczowe"
+
+msgid ""
+"You have to add information to the channel or the image tags like the links, "
+"descriptions, urls etc. Please note that every RSS Feed should have a "
+"channel info. So its a must to enter the values for all of the required tags "
+"of the channel info to build the RSS. But its optional for the Image Info."
+msgstr ""
+
+msgid "Comment"
+msgstr "Komentarz"
+
+msgid "Rating"
+msgstr "Ocena"
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "News headline"
+msgstr "Nagłówek aktualności"
+
+msgid "Contact name"
+msgstr "Dane kontaktowe"
+
+msgid "Contact phone"
+msgstr "Telefon kontaktowy"
+
+msgid "Show headline?"
+msgstr "Pokazać nagłówek?"
+
+msgid "Show summary?"
+msgstr "Pokazać skrót?"
+
+msgid "Show body?"
+msgstr "Pokazać treść?"
+
+msgid "Show contact name?"
+msgstr "Pokazać dane kontaktowe?"
+
+msgid "Show phone number?"
+msgstr "Pokazać numer telefonu?"
+
+msgid "URL Suffix"
+msgstr "Przyrostek URL"
+
+# pełny widok czy "w całości"?
+msgid "Display the headline (asset name) in full view?"
+msgstr "Wyświetlić nagłówek (nazwa elementu) w podglądzie w pełnym widoku?"
+
+msgid "Display the summary content in full view?"
+msgstr "Wyświetlić treść skrótu w pełnym widoku?"
+
+msgid "Display the body content in full view?"
+msgstr "Wyświetlić treść w pełnym widoku?"
+
+msgid "Display the contact name in full view?"
+msgstr "Wyświetlić dane kontaktowe w pełnym widoku?"
+
+msgid "Display the contact phone number in full view?"
+msgstr "Wyświetlić telefon kontaktowy w pełnym widoku?"
+
+#~ msgid "--SELECT ASSET TYPE--"
+#~ msgstr "--WYBIERZ RODZAJ ELEMENTU--"
+
+#~ msgid "--SELECT KEYWORD--"
+#~ msgstr "--WYBIERZ SŁOWO KLUCZOWE--"
+
+#~ msgid "Channel"
+#~ msgstr "Kanał"
+
+#~ msgid "Image"
+#~ msgstr "Obraz"
+
+#~ msgid "Channel Info"
+#~ msgstr "Informacje o kanale"
+
+#~ msgid ""
+#~ "Cannot generate RSS feed, no Listing Engine-type assets have been "
+#~ "selected to provide items"
+#~ msgstr ""
+#~ "Nie można wygenerować kanału RSS, nie wybrano żadnego elementu typu "
+#~ "Źródło listingu, aby wyświetlać obiekty"
+
+#~ msgid "Cannot generate RSS feed, channel information or items are missing"
+#~ msgstr ""
+#~ "Nie można wygenerować kanału RSS, brakujące informacje o kanale lub "
+#~ "obiekty"
+
+# czy to pomiędzy \ \ też należy tłumaczyć?
+# i czy term tu to okres czy termin, czy może coś innego?
+#~ msgid ""
+#~ "Cannot generate RSS feed, an item has a category but is missing a \"term"
+#~ "\" attribute"
+#~ msgstr ""
+#~ "Nie można wygenerować kanału RSS, obiekt ma kategorię, ale nie ma "
+#~ "atrybutu \"term\""
+
+#~ msgid ""
+#~ "Cannot generate RSS feed, an item is missing both a \"%s\" and a \"%s\" "
+#~ "tag"
+#~ msgstr ""
+#~ "Nie można wygenerować kanału RSS, obiektowi brakuje tagów  \"%s\" i  \"%s"
+#~ "\""
+
+#~ msgid "Cannot generate RSS feed, an item is missing a \"%s\" tag"
+#~ msgstr "Nie można wygenerować kanału RSS, obiektowi brakuje tagu \"%s\""
+
+#~ msgid "Cannot generate RSS feed, channel information is missing"
+#~ msgstr "Nie można wygenerować kanału RSS, brakuje informacji o kanale"
+
+#~ msgid ""
+#~ "Cannot generate RSS feed, the channel information is missing a \"%s\" tag"
+#~ msgstr ""
+#~ "Nie można wygenerować kanału RSS, informacjom o kanale brakuje tagu \"%s\""
+
+#~ msgid "Cannot generate RSS feed, image information is missing"
+#~ msgstr "Nie można wygenerować kanału RSS, brakujące informacje o obrazie"
+
+#~ msgid ""
+#~ "Cannot generate RSS feed, the image information is missing a \"%s\" tag"
+#~ msgstr ""
+#~ "Nie można wygenerować kanału RSS, informacjom o obrazie brakuje tagu  \"%s"
+#~ "\""
+
+#~ msgid "Comment Title"
+#~ msgstr "Tytuł komentarza"
+
+#~ msgid "Comment Body"
+#~ msgstr "Treść komentarza"
+
+# co to są keyword replacements?
+#~ msgid "Disable Keyword Replacements"
+#~ msgstr "Wyłącz "
+
+# trzecie zdanie nie bardzo
+#~ msgid ""
+#~ "The fields above describe information relevant to the whole of the feed, "
+#~ "such as a feed's title and description. A feed will only be generated if "
+#~ "all \"Required\" Channel Info fields are filled. Optionally, Image Info "
+#~ "can be entered, and all information marked \"Required\" is necessary for "
+#~ "a feed with Image Info to be valid."
+#~ msgstr ""
+#~ "Powyższe pola opisują informacje dotyczące całego kanału, takie jak tytuł "
+#~ "i opis kanału. Kanał zostanie wygenerowany, tylko jeśli wszystkie "
+#~ "\"Wymagane\" pola informacji o kanale będą wypełnione. Opcjonalnie można "
+#~ "wprowadzić informacje o obrazie - wówczas wszystkie informacje oznaczone "
+#~ "jako \"Wymagane\" są konieczne, aby kanał z informacjami o obrazie był "
+#~ "poprawny."
+
+#~ msgid "Asset Limit"
+#~ msgstr "Ograniczenie liczby elementów"
+
+#~ msgid ""
+#~ "This setting will limit how many assets are used as items in the RSS "
+#~ "feed. Setting to zero (0) removes all limitations."
+#~ msgstr ""
+#~ "To ustawienie ograniczy liczbę elementów używanych jako obiekty w kanale "
+#~ "RSS. Wpisanie zero (0) usuwa wszystkie ograniczenia."
