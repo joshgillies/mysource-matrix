@@ -372,24 +372,22 @@ function get_true_error_location($bt, $start_from=0)
 {
 	$real_bt_index = min($start_from, count($bt) - 1);
 
+	$found = Array();
 	while ($real_bt_index < count($bt) - 1) {
 		$this_bt = $bt[$real_bt_index];
-		$found   = TRUE;
 
-		if (strtolower(array_get_index($this_bt, 'class', '')) === 'locale_manager') {
-			$found = FALSE;
-		} else if (strpos(strtolower(array_get_index($this_bt, 'file', '')), 'locale_manager') !== FALSE) {
-			$found = FALSE;
+		if (in_array(strtolower(array_get_index($this_bt, 'function', '')), Array('trigger_localised_error', 'trigger_error'))) {
+			$found[] = $real_bt_index;
 		}
 
-		if ($found === TRUE) {
-			break;
-		} else {
-			$real_bt_index++;
-		}
+		$real_bt_index++;
 	}//end while
 
-	return $real_bt_index;
+	if (empty($found) === FALSE) {
+	    return max($found);
+	} else {
+	    return $start_from;
+	}
 }
 
 

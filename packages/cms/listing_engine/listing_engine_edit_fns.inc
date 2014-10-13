@@ -4119,14 +4119,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 						<option value="1" <?php echo $asset->attr('check_boxes')== 1 ? 'selected="selected"' : ''; ?> ><?php echo translate('Radio Buttons'); ?></option>
 
-						<option value="2" <?php echo $asset->attr('Check Boxes')== 2 ? 'selected="selected"' : ''; ?> ><?php echo translate('Check Boxes'); ?></option>
+						<option value="2" <?php echo $asset->attr('check_boxes')== 2 ? 'selected="selected"' : ''; ?> ><?php echo translate('Check Boxes'); ?></option>
 
 					</select>
 				<?php } else {
-						echo $asset->attr('Check Boxes') == 0 ? translate('Drop-down List') : $asset->attr('Check Boxes') == 1 ? translate('Radio Buttons') : translate('Check Boxes');
-
-
-
+						echo $asset->attr('check_boxes') == 0 ? translate('Drop-down List') : $asset->attr('check_boxes') == 1 ? translate('Radio Buttons') : translate('Check Boxes');
 					  }
 
 				?>

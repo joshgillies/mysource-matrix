@@ -36,25 +36,12 @@ class Prefs extends MySource_Object
 	*/
 	var $pref_vars = Array();
 
+
 	/**
 	* The file to save the config file to
 	* @var string
 	*/
 	var $pref_file = '';
-
-
-	/**
-	* Names and descriptions of preferences.
-	*
-	* To be initialised inside the constructor, because we want them translated
-	* and you can't do that in a instance variable definition.
-	*
-	* Each element is:
-	* (string key) => [name => (string), description (string)]
-	*
-	* @var array
-	*/
-	var $pref_names = Array();
 
 
 	/**

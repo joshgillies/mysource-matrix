@@ -458,6 +458,11 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 			return FALSE;
 		}
 
+		// reset opcache otherwise it would cache the constants of config file and redriect won't help.
+		if(function_exists('opcache_reset')) {
+		    opcache_reset();
+		}
+
 		return TRUE;
 
 	}//end processPreferences()

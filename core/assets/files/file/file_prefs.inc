@@ -202,8 +202,8 @@ class File_Prefs extends Prefs
 
         // Allow File assets with no extension?
         $options = Array(
-                       1 => translate('Yes'),
-                       0 => translate('No'),
+                       1 => translate('Files may have no extension'),
+                       0 => translate('Files must have an extension'),
                    );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_FILE_ALLOW_NO_EXTENSION', $options);
 

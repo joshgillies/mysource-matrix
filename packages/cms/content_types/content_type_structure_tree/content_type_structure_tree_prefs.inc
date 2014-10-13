@@ -84,109 +84,40 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 	    $have_lock = $have_lock && $is_admin;
 
 	    $this->paintField($o, $have_lock, $pref, 'SQ_STRUCTURE_TREE_FORMATTING', function($format_options) use ($have_lock) {
+	        $option_names = Array(
+	            'bold'        => translate('Bold'),
+	            'underline'   => translate('Underline'),
+	            'italic'      => translate('Italic'),
+	            'delete'      => translate('Delete'),
+	            'insert'      => translate('Insert'),
+	            'connections' => translate('Connections'),
+	        );
+            $tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
+            $cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="No" />';
             ?>
-            <table class="sq-backend-table" style="width: 350px;">
-                <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Formatting Options to Show'); ?></td>
-
-                    <td class="sq-backend-table-cell" style="width: 100%;">
-                    <?php
+            <table class="sq-backend-table" style="width: 350px">
+                <col width="80%" />
+                <col width="20%" />
+                <?php
+                foreach ($option_names as $key => $display_name) {
+                    ?><tr><?php
                     if ($have_lock) {
-                        check_box('SQ_STRUCTURE_SHOW_BOLD', '1', $format_options['bold']);
-                        echo translate('Bold').'<br />';
-
-                        check_box('SQ_STRUCTURE_SHOW_UNDERLINE', '1', $format_options['underline']);
-                        echo translate('Underline').'<br />';
-
-                        check_box('SQ_STRUCTURE_SHOW_ITALIC', '1', $format_options['italic']);
-                        echo translate('Italic').'<br />';
-
-                        check_box('SQ_STRUCTURE_SHOW_DELETE', '1', $format_options['delete']);
-                        echo translate('Delete').'<br />';
-
-                        check_box('SQ_STRUCTURE_SHOW_INSERT', '1', $format_options['delete']);
-                        echo translate('Insert').'<br />';
-
-                        check_box('SQ_STRUCTURE_SHOW_CONNECTIONS', '1', $format_options['connections']);
-                        echo translate('Connections').'<br />';
-
+                        $option_id = 'SQ_STRUCTURE_SHOW_'.strtoupper($key);
+                        ?><th><?php
+                        label($display_name, $option_id);
+                        ?></th><td style="text-align: center"><?php
+                        check_box($option_id, '1', $format_options[$key]);
+                        ?></td><?php
                     } else {
-                        $tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
-                        $cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
-                        ?>
-                        <table>
-                            <tr>
-                                <td>
-                                    <?php echo translate('Bold'); ?>&nbsp;
-
-                                </td>
-                                <td>
-                                    <?php
-                                    echo ($format_options['bold'] == TRUE) ? $tick : $cross;
-                                    ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <?php echo translate('Underline'); ?>&nbsp;
-
-                                </td>
-                                <td>
-                                    <?php
-                                    echo ($format_options['underline'] == TRUE) ? $tick : $cross;
-                                    ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <?php echo translate('Italic'); ?>&nbsp;
-
-                                </td>
-                                <td>
-                                    <?php
-                                    echo ($format_options['italic'] == TRUE) ? $tick : $cross;
-                                    ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <?php echo translate('Delete'); ?>&nbsp;
-
-                                </td>
-                                <td>
-                                    <?php
-                                    echo ($format_options['delete'] == TRUE) ? $tick : $cross;
-                                    ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <?php echo translate('Insert'); ?>&nbsp;
-
-                                </td>
-                                <td>
-                                    <?php
-                                    echo ($format_options['insert'] == TRUE) ? $tick : $cross;
-                                    ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <?php echo translate('Connections'); ?>&nbsp;
-
-                                </td>
-                                <td>
-                                    <?php
-                                    echo ($format_options['connections'] == TRUE) ? $tick : $cross;
-                                    ?>
-                                </td>
-                            </tr>
-                        </table>
-                        <?php
-                    }//end else
-                    ?>
-                    </td>
-                </tr>
+                        ?><th><?php
+                        echo $display_name;
+                        ?></th><td style="text-align: center"><?php
+                        echo ($format_options[$key] == TRUE) ? $tick : $cross;
+                        ?></td><?php
+                    }
+                    ?></tr><?php
+                }
+                ?>
             </table>
             <?php
 		});//end SQ_STRUCTURE_TREE_FORMATTING

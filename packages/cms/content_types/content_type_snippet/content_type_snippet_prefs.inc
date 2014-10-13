@@ -77,8 +77,8 @@ class Content_Type_Snippet_Prefs extends Prefs
 		$this->paintAssetMapField($o, $have_lock, $pref, 'SQ_SNIPPET_ROOT');
 
         $options = Array(
-                    1 => translate('Yes'),
-                    0 => translate('No'),
+                    1 => translate('Enable permission check'),
+                    0 => translate('Disable permission check'),
                    );
 		$this->paintComboField($o, $have_lock, $pref, 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK', $options);
 

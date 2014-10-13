@@ -156,11 +156,18 @@ class Content_Type_Code_Prefs extends Prefs
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 			<?php
+			$translated_names = Array(
+			    'attribute_names' => translate('Attribute Names'),
+			    'attribute_value' => translate('Attribute Value'),
+			    'tag_brackets'    => translate('Tag Brackets'),
+			    'tag_name'        => translate('Tag Name'),
+			    'html_comment'    => translate('HTML Comment'),
+			);
 			foreach ($html_classes as $class_name => $choice) {
 				?>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo ucwords(str_replace('_', ' ', $class_name)); ?>
+						<?php echo $translated_names[$class_name]; ?>
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
@@ -184,11 +191,19 @@ class Content_Type_Code_Prefs extends Prefs
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 			<?php
+			$translated_names = Array(
+			    'background' => translate('Background'),
+			    'default'    => translate('Default'),
+			    'html'       => translate('HTML'),
+			    'comment'    => translate('Comment'),
+			    'keyword'    => translate('Keyword'),
+			    'string'     => translate('String'),
+			);
 			foreach ($php_classes as $class_name => $choice) {
 				?>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo ucwords(str_replace('_', ' ', $class_name)); ?>
+						<?php echo $translated_names[$class_name]; ?>
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
@@ -212,11 +227,19 @@ class Content_Type_Code_Prefs extends Prefs
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 			<?php
+			$translated_names = Array(
+			    'reserved'   => translate('Reserved'),
+			    'function'   => translate('Function'),
+			    'brackets'   => translate('Brackets'),
+			    'comment'    => translate('Comment'),
+			    'default'    => translate('Default'),
+			    'string'     => translate('String'),
+			);
 			foreach ($js_classes as $class_name => $choice) {
 				?>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo ucwords(str_replace('_', ' ', $class_name)); ?>
+						<?php echo $translated_names[$class_name]; ?>
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
@@ -241,61 +264,72 @@ class Content_Type_Code_Prefs extends Prefs
 			<table class="sq-backend-table" style="width: 350px;">
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('Show Line Numbers:'); ?>
+						<?php echo translate('Show Line Numbers'); ?>
 
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
+					$options = Array(
+					    0 => translate('Hide line numbers'),
+					    1 => translate('Show line numbers'),
+					);
+
 					if ($have_lock) {
-						check_box('SQ_CODE_show_line_numbers', '1', $line_prefs['use_line_numbers']);
+					    combo_box('SQ_CODE_show_line_numbers', $options, FALSE, $line_prefs['use_line_numbers']);
 					} else {
-						echo ($line_prefs['use_line_numbers'] == TRUE) ? translate('Yes') : translate('No');
+                        $options = Array(
+                            0 => translate('Line numbers hidden'),
+                            1 => translate('Line numbers shown'),
+                        );
 
-
+						echo $options[$line_prefs['use_line_numbers']];
 					}
 					?>
 					</td>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('Line Number Orientation:'); ?>
+						<?php echo translate('Line Number Orientation'); ?>
 
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
+					$options = Array(
+					    1 => translate('Line numbers on left'),
+					    0 => translate('Line numbers on right'),
+					);
+
 					if ($have_lock) {
-						radio_button('SQ_CODE_line_number_left', 'left', $line_prefs['line_number_left'] == TRUE);
-						label(translate('Left'), 'SQ_CODE_line_number_left');
-
-						radio_button('SQ_CODE_line_number_left', 'right', $line_prefs['line_number_left'] == FALSE);
-						label(translate('Right'), 'SQ_CODE_line_number_left');
-
+					    combo_box('SQ_CODE_line_number_left', $options, FALSE, $line_prefs['line_number_left']);
 					} else {
-						echo ($line_prefs['line_number_left'] == TRUE) ? translate('Left') : translate('Right');
-
-
+						echo $options[$line_prefs['line_number_left']];
 					}
 					?>
 					</td>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('Line Number Style:'); ?>
+						<?php echo translate('Line Number Style'); ?>
 
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
+					$options = Array(
+					    'span' => translate('Span'),
+					    'list' => translate('List'),
+					);
+
 					if ($have_lock) {
-						combo_box('SQ_CODE_line_style', Array('span'=>'Span','list'=>'List'), FALSE, $line_prefs['line_number_style']);
+					    combo_box('SQ_CODE_line_style', $options, FALSE, $line_prefs['line_number_style']);
 					} else {
-						echo ucwords($line_prefs['line_number_style']);
+						echo $options[$line_prefs['line_number_style']];
 					}
 					?>
 					</td>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('Line Number Class:'); ?>
+						<?php echo translate('Line Number Class'); ?>
 
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
@@ -329,31 +363,36 @@ class Content_Type_Code_Prefs extends Prefs
 	*/
 	function processBackend($o, $have_lock, $pref=NULL)
 	{
+
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$is_admin) return FALSE;
+
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_SIZE') {
 			$this->css_dimension_width->process('code_width');
 			$this->css_dimension_height->process('code_height');
 			$this->pref_vars['SQ_CODE_EDITOR_SIZE']['default']['width'] = $this->css_dimension_width->getContent();
 			$this->pref_vars['SQ_CODE_EDITOR_SIZE']['default']['height'] = $this->css_dimension_height->getContent();
-			return TRUE;
 		}
+
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_HTML_CLASSES') {
 			$this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_HTML_CLASSES'];
 		}
+
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_PHP_CLASSES') {
 			$this->pref_vars['SQ_CODE_EDITOR_PHP_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_PHP_CLASSES'];
 		}
+
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_JS_CLASSES') {
 			$this->pref_vars['SQ_CODE_EDITOR_JS_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_JS_CLASSES'];
 		}
+
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_LINE_NUMBERS') {
-			$line_prefs = $this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['default'];
+        	$line_prefs = $this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['default'];
 			$line_prefs['use_line_numbers'] = isset($_POST['SQ_CODE_show_line_numbers']);
 			$line_prefs['line_number_style'] = $_POST['SQ_CODE_line_style'];
 			$line_prefs['line_number_class'] = $_POST['SQ_CODE_line_class'];
-			$line_prefs['line_number_left'] = ($_POST['SQ_CODE_line_number_left'] == 'right') ? FALSE : TRUE;
+			$line_prefs['line_number_left'] = $_POST['SQ_CODE_line_number_left'];
 			$this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['default'] = $line_prefs;
 		}
 		return TRUE;

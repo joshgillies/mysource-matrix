@@ -463,32 +463,32 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_TIMEZONE);
 			}
 
-			$o->openField(translate('Disable Attribution'));
+			$o->openField(translate('Matrix Attribution'));
+
+			$options = Array(
+			    '1' => translate('Disable attribution'),
+			    '0' => translate('Include attribution'),
+			);
 
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_DISABLE_ATTRIBUTION]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_DISABLE_ATTRIBUTION);
-
-
-				$o->note(translate('<b>NOTE:</b> Editing this option will need the designs to be regenerated before this option takes affect.'));
-
+				combo_box($class.'[SQ_CONF_DISABLE_ATTRIBUTION]', $options, FALSE, SQ_CONF_DISABLE_ATTRIBUTION);
+				$o->note(translate('<b>NOTE:</b> Editing this option will need the designs to be regenerated before this option takes effect.'));
 			} else {
-				echo (SQ_CONF_DISABLE_ATTRIBUTION) ? translate('Yes') : translate('No');
-
-
+				echo $options[SQ_CONF_DISABLE_ATTRIBUTION];
 			}
 
-			$o->openField(translate('Enforce Same Origin Frame'));
+			$o->openField(translate('Origin Frame Security'));
+
+			$options = Array(
+			    '1' => translate('Enforce Same Origin Frame'),
+			    '0' => translate('Don\'t enforce Same Origin Frame'),
+			);
 
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ENFORCE_FRAME_SAMEORIGIN);
-
-
+				combo_box($class.'[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN]', $options, FALSE, SQ_CONF_ENFORCE_FRAME_SAMEORIGIN);
 				$o->note(translate('If Matrix is nested in a frame of a page, the page must be hosted on same domain of Matrix.'));
-
 			} else {
-				echo (SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) ? translate('Yes') : translate('No');
-
-
+				echo $options[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN];
 			}
 		$o->closeSection();
 
@@ -560,13 +560,17 @@ class System_Config extends Config
 			$o->closeField();
 
 			$o->openField(translate('Static URL uses HTTP'));
+                $options = Array(
+                    '1' => translate('Allow HTTP'),
+                    '0' => translate('Don\'t allow HTTP'),
+                );
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTP]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_STATIC_ROOT_HTTP);
+					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTP]', $options, FALSE, SQ_CONF_STATIC_ROOT_HTTP);
 
 
 				} else {
-					echo (SQ_CONF_STATIC_ROOT_HTTP) ? translate('Yes') : translate('No');
+					echo $options[SQ_CONF_STATIC_ROOT_HTTP];
 
 
 				}
@@ -574,14 +578,14 @@ class System_Config extends Config
 
 			$o->openField(translate('Static URL uses HTTPS'));
 
+                $options = Array(
+                    '1' => translate('Allow HTTPS'),
+                    '0' => translate('Don\'t allow HTTPS'),
+                );
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTPS]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_STATIC_ROOT_HTTPS);
-
-
+					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTPS]', $options, FALSE, SQ_CONF_STATIC_ROOT_HTTPS);
 				} else {
-					echo (SQ_CONF_STATIC_ROOT_HTTPS) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONF_STATIC_ROOT_HTTPS];
 				}
 			$o->closeField();
 
@@ -595,15 +599,15 @@ class System_Config extends Config
 			$o->closeField();
 
 			$o->openField(translate('Redirect URL with Trailing Slash'));
+                $options = Array(
+                    '1' => translate('Redirect trailing slash URLs'),
+                    '0' => translate('Don\'t redirect trailing slash URLs'),
+                );
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH);
-
-
+					combo_box($class.'[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH]', $options, FALSE, SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH);
 				} else {
-					echo (SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH];
 				}
 			$o->note(translate('This will redirect front-end URL requests (excluding System Root URLs) to a URL with no trailing slashes.'));
 
@@ -702,41 +706,42 @@ class System_Config extends Config
 
 
 			$o->openField(translate('Allow IP Change'));
-
+			$options = Array(
+                    '1' => translate('Allow IP changes'),
+                    '0' => translate('Don\'t allow IP changes'),
+                );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ALLOW_IP_CHANGE);
-
-
+				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', $options, FALSE, SQ_CONF_ALLOW_IP_CHANGE);
 			} else {
-				echo (SQ_CONF_ALLOW_IP_CHANGE) ? translate('Yes') : translate('No');
-
-
+				echo $options[SQ_CONF_ALLOW_IP_CHANGE];
 			}
 			$o->note(translate('Allow the IP of a user to fluctuate?'));
 
 
 			$o->openField(translate('Process PHP Credentials'));
-
+			$options = Array(
+                    '1' => translate('Process credentials'),
+                    '0' => translate('Don\'t process credentials'),
+                );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ACCEPT_HTTP_CREDS]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ACCEPT_HTTP_CREDS);
-
-
+				combo_box($class.'[SQ_CONF_ACCEPT_HTTP_CREDS]', $options, FALSE, SQ_CONF_ACCEPT_HTTP_CREDS);
 			} else {
-				echo (SQ_CONF_ACCEPT_HTTP_CREDS) ? translate('Yes') : translate('No');
-
-
+				echo $options[SQ_CONF_ACCEPT_HTTP_CREDS];
 			}
-			$o->note(translate('If this is enabled and a username and password are supplied in PHP_AUTH_USR and PHP_AUTH_PW, the system will try to authenticate a user with those credentials.'));
+			$o->note(translate('If this is enabled and a username and password are supplied in PHP_AUTH_USER and PHP_AUTH_PW, the system will try to authenticate a user with those credentials.'));
 
 
 			$o->openField(translate('Enable HTTP Authentication'));
-
+			$options = Array(
+                    '1' => translate('Allow triggering of HTTP authentication'),
+                    '0' => translate('Don\'t allow triggering of HTTP authentication'),
+                );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ENABLE_HTTP_LOGIN]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ENABLE_HTTP_LOGIN);
+				combo_box($class.'[SQ_CONF_ENABLE_HTTP_LOGIN]', $options, FALSE, SQ_CONF_ENABLE_HTTP_LOGIN);
 
 
 			} else {
-				echo (SQ_CONF_ENABLE_HTTP_LOGIN) ? translate('Yes') : translate('No');
+				echo $options[SQ_CONF_ENABLE_HTTP_LOGIN];
 
 
 			}
@@ -744,13 +749,17 @@ class System_Config extends Config
 
 
 			$o->openField(translate('Accept HTTP Authentication'));
+			$options = Array(
+                    '1' => translate('Accept HTTP authentication'),
+                    '0' => translate('Don\'t accept HTTP authentication'),
+                );
 
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ALLOW_HTTP_LOGIN);
+				combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', $options, FALSE, SQ_CONF_ALLOW_HTTP_LOGIN);
 
 
 			} else {
-				echo (SQ_CONF_ALLOW_HTTP_LOGIN) ? translate('Yes') : translate('No');
+				echo $options[SQ_CONF_ALLOW_HTTP_LOGIN];
 
 
 			}
@@ -823,28 +832,28 @@ class System_Config extends Config
 
 			$o->openField(translate('Enable External Authentication Systems'));
 
+			$options = Array(
+                    '1' => translate('Enable external authentication'),
+                    '0' => translate('Only use Matrix authentication'),
+                );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS);
-
-
+				combo_box($class.'[SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS]', $options, FALSE, SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS);
 			} else {
-				echo (SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS) ? translate('Yes') : translate('No');
-
-
+				echo $options[SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS];
 			}
 			$o->note(translate('Set this to \'No\' to only allow users with accounts in the default matrix user system, rather than LDAP, IPB etc.'));
 
 
 			$o->openField(translate('Use Default PHP session file save path'));
 
+			$options = Array(
+                '1' => translate('Use PHP default file path'),
+                '0' => translate('Use Matrix-specified file path (recommended)'),
+            );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH]', Array('1' => translate('True'), '0' => translate('False')), FALSE, SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH);
-
-
+				combo_box($class.'[SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH]', $options, FALSE, SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH);
 			} else {
-				echo (SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH) ? translate('True') : translate('False');
-
-
+				echo $options[SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH];
 			}
 			$o->note(sprintf(translate('Using the default PHP session file may be required for system with multiple servers using shared file storage. However, enabling this option will prevent Site Network assets from operating correctly. <strong>This option should only be changed by advanced users: if you change this option all users who are currently logged in will be immediately logged out of their session.</strong> <br />The current session file save path is: <strong>%s</strong>'), session_save_path()));
 
@@ -911,25 +920,29 @@ class System_Config extends Config
 
 			$o->openField(translate('Log Errors'));
 
+			$options = Array(
+                '1' => translate('Log errors'),
+                '0' => translate('Don\'t log errors'),
+            );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_LOG_ERRORS]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_LOG_ERRORS);
-
-
+				combo_box($class.'[SQ_CONF_LOG_ERRORS]', $options, FALSE, SQ_CONF_LOG_ERRORS);
 			} else {
-				echo (SQ_CONF_LOG_ERRORS) ? translate('Yes') : translate('No');
-
-
+				echo $options[SQ_CONF_LOG_ERRORS];
 			}
 			$o->closeField();
 
 			$o->openField(translate('Hide Errors on the Frontend'));
 
+			$options = Array(
+                '1' => translate('Hide errors on frontend'),
+                '0' => translate('Show errors on frontend'),
+            );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ERRORS_HIDE_FRONTEND);
+				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', $options, FALSE, SQ_CONF_ERRORS_HIDE_FRONTEND);
 
 
 			} else {
-				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? translate('Yes') : translate('No');
+				echo $options[SQ_CONF_ERRORS_HIDE_FRONTEND];
 
 
 			}
@@ -937,12 +950,16 @@ class System_Config extends Config
 
 			$o->openField(translate('Log Errors to Syslog?'));
 
+			$options = Array(
+                '1' => translate('Log to Syslog'),
+                '0' => translate('Don\'t log to Syslog'),
+            );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ERRORS_LOG_TO_SYSLOG]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ERRORS_LOG_TO_SYSLOG);
+				combo_box($class.'[SQ_CONF_ERRORS_LOG_TO_SYSLOG]', $options, FALSE, SQ_CONF_ERRORS_LOG_TO_SYSLOG);
 
 
 			} else {
-				echo (SQ_CONF_ERRORS_LOG_TO_SYSLOG) ? translate('Yes') : translate('No');
+				echo $options[SQ_CONF_ERRORS_LOG_TO_SYSLOG];
 
 
 			}
@@ -955,23 +972,14 @@ class System_Config extends Config
 			// We only provide the common
 			$options = Array(
 						'user'		=> translate('User'),
-
 						'local0'	=> sprintf(translate('Local %s'), 0),
-
 						'local1'	=> sprintf(translate('Local %s'), 1),
-
 						'local2'	=> sprintf(translate('Local %s'), 2),
-
 						'local3'	=> sprintf(translate('Local %s'), 3),
-
 						'local4'	=> sprintf(translate('Local %s'), 4),
-
 						'local5'	=> sprintf(translate('Local %s'), 5),
-
 						'local6'	=> sprintf(translate('Local %s'), 6),
-
 						'local7'	=> sprintf(translate('Local %s'), 7),
-
 					   );
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_ERRORS_SYSLOG_FACILITY]', $options, FALSE, SQ_CONF_ERRORS_SYSLOG_FACILITY);
@@ -1051,18 +1059,14 @@ class System_Config extends Config
 
 			$o->openField(translate('Use language character map'));
 
+			$options = Array(
+                '0' => translate('Leave accented characters in URLs'),
+                '1' => translate('Replace accented characters in URLs'),
+            );
 			if ($write_access) {
-				$options = Array(
-							'0'	=> translate('No'),
-
-							'1'	=> translate('Yes'),
-
-						   );
 				combo_box($class.'[SQ_CONF_USE_LANG_CHAR_MAP]', $options, FALSE, !defined('SQ_CONF_USE_LANG_CHAR_MAP') ? '0' : SQ_CONF_USE_LANG_CHAR_MAP);
 			} else {
-				echo (SQ_CONF_USE_LANG_CHAR_MAP) ? translate('Yes') : translate('No');
-
-
+				echo $options[SQ_CONF_USE_LANG_CHAR_MAP];
 			}
 
 		$o->closeSection();
@@ -1083,23 +1087,14 @@ class System_Config extends Config
 
 			$o->openField(translate('Confirm Save Changes'));
 
+			$options = Array(
+                '0' => translate('Don\'t warn about unsaved changes'),
+                '1' => translate('Warn about unsaved changes'),
+            );
 			if ($write_access) {
-				$options = Array(
-							'0'	=> translate('No'),
-
-							'1'	=> translate('Yes'),
-
-						   );
 				combo_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', $options, FALSE, !defined('SQ_CONF_CONFIRM_SAVE_CHANGES') ? '1' : SQ_CONF_CONFIRM_SAVE_CHANGES);
 			} else {
-				if (defined('SQ_CONF_CONFIRM_SAVE_CHANGES')) {
-					?>
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_CONFIRM_SAVE_CHANGES) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-					<?php
-				} else {
-					echo translate('Not Set');
-
-				}//end if
+			    echo $options[SQ_CONF_CONFIRM_SAVE_CHANGES];
 			}//end if
 			$o->note(translate('This setting, if set, warns a user when changes are made but not committed.'));
 
@@ -1139,42 +1134,49 @@ class System_Config extends Config
 
 			$o->openField(translate('Send Cacheable Header'));
 
+                $options = Array(
+                    '1' => translate('Send Cache-Control and Pragma headers'),
+                    '0' => translate('Don\'t send cache headers'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_SEND_CACHEABLE_HEADER);
-
-
+					combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', $options, FALSE, SQ_CONF_SEND_CACHEABLE_HEADER);
 				} else {
-					echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONF_SEND_CACHEABLE_HEADER];
 				}
+
 				$o->note(translate('If enabled, server will send cacheable Cache-Control and Pragma headers.'));
 
 			$o->closeField();
 
 			$o->openField(translate('Send Last-Modified Header'));
 
+                $options = Array(
+                    '1' => translate('Send Last-Modified header'),
+                    '0' => translate('Don\'t send Last-Modified header'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_LAST_MODIFIED_HEADER]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_SEND_LAST_MODIFIED_HEADER);
-
-
+					combo_box($class.'[SQ_CONF_SEND_LAST_MODIFIED_HEADER]', $options, FALSE, SQ_CONF_SEND_LAST_MODIFIED_HEADER);
 				} else {
-					echo (SQ_CONF_SEND_LAST_MODIFIED_HEADER) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONF_SEND_LAST_MODIFIED_HEADER];
 				}
+
 				$o->note(translate('If enabled, server will send a timestamp indicating when the asset was last modified.'));
 
 			$o->closeField();
 
 			$o->openField(translate('Send Not Modified Status-Code'));
 
+                $options = Array(
+                    '1' => translate('Send "304 Not Modified" status for Live, publicly readable assets'),
+                    '0' => translate('Don\'t send "304 Not Modified" status'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_NOT_MODIFIED_HEADER]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_SEND_NOT_MODIFIED_HEADER);
-
-
+					combo_box($class.'[SQ_CONF_SEND_NOT_MODIFIED_HEADER]', $options, FALSE, SQ_CONF_SEND_NOT_MODIFIED_HEADER);
 				} else {
-					echo (SQ_CONF_SEND_NOT_MODIFIED_HEADER) ? translate('Yes') : translate('No');
+					echo $options[SQ_CONF_SEND_NOT_MODIFIED_HEADER];
 
 
 				}
@@ -1186,14 +1188,15 @@ class System_Config extends Config
 
 			$o->openField(translate('Send no-cache header for File assets'));
 
+                $options = Array(
+                    '1' => translate('Send no-cache header'),
+                    '0' => translate('Don\'t send no-cache header'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_NO_CACHE_HEADER]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_SEND_NO_CACHE_HEADER);
-
-
+					combo_box($class.'[SQ_CONF_SEND_NO_CACHE_HEADER]', $options, FALSE, SQ_CONF_SEND_NO_CACHE_HEADER);
 				} else {
-					echo (SQ_CONF_SEND_NO_CACHE_HEADER) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONF_SEND_NO_CACHE_HEADER];
 				}
 				$o->note(translate('If enabled, the "no-cache" Cache-Control option will be sent when serving File asset types. This option can be used to resolve inline file display issues in Internet Explorer.'));
 
@@ -1201,14 +1204,17 @@ class System_Config extends Config
 
 			$o->openField(translate('Send 404 Cacheable Header'));
 
+                $options = Array(
+                    '1' => translate('Send cache headers for "Not Found" pages'),
+                    '0' => translate('Don\'t send cache headers for "Not Found" pages'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_404_CACHEABLE_HEADER]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_SEND_404_CACHEABLE_HEADER);
+					combo_box($class.'[SQ_CONF_SEND_404_CACHEABLE_HEADER]', $options, FALSE, SQ_CONF_SEND_404_CACHEABLE_HEADER);
 
 
 				} else {
-					echo (SQ_CONF_SEND_404_CACHEABLE_HEADER) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONF_SEND_404_CACHEABLE_HEADER];
 				}
 				$o->note(translate('If enabled, server will send cacheable Cache-Control and Pragma headers for 404 response to allow Proxy server to cache.'));
 
@@ -1216,58 +1222,58 @@ class System_Config extends Config
 
 			$o->openField(translate('Use "X-Forwarded-For" Header'));
 
+
+                $options = Array(
+                    '1' => translate('Use X-Forwarded-For header sent from these trusted proxies:'),
+                    '0' => translate('Don\'t use X-Forwarded-For header'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_USE_HTTP_X_FORWARDED_FOR]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_USE_HTTP_X_FORWARDED_FOR);
-
-
-				} else {
-					echo (SQ_CONF_USE_HTTP_X_FORWARDED_FOR) ? translate('Yes') : translate('No');
-
-
-				}
-				$o->note(translate('Only enable to help obtain User IP when behind a proxy. System will attempt to use "X-Forwarded-For" header. By default the REMOTE_ADDR server variable is used. This will only work in conjunction with a trusted/known Proxy IP list below.'));
-
-
-				$option_list->setEditParam('width', 30);
-				if ($write_access) {
+					combo_box($class.'[SQ_CONF_USE_HTTP_X_FORWARDED_FOR]', $options, FALSE, SQ_CONF_USE_HTTP_X_FORWARDED_FOR);
 					$option_list->value = SQ_CONF_FORWARDED_IP_PROXY_LIST;
 					$option_list->paint('SQ_CONF_FORWARDED_IP_PROXY_LIST');
 				} else {
-					if (SQ_CONF_FORWARDED_IP_PROXY_LIST == '') {
-						echo translate('None');
-
-					} else {
-						echo nl2br(SQ_CONF_FORWARDED_IP_PROXY_LIST);
+					echo $options[SQ_CONF_USE_HTTP_X_FORWARDED_FOR];
+					if (SQ_CONF_USE_HTTP_X_FORWARDED_FOR === '1') {
+                        if (SQ_CONF_FORWARDED_IP_PROXY_LIST == '') {
+                            echo ' <span class="sq-backend-warning">'.translate('No trusted proxies set').'</span>';
+                        } else {
+                            echo '<ul><li>'.implode('</li><li>', explode("\n",SQ_CONF_FORWARDED_IP_PROXY_LIST)).'</li></ul>';
+                        }
 					}
 				}
+
+				$o->note(translate('Only enable to help obtain User IP when behind a proxy. System will attempt to use "X-Forwarded-For" header. By default the REMOTE_ADDR server variable is used. This will only work in conjunction with the above trusted/known Proxy IP list.'));
 			$o->closeField();
 
 			$o->openField(translate('HTTP only for cookie'));
 
-				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_COOKIE_OPTION_HTTP_ONLY]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_COOKIE_OPTION_HTTP_ONLY);
+                $options = Array(
+                    '1' => translate('Set HttpOnly flag for PHP session cookies (recommended)'),
+                    '0' => translate('Don\'t set HttpOnly flag for PHP session cookies'),
+                );
 
-
-				} else {
-					echo (SQ_CONF_COOKIE_OPTION_HTTP_ONLY) ? translate('Yes') : translate('No');
-
-
-				}
-				$o->note(translate('Enable to set \'HttpOnly\' option for the cookies. When a cookie is HttpOnly the web browser should not allow client side scripts such as JavaScript to have access to the cookie. This can help mitigate the effects of cross site scripting attacks.<i><b> (Available only for PHP Version greater than 5.2.0)</i></b>'));
+                if ($write_access && $is_root) {
+                    combo_box($class.'[SQ_CONF_COOKIE_OPTION_HTTP_ONLY]', $options, FALSE, SQ_CONF_COOKIE_OPTION_HTTP_ONLY);
+                } else {
+                    echo $options[SQ_CONF_COOKIE_OPTION_HTTP_ONLY];
+                }
+				$o->note(translate('Enable to set \'HttpOnly\' option for the cookies. When a cookie is HttpOnly the web browser should not allow client side scripts such as JavaScript to have access to the cookie. This can help mitigate the effects of cross site scripting attacks.'));
 
 
 			$o->closeField();
 
 			$o->openField(translate('Enable \'Secure\' Cookie option'));
 
+                $options = Array(
+                    '1' => translate('Set Secure flag for PHP session cookies'),
+                    '0' => translate('Don\'t set Secure flag for PHP session cookies'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_COOKIE_OPTION_SECURE]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_COOKIE_OPTION_SECURE);
-
-
+					combo_box($class.'[SQ_CONF_COOKIE_OPTION_SECURE]', $options, FALSE, SQ_CONF_COOKIE_OPTION_SECURE);
 				} else {
-					echo (SQ_CONF_COOKIE_OPTION_SECURE) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONF_COOKIE_OPTION_SECURE];
 				}
 				$o->note(translate('Specifies whether or not to transmit the secure cookie flag when a connection is made over HTTPS. Enabling this will cause browsers to not share the session cookie between HTTP and HTTPS.'));
 
@@ -1283,12 +1289,17 @@ class System_Config extends Config
 
 			$o->openField(translate('Enable Permission Roles System'));
 
+                $options = Array(
+                    '1' => translate('Enable permission roles system'),
+                    '0' => translate('Disable permission roles system'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_ENABLE_ROLES_PERM_SYSTEM]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ENABLE_ROLES_PERM_SYSTEM);
+					combo_box($class.'[SQ_CONF_ENABLE_ROLES_PERM_SYSTEM]', $options, FALSE, SQ_CONF_ENABLE_ROLES_PERM_SYSTEM);
 
 
 				} else {
-					echo (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM) ? translate('Yes') : translate('No');
+					echo $options[SQ_CONF_ENABLE_ROLES_PERM_SYSTEM];
 
 
 				}
@@ -1296,12 +1307,17 @@ class System_Config extends Config
 
 			$o->openField(translate('Enable Workflow Roles System'));
 
+                $options = Array(
+                    '1' => translate('Enable workflow roles system'),
+                    '0' => translate('Disable workflow roles system'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_ENABLE_ROLES_WF_SYSTEM]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ENABLE_ROLES_WF_SYSTEM);
+					combo_box($class.'[SQ_CONF_ENABLE_ROLES_WF_SYSTEM]', $options, FALSE, SQ_CONF_ENABLE_ROLES_WF_SYSTEM);
 
 
 				} else {
-					echo (SQ_CONF_ENABLE_ROLES_WF_SYSTEM) ? translate('Yes') : translate('No');
+					echo $options[SQ_CONF_ENABLE_ROLES_WF_SYSTEM];
 
 
 				}
@@ -1310,12 +1326,17 @@ class System_Config extends Config
 			if ( ((defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1')) || (defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM') && (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1')) ) || (!defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && !defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM') )) {
 				$o->openField(translate('Enable Global Roles'));
 
+                    $options = Array(
+                        '1' => translate('Enable global permission and workflow roles'),
+                        '0' => translate('Disable global permission and workflow roles'),
+                    );
+
 					if ($write_access && $is_root) {
-						combo_box($class.'[SQ_CONF_ENABLE_GLOBAL_ROLES]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONF_ENABLE_GLOBAL_ROLES);
+						combo_box($class.'[SQ_CONF_ENABLE_GLOBAL_ROLES]', $options, FALSE, SQ_CONF_ENABLE_GLOBAL_ROLES);
 
 
 					} else {
-						echo (SQ_CONF_ENABLE_GLOBAL_ROLES) ? translate('Yes') : translate('No');
+						echo $options[SQ_CONF_ENABLE_GLOBAL_ROLES];
 
 
 					}
@@ -1329,18 +1350,14 @@ class System_Config extends Config
 
 			$o->openField(translate('Remove self links'));
 
+                $options = Array(
+                    '1' => translate('Hyperlinks to viewed asset stripped from content'),
+                    '0' => translate('Hyperlinks to viewed asset NOT stripped in content'),
+                );
 				if ($write_access) {
-					$options = Array(
-								'0'	=> translate('No'),
-
-								'1'	=> translate('Yes'),
-
-							   );
 					combo_box($class.'[SQ_CONF_NO_ASSET_SELF_LINKS]', $options, FALSE, !defined('SQ_CONF_NO_ASSET_SELF_LINKS') ? '0' : SQ_CONF_NO_ASSET_SELF_LINKS);
 				} else {
-					echo (SQ_CONF_NO_ASSET_SELF_LINKS) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONF_NO_ASSET_SELF_LINKS];
 				}
 				$o->note(translate('Select \'Yes\' if you want all links directing to currently viewed asset removed from content.'));
 
@@ -1363,14 +1380,15 @@ class System_Config extends Config
 
 			$o->openField(translate('Strip Matrix Comments'));
 
+                $options = Array(
+                    '1' => translate('Strip specially-marked Matrix comments'),
+                    '0' => translate('Don\'t strip Matrix comments'),
+                );
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONFIG_STRIP_MATRIX_COMMENTS]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_CONFIG_STRIP_MATRIX_COMMENTS);
-
-
+					combo_box($class.'[SQ_CONFIG_STRIP_MATRIX_COMMENTS]', $options, FALSE, SQ_CONFIG_STRIP_MATRIX_COMMENTS);
 				} else {
-					echo (SQ_CONF_STATIC_ROOT_HTTP) ? translate('Yes') : translate('No');
-
-
+					echo $options[SQ_CONFIG_STRIP_MATRIX_COMMENTS];
 				}
 				$o->note(htmlspecialchars(translate('Strip out special Matrix comments, "<!--@@ @@-->" and "/*@@ @@*/" from the output.')));
 

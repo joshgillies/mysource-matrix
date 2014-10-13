@@ -64,10 +64,10 @@ class Bodycopy_Container_Prefs extends Prefs
 		$this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['name'] = translate('Default Presentation Type');
         $this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['desc'] = translate('When new Content Containers are created they will use this presentation type. by default. This can be changed for a particular Content Container at any time.');
 
-        $this->pref_vars['SQ_DIV_DISABLE_CREATE']['name'] = translate('Disable Creating Content Containers');
+        $this->pref_vars['SQ_DIV_DISABLE_CREATE']['name'] = translate('Creating Containers on Contents Screen');
         $this->pref_vars['SQ_DIV_DISABLE_CREATE']['desc'] = translate('Allows you to stop users from being able to create Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.');
 
-        $this->pref_vars['SQ_DIV_DISABLE_DELETE']['name'] = translate('Disable Deleting Content Containers');
+        $this->pref_vars['SQ_DIV_DISABLE_DELETE']['name'] = translate('Deleting Containers on Contents Screen');
         $this->pref_vars['SQ_DIV_DISABLE_DELETE']['desc'] = translate('Allows you to stop users from being able to delete Content Containers on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.');
 
 	}//end constructor
@@ -120,10 +120,15 @@ class Bodycopy_Container_Prefs extends Prefs
 
 		// Disable create and delete.
         $options = Array(
-                    'yes' => translate('Yes'),
-                    'no'  => translate('No'),
+                    'yes' => translate('Disable creation'),
+                    'no'  => translate('Allow creation'),
                    );
 		$this->paintComboField($o, $have_lock, $pref, 'SQ_DIV_DISABLE_CREATE', $options);
+
+        $options = Array(
+                    'yes' => translate('Disable deletion'),
+                    'no'  => translate('Allow deletion'),
+                   );
 		$this->paintComboField($o, $have_lock, $pref, 'SQ_DIV_DISABLE_DELETE', $options);
 
 		return TRUE;

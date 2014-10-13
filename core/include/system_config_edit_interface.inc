@@ -351,6 +351,11 @@ class System_Config_Edit_Interface extends MySource_Object
 				return false;
 			}
 
+			// reset opcache otherwise it would cache the constants of config file and redriect won't help.
+            if (function_exists('opcache_reset')) {
+                opcache_reset();
+            }
+
 			if ($changed_vars) {
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$ms->openQueue();

@@ -301,9 +301,9 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref)
 	{
 	    $options = Array(
-                       0 => translate('Allow'),
-                       1 => translate('Escape'),
-                       2 => translate('Strip'),
+                       0 => translate('Allow HTML in comments'),
+                       1 => translate('Escape HTML in comments'),
+                       2 => translate('Strip HTML from comments'),
                    );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_COMMENT_HTML_CONF', $options);
 
@@ -323,8 +323,8 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentDisableKeywordReplacementsBackend(&$o, $have_lock, $pref)
 	{
 	    $options = Array(
-                       1 => translate('Yes'),
-                       0 => translate('No'),
+                       1 => translate('Disable keyword replacements'),
+                       0 => translate('Allow keyword replacements'),
                    );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS', $options);
 

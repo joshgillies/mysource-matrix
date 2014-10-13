@@ -128,10 +128,14 @@ class Content_Type_Image_Prefs extends Prefs
 		$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
 
 		$this->paintField($o, $have_lock, $pref, 'SQ_CONTENT_TYPE_IMAGE_DEFAULTS', function($value_defaults) use ($have_lock, $tick, $cross) {
+            $boolean_options = Array(
+                0 => translate('No'),
+                1 => translate('Yes'),
+            );
             ?>
             <table class="sq-backend-table" style="width: 350px;">
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
@@ -144,7 +148,7 @@ class Content_Type_Image_Prefs extends Prefs
                     </td>
                 </tr>
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption Position'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Caption Position'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
@@ -157,20 +161,20 @@ class Content_Type_Image_Prefs extends Prefs
                     </td>
                 </tr>
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Use Caption Attribute'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Use Caption Attribute'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
                             if ($have_lock) {
-                                check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[use_caption_attr]', '1', array_get_index($value_defaults, 'use_caption_attr', FALSE));
+                                combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[user_caption_attr]', $boolean_options, FALSE, array_get_index($value_defaults, 'user_caption_attr', FALSE));
                             } else {
-                                echo ($value_defaults['use_caption_attr'] == TRUE) ? $tick : $cross;
+                                echo $boolean_options[array_get_index($value_defaults, 'user_caption_attr', FALSE)];
                             }
                         ?>
                     </td>
                 </tr>
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
@@ -183,7 +187,7 @@ class Content_Type_Image_Prefs extends Prefs
                     </td>
                 </tr>
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
@@ -196,33 +200,33 @@ class Content_Type_Image_Prefs extends Prefs
                     </td>
                 </tr>
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Constrain Proportions'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Constrain Proportions'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
                             if ($have_lock) {
-                                check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[constrain_proportions]', '1', array_get_index($value_defaults, 'constrain_proportions', FALSE));
+                                combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[constrain_proportions]', $boolean_options, FALSE, array_get_index($value_defaults, 'constrain_proportions', FALSE));
                             } else {
-                                echo (array_get_index($value_defaults, 'constrain_proportions', FALSE) == TRUE) ? $tick : $cross;
+                                echo $boolean_options[array_get_index($value_defaults, 'constrain_proportions', FALSE)];
                             }
                         ?>
                     </td>
                 </tr>
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Shrink/Stretch to Dimensions'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Shrink/Stretch to Dimensions'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
                             if ($have_lock) {
-                                check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[fit_dimensions]', '1', array_get_index($value_defaults, 'fit_dimensions', FALSE));
+                                combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[fit_dimensions]', $boolean_options, FALSE, array_get_index($value_defaults, 'fit_dimensions', FALSE));
                             } else {
-                                echo (array_get_index($value_defaults, 'fit_dimensions', FALSE) == TRUE) ? $tick : $cross;
+                                echo $boolean_options[array_get_index($value_defaults, 'fit_dimensions', FALSE)];
                             }
                         ?>
                     </td>
                 </tr>
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('On Click'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('On Click'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
@@ -239,7 +243,7 @@ class Content_Type_Image_Prefs extends Prefs
                     </td>
                 </tr>
                 <tr>
-                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('HTML Layout'); ?>:</td>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('HTML Layout'); ?></td>
 
                     <td class="sq-backend-table-cell" nowrap="nowrap">
                         <?php
@@ -259,28 +263,40 @@ class Content_Type_Image_Prefs extends Prefs
             ?>
 			<table class="sq-backend-table" style="width: 200px;">
 				<?php
-				foreach ($fields as $field_name => $value) {
-					?>
-					<tr>
-						<td class="sq-backend-table-cell" nowrap="nowrap">
-							<?php
-								if ($have_lock) {
-									check_box('SQ_CONTENT_TYPE_IMAGE_FIELDS['.$field_name.']', '1', $value, '', 'id="image_content_'.$field_name.'"');
-									label(ucwords(str_replace('_', ' ', $field_name)), 'image_content_'.$field_name);
-								} else {
-									echo ($value == TRUE) ? $tick : $cross;
-									?>
-									&nbsp;&nbsp;&nbsp;
-									<?php
-									echo ucwords(str_replace('_', ' ', $field_name));
-								}
-							?>
-						</td>
-					</tr>
-				<?php
-			}
-			?>
-			</table>
+				$option_names = Array(
+                    'caption_options'   => translate('Caption Options'),
+                    'caption_position'  => translate('Caption Position'),
+                    'dimension_options' => translate('Dimension Options'),
+                    'on_click'          => translate('On Click'),
+                    'html_layout'       => translate('HTML Layout'),
+                );
+            $tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
+            $cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="No" />';
+            ?>
+            <table class="sq-backend-table" style="width: 350px">
+                <col width="80%" />
+                <col width="20%" />
+                <?php
+                foreach ($option_names as $key => $display_name) {
+                    ?><tr><?php
+                    if ($have_lock) {
+                        $option_id = 'SQ_CONTENT_TYPE_IMAGE_FIELDS['.$key.']';
+                        ?><th><?php
+                        label($display_name, 'image_content_'.$key);
+                        ?></th><td style="text-align: center"><?php
+                        check_box($option_id, '1', $fields[$key], '', 'id="image_content_'.$key.'"');
+                        ?></td><?php
+                    } else {
+                        ?><th><?php
+                        echo $display_name;
+                        ?></th><td style="text-align: center"><?php
+                        echo ($fields[$key] == TRUE) ? $tick : $cross;
+                        ?></td><?php
+                    }
+                    ?></tr><?php
+                }
+                ?>
+            </table>
 			<?php
 		});//end closure (SQ_CONTENT_TYPE_IMAGE_FIELDS)
 
@@ -288,10 +304,18 @@ class Content_Type_Image_Prefs extends Prefs
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 				<?php
-				foreach ($classes as $name => $class) {
+                $translated_names = Array(
+                    'surrounding_container' => translate('Surrounding Container'),
+                    'image_table_cell'      => translate('Image Table Cell'),
+                    'caption_table_cell'    => translate('Caption Table Cell'),
+                    'image_tag'             => translate('Image Tag'),
+                    'image_div'             => translate('Image Div'),
+                    'caption_div'           => translate('Caption Div'),
+                );
+			    foreach ($classes as $name => $class) {
 					?>
 					<tr>
-						<td class="sq-backend-table-header"><?php echo ucwords(str_replace('_', ' ', $name)); ?></td>
+						<td class="sq-backend-table-header"><?php echo $translated_names[$name]; ?></td>
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock) {
@@ -313,10 +337,19 @@ class Content_Type_Image_Prefs extends Prefs
 			?>
 			<table class="sq-backend-table" style="width: 350px;">
 				<?php
-				foreach ($classes as $name => $class) {
+                $translated_names = Array(
+                    'surrounding_container' => translate('Surrounding Container'),
+                    'preview_image_table'   => translate('Preview Image Table'),
+                    'image_table_cell'      => translate('Image Table Cell'),
+                    'image_tag'             => translate('Image Tag'),
+                    'close_preview_cell'    => translate('Close Preview Cell'),
+                    'image_div'             => translate('Image Div'),
+                    'close_preview_div'     => translate('Close Preview Div'),
+                );
+                foreach ($classes as $name => $class) {
 					?>
 					<tr>
-						<td class="sq-backend-table-header"><?php echo ucwords(str_replace('_', ' ', $name)); ?></td>
+						<td class="sq-backend-table-header"><?php echo $translated_names[$name]; ?></td>
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock) {
