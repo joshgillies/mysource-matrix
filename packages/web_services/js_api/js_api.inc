@@ -381,8 +381,8 @@ class JS_Api extends Page
 		}
 
 		// #4372  Feature Request : JS API ability to specify _admin/_edit access
-		// Lets populate our $request_data var so that we can use it later :)
-		$request_data['force_simple_edit'] = $this->attr('force_simple_edit');
+		// Lets populate our $_REQUEST var so that we can use it later :)
+		$_REQUEST['force_simple_edit'] = $this->attr('force_simple_edit');
 
 		$temp_server_vars_php_self = array_get_index($_SERVER, 'PHP_SELF', NULL);;
 		$temp_server_vars_request_uri = array_get_index($_SERVER, 'REQUEST_URI', NULL);
@@ -416,7 +416,7 @@ class JS_Api extends Page
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_LIMBO_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_BACKEND_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'].'/';
-				$request_data['force_simple_edit'] = TRUE;
+				$_REQUEST['force_simple_edit'] = TRUE;
 			}
 
 			// If 'PHP_SELF' was updated, set the same to 'REQUEST_URI'

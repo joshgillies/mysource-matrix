@@ -124,7 +124,7 @@ foreach(Array('sq_', 'sq_rb_') as $table_prefix) {
 							if ($rollback) {
 								MatrixDAL::bindValueToPdo($update_sql, 'sq_eff_from', $eff_from);
 							}
-							$execute = MatrixDAL::executePdoAssoc($update_sql);
+							$execute = MatrixDAL::execPdoQuery($update_sql);
 						} catch (Exception $e) {
 							echo "Unexpected error occured while updating database: ".$e->getMessage();
 							echo "\nNo database changes were made";
