@@ -123,56 +123,58 @@ var Matrix_Viper = new function() {
 		}
 		
 		
-		settings.editableDivs.each(function(){
-		    viper.registerEditableElement(this);
-		    var $editable = jQuery(this);
+		settings.editableDivs.each(function() {
 
-		    var $editCallToAction = jQuery('<div/>',{
+			if (typeof MatrixViperDefaultTag != 'undefined') {
+				viper.setSetting('defaultBlockTag', MatrixViperDefaultTag);
+			}
+
+			viper.registerEditableElement(this);
+			var $editable = jQuery(this);
+
+			var $editCallToAction = jQuery('<div/>',{
 			"class": 'matrix-viper-no-content',
 			text: "This area contains no content yet. Click here to start editing."
-		    });
-		    $editable.after($editCallToAction);
-		    $editCallToAction.hide();
-
-		    // when click the no content div, hide it and focus on the editor
-		    // this ugly mousedown and up event workaround is for IE8. a straight click event would not work for viper because IE is so slow that it thinks the div is not visible to focus yet
-		    $editCallToAction.bind('mousedown',function(e){
-			     $editCallToAction.hide();		
-			    $editable.show();
-			    jQuery(document).bind('mouseup.viper',function(e){
+			});
+			$editable.after($editCallToAction);
+			$editCallToAction.hide();
+			// when click the no content div, hide it and focus on the editor
+			// this ugly mousedown and up event workaround is for IE8. a straight click event would not work for viper because IE is so slow that it thinks the div is not visible to focus yet
+			$editCallToAction.bind('mousedown',function(e){
+				$editCallToAction.hide();		
+				$editable.show();
+				jQuery(document).bind('mouseup.viper',function(e){
 				$editable.attr('contenteditable', 'true');
 				viper.setEditableElement($editable.get(0));
 				// Firefox doesn't swallow the BR, so select it.
-                if (viper.browser === 'Firefox') {
-                	viper.selectNode($editable.find('br').get(0));
-                }
-                viper.element.focus(); 
+				if (viper.browser === 'Firefox') {
+					viper.selectNode($editable.find('br').get(0));
+				}
+				viper.element.focus(); 
 				viper.focus();
 				jQuery(document).unbind('mouseup.viper');
-			    });
-		    });
-			
-		    // Check to see if the area has any content to edit, if not we need
-		    // to supply a clickable element that brings attention to the fact
-		    // this area is currently empty
-		    
-		    var rawText = $editable.html();
-		    if (rawText.match(/^\s+$/) !== null ||
-			rawText === "" ||
-			rawText.match(/^<[a-z]+>[\s\n(&nbsp;)]*<\/[a-z]+>$/i) !== null) {
-			$editable.html('<p><br/> </p>');
-			$editCallToAction.show();
-			$editable.hide();
-		    }// End if
+				});
+			});
 
-		    $editable.bind('mousedown',function(){
-		       if (viper.getViperElement() !== $editable.get(0)) {
-			   viper.setEditableElement($editable.get(0));
-		       }// End if
-		    });
-		    
+			// Check to see if the area has any content to edit, if not we need
+			// to supply a clickable element that brings attention to the fact
+			// this area is currently empty
+
+			var rawText = $editable.html();
+			if (typeof MatrixViperDefaultTag == 'undefined' && (rawText.match(/^\s+$/) !== null ||
+			rawText === "" || rawText.match(/^<[a-z]+>[\s\n(&nbsp;)]*<\/[a-z]+>$/i) !== null)) {
+				$editable.html('<p><br/> </p>');
+				$editCallToAction.show();
+				$editable.hide();
+			}
+
+			$editable.bind('mousedown',function(){
+				if (viper.getViperElement() !== $editable.get(0)) {
+					viper.setEditableElement($editable.get(0));
+				}// End if
+			});
 		});// End foreach
-	    });// End new Viper
+		});// End new Viper
 
 		if (typeof PluginsEnabled != "undefined") {
 			// disable/hide the plugins that aren't set to be active
@@ -180,12 +182,12 @@ var Matrix_Viper = new function() {
 
 			// Get the toolbar plugin and apply it to the container
 			if(settings.toolbarContainer.length >=1) {
-			    var toolbar = viper.getPluginManager().getPlugin('ViperToolbarPlugin');
-			    toolbar.setParentElement(settings.toolbarContainer.children().get(0));
+				var toolbar = viper.getPluginManager().getPlugin('ViperToolbarPlugin');
+				toolbar.setParentElement(settings.toolbarContainer.children().get(0));
 			}
 		}
 
-	    // allow external script to call it
+		// allow external script to call it
 		this.viper = viper;
 	}
 
