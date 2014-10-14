@@ -206,13 +206,18 @@ if(getCLIArg('invalid_new_url')) {
 if(getCLIArg('redirect_chain')) {
     echo "\n## Redirect Chain ##\n";
 
+    $db_type = _getDbType();
+
+    $except_clause = 'EXCEPT';
+    if($db_type === 'oci') {
+        $except_clause = 'MINUS';
+    }
     // find out all long redirects with magic query
     $sql = '(SELECT  a.* FROM sq_ast_lookup_remap a, sq_ast_lookup_remap b WHERE a.url = b.remap_url)
             UNION ALL
             (SELECT  c.* FROM sq_ast_lookup_remap c, sq_ast_lookup_remap d WHERE c.remap_url = d.url
-                except SELECT c.* FROM sq_ast_lookup_remap c, sq_ast_lookup_remap d WHERE c.url = d.remap_url
-            );
-            ';
+                '.$except_clause.' SELECT c.* FROM sq_ast_lookup_remap c, sq_ast_lookup_remap d WHERE c.url = d.remap_url
+            )';
     $query = MatrixDAL::preparePdoQuery($sql);
     $result =  MatrixDAL::executePdoAll($query);
     $sorted_result = Array();
@@ -269,6 +274,17 @@ if(getCLIArg('redirect_chain')) {
 /*
  *  helper functions
  */
+
+
+function _getDbType()
+{
+        $dbtype = MatrixDAL::GetDbType();
+
+        if ($dbtype instanceof PDO) {
+                $dbtype = $dbtype->getAttribute(PDO::ATTR_DRIVER_NAME);
+        }
+        return strtolower($dbtype);
+}
 
 
 /**
