@@ -1227,7 +1227,7 @@ class Backend extends MySource_Object
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=am',
 										'target'	=> 'sq_main',
-										'title'		=> translate('Asset Tree'),
+										'title'		=> translate('Asset Types'),
 
 										'icon'		=> 'asset_tree_white.png',
 									 );
