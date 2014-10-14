@@ -593,7 +593,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 				<b><?php echo translate('Info'); ?>:</b> <?php echo get_asset_tag_line($asset->id); ?><br/>
 
-				<b><?php echo translate('Size'); ?>:</b> <?php echo easy_filesize($existing['Size'])?><br/>
+				<b><?php echo translate('Size'); ?>:</b> <?php echo easy_filesize($existing['size'])?><br/>
 
 				<b><?php echo translate('Updated'); ?>:</b> <?php echo readable_datetime($existing['modified'])?>
 
