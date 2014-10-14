@@ -1589,6 +1589,8 @@ class Search_Page extends Listing_Engine
 		$categories = $this->attr('categories');
 
 		foreach ($keywords as $keyword) {
+			$full_keyword = $keyword;
+			$keyword = parse_keyword($keyword, $modifiers);
 			if (preg_match('/(.+)_query_logic$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$current_logic = array_get_index($_REQUEST, $keyword, array_get_index($fields[$matches[1]], 'word_logic'));
 				$options = Array(
@@ -1598,18 +1600,20 @@ class Search_Page extends Listing_Engine
 				ob_start();
 					$this->registerFormField($keyword);
 					combo_box($keyword, $options, FALSE, $current_logic);
-					$replaces[$keyword] = ob_get_contents();
+					$replacement = ob_get_contents();
 				ob_end_clean();
 			} else if (preg_match('/(.+)_query_(.+)$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-				$replaces[$keyword] = $this->getFieldReplacement($matches[1], $matches[2]);
+				$replacement = $this->getFieldReplacement($matches[1], $matches[2]);
 			} else if (preg_match('/(.+)_query$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-				$replaces[$keyword] = $this->getFieldReplacement($matches[1]);
+				$replacement = $this->getFieldReplacement($matches[1]);
 			} else if (substr($keyword, -17) == '_category_chooser') {
 				$cat_name = substr($keyword, 0, -17);
-				$replaces[$keyword] = $this->getCategoryChooserReplacement($cat_name, $categories[$cat_name]);
+				$replacement = $this->getCategoryChooserReplacement($cat_name, $categories[$cat_name]);
 			} else {
-				$replaces[$keyword] = $this->getGeneralReplacement($keyword);
+				$replacement = $this->getGeneralReplacement($keyword);
 			}
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id, 'call_fns' => Array('getInitialBodyReplacements')));
+			$replaces[$full_keyword] = $replacement;
 		}
 
 		return $replaces;
