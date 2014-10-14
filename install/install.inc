@@ -1165,7 +1165,8 @@ function format_deferred_packages($packages)
 
 
 /**
- * Takes a PO string file from the specified package (or core)
+ * Takes a PO string file from the specified package (or core) and turns it
+ * into a Matrix serialised string
  *
  * Package name of "__core__" will build the strings of the Core package.
  * Returns 0 on success, 1 if failed, -1 if nothing was found.
@@ -1210,6 +1211,7 @@ function build_string_file($package, $locale=NULL) {
         $strings = Array();
         $current    = NULL;
         $line_index = NULL;
+        $flags      = NULL;
         $msgid      = NULL;
         $msgstr     = NULL;
 
@@ -1218,24 +1220,25 @@ function build_string_file($package, $locale=NULL) {
             $strings[$msgid] = $msgstr;
         };
 
-        foreach ($lines as $line) {
+        foreach ($lines as $i => $line) {
             $line = trim($line);
             if (strpos($line, 'msgid "') === 0) {
                 // Message ID.
                 $current = 'msgid';
-                if (empty($msgid) == FALSE) {
-                    $add_to_strings($msgid, $msgstr);
+                $add_to_strings($msgid, $msgstr);
+                if (empty($msgid) === FALSE) {
+                    $flags = '';
                 }
                 $msgid  = '';
                 $msgstr = '';
                 $this_str = substr($line, strlen('msgid "'), -1);
-            } if (strpos($line, 'msgstr[') === 0) {
+            } else if (strpos($line, 'msgstr[') === 0) {
                 // Plural option.
                 list($line_index, $this_str) = sscanf('msgstr[%d] %s', $line);
                 $current = 'msgstr_plural';
                 $msgstr  = Array();
                 $this_str = substr(trim($this_str), -1, 1);
-            } if (strpos($line, 'msgstr "') === 0) {
+            } else if (strpos($line, 'msgstr "') === 0) {
                 // Single translation.
                 $current  = 'msgstr';
                 $msgstr   = '';
@@ -1268,12 +1271,146 @@ function build_string_file($package, $locale=NULL) {
             }//end switch
         }//end foreach
 
-        if (empty($msgid) == FALSE) {
-            $add_to_strings($msgid, $msgstr);
-        }
-
+        $add_to_strings($msgid, $msgstr);
         file_put_contents($target_filename, serialize($strings));
     }//end foreach
+
+    return $ok;
+}//end build_string_file()
+
+
+/**
+ * Takes a PO string file from all packages and turns it into
+ * a JavaScript locale file stored in data/public.
+ *
+ * This scans the PO files for any strings marked with the flag "js-translate"
+ * and adds them to the translated strings JS file.
+ * Flags are lines before msgid lines starting with "#,".
+ * This is to be done at the end of step 3, after all packages are installed.
+ *
+ * @return integer
+ */
+function build_js_string_files() {
+    $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+    $locales  = Array();
+
+    $build_files = Array();
+    foreach ($packages as $package) {
+        if ($package['code_name'] === '__core__') {
+            $path = realpath(SQ_SYSTEM_ROOT).'/core/locale';
+        } else {
+            $path = realpath(SQ_SYSTEM_ROOT).'/packages/'.$package['code_name'].'/locale';
+        }
+
+        $files = glob($path.'/*.po');
+        foreach ($files as $file) {
+            $build_files[] = Array(
+                'filename' => $file,
+                'locale'   => basename($file, '.po'),
+            );
+        }
+    }//end foreach
+
+    $strings = Array();
+    $ok      = 0;
+
+    foreach ($build_files as $source) {
+        $source_filename = $source['filename'];
+        $locale          = $source['locale'];
+        $lines = file($source_filename);
+
+        if (array_key_exists($locale, $strings) === FALSE) {
+            $strings[$locale] = Array();
+        }
+
+        $current    = NULL;
+        $flags      = NULL;
+        $line_index = NULL;
+        $msgid      = NULL;
+        $msgstr     = NULL;
+
+        // Create closure to build the strings array.
+        $add_to_strings = function($msgid, $msgstr, $flags) use (&$strings, $locale) {
+            if ((empty($msgid) === FALSE) && (empty($flags) === FALSE) && (strpos($flags, 'js-translate') !== FALSE)) {
+                $strings[$locale][$msgid] = $msgstr;
+            }
+        };
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (strpos($line, '#, ') === 0) {
+                $add_to_strings($msgid, $msgstr, $flags);
+                $msgid  = '';
+                $msgstr = '';
+                $flags = substr($line, 3);
+            } else if (strpos($line, 'msgid "') === 0) {
+                // Message ID.
+                $current = 'msgid';
+                if (empty($msgid) == FALSE) {
+                    $add_to_strings($msgid, $msgstr, $flags);
+                    $flags = '';
+                }
+                $msgid  = '';
+                $msgstr = '';
+                $this_str = substr($line, strlen('msgid "'), -1);
+            } else if (strpos($line, 'msgstr[') === 0) {
+                // Plural option.
+                list($line_index, $this_str) = sscanf('msgstr[%d] %s', $line);
+                $current = 'msgstr_plural';
+                $msgstr  = Array();
+                $this_str = substr(trim($this_str), -1, 1);
+            } else if (strpos($line, 'msgstr "') === 0) {
+                // Single translation.
+                $current  = 'msgstr';
+                $msgstr   = '';
+                $this_str = substr($line, strlen('msgstr "'), -1);
+            } else if (strpos($line, '"') === 0) {
+                // Continuation of previous string.
+                $this_str = substr($line, -1, 1);
+            } else {
+                $this_str = '';
+            }
+
+            // Normalise the string: handle any embedded newlines (remember
+            // actual LFs don't count), unescape double quotes and backslashes.
+            $this_str = str_replace('\\n', "\n", $this_str);
+            $this_str = str_replace('\\"', '"', $this_str);
+            $this_str = str_replace('\\\\', '\\', $this_str);
+
+            switch ($current) {
+                case 'msgid':
+                    $msgid .= $this_str;
+                break;
+
+                case 'msgstr':
+                    $msgstr .= $this_str;
+                break;
+
+                case 'msgstr_plural':
+                    $msgstr[$line_index] .= $this_str;
+                break;
+            }//end switch
+        }//end foreach
+
+        $add_to_strings($msgid, $msgstr, $flags);
+    }//end foreach
+
+    foreach ($strings as $locale => $locale_strings) {
+        if (count($locale_strings) > 0) {
+            $js_file  = 'SQ_CURRENT_LOCALE = \''.$locale.'\';'."\n";
+            $js_file .= 'translated_strings[\''.$locale.'\'] = {'."\n";
+            foreach ($locale_strings as $msgid => $msgstr) {
+                $js_file .= '\''.addslashes($msgid).'\': \''.addslashes($msgstr).'\','."\n";
+            }
+
+            // Pull out the last comma from the file.
+            $js_file .= '};'."\n";
+            $js_file = str_replace(','."\n".'}', "\n".'}', $js_file);
+
+            $target_filename = SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js';
+            file_put_contents($target_filename, $js_file);
+        }
+    }
 
     return $ok;
 }//end build_string_file()

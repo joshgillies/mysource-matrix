@@ -13,46 +13,36 @@
     $INCLUDE = array_unique($INCLUDE);
 
     $all_strings = [];
-    $strings_xml = [];
+    $strings_tr  = [];
+    $js_strings  = [];
+    $errs_avail  = [];
     foreach ($INCLUDE as $inc_dir) {
         $all_strings[$inc_dir] = [];
-        $strings_xml[$inc_dir] = [];
+        $strings_tr[$inc_dir]  = [];
         $strings =& $all_strings[$inc_dir];
 
-        $output  = [];
-        exec('find '.$DIRNAME.'/'.$inc_dir.' -name lang_strings.xml', $output);
-
-        foreach ($output as $line) {
-            $sxml = simplexml_load_file($line);
-            foreach ($sxml->string as $string) {
-                $code = (string) $string->attributes()->source;
-                $strings[] = trim((string) $string);
-                $strings_xml[$inc_dir][$code] = trim((string) $string);
-            }
-        }
-
         $output = [];
-        exec('find '.$DIRNAME.'/'.$inc_dir.' -name lang_messages.xml', $output);
+        exec('find '.$DIRNAME.'/'.$inc_dir.' -name *.inc -or -name *.js', $output);
+        foreach ($output as $output_file) {
+            $lines = file($output_file);
+            $all_found = FALSE;
+            foreach ($lines as $num => &$line) {
+                $regex = '/translate\\(\'(([^\']|\\\\\')*?)\'\\)/';
+                preg_match_all($regex, $line, $matches, PREG_SET_ORDER);
+                $used_matches = [];
+                foreach ($matches as $match) {
+                    $all_found = TRUE;
+                    $match[1]  = str_replace('\\\'', '\'', $match[1]);
+                    $match[1]  = str_replace('\\"', '"', $match[1]);
 
-        foreach ($output as $line) {
-            $sxml = simplexml_load_file($line);
-            foreach ($sxml->message as $msg) {
-                $code = (string) $msg->attributes()->type;
-                $string[] = trim((string) $msg->subject);
-                $string[] = trim((string) $msg->body);
+                    $strings[] = $match[1];
+                    if (strpos($line, 'js_translate') !== FALSE) {
+                        $js_strings[] = $match[1];
+                    }
+                    $strings_tr[$inc_dir][] = $match[1];
+                }//end foreach
             }
-        }
-
-        $output = [];
-        exec('find '.$DIRNAME.'/'.$inc_dir.' -name lang_errors.xml', $output);
-
-        foreach ($output as $line) {
-            $sxml = simplexml_load_file($line);
-            foreach ($sxml->error as $string) {
-                $code = (string) $string->attributes()->code;
-                $strings[] = trim((string) $string);
-            }
-        }
+        }//end for
 
         $output = [];
         exec('find '.$DIRNAME.'/'.$inc_dir.' -name edit_interface_*screen*.xml', $output);
@@ -69,6 +59,11 @@
                 $strings[] = trim((string) $string);
             }
         }
+        $strings_tr[$inc_dir] = array_values($strings_tr[$inc_dir]);
+        $strings_tr[$inc_dir] = array_unique($strings_tr[$inc_dir]);
+
+        $js_strings = array_values($js_strings);
+        $js_strings = array_unique($js_strings);
 
         $strings = array_values($strings);
         $strings = array_unique($strings);
@@ -76,49 +71,50 @@
             $strings = array_diff($strings, $all_strings['core']);
         }
 
-        //echo str_pad($inc_dir, 35).' : '.number_format(count($strings))."\n";
-/*
-        $output = [];
-        exec('find '.$DIRNAME.'/'.$inc_dir.' -name *.inc -or -name *.js', $output);
-        foreach ($output as $output_file) {
-            $lines = file($output_file);
-            //echo $output_file."\n";
-            $all_found = FALSE;
-            foreach ($lines as $num => &$line) {
-                $regex = '/translate\\(\'(([^\']|\\\\\')*?)\'\\)/';
-                preg_match_all($regex, $line, $matches, PREG_SET_ORDER);
-                $used_matches = [];
-                foreach ($matches as $match) {
-                    $all_found = TRUE;
-                    if (in_array($match[1], $used_matches)) {
-                        continue;
-                    }
-                    $used_matches[] = $match[1];
-                    //echo str_pad($num, 6).' '.$match[1]."\n";
-
-                    if (isset($strings_xml['core'][$match[1]])) {
-                        $line = str_replace('\''.$match[1].'\'', '\''.str_replace('\'', '\\\'', $strings_xml['core'][$match[1]]).'\'', $line)."\n";
-                    } else if (isset($strings_xml['packages/cms']) && isset($strings_xml['packages/cms'][$match[1]])) {
-                        $line = str_replace('\''.$match[1].'\'', '\''.str_replace('\'', '\\\'', $strings_xml['packages/cms'][$match[1]]).'\'', $line)."\n";
-                    } else if (isset($strings_xml['packages/search']) && isset($strings_xml['packages/search'][$match[1]])) {
-                        $line = str_replace('\''.$match[1].'\'', '\''.str_replace('\'', '\\\'', $strings_xml['packages/search'][$match[1]]).'\'', $line)."\n";
-                    } else if (isset($strings_xml[$inc_dir][$match[1]])) {
-                        $line = str_replace('\''.$match[1].'\'', '\''.str_replace('\'', '\\\'', $strings_xml[$inc_dir][$match[1]]).'\'', $line)."\n";
-                    } else {
-                        echo '! '.$output_file.' '.$num.' '.$match[1]."\n";
-                    }
-                }//end foreach
-            }
-
-            if ($all_found) {
-                file_put_contents($output_file, implode('', $lines));
-            }
-        }
+        echo str_pad($inc_dir, 35).' : '.str_pad(number_format(count($strings)), 6)."\n";
     }//end for
-*/
-    /*echo str_pad('Total', 35).' : '.number_format(array_reduce($all_strings, function($carry, $next) {
+
+    echo str_pad('Total', 35).' : '.number_format(array_reduce($all_strings, function($carry, $next) {
         return $carry + count($next);
     }, 0))."\n";
-    */ //print_r($errors);
+
+    $common_header = Array(
+        'Project-Id-Version: 1.0',
+        'Language: en',
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+    );
+    foreach ($INCLUDE as $inc_dir) {
+        $base_file  = '';
+        $base_file .= 'msgid ""'."\n";
+        $base_file .= 'msgstr ""'."\n";
+        foreach ($common_header as $value) {
+            $base_file .= '"'.str_replace('"', '\\"', $value).'\\n"'."\n";
+        }
+        $base_file .= "\n";
+
+        $file_index = 1;
+        foreach (array_chunk($all_strings[$inc_dir], 150) as $chunk) {
+            if (count($all_strings[$inc_dir]) <= 150) {
+                $file_name = str_replace('/', '_', $inc_dir).'.po';
+            } else {
+                $file_name = str_replace('/', '_', $inc_dir).'_'.$file_index.'.po';
+            }
+            $file = $base_file;
+            foreach ($chunk as $string) {
+                if (array_search($string, $js_strings) !== FALSE) {
+                    $file .= '#, js-translate'."\n";
+                }
+
+                $file .= 'msgid "'.str_replace('"', '\\"', $string).'"'."\n";
+                $file .= 'msgstr ""'."\n\n";
+            }
+
+            file_put_contents(dirname(__FILE__).'/'.$file_name, $file);
+            $file_index++;
+        }
+    }
+    //print_r($errors);
     //print_r($output);
 ?>
