@@ -105,6 +105,28 @@ class Form_Question_Type_Select extends Form_Question
 
 
 	/**
+	* Get the HTML label for this form question
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getHtmlLabel()
+	{
+		$required_mark = '';
+		if(!$this->attr('allow_empty_selected')) {
+			$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+			$required_mark = $form->getRequiredFieldMark();
+		}
+		ob_start();
+		label($this->attr('name').$required_mark, 'q'.str_replace(':', '_', $this->id), 'class="sq-form-question-title"');
+		$label = ob_get_contents();
+		ob_end_clean();
+		return $label;
+
+	}//end getHtmlLabel()
+
+
+	/**
 	* returns the options currently in the dropdown list
 	*
 	* @return array
