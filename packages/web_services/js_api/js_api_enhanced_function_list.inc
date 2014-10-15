@@ -257,22 +257,6 @@ class Js_Api_Enhanced_Function_List
 
 		},// end _options
 
-
-		/**
-		* Cleans a URL parameter to replace #,&,?,+ chars into entities
-		*
-		* @param string        value       the value to convert
-		*/
-		_cleanUrlParam: function(value)
-		{
-			if (typeof(value) !== 'undefined' && value !== null && value.constructor === String && value !== '') {
-				return value.replace(/#/g , "%23").replace(/&/g , "%26").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
-			}// end if
-
-			return value;
-
-		},// end _cleanUrlParam
-
 			<?php
 		if ($js_api_asset->attr('batch_requests')) {
 			?>
@@ -651,7 +635,7 @@ class Js_Api_Enhanced_Function_List
 			this._doPost(fnName,[
 				['id',options.asset_id],
 				['attr_name',options.attr_name],
-				['attr_val',this._cleanUrlParam(options.attr_val)]
+				['attr_val',options.attr_val]
 			],options);
 
 		},// end setAttribute
@@ -694,7 +678,7 @@ class Js_Api_Enhanced_Function_List
 			for (var field_name in options.field_info) {
 				if (options.field_info.hasOwnProperty(field_name)){
 					field_names.push(field_name);
-					field_vals.push(this._cleanUrlParam(options.field_info[field_name]));
+					field_vals.push(options.field_info[field_name]);
 				}// end if
 			}// end of
 
@@ -792,7 +776,7 @@ class Js_Api_Enhanced_Function_List
 			this._doPost(fnName,[
 				['id',options.asset_id],
 				['field_id',options.field_id],
-				['field_val',this._cleanUrlParam(options.field_val)]
+				['field_val',options.field_val]
 			],options);
 
 		},// end setMetadata
@@ -842,7 +826,7 @@ class Js_Api_Enhanced_Function_List
 					if (options.field_info[field_id] === null) {
 						options.field_info[field_id] = '__NULL_VALUE__';
 					}
-					field_vals.push(this._cleanUrlParam(options.field_info[field_id]));
+					field_vals.push(options.field_info[field_id]);
 				}// end if
 			}// end of
 
@@ -1156,9 +1140,6 @@ class Js_Api_Enhanced_Function_List
 			        } else if (x === 'parent_id') {
 			            // Re-name this variable
 			            params.push(['id', options[x]]);
-			        } else if ((x === 'asset_name') || (x === 'link_value')) {
-			            // Need to clean these.
-			            params.push([x, this._cleanUrlParam(options[x])]);
 			        } else {
 			            params.push([x, options[x]]);
 			        }
@@ -1167,9 +1148,9 @@ class Js_Api_Enhanced_Function_List
                 var params = [
                     ['id', options.parent_id],
                     ['type_code', options.type_code],
-                    ['asset_name', this._cleanUrlParam(options.asset_name)],
+                    ['asset_name', options.asset_name],
                     ['link_type', options.link_type],
-                    ['link_value',this._cleanUrlParam(options.link_value)],
+                    ['link_value',options.link_value],
                     ['sort_order', options.sort_order],
                     ['is_dependant', options.is_dependant],
                     ['is_exclusive', options.is_exclusive],
@@ -1225,7 +1206,7 @@ class Js_Api_Enhanced_Function_List
 				['type_code', options.type_code],
 				['friendly_name',options.friendly_name],
 				['link_type', options.link_type],
-				['link_value', this._cleanUrlParam(options.link_value)]
+				['link_value', options.link_value]
 			],options);
 
 		},// end createFileAsset
@@ -1525,7 +1506,7 @@ class Js_Api_Enhanced_Function_List
 				['id', options.child_id],
 				['parent_id', options.parent_id],
 				['link_type', options.link_type],
-				['link_value',this._cleanUrlParam(options.link_value)]
+				['link_value',options.link_value]
 			],options);
 
 		},// end removeLink
@@ -1576,7 +1557,7 @@ class Js_Api_Enhanced_Function_List
 					child_ids.push(options.link_info.links[i].child);
 					parent_ids.push(options.link_info.links[i].parent);
 					link_types.push(options.link_info.links[i].link_type);
-					link_values.push(this._cleanUrlParam(options.link_info.links[i].link_value));
+					link_values.push(options.link_info.links[i].link_value);
 				}// end for
 
 				this._doPost(fnName,[
@@ -1647,10 +1628,10 @@ class Js_Api_Enhanced_Function_List
 				['id', options.child_id],
 				['old_parent_id', options.old_parent_id],
 				['old_link_type', options.old_link_type],
-				['old_link_value', this._cleanUrlParam(options.old_link_value)],
+				['old_link_value', options.old_link_value],
 				['new_parent_id',options.new_parent_id],
 				['new_link_type', options.new_link_type],
-				['new_link_value', this._cleanUrlParam(options.new_link_value)],
+				['new_link_value', options.new_link_value],
 				['new_position', options.new_position]
 			],options);
 
@@ -1712,9 +1693,9 @@ class Js_Api_Enhanced_Function_List
 				['id', options.child_id],
 				['parent_id', options.parent_id],
 				['existing_link_type', options.existing_link_type],
-				['existing_link_value', this._cleanUrlParam(options.existing_link_value)],
+				['existing_link_value', options.existing_link_value],
 				['link_type',options.link_type],
-				['link_value', this._cleanUrlParam(options.link_value)],
+				['link_value', options.link_value],
 				['sort_order', options.sort_order],
 				['locked', options.locked]
 			],options);
@@ -1771,9 +1752,9 @@ class Js_Api_Enhanced_Function_List
 						child_ids.push(options.link_info.links[i].child);
 						parent_ids.push(options.link_info.links[i].parent);
 						link_types.push(options.link_info.links[i].link_type);
-						link_values.push(this._cleanUrlParam(options.link_info.links[i].link_value));
+						link_values.push(options.link_info.links[i].link_value);
 						existing_link_types.push(options.link_info.links[i].existing_link_type);
-						existing_link_values.push(this._cleanUrlParam(options.link_info.links[i].existing_link_value));
+						existing_link_values.push(options.link_info.links[i].existing_link_value);
 						sort_orders.push(options.link_info.links[i].sort_order);
 						link_locks.push(options.link_info.links[i].link_lock);
 					}// end for
@@ -1845,7 +1826,7 @@ class Js_Api_Enhanced_Function_List
 					['id', options.child_id],
 					['parent_id', options.parent_id],
 					['link_type',options.link_type],
-					['link_value', this._cleanUrlParam(options.link_value)],
+					['link_value', options.link_value],
 					['all_info',options.all_info]
 				],options);
 
@@ -1994,7 +1975,7 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
-				['workflow_stream', this._cleanUrlParam(options.workflow_stream)],
+				['workflow_stream', options.workflow_stream],
 				['status',options.status],
 				['cascade',options.cascade],
 				['userlog', options.userlog]
@@ -2085,12 +2066,6 @@ class Js_Api_Enhanced_Function_List
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
 
 			options.auto_remap = (convertToBoolean(options.auto_remap)) ? 1 : 0;
-
-			for (var path in options.paths) {
-				if (options.paths[path] !== '') {
-					options.paths[path] = this._cleanUrlParam(options.paths[path]);
-				}// end if
-			}// end for
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
