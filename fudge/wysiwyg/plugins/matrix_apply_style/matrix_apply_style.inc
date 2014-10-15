@@ -274,7 +274,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 					if (selectedHTML == range.text.replace(/^\s+|\s+$/, '')) {
 						// we are within a single element
 						range.text = 'MYOPENSPAN'+range.text+'MYCLOSESPAN';
-					} else if ((parent.innerHTML == selectedHTML) || (parent.outerHTML.replace(/\s/g, '') == selectedHTML.replace(/\s/g, ''))) {
+					} else if ((parent.innerHTML == selectedHTML) || (parent.outerHTML.replace(/\s/g, '').toLowerCase() == selectedHTML.replace(/\s/g, '').toLowerCase())) {
 						// Apply class to parent element directly
 						parent.className = value;
 					} else {
