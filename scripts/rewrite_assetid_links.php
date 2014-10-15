@@ -231,9 +231,9 @@ foreach($results as $row) {
 	// Report major ids that are in 'site to keep' but whose minor id is not
 	if (isset($KEEP_ASSETIDS[$majorid]) && !isset($KEEP_ASSETIDS[$minorid])) {
 		if (isset($DELETE_ASSETIDS[$minorid])) {
-			$REPORT['notice_links'][] = $majorid.','.$minorid.','.$link_value.',Not found';
+			$REPORT['notice_links'][] = $majorid.','.$minorid.','.$link_value.',1';
 		} else {
-			$REPORT['notice_links'][] = $majorid.','.$minorid.','.$link_value.',Linked outside';
+			$REPORT['notice_links'][] = $majorid.','.$minorid.','.$link_value.',0';
 		}
 	}
 }//end foreach
