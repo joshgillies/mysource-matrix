@@ -4396,6 +4396,25 @@ var JS_Asset_Map = new function() {
 			self.moveAsset(AssetActions.Move, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
 		});
 
+		// if user is trying to move a shadow asset (like question or data record set)
+		// under the same parent (like form contents or form section or data source)
+		// disable the move option in the assetmap
+		// NOTE that the option isn't disabled if you are trying to, say, move an LDAP
+		// user underneath the Matrix user group
+		var movingShadow = true
+		for (var i = 0; i < moveTarget.source.length; i++) {
+			var assetidToMove = moveTarget.source[i].getAttribute('data-assetid');
+			var parentid  = String(moveTarget.selection.parentid);
+			if (assetidToMove.indexOf(parentid) !== 0) {
+				movingShadow = false;
+				break;
+			}
+		}
+
+		if (movingShadow === true) {
+			dfx.addClass(menuItem, 'disabled');
+		}
+
 		container.appendChild(menuItem);
 
 		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_link_here'), null);
