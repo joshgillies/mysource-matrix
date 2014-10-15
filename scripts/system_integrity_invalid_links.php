@@ -204,7 +204,7 @@ $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
 
 $sql = 'SELECT count(*)
 		FROM sq_ast a
-		WHERE NOT EXISTS (SELECT linkid FROM sq_ast_lnk WHERE minorid = a.assetid OR majorid = a.assetid);';
+		WHERE NOT EXISTS (SELECT linkid FROM sq_ast_lnk WHERE minorid = a.assetid OR majorid = a.assetid)';
 try {
 	$query = MatrixDAL::preparePdoQuery($sql);
 	$orphans = DAL::executePdoOne($query);

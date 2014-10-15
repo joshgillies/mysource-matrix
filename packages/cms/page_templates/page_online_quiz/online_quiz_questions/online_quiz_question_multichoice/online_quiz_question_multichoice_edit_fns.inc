@@ -118,7 +118,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 									<td>
 										<?php
 										$wysiwyg_prefix = $prefix.'_options_text_wysiwyg_'.$option_key;
-										$wysiwyg = new Asset_Attribute_WYSIWYG();
+										$wysiwyg = new Asset_Attribute_WYSIWYG(0, NULL, Array('default_content' => ''));
 										if (isset($option['text'])) {
 											$wysiwyg->value = $option['text'];
 										}
@@ -171,7 +171,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 					<td>
 						<?php
 						$wysiwyg_prefix = $prefix.'_new_option';
-						$wysiwyg = new Asset_Attribute_WYSIWYG();
+						$wysiwyg = new Asset_Attribute_WYSIWYG(0, NULL, Array('default_content' => ''));
 						$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 						?>
 					</td>
@@ -356,7 +356,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 								<td>
 									<?php
 									$wysiwyg_prefix = $prefix.'_supplement_'.$option_key;
-									$wysiwyg = new Asset_Attribute_WYSIWYG();
+									$wysiwyg = new Asset_Attribute_WYSIWYG(0, NULL, Array('default_content' => ''));
 									if (isset($option['response_supplement'])) {
 										$wysiwyg->value = $option['response_supplement'];
 									}

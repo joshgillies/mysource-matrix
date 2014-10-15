@@ -43,7 +43,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_WYSIWYG($attributeid=0, $value=null)
+	function Asset_Attribute_WYSIWYG($attributeid=0, $value=null, $default_params=Array())
 	{
 		$this->Asset_Attribute_Text($attributeid, $value);
 
@@ -58,6 +58,12 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$this->_edit_params['height']		= $wysiwyg_style['height'].$height_size_unit;
 		$this->_edit_params['tidy_status']	= 'wait';
 		$this->_edit_params['tidy_errors']	= '';
+
+		if (!empty($default_params)) {
+			foreach ($default_params as $edit_param => $param_val) {
+				$this->_edit_params[$edit_param] = $param_val;
+			}
+		}
 
 	}//end constructor
 
@@ -332,6 +338,14 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if(!is_null($o) && $o->isViperAvailable()) {
 			    
 		    $o->enableViperEditor();
+			if (isset($this->_edit_params['default_content'])) {
+				?>
+					<script type="text/javascript">
+						var MatrixViperDefaultTag = "<?php echo $this->_edit_params['default_content'];?>";
+					</script>
+				<?php
+			}
+
 		    // Clean the HTML before passing to the Matrix backend form
 		    $o->addOnSubmit('Matrix_Viper.viper.cleanDOM(document.getElementById("'.$prefix.'_contents_div_viper"));');
 		    // Use a hidden input to pass the Viper edited content to Matrix backend form

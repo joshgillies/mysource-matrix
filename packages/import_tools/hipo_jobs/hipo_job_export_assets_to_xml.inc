@@ -994,13 +994,13 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 					$globals_processed = TRUE;
 				}//end if
 			}//end foreach
-		}
+		}//end if
 
 		// Fix the %response_*% keywords in the email formats of the form
-		// See RM #6198 Export xml not workign correctly with keyword on Emails on Custom Form asset
+		// See RM #6198 Export xml not working correctly with keyword on Emails on Custom Form asset
 		$attributes_allowed = Array('recipient_emails_format', 'receipt_emails_format', 'staf_format', 'public_email_notification_format');
 		if (in_array($attribute_name, $attributes_allowed) && ($asset_type === 'form_email' || $asset_type === 'form_section' || $asset_type === 'form')) {
-			preg_match_all('!(%[a-z_]+)(?P<id>[0-9]+)(_q\d+%)!msi', $value, $matches, PREG_SET_ORDER);
+			preg_match_all('!(%[a-z_]+)(?P<id>[0-9]+)(_q\d+[\^:a-z0-9_]*%)!msi', $value, $matches, PREG_SET_ORDER);
 			foreach($matches as $match) {
 				$id = $match['id'];
 				if (isset($this->_running_vars['asset_id_map'][$id])) {
@@ -1009,7 +1009,22 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 					$globals_processed = TRUE;
 				}//end if
 			}//end foreach
-		}
+		}//end if
+
+		// Fix the %question_*% && %section_*% keywords in the customised content  of the form
+		// See RM #6198 Export xml not working correctly with keyword on Emails on Custom Form asset
+		preg_match_all('!(%[section_|question_|response_]+[a-z_]*)(?P<id>[0-9]+)([_q0-9]*[\^:a-z0-9_]*%)!msi', $value, $matches, PREG_SET_ORDER);
+		if (!empty($matches) && $attribute_name == 'html' && ($asset_type == 'content_type_wysiwyg' || $asset_type == 'content_type_raw_html')) {
+			foreach($matches as $match) {
+				$id = $match['id'];
+				if (isset($this->_running_vars['asset_id_map'][$id])) {
+					$searches[] = $match[0];
+					$replaces[] = $match[1].'[[output://create_'.$this->_running_vars['asset_id_map'][$id].'.assetid]]'.$match[3];
+					$globals_processed = TRUE;
+				}//end if
+			}//end foreach
+		}//end if
+
 
 		if ($globals_processed) {
 			$value = str_replace($searches, $replaces, $value);
