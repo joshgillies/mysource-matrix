@@ -2465,7 +2465,7 @@ class Metadata_Manager extends MySource_Object
 		$value = str_replace('&#44;', ',', $value);
 
 		// escape only html-specific chars for the moment
-		$value = htmlspecialchars($value);
+		$value = htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 		// escape everything else (chars > 126)
 		$result = '';
