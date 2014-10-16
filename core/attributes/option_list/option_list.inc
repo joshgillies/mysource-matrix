@@ -135,7 +135,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				}//end if
 
 				foreach ($value as $k => $v) {
-					$v = htmlspecialchars($v);
+					$v = htmlspecialchars($v, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					?>
 					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button" title="Delete">&nbsp;</button>
 					<?php

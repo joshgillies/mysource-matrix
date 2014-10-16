@@ -319,7 +319,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		} else {
 			// FR #2381 - Colour coding the parse file
-			$str = htmlspecialchars($str);
+			$str = htmlspecialchars($str, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 			$plain_str = $str;
 
 			// Mysource codes
