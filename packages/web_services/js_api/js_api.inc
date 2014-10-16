@@ -244,17 +244,14 @@ class JS_Api extends Page
 
         if ($apache_headers !== FALSE) {
             // Apache SAPI, or FastCGI from PHP5.4+
-            $auth_string = array_get_index($apache_headers, 'Authorization', '');
-        } else if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER) === TRUE) {
+            $auth_string = array_get_index($apache_headers, 'X-SquizMatrix-JSAPI-Key', '');
+        } else if (array_key_exists('HTTP_X_SQUIZMATRIX_JSAPI_KEY', $_SERVER) === TRUE) {
             // Old method of getting from FastCGI.
-            $auth_string = array_get_index($_SERVER, 'HTTP_AUTHORIZATION', '');
+            $auth_string = array_get_index($_SERVER, 'HTTP_X_SQUIZMATRIX_JSAPI_KEY', '');
         }
 
         if ($auth_string !== '') {
-            $found = preg_match('/^Matrix-JSAPI key=(\d+|"\d+")$/', $auth_string, $matches);
-            if ($found > 0) {
-                $api_key = trim($matches[1], '"');
-            }
+            $api_key = trim($auth_string);
         }//end if
 
         if (($api_key === '') && (array_key_exists('key', $_REQUEST) === TRUE)) {
