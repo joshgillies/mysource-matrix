@@ -660,7 +660,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function paintDownloadButton(&$asset, &$o, $prefix)
 	{
 		// If the 'Download File' button was pressed, do the processing
-		if (isset($_POST[$prefix.'_export_switch']) && $_POST[$prefix.'_export_switch'] == '1') {
+		if (isset($_POST[$prefix.'_export_switch']) && $_POST[$prefix.'_export_switch'] == '1' && isset($_POST[$prefix.'_export_format']) && !empty($_POST[$prefix.'_export_format'])) {
+
+			// Clean up any output in buffer till this point so that it does not make it to the export file
+			if (ob_get_level()) {
+				ob_end_clean();
+			}
 
 			$export_type = array_get_index($_POST, $prefix.'_export_format', '');
 			$export_delimiter = array_get_index($_POST, $prefix.'_delimiter', '');
