@@ -142,7 +142,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				}	
 			echo '</span>';
 			// ensure JS is not executed in read only mode
-			echo htmlspecialchars($value);
+			echo htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
 
 		// now print value components
