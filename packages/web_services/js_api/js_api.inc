@@ -5026,6 +5026,7 @@ class JS_Api extends Page
 		$retval = Array();
 
 		// User preferences
+		$retval['version']     = SQ_SYSTEM_VERSION;
 		$retval['preferences'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs();
 
 		// Maintenance mode.
