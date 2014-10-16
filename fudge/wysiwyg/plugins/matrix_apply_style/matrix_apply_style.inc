@@ -103,7 +103,6 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 			}
 		}
 
-		$this->_add_button('formatblock','','','','');
 		if (!empty($this->_css_classes)) $this->_add_button('applystyle','','','','');
 
 	}//end constructor
@@ -131,17 +130,6 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		?>
 		};
 
-		this.config.formatblock = {
-			"Heading 1": "h1",
-			"Heading 2": "h2",
-			"Heading 3": "h3",
-			"Heading 4": "h4",
-			"Heading 5": "h5",
-			"Heading 6": "h6",
-			"Normal"   : "p",
-			"Address"  : "address",
-			"Formatted": "pre"
-		};
 		<?php
 
 	}//end print_plugin_vars()
@@ -157,7 +145,6 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 	{
 		?>
 		case "applystyle":
-		case "formatblock":
 			options = editor.config[txt];
 			cmd = txt;
 		break;
@@ -196,30 +183,6 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 			}
 		break;
 
-		case "formatblock":
-			if (!text) {
-				if (!doc) break;
-				var value = '';
-				try {
-					var value = ("" + doc.queryCommandValue(cmd)).toLowerCase();
-				} catch (e) {}
-				if (!value) {
-					break;
-				}
-				btn.element.selectedIndex = 0;
-				var options = this.config["formatblock"]; // HACK!!
-				var k = 0;
-				for (var j in options) {
-					// FIXME: the following line is scary.
-					if ((j.toLowerCase() == value) ||
-						(options[j].substr(0, value.length).toLowerCase() == value)) {
-						btn.element.selectedIndex = k;
-						break;
-					}
-					++k;
-				}
-			}
-		break;
 		<?php
 
 	}//end print_plugin_update_toolbar()
@@ -446,13 +409,6 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 
 				alert('Styles cannot be applied to the current selection.  Try applying styles to smaller subsections individually');
 			}
-		break;
-
-		case "formatblock":
-			if (HTMLArea.is_ie || HTMLArea.is_post_ie11) { // sad but true
-				value = "<" + value + ">";
-			}
-			this._execCommand(txt, false, value);
 		break;
 		<?php
 
