@@ -69,6 +69,7 @@ class Image_Variety extends Asset
 		// use image's alt attribute
 		if(!isset($data['alt'])) {
 		    $data['alt'] = $image->attr('alt');
+			$this->vars['alt']['value'] = $data['alt'];
 		}
 
 		// if there is no varietyid then we haven't been created yet, so don't do anymore
