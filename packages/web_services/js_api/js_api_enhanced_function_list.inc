@@ -216,7 +216,7 @@ class Js_Api_Enhanced_Function_List
 			};// end onreadstatechange
 
 			http.setRequestHeader("Content-type", options.contentType);
-			http.setRequestHeader("Authorization", 'Matrix-JSAPI key="' + self.key + '"');
+			http.setRequestHeader("X-SquizMatrix-JSAPI-Key", self.key);
 
 			// Send the request
 			http.send(data(options.params));
