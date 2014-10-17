@@ -3539,6 +3539,7 @@ class JS_Api extends Page
 					'status_changed_userid'		=>	($status_user === 'Never Changed' || $status_user === 'Unknown User') ? $status_user : $status_user->id,
 					'status_changed_username'	=>	($status_user === 'Never Changed' || $status_user === 'Unknown User') ? $status_user : $status_user->name,
 					'maximum_perm_on_asset'		=>	$effective_permission,
+					'can_live_edit'				=>  $asset->canLiveEdit(),
 				);
 
 		foreach($am->getAssetTypeAttributes($asset->type()) as $name => $type) {
