@@ -132,24 +132,23 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	{
 		$this->Prefs($pref_file);
 
+		// List of Viper plugins and names. This does not include the core
+		// plugins (Keyboard Editor, Toolbar, Inline Toolbar and Cursor
+		// Assist) which will be included if any of the others are.
 		$this->_viper_plugins = Array(
             'ViperAccessibilityPlugin'	=> translate('Accessibility'),
             'ViperLangToolsPlugin'		=> translate('Choose Language'),
-            'ViperCursorAssistPlugin'	=> translate('Cursor Assist'),
             'ViperCoreStylesPlugin'		=> translate('Core Styles'),
             'ViperFormatPlugin'			=> translate('Formatting'),
             'ViperHistoryPlugin'		=> translate('History'),
-            'ViperInlineToolbarPlugin'	=> translate('Inline Toolbar'),
             'MatrixImagePlugin'			=> translate('Insert Image'),
             'MatrixLinkPlugin'			=> translate('Insert Link'),
-            'ViperKeyboardEditorPlugin'	=> translate('Keyboard Editor'),
             'MatrixKeywordsPlugin'		=> translate('Keywords <i>(Asset-based & snippets)</i>'),
             'ViperListPlugin'			=> translate('Listing'),
             'MatrixCopyPastePlugin'		=> translate('Matrix Editing Tools <i>(specific to editing Matrix-based URLs)</i>'),
             'ViperSearchReplacePlugin'	=> translate('Search and Replace'),
             'ViperCharMapPlugin'		=> translate('Special Characters'),
             'ViperTableEditorPlugin'	=> translate('Table Editing'),
-            'ViperToolbarPlugin'		=> translate('Main (Top) Toolbar'),
             'ViperSourceViewPlugin'		=> translate('View Source'),
             'ViperCopyPastePlugin'		=> translate('Editing Tools <i>(Copy, Paste, etc.)</i>'),
           );
