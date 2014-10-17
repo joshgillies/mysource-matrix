@@ -121,24 +121,23 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	// list of the plugins available to us. For further details for this
 	// please see RM issue #5323 Add global preferences for Edit+ WYSIWYG
 	// plugin options (https://squizmap.squiz.net/matrix/5323)
+	// Note this doesn't include the Core plugins that are included if
+	// any of the other ones are: Toolbar, Inline Toolbar, Keyboard Editor,
+	// and Cursor Assist.
 	var $_viper_plugins = Array(
 							'ViperAccessibilityPlugin'	=> 'accessibility_viper',
 							'ViperLangToolsPlugin'		=> 'choose_lang_tool_viper',
-							'ViperCursorAssistPlugin'	=> 'cursor_assist_viper',
 							'ViperCoreStylesPlugin'		=> 'format_core_style_viper',
 							'ViperFormatPlugin'			=> 'format_viper',
 							'ViperHistoryPlugin'		=> 'history_viper',
-							'ViperInlineToolbarPlugin'	=> 'inline_toolbar_viper',
 							'MatrixImagePlugin'			=> 'insert_image_viper_matrix',
 							'MatrixLinkPlugin'			=> 'insert_link_viper_matrix',
-							'ViperKeyboardEditorPlugin'	=> 'keyboard_editor_viper',
 							'MatrixKeywordsPlugin'		=> 'keyword_plugin_viper_matrix',
 							'ViperListPlugin'			=> 'list_viper',
 							'MatrixCopyPastePlugin'		=> 'matrix_edit_copy_paste',
 							'ViperSearchReplacePlugin'	=> 'search_and_replace_viper',
 							'ViperCharMapPlugin'		=> 'special_char_map_viper',
 							'ViperTableEditorPlugin'	=> 'table_editor_viper',
-							'ViperToolbarPlugin'		=> 'toolbar_viper',
 							'ViperSourceViewPlugin'		=> 'view_source_viper',
 							'ViperCopyPastePlugin'		=> 'viper_edit_copy_paste',
 						  );
