@@ -71,6 +71,13 @@ if (!$report_mode) {
 	}
 }
 
+// Be the root user
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+	exit(1);
+}
+
 // All the assetids belonging to the site(s) to be kept
 // These are the assets we will looking to the rewrite the "./?a=xxx" links
 $KEEP_ASSETIDS = Array();
@@ -243,6 +250,7 @@ if (!$report_mode) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction(empty($ERRORS) ? 'COMMIT' : 'ROLLBACK');
 }
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
 if (!empty($ERRORS)) {
 	echo "Following error(s) occured when running the script:\n".implode("\n", $ERRORS)."\n";
@@ -259,9 +267,9 @@ echo "\nTotal asset id links not matched to the rewrite URL(s): ".count($REPORT[
 echo "\nTotal asset id links that does not belongs to both 'delete' and 'keep' sites: ".count($REPORT['dead']).'*';
 echo "\nTotal assets notice linked outside the site(s) to keep: ".count($REPORT['notice_links']).'*';
 if ((count($REPORT['no-match'])+count($REPORT['dead'])+count($REPORT['notice_links'])) > 0) {
-	echo "\nManual review of (*) items required. Please check 'data/private/logs/rewrite_assetid_links_new.php.log' file for the full report.";
+	echo "\nManual review of (*) items required. Please check 'data/private/logs/".basename(__FILE__).'.log'."' file for the full report.";
 } else {
-	echo "\nPlease check 'data/private/logs/rewrite_assetid_links_new.php.log' file for the full report";
+	echo "\nPlease check 'data/private/logs/".basename(__FILE__).'.log'."' file for the full report";
 }
 echo "\n";
 
@@ -467,7 +475,7 @@ function _valid_site_url(&$value)
 
 	$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
-	$sql = 'SELECT url FROM sq_ast_url WHERE ';
+	$sql = 'SELECT url, http, https FROM sq_ast_url WHERE ';
 	$bind_vars = Array();
 	$protocol = Array();
 	$valid_urls = Array();
@@ -495,8 +503,14 @@ function _valid_site_url(&$value)
 	$result = MatrixDAL::executePdoAssoc($query);
 
 	foreach($result as $row) {
-		$valid_urls[] = $protocol[$row['url']].'://'.$row['url'];
-	}
+		if ($row['http']) {
+			$valid_urls[] = 'http://'.$row['url'];
+		}//end if
+		if ($row['https']) {
+			$valid_urls[] = 'https://'.$row['url'];
+		}//end if
+	}//end forach protocols
+
 	$invalid_sites = array_diff($urls, $valid_urls);
 	if ($invalid_sites) {
 		echo "ERROR: Following urls does not belongs to any site:\n".implode("\n", $invalid_sites)."\n";
