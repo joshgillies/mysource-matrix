@@ -228,11 +228,11 @@ require_once dirname(__FILE__).'/../../../core/include/init.inc';
 require SQ_SYSTEM_ROOT . '/data/private/conf/db.inc';
 
 $dsn_list = array(
-	'db'       => 'SELECT count(msgid) FROM sq_internal_msg', //sq_internal_msg is a replicated target and commonly updated
+	'db'       => 'SELECT min(assetid) FROM sq_ast', //sq_ast is a replicated target and commonly updated
 	'db2'      => 'UPDATE sq_ast SET updated = NOW() WHERE type_code = \'root_user\'', //check write perms for main DSN
 	'db3'      => 'UPDATE sq_ast SET updated = NOW() WHERE type_code = \'root_user\'', //check write perms for secondary DSN
-	'dbcache'  => 'SELECT count(assetid) FROM sq_cache', //check cache size and accessibility
-	'dbsearch' => 'SELECT count(assetid) FROM sq_sch_idx'
+	'dbcache'  => 'SELECT min(cache_key) FROM sq_cache', //check cache accessibility
+	'dbsearch' => 'SELECT min(contextid) FROM sq_sch_idx'
 );
 
 $db_type = isset($db_conf['db'][0]) ? $db_conf['db'][0]['type'] : $db_conf['db']['type'];
@@ -322,7 +322,40 @@ foreach ($dsn_list as $dsn_name => $query) {
 		if (strtolower(substr($query, 0, 6)) === 'select') {
 			$res = MatrixDAL::executePdoOne($qry);
 		} else {
-			$res = MatrixDAL::execPdoQuery($qry);
+			// Only execute read-write queries if the database is not a replication slave (either Slony or PostgreSQL 9.0+)
+			$db_is_slave = FALSE;
+			if ($db_type == 'pgsql') {
+				$slon_schema_query = 'SELECT REGEXP_REPLACE(trigger_name, \'(_logtrigger|_denyaccess)(_[0-9]+)?\', \'\') FROM information_schema.triggers WHERE (trigger_name LIKE \'%_logtrigger%\' OR trigger_name LIKE \'%_denyaccess%\') limit 1';
+				// {SLON_SCHEMA} is replaced after the schema name is worked out.
+				$slon_schema_slave_query = 'SELECT DISTINCT(set_origin) FROM {SLON_SCHEMA}.sl_set WHERE set_origin = (SELECT last_value FROM {SLON_SCHEMA}.sl_local_node_id)';
+				$slon_qry = MatrixDAL::preparePdoQuery($slon_schema_query);
+				$slon_schema = MatrixDAL::executePdoOne($slon_qry);
+				if (!empty($slon_schema)) {
+					// Find any Slony replication sets for which this node is the origin.
+					$slon_slave_qry = MatrixDAL::preparePdoQuery(str_replace('{SLON_SCHEMA}', $slon_schema, $slon_schema_slave_query));
+					$slon_slave_res = MatrixDAL::executePdoOne($slon_slave_qry);
+					// If this node is not the origin of any replication sets then we consider it a slave.
+					if (empty($slon_slave_res)) {
+						$db_is_slave = TRUE;
+					}
+				}
+				$pg_version_query = 'SELECT version FROM version()';
+				$pg_vrs_qry = MatrixDAL::preparePdoQuery($pg_version_query);
+				$pg_vrs_res = MatrixDAL::executePdoOne($pg_vrs_qry);
+				$pg_vrs_matches = Array();
+				preg_match('/[0-9\.]+/', $pg_vrs_res, $pg_vrs_matches);
+				if (version_compare($pg_vrs_matches[0], '9.0.0') >= 0) {
+					$pg9_replication_slave_query = 'SELECT pg_is_in_recovery()';
+					$pg9_qry = MatrixDAL::preparePdoQuery($pg9_replication_slave_query);
+					$pg9_is_slave = MatrixDAL::executePdoOne($pg9_qry);
+					if ($pg9_is_slave) {
+						$db_is_slave = TRUE;
+					}
+				}
+			}
+			if (!$db_is_slave) {
+				$res = MatrixDAL::execPdoQuery($qry);
+			}
 		}
 	} catch (Exception $e) {
 		$res = '-1';
@@ -363,7 +396,7 @@ foreach ($dsn_list as $dsn_name => $query) {
 
 if ($db_type == 'pgsql') {
 	// fairly broad brush used here, we know that slon uses '<schema_name>_(logtrigger|denyaccess)_[0-9]', so we'll use that to sniff for slon and it's schema name. denyaccess indicates slave.
-	$slon_schema_query = 'SELECT REGEXP_REPLACE(trigger_name, \'(_logtrigger_|_denyaccess_)[0-9]+\', \'\') FROM information_schema.triggers WHERE (trigger_name LIKE \'%_logtrigger_%\' OR trigger_name LIKE \'%_denyaccess_%\') limit 1';
+	$slon_schema_query = 'SELECT REGEXP_REPLACE(trigger_name, \'(_logtrigger|_denyaccess)(_[0-9]+)?\', \'\') FROM information_schema.triggers WHERE (trigger_name LIKE \'%_logtrigger%\' OR trigger_name LIKE \'%_denyaccess%\') limit 1';
 
 	// {SLON_SCHEMA} is replaced after the schema name is worked out.
 	$slon_schema_lag_query = 'SELECT cast(extract(epoch from st_lag_time) as int8) FROM {SLON_SCHEMA}.sl_status WHERE st_origin = (SELECT last_value FROM {SLON_SCHEMA}.sl_local_node_id)';
