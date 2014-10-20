@@ -278,6 +278,17 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 				// if all the plugins are enabled then we need not worry about anything
 				if (in_array('all', $viper_plugins) !== TRUE) {
+					if (count($viper_plugins) > 0) {
+						// If we have at least one plugin selected, add the four "core
+						// plugins" to the list.
+						$core_plugins = Array(
+							'ViperKeyboardEditorPlugin',
+							'ViperToolbarPlugin',
+							'ViperInlineToolbarPlugin',
+							'ViperCursorAssistPlugin',
+						);
+						$viper_plugins = array_merge($core_plugins, $viper_plugins);
+					}
 					$string_for_js = "['".implode("', '", $viper_plugins)."']";
 					?>
 						<script type="text/javascript"><!--
