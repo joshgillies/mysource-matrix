@@ -721,7 +721,11 @@ var JS_Asset_Map = new function() {
 
 				var parentType = typeinfo['_attributes']['parent_type'];
 				assetTypeCache[typecode] = typeinfo['_attributes'];
-				assetTypeCache[typecode]['allowed_links'] = JSON.parse(assetTypeCache[typecode]['allowed_links']);
+				if (assetTypeCache[typecode]['allowed_links']) {
+					assetTypeCache[typecode]['allowed_links'] = JSON.parse(assetTypeCache[typecode]['allowed_links']);
+				} else {
+					assetTypeCache[typecode]['allowed_links'] = {};
+				}
 				assetTypeCache[typecode]['screens'] = {};
 
 				if (parentType !== 'asset') {
