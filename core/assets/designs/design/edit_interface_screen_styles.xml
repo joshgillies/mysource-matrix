@@ -24,7 +24,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="DIV container classes definitions" write_access="write:all" read_access="write:">
+	<section name="Content container classes definitions" write_access="write:all" read_access="write:">
 		<field>
 			<function_call>
 				<paint_function   name="paintDivClasses"   />
