@@ -316,7 +316,7 @@ class Internal_Message extends MySource_Object
 				MatrixDAL::bindValueToPdo($query, 'userto',     0,               PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'userfrom',   $this->from,     PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'subject',    $subject,        PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'body',       $body,			 PDO::PARAM_LOB);
+				MatrixDAL::bindValueToPdo($query, 'body',       $log_body,		 PDO::PARAM_LOB);
 				MatrixDAL::bindValueToPdo($query, 'type',       $this->type,     PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'priority',   $this->priority, PDO::PARAM_INT);
 				MatrixDAL::bindValueToPdo($query, 'status',     $this->status,   PDO::PARAM_STR);
