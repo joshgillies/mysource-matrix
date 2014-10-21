@@ -305,10 +305,13 @@ class Internal_Message extends MySource_Object
 			if (empty($log_body)) {
 				$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
 			} else {
+				minibam($log_body);
+				minibam($this->replacements);
 				$log_body = replace_keywords($log_body, $this->replacements);
+				minibam($log_body);
 			}
 
-			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
+			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $log_body);
 			
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
