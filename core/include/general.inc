@@ -1489,11 +1489,29 @@ function hide_system_root($message='')
 */
 function translate($string)
 {
-	$args = array_slice(func_get_args(),1);
 	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
-	return $GLOBALS['SQ_SYSTEM']->lm->getString($string, $args);
+	return $GLOBALS['SQ_SYSTEM']->lm->getString($string);
 
 }//end translate()
+
+
+/**
+* Provides a 'shorthand' interface to the Locale Manager's getPlural() method
+* for the current locale
+*
+* @param string	$string	    The default singular version of the string.
+* @param string $plural_str The default plural version.
+* @param string $number     The number that determines plurality.
+*
+* @return string
+* @access public
+*/
+function translate_plural($string, $plural_str, $number)
+{
+	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
+	return $GLOBALS['SQ_SYSTEM']->lm->getPlural($string, $plural_str, $number);
+
+}//end translate_plural()
 
 
 /**

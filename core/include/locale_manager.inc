@@ -341,6 +341,62 @@ class Locale_Manager extends MySource_Object
 
 
 	/**
+	 * Get a plural string.
+	 *
+	 * This is the equivalent of ngettext() in the GNU Gettext system.
+	 * In a locale there will be a header determining how many plurals there
+	 * are and which plural is selected for which number.
+	 * This can be important for languages where there may not be two number
+	 * forms (some have one form for all, some may have three or more).
+	 *
+	 * If no locale is loaded, it will be treated as an English two number
+	 * form, with $string being used if $number is 1, and $plural_str
+	 * if $number is not 1. If $number is negative, the absolute is used.
+	 *
+	 * The intention is to be able to pass NULL as the $number, to represent
+	 * positive infinity. Use this where an editable number is being presented as
+	 * the replacement instead of a number.
+	 *
+     * @param string $string     The singular string.
+     * @param string $plural_str The default plural string.
+     * @param string $number     The number that determines plurality.
+     *
+     * @return string
+	 */
+	public function getPlural($string, $plural_str, $number)
+	{
+		$locale = $this->getCurrentLocale();
+		$retval = NULL;
+        if (isset($this->_strings[$locale])) {
+            // TODO: Hook into not-yet-built plurality functions.
+            $str_form = ($number === 1) ? 0 : 1;
+            $string   = array_get_index($this->_strings[$locale], $string);
+
+            if (is_array($string) === TRUE) {
+            	// We have an array. Give them the correct string form.
+            	// If it doesn't exist then default to the singular.
+            	$retval = array_get_index($string, $str_form, $string[0]);
+        	} else if ($string !== NULL) {
+        		// We don't have an array, but we do have a string.
+        		$retval = $string;
+        	}
+        }
+
+        // No strings for this locale. Revert to single and plural dichotomy.
+        if ($retval === NULL) {
+        	if (($number !== NULL) && (abs($number) === 1)) {
+            	$retval = $string;
+        	} else {
+        		$retval = $plural_str;
+        	}
+        }
+
+        return $retval;
+
+	}//end getPlural()
+
+
+	/**
 	* Includes the compiled strings for a specified asset, if they haven't already
 	*
 	* @param string	$type_code	the type code to include strings for

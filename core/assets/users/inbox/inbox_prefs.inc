@@ -68,7 +68,12 @@ class Inbox_Prefs extends Prefs
 	    $have_lock = $have_lock && $is_admin;
 
 	    // Messages per page.
-		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_INBOX_MAIL_PER_PAGE', 5, translate('%s message(s)'), 0);
+	    $plural_string = translate_plural(
+	    	'%s message',
+	    	'%s messages',
+	    	$have_lock ? NULL : $this->pref_vars['SQ_INBOX_MAIL_PER_PAGE']['default']
+	    );
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_INBOX_MAIL_PER_PAGE', 5, $plural_string, 0);
 
 		return TRUE;
 

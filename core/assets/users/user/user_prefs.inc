@@ -418,7 +418,13 @@ class User_Prefs extends Prefs
 		$this->paintComboField($o, $have_lock, $pref, 'SQ_USER_SAFE_TYPE3_TRASH', $options);
 
 	    // Asset map width.
-		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_USER_ASSET_MAP_WIDTH', 10, translate('%s pixel(s)'), 0);
+        // Messages per page.
+        $plural_string = translate_plural(
+            '%s pixel',
+            '%s pixels',
+            $have_lock ? NULL : $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default']
+        );
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_USER_ASSET_MAP_WIDTH', 10, $plural_string, 0);
 
 		// Commit button anchor options.
         $options = Array(

@@ -406,18 +406,26 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	function paintCloneOptions(&$step_data, &$o, $prefix)
 	{
 		$to_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
-
+		$assets    = $this->_running_vars['assets'];
+				
 		$o->openSection(translate('Cloning Confirmation'));
 
 			$o->openField(translate('Confirm'));
 
 				$o->addHiddenField('form_submitted', 1);
 				?>
-				<p><?php echo sprintf(translate('Please confirm that you are cloning the following asset(s) to under "%s":'), htmlentities($to_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
+				<p><?php
+					echo sprintf(
+						translate_plural(
+							'Please confirm that you are cloning the following asset to under "%s":',
+							'Please confirm that you are cloning the following assets to under "%s":',
+							count($assets)
+						),
+						htmlentities($to_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)
+					); ?></p>
 
 				<ul>
 					<?php
-					$assets = $this->_running_vars['assets'];
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 						?><li><strong>"<?php echo htmlentities($asset_info[$assetid]['short_name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong></li><?php
