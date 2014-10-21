@@ -333,7 +333,7 @@ class Form_Action_DB_Query extends Form_Action
 		// We will also replace keywords relating to the form submission asset
 		// (eg. submission assetid, time, IP address)
 		$matches = Array();
-		$found = preg_match_all('/%(response_(\\d+_)?q\\d+(_raw)?)%/U', $sql, $set_matches, PREG_SET_ORDER);
+		$found = preg_match_all('/%(response_(\\d+_)?q\\d+[\^:_a-z0-9]*(_raw)?)%/U', $sql, $set_matches, PREG_SET_ORDER);
 		$matches = array_merge($matches, $set_matches);
 		$found = preg_match_all('/%(form_submission_.*)%/U', $sql, $set_matches, PREG_SET_ORDER);
 		$matches = array_merge($matches, $set_matches);
@@ -344,9 +344,12 @@ class Form_Action_DB_Query extends Form_Action
 			if (empty($match)) continue;
 			$count = 0;
 			do {
-				$sql = preg_replace('/%'.$match[1].'%/U', ':response_'.$i, $sql, 1, $count);
+				$keyword_in_sql = str_replace('^', '\^', $match[1]);
+				$sql = preg_replace('/%'.$keyword_in_sql.'%/U', ':response_'.$i, $sql, 1, $count);
+				$keyword = parse_keyword($match[1], $modifiers);
 				if ($count > 0) {
-					$bind_vars['response_'.$i] = html_entity_decode($form->_getThankYouKeywordReplacement($match[1]));
+					$bind_vars['response_'.$i] = html_entity_decode($form->_getThankYouKeywordReplacement($keyword));
+					if (!empty($modifiers)) apply_keyword_modifiers($bind_vars['response_'.$i], $modifiers);
 					$i++;
 				}
 			} while ($count > 0);
