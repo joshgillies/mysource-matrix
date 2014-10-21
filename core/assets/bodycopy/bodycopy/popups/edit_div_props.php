@@ -50,6 +50,10 @@ include(dirname(__FILE__).'/header.php');
 			var checked = 0;
 			var i = 1;
 			for (var key in css_class_list) {
+				if(!css_class_list.hasOwnProperty(key)) {
+					continue;
+				}
+				
 				f.css_class_list.options[i] = new Option(css_class_list[key], key);
 				if (key == f.css_class.value) {
 					f.css_class_list.value = f.css_class.value;
