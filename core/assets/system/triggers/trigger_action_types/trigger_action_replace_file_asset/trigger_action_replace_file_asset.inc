@@ -55,7 +55,7 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 		// check required settings
 		if (empty($settings['file_path'])) return FALSE;
 		if (!is_readable($settings['file_path'])) {
-			trigger_localised_error('CORE0276', E_USER_WARNING, htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			trigger_localised_error('CORE0276', sprintf(translate('File %s does not exist or is not readable'), htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -112,9 +112,11 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 				echo '<b>"'.$file_path.'"</b>';
 			}
 		$value = ob_get_clean();
-		$res = '<div class="sq-break-line-inputs">'.translate('trigger_replace_file', $value).'</div>';
+		$res = '<div class="sq-break-line-inputs">'.sprintf(translate('Replace the file asset\'s contents with the file stored on the server at %s'), $value).'</div>';
+
 		if ($write_access) {
-			$res .= '<p>'.translate('trigger_replace_file_type_warning').'</p>';
+			$res .= '<p>'.translate('<strong>Note:</strong> This trigger action will fail if the broadcasting asset is not a file asset or descendant thereof.').'</p>';
+
 		}
 		return $res;
 

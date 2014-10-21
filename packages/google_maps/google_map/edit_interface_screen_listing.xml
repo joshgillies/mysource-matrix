@@ -1,123 +1,178 @@
+
 <contents>
-	<section name="Asset Selection" write_access="write:content"  limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetTypes"   />
-				<process_function name="processAssetTypes" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStatus" />
-				<process_function name="processStatus" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintPermissions"   />
-				<process_function name="processPermissions" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetExclusion"   />
-				<process_function name="processAssetExclusion" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Asset Locations" write_access="write:content"  limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintRootNode"  />
-				<process_function name="processRootNode" />
-			</function_call>
-		</field>
-		<field attribute="all_root_nodes">
-			<boolean true_text="cms_listing_all_root_nodes_yes" false_text="cms_listing_all_root_nodes_no" />
-		</field>
-		<field attribute="subs_only">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="direction">
-			<selection style="list" />
-		</field>
-		<field attribute="min_depth">
-			<int width="5" />
-		</field>
-		<field attribute="max_depth">
-			<int width="5" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintLinkTypes" />
-				<process_function name="processLinkTypes" />
-			</function_call>
-		</field>
-		<field attribute="link_value_filter">
-			<text width="50" height="1" />
-		</field>
-		<field attribute="link_value_filter_enabled">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="List Formatting" write_access="write:content"  limbo_access="1">
-		<field attribute="group_by">
-			<selection style="list" />
-		</field>
-		<field attribute="num_per_page">
-			<text width="30" />
-		</field>
-		<field attribute="prev_page_text">
-			<text width="30" />
-		</field>
-		<field attribute="next_page_text">
-			<text width="30" />
-		</field>
-		<field attribute="other_page_text" show_if="isAZListing">
-			<text width="30" />
-		</field>
-	</section>
-	<section name="Customise Bodycopies" write_access="write:links"  limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintUseNoResultsBodycopy"   />
-				<process_function name="processUseNoResultsBodycopy" />
-			</function_call>
-		</field>
-	</section>
-	<section name="List Position Settings" write_access="write:attributes" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetPositions"   />
-				<process_function name="processAssetPositions" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Dynamic Parameters" write_access="write:attributes" limbo_access="1">
-		<field attribute="parameter_map" format="new_line">
-			<parameter_map />
-		</field>
-		<field attribute="dynamic_root_option">
-			<selection style="list" />
-		</field>
-		<field attribute="dynamic_asset_selection_option">
-			<selection style="list" />
-		</field>		
-	</section>
-	<section name="Structured Root Selector Options" write_access="write:attributes" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredDropdownOptions"   />
-				<process_function name="processStructuredDropdownOptions" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Button Text" write_access="write:attributes" limbo_access="1">
-		<field attribute="submit_button_text">
-			<text width="25" height="1" />
-		</field>
-		<field attribute="reset_button_text">
-			<text width="25" height="1" />
-		</field>
-	</section>
+    <section name="Asset Selection" write_access="write:content" limbo_access="1">
+        <field>
+            <display_name>Asset Types to List</display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintAssetTypes" />
+                <process_function name="processAssetTypes" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Asset Statuses to List</display_name>
+            <note>If selected, only assets in the statuses chosen will be listed. If no statuses are selected, assets to which the current user has effective read permission will be listed.</note>
+            <function_call>
+                <paint_function name="paintStatus" />
+                <process_function name="processStatus" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Asset Access to List</display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintPermissions" />
+                <process_function name="processPermissions" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Exclude Assets</display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintAssetExclusion" />
+                <process_function name="processAssetExclusion" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Asset Locations" write_access="write:content" limbo_access="1">
+        <field>
+            <display_name>Root Nodes</display_name>
+            <note>Leave blank to list the sub assets/children of this asset listing page</note>
+            <function_call>
+                <paint_function name="paintRootNode" />
+                <process_function name="processRootNode" />
+            </function_call>
+        </field>
+        <field attribute="all_root_nodes">
+            <display_name>Root Node Logic</display_name>
+            <note>Defines how assets are managed when there is more than one root node displayed (either selected above, or through a replacement root node setting). If there is only one root node selected, then this option has no effect.</note>
+            <boolean true_text="cms_listing_all_root_nodes_yes" false_text="cms_listing_all_root_nodes_no" />
+        </field>
+        <field attribute="subs_only">
+            <display_name>Direct Links Only</display_name>
+            <note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="direction">
+            <display_name>Lookup Direction</display_name>
+            <note>Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below.</note>
+            <selection style="list" />
+        </field>
+        <field attribute="min_depth">
+            <display_name>Minimum Depth/Height</display_name>
+            <note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'.</note>
+            <int width="5" />
+        </field>
+        <field attribute="max_depth">
+            <display_name>Maximum Depth/Height</display_name>
+            <note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'.</note>
+            <int width="5" />
+        </field>
+        <field>
+            <display_name>Link Types</display_name>
+            <note>This setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned on.  Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links.</note>
+            <function_call>
+                <paint_function name="paintLinkTypes" />
+                <process_function name="processLinkTypes" />
+            </function_call>
+        </field>
+        <field attribute="link_value_filter">
+            <display_name>Link Value</display_name>
+            <note>The value provided in that field will be used to filter the assets returned. You will need to enable 'Link Value Filtering'.</note>
+            <text width="50" height="1" />
+        </field>
+        <field attribute="link_value_filter_enabled">
+            <display_name>Enable Link Value Filtering</display_name>
+            <note>If set to 'Yes' and lookup direction is set to 'down the tree', only assets with the link value equal to the 'Link Value' field will be returned. If set to 'Yes' and the lookup direction is set as 'up the tree', only parents of children assets with the link value equal to the 'Link Value' field will be returned.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="List Formatting" write_access="write:content" limbo_access="1">
+        <field attribute="group_by">
+            <display_name>List Format</display_name>
+            <note>A standard list displays all assets on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
+			</note>
+            <selection style="list" />
+        </field>
+        <field attribute="num_per_page">
+            <display_name>Assets Per Page</display_name>
+            <note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard or custom grouping list formats..&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).&lt;br /&gt;Keywords can be used to dynamically set the number of items on the page.</note>
+            <text width="30" />
+        </field>
+        <field attribute="prev_page_text">
+            <display_name>Previous Link</display_name>
+            <note>This is the text that will be printed to link to the previous results page</note>
+            <text width="30" />
+        </field>
+        <field attribute="next_page_text">
+            <display_name>Next Link</display_name>
+            <note>This is the text that will be printed to link to the next results page</note>
+            <text width="30" />
+        </field>
+        <field attribute="other_page_text" show_if="isAZListing">
+            <display_name>Non A-Z page text</display_name>
+            <note>Link text to a page containg assets in the A-Z list format which do not begin with A-Z, i.e. numbers or other characters</note>
+            <text width="30" />
+        </field>
+    </section>
+    <section name="Customise Bodycopies" write_access="write:links" limbo_access="1">
+        <field>
+            <display_name>Customise No Results Bodycopy?</display_name>
+            <note>If this is set to Yes, an additional &quot;Page Contents (No Results)&quot; bodycopy will appear, allowing you to specify different contents when there are no assets to list. Note that this is turned on by default.</note>
+            <function_call>
+                <paint_function name="paintUseNoResultsBodycopy" />
+                <process_function name="processUseNoResultsBodycopy" />
+            </function_call>
+        </field>
+    </section>
+    <section name="List Position Settings" write_access="write:attributes" limbo_access="1">
+        <field>
+            <display_name>Asset Positions</display_name>
+            <note>You can configure the list to include certain assets at specific positions, even if they would not normally be included in the list.</note>
+            <function_call>
+                <paint_function name="paintAssetPositions" />
+                <process_function name="processAssetPositions" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Dynamic Parameters" write_access="write:attributes" limbo_access="1">
+        <field attribute="parameter_map" format="new_line">
+            <display_name />
+            <note />
+            <parameter_map />
+        </field>
+        <field attribute="dynamic_root_option">
+            <display_name>If dynamic root not found</display_name>
+            <note />
+            <selection style="list" />
+        </field>
+        <field attribute="dynamic_asset_selection_option">
+            <display_name>If asset selection not specified</display_name>
+            <note />
+            <selection style="list" />
+        </field>
+    </section>
+    <section name="Structured Root Selector Options" write_access="write:attributes" limbo_access="1">
+        <field>
+            <display_name></display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintStructuredDropdownOptions" />
+                <process_function name="processStructuredDropdownOptions" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Button Text" write_access="write:attributes" limbo_access="1">
+        <field attribute="submit_button_text">
+            <display_name>Submit Button Text</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+        <field attribute="reset_button_text">
+            <display_name>Reset Button Text</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
 </contents>

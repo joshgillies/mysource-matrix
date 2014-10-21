@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/oauth2/lib/oauth2_client.inc';
 */
 class Oauth2_Token extends Page
 {
-	
+
 	var $client = null;
 	var $client_id = null;
 	var $client_secret = null;
@@ -40,7 +40,7 @@ class Oauth2_Token extends Page
 	var $token_endpoint = null;
 	var $scope = null;
 	var $redirect_uri = null;
-	
+
 	var $auth_type = null;
 
 	/**
@@ -51,13 +51,13 @@ class Oauth2_Token extends Page
 	*
 	* @access public
 	*/
-	function __wakeup() 
+	function __wakeup()
 	{
 		// don't cache any config
 		$this->__construct();
 	}//end __wakeup()
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -66,9 +66,9 @@ class Oauth2_Token extends Page
 	*/
 	function __construct($assetid=0)
 	{
-		$this->_ser_attrs = TRUE; 
+		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
-		
+
 		// init configure vars
 		$this->client_id = $this->attr('client_id');
 		$this->client_secret = $this->attr('client_secret');
@@ -79,68 +79,72 @@ class Oauth2_Token extends Page
 		$this->redirect_uri = empty($redirect_uri) ?  current_url(TRUE, TRUE) : $redirect_uri;
 		$auth_type = $this->attr('authorization_type');
 		$this->auth_type = constant('Oauth2_Client::AUTH_TYPE_'. strtoupper($auth_type));
-		
+
 		$this->client = new Oauth2_Client($this->client_id, $this->client_secret, $this->auth_type, $this->attr('verify_ssl_peer'));
 
 	}//end constructor
 
 
-	 /**    
+	 /**
 	* Outputs the requested resource(s).
-	*  
-	* @return void    
-	* @access public    
-	*/    
+	*
+	* @return void
+	* @access public
+	*/
 	public function printFrontend()
 	{
 		// don't let browser/proxy cache this asset
 		header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 		header('Pragma: no-cache');
 		header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
-		
+
 		// start authentication (if required)
 		$token = $this->getAccessToken(isset($_GET['force']));
-		
-		
+
+
 		// output the access token in json format (if required)
 		if(isset($_GET['output'])) {
 		    // but not if it's global token, too risky to share token
 		    $token_storage = $this->attr('token_storage');
 		    if($token_storage === 'global')
-			trigger_error(translate('oauth2_global_token_not_shared'), E_USER_ERROR);
-		    
+			trigger_error(translate('Globally stored Access Token can not be displayed'), E_USER_ERROR);
+
+
 		    header('Content-Type: application/json');
 		    echo (json_encode_array($token));
 		}
-		
-		
+
+
 		return parent::printFrontend();
 	}//end printFrontend()
-	 
+
 
 
 
 	/**
-	 * Get the access token. 
+	 * Get the access token.
 	 * If not present, start authentication. It's present, return it.
 	 * @param bool	$force	force authentication to get a new acces token
-	 * 
+	 *
 	 * @return array
 	 * @access public
 	 */
 	public function getAccessToken ($force = FALSE)
 	{
-	    
+
 	    // check read access
 	    if (!$this->readAccess()) {
-		trigger_error(translate('oauth2_permission_get_token'), E_USER_ERROR);
+		trigger_error(translate('You do not have read permission to get the Access Token'), E_USER_ERROR);
+
 	    }
 	    // no access for public user, if it's stored per user in DB. because public user is not identifiable
 	    $token_storage = $this->attr('token_storage');
 	    if($token_storage === 'user') {
 		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		if(is_null($current_user) ||  $current_user instanceof Public_User) {
-		    $GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('oauth2_public_user_save_token'));
+		    $GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), translate('Access Token can not be stored for a Public User'));
+
+
 		    return;
 		}
 	    }
@@ -148,17 +152,18 @@ class Oauth2_Token extends Page
 	    if($force && !isset($_GET['code'])){
 		 // global token storage would require write access
 		 if($token_storage === 'global' && !$this->writeAccess('attributes')) {
-		    trigger_error(translate('oauth2_permission_save_token'), E_USER_ERROR);
+		    trigger_error(translate('You do not have write permission to save the Access Token'), E_USER_ERROR);
+
 		 }
 		// forget about existing token and start again
 		$this->removeStoredToken();
 		 // step 1 get auth code
 		$this->_startAuthenticationRedirect();
 	    }
-		
+
 	    // get stored token
 	    $token = $this->loadTokenFromStorage();
-	    
+
 	    // no stored token?
 	    if(empty($token)) {
 		if(!isset($_GET['code'])) {
@@ -169,23 +174,26 @@ class Oauth2_Token extends Page
 		     // step 2 exchange the auth code for access token
 		    // verify this response is from original request by comparing state param
 		    If(!isset($_SESSION['SQ_OAUTH2_CLIENT_STATE']) ||  !isset($_GET['state']))
-			trigger_error(translate('oauth2_state_param_invalid'), E_USER_ERROR);
+			trigger_error(translate('State parameter in response is invalid'), E_USER_ERROR);
+
 		    if($_SESSION['SQ_OAUTH2_CLIENT_STATE'] !== $_GET['state'])
-			trigger_error(translate('oauth2_state_param_invalid'), E_USER_ERROR);
+			trigger_error(translate('State parameter in response is invalid'), E_USER_ERROR);
+
 
 		    $params = array('code' => $_GET['code'], 'redirect_uri' => $this->redirect_uri);
 		    $response = $this->client->getAccessToken($this->token_endpoint, 'authorization_code', $params);
-		  
+
 		    // global token storage would require write access
 		    if($token_storage === 'global' && !$this->writeAccess('attributes')) {
-			trigger_error(translate('oauth2_permission_save_token'), E_USER_ERROR);
+			trigger_error(translate('You do not have write permission to save the Access Token'), E_USER_ERROR);
+
 		    }
-		    
+
 		    // parse and store access token in session
 		    $token = $this->_parseStoreAccessToken($response);
 		}
 	    }
-	    
+
 
 	    // refresh token / get a new token if stored token is expired
 	    if(isset($token['expires_at'])) {
@@ -213,17 +221,17 @@ class Oauth2_Token extends Page
 		    }
 		}
 	    }
-	    
+
 	    return $token;
 	}// end getAccessToken
-	
-	
-	
+
+
+
 	/**
 	 * Call the REST API with the stored token
-	 * 
+	 *
 	 * @param string	$url	the REST API to call
-	 * 
+	 *
 	 * @return array
 	 * @access public
 	 */
@@ -232,19 +240,19 @@ class Oauth2_Token extends Page
 	    $token = $this->getAccessToken($force);
 	    $this->client->setAccessToken($token['access_token']);
 	    $this->client->setAccessTokenParamName($this->attr('access_token_param_name'));
-	    
+
 	    $type = $this->attr('access_token_type');
 	    $this->client->setAccessTokenType(constant('Oauth2_Client::ACCESS_TOKEN_'.strtoupper($type)));
 
 	    $response = $this->client->fetch($url);
 	    return $response;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Start authentication redirect flow
-	 * 
+	 *
 	 * @return array
 	 * @access protected
 	 */
@@ -253,18 +261,18 @@ class Oauth2_Token extends Page
 	    // generate a random state to verify if the oauth callsback is original
 	    $STATE = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
 	    $_SESSION['SQ_OAUTH2_CLIENT_STATE'] = $STATE;
-	
+
 	    $auth_url = $this->client->getAuthenticationUrl($this->authorization_endpoint, $this->redirect_uri, Array('scope' => $this->scope, 'state' => $STATE));
 	    header('Location: ' . $auth_url);
 	    die('Redirect');
 	}// end _startAuthenticationRedirect
-	
-	
-	
+
+
+
 	/**
 	 * Parse the response data of get access token request to extract the access token
 	 * @param array	$response	the response of get access token request
-	 * 
+	 *
 	 * @return array
 	 * @access public
 	 */
@@ -272,8 +280,9 @@ class Oauth2_Token extends Page
 	{
 	    if(!isset($response['result'])) {
 		log_dump($response);
-		trigger_error(translate('oauth2_no_access_token_response'), E_USER_ERROR);
-	    }	
+		trigger_error(translate('There is no Access Token in response'), E_USER_ERROR);
+
+	    }
 
 	    if(is_array($response['result'])) {
 		$info = $response['result'];
@@ -283,9 +292,10 @@ class Oauth2_Token extends Page
 	    }
 	    if(!isset($info['access_token'])) {
 		log_dump($response);
-		trigger_error(translate('oauth2_no_access_token_response'), E_USER_ERROR);
+		trigger_error(translate('There is no Access Token in response'), E_USER_ERROR);
+
 	    }
-	    
+
 	    // store access token
 	    $token = Array();
 	    $token['access_token'] = $info['access_token'];
@@ -306,15 +316,15 @@ class Oauth2_Token extends Page
 			$token['refresh_token'] = $info['refresh_token'];
 
 	    $this->saveTokenToStorage($token);
-	    
+
 	    return ($token);
-	    
+
 	}// end _parseStoreAccessToken
-	
-	
+
+
 	/**
 	 * Load the stored access token
-	 * 
+	 *
 	 * @return array
 	 * @access public
 	 */
@@ -344,14 +354,14 @@ class Oauth2_Token extends Page
 		    $token['refresh_token'] =$result[0]['refresh_token'];
 		}
 	     }
-	     
+
 	    return $token;
 	}//end loadTokenFromStorage()
-	
+
 	/**
 	 * Save the access token to storage
 	 * @param array	$token	the access token array
-	 * 
+	 *
 	 * @return bool
 	 * @access public
 	 */
@@ -373,14 +383,14 @@ class Oauth2_Token extends Page
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 	    }
 	    else if ($storage === 'user') {
-		
+
 		// remove per user token first
 		$bind_vars = Array(
 						'assetid'	=>  $this->id,
 						'userid'      => $GLOBALS['SQ_SYSTEM']->currentUserId(),
 					    );
 		$result = MatrixDAL::executeQuery('oauth2_package', 'deleteToken', $bind_vars);
-		
+
 		 // add new token
 		$bind_vars = Array(
 						'assetid'      => $this->id,
@@ -394,17 +404,17 @@ class Oauth2_Token extends Page
 	     }
 	     return TRUE;
 	}//end saveTokenToStorage
-	
-	
+
+
 	/**
 	 * Remove existing token for current user
-	 * 
+	 *
 	 * @return bool
 	 * @access public
 	 */
 	public function removeStoredToken()
 	{
-	    
+
 	    $storage = $this->attr('token_storage');
 	    if($storage === 'user') {
 		// remove per user token first
@@ -418,14 +428,14 @@ class Oauth2_Token extends Page
 	    else {
 		$this->removeAllStoredToken();
 	    }
-	    return TRUE;	    
+	    return TRUE;
 	}//end removeStoredToken()
-	
-	
-	
+
+
+
 	/**
 	 * Remove all tokens stored for this asset
-	 * 
+	 *
 	 * @return bool
 	 * @access public
 	 */
@@ -437,23 +447,23 @@ class Oauth2_Token extends Page
 		    unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_expires_at']);
 	    if(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_refresh_token']))
 		    unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_refresh_token']);
-	    
+
 	    // remove global token
 	    //  write access to this asset should be checked earlier
 	    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 	    $this->setAttrValue('global_access_token', Array());
 	    $this->saveAttributes();
 	    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-	    
-	    
+
+
 	    // remove all per user tokens
 	    $bind_vars = Array(
-					    'assetid'	=>  $this->id,		    
+					    'assetid'	=>  $this->id,
 					);
 	    $result = MatrixDAL::executeQuery('oauth2_package', 'deleteAllTokens', $bind_vars);
 	    return $result;
 	}//end removeAllStoredToken()
-	
-	
+
+
 }//end class
 ?>

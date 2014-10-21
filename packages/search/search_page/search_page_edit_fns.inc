@@ -76,7 +76,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!is_null($root_asset)) {
 				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
 			} else {
-				echo translate('sch_no_root_node_selected');
+				echo translate('No root node has been selected');
+
 			}
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
@@ -126,7 +127,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
 					$ok = FALSE;
-					trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
+					trigger_localised_error('SCH0012', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name, $root->id), E_USER_WARNING);
 				}
 			}
 		}
@@ -159,43 +160,55 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fields = $asset->attr('fields');
 
 		$query_types = Array(
-						'none'			=> '-- '.ucfirst(translate('sch_page_add_data_source').' --'),
-						'include_all'	=> ucfirst(translate('include_all')),
-						'standard'		=> ucfirst(translate('sch_page_datatype_standard')),
-						'asset_attrib'	=> ucfirst(translate('sch_page_datatype_attribute')),
-						'metadata'		=> ucfirst(translate('sch_page_datatype_metadata')),
+						'none'			=> '-- '.ucfirst(translate('Add Data Source').' --'),
+
+						'Include All'	=> ucfirst(translate('Include All')),
+
+						'standard'		=> ucfirst(translate('Standard Asset Field')),
+
+						'asset_attrib'	=> ucfirst(translate('Asset Attribute')),
+
+						'metadata'		=> ucfirst(translate('Asset Metadata Field')),
+
 					   );
 
 		?>
 		<table class ="sq-backend-table" style="border-bottom: none;">
 			<tr>
-				<th rowspan="2"><?php echo translate('name'); ?></th>
-				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('sch_page_data_sources'); ?></th>
-				<th rowspan="2" style="text-align:center;"><?php echo translate('sch_page_word_logic'); ?></th>
+				<th rowspan="2"><?php echo translate('Name'); ?></th>
+
+				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('Data Sources'); ?></th>
+
+				<th rowspan="2" style="text-align:center;"><?php echo translate('Word Logic'); ?></th>
+
 				<?php
 				if ($write_access) {
 					?>
-					<th rowspan="2" style="text-align:center;"><?php echo translate('delete'); ?>?</th>
+					<th rowspan="2" style="text-align:center;"><?php echo translate('Delete'); ?>?</th>
+
 					<?php
 				}
 				?>
 			</tr>
 			<tr>
-				<th><?php echo translate('type');?></th>
-				<th class="force-right-border" <?php if (!$write_access) echo 'colspan="1"';?>><?php echo translate('details');?> </th>
+				<th><?php echo translate('Type');?></th>
+
+				<th class="force-right-border" <?php if (!$write_access) echo 'colspan="1"';?>><?php echo translate('Details');?> </th>
+
 				<?php
 				if ($write_access) {
 					?>
-					<th class="force-right-border" style="text-align:center;"><?php echo translate('delete'); ?>?</th>
+					<th class="force-right-border" style="text-align:center;"><?php echo translate('Delete'); ?>?</th>
+
 					<?php
 				}
 				?>
 			</tr>
 			<?php
-			
+
 			foreach ($fields as $field_name => $field_data) {
 				if ($field_data['exclude_field']) continue;
-				
+
 				$field_datasources = $field_data['data_sources'];
 				if ((!empty($field_datasources)) && ($field_datasources[0]['type'] == 'exclude')) {
 					continue;
@@ -228,7 +241,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							if ($field_datasource != 'new') {
 								switch ($type) {
 
-									case 'asset_attrib':									
+									case 'asset_attrib':
 										if (!isset($field_datasource['params'])) {
 											$field_datasources[$index]['params'] = Array();
 										}
@@ -236,13 +249,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										$search_type = array_get_index($field_datasources[$index]['params'], 'asset_type', '0');
 										$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($search_types), 'name');
 										if ($write_access) {
-											$options = Array('' => '-- '.translate('select_asset_type').' --');
+											$options = Array('' => '-- '.translate('Select Asset Type').' --');
+
 											foreach (array_keys($search_types) as $this_type) {
 												$options[$this_type] = $type_names[$this_type];
 											}
 											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][asset_type]', $options, FALSE, $search_type);
 										} else {
-											echo '<strong>'.translate('asset_type').':</strong> ';
+											echo '<strong>'.translate('Asset Type').':</strong> ';
+
 
 											// check to see if any of the assets have been selected
 											// else dont bother about printing its details
@@ -250,7 +265,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($search_type), 16, 16, $type_names[$search_type], $type_names[$search_type], ' align="absmiddle"');
 												echo $type_names[$search_type];
 											} else {
-												echo translate('no_asset_selected');
+												echo translate('No asset selected');
+
 											}
 										}
 										// printing out attribute selection combo box
@@ -262,18 +278,20 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										if (!empty($search_type)) {
 											$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
 											if ($write_access) {
-												$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+												$type_attrs = Array('' => '-- '.translate('Select Attribute').' --');
+
 												foreach ($asset_type_attrs as $attr_id => $attr_name) {
 													$type_attrs[$attr_id] = $attr_name['name'];
 												}
 												combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][attrid]', $type_attrs, FALSE, $selected_attr);
 											} else if ($selected_attr != '') {
-												echo '<br /><strong>'.translate('attribute').':</strong>  '.$asset_type_attrs[$selected_attr]['name'];
+												echo '<br /><strong>'.translate('Attribute').':</strong>  '.$asset_type_attrs[$selected_attr]['name'];
+
 											}
 										}
 
 										if (!empty($selected_attr)) {
-				
+
 											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
 											$attr_info = $attr_info[$selected_attr];
 
@@ -282,18 +300,22 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												?><br/><?php
 												if ($write_access) {
 													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'exact', ($current_search == 'exact'));
-													echo translate('sch_page_numeric_search_exact');
+													echo translate('Provide a single text box for exact numeric searching');
+
 													?><br/><?php
 
 													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'range', ($current_search == 'range'));
-													echo translate('sch_page_numeric_search_range');
+													echo translate('Provide two text boxes (upper and lower bound) for range searching');
+
 													?><br/><?php
 
 													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'custom', ($current_search == 'custom'));
-													echo translate('sch_page_numeric_search_custom');
+													echo translate('Provide a drop-down list of named ranges');
+
 													?><br/><?php
 												} else {
-													?><strong><?php echo translate('sch_page_numeric_search_style'); ?></strong> <?php
+													?><strong><?php echo translate('Search Style:'); ?></strong> <?php
+
 													echo translate('sch_page_numeric_search_'.$current_search);
 												}
 
@@ -357,10 +379,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												if (!is_null($metadata_field)) {
 													echo get_asset_tag_line($field_asset->id);
 												} else {
-													echo translate('sch_page_no_metadata_field_specified');
+													echo translate('No metadata field specified');
+
 												}
 											} else {
-												echo translate('sch_page_no_metadata_field_specified');
+												echo translate('No metadata field specified');
+
 											}
 										}
 									break;
@@ -375,12 +399,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											$selected_attr_name = '';
 										}
 										if ($write_access) {
-											$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+											$type_attrs = Array('' => '-- '.translate('Select Attribute').' --');
+
 											$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 											$attributes = $sm->standard_date_fields + $sm->standard_text_fields;
 											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][field]', $attributes, FALSE, $selected_attr_name);
 										} else if ($selected_attr_name != '') {
-											echo translate('sch_page_field').':  '.$selected_attr_name;
+											echo translate('Field').':  '.$selected_attr_name;
+
 										}
 									break;
 
@@ -411,9 +437,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							?>
 							<td rowspan="<?php echo count($field_datasources);?>" style="text-align:center;">
 								<?php
-								$word_logic_options = Array('AND' => translate('sch_page_all_words'), 'OR' => translate('sch_page_any_word'));
+								$word_logic_options = Array('AND' => translate('All Words'), 'OR' => translate('Any Word'));
+
+
 								if ($write_access) {
-									combo_box($prefix.'_fields['.$field_name.'][word_logic]', $word_logic_options, FALSE, array_get_index($field_data, 'word_logic', 'AND'), 0, 'title="'.translate('sch_page_word_logic_exp').'"');
+									combo_box($prefix.'_fields['.$field_name.'][word_logic]', $word_logic_options, FALSE, array_get_index($field_data, 'word_logic', 'AND'), 0, 'title="'.translate('Find assets with ALL or ANY of the entered words?').'"');
+
 								} else {
 									echo array_get_index($field_data, 'word_logic', 'AND');
 								}
@@ -442,7 +471,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		</table>
 		<?php
 		if ($write_access) {
-			label(translate('sch_page_new_search_field').':', $prefix.'_new_field_name');
+			label(translate('New Search Field Name').':', $prefix.'_new_field_name');
+
 			echo '&nbsp;';
 			text_box($prefix.'_new_field_name', '', 20);
 		}
@@ -464,8 +494,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processFields(&$asset, &$o, $prefix)
 	{
 		$old_fields = $asset->attr('fields');
-		
-		$new_fields = Array();		
+
+		$new_fields = Array();
 
 		if (isset($_POST[$prefix.'_fields'])) {
 			foreach ($_POST[$prefix.'_fields'] as $field_name => $field) {
@@ -497,12 +527,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			}
 		}
 
-		if (!empty($_POST[$prefix.'_new_field_name'])) {			
+		if (!empty($_POST[$prefix.'_new_field_name'])) {
 			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_field_name']));
-			
+
 			// If field already, don't overwrite it
-			if (!isset($old_fields[$safe_name])) {			
-				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];				
+			if (!isset($old_fields[$safe_name])) {
+				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];
 				$new_fields[$safe_name]['data_sources'] = Array();
 				$new_fields[$safe_name]['exclude_field'] = FALSE;
 			}
@@ -513,7 +543,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$new_fields[$field_name] = $field;
 			}
 		}//end foreach
-		
+
 		return $asset->setAttrValue('fields', $new_fields);
 
 	}//end processFields()
@@ -530,38 +560,50 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @access public
 	*/
 	function paintExcludeFields(&$asset, &$o, $prefix)	{
-		
+
 		$write_access = $asset->writeAccess('all');
 		$fields = $asset->attr('fields');
 		$query_types = Array(
-						'none'			=> '-- '.ucfirst(translate('sch_page_add_data_source').' --'),
-						'include_all'	=> ucfirst(translate('include_all')),
-						'standard'		=> ucfirst(translate('sch_page_datatype_standard')),
-						'asset_attrib'	=> ucfirst(translate('sch_page_datatype_attribute')),
-						'metadata'		=> ucfirst(translate('sch_page_datatype_metadata')),
+						'none'			=> '-- '.ucfirst(translate('Add Data Source').' --'),
+
+						'Include All'	=> ucfirst(translate('Include All')),
+
+						'standard'		=> ucfirst(translate('Standard Asset Field')),
+
+						'asset_attrib'	=> ucfirst(translate('Asset Attribute')),
+
+						'metadata'		=> ucfirst(translate('Asset Metadata Field')),
+
 					   );
 
 		?>
 		<table class ="sq-backend-table" style="border-bottom: none;">
 			<tr>
-				<th rowspan="2"><?php echo translate('name'); ?></th>
-				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('sch_page_data_sources'); ?></th>
-				<th style="text-align: center;" rowspan="2"><?php echo translate('sch_page_word_logic'); ?></th>
+				<th rowspan="2"><?php echo translate('Name'); ?></th>
+
+				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('Data Sources'); ?></th>
+
+				<th style="text-align: center;" rowspan="2"><?php echo translate('Word Logic'); ?></th>
+
 				<?php
 				if ($write_access) {
 					?>
-					<th style="text-align: center;" rowspan="2"><?php echo translate('delete'); ?>?</th>
+					<th style="text-align: center;" rowspan="2"><?php echo translate('Delete'); ?>?</th>
+
 					<?php
 				}
 				?>
 			</tr>
 			<tr class="force-bottom-border">
-				<th><?php echo translate('type');?></th>
-				<th class="force-right-border" <?php if (!$write_access) echo 'colspan="1"';?>><?php echo translate('details');?></th>
+				<th><?php echo translate('Type');?></th>
+
+				<th class="force-right-border" <?php if (!$write_access) echo 'colspan="1"';?>><?php echo translate('Details');?></th>
+
 				<?php
 				if ($write_access) {
 					?>
-					<th class="force-right-border" style="text-align: center;"><?php echo translate('delete'); ?>?</th>
+					<th class="force-right-border" style="text-align: center;"><?php echo translate('Delete'); ?>?</th>
+
 					<?php
 				}
 				?>
@@ -601,7 +643,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							if ($field_datasource != 'new') {
 								switch ($type) {
 
-									case 'asset_attrib':									
+									case 'asset_attrib':
 										if (!isset($field_datasource['params'])) {
 											$field_datasources[$index]['params'] = Array();
 										}
@@ -609,13 +651,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										$search_type = array_get_index($field_datasources[$index]['params'], 'asset_type', '0');
 										$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($search_types), 'name');
 										if ($write_access) {
-											$options = Array('' => '-- '.translate('select_asset_type').' --');
+											$options = Array('' => '-- '.translate('Select Asset Type').' --');
+
 											foreach (array_keys($search_types) as $this_type) {
 												$options[$this_type] = $type_names[$this_type];
 											}
 											combo_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][asset_type]', $options, FALSE, $search_type);
 										} else {
-											echo '<strong>'.translate('asset_type').':</strong> ';
+											echo '<strong>'.translate('Asset Type').':</strong> ';
+
 											echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($search_type), 16, 16, $type_names[$search_type], $type_names[$search_type], ' align="absmiddle"');
 											echo $type_names[$search_type];
 										}
@@ -628,18 +672,20 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										if (!empty($search_type)) {
 											$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
 											if ($write_access) {
-												$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+												$type_attrs = Array('' => '-- '.translate('Select Attribute').' --');
+
 												foreach ($asset_type_attrs as $attr_id => $attr_name) {
 													$type_attrs[$attr_id] = $attr_name['name'];
 												}
 												combo_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][attrid]', $type_attrs, FALSE, $selected_attr);
 											} else if ($selected_attr != '') {
-												echo '<br /><strong>'.translate('attribute').':</strong>  '.$asset_type_attrs[$selected_attr]['name'];
+												echo '<br /><strong>'.translate('Attribute').':</strong>  '.$asset_type_attrs[$selected_attr]['name'];
+
 											}
 										}
 
 										if (!empty($selected_attr)) {
-				
+
 											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
 											$attr_info = $attr_info[$selected_attr];
 
@@ -648,18 +694,22 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												?><br/><?php
 												if ($write_access) {
 													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'exact', ($current_search == 'exact'));
-													echo translate('sch_page_numeric_search_exact');
+													echo translate('Provide a single text box for exact numeric searching');
+
 													?><br/><?php
 
 													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'range', ($current_search == 'range'));
-													echo translate('sch_page_numeric_search_range');
+													echo translate('Provide two text boxes (upper and lower bound) for range searching');
+
 													?><br/><?php
 
 													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'custom', ($current_search == 'custom'));
-													echo translate('sch_page_numeric_search_custom');
+													echo translate('Provide a drop-down list of named ranges');
+
 													?><br/><?php
 												} else {
-													?><strong><?php echo translate('sch_page_numeric_search_style'); ?></strong> <?php
+													?><strong><?php echo translate('Search Style:'); ?></strong> <?php
+
 													echo translate('sch_page_numeric_search_'.$current_search);
 												}
 
@@ -723,10 +773,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												if (!is_null($metadata_field)) {
 													echo get_asset_tag_line($field_asset->id);
 												} else {
-													echo translate('sch_page_no_metadata_field_specified');
+													echo translate('No metadata field specified');
+
 												}
 											} else {
-												echo translate('sch_page_no_metadata_field_specified');
+												echo translate('No metadata field specified');
+
 											}
 										}
 									break;
@@ -741,12 +793,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											$selected_attr_name = '';
 										}
 										if ($write_access) {
-											$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+											$type_attrs = Array('' => '-- '.translate('Select Attribute').' --');
+
 											$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 											$attributes = $sm->standard_date_fields + $sm->standard_text_fields;
 											combo_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][field]', $attributes, FALSE, $selected_attr_name);
 										} else if ($selected_attr_name != '') {
-											echo translate('sch_page_field').':  '.$selected_attr_name;
+											echo translate('Field').':  '.$selected_attr_name;
+
 										}
 									break;
 
@@ -777,9 +831,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							?>
 							<td style="text-align: center;" rowspan="<?php echo count($field_datasources);?>">
 								<?php
-								$word_logic_options = Array('AND' => translate('sch_page_all_words'), 'OR' => translate('sch_page_any_word'));
+								$word_logic_options = Array('AND' => translate('All Words'), 'OR' => translate('Any Word'));
+
+
 								if ($write_access) {
-									combo_box($prefix.'_exclude_fields['.$field_name.'][word_logic]', $word_logic_options, FALSE, array_get_index($field_data, 'word_logic', 'AND'), 0, 'title="'.translate('sch_page_word_logic_exp').'"');
+									combo_box($prefix.'_exclude_fields['.$field_name.'][word_logic]', $word_logic_options, FALSE, array_get_index($field_data, 'word_logic', 'AND'), 0, 'title="'.translate('Find assets with ALL or ANY of the entered words?').'"');
+
 								} else {
 									echo array_get_index($field_data, 'word_logic', 'AND');
 								}
@@ -805,14 +862,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				?>
 			</tr>
 
-		</table>		
+		</table>
 		<?php
 		if ($write_access) {
-			label(translate('sch_page_new_exclude_field').':', $prefix.'_new_exclude_field_name');
+			label(translate('New Exclude Field Name').':', $prefix.'_new_exclude_field_name');
+
 			echo '&nbsp;';
 			text_box($prefix.'_new_exclude_field_name', '', 20);
 		}
-		
+
 		return TRUE;
 
 	}//end paintExcludeFields()
@@ -829,10 +887,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @access public
 	*/
 	function processExcludeFields(&$asset, &$o, $prefix)
-	{	
+	{
 		//return true;
 		$old_fields = $asset->attr('fields');
-		
+
 		$new_fields = Array();
 		if (isset($_POST[$prefix.'_exclude_fields'])) {
 			foreach ($_POST[$prefix.'_exclude_fields'] as $field_name => $field) {
@@ -863,14 +921,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 		}
-		
-		
 
-		if (!empty($_POST[$prefix.'_new_exclude_field_name'])) {						
+
+
+		if (!empty($_POST[$prefix.'_new_exclude_field_name'])) {
 			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_exclude_field_name']));
 			// If field already, don't overwrite it
 			if (!isset($old_fields[$safe_name])) {
-				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field_name'];				
+				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field_name'];
 				$new_fields[$safe_name]['data_sources'] = Array();
 				$new_fields[$safe_name]['exclude_field'] = TRUE;
 			}
@@ -881,7 +939,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$new_fields[$field_name] = $field;
 			}
 		}//end foreach
-		
+
 		return $asset->setAttrValue('fields', $new_fields);
 
 	}//end processExcludeFields()
@@ -1063,9 +1121,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					<th class="delete">
 						<?php
 						if ($wa) {
-							$msg = translate('search_page_confirm_cat_delete');
+							$msg = translate('Are you sure you want to delete this category set?');
+
 							check_box($prefix.'_category_sets_to_delete[]', $name, FALSE, "return confirm('$msg')", 'id="'.$prefix.'_category_sets_to_delete_'.$name.'"');
-							label(translate('delete'), $prefix.'_category_sets_to_delete_'.$name);
+							label(translate('Delete'), $prefix.'_category_sets_to_delete_'.$name);
+
 						}
 						?>
 					</th>
@@ -1074,11 +1134,13 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					<td colspan="2">
 						<?php
 						if ($wa) {
-							label(translate('search_cat_unselected_text').': ', $prefix.'_category_'.$name.'_unselected_text');
+							label(translate('Unselected Text').': ', $prefix.'_category_'.$name.'_unselected_text');
+
 							echo '&nbsp;';
 							text_box($prefix.'_category_'.$name.'_unselected_text', $set_data['unselected_text']);
 						} else {
-							echo translate('search_cat_unselected_text');
+							echo translate('Unselected Text');
+
 							echo $set_data['unselected_text'];
 						}
 						?>
@@ -1087,7 +1149,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				<tr>
 					<td colspan="2">
 						<?php
-						echo translate('options').':';
+						echo translate('Options').':';
+
 						$this->_paintCategoryOptions($asset, $prefix.'_category_'.$name.'_options', $name, $set_data['options'], $wa);
 						?>
 					</td>
@@ -1116,13 +1179,17 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('name'); ?></th>
-				<th style="width: 35ex"><?php echo translate('statuses'); ?></th>
-				<th style="width: 60ex"><?php echo translate('root_node'); ?></th>
+				<th><?php echo translate('Name'); ?></th>
+
+				<th style="width: 35ex"><?php echo translate('Statuses'); ?></th>
+
+				<th style="width: 60ex"><?php echo translate('Root Node'); ?></th>
+
 			<?php
 			if ($wa) {
 				?>
-				<th style="width: 7ex"><?php echo translate('delete'); ?></th>
+				<th style="width: 7ex"><?php echo translate('Delete'); ?></th>
+
 				<?php
 			}
 			?>
@@ -1149,7 +1216,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						label('Use Default', $prefix.'_'.$code_name.'_statuses_default');
 					} else {
 						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.gif" />';
-						echo translate('use_default');
+						echo translate('Use default');
+
 					}
 					$this->_paintStatusChooser($prefix.'_'.$code_name.'_statuses', $current_stats,  $wa, $customised);
 					?>
@@ -1168,7 +1236,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						label('Use Default', $prefix.'_'.$code_name.'_root_default');
 					} else {
 						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.gif" />';
-						echo translate('use_default');
+						echo translate('Use default');
+
 					}
 					$this->_paintAssetChooser($prefix.'_'.$code_name.'_root', $current_root,  $wa, $customised);
 					?>
@@ -1248,7 +1317,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			combo_box($name, $options, TRUE, $current_values, '', 'style="'.$style.'"');
 		} else {
 			if (empty($current_values)) {
-				echo translate('sch_page_no_status_selected');
+				echo translate('No statuses are selected. Only assets for which the user has sufficient read permissions will be listed.');
+
 			} else {
 				?><ul style="margin: 1px 15px;"><?php
 				foreach ($current_values as $status) {
@@ -1315,17 +1385,17 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					foreach ($cats[$delete_name]['options'] as $option_delete_name => $option_content) {
 						$old_link_value = 'root_'.$delete_name.'_'.$option_delete_name;
 						$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', $old_link_value);
-						
+
 						$ok = TRUE;
 						foreach ($root_links as $root_link) {
 							if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 								$ok = FALSE;
 							}
 						}
-				
+
 					}
 				// bug fix for #3884 Search page category - unable to delete
-				// if the option attribute in empty that doesnt mean we cannot 
+				// if the option attribute in empty that doesnt mean we cannot
 				// delete the search category for it
 				} else if (isset($cats[$delete_name]['options']) && empty($cats[$delete_name]['options'])){
 					$ok = TRUE;
@@ -1413,7 +1483,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						if (!is_null($root)) {
 							if (!$asset->createLink($root, SQ_LINK_NOTICE, $new_link_value)) {
 								$ok = FALSE;
-								trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
+								trigger_localised_error('SCH0012', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name, $root->id), E_USER_WARNING);
 							}
 						}
 					}
@@ -1445,7 +1515,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$root = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 				if (!is_null($root)) {
 					if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
-						trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
+						trigger_localised_error('SCH0012', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name, $root->id), E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					} else {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1474,7 +1544,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function paintAddCategory(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			label(translate('name').': ', $prefix.'_new_category');
+			label(translate('Name').': ', $prefix.'_new_category');
+
 			text_box($prefix.'_new_category', '');
 			return TRUE;
 		}
@@ -1543,7 +1614,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		} else {
 			check_box($prefix.'_search_form', 1, $search_customised);
 		}
-		label(translate('sch_page_customise_search_form'), $prefix.'_search_form');
+		label(translate('Customise search form'), $prefix.'_search_form');
+
 
 		echo '<br/>';
 
@@ -1554,7 +1626,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		} else {
 			check_box($prefix.'_sis_form', 1, $sis_customised);
 		}
-		label(translate('sch_page_customise_sis_form'), $prefix.'_sis_form');
+		label(translate('Customise search within search form'), $prefix.'_sis_form');
+
 
 		return $write_access;
 
@@ -1576,8 +1649,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$format_folder =& $asset->getFormatFolder();
 
 		$forms = Array(
-					translate('sch_page_default_search')	=> 'search_form',
-					translate('sch_page_sis')				=> 'sis_form',
+					translate('Default Search')	=> 'search_form',
+
+					translate('Search in Search')				=> 'sis_form',
+
 				 );
 
 		$bodycopies_visible = FALSE;
@@ -1599,7 +1674,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if (!$format_folder->create($copy_link)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						trigger_localised_error('SCH0013', E_USER_WARNING);
+						trigger_localised_error('SCH0013', translate('Unable to create the format folder'), E_USER_WARNING);
 						return FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1622,7 +1697,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if (!$bodycopy->create($copy_link)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						trigger_localised_error('SCH0014', E_USER_WARNING, $form_name);
+						trigger_localised_error('SCH0014', sprintf(translate('Unable to create the %s bodycopy'), $form_name), E_USER_WARNING);
 						return FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1631,7 +1706,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$bodycopy_link = $asset->getFormatBodycopyLink($value);
 					if ($bodycopy_link['link_type'] != SQ_LINK_TYPE_2) {
 						if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], SQ_LINK_TYPE_2)) {
-							trigger_localised_error('SCH0014', E_USER_WARNING, $form_name);
+							trigger_localised_error('SCH0014', sprintf(translate('Unable to create the %s bodycopy'), $form_name), E_USER_WARNING);
 							return FALSE;
 						}
 					}
@@ -1642,7 +1717,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$bodycopy_link = $asset->getFormatBodycopyLink($value);
 				if (!empty($bodycopy_link['link_type']) && $bodycopy_link['link_type'] != SQ_LINK_TYPE_3) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], SQ_LINK_TYPE_3)) {
-						trigger_localised_error('SCH0015', E_USER_WARNING, $form_name);
+						trigger_localised_error('SCH0015', sprintf(translate('Unable to update the link type for bodycopy %s'), $form_name), E_USER_WARNING);
 						return FALSE;
 					}
 				}
@@ -1659,7 +1734,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$folder_link = $asset->getFormatFolderLink();
 		if (!empty($folder_link['link_type']) && $folder_link['link_type'] != $folder_link_type) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($folder_link['linkid'], $folder_link_type)) {
-				trigger_localised_error('SCH0016', E_USER_WARNING);
+				trigger_localised_error('SCH0016', translate('Unable to update the link type for the format folder'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -1691,7 +1766,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!empty($root_link)) {
 				echo get_asset_tag_line($root_link['minorid']);
 			} else {
-				echo translate('sch_page_no_thesaurus_asset_selected');
+				echo translate('No thesaurus asset has been selected');
+
 			}
 		} else {
 			asset_finder($prefix.'_thesaurusid', (!empty($root_link)) ? $root_link['minorid'] : '', Array('thesaurus' => 'D'));
@@ -1742,7 +1818,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
 					$ok = FALSE;
-					trigger_localised_error('SCH0017', E_USER_WARNING, $root->name, $root->id);
+					trigger_localised_error('SCH0017', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name, $root->id), E_USER_WARNING);
 				}
 			}
 		}
@@ -1781,13 +1857,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		// No search fields present
 		if (empty($search_fields)) {
-			echo translate('sch_auto_syn_error_no_search_fields');
+			echo translate('No Search Fields have been defined for this asset. Automatic Synonym Search requires a search field to function.');
+
 			return FALSE;
 		}
 
 		// Thesaurus asset not installed (why? it's in the core...)
 		if (!$this->thesaurusInstalled($asset, $prefix)) {
-			echo translate('sch_auto_syn_error_thesaurus_not_installed');
+			echo translate('The Thesaurus asset is not installed on the system. Automatic Synonym Search requires Thesaurus to be installed to function.');
+
 			return FALSE;
 		}
 
@@ -1796,7 +1874,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		// No thesaurus asset set
 		if (empty($root_link)) {
-			echo translate('sch_auto_syn_error_no_thesaurus_set');
+			echo translate('No Thesaurus asset has been set to use for synonym searching. Please select a Thesaurus asset to use first.');
+
 			return FALSE;
 		}
 
@@ -1804,16 +1883,20 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		if ($write_access) {
 			check_box($prefix.'_auto_synonym_search_enabled', 1, !empty($field), 'form.elements["'.$prefix.'_auto_synonym_search_field"].disabled = !this.checked; form.elements["'.$prefix.'_enable_multi_word_synonym_lookups"].disabled = !this.checked; return TRUE;');
-			echo translate('sch_auto_syn_enable');
+			echo translate('Enable Automatic Synonym Searching');
+
 			$o->closeField();
 
-			$o->openField(translate('sch_auto_syn_use_search_field'));
+			$o->openField(translate('Use Search Field'));
+
 				combo_box($prefix.'_auto_synonym_search_field', $keyed_search_fields, FALSE, $field, 0,  empty($field) ? 'disabled="disabled"' : '');
 		} else {
 			if (empty($field)) {
-				echo translate('sch_auto_syn_not_enabled');
+				echo translate('Automatic Synonym Search is <strong>disabled</strong>');
+
 			} else {
-				echo translate('sch_auto_syn_enabled_using_field', $field);
+				echo sprintf(translate('Automatic Synonym Search is <strong>enabled</strong>, using field: <strong>%s</strong>'), $field);
+
 			}
 		}
 
@@ -1891,15 +1974,18 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$enable_multi_words = $asset->attr('enable_multi_word_synonym_lookups');
 
-		$o->openField(translate('sch_enable_multi_word_synonym_lookups'));
+		$o->openField(translate('Enable Multi-Word Synonym Lookups'));
+
 		if ($write_access) {
 				check_box($prefix.'_enable_multi_word_synonym_lookups', 1, $enable_multi_words, '');
-				echo translate('sch_enable_multi_word_synonym_lookups');
+				echo translate('Enable Multi-Word Synonym Lookups');
+
 		} else {
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.(empty($enable_multi_words) ? 'cross' : 'tick').'.gif" />';
 		}
 		echo '<br />';
-		echo translate('sch_enable_multi_word_synonym_lookups_note');
+		echo translate('This option will iterate through the supplied search string and search the Thesaurus for groups of words. If these grouped words have synonyms in the Thesaurus then the <em>synonyms</em> will be appended to the search string.<br />For example, a search for \'fred flute player\' will result in a Thesaurus lookup of synonyms for \'fred flute\', \'flute player\' (matches \'flautist\') and \'fred flute player\'. The search string in this case will be modified on-the-fly to read \'fred flute player flautist\'.');
+
 
 		return FALSE;
 
@@ -1922,7 +2008,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$asset->setAttrValue('enable_multi_word_synonym_lookups', FALSE);
 		} else {
 			$asset->setAttrValue('enable_multi_word_synonym_lookups', TRUE);
-			
+
 		}
 
 		return TRUE;
@@ -1964,7 +2050,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		parent::_paintExtraSortOptions($asset, $o, $prefix);
 		$wa = $asset->writeAccess('attributes');
-		$o->openField(translate('sch_page_relevance'));
+		$o->openField(translate('Relevance'));
+
 			$rel_enabled = FALSE;
 			foreach ($asset->attr('sort_by') as $v) {
 				if (array_get_index($v['params'], 'field') == 'score') {
@@ -1974,11 +2061,13 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			}
 			if ($wa) {
 				check_box($prefix.'_enable_rel', '1', $rel_enabled);
-				label(translate('sch_page_enable_relevance'), $prefix.'_enable_rel');
+				label(translate('Enable "Sort by Relevance" option'), $prefix.'_enable_rel');
+
 			} else {
 				$filename = $rel_enabled ? 'tick' : 'cross';
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" /> ';
-				echo translate('sch_page_enable_relevance');
+				echo translate('Enable "Sort by Relevance" option');
+
 			}
 		$o->closeField();
 
@@ -2012,7 +2101,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				unset($val[$rel_index]);
 			} else if (($rel_index === FALSE) && $want_rel) {
 				$val[] = Array(
-							'name'		=> translate('sch_page_relevance'),
+							'name'		=> translate('Relevance'),
+
 							'type'		=> '',
 							'params'	=> Array('field' => 'score'),
 						 );

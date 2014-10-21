@@ -59,18 +59,18 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$parent =& $link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
-			trigger_localised_error('CAL0052', E_USER_ERROR);
+			trigger_localised_error('CAL0052', translate('Recurring Event Modifications can only be created underneath recurring events'), E_USER_ERROR);
 			return FALSE;
 		}
 
 		if (!$this->synchronizeWithParent($parent)) {
 			return FALSE;
 		}
-		
+
 		if (!parent::_preCreateCheck($link)) return FALSE;
-		
+
 		if (!($link['value'] = $this->getStartDate())) {
-			trigger_localised_error('CAL0049', E_USER_ERROR);
+			trigger_localised_error('CAL0049', translate('You need to specify a start date before you can call create() for a modification event'), E_USER_ERROR);
 			return FALSE;
 		}
 
@@ -97,7 +97,8 @@ class Calendar_Event_Modification extends Calendar_Event
 		}//end if
 
 		if ($short_name) {
-			return translate('cal_event_modified_date', date('d M Y', iso8601_ts($this->attr('start_date'))));
+			return sprintf(translate('Modified %s'), date('d M Y', iso8601_ts($this->attr('start_date'))));
+
 		}//end if
 
 		// Obtain the attribute value for Name from the specified Context
@@ -124,7 +125,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_localised_error('CAL0051', E_USER_WARNING, $this->getStartDate());
+			trigger_localised_error('CAL0051', sprintf(translate('There is no occurrence of the specified recurring event on the specified date, being %s'), $this->getStartDate()), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -167,7 +168,7 @@ class Calendar_Event_Modification extends Calendar_Event
 				// get the parent recurring event asset
 				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE));
 				if (empty($recurring_event_ids)) {
-					trigger_localised_error('CAL0052', E_USER_ERROR);
+					trigger_localised_error('CAL0052', translate('Recurring Event Modifications can only be created underneath recurring events'), E_USER_ERROR);
 					return FALSE;
 				}
 				$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
@@ -196,7 +197,8 @@ class Calendar_Event_Modification extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b><?php echo translate('cal_event_modification_of'); ?></b></td>
+				<td><b><?php echo translate('Modification Of'); ?></b></td>
+
 				<td><?php
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE)) {
@@ -207,19 +209,23 @@ class Calendar_Event_Modification extends Calendar_Event
 				?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_modified_start_date'); ?></b></td>
+				<td><b><?php echo translate('Start Date of modified instance'); ?></b></td>
+
 				<td><?php echo $this->getFriendlyStart(); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_modified_end_date'); ?></b></td>
+				<td><b><?php echo translate('End Date of modified instance'); ?></b></td>
+
 				<td><?php echo $this->getFriendlyEnd(); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_modified_name'); ?></b></td>
+				<td><b><?php echo translate('Modified Name'); ?></b></td>
+
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_modified_description'); ?></b></td>
+				<td><b><?php echo translate('Modified Description'); ?></b></td>
+
 				<td><?php echo $this->attr('description'); ?></td>
 			</tr>
 		</table>
@@ -244,11 +250,11 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$res = Array();
 		$res['start'] = $date;
-		
+
 		if ($this->getStartTime()) {
 			$res['start'] .= ' '.$this->getStartTime();
 		}
-		
+
 		$res['end'] = date('Y-m-d', iso8601_ts($res['start']) + $this->getDuration());
 
 		if ($this->getEndTime()) {
@@ -302,7 +308,7 @@ class Calendar_Event_Modification extends Calendar_Event
 			$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
 			$replacement = date($matches[1], iso8601_ts($instance_dates['end']));
 		}
-	
+
 		if (empty($replacement)) {
 			$replacement = parent::getKeywordReplacement($keyword);
 		}

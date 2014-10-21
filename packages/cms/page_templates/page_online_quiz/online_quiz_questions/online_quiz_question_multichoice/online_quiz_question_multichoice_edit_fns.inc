@@ -62,42 +62,54 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 
 		$use_html_options = $asset->attr('use_html_options');
 
-		$o->openField(translate('online_quiz_question_multichoice_use_html_options_question'));
+		$o->openField(translate('Use HTML for Question Option Text?'));
+
 			if ($write_access) {
 				$options = Array(
-							'0'	=> translate('no'),
-							'1'	=> translate('yes'),
+							'0'	=> translate('No'),
+
+							'1'	=> translate('Yes'),
+
 						   );
 
 				combo_box($prefix.'_question_use_html_options', $options, FALSE, Array($use_html_options));
 			} else {
 				if ($use_html_options) {
-					echo translate('yes');
+					echo translate('Yes');
+
 				} else {
-					echo translate('no');
+					echo translate('No');
+
 				}
 			}
-			$o->note(translate('online_quiz_question_multichoice_use_html_options_note'));
+			$o->note(translate('When set to Yes, this option provides the ability to include HTML in the Option Text for each question.'));
+
 		$o->closeField();
 
-		$o->openField(translate('online_quiz_question_multichoice_options'));
+		$o->openField(translate('Question Options'));
+
 
 			$options = $asset->attr('response_form');
 
 			if (empty($options)) {
-				echo translate('online_quiz_question_multichoice_empty_options');
+				echo translate('There are currently no options for this question.');
+
 			} else {
 
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('online_quiz_question_multichoice_option'); ?></th>
-					<th><?php echo translate('online_quiz_question_multichoice_option_text'); ?></th>
-					<th><?php echo translate('online_quiz_question_multichoice_points'); ?></th>
+					<th><?php echo translate('Option'); ?></th>
+
+					<th><?php echo translate('Option Text'); ?></th>
+
+					<th><?php echo translate('Points'); ?></th>
+
 					<?php
 						if ($write_access) {
 							?>
-							<th><?php echo translate('delete_question'); ?></th>
+							<th><?php echo translate('Delete?'); ?></th>
+
 							<?php
 						}
 					?>
@@ -163,7 +175,8 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 		$o->closeField();
 
 		if ($write_access) {
-			$o->openField(translate('online_quiz_question_multichoice_new_option'));
+			$o->openField(translate('New Option'));
+
 			if ($use_html_options) {
 				?>
 				<table border="0" width="100%">
@@ -313,25 +326,30 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 
 		$use_html_options = $asset->attr('use_html_options');
 
-		$o->openField(translate('online_quiz_question_multichoice_options'));
+		$o->openField(translate('Question Options'));
+
 
 			$options = $asset->attr('response_form');
 
 			if (empty($options)) {
-				echo translate('online_quiz_question_multichoice_empty_options');
+				echo translate('There are currently no options for this question.');
+
 			} else {
 
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('online_quiz_question_multichoice_option'); ?></th>
+					<th><?php echo translate('Option'); ?></th>
+
 					<?php
 					if (!$use_html_options) {
-					?><th><?php echo translate('online_quiz_question_multichoice_option_text'); ?></th>
+					?><th><?php echo translate('Option Text'); ?></th>
+
 					<?php
 					}
 					?>
-					<th><?php echo translate('online_quiz_question_multichoice_response_supplement'); ?></th>
+					<th><?php echo translate('Response Supplement'); ?></th>
+
 				</tr>
 				<?php
 

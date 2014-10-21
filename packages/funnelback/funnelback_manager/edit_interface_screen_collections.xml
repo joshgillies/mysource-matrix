@@ -17,6 +17,8 @@
 <contents>
 	<section name="New Collection" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function		name="paintNewCollection" />
 				<process_function	name="processNewCollection" />
@@ -25,6 +27,8 @@
 	</section>
 	<section name="Edit Collections" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function		name="paintCollections" />
 				<process_function	name="processCollections" />
@@ -33,6 +37,8 @@
 	</section>
 	<section name="Edit Selected Collection" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function		name="paintSelectedCollection" />
 				<process_function	name="processSelectedCollection" />

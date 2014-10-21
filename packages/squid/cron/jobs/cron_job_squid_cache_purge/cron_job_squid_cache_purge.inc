@@ -57,7 +57,8 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	protected function _getName($short_name=FALSE)
 	{
 		// the ownerid must be set at the creation of this cron job
-		return translate('squid_cron_name', $this->attr('ownerid'));
+		return sprintf(translate('Purge Squid Cache Scheduled Job #%s'), $this->attr('ownerid'));
+
 
 	}//end _getName()
 
@@ -133,7 +134,8 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 
 		if (empty($status_errors)) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			$msg = translate('squid_cron_done_msg', $asset->name, $assetid);
+			$msg = sprintf(translate('Squid Cache cleared for all URLs applied to "%1$s" (Id: #%2$s).'), $asset->name, $assetid);
+
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 			if ($this->attr('type') == 'one_off') {
@@ -145,7 +147,7 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 			}
 		} else {
 			// process failed
-			trigger_localised_error('SQUID0002', E_USER_WARNING);
+			trigger_localised_error('SQUID0002', translate('Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Squid Cache section of External Tools Configuration.'), E_USER_WARNING);
 		}
 
 		// we can be removed because the error is beyound our control

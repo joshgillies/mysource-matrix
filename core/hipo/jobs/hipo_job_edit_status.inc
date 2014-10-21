@@ -53,7 +53,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('edit_status_threshold'));
+		$o->openField(translate('Edit Status Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -62,6 +63,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			echo SQ_HIPO_EDIT_STATUS_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -114,7 +116,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_status');
+		return translate('Edit Status');
+
 
 	}//end getHipoName()
 
@@ -130,7 +133,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_editing_status'),
+					'name'			=> translate('Editing Status'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processStatus',
 									   ),
@@ -177,14 +181,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		// to start editing a status, we need to have an asset id to edit
 		if (!isset($this->_running_vars['assetid'])) {
-			trigger_localised_error('HIPO0012', E_USER_WARNING);
+			trigger_localised_error('HIPO0012', translate('Unable to initialise Edit Status HIPO, no start asset ID specified'), E_USER_WARNING);
 			return '';
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
-			trigger_localised_error('HIPO0011', E_USER_WARNING, $this->_running_vars['assetid']);
+			trigger_localised_error('HIPO0011', sprintf(translate('Unable to initialise Edit Status HIPO, invalid start asset ID specified (%s)'), $this->_running_vars['assetid']), E_USER_WARNING);
 			return '';
 		}
 
@@ -281,7 +285,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				unset($this->_running_vars['dependant_hipo_job']);
 			}
 		}
-	
+
 		// Refresh the asset map to reflect the asset status changes when using the HIPO server
 		if (SQ_HIPO_USE_SERVER && !empty($this->_running_vars['assetid'])) {
 			$o->addOnLoad('
@@ -448,7 +452,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					} else {
 						$asset->processStatusChange($new_status, FALSE, FALSE);
 					}
-					$step_data['message'] = translate('hipo_edit_status', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $asset->id);
+					$step_data['message'] = sprintf(translate('Editing status of "%1$s" (Id: #%2$s)'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $asset->id);
+
 
 					// this asset has dependants, so we are going to spawn another edit_status hipo
 					// to take care of processing them
@@ -461,11 +466,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
-					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-					$this->_addError(translate('hipo_cannot_edit_status', $assetid));
+					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+					$this->_addError(sprintf(translate('Could not Edit Status for asset #%s, asset does not exist'), $assetid));
+
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
 			}
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;

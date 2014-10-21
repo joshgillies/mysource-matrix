@@ -84,12 +84,12 @@ class Package_Manager extends MySource_Object
 		$this->MySource_Object();
 
 		if (!isset($this->_full_path) || !is_dir($this->_full_path)) {
-			trigger_localised_error('SYS0238', E_USER_ERROR, get_class($this));
+			trigger_localised_error('SYS0238', sprintf(translate('Unable to construct "%1$s" because there is no _full_path set'), get_class($this)), E_USER_ERROR);
 		}
 
 		// make sure that this package is in our system rootm, otherwise the base path won't work
 		if (substr($this->_full_path, 0, strlen(SQ_SYSTEM_ROOT)) != SQ_SYSTEM_ROOT) {
-			trigger_localised_error('SYS0239', E_USER_ERROR, get_class($this));
+			trigger_localised_error('SYS0239', sprintf(translate('Unable to construct "%s" because there is the _full_path is not under the SYSTEM_ROOT'), get_class($this)), E_USER_ERROR);
 		}
 
 		// OK, if this is the "core" package then we just need to fiddle with the path
@@ -114,7 +114,7 @@ class Package_Manager extends MySource_Object
 			$this->_loadPackageAssets();
 
 		} else {
-			trigger_localised_error('SYS0199', E_USER_ERROR, $this->getPackageName());
+			trigger_localised_error('SYS0199', sprintf(translate('Package "%s" does not have a package.xml file'), $this->getPackageName()), E_USER_ERROR);
 		}
 
 	}//end constructor
@@ -286,7 +286,7 @@ class Package_Manager extends MySource_Object
 				$class = $type_code.'_management';
 				$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$class.'.inc';
 				if (!is_file($file)) {
-					trigger_localised_error('CORE0276', E_USER_WARNING, $file);
+					trigger_localised_error('CORE0276', sprintf(translate('File %s does not exist or is not readable'), $file), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
@@ -296,7 +296,7 @@ class Package_Manager extends MySource_Object
 				include_once $file;
 				// make sure the class exists
 				if (!class_exists($class)) {
-					trigger_localised_error('SYS0083', E_USER_WARNING, $type_code, $file);
+					trigger_localised_error('SYS0083', sprintf(translate('Asset "%1$s" does not have a management class defined for it in %2$s'), $type_code, $file), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
@@ -314,7 +314,7 @@ class Package_Manager extends MySource_Object
 				// generate the temporary list of event listeners
 				$events = $management->getEventList();
 				if (!is_array($events)) {
-					trigger_localised_error('SYS0142', E_USER_WARNING, $type_code, gettype($events));
+					trigger_localised_error('SYS0142', sprintf(translate('Expected Array in function getEventList() (Asset "%1$s"), got %2$s'), $type_code, gettype($events)), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
@@ -340,7 +340,7 @@ class Package_Manager extends MySource_Object
 
 		// create the xml summarys of screens info for the asset map
 		if (!$this->_createAssetMapScreensXML($deferred)) {
-			trigger_localised_error('SYS0242', E_USER_WARNING);
+			trigger_localised_error('SYS0242', translate('Unable to create the Asset Map Screens XML'), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
@@ -401,7 +401,7 @@ class Package_Manager extends MySource_Object
 				if (empty($info)) continue;
 
 				if ($package != $info['package']) {
-					trigger_localised_error('SYS0210', E_USER_ERROR, $full_path, $package, $info['package']);
+					trigger_localised_error('SYS0210', sprintf(translate('The Asset Information file "%1$s/asset.xml" is in the "%2$s" Package directory, but states that it is belongs to "%3$s"'), $full_path, $package, $info['package']), E_USER_ERROR);
 				}
 
 				$info['dir'] = $base_path;
@@ -508,7 +508,7 @@ class Package_Manager extends MySource_Object
 				// if this type is not inheriting from a type that is yet to be dealt with, then
 				// the type is in heriting from something that doesn't exist
 				} else if (!in_array($parent, $asset_types) && !in_array($parent, $deferred)) {
-					trigger_localised_error('SYS0080', E_USER_WARNING, $type_code, $parent);
+					trigger_localised_error('SYS0080', sprintf(translate('Asset "%1$s" attempts to inherit from the unknown type "%2$s"'), $type_code, $parent), E_USER_WARNING);
 					$remove = true;
 				}
 				// else we do nothing with the asset_type
@@ -522,7 +522,8 @@ class Package_Manager extends MySource_Object
 			}//end for
 
 			if ($last_count == count($asset_types)) {
-				trigger_localised_error('SYS0216', E_USER_WARNING, $this->getPackageName(), implode(', ', $asset_types));
+				trigger_localised_error('SYS0216', sprintf('There seems to be the possibility of recursive inheriting for the "%1$s" package
+The install order for these assets could not be established: %2$s', $this->getPackageName(), implode(', ', $asset_types)), E_USER_WARNING);
 				return Array();
 			}
 
@@ -593,7 +594,7 @@ class Package_Manager extends MySource_Object
 
 			// Ensure that the Details screen is first
 			if (!empty($ef->static_screens['details'])) {
-				$screen_node = $type_node->addChild('screen', $ef->static_screens['details']['name']);
+			    $screen_node = $type_node->addChild('screen', $ef->static_screens['details']['name']);
 				$screen_node->addAttribute('code_name', 'details');
 			}
 
@@ -756,7 +757,7 @@ class Package_Manager extends MySource_Object
 	{
 		if (!isset($this->assets[$type_code])) {
 			throw new Exception('Asset type "'.$type_code.'" does not exist in the "'.$this->getPackageName().'" package.');
-			trigger_localised_error('SYS0082', E_USER_ERROR, $type_code, $this->getPackageName());
+			trigger_localised_error('SYS0082', sprintf(translate('Asset "%1$s" does not exist in the "%2$s" package'), $type_code, $this->getPackageName()), E_USER_ERROR);
 			return Array();
 		}
 
@@ -797,7 +798,7 @@ class Package_Manager extends MySource_Object
 	{
 		if (!isset($this->assets[$type_code])) {
 			throw new Exception('Asset type "'.$type_code.'" does not exist in the "'.$this->getPackageName().'" package.');
-			trigger_localised_error('SYS0082', E_USER_ERROR, $type_code, $this->getPackageName());
+			trigger_localised_error('SYS0082', sprintf(translate('Asset "%1$s" does not exist in the "%2$s" package'), $type_code, $this->getPackageName()), E_USER_ERROR);
 			return ($field) ? null : Array();
 		}
 

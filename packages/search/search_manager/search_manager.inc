@@ -54,16 +54,24 @@ class Search_Manager extends Asset
 		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 		$this->standard_date_fields = Array(
-										'created'			=> translate('asset_created_date'),
-										'updated'			=> translate('asset_updated_date'),
-										'published'			=> translate('asset_published_date'),
-										'status_changed'	=> translate('asset_status_changed_date'),
+										'created'			=> translate('Date Asset Created'),
+
+										'updated'			=> translate('Date Asset Last Updated'),
+
+										'published'			=> translate('Date Asset Published'),
+
+										'status_changed'	=> translate('Date Asset Status Last Changed'),
+
 									  );
 		$this->standard_text_fields = Array(
-										'assetid'		=> translate('asset_id'),
-										'name'			=> translate('asset_name'),
-										'short_name'	=> translate('asset_name_short'),
-										'contents'		=> translate('asset_contents'),
+										'assetid'		=> translate('Asset ID'),
+
+										'name'			=> translate('Asset Name'),
+
+										'short_name'	=> translate('Asset Short Name'),
+
+										'contents'		=> translate('Asset Contents'),
+
 									  );
 
 	}//end constructor

@@ -45,7 +45,7 @@ class Link extends Asset
 	}//end constructor
 
 
-	
+
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
@@ -76,8 +76,8 @@ class Link extends Asset
 		return $allowed;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Perform any pre-validation required during the creation of this asset
 	*
@@ -94,15 +94,15 @@ class Link extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 
 		return TRUE;
 
 	}//end _preCreateCheck()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -118,7 +118,7 @@ class Link extends Asset
 		if (!parent::_createAdditional($link)) return FALSE;
 
 		return $this->makeAndSaveInitialWebPath(strtolower($this->attr('name')), $link);
-		
+
 	}//end _createAdditional()
 
 
@@ -161,19 +161,19 @@ class Link extends Asset
 	public function printBody()
 	{
 		$link_str = '<a href="'.$this->_getLinkURL().'"';
-		
+
 		$relation = $this->attr('link_relation');
 		if (!empty($relation)) {
 			$link_str .= ' rel="'.$relation.'"';
 		}
-		
+
 		$link_str .= '>'.$this->_getName().'</a>';
-		
+
 		echo $link_str;
 
 	}//end printBody()
-	
-	
+
+
 	/**
 	* Return the keywords for this asset type.
 	*
@@ -191,15 +191,15 @@ class Link extends Asset
 	function getAvailableKeywords()
 	{
 		$keywords = parent::getAvailableKeywords();
-		
+
 		$asset = new Asset();
-		
+
 		foreach ($asset->getAvailableKeywords() as $keyword => $desc) {
 			$keywords['link_target_'.$keyword] = 'Referring Asset: '.$desc;
 		}
 		$keywords['link_url'] = 'The Link URL for this asset';
 		$keywords['link_relation'] = 'Link relation for this asset';
-		
+
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -220,7 +220,7 @@ class Link extends Asset
 	* @access public
 	*/
 	function getKeywordReplacement($keyword)
-	{	
+	{
 		$replacement = NULL;
 
 		// Remove any modifiers from keyword
@@ -242,7 +242,7 @@ class Link extends Asset
 
 				// Then apply the ones we had remaining, then return it
 				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
-				
+
 				unset($contexted_asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
@@ -250,10 +250,10 @@ class Link extends Asset
 			}//end if contextid is not the currently active context
 
 		}//end if contextid is not NULL
-		
+
 		if (preg_match('|^link\_target\_(.*)|', $keyword, $matches)) {
 			$linked_asset = $this->getLinkedAsset();
-			
+
 			if ($linked_asset) {
 				$replacement = $linked_asset->getKeywordReplacement($matches[1]);
 			} else {
@@ -270,7 +270,7 @@ class Link extends Asset
 		if (count($modifiers) > 0) {
 			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		}
-		
+
 		return $replacement;
 
 	}//end getKeywordReplacement()
@@ -283,16 +283,16 @@ class Link extends Asset
 	* @access public
 	*/
 	function &getLinkedAsset()
-	{	
+	{
 		$linked_assetid = $this->attr('link_asset_id');
 		$linked_url = $this->attr('link_url');
-		
+
 		$linked_asset = NULL;
-		
+
 		// If we have assetid of linked asset then just get the asset, else try getting it from url
 		if (!empty($linked_assetid)) {
 			$linked_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($linked_assetid);
-			
+
 		} else if (!empty($linked_url)) {
 			// Strip protocal info and trailing query string from the url
 			$linked_url = preg_replace('|^.*://|', '', $linked_url);
@@ -304,8 +304,8 @@ class Link extends Asset
 		return $linked_asset;
 
 	}//end getLinkedAsset()
-	
-	
+
+
 	/**
 	* Get the replacement for the link_url keyword
 	*
@@ -317,11 +317,11 @@ class Link extends Asset
 		return $this->_getLinkURL();
 
 	}//end getLinkUrlKeywordReplacement()
-	
-	
+
+
 	/**
 	* Get the URL specified in this asset. It can be a text attribute or the URL of a selected asset
-	* 
+	*
 	* @return string
 	* @access private
 	*/
@@ -337,22 +337,22 @@ class Link extends Asset
 				if (!is_null($asset)) $url = $asset->getURL();
 			}
 		}
-		
+
 		return $url;
-		
+
 	}//end _getLinkURL()
-	
-	
+
+
 	/**
 	* Get the Link relation attribute of this asset
-	* 
+	*
 	* @return string
 	* @access private
 	*/
 	private function _getLinkRelation()
 	{
 		return $this->attr('link_relation') ? $this->attr('link_relation') : '';
-		
+
 	}//end _getLinkRelation()
 
 }//end class

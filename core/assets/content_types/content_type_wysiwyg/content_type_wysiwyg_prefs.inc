@@ -121,26 +121,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	// list of the plugins available to us. For further details for this
 	// please see RM issue #5323 Add global preferences for Edit+ WYSIWYG
 	// plugin options (https://squizmap.squiz.net/matrix/5323)
-	// Note this doesn't include the Core plugins that are included if
-	// any of the other ones are: Toolbar, Inline Toolbar, Keyboard Editor,
-	// and Cursor Assist.
-	var $_viper_plugins = Array(
-							'ViperAccessibilityPlugin'	=> 'accessibility_viper',
-							'ViperLangToolsPlugin'		=> 'choose_lang_tool_viper',
-							'ViperCoreStylesPlugin'		=> 'format_core_style_viper',
-							'ViperFormatPlugin'			=> 'format_viper',
-							'ViperHistoryPlugin'		=> 'history_viper',
-							'MatrixImagePlugin'			=> 'insert_image_viper_matrix',
-							'MatrixLinkPlugin'			=> 'insert_link_viper_matrix',
-							'MatrixKeywordsPlugin'		=> 'keyword_plugin_viper_matrix',
-							'ViperListPlugin'			=> 'list_viper',
-							'MatrixCopyPastePlugin'		=> 'matrix_edit_copy_paste',
-							'ViperSearchReplacePlugin'	=> 'search_and_replace_viper',
-							'ViperCharMapPlugin'		=> 'special_char_map_viper',
-							'ViperTableEditorPlugin'	=> 'table_editor_viper',
-							'ViperSourceViewPlugin'		=> 'view_source_viper',
-							'ViperCopyPastePlugin'		=> 'viper_edit_copy_paste',
-						  );
+	var $_viper_plugins = Array();
 
 
 	/**
@@ -151,7 +132,65 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	{
 		$this->Prefs($pref_file);
 
-	}//end constructor
+		// List of Viper plugins and names. This does not include the core
+		// plugins (Keyboard Editor, Toolbar, Inline Toolbar and Cursor
+		// Assist) which will be included if any of the others are.
+		$this->_viper_plugins = Array(
+            'ViperAccessibilityPlugin'	=> translate('Accessibility'),
+            'ViperLangToolsPlugin'		=> translate('Choose Language'),
+            'ViperCoreStylesPlugin'		=> translate('Core Styles'),
+            'ViperFormatPlugin'			=> translate('Formatting'),
+            'ViperHistoryPlugin'		=> translate('History'),
+            'MatrixImagePlugin'			=> translate('Insert Image'),
+            'MatrixLinkPlugin'			=> translate('Insert Link'),
+            'MatrixKeywordsPlugin'		=> translate('Keywords <i>(Asset-based & snippets)</i>'),
+            'ViperListPlugin'			=> translate('Listing'),
+            'MatrixCopyPastePlugin'		=> translate('Matrix Editing Tools <i>(specific to editing Matrix-based URLs)</i>'),
+            'ViperSearchReplacePlugin'	=> translate('Search and Replace'),
+            'ViperCharMapPlugin'		=> translate('Special Characters'),
+            'ViperTableEditorPlugin'	=> translate('Table Editing'),
+            'ViperSourceViewPlugin'		=> translate('View Source'),
+            'ViperCopyPastePlugin'		=> translate('Editing Tools <i>(Copy, Paste, etc.)</i>'),
+          );
+
+        $this->pref_vars['SQ_WYSIWYG_STYLE']['name'] = translate('WYSIWYG Style');
+
+        $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['name'] = translate('WYSIWYG CSS Styles');
+        $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['desc'] = translate('Control whether CSS styles will be applied to the WYSIWYG.').' '.
+            translate('The styles are defined in CSS files used as Associated Files for the current asset.').' '.
+            translate('The Matrix Apply Design plugin must be enabled for this setting to take effect.');
+
+        $this->pref_vars['SQ_WYSIWYG_PLUGINS']['name'] = translate('WYSIWYG Plugins');
+
+        $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['name'] = translate('WYSIWYG Image Resize');
+
+        $this->pref_vars['SQ_THESAURUS']['name'] = translate('Thesaurus');
+        $this->pref_vars['SQ_THESAURUS']['desc'] = translate('The thesaurus asset used by the Matrix Expand Keywords plugin.');
+
+        $this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['name'] = translate('Protocol Templates');
+        $this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['desc'] = translate('This preference allows you to customise the templates used for protocols (or link types) displayed on the Insert Link pop-up.').' '.
+            translate('The keyword <b>%%link%%</b> is replaced by the <b>Link</b> field in the Insert Link pop-up - this can appear anywhere in the string, allowing you to make \'pseudo-protocols\' that expand to a link in a certain format.').' '.
+            translate('The \'http\', \'https\', \'mailto\' and \'ftp\' protocols are core to the system, and cannot be deleted or modified.');
+
+        $this->pref_vars['SQ_LIVE_LINK_ONLY']['name'] = translate('Live Asset Hyperlink Safety');
+        $this->pref_vars['SQ_LIVE_LINK_ONLY']['desc'] = translate('If yes, editors of Live assets will only able permitted to create hyperlinks to other Live assets.');
+
+        $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['name'] = translate('Admin Mode WYSIWYG Type');
+        $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['desc'] = translate('Select the editor that you wish to use for WYSIWYG Content Containers in Admin Mode.').' '.
+            sprintf(
+                translate('If the Edit+ editor is selected, the following WYSIWYG preferences will not be applied: %s, %s, %s, %s, %s and %s.'),
+                translate('WYSIWYG Style'),
+                translate('WYSIWYG CSS Styles'),
+                translate('WYSIWYG Plugins'),
+                translate('WYSIWYG Image Resize'),
+                translate('Thesaurus'),
+                translate('Protocol Templates')
+            );
+
+        $this->pref_vars['SQ_VIPER_PLUGINS']['name'] = translate('Edit+ Editor Plugins');
+
+
+    }//end constructor
 
 
 	/**
@@ -166,182 +205,244 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $is_root   = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin  = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+        $have_lock = ($have_lock && $is_admin);
 
-		// enable viper editor?
-		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {		
+        // Enable Edit+ (Viper) Editor in Admin Mode?
+        $options = Array(
+                       1 => translate('Use Edit+ editor'),
+                       0 => translate('Use Matrix classic editor'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_ENABLE_VIPER_EDITOR', $options);
 
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['name']));
-			}
+        // Disable WYSIWYG linking from Live to Non-Live assets?
+        $options = Array(
+                       1 => translate('Live assets can only link to other Live assets'),
+                       0 => translate('Live assets can link to all other assets'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_LIVE_LINK_ONLY', $options);
 
-			$pref_var =& $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'];
+        $o->openSection(translate('Edit+ WYSIWYG Editor Preferences'));
 
-			if ($have_lock && $is_admin) {
-				$options = Array(1 => 'Yes', 0 => 'No');
-				combo_box('prefs[SQ_ENABLE_VIPER_EDITOR]', $options, FALSE, $pref_var);
-				echo $o->note(translate('enable_edit+_editor_note'));
-			} else {
-				echo ($pref_var) ? translate('yes') : translate('no');
-			}
-
-			if (is_null($pref)) $o->closeField();
-
-		}//end if show SQ_ENABLE_VIPER_EDITOR
-		
-		
-		if (is_null($pref) || $pref == 'SQ_VIPER_PLUGINS') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_VIPER_PLUGINS']['name']));
-			}
-
+		$this->paintField($o, $have_lock, $pref, 'SQ_VIPER_PLUGINS', function($plugins_setting) use ($have_lock) {
 			$viper_plugins = Array();
-			if (!empty($this->pref_vars['SQ_VIPER_PLUGINS']['default'])) {
-				$viper_plugins = explode('|', $this->pref_vars['SQ_VIPER_PLUGINS']['default']);
+			if (!empty($plugins_setting)) {
+				$viper_plugins = explode('|', $plugins_setting);
 			}
 			$all = in_array('all', $viper_plugins);
 
-			if ($have_lock && $is_admin) {
-				foreach ($this->_viper_plugins as $index => $plugin_name) {
-					check_box('prefs[SQ_VIPER_PLUGINS]['.$index.']', 1,($all || in_array($index, $viper_plugins)));
-					label(translate($plugin_name), 'prefs[SQ_VIPER_PLUGINS]['.$index.']');
-					echo '<br/>';
-				}
-			} else {
-				if ($all) {
-					echo translate('all_plugins_selected');
-				} else {
-					echo '<ul>';
-					foreach ($viper_plugins as $plugin_name) {
-						echo '<li class="sq-backend-data">'.translate($this->_viper_plugins[$plugin_name]).'</li>';
-					}
-					echo '</ul>';
-				}
-			}
+			$i = 0;
+			?>
+			<table class="sq-backend-table">
+			<col width="27%" />
+			<col width="6%" />
+			<col width="27%" />
+			<col width="6%" />
+			<col width="27%" />
+			<col width="6%" />
+			<?php
+            foreach ($this->_viper_plugins as $index => $plugin_name) {
+                if ($i % 3 === 0) {
+                    if ($i > 0) {
+                        echo '</tr>';
+                    }
+                    echo '<tr>';
+                }
 
-			if (is_null($pref)) $o->closeField();
-		}//end if show SQ_VIPER_PLUGINS
+                echo '<th>'.$plugin_name.'</th>';
+                echo '<td style="text-align: center">';
+                $checked  = ($all || in_array($index, $viper_plugins));
+                $alt_text = translate('Disabled');
+                if ($checked) {
+                    $alt_text = translate('Enabled');
+                }
+
+                if ($have_lock) {
+                    check_box('prefs[SQ_VIPER_PLUGINS]['.$index.']', 1, $checked);
+                } else {
+
+                    echo '<img src="'.sq_web_path('lib').'/web/images/'.($checked ? 'tick' : 'cross').'.gif" title="'.$alt_text.'" alt="'.$alt_text.'" />';
+                }
+                echo '</td>';
+                $i++;
+            }
+            ?></tr>
+            </table>
+            <?php
+		});//end closure (SQ_VIPER_PLUGINS)
+
+		$o->closeSection();
+
+        $o->openSection(translate('Matrix Classic WYSIWYG Editor Preferences'));
+
+		$this->paintField($o, $have_lock, $pref, 'SQ_WYSIWYG_STYLE', function($wysiwyg_style) use ($have_lock) {
+		    $size_units = Array('%' => '%', 'px' => 'px');
+            ?>
+            <table class="sq-backend-table" style="width: 350px;">
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Body Type'); ?></td>
+
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if ($have_lock) {
+                        combo_box('prefs[SQ_WYSIWYG_STYLE][body_type]', Array('DIV' => translate('DIV'), 'iFrame' => translate('iFrame')), FALSE, $wysiwyg_style['body_type']);
 
 
-		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_STYLE']['name']));
-			}
+                    } else {
+                        echo $wysiwyg_style['body_type'];
+                    }
+                    ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width'); ?></td>
 
-				$wysiwyg_style = $this->pref_vars['SQ_WYSIWYG_STYLE']['default'];
-				$size_units = Array('%' => '%', 'px' => 'px');
-				?>
-				<table class="sq-backend-table" style="width: 350px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('body_type'); ?></td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							combo_box('prefs[SQ_WYSIWYG_STYLE][body_type]', Array('div' => translate('div'), 'iframe' => translate('iframe')), FALSE, $wysiwyg_style['body_type']);
-						} else {
-							echo $wysiwyg_style['body_type'];
-						}
-						?>
-						<br /><i><?php echo translate('mozilla_always_uses_iframe'); ?></i>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width'); ?></td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if (!is_numeric($wysiwyg_style['width'])) {
-							$wysiwyg_style['width'] = preg_replace('/[^0-9]/', '', $wysiwyg_style['width']);
-						}
-						if ($have_lock && $is_admin) {
-							int_text_box('prefs[SQ_WYSIWYG_STYLE][width]', $wysiwyg_style['width'], FALSE, 5);
-							echo '&nbsp;';
-							$default_unit = '%';
-							if (isset($wysiwyg_style['units']['width'])) {
-								$default_unit = $wysiwyg_style['units']['width'];
-							}
-							combo_box('prefs[SQ_WYSIWYG_STYLE][units][width]', $size_units, FALSE, $default_unit);
-						} else {
-							if (isset($wysiwyg_style['width'])) {
-								echo $wysiwyg_style['width'];
-							}
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if (!is_numeric($wysiwyg_style['width'])) {
+                        $wysiwyg_style['width'] = preg_replace('/[^0-9]/', '', $wysiwyg_style['width']);
+                    }
+                    if ($have_lock) {
+                        int_text_box('prefs[SQ_WYSIWYG_STYLE][width]', $wysiwyg_style['width'], FALSE, 5);
+                        echo '&nbsp;';
+                        $default_unit = '%';
+                        if (isset($wysiwyg_style['units']['width'])) {
+                            $default_unit = $wysiwyg_style['units']['width'];
+                        }
+                        combo_box('prefs[SQ_WYSIWYG_STYLE][units][width]', $size_units, FALSE, $default_unit);
+                    } else {
+                        if (isset($wysiwyg_style['width'])) {
+                            echo $wysiwyg_style['width'];
+                        }
 
-							if (isset($wysiwyg_style['units']['width'])) {
-								echo $wysiwyg_style['units']['width'];
-							}
-						}
-						?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height'); ?></td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if (!is_numeric($wysiwyg_style['height'])) {
-							$wysiwyg_style['height'] = preg_replace('/[^0-9]/', '', $wysiwyg_style['height']);
-						}
-						if ($have_lock && $is_admin) {
-							int_text_box('prefs[SQ_WYSIWYG_STYLE][height]', $wysiwyg_style['height'], FALSE, 5);
-							echo '&nbsp;';
-							$default_unit = 'px';
-							if (isset($wysiwyg_style['units']['height'])) {
-								$default_unit = $wysiwyg_style['units']['height'];
-							}
-							combo_box('prefs[SQ_WYSIWYG_STYLE][units][height]', $size_units, FALSE, $default_unit);
-						} else {
-							if (isset($wysiwyg_style['height'])) {
-								echo $wysiwyg_style['height'];
-							}
-							if (isset($wysiwyg_style['units']['height'])) {
-								echo $wysiwyg_style['units']['height'];
-							}
-						}
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
+                        if (isset($wysiwyg_style['units']['width'])) {
+                            echo $wysiwyg_style['units']['width'];
+                        }
+                    }
+                    ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height'); ?></td>
 
-			if (is_null($pref)) $o->closeField();
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if (!is_numeric($wysiwyg_style['height'])) {
+                        $wysiwyg_style['height'] = preg_replace('/[^0-9]/', '', $wysiwyg_style['height']);
+                    }
+                    if ($have_lock) {
+                        int_text_box('prefs[SQ_WYSIWYG_STYLE][height]', $wysiwyg_style['height'], FALSE, 5);
+                        echo '&nbsp;';
+                        $default_unit = 'px';
+                        if (isset($wysiwyg_style['units']['height'])) {
+                            $default_unit = $wysiwyg_style['units']['height'];
+                        }
+                        combo_box('prefs[SQ_WYSIWYG_STYLE][units][height]', $size_units, FALSE, $default_unit);
+                    } else {
+                        if (isset($wysiwyg_style['height'])) {
+                            echo $wysiwyg_style['height'];
+                        }
+                        if (isset($wysiwyg_style['units']['height'])) {
+                            echo $wysiwyg_style['units']['height'];
+                        }
+                    }
+                    ?>
+                    </td>
+                </tr>
+            </table>
+            <div class="sq-warning-message">
+                <?php echo translate('<strong>Note:</strong> "Body Type" only affects Internet Explorer, versions 10 and below. In Mozilla or WebKit browsers, or IE 11 and above, an IFrame is always used.') ?>
+            </div>
+            <?php
+		});//end closure (SQ_WYSIWYG_STYLE)
 
-		}//end if show SQ_WYSIWYG_STYLE
+        // Apply CSS styles to (classic) WYSIWYG?
+        $options = Array(
+                       1 => translate('Apply CSS styles'),
+                       0 => translate('Don\'t apply CSS styles'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_APPLY_DESIGN_STYLE', $options);
 
-		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {			
-						
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['name']));
-			}
-						
-			$pref_var =& $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'];
-			if ($have_lock && $is_admin) {
-				$options = Array(1 => 'Yes', 0 => 'No');
-				combo_box('prefs[SQ_WYSIWYG_APPLY_DESIGN_STYLE]', $options, FALSE, $pref_var);
-				echo $o->note(translate('wysiwyg_apply_design_style_note'));
-			} else {
-				echo ($pref_var) ? translate('yes') : translate('no');
-			}
-						
-			if (is_null($pref)) $o->closeField();
-			
-		}//end if show SQ_WYSIWYG_APPLY_DESIGN_STYLE
-		
-
-		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_PLUGINS']['name']));
-			}
-
+        // Classic WYSIWYG plugins
+		$this->paintField($o, $have_lock, $pref, 'SQ_WYSIWYG_PLUGINS', function($plugins_setting) use ($have_lock) {
 			$plugins = Array();
-			if (!empty($this->pref_vars['SQ_WYSIWYG_PLUGINS']['default'])) {
-				$plugins = explode('|', $this->pref_vars['SQ_WYSIWYG_PLUGINS']['default']);
+			if (!empty($plugins_setting)) {
+				$plugins = explode('|', $plugins_setting);
 			}
 			$all = in_array('all', $plugins);
 			sort($plugins);
 
-			if ($have_lock && $is_admin) {
+			$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
+			if (!empty($all_plugins)) {
+                hidden_field('prefs[SQ_WYSIWYG_PLUGINS_PRESENT]', '1');
+            }
+
+            $i = 0;
+
+            ?>
+			<table class="sq-backend-table">
+			<col width="27%" />
+			<col width="6%" />
+			<col width="27%" />
+			<col width="6%" />
+			<col width="27%" />
+			<col width="6%" />
+			<?php
+            foreach ($all_plugins as $index => $plugin_name) {
+				global $ROOT_PATH;
+				$ROOT_PATH = SQ_FUDGE_PATH.'/wysiwyg/';
+                $plugin_path = SQ_FUDGE_PATH.'/wysiwyg/plugins/'.$plugin_name;
+                if (!is_file($plugin_path.'/'.$plugin_name.'.inc')) {
+                    continue;
+                }
+                include $plugin_path.'/'.$plugin_name.'.inc';
+                $check_result = call_user_func(Array($plugin_name, 'check_usable'));
+
+                if ($i % 3 === 0) {
+                    if ($i > 0) {
+                        echo '</tr>';
+                    }
+                    echo '<tr>';
+                }
+
+                echo '<th>';
+                if ($have_lock) {
+                    label('&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name)), 'prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']');
+                } else {
+                    echo ucwords(str_replace('_', ' ', $plugin_name));
+                }
+                if ($check_result !== TRUE) {
+                    echo ' <i>('.$check_result.')</i>';
+                }
+                echo '</th>';
+                echo '<td style="text-align: center">';
+
+                $checked  = ($all || in_array($plugin_name, $plugins));
+                $alt_text = translate('Disabled');
+                if ($checked) {
+                    $alt_text = translate('Enabled');
+                }
+
+                $extra = ($check_result === TRUE) ? '' : 'disabled="disabled"';
+
+                if ($have_lock) {
+                    check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', $checked,'',$extra);
+                } else {
+                    echo '<img src="'.sq_web_path('lib').'/web/images/'.($checked ? 'tick' : 'cross').'.gif" title="'.$alt_text.'" alt="'.$alt_text.'" />';
+                }
+                echo '</td>';
+                $i++;
+            }
+            ?></tr>
+            </table>
+            <?php
+
+
+/*
+
+			if ($have_lock) {
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-				$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
-				sort($all_plugins);
 				if (!empty($all_plugins)) {
 					hidden_field('prefs[SQ_WYSIWYG_PLUGINS_PRESENT]', '1');
 				}
@@ -358,15 +459,18 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', ($all || in_array($plugin_name, $plugins)),'',$extra);
 					label('&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name)), 'prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']');
 					if ($check_result !== TRUE) {
-						echo ' <i>('.$check_result.')</i>';					}
+						echo ' <i>('.$check_result.')</i>';
+					}
 					echo '<br/>';
 				}
 			} else {
 				if ($all) {
-					echo translate('all_plugins_selected');
+					echo translate('All plugins are selected');
+
 				} else {
 					if (empty($plugins)) {
-						echo translate('no_plugins_selected');
+						echo translate('No plugins are selected');
+
 					} else {
 						echo '<ul>';
 						foreach ($plugins as $plugin_name) {
@@ -375,76 +479,31 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						echo '</ul>';
 					}
 				}
-			}
+			}*/
+		});//end closure (SQ_WYSIWYG_PLUGINS)
 
-			if (is_null($pref)) $o->closeField();
+        // Disable image resizing in (classic) WYSIWYG?
+        $options = Array(
+                       'yes' => translate('Disable image resizing'),
+                       'no'  => translate('Allow image resizing'),
+                   );
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE', $options);
 
-		}//end if show SQ_WYSIWYG_PLUGINS
+        // Thesaurus selection.
+        $this->paintAssetMapField($o, $have_lock, $pref, 'SQ_THESAURUS', FALSE, Array('thesaurus' => 'A'), translate('No Thesaurus asset selected'));
 
-		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['name']));
-			}
-				$wysiwyg_disable_image_resize = $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 100px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">
-						<?php
-							echo translate('disable');
-						?>
-						</td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							combo_box('prefs[SQ_WYSIWYG_DISABLE_IMAGE_RESIZE][default]', Array('yes' => 'Yes', 'no' => 'No'), FALSE, $wysiwyg_disable_image_resize);
-						} else {
-							echo ucfirst($wysiwyg_disable_image_resize);
-						}
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			if (is_null($pref)) $o->closeField();
-
-		}//end if show SQ_WYSIWYG_DISABLE_IMAGE_RESIZE
-
-		if ($GLOBALS['SQ_SYSTEM']->am->installed('thesaurus') && (is_null($pref) || $pref == 'SQ_THESAURUS')) {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_THESAURUS']['name']));
-			}
-
-			if ($have_lock && $is_admin) {
-				asset_finder('prefs[SQ_THESAURUS]', $this->pref_vars['SQ_THESAURUS']['default'], Array('thesaurus'=>'A'));
-				$o->note(translate('thesaurus_used_by_matrix_expand_keywords_plugin'));
-			} else {
-				if (!$this->pref_vars['SQ_THESAURUS']['default']) {
-					echo '('.translate('none_selected').')';
-				} else {
-					$name = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->pref_vars['SQ_THESAURUS']['default']), 'thesaurus', TRUE, 'name'));
-					echo $name.' (#'.$this->pref_vars['SQ_THESAURUS']['default'].')';
-				}
-			}
-			if (is_null($pref)) $o->closeField();
-		}//end if show SQ_THESAURUS
-
-		if (is_null($pref) || $pref == 'SQ_WYSIWYG_LINK_TYPES') {
-			$pref_var =& $this->pref_vars['SQ_WYSIWYG_LINK_TYPES'];
-
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['name']));
-			}
-
-			if ($have_lock && $is_admin) {
+        // Protocol templates.
+		$this->paintField($o, $have_lock, $pref, 'SQ_WYSIWYG_LINK_TYPES', function($pref_value) use ($have_lock) {
+			if ($have_lock) {
 
 				?><table class="sq-backend-table" style="width:auto">
 				<tr>
 					<th>Link Type</th>
 					<th>Template</th>
-					<th><?php echo translate('delete_question') ?></th>
+					<th><?php echo translate('Delete?') ?></th>
+
 				</tr><?php
-				foreach ($pref_var['default'] as $key => $item) {
+				foreach ($pref_value as $key => $item) {
 					// The first four items (http, https, mailto, ftp) cannot be altered
 					if ($key >= 4) {
 						?><tr><?php
@@ -466,7 +525,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				</tr>
 				</table>
 				<script type="text/javascript">
-				sq_wysiwyg_link_types_nextIndex = <?php echo (int)count($pref_var['default']); ?>;
+				sq_wysiwyg_link_types_nextIndex = <?php echo (int)count($pref_value); ?>;
 				function sq_wysiwyg_link_types_addAnother(node) {
 					var parent = node.parentNode;
 
@@ -500,7 +559,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					<th>Link Type</th>
 					<th>Template</th>
 				</tr><?php
-				foreach ($pref_var['default'] as $item) {
+				foreach ($pref_value as $item) {
 					?><tr><?php
 					?><td><?php echo $item['type']     ?></td><?php
 					?><td><?php echo $item['template'] ?></td><?php
@@ -509,28 +568,9 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				?></table><?php
 			}
 
-			$o->note(translate('core_ct_wysiwyg_link_type_templates_note'));
-			if (is_null($pref)) $o->closeField();
-		}// end if show SQ_WYSIWYG_LINK_TYPES
-		
-		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {			
-						
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_LIVE_LINK_ONLY']['name']));
-			}
-						
-			$pref_var =& $this->pref_vars['SQ_LIVE_LINK_ONLY']['default'];
-			if ($have_lock && $is_admin) {
-				$options = Array(1 => 'Yes', 0 => 'No');
-				combo_box('prefs[SQ_LIVE_LINK_ONLY]', $options, FALSE, $pref_var);
-				echo $o->note(translate('live_link_only_note'));
-			} else {
-				echo ($pref_var) ? translate('yes') : translate('no');
-			}
-						
-			if (is_null($pref)) $o->closeField();
-			
-		}//end if show SQ_LIVE_LINK_ONLY	
+		});// end closure (SQ_WYSIWYG_LINK_TYPES)
+
+		$o->closeSection();
 
 		return TRUE;
 
@@ -558,7 +598,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if (isset($_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'])) {
 				$this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'] = $_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'];
 			}
-		}		
+		}
 
 		// VIPER PLUGINS
 		if (is_null($pref) || $pref == 'SQ_VIPER_PLUGINS') {
@@ -601,7 +641,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'] = $_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE'];
 			}
 		}
-		
+
 
 		// WYSIWYG PLUGINS
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
@@ -641,7 +681,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		// WYSIWYG DISABLE IMAGE RESIZE
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
 			if (isset($_POST['prefs']['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE'])) {
-				$this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'] = $_POST['prefs']['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'];
+				$this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'] = $_POST['prefs']['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE'];
 			}
 		}
 
@@ -676,14 +716,14 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'] = array_values($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default']);
 			}
 		}
-		
+
 		// LIVE LINK ONLY
 		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {
 			if (isset($_POST['prefs']['SQ_LIVE_LINK_ONLY'])) {
 				$this->pref_vars['SQ_LIVE_LINK_ONLY']['default'] = $_POST['prefs']['SQ_LIVE_LINK_ONLY'];
 			}
 		}
-		
+
 
 		return TRUE;
 

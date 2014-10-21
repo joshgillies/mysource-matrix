@@ -16,89 +16,128 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Datacash Account Details" write_access="write:attributes">
-		<field attribute="client">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="password">
-			<password width="20" />
-		</field>
-	</section>
-	<section name="Configuration" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintDatacashAPIPath"   />
-				<process_function name="processDatacashAPIPath" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintCardInfoDirPath"   />
-				<process_function name="processCardInfoDirPath" />
-			</function_call>
-		</field>
-		<field attribute="timeout">
-			<int width="3" />
-		</field>
-		<field attribute="currency">
-			<selection style="list" />
-		</field>
-	</section>
-	<section name="3-D Secure" write_access="write:attributes">
-		<field attribute="merchant_url">
-			<text width="60" height="1" />
-		</field>
-		<field attribute="purchase_desc">
-			<text width="60" height="1" />
-		</field>
-		<field attribute="nonthreed_card_types">
-			<selection style="boxes" columns="1" />
-		</field>
-	</section>
-	<section name="Address and Security Code Verification (AVS/CV2)" write_access="write:attributes">
-		<field attribute="avscv2_standard_policy">
-			<selection style="list" />
-		</field>
-	</section>
-	<section name="Pass through Variables" write_access="write:attributes">
-		<field attribute="addr1_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="addr2_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="addr3_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="addr4_var_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="postcode_var_name">
-			<text width="30" height="1" />
-		</field>
-	</section>
-	<section name="Interface Options" write_access="write:attributes">
-		<field attribute="submit_text">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="reset_text">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="cancel_text">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Testing Mode" write_access="write:attributes">
-		<field attribute="test_mode">
-			<boolean true_text="on" false_text="off" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Short Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Datacash Account Details" write_access="write:attributes">
+        <field attribute="client">
+            <display_name>Client</display_name>
+            <note />
+            <text width="20" height="1" />
+        </field>
+        <field attribute="password">
+            <display_name>Password</display_name>
+            <note />
+            <password width="20" />
+        </field>
+    </section>
+    <section name="Configuration" write_access="write:attributes">
+        <field>
+            <display_name>Datacash API Path</display_name>
+            <note>The path to the Datacash PHP API's DataCash.php file.</note>
+            <function_call>
+                <paint_function name="paintDatacashAPIPath" />
+                <process_function name="processDatacashAPIPath" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>CardInfo Directory Path</display_name>
+            <note>The path to the directory that keeps the CardInfo Files.</note>
+            <function_call>
+                <paint_function name="paintCardInfoDirPath" />
+                <process_function name="processCardInfoDirPath" />
+            </function_call>
+        </field>
+        <field attribute="timeout">
+            <display_name>Timeout</display_name>
+            <note>How long to wait for a response, in seconds, before returning an error. Defaults to 60 seconds if unspecified.</note>
+            <int width="3" />
+        </field>
+        <field attribute="currency">
+            <display_name>Currency</display_name>
+            <note>The currency used in all the e-commerce transactions.</note>
+            <selection style="list" />
+        </field>
+    </section>
+    <section name="3-D Secure" write_access="write:attributes">
+        <field attribute="merchant_url">
+            <display_name>Merchant URL</display_name>
+            <note>The URL of the website on which the payment is being made. It must be fully qualified (i.e. include https://)</note>
+            <text width="60" height="1" />
+        </field>
+        <field attribute="purchase_desc">
+            <display_name>Purchase Description</display_name>
+            <note>A short description of what has been purchased. This is shown to the card holder by the ACS.</note>
+            <text width="60" height="1" />
+        </field>
+        <field attribute="nonthreed_card_types">
+            <display_name>Non-3D Secure Card Types</display_name>
+            <note>The Card Types that are not going through the 3-D Secure check. The above list includes the card types that can support 3-D Secure (depending upon your Acquiring Bank). The cards that do not support 3-D Secure check such as American Express, Diners Club, Duet, GE Capital, JCB and Laser will be automatically included. Maestro (includes Switch) card is excluded from this list as MasterCard apply the mandating rule from 1st July 2007.</note>
+            <selection style="boxes" columns="1" />
+        </field>
+    </section>
+    <section name="Address and Security Code Verification (AVS/CV2)" write_access="write:attributes">
+        <field attribute="avscv2_standard_policy">
+            <display_name>Standard Policy</display_name>
+            <note>If a check is selected to perform (AVS, CV2 or both), it must be passed for the payment transaction to succeed. NOT CHECKED means that the Card Issuers is not able to check the data provided for AVS/CV2 test such as the AVS elements of cards issued outside the United Kingdom. Remember that if you choose a policy, you must provide all of its elements to send to the Datacash Payment Gateway. Otherwise all transactions will be rejected. For example, if you select CV2 check policy, you must provide the CV2 number on the credit cards.</note>
+            <selection style="list" />
+        </field>
+    </section>
+    <section name="Pass through Variables" write_access="write:attributes">
+        <field attribute="addr1_var_name">
+            <display_name>Address 1 Variable Name</display_name>
+            <note>The name of the pass through variable for the first line of address.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="addr2_var_name">
+            <display_name>Address 2 Variable Name</display_name>
+            <note>The name of the pass through variable for the second line of address.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="addr3_var_name">
+            <display_name>Address 3 Variable Name</display_name>
+            <note>The name of the pass through variable for the third line of address.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="addr4_var_name">
+            <display_name>Address 4 Variable Name</display_name>
+            <note>The name of the pass through variable for the fourth line of address.</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="postcode_var_name">
+            <display_name>Postcode Variable Name</display_name>
+            <note>The name of the pass through variable for Postcode.</note>
+            <text width="30" height="1" />
+        </field>
+    </section>
+    <section name="Interface Options" write_access="write:attributes">
+        <field attribute="submit_text">
+            <display_name>Submit Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+        <field attribute="reset_text">
+            <display_name>Reset Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+        <field attribute="cancel_text">
+            <display_name>Cancel Button Text</display_name>
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Testing Mode" write_access="write:attributes">
+        <field attribute="test_mode">
+            <display_name>Test Mode</display_name>
+            <note>Turn this switch ON for testing purposes. This will set the merchant ID to test among other things. When turned on, the gateway screen will display that it is in testing mode.</note>
+            <boolean true_text="on" false_text="off" />
+        </field>
+    </section>
 </contents>

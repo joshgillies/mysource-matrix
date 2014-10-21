@@ -18,57 +18,183 @@
 <contents>
 	<section name="Workflow Invitation Message" write_access="write:attributes">
 		<field attribute="subject_invitation">
+			<display_name>Subject</display_name>
+			<note />
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_invitation">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message invites users to approve or reject changes to a workflow. It is sent when workflow is started on an asset, or when the workflow progresses one or more steps, and will be sent to all users able to approve the new workflow step. If this is empty, a generic message will be used.</p>
+			<p>Keywords available to this message subject and body include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the asset whose workflow has been started.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that started the workflow.</li>
+				<li><strong>%previous_step_id%, %previous_step_name%</strong> - The step number and name of the previous workflow step. Blank if this is the first step.</li>
+				<li><strong>%current_step_id%, %current_step_name%</strong> - The step number and name of the newly current workflow step.</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
+				<li><strong>%accept_url%</strong> - The URL that will approve changes to this asset.</li>
+				<li><strong>%reject_url%</strong> - The URL that will reject changes to this asset.</li>
+				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
+				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			]]></note>
 			<text width="80" height="5" />
 		</field>
 	</section>
 	<section name="Workflow Up for Review Invitation Message" write_access="write:attributes">
 		<field attribute="subject_review_invitation">
+			<display_name>Subject</display_name>
+			<note />
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_review_invitation">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message invites users to approve or cancel the review of an asset. It is sent when workflow is started on an asset, or when the workflow progresses one or more steps, and will be sent to all users able to approve the new workflow step. If this is empty, a generic message will be used.</p>
+			<p>Keywords available to this message subject and body include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the asset whose workflow has been started.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that started the workflow.</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			]]></note>
 			<text width="80" height="5" />
 		</field>
 	</section>
 	<section name="Workflow Approval Message" write_access="write:attributes">
 		<field attribute="subject_approve">
+			<display_name>Subject</display_name>
+			<note />
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_approve">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message is sent when a user approves the changes to an asset in workflow. It is sent to all users on the same step that were able to approve the workflow before the message was sent. If this is empty, a generic message will be used.<br/>
+			<strong>Note:</strong> If an asset has more than one workflow running, it will be sent to all invited users on all current steps. If the approving user was also in another workflow, a custom message will be sent to that workflow's currently invited users, if such a message exists. Those users who were not in the same workflow in the approving user will receive a generic message. Only one generic message will be sent to each user, per asset.</p>
+			<p>Keywords available to this message subject and body include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the affected asset.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that approved the changes.</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
+				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			</p>
+			]]></note>
 			<text width="80" height="5" />
 		</field>
 	</section>
 	<section name="Workflow Rejection Message" write_access="write:attributes">
 		<field attribute="subject_reject">
+			<display_name>Subject</display_name>
+			<note />
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_reject">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message is sent when a user rejects the changes to an asset in workflow. It is sent to all users on the same step that were able to approve the workflow before the message was sent. If this is empty, a generic message will be used.<br/>
+			<strong>Note:</strong> If an asset has multiple workflows, each workflow will use its current step's custom rejection message. A message is also sent to the user who originally started the workflow. Only one generic message will be sent to each user, per asset.
+			<p>Keywords available to this message subject and body include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the affected asset.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that rejected the changes.</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
+				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			</p>
+			]]></note>
 			<text width="80" height="5" />
 		</field>
 	</section>
 	<section name="Workflow Up for Review Cancellation Message" write_access="write:attributes">
 		<field attribute="subject_review_cancel">
+			<display_name>Subject</display_name>
+			<note />
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_review_cancel">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message is sent when a user cancels the review of an asset in workflow. It is sent to all users on the same step that were able to approve the workflow before the message was sent. If this is empty, a generic message will be used.<br/>
+			<strong>Note:</strong> If an asset has multiple workflows, each workflow will use its current step's custom cancellation message. A message is also sent to the user who originally started the workflow. Only one generic message will be sent to each user, per asset.
+			<p>Keywords available to this message subject and body include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the asset whose workflow has been started.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that started the workflow.</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			</p>
+			]]></note>
 			<text width="80" height="5" />
 		</field>
 	</section>
 	<section name="Workflow Stale Message" write_access="write:attributes">
 		<field attribute="subject_stale">
+			<display_name>Subject</display_name>
+			<note />
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_stale">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message is a notice to those with Admin permission on an asset in workflow, or all System Administrators if no-one with Admin permission exists, that their asset has been on a step in workflow for longer than expected. It is sent when the current step has been active for longer than the Details screen's <strong>Expiry Time</strong> setting, and escalation is disabled. It can also be sent when escalation is enabled, but this is the last step of the workflow - a workflow cannot be escalated to completion.</p>
+			<p>Keywords available to this message subject and body include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%</strong> - The ID and name of the asset whose workflow has become stale.</li>
+				<li><strong>%schema%</strong> - The name of the workflow schema that has become stale.</li>
+				<li><strong>%step_id%, %step_name%</strong> - The step number and name of the current workflow step.</li>
+				<li><strong>%started_time%</strong> - The started time of the previous step (in long form, eg. &quot;12:30 pm on 15th March 2009&quot;).</li>
+				<li><strong>%expiry_time%</strong> - The time allocated to the step that has just been escalated (in long form, eg. &quot;2 days, 6 hours&quot;).</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
+				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			]]></note>
 			<text width="80" height="5" />
 		</field>
 	</section>
 	<section name="Workflow Escalated Message" write_access="write:attributes">
-		<field attribute="subject_escalated">
+		<note><![CDATA[Limited HTML is allowed in the body of these messages. In particular, you can use the <strong>%*_url%</strong> replacements to create a link to certain parts of the workflow system.]]></note>
+	<field attribute="subject_escalated">
+			<display_name>Subject</display_name>
+			<note />
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_escalated">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message informs users of a workflow step that the workflow has been escalated to the next step (or sub-step) due to their inaction. It is sent when the current step has been active for longer than the Details screen's <strong>Expiry Time</strong> setting, escalation is enabled, and it is not the last step of the workflow. Following escalation, the newly invited users on the next step will receive an Invitation Message as usual.</p>
+			<p>Keywords available to this message subject and body include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%</strong> - The ID and name of the asset whose workflow has been escalated.</li>
+				<li><strong>%schema%</strong> - The name of the workflow schema that is being escalated.</li>
+				<li><strong>%previous_step_id%, %previous_step_name%</strong> - The step number and name of the workflow step that has been escalated from.</li>
+				<li><strong>%current_step_id%, %current_step_name%</strong> - The step number and name of the workflow step that is now current after escalation.</li>
+				<li><strong>%started_time%</strong> - The started time of the previous step (in long form, eg. &quot;12:30 pm on 15th March 2009&quot;).</li>
+				<li><strong>%expiry_time%</strong> - The time allocated to the step that has just been escalated (in long form, eg. &quot;2 days, 6 hours&quot;).</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
+				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
+				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			]]></note>
 			<text width="80" height="5" />
 		</field>
 	</section>

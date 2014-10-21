@@ -54,7 +54,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('clone_asset_threshold'));
+		$o->openField(translate('Clone Asset Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -63,6 +64,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				echo SQ_DUPE_ASSET_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -111,7 +113,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_clone_assets');
+		return translate('Clone Assets');
+
 
 	}//end getHipoName()
 
@@ -127,7 +130,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_clone_options'),
+					'name'			=> translate('Clone Options'),
+
 					'function_call'	=> Array(
 										'paint_function'	=> 'paintCloneOptions',
 										'process_function'	=> 'processCloneOptions',
@@ -141,7 +145,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_acquiring_locks'),
+					'name'			=> translate('Acquiring Locks'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
@@ -153,7 +158,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_cloning_assets'),
+					'name'			=> translate('Cloning Assets'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processCloneAssets',
 									   ),
@@ -166,7 +172,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_remapping_assets'),
+					'name'			=> translate('Remapping Assets'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processRemap',
 									   ),
@@ -179,7 +186,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_releasing_locks'),
+					'name'			=> translate('Releasing Locks'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'releaseLocks',
 									   ),
@@ -192,7 +200,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_refreshing_asset_map'),
+					'name'			=> translate('Refreshing Asset Map'),
+
 					'function_call'	=> Array(
 										'paint_function'	=> 'paintRefresh',
 										'process_function'	=> 'processRefresh',
@@ -288,14 +297,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		// there must be assets in the _running_vars to clone
 		if (empty($this->_running_vars['assets'])) {
-			trigger_localised_error('HIPO0031', E_USER_WARNING);
+			trigger_localised_error('HIPO0031', translate('Unable to initialise Clone Asset HIPO, no assets specified'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		foreach ($this->_running_vars['assets'] as $assetid => $info) {
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
-				trigger_localised_error('HIPO0084', E_USER_WARNING, $assetid);
+				trigger_localised_error('HIPO0084', sprintf(translate('Unable to clone asset "%1$s", shadow asset can not be cloned.'), $assetid), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -359,7 +368,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+		$step_data['message'] = sprintf(translate('Releasing locks on %s'), $asset_info[$assetid]['name']).translate('and its dependent assets');
+
+
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 
@@ -396,11 +407,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		$to_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
-		$o->openSection(translate('cloning_confirmation'));
-			$o->openField(translate('confirm'));
+		$o->openSection(translate('Cloning Confirmation'));
+
+			$o->openField(translate('Confirm'));
+
 				$o->addHiddenField('form_submitted', 1);
 				?>
-				<p><?php echo translate('hipo_cloning_confirm', htmlentities($to_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
+				<p><?php echo sprintf(translate('Please confirm that you are cloning the following asset(s) to under "%s":'), htmlentities($to_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
+
 				<ul>
 					<?php
 					$assets = $this->_running_vars['assets'];
@@ -450,7 +464,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				</ul>
 				</div>
 				</p>
-				<p><?php echo translate('hipo_confirm_abort');?></p>
+				<p><?php echo translate('Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.');?></p>
+
 				<?php
 			$o->closeField();
 		$o->closeSection();
@@ -520,14 +535,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 		if (is_null($parent_asset)) {
-			trigger_localised_error('HIPO0030', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
+			trigger_localised_error('HIPO0030', sprintf(translate('Unable to clone asset, invalid destination asset ID specified (#%d)'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING);
 			return FALSE;
 		}
 
 		$orig = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		if (is_null($orig)) {
-			trigger_localised_error('HIPO0029', E_USER_WARNING, $assetid);
+			trigger_localised_error('HIPO0029', sprintf(translate('Unable to clone asset, invalid asset ID for cloning specified (#%d)'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -571,7 +586,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, TRUE);
 		if (is_null($clone)) {
-			trigger_localised_error('HIPO0028', E_USER_WARNING);
+			trigger_localised_error('HIPO0028', translate('Unable to clone asset and it\'s required components. Cloning failed.'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -589,7 +604,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				$clone->setAttrValue('id_name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
 			}
 			if (!$clone->saveAttributes()) {
-				trigger_localised_error('HIPO0028', E_USER_WARNING);
+				trigger_localised_error('HIPO0028', translate('Unable to clone asset and it\'s required components. Cloning failed.'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -678,7 +693,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$step_data['message'] = 'Remapping "'.htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" and its dependant assets.';
 
 		if (!$asset->remapAssetids($map)) {
-			trigger_localised_error('HIPO0027', E_USER_WARNING, $asset->id);
+			trigger_localised_error('HIPO0027', sprintf(translate('Remap failed for asset, Asset Id #%d'), $asset->id), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -727,16 +742,18 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 		if (is_null($parent)) {
-			trigger_localised_error('HIPO0018', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
+			trigger_localised_error('HIPO0018', sprintf(translate('Asset #%d not found'), $this->_running_vars['to_parent_assetid']), E_USER_WARNING);
 			return FALSE;
 		}
 
-		$o->openSection(translate('note'));
+		$o->openSection(translate('Note'));
+
 			$o->openField('&nbsp;');
 				$o->addHiddenField('link_completed', '0');
 
 				if (count($this->_running_vars['assets']) > 0) {
-					echo '<p><b>'.translate('hipo_asset_cloning_successful', htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b></p>';
+					echo '<p><b>'.sprintf(translate('The following asset(s) have been successfully Cloned under "%s":'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b></p>';
+
 					echo '<ul>';
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid,));
@@ -747,9 +764,12 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 				?>
 
-				<p><?php echo translate('hipo_permission_workflow_metadata_display', htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
-				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
-				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_none'); ?></p>
+				<p><?php echo sprintf(translate('The permissions, workflow schemas, and metadata schemas of "%s" are shown below.'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
+
+				<p><?php echo sprintf(translate('To cascade the permissions, workflow schemas, and/or metadata schemas of "%s" to the newly linked asset(s) and their children, check the appropriate boxes below and press the <b>Next</b> button.'), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
+
+				<p><?php echo translate('If you do not wish to cascade any permissions or schemas, press the <b>Next</b> button without checking any boxes.'); ?></p>
+
 				<?php
 				$ei = $parent->getEI();
 
@@ -772,13 +792,19 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection(translate('cascade'));
+		$o->openSection(translate('Cascade'));
+
 			$o->openField('', 'cascade');
-				echo ($pe) ? translate('permissions').' '.check_box('cascade[]', 'cascade_pe').'<br />' : '';
-				echo ($ms) ? translate('metadata_schemas').' '.check_box('cascade[]', 'cascade_ms').'<br />' : '';
-				echo ($wf) ? translate('workflow').' '.check_box('cascade[]', 'cascade_wf').'<br />' : '';
-				echo ($ta) ? translate('content_tags').' '.check_box('cascade[]', 'cascade_ta').'<br />' : '';
-				echo ($ro) ? translate('roles').' '.check_box('cascade[]', 'cascade_ro').'<br />' : '';
+				echo ($pe) ? translate('Permissions').' '.check_box('cascade[]', 'cascade_pe').'<br />' : '';
+
+				echo ($ms) ? translate('Metadata Schemas').' '.check_box('cascade[]', 'cascade_ms').'<br />' : '';
+
+				echo ($wf) ? translate('Workflow').' '.check_box('cascade[]', 'cascade_wf').'<br />' : '';
+
+				echo ($ta) ? translate('Content Tags').' '.check_box('cascade[]', 'cascade_ta').'<br />' : '';
+
+				echo ($ro) ? translate('Roles').' '.check_box('cascade[]', 'cascade_ro').'<br />' : '';
+
 			$o->closeField();
 		$o->closeSection();
 

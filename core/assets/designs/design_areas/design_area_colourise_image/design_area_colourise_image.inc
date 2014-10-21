@@ -132,21 +132,21 @@ class Design_Area_Colourise_Image extends Design_Area
 	{
 		$image_asset = $GLOBALS['DESIGN_BEING_GENERATED']->getAssociatedFile($this->attr('image'));
 		if (is_null($image_asset)) {
-			trigger_localised_error('CORE0184', E_USER_WARNING, $this->attr('id_name'), $this->attr('image'));
+			trigger_localised_error('CORE0184', sprintf(translate('Unable to colourise "%1$s", source file asset for "%2$s" not found'), $this->attr('id_name'), $this->attr('image')), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// check the source file exists
 		$source = $image_asset->data_path.'/'.$image_asset->attr('name');
 		if (!file_exists($source)) {
-			trigger_localised_error('CORE0183', E_USER_WARNING, $this->attr('id_name'), $source);
+			trigger_localised_error('CORE0183', sprintf(translate('Unable to colourise "%1$s", source file "%2$s" doesn\'t exist'), $this->attr('id_name'), $source), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if ($this->attr('type') == 'greyscale') {
 			$colours = $this->attr('colours');
 			if (!isset($colours['black_colour']) || !isset($colours['white_colour'])) {
-				trigger_localised_error('CORE0186', E_USER_WARNING, $this->attr('id_name'));
+				trigger_localised_error('CORE0186', sprintf(translate('Unable to colourise "%s", you need to set both the black_colour and white_colour attributes in order to greyscale colourise an image'), $this->attr('id_name')), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -176,7 +176,7 @@ class Design_Area_Colourise_Image extends Design_Area
 		$dest = $this->data_path_public.'/colourised_'.$GLOBALS['DESIGN_BEING_GENERATED']->id.'_'.$this->attr('image');
 
 		if (!create_directory($this->data_path_public)) {
-			trigger_localised_error('CORE0185', E_USER_WARNING, $this->attr('id_name'), $this->data_path_public);
+			trigger_localised_error('CORE0185', sprintf(translate('Unable to colourise "%1$s", unable to create destination directory "%2$s"'), $this->attr('id_name'), $this->data_path_public), E_USER_WARNING);
 			return;
 		}
 
@@ -203,7 +203,7 @@ class Design_Area_Colourise_Image extends Design_Area
 			break;
 
 			default :
-				trigger_localised_error('CORE0182', E_USER_WARNING, $this->attr('id_name'), $this->get_val('type'));
+				trigger_localised_error('CORE0182', sprintf(translate('Unable to Colourise Image "%1$s",  type "%2$s" unknown.'), $this->attr('id_name'), $this->get_val('type')), E_USER_WARNING);
 
 		}//end switch
 

@@ -18,12 +18,18 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_date">
+			<display_name>Date Summary</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 		<field>
+			<display_name>Instances</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintDates" />
 				<process_function name="processDates" />

@@ -177,10 +177,10 @@ class Data_Source_DB_Management extends Asset_Management
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$sql = $asset->attr('sql');
 				if (!$asset->setAttrValue('sql', str_replace('<br />', ' ', $sql))) {
-					trigger_localised_error('CMS0039', E_USER_WARNING, '0.3');
+					trigger_localised_error('CMS0039', sprintf(translate('Listing Engine Upgrade [from %s] FAILED'), '0.3'), E_USER_WARNING);
 				}
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CMS0039', E_USER_WARNING, '0.3');
+					trigger_localised_error('CMS0039', sprintf(translate('Listing Engine Upgrade [from %s] FAILED'), '0.3'), E_USER_WARNING);
 				}
 				$upgraded_count++;
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);

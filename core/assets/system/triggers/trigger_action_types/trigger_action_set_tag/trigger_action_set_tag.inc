@@ -86,7 +86,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 					// only add valid tag id to the array
 					$tagid[] = $tmp_id;
 				} else {
-					trigger_localised_error('SYS0087', E_USER_WARNING, $tmp_id);
+					trigger_localised_error('SYS0087', sprintf(translate('Asset #%s does not exist'), $tmp_id), E_USER_WARNING);
 				}
 			}
 		} else {
@@ -273,7 +273,8 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 							echo get_asset_tag_line($tag->id);
 						}
 					} else {
-						echo '<em>'.translate('trigger_set_tag_no_tag_selected').'</em>';
+						echo '<em>'.translate('No Tag Selected').'</em>';
+
 					}
 				}
 				$tag_part = ob_get_contents();
@@ -292,12 +293,16 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 			ob_start();
 				$action_checked = ($action == 'add' ? FALSE : TRUE);
 				if ($write_access) {
-					echo '<em>'.strtoupper(translate('or')).'</em></br>';
+					echo '<em>'.strtoupper(translate('Or')).'</em></br>';
+
 					check_box($prefix.'[action]', '1', $action_checked, 'toggleWeighting(!this.checked)');
 				} else {
-					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($action_checked ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($action_checked ? translate('yes') : translate('no')); ?>"><?php
+					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($action_checked ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($action_checked ? translate('Yes') : translate('No')); ?>"><?php
+
+
 				}
-				label(translate('trigger_set_tag_label_remove_tag'), $prefix.'[action]');
+				label(translate('Remove this tag instead of setting it'), $prefix.'[action]');
+
 				$delete_part = ob_get_contents();
 			ob_end_clean();
 
@@ -305,9 +310,12 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 				if ($write_access) {
 					check_box($prefix.'[cascade]', '1', $cascade, 'toggleExclusiveCheckboxes(\'cascade\')');
 				} else {
-					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($cascade ? translate('yes') : translate('no')); ?>"><?php
+					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($cascade ? translate('Yes') : translate('No')); ?>"><?php
+
+
 				}
-				label(translate('cascade_tag_changes'), $prefix.'[cascade]');
+				label(translate('Cascade tag changes'), $prefix.'[cascade]');
+
 				$cascade_part = ob_get_contents();
 			ob_end_clean();
 
@@ -315,15 +323,20 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 				if ($write_access) {
 					check_box($prefix.'[manual_cascade]', '1', $manual_cascade, 'toggleExclusiveCheckboxes(\'manual_cascade\')');
 				} else {
-					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($manual_cascade ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($manual_cascade ? translate('yes') : translate('no')); ?>"><?php
+					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($manual_cascade ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($manual_cascade ? translate('Yes') : translate('No')); ?>"><?php
+
+
 				}
-				label(translate('manually_cascade_all_tags'), $prefix.'[manual_cascade]');
+				label(translate('Manually cascade all tags'), $prefix.'[manual_cascade]');
+
 				$manual_cascade_part = ob_get_contents();
 			ob_end_clean();
 
-			echo translate('trigger_set_tag_select_tag').' '.$tag_part;
+			echo translate('Select a tag to apply:').' '.$tag_part;
+
 			if ($write_access || $action == 'add') {
-				echo '<br />'.translate('trigger_set_tag_set_weighting').' '.$weighting_part;
+				echo '<br />'.translate('Set the weighting:').' '.$weighting_part;
+
 			}
 			echo '<br />';
 			echo $delete_part;

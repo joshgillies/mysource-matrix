@@ -103,7 +103,8 @@ class Calendar_Event_Single extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b><?php echo translate('name'); ?></b></td>
+				<td><b><?php echo translate('Name'); ?></b></td>
+
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<?php
@@ -112,7 +113,8 @@ class Calendar_Event_Single extends Calendar_Event
 					if (is_array($root_url)) $root_url = $root_url[0];
 				?>
 			<tr>
-				<td><b><?php echo translate('cal_event_replaces_cancellation') ?></b></td>
+				<td><b><?php echo translate('Replaces Cancellation') ?></b></td>
+
 				<td><?php
 					// get the parent recurring event asset
 					$recurring_events = array_keys($recurring_events);
@@ -129,15 +131,18 @@ class Calendar_Event_Single extends Calendar_Event
 				}
 			?>
 			<tr>
-				<td><b><?php echo translate('start_date') ?></b></td>
+				<td><b><?php echo translate('Start Date') ?></b></td>
+
 				<td><?php echo $this->getFriendlyStart(); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('end_date') ?></b></td>
+				<td><b><?php echo translate('End Date') ?></b></td>
+
 				<td><?php echo $this->getFriendlyEnd(); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('duration') ?></b></td>
+				<td><b><?php echo translate('Duration') ?></b></td>
+
 				<td><?php
 						// give useful info if no duration - easy_time_total returns empty string
 						$total_time = easy_time_total($this->getDuration(), TRUE);
@@ -145,7 +150,8 @@ class Calendar_Event_Single extends Calendar_Event
 					?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('description') ?></b></td>
+				<td><b><?php echo translate('Description') ?></b></td>
+
 				<td><?php echo $this->getKeywordReplacement('asset_attribute_description'); ?></td>
 			</tr>
 		</table>

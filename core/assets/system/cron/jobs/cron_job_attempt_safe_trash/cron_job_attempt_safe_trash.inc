@@ -59,14 +59,14 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				trigger_localised_error('CRON0018', E_USER_WARNING);
+				trigger_localised_error('CRON0018', translate('Unable to create future lineage cron job, unable to acquire "links" lock'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			$link = $this->_tmp['asset_in_link'];
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
-				trigger_localised_error('CRON0017', E_USER_WARNING);
+				trigger_localised_error('CRON0017', translate('Unable to create future lineage cron job, Unable to set asset in link'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -91,11 +91,16 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	{
 		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
-			return translate('cron_job_assetless_attempt_safe_trash');
+			return translate('Asset-less Attempt Safe-Trash Scheduled Job');
+
 		} else if ($short_name) {
-			return translate('cron_safe_trash_for', translate('asset_format', $asset->short_name, $asset->id));
+			return sprintf(translate('Safe-Trash for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->short_name, $asset->id));
+
+
 		} else {
-			return translate('cron_attempt_safe_trash_for', translate('asset_format', $asset->name, $asset->id));
+			return sprintf(translate('Attempt Safe-Trash for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->name, $asset->id));
+
+
 		}
 
 	}//end _getName()
@@ -159,7 +164,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	{
 		switch ($name) {
 			case 'type' :
-				trigger_localised_error('CRON0038', E_USER_NOTICE);
+				trigger_localised_error('CRON0038', translate('Unable to set the type of a future lineage cron job; it can only be a one off event'), E_USER_NOTICE);
 				return FALSE;
 			break;
 		}//end if
@@ -180,7 +185,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	public function setAssetToUpdate(Asset $asset)
 	{
 		if (!($asset instanceof Asset)) {
-			trigger_localised_error('CRON0030', E_USER_WARNING);
+			trigger_localised_error('CRON0030', translate('Unable to set asset to update, the asset must be a asset object'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -266,7 +271,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 
 		} else {
 			// asset not found
-			trigger_localised_error('CRON0020', E_USER_WARNING);
+			trigger_localised_error('CRON0020', translate('Unable to find asset to update the status of'), E_USER_WARNING);
 		}
 
 		// we can be removed because the error is beyound our control

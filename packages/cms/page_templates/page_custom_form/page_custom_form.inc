@@ -65,7 +65,8 @@ class Page_Custom_Form extends Page
 		$form = new Form_Email();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-		$form->setAttrValue('name', translate('cms_form_contents'));
+		$form->setAttrValue('name', translate('Form Contents'));
+
 		return $form->create($copy_link);
 
 	}//end _createAdditional()
@@ -104,7 +105,7 @@ class Page_Custom_Form extends Page
 		$form = $this->getForm();
 
 		if (is_null($form) && !array_get_index($this->_tmp, '__creating__', FALSE)) {
-			trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
+			trigger_localised_error('CMS0023', sprintf(translate('Could not locate the form asset for Custom Form "%s"'), $this->name, $this->id), E_USER_ERROR);
 			return FALSE;
 		}
 
@@ -140,7 +141,7 @@ class Page_Custom_Form extends Page
 		// If we are still being created, we will not have the "form" asset yet (bug #5979)
 		if (!array_get_index($this->_tmp, '__creating__', FALSE)) {
 			if (is_null($form)) {
-				trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
+				trigger_localised_error('CMS0023', sprintf(translate('Could not locate the form asset for Custom Form "%s"'), $this->name, $this->id), E_USER_ERROR);
 				return FALSE;
 			}
 			$form->printBody();
@@ -237,7 +238,7 @@ class Page_Custom_Form extends Page
 		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
 		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
 		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);
-		
+
 		if ($is_question_keyword || $is_response_keyword || $is_section_keyword || $is_form_keyword) {
 		    $form = $this->getForm();
 		    return $form->getDisplayKeywordReplacement($keyword);
@@ -259,10 +260,10 @@ class Page_Custom_Form extends Page
 	function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
-				
+
 		$form = $this->getForm();
 		if(empty($form)) return TRUE;
-		
+
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$bodycopy_array = Array();
 
@@ -276,7 +277,7 @@ class Page_Custom_Form extends Page
 			}
 		}
 
-	
+
 		// get all format bodycopies from sections and nested sections
 		$sections = $form->getSections();
 		foreach($sections as $section) {
@@ -285,7 +286,7 @@ class Page_Custom_Form extends Page
 
 
 		if(empty($bodycopy_array)) return TRUE;
-		
+
 		return ($this->extractConditionsFromBodycopy($bodycopy_array));
 	}//end _updated()
 
@@ -308,9 +309,12 @@ class Page_Custom_Form extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
 		if (array_get_index($link, 'is_exclusive', FALSE)) {
-			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
-			$minor_type_code = isset($link['minor_type_code']) ? ucwords(str_replace('_', ' ', $link['minor_type_code'])) : translate('unknown_asset_type');
-			return translate('core_cannot_delete_exclusive_link', $major_type_code, $minor_type_code);
+			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('Unknown Asset Type');
+
+			$minor_type_code = isset($link['minor_type_code']) ? ucwords(str_replace('_', ' ', $link['minor_type_code'])) : translate('Unknown Asset Type');
+
+			return sprintf(translate('Cannot delete exclusive link between %1$s and %2$s'), $major_type_code, $minor_type_code);
+
 		}
 
 		return TRUE;

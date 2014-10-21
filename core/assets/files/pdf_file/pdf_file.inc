@@ -149,17 +149,17 @@ class PDF_File extends File
 
 					    }//end switch
 
-					    trigger_localised_error('CORE0324', E_USER_WARNING, $this->id, $error_str);
+					    trigger_localised_error('CORE0324', sprintf(translate('Error occurred while getting contents for pdf File Asset #%1$s : %2$s'), $this->id, $error_str), E_USER_WARNING);
 					    return '';
 				    }//end if
 			    }//end if
 			}//end else
-			
+
 			if(!empty($content))
 			    string_to_file($content, $html_file);
 		}//end if
-		
-		
+
+
 		if (empty($content)) return '';
 
 		// strip out the tags
@@ -173,8 +173,8 @@ class PDF_File extends File
 
 		$content = strtolower(trim(preg_replace($search, $replace, $content)));
 
-		
-		
+
+
 		return $content;
 
 	}//end getContent()

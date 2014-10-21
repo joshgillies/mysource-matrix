@@ -16,17 +16,23 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Regular Expression" write_access="write:attributes">
 		<field keyword="regex_input">
+			<display_name>Regex Data</display_name>
+			<note>Regular expression and replacement string pair</note>
 			<function_call>
 				<paint_function   name="paintRegexDataForm" />
 				<process_function name="processRegexDataForm" />
 			</function_call>
 		</field>
 		<field attribute="limit">
+			<display_name>Replacement Limit</display_name>
+			<note>Maximum possible replacements for each pattern in the target string</note>
 			<int width="3"/>
 		</field>
 	</section>

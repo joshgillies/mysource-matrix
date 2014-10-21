@@ -286,11 +286,11 @@ class Ecommerce_Cart_Processor
 
 					if (isset($weight) && !empty($weight)) {
 						$product_quantity = array_get_index($details, 'quantity', 0);
-						
+
 						if (isset($delivery_weight_fee['max_quantity']) && ($delivery_weight_fee['max_quantity'] < $product_quantity)) {
 							$product_quantity = $delivery_weight_fee['max_quantity'];
 						}
-						
+
 						$total_delivery_cost += $weight * $delivery_weight_fee['fee'] * $product_quantity;
 					}
 				}//end if
@@ -331,7 +331,7 @@ class Ecommerce_Cart_Processor
 		if ($calculate_tax && $total_delivery_cost > 0) {
 			if ($includes_tax) {
 				$total_delivery_tax = $total_delivery_cost - ($total_delivery_cost / (1 + $taxation_rate));
-				$total_delivery_cost -= $total_delivery_tax;  
+				$total_delivery_cost -= $total_delivery_tax;
 			} else {
 				$total_delivery_tax = $total_delivery_cost * $taxation_rate;
 			}
@@ -468,17 +468,17 @@ class Ecommerce_Cart_Processor
 		if (is_null($asset)) {
 			return FALSE;
 		}
-		
+
 		if (!($asset instanceof Donation) && !($asset instanceof Buyable)) {
-			trigger_localised_error('ECOM0005', E_USER_WARNING, $assetid);
+			trigger_localised_error('ECOM0005', sprintf(translate('Item added to cart (#%s) is not a donation or is not able to be purchased'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
-		
+
 		if ($quantity <= 0) {
 			if ($asset instanceof Donation) {
-				trigger_localised_error('ECOM0025', E_USER_WARNING);
+				trigger_localised_error('ECOM0025', translate('Cannot add a donation with value less than or equal to 0 to the cart'), E_USER_WARNING);
 			} else if ($quantity < 0) { // quantity is less than zero, throw a hissy fit
-				trigger_localised_error('ECOM0004', E_USER_WARNING);
+				trigger_localised_error('ECOM0004', translate('Cannot add an item with negative quantity to the cart'), E_USER_WARNING);
 			}
 			return FALSE;
 		}
@@ -542,7 +542,7 @@ class Ecommerce_Cart_Processor
 										'free_shipping'		=> FALSE,
 									);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			
+
 		} else {
 			if ($asset instanceof Donation) {
 				$this->cart[$assetid]['quantity'] = $quantity;
@@ -584,7 +584,7 @@ class Ecommerce_Cart_Processor
 
 		// Qty < 0, throw an error
 		if ($quantity < 0) {
-			trigger_localised_error('ECOM0010', E_USER_WARNING);
+			trigger_localised_error('ECOM0010', translate('Cannot update an item with a negative quantity'), E_USER_WARNING);
 			return FALSE;
 		} else if ($quantity == 0) {
 			$this->removeItem($assetid);
@@ -601,9 +601,9 @@ class Ecommerce_Cart_Processor
 
 
 	/**
-	* Apply discount to the items in the cart and 
+	* Apply discount to the items in the cart and
 	* also link the applied promotion to the order for tracking purpose
-	* 
+	*
 	* @param string 	$promo_code
 	* @param string 	$order
 	* @param float		$taxation_rate	Taxation rate of each item
@@ -629,8 +629,8 @@ class Ecommerce_Cart_Processor
 			// Get the applicable promotional code assets
 			$promo_code_assetids = Ecommerce_Common::getPromotionalCodeAssetIds($assetid, $promo_code);
 			$order_promo_assetids = array_merge($order_promo_assetids, $promo_code_assetids);
-			// Link the promotion assets to the order/n 
-			
+			// Link the promotion assets to the order/n
+
 			$offers = Ecommerce_Common::getApplicablePromotionalInfo($promo_code_assetids, $data['tax_inclusive_cost'], $data['quantity']);
 			if (isset($offers['discount'])) {
 				$this->cart[$assetid]['discount'] = $offers['discount'];
@@ -701,7 +701,7 @@ class Ecommerce_Cart_Processor
 
 	}//end applyPromotionalCode()
 
-	
+
 	/**
 	* Returns the tax adjusted price of items in the cart, i.e. the final price including the tax
 	*
@@ -795,7 +795,7 @@ class Ecommerce_Cart_Processor
 		// then silently return, otherwise error
 		if (!isset($this->cart[$assetid])) {
 			if ($quantity > 0) {
-				trigger_localised_error('ECOM0006', E_USER_WARNING);
+				trigger_localised_error('ECOM0006', translate('Cannot remove items not in the cart'), E_USER_WARNING);
 			}
 			return FALSE;
 		}
@@ -809,13 +809,13 @@ class Ecommerce_Cart_Processor
 		// qty == 0, silently return - Qty < 0, throw an error
 		if ($quantity <= 0) {
 			if ($quantity < 0) {
-				trigger_localised_error('ECOM0007', E_USER_WARNING);
+				trigger_localised_error('ECOM0007', translate('Quantity to remove from cart cannot be less than zero'), E_USER_WARNING);
 			}
 			return FALSE;
 		}
 
 		if ($quantity > $this->cart[$assetid]['quantity']) {
-			trigger_localised_error('ECOM0008', E_USER_WARNING);
+			trigger_localised_error('ECOM0008', translate('Quantity to remove from cart cannot be more than how many of that product are actually in the cart'), E_USER_WARNING);
 			return FALSE;
 		} else if ($quantity == $this->cart[$assetid]['quantity']) {
 			unset($this->cart[$assetid]);
@@ -857,7 +857,7 @@ class Ecommerce_Cart_Processor
 	* @param array		$flat_charges		flat charges Array('Name' => 'Price')
 	* @param boolean	$remove_tax			whether to remove tax from taxed products, i.e. if country is not defined as taxable
 	* @param string		$currency_symbol	symbol to use as the currency for all prices
-	* @param int		$float_precision	precision of the floating numbers used for prices	
+	* @param int		$float_precision	precision of the floating numbers used for prices
 	* @param string	    $refund_info		refund info to include if some product in cart are non-refundable
 	* @param boolean	$calculate_del_tax	whether to calculate tax on delivery cost
 	* @param boolean	$del_inc_tax		whether the delivery cost includes tax
@@ -872,26 +872,26 @@ class Ecommerce_Cart_Processor
 		// ensure the float precision is an int
 		$float_precision = (int) $float_precision;
 		$price_format = $currency_symbol.'%.'.$float_precision.'f';
-		
+
 		$name_length = 0;
 		$has_price = FALSE;
 		$has_products = FALSE;
-        
+
         // TRUE if any item in cart is non-refundable
         $non_refundable_flag = FALSE;
-        
+
 		// formatting preparation
 		foreach ($this->cart as $assetid => $details) {
 			// determine longest item name
 
 			$tmp_taxable = array_get_index($details, 'taxable', FALSE);
 			$product_name = array_get_index($details, 'name', '');
-			
+
 			if (!$non_refundable_flag) {
                 $refund_type = array_get_index($details, 'refund_type', 'NonRefundable');
                 $non_refundable_flag = ($refund_type === 'NonRefundable') ? TRUE : FALSE;
 			}
-			
+
 			if (strlen($product_name) > $name_length) {
 				$name_length = strlen(array_get_index($details, 'name', ''));
 			}
@@ -906,7 +906,7 @@ class Ecommerce_Cart_Processor
 			if (!$has_price && ($price != -1)) {
 				$has_price = TRUE;
 			}
-			
+
 			// check if there are not only donations
 			if (!$has_products && !array_get_index($details, 'is_donation', FALSE) && ($price != -1)) {
 				$has_products = TRUE;
@@ -996,18 +996,18 @@ class Ecommerce_Cart_Processor
 			$total_tax = $this->getTotalTax($taxation_rate) + $delivery_tax;
 
 			$sub_total = $remove_tax ? $this->getTotal($total_tax, $taxation_rate)-$total_tax : $this->getTotal(0, $taxation_rate);
-			
+
 			if ($has_products) {
 				echo sprintf($row_format, 'Total', $this->getCount(), sprintf($price_format, $sub_total));
 			} else {
 				echo sprintf($row_format, 'Total', sprintf($price_format, $sub_total));
 			}
-			
+
 			if (($total_tax > 0) || ($flat_charges_total > 0.0) || $total_delivery_cost > 0 || $total_discount > 0) {
 				if ($total_delivery_cost > 0 && $calculate_del_tax) {
 					echo sprintf($row_format, 'Delivery Fee', '', sprintf($price_format, $total_delivery_cost));
 					echo $break;
-				} 
+				}
 
 				if ($total_tax > 0) {
 					$row_title = $remove_tax ? 'Excluded Tax ('.$taxation_name.')' : 'Total ('.$taxation_name.')';
@@ -1036,13 +1036,13 @@ class Ecommerce_Cart_Processor
 					echo $break;
 
 				}
-				$grand_total = $grand_total_ex_delivery + $grand_total_delivery - $total_discount;				
+				$grand_total = $grand_total_ex_delivery + $grand_total_delivery - $total_discount;
 				echo sprintf($row_format, 'Grand Total', '', sprintf($price_format, ($grand_total > 0) ? $grand_total : 0));
 			}
             if (!empty($refund_info) && $non_refundable_flag) {
                 echo "\n".$refund_info."\n";
             }
-            
+
 		} else {
 			echo sprintf($row_format, 'Total', $this->getCount());
 		}
@@ -1125,7 +1125,7 @@ class Ecommerce_Cart_Processor
 			$format_bodycopy->setKeywordReplacements($format_replacements);
 			$format_bodycopy->printBody();
 		}
-		
+
 		// receipt contents bodycopy keyword replacements
 		$content_replacements['receipt_listing'] = ob_get_clean();
 
@@ -1196,7 +1196,7 @@ class Ecommerce_Cart_Processor
 
 		//get Metadata Manager
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		
+
 		$products_str = '';
 		foreach ($this->cart as $assetid => $details) {
 			$quantity = array_get_index($details, 'quantity', 0);
@@ -1209,7 +1209,7 @@ class Ecommerce_Cart_Processor
 				$cost = $item_costs['tax_adjusted_cost'];
 				$tax_cost = $item_costs['tax_cost'];
 			}
-			
+
 			// Discounts
 			$item_discount = array_get_index($details, 'discount', 0);
 			$item_discount_str = sprintf($price_format, $item_discount);
@@ -1260,7 +1260,7 @@ class Ecommerce_Cart_Processor
 					</field>
 HEREDOC;
 			}
-			
+
 			$metadata_str = '';
 			if ($metadata_values_str != '') {
 				$metadata_str = <<<HEREDOC
@@ -1269,7 +1269,7 @@ HEREDOC;
 				</metadata>
 HEREDOC;
 			}
-			
+
 			$products_str .= <<<HEREDOC
 
 			<product>
@@ -1288,7 +1288,7 @@ HEREDOC;
 			</product>
 HEREDOC;
 		}
-		
+
 		//get flat charges string
 		$flat_charge_values_str = '';
 		$flat_charges_total = 0.0;
@@ -1302,7 +1302,7 @@ HEREDOC;
 HEREDOC;
 			$flat_charges_total += $price;
 		}
-		
+
 		$flat_charges_str = '';
 		if ($flat_charge_values_str != ''){
 			$flat_charges_str = <<<HEREDOC
@@ -1310,9 +1310,9 @@ HEREDOC;
 		<flat_charges>$flat_charge_values_str
 		</flat_charges>
 HEREDOC;
-			
+
 		}
-		
+
 		$flat_fees_total = sprintf($price_format, $flat_charges_total);
 
 		$sub_total = sprintf($price_format, $this->getTotal(0, $taxation_rate));
@@ -1329,11 +1329,11 @@ HEREDOC;
 		$grand_total_ex_delivery = sprintf($price_format, $grand_total_ex_delivery);
 		$delivery_total = sprintf($price_format, $delivery_total);
 		$total_discount = sprintf($price_format, $total_discount);
-		
+
 		//get total tax
 		$total_tax = $this->getTotalTax($taxation_rate) + $delivery_tax;
 		$total_tax = $remove_tax ? sprintf('-'.$price_format, $total_tax) : sprintf($price_format, $total_tax);
-		
+
 		$cart_xml = <<<HEREDOC
 	<cart>
 		<currency_symbol><![CDATA[$currency_symbol]]></currency_symbol>
@@ -1351,12 +1351,12 @@ HEREDOC;
 		</products>$flat_charges_str
 	</cart>
 HEREDOC;
-		
+
 		return $cart_xml;
 
 	}//end getCartXml()
-	
-	
+
+
 	/**
 	* Check the current cart and if the cart item does not exist,
 	* remove them from the cart

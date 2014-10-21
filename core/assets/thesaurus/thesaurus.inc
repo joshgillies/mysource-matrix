@@ -553,8 +553,8 @@ class Thesaurus extends Asset implements Bridge
 		if (!isset($term) || $term == '') {
 			return NULL;
 		}
-		
-		// remove leading and trailing spaces	
+
+		// remove leading and trailing spaces
 		$term = trim($term);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -633,7 +633,7 @@ class Thesaurus extends Asset implements Bridge
 
 		if (!empty($result)) {
 			// throw an error and return TRUE
-			trigger_localised_error('CORE0282', E_USER_WARNING, $note_name.":".$note_value, $result[0]['term']);
+			trigger_localised_error('CORE0282', sprintf(translate('Duplicate term note "%1$s" found for the term "%2$s".'), $note_name.":".$note_value, $result[0]['term']), E_USER_WARNING);
 			return TRUE;
 		}
 
@@ -836,8 +836,8 @@ class Thesaurus extends Asset implements Bridge
 	{
 
 		$term = $this->getTermById($termid);
-		
-		// remove leading and trailing spaces	
+
+		// remove leading and trailing spaces
 		$name = trim($name);
 
 		// if nothing has changed, no need to do any work
@@ -851,7 +851,7 @@ class Thesaurus extends Asset implements Bridge
 		// updating the name if it is used by another term is hard as we don't know what to do with the children
 		// do we merge this term's children with the others' or do we only use our children or theirs?
 		if ($this->isTerm($name, $termid)) {
-			trigger_localised_error('CORE0239', E_USER_WARNING);
+			trigger_localised_error('CORE0239', translate('Cannot Update. A term with these details already exists.'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -901,7 +901,8 @@ class Thesaurus extends Asset implements Bridge
 
 		if (array_search($new_name, $this->getActiveRelations())!== FALSE) {
 			// can't rename an existing relation
-			$this->_tmp['error'][] = translate('thesaurus_new_relation_in_use');
+			$this->_tmp['error'][] = translate('The desired relation is already in use');
+
 			return FALSE;
 		}
 

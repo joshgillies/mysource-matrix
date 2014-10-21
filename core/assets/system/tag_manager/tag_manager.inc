@@ -325,14 +325,14 @@ class Tag_Manager extends Asset
 			foreach ($tagids as $tagid) {
 				if (!$this->isFromTaggingThesaurus($tagid)) {
 					// this tag is not in the required thesaurus
-					trigger_localised_error('CORE0274', E_USER_WARNING);
+					trigger_localised_error('CORE0274', translate('Tags must be selected from the tagging thesaurus'), E_USER_WARNING);
 					$has_error = TRUE;
 					continue;
 				}
 
 				$new_tag_object = $GLOBALS['SQ_SYSTEM']->am->getAsset($tagid);
 				if (is_null($new_tag_object)) {
-					trigger_localised_error('SYS0087', E_USER_WARNING, $tagid);
+					trigger_localised_error('SYS0087', sprintf(translate('Asset #%s does not exist'), $tagid), E_USER_WARNING);
 					$has_error = TRUE;
 					continue;
 				}
@@ -348,7 +348,7 @@ class Tag_Manager extends Asset
 							continue;
 						} else {
 							// already tagged, but with a different weighting; scream and shout
-							trigger_localised_error('CORE0275', E_USER_WARNING, $assetid, $weight);
+							trigger_localised_error('CORE0275', sprintf(translate('Tag already set on asset #%1$s with a different weighting (%2$s)'), $assetid, $weight), E_USER_WARNING);
 							$has_error = TRUE;
 							break;
 						}
@@ -393,12 +393,12 @@ class Tag_Manager extends Asset
 
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $tag, SQ_LINK_NOTICE);
 				if (empty($link)) {
-					trigger_localised_error('CORE0277', E_USER_WARNING, $tag, $assetid);
+					trigger_localised_error('CORE0277', sprintf(translate('Unable to remove tag %1$s from %2$s, link does not exist'), $tag, $assetid), E_USER_WARNING);
 					$has_error = TRUE;
 					continue;
 				}
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
-					trigger_localised_error('CORE0278', E_USER_WARNING, $tag, $assetid, $link['linkid']);
+					trigger_localised_error('CORE0278', sprintf(translate('Unable to remove tag %1$s from %2$s, link #%3$s cannot be deleted'), $tag, $assetid, $link['linkid']), E_USER_WARNING);
 					$has_error = TRUE;
 				}
 			}//end foreach

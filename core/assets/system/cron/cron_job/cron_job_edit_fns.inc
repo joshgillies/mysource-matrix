@@ -42,11 +42,13 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		$this->static_screens = Array(
 									'details'	=> Array(
-													'name'			=> translate('details'),
+													'name'			=> translate('Details'),
+
 													'force_unlock'	=> TRUE,
 												   ),
 									'logs'		=> Array(
-													'name'			=> translate('logs'),
+													'name'			=> translate('Logs'),
+
 													'force_unlock'	=> TRUE,
 												   ),
 								);
@@ -72,7 +74,8 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		if (is_null($cron_mgr)) return FALSE;
 
 		if ((int) $cron_mgr->attr('refresh_time') <= 0) {
-			echo translate('cron_manager_refresh_unknown');
+			echo translate('The Scheduled Jobs Manager refresh time is unknown');
+
 			return;
 		}
 
@@ -95,8 +98,11 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 			$time_unit = Array(
 							60		=> translate('minutes'),
+
 							3600	=> translate('hours'),
+
 							86400	=> translate('days'),
+
 						 );
 
 			$mins = Array('--' => '--');
@@ -134,7 +140,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			} else if (!empty($when_arr['hour'])) {
 				$current_hours = $when_arr['hour'];
 				$current_time_unit = isset($time_unit['3600']) ? '3600' : $current_time_unit;
-			} else {	
+			} else {
 				if (!empty($when_arr['day']))
 				    $current_days = $when_arr['day'];
 				$current_time_unit = '86400';
@@ -258,10 +264,15 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 					<?php
 					$units = Array(
 								'Y'	=> translate('year'),
+
 								'n'	=> translate('month'),
+
 								'j'	=> translate('day'),
+
 								'G'	=> translate('hour'),
+
 								'i'	=> translate('minute'),
+
 							 );
 
 					foreach ($units as $php_unit => $js_unit) {
@@ -288,20 +299,28 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				</script>
 				<?php
 				if ( $form_extra_elements != 'disabled') {
-					normal_button($prefix.'_set_now', translate('next_run'), "setCurrentTime('$prefix');");
+					normal_button($prefix.'_set_now', translate('next run'), "setCurrentTime('$prefix');");
+
 				}
-				echo ' '.translate('or_in').' ';
+				echo ' '.translate('or in').' ';
+
 				text_box($prefix.'_duration', ($when_arr['duration'] <> '' ? $when_arr['duration'] : '-'), 2, '', TRUE, $form_extra_elements)
 				?>
 				&nbsp;
 				<?php
 				$periods = Array(
 							'i'	=> translate('minutes'),
+
 							'h'	=> translate('hours'),
+
 							'd'	=> translate('days'),
+
 							'w'	=> translate('weeks'),
+
 							'm'	=> translate('months'),
+
 							'y'	=> translate('years'),
+
 						   );
 
 				combo_box($prefix.'_period', $periods, FALSE, ($when_arr['period'] <> '' ? $when_arr['period'] : '-'), NULL, $form_extra_elements);
@@ -371,7 +390,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				// display notice if user chose a specific date/time as well
 				foreach (Array('year', 'month', 'day', 'hour', 'minute') as $field) {
 				if ($fields[$field] != '--') {
-					trigger_localised_error('CRON0044', E_USER_NOTICE);
+					trigger_localised_error('CRON0044', translate('You have specified both absolute and relative times for the future status change. Only the relative time has been saved'), E_USER_NOTICE);
 					break;
 				}
 			}
@@ -405,7 +424,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 						}//end switch
 
 					} else if ($type_prefix) {
-						trigger_localised_error('CRON0040', E_USER_WARNING, Cron_Job::whenTypeName($type_prefix), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $field);
+						trigger_localised_error('CRON0040', sprintf(translate('Unable to create a %1$s %2$s with empty %3$s field'), Cron_Job::whenTypeName($type_prefix), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $field), E_USER_WARNING);
 						return FALSE;
 					}//end if
 
@@ -423,7 +442,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				$parsed_date = date('Y-m-d', $timestamp).substr($when_str, 10);
 
 				if (strcmp($parsed_date, $when_str) != 0) {
-					trigger_localised_error('SYS0311', E_USER_NOTICE, $when_str);
+					trigger_localised_error('SYS0311', sprintf(translate('%1$s is not a valid date/time.  The field value has been adjusted to the closest valid value.'), $when_str), E_USER_NOTICE);
 					$when_str = $parsed_date;
 				}
 

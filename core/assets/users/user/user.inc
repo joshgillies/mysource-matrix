@@ -75,7 +75,7 @@ class User extends Asset
 			if (!array_get_index($this->_tmp, 'username_set') || !array_get_index($this->_tmp, 'password_set')) {
 				// in this case they have tried to create without even trying to set the username or password, so
 				// we error here.  Otherwise errors have already been thrown so we don't throw them now.
-				trigger_localised_error('CORE0084', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+				trigger_localised_error('CORE0084', sprintf(translate('Unable to create a %s without a username and password'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			}
 			return FALSE;
 		}
@@ -100,7 +100,7 @@ class User extends Asset
 		if (!parent::_createAdditional($link)) return FALSE;
 
 		if (!$this->makeAndSaveInitialWebPath(strtolower($this->attr('username')), $link)) {
-			trigger_localised_error('CORE0019', E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0019', sprintf(translate('Unable to set an initial web path for "%s"'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -109,9 +109,9 @@ class User extends Asset
 
 		// give the user admin access to him/herself
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, TRUE)) {
-			trigger_localised_error('CORE0015', E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0015', sprintf(translate('Unable to create user - permission could not be set on user asset "%s"'), $this->name), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-			
+
 			return FALSE;
 		}
 
@@ -201,7 +201,7 @@ class User extends Asset
 		} else if ($name == 'username') {
 			$this->_tmp['username_set'] = TRUE; // so we know at create time whether to throw an extra error
 			if (!$this->_catchBlankSetUserName(trim($value))) {
-				trigger_localised_error('CORE0110', E_USER_WARNING);
+				trigger_localised_error('CORE0110', translate('Username cannot be blank'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -278,7 +278,7 @@ class User extends Asset
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							break;
 						}
-						
+
 						// Check if another user has the same username
 						$name = $this->getValidUsername($owning_attributeid, $this->attr('username'));
 
@@ -411,9 +411,9 @@ class User extends Asset
 		// one rule that is always in effect:
 		if ($passwd === '') {
 			if ($add_system_message) {
-				$GLOBALS['SQ_SYSTEM']->addMessage($$GLOBALS['SQ_SYSTEM']->getErrorMessage('CORE0247'));
+				$GLOBALS['SQ_SYSTEM']->addMessage(translate('Password cannot be blank'));
 			} else {
-				trigger_localised_error('CORE0247', E_USER_NOTICE);
+				trigger_localised_error('CORE0247', translate('Password cannot be blank'), E_USER_NOTICE);
 			}
 			$this->_tmp['password_validation_error'] = TRUE;
 			return FALSE;
@@ -423,25 +423,32 @@ class User extends Asset
 
 		// errors for when a character type does not occur in the password
 		$not_occurring_error_map = Array(
-									'SQ_PASSWD_RULE_NUM_CAPS'	=> 'CORE0222',
-									'SQ_PASSWD_RULE_NUM_LOWER'	=> 'CORE0223',
-									'SQ_PASSWD_RULE_NUM_INT'	=> 'CORE0224',
-									'SQ_PASSWD_RULE_NUM_PUNC'	=> 'CORE0225',
-									'SQ_PASSWD_RULE_NUM_SPC'	=> 'CORE0226',
+									'SQ_PASSWD_RULE_NUM_CAPS'	=> Array('CORE0222', translate('Password contains only %1$s capital letters, must contain at least %2$s')),
+									'SQ_PASSWD_RULE_NUM_LOWER'	=> Array('CORE0223', translate('Password contains only %1$s lower-case letters, must contain at least %2$s')),
+									'SQ_PASSWD_RULE_NUM_INT'	=> Array('CORE0224', translate('Password contains only %1$s numeric characters, must contain at least %2$s')),
+									'SQ_PASSWD_RULE_NUM_PUNC'	=> Array('CORE0225', translate('Password contains only %1$s punctuation characters, must contain at least %2$s')),
+									'SQ_PASSWD_RULE_NUM_SPC'	=> Array('CORE0226', translate('Password contains only %1$s spaces, must contain at least %2$s')),
 								   );
 
 		// errors for when a character type incorrectly occurs in the password
 		$occurring_error_map = Array(
-								'SQ_PASSWD_RULE_NUM_CAPS'	=> 'CORE0227',
-								'SQ_PASSWD_RULE_NUM_LOWER'	=> 'CORE0228',
-								'SQ_PASSWD_RULE_NUM_INT'	=> 'CORE0229',
-								'SQ_PASSWD_RULE_NUM_PUNC'	=> 'CORE0230',
-								'SQ_PASSWD_RULE_NUM_SPC'	=> 'CORE0231',
+								'SQ_PASSWD_RULE_NUM_CAPS'	=> Array('CORE0227', translate('Password must not contain capital letters')),
+								'SQ_PASSWD_RULE_NUM_LOWER'	=> Array('CORE0228', translate('Password must not contain lower-case letters')),
+								'SQ_PASSWD_RULE_NUM_INT'	=> Array('CORE0229', translate('Password must not contain numeric characters')),
+								'SQ_PASSWD_RULE_NUM_PUNC'	=> Array('CORE0230', translate('Password must not contain punctuation characters')),
+								'SQ_PASSWD_RULE_NUM_SPC'	=> Array('CORE0231', translate('Password must not contain spaces')),
 							   );
 
 		if (defined('SQ_PASSWD_RULE_LENGTH') && SQ_PASSWD_RULE_LENGTH > -1) {
 			if (strlen($passwd) < SQ_PASSWD_RULE_LENGTH) {
-				$errors[] = Array('CORE0220', strlen($passwd), SQ_PASSWD_RULE_LENGTH);
+				$errors[] = Array(
+				    'CORE0220',
+				    sprintf(
+				        translate('Password is only %1$s characters long, it needs to be at least %2$s characters'),
+				        strlen($passwd),
+				        SQ_PASSWD_RULE_LENGTH
+				    ),
+				);
 			}
 		}
 
@@ -450,19 +457,25 @@ class User extends Asset
 			foreach ($components as $component) {
 				$attr = $this->attr($component);
 				if (!empty($attr) && strpos(strtolower($passwd), strtolower($attr)) !== FALSE) {
-					$errors[] = Array('CORE0221');
+					$errors[] = Array(
+					    'CORE0221',
+					    translate('Password must not contain any user information, eg. name, email'),
+					);
 					break;
 				}
 			}
 		}
-		
+
 		if (defined('SQ_PASSWD_RULE_PASSWORD_HISTORY') && SQ_PASSWD_RULE_PASSWORD_HISTORY > 0) {
 		    $history_passwords = $this->attr('history_passwords');
 		    foreach ($history_passwords as $password) {
-			if(crypt($passwd, $password) === $password) {
-			    		$errors[] = Array('CORE0321');
-					break;
-			}
+                if (crypt($passwd, $password) === $password) {
+                    $errors[] = Array(
+                        'CORE0321',
+                        translate('You cannot choose a password that has previously been used on this account.'),
+                    );
+                    break;
+                }
 		    }
 		}
 
@@ -513,11 +526,13 @@ class User extends Asset
 				eval('$tmp_counter = $'.$rule.'_counter;');
 				if ($value == SQ_PASSWD_RULE_DISALLOWED && $tmp_counter > 0) {
 					if (isset($occurring_error_map[$rule])) {
-						$errors[] = Array($occurring_error_map[$rule]);
+						$errors[] = $occurring_error_map[$rule];
 					}
 				} else if ($tmp_counter < $value) {
 					if (isset($not_occurring_error_map[$rule])) {
-						$errors[] = Array($not_occurring_error_map[$rule], $tmp_counter, $value);
+					    $map_rule    = $not_occurring_error_map[$rule];
+					    $map_rule[1] = sprintf($map_rule[1], $tmp_counter, $value);
+						$errors[]    = $map_rule;
 					}
 				}
 			}
@@ -531,7 +546,10 @@ class User extends Asset
 			$blacklist = explode("\n", $blacklist);
 			foreach ($blacklist as $word) {
 				if ((!SQ_PASSWD_RULE_BLACK_LIST_EXACT && preg_match('/'.$word.'/', $passwd)) || (SQ_PASSWD_RULE_BLACK_LIST_EXACT && (strcmp($passwd, $word) == 0))) {
-					$errors[] = Array('CORE0260');
+					$errors[] = Array(
+					    'CORE0260',
+					    translate('Password contains black listed word.'),
+					);
 				}
 			}
 		}
@@ -539,18 +557,14 @@ class User extends Asset
 		if ($add_system_message) {
 			$msgs = '';
 			foreach ($errors as $error) {
-				$code = array_shift($error);
-				$bit = $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $error);
-				$bit = preg_replace('/\[([^\]]*)\]$/', '', $bit); // remove error code
-				$msgs .= '<li>'.$bit.'</li>';
+				$msgs .= '<li>'.$error[1].'</li>';
 			}
 			if (!empty($errors)) {
-				$GLOBALS['SQ_SYSTEM']->addMessage(translate('password_validation_error', '<ul>'.$msgs.'</ul>'));
+				$GLOBALS['SQ_SYSTEM']->addMessage(sprintf(translate('The supplied password is not valid: %s'), '<ul>'.$msgs.'</ul>'));
 			}
 		} else {
 			foreach ($errors as $error) {
-				$code = array_shift($error);
-				$GLOBALS['SQ_SYSTEM']->lm->raiseError($code, E_USER_WARNING, $error);
+				trigger_localised_error($error[0], $error[1], E_USER_WARNING);
 			}
 		}
 
@@ -570,64 +584,98 @@ class User extends Asset
 		include_once SQ_DATA_PATH.'/private/conf/password_rules.inc';
 		$res = Array();
 		if (SQ_PASSWD_RULE_LENGTH > 0) {
-			$res[] = translate('password_rules_min_length', SQ_PASSWD_RULE_LENGTH);
+			$res[] = sprintf(translate('Passwords must be at least %d characters long'), SQ_PASSWD_RULE_LENGTH);
+
 		}
 		if (SQ_PASSWD_RULE_DISALLOW_USER_INFO == 0) {
 			// yes this was built the wrong way around
-			$res[] = translate('password_rules_user_info_prohibited');
+			$res[] = translate('Passwords must not contain any user information');
+
 		}
 
 		if (SQ_PASSWD_RULE_NUM_CAPS > 1) {
-			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_CAPS, translate('capital_letters'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_CAPS, translate('capital letters'));
+
+
 		}
 		if (SQ_PASSWD_RULE_NUM_LOWER > 1) {
-			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_LOWER, translate('lowercase_letters'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_LOWER, translate('lower case letters'));
+
+
 		}
 		if (SQ_PASSWD_RULE_NUM_INT > 1) {
-			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_INT, translate('numeric_digits'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_INT, translate('numeric digits'));
+
+
 		}
 		if (SQ_PASSWD_RULE_NUM_PUNC > 1) {
-			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_PUNC, translate('punctuation_characters'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_PUNC, translate('punctuation characters'));
+
+
 		}
 		if (SQ_PASSWD_RULE_NUM_SPC > 1) {
-			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_SPC, translate('spaces'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_SPC, translate('spaces'));
+
+
 		}
 
 		if (SQ_PASSWD_RULE_NUM_CAPS == 1) {
-			$res[] = translate('password_rules_at_least', translate('one'), translate('capital_letter'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('capital letter'));
+
+
+
 		}
 		if (SQ_PASSWD_RULE_NUM_LOWER == 1) {
-			$res[] = translate('password_rules_at_least', translate('one'), translate('lowercase_letter'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('lower case letter'));
+
+
+
 		}
 		if (SQ_PASSWD_RULE_NUM_INT == 1) {
-			$res[] = translate('password_rules_at_least', translate('one'), translate('numeric_digit'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('numeric digit'));
+
+
+
 		}
 		if (SQ_PASSWD_RULE_NUM_PUNC == 1) {
-			$res[] = translate('password_rules_at_least', translate('one'), translate('punctuation_character'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('punctuation character'));
+
+
+
 		}
 		if (SQ_PASSWD_RULE_NUM_SPC == 1) {
-			$res[] = translate('password_rules_at_least', translate('one'), translate('space'));
+			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('space'));
+
+
+
 		}
 
 		$disallowed_chars = Array();
 		if (SQ_PASSWD_RULE_NUM_CAPS == -1) {
-			$disallowed_chars[] = translate('capital_letters');
+			$disallowed_chars[] = translate('capital letters');
+
 		}
 		if (SQ_PASSWD_RULE_NUM_LOWER == -1) {
-			$disallowed_chars[] = translate('lowercase_letters');
+			$disallowed_chars[] = translate('lower case letters');
+
 		}
 		if (SQ_PASSWD_RULE_NUM_INT == -1) {
-			$disallowed_chars[] = translate('numeric_digits');
+			$disallowed_chars[] = translate('numeric digits');
+
 		}
 		if (SQ_PASSWD_RULE_NUM_PUNC == -1) {
-			$disallowed_chars[] = translate('punctuation_characters');
+			$disallowed_chars[] = translate('punctuation characters');
+
 		}
 		if (SQ_PASSWD_RULE_NUM_SPC == -1) {
 			$disallowed_chars[] = translate('spaces');
+
 		}
 		if (!empty($disallowed_chars)) {
 			include_once SQ_FUDGE_PATH.'/general/text.inc';
-			$res[] = ucfirst(translate('password_rules_not_allowed', make_readable_list($disallowed_chars, strtolower(translate('and')))));
+			$res[] = ucfirst(sprintf(translate('%s are not allowed in passwords'), make_readable_list($disallowed_chars, strtolower(translate('And')))));
+
+
 		}
 
 		if (trim(SQ_PASSWD_RULE_BLACK_LIST) != '') {
@@ -637,15 +685,18 @@ class User extends Asset
 			}
 			if (!empty($black_words)) {
 				if (SQ_PASSWD_RULE_BLACK_LIST_EXACT) {
-					$res[] = translate('password_rules_blacklist_strict', implode(', ', $black_words));
+					$res[] = sprintf(translate('The following passwords are not allowed: %s'), implode(', ', $black_words));
+
 				} else {
-					$res[] = translate('password_rules_blacklist_loose', implode(', ', $black_words));
+					$res[] = sprintf(translate('Passwords must not contain any of these words: %s'), implode(', ', $black_words));
+
 				}
 			}
 		}
 
 		if (!empty($res)) {
-			return translate('password_rules_intro').'<ul class="password-rules"><li>'.implode('</li><li>', $res).'</li></ul>';
+			return translate('The following rules apply to new passwords:').'<ul class="password-rules"><li>'.implode('</li><li>', $res).'</li></ul>';
+
 		}
 		return '';
 
@@ -735,12 +786,14 @@ class User extends Asset
 		// we dont want our inbox or workspace deleted
 		$inbox_link = $this->getInboxLink();
 		if (!empty($inbox_link) && ($inbox_link['linkid'] == $linkid)) {
-			return translate('cannot_delete_inbox-user_link');
+			return translate('You can\'t delete the link between a user and their inbox');
+
 		}
 
 		$workspace_link = $this->getWorkspaceLink();
 		if (!empty($workspace_link) && ($workspace_link['linkid'] == $linkid)) {
-			return translate('cannot_delete_workspace-user_link');
+			return translate('You can\'t delete the link between a user and their workspace');
+
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -1080,7 +1133,8 @@ class User extends Asset
 	{
 
 		$keywords = parent::getAvailableKeywords();
-		$keywords['asset_attribute_email_image'] = translate('user_email_image');
+		$keywords['asset_attribute_email_image'] = translate('User Email Image');
+
 		// right now we have totaly of 56 keywords that are being returned by this function
 		// if we have more keywords added later , assertion in will need to be changed for
 		// unit_tests/by_file/core/assets/users/user/user.inc/test_get_user_locks.test
@@ -1122,7 +1176,7 @@ class User extends Asset
 
 				// Then apply the ones we had remaining, then return it
 				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
-				
+
 				unset($contexted_asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
@@ -1152,7 +1206,7 @@ class User extends Asset
 		}
 
 		return $replacement;
-	
+
 	}//end getKeywordReplacement()
 
 

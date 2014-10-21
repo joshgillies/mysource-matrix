@@ -18,6 +18,8 @@
 <contents>
 	<section name="Change Mode" write_access="write:attributes" limbo_access="1">
 		<field attribute="mode">
+			<display_name>Change Editing Mode</display_name>
+			<note>Choose 'Add Plot' to add a new plot to the graph. You can set the details of each plot by choosing 'Edit Plot' mode.</note>
 			<selection style="list" height="1" empty_text="none" extras="" />
 		</field>
 	</section>

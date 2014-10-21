@@ -17,12 +17,16 @@
 <contents>
 	<section name="Refresh Cache" write_access="write:attributes">
 		<field>
+			<display_name>Add a Job</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintAddJob" />
 				<process_function name="processAddJob" />
 			</function_call>
 		</field>
 		<field show_if="cronConfigured">
+			<display_name>Current Jobs</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintCurrentJobs" />
 				<process_function name="processCurrentJobs" />

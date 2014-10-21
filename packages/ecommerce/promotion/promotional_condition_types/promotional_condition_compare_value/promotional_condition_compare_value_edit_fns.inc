@@ -30,8 +30,8 @@ require_once dirname(__FILE__).'/../../promotional_condition/promotional_conditi
 */
 class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition_Edit_Fns
 {
-	
-	
+
+
 	/**
 	 * Constructor
 	 */
@@ -40,8 +40,8 @@ class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition
 		parent::__construct();
 
 	}//end constructor
-	
-	
+
+
 	/**
 	 * Paints the promotional condition's interface
 	 *
@@ -55,32 +55,35 @@ class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition
 	 * @access public
 	 */
 	function paintCondition(&$asset, &$o, $prefix, $condition_data, $write_access)
-	{		
+	{
 		// Setup default values if there is no condition data
 		if (is_null($condition_data)) {
-			$condition_data = $asset->getDefaultConditionData();			
+			$condition_data = $asset->getDefaultConditionData();
 		}
-		
+
 		// Paint the compare "source" field
-		$o->openField(translate('ecom_promotional_condition_type_compare_value_source_field'));		
+		$o->openField(translate('Source Value'));
+
 			if ($write_access) {
 				text_box($prefix.'[source_value]', $condition_data['source_value'], 50);
 			} else {
-				echo $condition_data['source_value'];	
-			}			
+				echo $condition_data['source_value'];
+			}
 		$o->closeField();
 
-		// Paint the compare value selection		
-		$o->openField(translate('ecom_promotional_condition_type_compare_value_compare_field'));		
+		// Paint the compare value selection
+		$o->openField(translate('Compare Value'));
+
 			if ($write_access) {
 				text_box($prefix.'[compare_value]', $condition_data['compare_value'], 50);
 			} else {
 				echo $condition_data['compare_value'];
-			}			
+			}
 		$o->closeField();
-		
+
 		// Paint the comparison type selection
-		$o->openField(translate('ecom_promotional_condition_type_compare_value_comparison_type'));				
+		$o->openField(translate('Comparison Type'));
+
 			$comp_types = $asset->getComparisionTypes();
 			if ($write_access) {
 				combo_box($prefix.'[comparison_type]', $comp_types, FALSE, $condition_data['comparison_type']);
@@ -91,15 +94,16 @@ class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition
 			check_box($prefix."[case_sensitive]", 1, $condition_data['case_sensitive'], '', $write_access ? '' : 'disabled');
 			echo 'Case sensitive?';
 		$o->closeField();
-		
+
 		// Add section note
-		$o->sectionNote(translate('ecom_promotional_condition_type_compare_value_section_note'));
-		
+		$o->sectionNote(translate('This condition is based on the value comparison. "Source Value" and "Compare Value" can be considered as first and second operands respectivly, and "Compare Type" as an operator. If the comparison operation returns TRUE, this condition will be considered successful. Globals keywords can be used in "Source Value" and "Compare Value" fields'));
+
+
 		return TRUE;
-		
+
 	}//end paintCondition()
-	
-	
+
+
 	/**
 	 * Process the promotional condition condition's interface
 	 *
@@ -112,30 +116,30 @@ class Promotional_Condition_Compare_Value_Edit_Fns extends Promotional_Condition
 	 * @access public
 	 */
 	function processCondition(&$asset, &$o, $prefix, &$condition_data)
-	{		
+	{
 		if (!isset($_POST[$prefix])) return FALSE;
-	
+
 		// Setup default values if there is no condition data
 		if (is_null($condition_data)) {
 			$condition_data = $asset->getDefaultConditionData();
 		}
-		
+
 		// Save compare values
 		$condition_data['source_value'] = array_get_index($_POST[$prefix], 'source_value', '');
-		$condition_data['compare_value'] = array_get_index($_POST[$prefix], 'compare_value', '');		
-		
-		// Save comparison type		
+		$condition_data['compare_value'] = array_get_index($_POST[$prefix], 'compare_value', '');
+
+		// Save comparison type
 		$comparison_type = array_get_index($_POST[$prefix], 'comparison_type', '');
 		if (array_key_exists($comparison_type, $asset->getComparisionTypes())) {
 			$condition_data['comparison_type'] = $comparison_type;
 		}
 		$condition_data['case_sensitive'] = array_get_index($_POST[$prefix], 'case_sensitive', '0');
-		
+
 		return TRUE;
-		
+
 	}//end processCondition()
-	
-	
+
+
 }//end class
 
 ?>

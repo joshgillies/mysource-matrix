@@ -38,68 +38,108 @@
 	</section>
 	<section name="Video Metadata" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name>Extract Video Metadata?</display_name>
+			<note>If this option is checked, Video metadata will be re-extracted from the current file and applied to the asset, where such metadata exists. This will replace any data previously entered.</note>
 			<function_call>
 				<paint_function   name="paintExtractID3"   />
 				<process_function name="processExtractID3" />
 			</function_call>
 		</field>
 		<field attribute="file_format">
+			<display_name>File Format</display_name>
+			<note />
 			<text width="20" />
 		</field>
 		<field attribute="audio_codec">
+			<display_name>Audio Codec</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="channels">
+			<display_name>Channels</display_name>
+			<note />
 			<int width="1" />
 		</field>
 		<field attribute="channel_mode">
+			<display_name>Channel Mode</display_name>
+			<note />
 			<text width="10" />
 		</field>
 		<field attribute="bitrate">
+			<display_name>Bitrate (kbps)</display_name>
+			<note />
 			<float width="4" />
 		</field>
 		<field attribute="sample_rate">
+			<display_name>Sample Rate (Hz)</display_name>
+			<note />
 			<float width="7" />
 		</field>
 		<field attribute="video_codec">
+			<display_name>Video Codec</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="width">
+			<display_name>Video Width</display_name>
+			<note />
 			<float width="4" />
 		</field>
 		<field attribute="height">
+			<display_name>Video Height</display_name>
+			<note />
 			<float width="4" />
 		</field>
 		<field attribute="fps">
+			<display_name>Frames Per Second</display_name>
+			<note />
 			<float width="5" />
 		</field>
 		<field attribute="length">
+			<display_name>Duration of track</display_name>
+			<note />
 			<duration biggest_units="minutes" smallest_units="seconds" />
 		</field>
 		<field attribute="video_title">
+			<display_name>Track Title</display_name>
+			<note />
 			<text width="50" />
 		</field>
 		<field attribute="artist">
+			<display_name>Artist</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="album">
+			<display_name>Album</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="genre">
+			<display_name>Genre</display_name>
+			<note />
 			<text width="30" />
 		</field>
 		<field attribute="year">
+			<display_name>Year</display_name>
+			<note />
 			<float width="4" />
 		</field>
 		<field attribute="copyright">
+			<display_name>Copyright</display_name>
+			<note />
 			<text width="40" />
 		</field>
 		<field attribute="comments">
+			<display_name>Comments</display_name>
+			<note />
 			<text width="60" height="8" />
 		</field>
 	</section>
 	<section name="Accessibility" write_access="write:attributes" limbo_access="1">
 		<field attribute="alt_asset">
+			<display_name>Alternate Video File Asset</display_name>
+			<note />
 			<assetid type_codes="video_file:D" />
 		</field>
 	</section>

@@ -41,8 +41,8 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 		parent::__construct($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -56,8 +56,8 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 		return $page_links;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* generates the html for this question to display it in the frontend
 	*
@@ -66,7 +66,7 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 	*/
 	function getHtmlField()
 	{
-		
+
 		$width  = $this->attr('width');
 		$max    = $this->attr('max');
 		$extras = $this->attr('extra');
@@ -83,7 +83,7 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 		return $html;
 
 	}//end getHtmlField()
-	
+
 	/**
 	* generates the html for the submit button of this questions text field
 	*
@@ -92,21 +92,21 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 	*/
 	function getHtmlButton()
 	{
-		
+
 		$name   = 'q'.$this->id.'_button';
 		$value = $this->attr('button_value');
 		$on_click = "get_next_step(document.getElementById('q$this->id').value, $this->id)";
-		
+
 		ob_start();
 		normal_button($name, $value, $on_click, '');
 		$html = ob_get_contents();
 		ob_end_clean();
-		
+
 		return $html;
-		
+
 	}//end getHtmlButton()
-	
-	
+
+
 	/**
 	* Returns a list of operators for this rule type
 	*
@@ -117,17 +117,21 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 	public function getOperators()
 	{
 		$operators = Array(
-						'INCL' 	  => translate('all_inclusive'),
-						'L_INCL'  => translate('left_inclusive'),
-						'R_INCL'  => translate('right_inclusive'),
-						'N_INCL'  => translate('not_inclusive'),
+						'INCL' 	  => translate('INCLUSIVE'),
+
+						'L_INCL'  => translate('MINIMUM INCLUSIVE'),
+
+						'R_INCL'  => translate('MAXIMUM INCLUSIVE'),
+
+						'N_INCL'  => translate('NOT INCLUSIVE'),
+
 					 );
 
 		return $operators;
 
 	}//end getOperators()
-	
-	
+
+
 	/**
 	* processes a test on two static values
 	*
@@ -146,10 +150,10 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 	{
 		$answer = trim($answer);
 		if (strlen($answer) == 0 || !is_numeric($answer)) return FALSE;
-		
+
 		if (empty($rule_data)) return FALSE;
 		if ((strlen($rule_data['value_1']) == 0 && strlen($rule_data['value_2']) == 0) || empty($rule_data['logic'])) return FALSE;
-		
+
 		switch ($rule_data['logic']) {
 			case 'INCL':
 				if (strlen($rule_data['value_1']) == 0){
@@ -158,7 +162,7 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 					$valid = ($answer >= $rule_data['value_1']);
 				} else {
 					$valid = ($answer >= $rule_data['value_1'] && $answer <= $rule_data['value_2']);
-				}	
+				}
 			break;
 
 			case 'L_INCL':
@@ -180,7 +184,7 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 					$valid = ($answer > $rule_data['value_1'] && $answer <= $rule_data['value_2']);
 				}
 			break;
-			
+
 			case 'N_INCL':
 				if (strlen($rule_data['value_1']) == 0){
 					$valid = ($answer < $rule_data['value_2']);
@@ -190,7 +194,7 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 					$valid = ($answer > $rule_data['value_1'] && $answer < $rule_data['value_2']);
 				}
 			break;
-			
+
 			default:
 				$valid = FALSE;
 		}
@@ -199,7 +203,7 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 
 	}//end evaluate()
 
-	
+
 	/**
 	* Prints a readable description of the passed in rule data
 	*
@@ -214,8 +218,8 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 	* @access public
 	*/
 	function printDescription($rule_data)
-	{	
-	
+	{
+
 		if ((strlen($rule_data['value_1']) == 0 && strlen($rule_data['value_2']) == 0) || empty($rule_data['logic'])) return;
 		switch ($rule_data['logic']) {
 			case 'INCL':
@@ -225,7 +229,7 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 					echo ">= $rule_data[value_1]";
 				} else {
 					echo (">= $rule_data[value_1] AND <= $rule_data[value_2]");
-				}	
+				}
 			break;
 
 			case 'L_INCL':
@@ -235,7 +239,7 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 					echo ">= $rule_data[value_1]";
 				} else {
 					echo (">= $rule_data[value_1] AND < $rule_data[value_2]");
-				}	
+				}
 			break;
 
 			case 'R_INCL':
@@ -245,9 +249,9 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 					echo "> $rule_data[value_1]";
 				} else {
 					echo ("> $rule_data[value_1] AND <= $rule_data[value_2]");
-				}	
+				}
 			break;
-			
+
 			case 'N_INCL':
 				if (strlen($rule_data['value_1']) == 0){
 					echo "< $rule_data[value_2]";
@@ -255,9 +259,9 @@ class Decision_Tree_Question_Type_Numeric extends Decision_Tree_Question
 					echo "> $rule_data[value_1]";
 				} else {
 					echo ("> $rule_data[value_1] AND < $rule_data[value_2]");
-				}	
+				}
 			break;
-			
+
 			default:
 				echo '';
 		}

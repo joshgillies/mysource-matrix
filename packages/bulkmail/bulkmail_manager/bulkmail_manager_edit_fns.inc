@@ -43,7 +43,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
-		
+
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['preview']);
 		unset($this->static_screens['lookupValues']);
@@ -140,6 +140,8 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 										);
 							$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$message = $ms->newMessage(Array(), 'bulkmail.job.cancelled', $msg_reps);
+							$message->subject = translate('Bulkmail Job Cancelled');
+							$message->body    = translate('Job was cancelled by <SQ_MSG_TAGLINE>%user_id%</SQ_MSG_TAGLINE>');
 							$message->parameters['assetid'] = $job_id;
 							$message->send();
 						}
@@ -177,14 +179,20 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><?php echo translate('bm_job_table_header_id'); ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('bm_job_table_header_job'); ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('bm_job_table_header_post_office'); ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('bm_job_table_header_state'); ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('bm_job_table_header_progress'); ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('ID'); ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Name'); ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Post Office'); ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('State'); ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Progress'); ?></th>
+
 					<?php
 						if ($write_access) {
-					?><th class="sq-backend-table-header"><?php echo translate('bm_job_table_header_control'); ?></th><?php
+					?><th class="sq-backend-table-header"><?php echo translate('Control'); ?></th><?php
+
 						}
 					?>
 				<tr>
@@ -192,17 +200,20 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			foreach ($jobs as $jobid => $job_info) {
 				$jobid_parts = explode(':', $jobid);
 				if (isset($jobid_parts[1])) {
-					$name = translate('bm_adhoc_job_name');
+					$name = translate('Ad-Hoc Job');
+
 				} else {
 					$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($jobid), Array(), TRUE, 'name');
 					$name = array_shift($asset_info);
 				}
 
 				$progress = $job_info['progress'];
-				$progress_string = translate('bm_job_progress_none');
+				$progress_string = translate('N/A');
+
 				if (!empty($progress) && $progress['total_count'] != 0) {
 					$percent_done = round(($progress['current_count'] / $progress['total_count']) * 100, 2).'%';
-					$progress_string = translate('bm_job_progress', number_format($progress['current_count']), number_format($progress['total_count']), $percent_done);
+					$progress_string = sprintf(translate('%1$s of %2$s (%3$s)'), number_format($progress['current_count']), number_format($progress['total_count']), $percent_done);
+
 				}
 		?>
 				<tr>
@@ -213,19 +224,24 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 					<?php
 						switch ($job_info['status']) {
 							case BML_JOB_STATE_RUNNING:
-								echo translate('bm_state_running');
+								echo translate('Running');
+
 							break;
 							case BML_JOB_STATE_NOT_RUNNING:
-								echo translate('bm_state_not_running');
+								echo translate('Waiting To Run');
+
 							break;
 							case BML_JOB_STATE_PAUSED:
-								echo translate('bm_state_paused');
+								echo translate('Paused');
+
 							break;
 							case BML_JOB_STATE_SLEEPING:
-								echo translate('bm_state_sleeping');
+								echo translate('Sleeping');
+
 							break;
 							default:
-								echo translate('bm_state_unknown');
+								echo translate('Unknown State');
+
 							break;
 						}
 					?>
@@ -238,15 +254,18 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 					<?php
 						$options = Array(
 									''			=> '',
-									'cancel'	=> translate('bm_state_action_cancel'),
+									'cancel'	=> translate('Cancel'),
+
 								   );
 						switch ($job_info['status']) {
 							case BML_JOB_STATE_RUNNING:
 							case BML_JOB_STATE_NOT_RUNNING:
-								$options['pause'] = translate('bm_state_action_pause');
+								$options['pause'] = translate('Pause');
+
 							break;
 							case BML_JOB_STATE_PAUSED:
-								$options['resume'] = translate('bm_state_action_resume');
+								$options['resume'] = translate('Resume');
+
 							break;
 							default:
 						}

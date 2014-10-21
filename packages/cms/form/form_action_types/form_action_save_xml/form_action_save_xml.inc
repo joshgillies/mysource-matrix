@@ -62,7 +62,8 @@ class Form_Action_Save_Xml extends Form_Action
 		?>
 		<table class="no-borders" style="width:auto">
 			<tr>
-				<td><?php echo translate('location');?></td>
+				<td><?php echo translate('Location');?></td>
+
 				<td>
 					<?php
 					$location = array_get_index($xml_settings, 'location', '');
@@ -73,15 +74,18 @@ class Form_Action_Save_Xml extends Form_Action
 					}
 					if (empty($location) || !is_dir($location) || !is_writable($location)) {
 						?><br />
-						<span class="sq-backend-warning"><?php echo translate('location_warning'); ?></span>
+						<span class="sq-backend-warning"><?php echo translate('Location does not exist or is not writable'); ?></span>
+
 						<?php
 					}//end if
 					?>
-						<div class="sq-backend-smallprint"><?php echo translate('use_relative_path');?></div>
+						<div class="sq-backend-smallprint"><?php echo translate('Path is relative to Matrix installation location unless prefixed with \'/\'.');?></div>
+
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('xml_detail');?></td>
+				<td><?php echo translate('XML Detail');?></td>
+
 				<td>
 					<?php
 					$detail = array_get_index($xml_settings, 'detail', 'simple');
@@ -94,7 +98,8 @@ class Form_Action_Save_Xml extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('xml_key');?></td>
+				<td><?php echo translate('XML Value to Store');?></td>
+
 				<td>
 					<?php
 					$key = array_get_index($xml_settings, 'key', 'value');
@@ -107,11 +112,12 @@ class Form_Action_Save_Xml extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('xml_answer_sort');?></td>
+				<td><?php echo translate('Sort Answers');?></td>
+
 				<td>
 					<?php
 					$key = array_get_index($xml_settings, 'sort', '0');
-					check_box($prefix.'_sort', 1, $key); 
+					check_box($prefix.'_sort', 1, $key);
 					?>
 				</td>
 			</tr>
@@ -431,7 +437,7 @@ class Form_Action_Save_Xml extends Form_Action
 		if(strpos($location, '/') !== 0) {
 		    $location = SQ_SYSTEM_ROOT.'/'.$location;
 		}
-					
+
 		if (!is_dir($location) || !is_writable($location)) {
 			return FALSE;
 		}//end if

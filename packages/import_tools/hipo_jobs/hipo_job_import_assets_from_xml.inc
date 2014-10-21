@@ -74,7 +74,8 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('tool_import_assets_from_xml_hipo_name');
+		return translate('Hipo Job Import Assets From XML');
+
 
 	}//end getHipoName()
 
@@ -90,7 +91,8 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('tool_import_assets_from_xml_hipo_name'),
+					'name'			=> translate('Hipo Job Import Assets From XML'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processImportAsset',
 									   ),
@@ -144,7 +146,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		if(isset($this->_running_vars['create_under_assetid']) && $this->_running_vars['create_under_assetid'] != 0) {
 			$import_actions['actions'][0]['action'][0]['parentid'][0] = $this->_running_vars['create_under_assetid'];
 		}
-		
+
 		// fix the file import path, it should be relative to the export dir
 		foreach ($import_actions['actions'][0]['action'] as $id => $action) {
 			if(isset($action['file_path'][0])) {
@@ -159,21 +161,21 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 			if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Design') {
 				$this->_running_vars['designs_to_fix'] [] = $action['action_id'][0];
 			}
-			
-			
+
+
 			// check if there is hard coded assetid reference which doesn't exist in the target system
 			if(!$this->checkAssetExists($action, 'parentid') || !$this->checkAssetExists($action, 'assetid') || !$this->checkAssetExists($action, 'asset')) {
 				$this->_addError('Action ID "'.$action['action_id'][0].'" contains non-exist assetid reference. Action skipped.', E_USER_WARNING);
 				unset($import_actions['actions'][0]['action'][$id]);
 			}
 		}
-		
+
 		$this->_running_vars['import_actions'] = $import_actions;
 		$this->_running_vars['total_count'] = count($import_actions['actions'][0]['action']);
-		
-		
+
+
 		if (empty($file_info)) {
-			trigger_localised_error('HIPO0095', E_USER_NOTICE);
+			trigger_localised_error('HIPO0095', translate('No file selected to use'), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -183,7 +185,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		if($root_node_id != 0) {
 			$root_node 		= $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node_id);
 			if (is_null($root_node)) {
-				trigger_localised_error('HIPO0096', E_USER_NOTICE);
+				trigger_localised_error('HIPO0096', translate('Provided Assetid is not for a valid Asset'), E_USER_NOTICE);
 				return FALSE;
 			}
 		}
@@ -205,7 +207,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	*/
 	function processImportAsset(&$step_data, $prefix, $freestyle=FALSE)
 	{
-		
+
 		// should we allow immediate virus scan on files?
 		if(isset($this->_running_vars['allow_virus_scan']) && !$this->_running_vars['allow_virus_scan'])
 			$GLOBALS['SQ_SKIP_VIRUS_SCAN'] = TRUE;
@@ -231,12 +233,12 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$this->_running_vars['import_actions'] = $import_actions;
-		
+
 		// update progress
 		if (count($import_actions['actions'][0]['action']) == 0) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
-			 
+
 			// fix nest content type, regenerate the bodycopy
 			foreach ($this->_running_vars['nest_content_to_fix'] as $actionid) {
 			   if(isset($this->_running_vars['import_action_outputs'][$actionid])) {
@@ -246,7 +248,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 				$nest_content->linksUpdated();
 			   }
 			}
-			
+
 			// fix designs by spawning sub hipo job
 			// grab the design from to-fix list one at a time and spawn a sub hipo job
 			foreach ($this->_running_vars['designs_to_fix'] as $index => $actionid) {
@@ -257,7 +259,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 				unset($this->_running_vars['designs_to_fix'][$index]);
 			   }
 			}
-			
+
 			// if there is a sub hipo job, try process it
 			if(isset($this->_running_vars['sub_job'])) {
 			    $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -293,17 +295,17 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 				}
 			    }
 			}
-			
+
 			// if there is more designs to fix, wait for it
 			if(!empty($this->_running_vars['designs_to_fix']))
 			    $step_data['complete']     = FALSE;
-			
-			
-			
+
+
+
 			// done with everything ? delete the file
 			if ($step_data['complete'] && $this->_running_vars['delete_after_import']) {
 				// unlink the import dir
-				$command = "rm -rf ".dirname($this->_running_vars['file_info']); 
+				$command = "rm -rf ".dirname($this->_running_vars['file_info']);
 				system($command);
 			}
 		}
@@ -330,11 +332,11 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	{
 		if(isset($action[$type][0]) && preg_match('/^[0-9]+$/', $action[$type][0])){
 		    return ($GLOBALS['SQ_SYSTEM']->am->assetExists ($action[$type][0]));
-		}	
+		}
 		return TRUE;
 	}
 
-	
+
 	/**
 	* Starts another Hipo_Job_Regenerate_Design to process designs to fix
 	*
@@ -354,7 +356,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 							'assetid'				=> $assetid,
 						);
 
-		
+
 		$init_hipo->setRunningVars($running_vars);
 		foreach ($options as $k => $v) {
 			$init_hipo->setOption($k, $v);
@@ -366,8 +368,8 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		return FALSE;
 
 	}//end spawnRegenerateDesignsHipo()
-	
-	
+
+
 }//end class
 
 ?>

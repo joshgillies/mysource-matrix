@@ -95,29 +95,29 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				case 'Asset_Attribute_Email_Format' :
 					if (Trigger_Action_Set_Attribute_Value::_safeToEval($value)) {
 						// set $value to be the contents of the array
-						
+
 						eval('$value = '.$value.';');
 					} else {
-						trigger_localised_error('TRIG0003', E_USER_WARNING);
+						trigger_localised_error('TRIG0003', translate('The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted'), E_USER_WARNING);
 						return FALSE;
 					}
 				break;
 			}
-			
+
 			//if the replace keywords checkbox is checked, do keyword replacement here before setting the value to attribute
 			if (array_get_index($settings, 'replace_keywords_in_set_value', 0)) {
 				// replace global keywords
 				$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
-				
+
 				replace_global_keywords($value);
-	
+
 				if (is_null($old_current_asset)) {
 					$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
 				} else {
 					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
 				}
-				
+
 				// replace broadcasting asset keywords
 				$keywords = retrieve_keywords_replacements($value);
 				$replacements = Array();
@@ -126,14 +126,14 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				}
 				replace_keywords($value, $replacements);
 			}
-			
+
 		}
 
 		// dont change anything if the attribute already has the required value
 		$current_value = $state['asset']->attr($settings['attribute']);
 		if ($current_value != $value) {
 			if (!$state['asset']->setAttrValue($settings['attribute'], $value)) {
-			
+
 				return FALSE;
 			}
 			if (!$state['asset']->saveAttributes()) return FALSE;
@@ -164,7 +164,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		// first check the value contains only allowable components
 		$allowed_expressions = Array('array', '(', ')', '=>', ',', ';');
 		$reduced_value = str_replace($allowed_expressions, '', strtolower($str));
-	
+
 		// digits are ok
 		$reduced_value = preg_replace('/\d/', '', $reduced_value);
 		// check for TRUE/FALSE/NULL (dependent on no white space, so trim() the string first)
@@ -212,12 +212,14 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 		ob_start();
 			if ($selected_type == '') {
-				echo '<b>['.translate('asset_type_not_selected').']</b';
+				echo '<b>['.translate('asset type not selected').']</b';
+
 			} else {
 				$attribute = array_get_index($settings, 'attribute', '');
 				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type, Array('name'));
 				if (empty($attrs)) {
-					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+					echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 				} else {
 					if ($write_access) {
 						$attr_options = Array('' => '');
@@ -257,20 +259,22 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			$basic_part_3 = ob_get_contents();
 		ob_end_clean();
 
-		$output = translate('trigger_set_attribute_value_basic', $basic_part_1, $basic_part_2, $basic_part_3);
+		$output = sprintf(translate('Set the value of the %1$s attribute %2$s to: %3$s'), $basic_part_1, $basic_part_2, $basic_part_3);
+
 
 		if (!empty($selected_type) && isset($attrs[$attribute])) {
 			if (in_array($attrs[$attribute], Array('serialise', 'parameter_map'))) {
-				$output .= '<br /><i>'.translate('trigger_set_attribute_value_serialise_note').'</i>';
+				$output .= '<br /><i>'.translate('You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"').'</i>';
+
 			}
 		}
-		
+
 		// Replace keywords checkbox
 		ob_start();
 			check_box($prefix.'[replace_keywords_in_set_value]', '1', array_get_index($settings, 'replace_keywords_in_set_value', 0), NULL, ($write_access? '' : 'disabled="disabled"'));
 			label('Replace keywords in the set value', $prefix.'[replace_keywords_in_set_value]');
 		$basic_part_4 = '<br />'.ob_get_clean();
-		
+
 		$output .= $basic_part_4;
 
 		return $output;
@@ -293,7 +297,8 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	{
 		$type_code = array_get_index($request_data, 'asset_type', FALSE);
 		if (!$type_code) {
-			return translate('asset_type_not_specified');
+			return translate('Asset type not specified');
+
 		}
 		$settings['asset_type'] = $type_code;
 
@@ -322,15 +327,15 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				case 'Asset_Attribute_Parameter_Map' :
 				case 'Asset_Attribute_Email_Format' :
 					if (!Trigger_Action_Set_Attribute_Value::_safeToEval($settings['value'])) {
-						trigger_localised_error('TRIG0002', E_USER_NOTICE);
+						trigger_localised_error('TRIG0002', translate('You have chosen to set the value of a non-scalar attribute, but the value you have supplied does not qualify to be evaluated as a PHP expression.  The only allowable components for these expressions are the \'array\' keyword, single- and double-quoted strings, digits and necessary punctuation.  The value has not been saved.'), E_USER_NOTICE);
 						$settings['value'] = '';
 					}
 				break;
 			}
 		}
-		
+
 		$settings['replace_keywords_in_set_value']	= array_get_index($request_data, 'replace_keywords_in_set_value', 0);
-		
+
 		return FALSE;
 
 	}//end processInterface()

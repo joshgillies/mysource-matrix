@@ -18,17 +18,25 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Poll Questions" write_access="write:menu">
 		<field attribute="active_question">
+			<display_name>Current Question</display_name>
+			<note>Select which poll question you would like displayed.</note>
 			<assetid type_codes="poll_question:D" />
 		</field>
 		<field read_access="write:menu">
+			<display_name>Add Poll Question</display_name>
+			<note>Add a new poll question to the current poll page.</note>
 			<function_call>
 				<paint_function   name="paintNewPollQuestion"   />
 				<process_function name="processNewPollQuestion" />
@@ -37,39 +45,64 @@
 	</section>
 	<section name="Vote Options" write_access="write:attributes">
 		<field attribute="allow_multiple_votes">
+			<display_name>Allow Multiple Voting</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Label Options" write_access="write:attributes">
 		<field attribute="vote_button_text">
+			<display_name>Vote Button Label</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 		<field attribute="previous_questions_text">
+			<display_name>Previous Questions Link Text</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 		<field attribute="view_results_text">
+			<display_name>View Results Link Text</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="New Window" write_access="write:attributes">
+		<field attribute="new_window">
+			<display_name>New Window?</display_name>
+			<note>If this is set to Yes then results will be displayed in a new window.</note>
+			<boolean true_text="yes" false_text="no" />
+		</field>
 		<field attribute="new_window_options">
+			<display_name>Options</display_name>
+			<note />
 			<selection style="boxes" />
 		</field>
 		<field attribute="new_window_width">
+			<display_name>Window Width</display_name>
+			<note />
 			<int width="3" />
 		</field>
 		<field attribute="new_window_height">
+			<display_name>Window Height</display_name>
+			<note />
 			<int width="3" />
 		</field>
 	</section>
 	<section name="Graph Options" write_access="write:attributes">
 		<field attribute="graph_box_width">
+			<display_name>Graph Box Width (pixels)</display_name>
+			<note />
 			<text width="5" height="1" />
 		</field>
 		<field attribute="graph_box_height">
+			<display_name>Graph Box Height (pixels)</display_name>
+			<note />
 			<text width="5" height="1" />
 		</field>
 		<field attribute="graph_box_colour_bar">
+			<display_name>Graph Bar Colour</display_name>
+			<note />
 			<colour />
 		</field>
 	</section>

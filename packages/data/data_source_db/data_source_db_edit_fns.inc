@@ -160,7 +160,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('database_type');?></th>
+				<th><?php echo translate('Database Type');?></th>
+
 				<td>
 					<?php
 					$options = Array('postgres' => 'PostgreSQL', 'oracle' => 'Oracle', 'mysql' => 'MySQL');
@@ -177,7 +178,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('database_name');?></th>
+				<th><?php echo translate('Database Name');?></th>
+
 				<td>
 					<?php
 					if ($wa) {
@@ -189,7 +191,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('host_name');?></th>
+				<th><?php echo translate('Host Name');?></th>
+
 				<td>
 					<?php
 					if ($wa) {
@@ -397,7 +400,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		} else {
 			echo '<div style="color: red"><b>Not connected</b></div>';
 		}
-		
+
 		if (isset($asset->_tmp['db_conection_exception'])) {
 			echo "<div>Connection failed: ".$asset->_tmp['db_conection_exception']->getMessage()."</div>";
 		}

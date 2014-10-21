@@ -92,7 +92,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_rollback_management');
+		return translate('Rollback Management');
+
 
 	}//end getHipoName()
 
@@ -108,7 +109,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_job_rollback_changing_rb_config'),
+					'name'			=> translate('Changing Rollback System Config Setting'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'changeRollbackSetting',
 									   ),
@@ -120,7 +122,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_configuring_db_triggers'),
+					'name'			=> translate('Configuring Database Triggers'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'configureDBTriggers',
 									   ),
@@ -132,7 +135,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_opening_db_transaction'),
+					'name'			=> translate('Opening Database Transaction'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'openTransaction',
 									   ),
@@ -144,7 +148,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_purging_file_versioning'),
+					'name'			=> translate('Purging File Versioning'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'purgeFileVersioning',
 									   ),
@@ -156,7 +161,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> ''	,
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_resetting_rollback'),
+					'name'			=> translate('Resetting Rollback'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'resetRollback',
 									   ),
@@ -168,7 +174,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_toggling_rb_state'),
+					'name'			=> translate('Toggling Rollback State'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'toggleRollbackState',
 									   ),
@@ -180,7 +187,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_deleting_rb_entries'),
+					'name'			=> translate('Deleting Rollback Entries'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'deleteRollbackEntries',
 									   ),
@@ -192,7 +200,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_aligning_rb_entries'),
+					'name'			=> translate('Aliging Rollback Entries'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'alignRollbackEntries',
 									   ),
@@ -204,7 +213,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_delete_redundant_rb_entries'),
+					'name'			=> translate('Deleting Redundant Rollback Entries'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'deleteRedundantRollbackEntries',
 									   ),
@@ -216,7 +226,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_job_rollback_completing_db_transaction'),
+					'name'			=> translate('Completing Database Transaction'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'completeTransaction',
 									   ),
@@ -340,7 +351,7 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 			include_once(SQ_INCLUDE_PATH.'/system_config.inc');
 			$system_conf = new System_Config();
 			if (!$system_conf->canAcquireLock()) {
-				trigger_localised_error('CORE0233', E_USER_NOTICE);
+				trigger_localised_error('CORE0233', translate('This operation requires the System Configuration lock to be acquired, but another user has that lock.  Please try again later.'), E_USER_NOTICE);
 				// Fail
 				return FALSE;
 			}
@@ -534,7 +545,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 				list($key, $table_name) = each($this->_running_vars['to_check']);
 				unset($this->_running_vars['to_check'][$key]);
 
-				$step_data['message'] = translate('hipo_job_rollback_truncating_rb_entries_in', $table_name);
+				$step_data['message'] = sprintf(translate('Truncating rollback entries in %s'), $table_name);
+
 				truncate_rollback_entries($table_name);
 			}
 
@@ -591,10 +603,12 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 			unset($this->_running_vars['to_check'][$key]);
 
 			if ($this->_running_vars['enable_rollback']) {
-				$step_data['message'] = translate('hipo_job_rollback_opening_rb_entries_in', $table_name);
+				$step_data['message'] = sprintf(translate('Opening rollback entries in %s'), $table_name);
+
 				open_rollback_entries($table_name, $this->_running_vars['rollback_table_columns'], $this->_running_vars['rollback_date']);
 			} else if ($this->_running_vars['disable_rollback']) {
-				$step_data['message'] = translate('hipo_job_rollback_closing_rb_entries_in', $table_name);
+				$step_data['message'] = sprintf(translate('Closing rollback entries in %s'), $table_name);
+
 				close_rollback_entries($table_name, $this->_running_vars['rollback_date']);
 			}
 
@@ -641,7 +655,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 			unset($this->_running_vars['to_check'][$key]);
 
 			// Delete rollback entries from the specified table
-			$step_data['message'] = translate('hipo_job_rollback_deleting_rb_entries_from', $table_name);
+			$step_data['message'] = sprintf(translate('Deleting rollback entries from %s'), $table_name);
+
 			$affected_rows = delete_rollback_entries($table_name, $this->_running_vars['purge_rb_date']);
 
 			// No more tables? Then we're done!
@@ -689,7 +704,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 
 			// Align rollback entries in the specified table
 			$affected_rows = align_rollback_entries($table_name, $this->_running_vars['purge_rb_date']);
-			$step_data['message'] = translate('hipo_job_rollback_aligning_rb_entries_in', $table_name);
+			$step_data['message'] = sprintf(translate('Aligning rollback entries in %s'), $table_name);
+
 
 			// No more tables? Then we're done!
 			if (empty($this->_running_vars['to_check'])) {
@@ -712,7 +728,7 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 
 	}//end alignRollbackEntries()
 
-	
+
 	/**
 	* Delete redundant entries from the Rollback table
 	*
@@ -735,7 +751,8 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 				list($key, $table_name) = each($this->_running_vars['to_check']);
 				unset($this->_running_vars['to_check'][$key]);
 
-				$step_data['message'] = translate('hipo_job_rollback_delete_redundant_rb_entries_in', $table_name);
+				$step_data['message'] = sprintf(translate('Deleting redundant rollback entries in %s'), $table_name);
+
 				delete_redundant_rollback_entries($table_name);
 			}
 
@@ -757,7 +774,7 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 		return TRUE;
 
 	}//end deleteRedundantRollbackEntries()
-	
+
 
 	/**
 	* Completes the database transaction started by this HIPO

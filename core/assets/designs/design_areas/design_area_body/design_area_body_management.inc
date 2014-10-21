@@ -47,9 +47,12 @@ class Design_Area_Body_Management extends Asset_Management
 										'description'	=> 'Format that the body tag is printed as (text, HTML, etc)',
 										'parameters'	=> Array(
 															'options'		=> Array(
-																				'html'			=> translate('full_html'),
-																				'text'			=> translate('text_only'),
-																				'low_bandwidth'	=> translate('low_bandwidth'),
+																				'html'			=> translate('Full HTML'),
+
+																				'text'			=> translate('Text Only'),
+
+																				'Low Bandwidth'	=> translate('Low Bandwidth'),
+
 																			   ),
 															'allow_empty'	=> FALSE,
 														   ),

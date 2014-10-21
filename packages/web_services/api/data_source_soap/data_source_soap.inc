@@ -399,7 +399,7 @@ class Data_Source_Soap extends Data_Source
 				$settings['wsdl'] = $wsdl;
 				$settings['auth_type'] = $this->attr('auth_type');
 				$settings['cache_wsdl'] = constant($this->attr('wsdl_caching'));
-				
+
 				if ($this->attr('local_cert')) {
 					$settings['local_cert'] = $this->attr('local_cert');
 				}
@@ -643,7 +643,7 @@ class Data_Source_Soap extends Data_Source
 			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 
 			if (!xml_parse($xml_parser, $content, TRUE)) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)).', line '.xml_get_current_line_number($xml_parser).', column '.xml_get_current_column_number($xml_parser).' (byte '.xml_get_current_byte_index($xml_parser).')', htmlentities($content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				trigger_localised_error('CORE0258', sprintf(translate('XML error: "%1$s" for chunk "%2$s"', xml_error_string(xml_get_error_code($xml_parser)).', line '.xml_get_current_line_number($xml_parser).', column '.xml_get_current_column_number($xml_parser).' (byte '.xml_get_current_byte_index($xml_parser).')'), htmlentities($content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 				return FALSE;
 			}
 			xml_parser_free($xml_parser);
@@ -933,7 +933,7 @@ class Data_Source_Soap extends Data_Source
 	*	'result' => [result1],
 	* 	)
 	*
-	* This is done to for the respone array 
+	* This is done to for the respone array
 	*
 	* @return void
 	* @access private

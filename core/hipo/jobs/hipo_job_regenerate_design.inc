@@ -66,6 +66,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 			echo SQ_HIPO_REGENERATE_DESIGN_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -147,7 +148,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	}//end getInitialStepData()
 
 
-	
+
 
 
 	/**
@@ -178,7 +179,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	{
 		$parentid = isset($this->_running_vars['parentid']) ? $this->_running_vars['parentid'] : NULL;
 		$assetid = isset($this->_running_vars['assetid']) ? $this->_running_vars['assetid'] : NULL;
-	
+
 		if (empty($assetid)) {
 			trigger_error('Unable to run HIPO job; this job requires a design asset ID', E_USER_WARNING);
 			return FALSE;
@@ -201,7 +202,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 		else {
 		    $asset->generateDesignFile(FALSE);
 		}
-		
+
 
 		 // get all children customisation to do
 		$all_customisations = $this->_getCustomisations($assetid);
@@ -240,8 +241,8 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all');
 				}
 			}
-			
-			
+
+
 		}
 
 		if (empty($this->_running_vars['todo_assetids'])) {
@@ -269,7 +270,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	    $customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($designid, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 	    $customisation_links = array_merge($customisation_links, $GLOBALS['SQ_SYSTEM']->am->getLinks($designid, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation'));
 	    if (empty($customisation_links)) return Array();
-	    
+
 	    $children_customisations = Array();
 	    foreach ($customisation_links as $link) {
 		$children_customisations[] = Array('parent' => $designid, 'child' => $link['minorid']);

@@ -51,7 +51,7 @@ class Trigger_Condition_Metadata_Field_Updated extends Trigger_Condition
 	{
 		if (!isset($settings['field'])) return FALSE;
 		if (empty($settings['field'])) return FALSE;
-		
+
 		// No event data set
 		if (!isset($state['event']['data']['fieldids'])) return FALSE;
 		if (empty($state['event']['data']['fieldids'])) return FALSE;
@@ -83,13 +83,16 @@ class Trigger_Condition_Metadata_Field_Updated extends Trigger_Condition
 		// Paint the interface
 		ob_start();
 			if ($write_access) {
-				echo translate('metadata_field').': '; 
+				echo translate('Metadata Field').': ';
+
 				echo asset_finder($prefix.'[metadata_field]', $field, Array('metadata_field'=>'D'));
 				echo '<br /><br />';
-				echo translate('trigger_condition_metadata_field_updated_note');
+				echo translate('<strong>Note:</strong> When this metadata field is updated, the condition will be met and the trigger will fire.');
+
 			} else {
 				if (empty($field)) {
-					echo translate('no_asset_selected');
+					echo translate('No asset selected');
+
 				} else {
 					echo get_asset_tag_line($field);
 				}//end if
@@ -115,7 +118,8 @@ class Trigger_Condition_Metadata_Field_Updated extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$options = array_get_index($request_data, 'metadata_field', Array());

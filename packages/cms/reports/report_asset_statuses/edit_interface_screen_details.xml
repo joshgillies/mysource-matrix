@@ -18,27 +18,37 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Report Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field>
+			<display_name>Root Node</display_name>
+			<note>Leave blank to generate this report on the entire system</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Current Status</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintSearchStatuses" />
 				<process_function name="processSearchStatuses" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Last Status Change</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintLastStatusChange" />
 				<process_function name="processLastStatusChange" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Regenerate Report</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />

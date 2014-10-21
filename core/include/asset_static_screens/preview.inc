@@ -110,7 +110,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	$set_conditions = $target_asset->getConditions();
 	$used_conditions = isset($set_conditions['used_conditions']) && !empty($set_conditions['used_conditions']) ? $set_conditions['used_conditions'] : Array();
 
-	
+
 	if (empty($url_data)) {
 		// there is no URL with lookup values for this asset
 		// so just do a straight call for lookups
@@ -149,14 +149,14 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		    $primary_url_data = parse_url($primary_url);
 		    $primary_url_no_protocol = array_get_index($primary_url_data, 'host',  '').array_get_index($primary_url_data, 'path', '');
 		     if(strpos($primary_url_no_protocol, $current_root_url) !== 0) {
-			$open_in_new_window = TRUE; 
+			$open_in_new_window = TRUE;
 		     }
 		}
 		foreach ($url_data as $url_info) {
 			$protocol_list = Array();
 
 
-			
+
 			if ($url_info['https']) {
 				$protocol_list['https'] = 'https://';
 			}
@@ -203,13 +203,13 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		$add_nocache = TRUE;
 		$root_url_array = $GLOBALS['SQ_SYSTEM']->am->getRootURL(strip_url($owner->getURL(), TRUE));
 		$root_url = trim($root_url_array['url']);
-		
+
 		if (strpos($primary_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && ($root_url == SQ_CONF_STATIC_ROOT_URL || strpos($root_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE || strpos($primary_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE))) {
 			$add_nocache = FALSE;
 		}
 		//Bug #4708 openRaw and closeRaw incompatible in LIMBO mode with buffering OFF as they behave as sections (creating tables).
 		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->openRaw();
-		
+
 			?>
 			<script type="text/javascript">
 
@@ -235,14 +235,14 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 							preview_size_string = '';
 						} else {
 							var preview_size = pc.value.replace(' ', '').split(',');
-							var preview_size_string = ' - <?php echo translate('currently_previewing_screen_size') ?> <strong>'+preview_size[0]+' x '+preview_size[1]+'</strong>';
+							var preview_size_string = preview_size[0]+' x '+preview_size[1];
 							var preview_width = preview_size[0]+'px'
 							var preview_height = preview_size[1]+'px'
 							document.getElementById('sq_preview_frame').style.width = preview_width;
 							document.getElementById('sq_preview_frame').style.height = preview_height;
 						}
 
-						document.getElementById('sq_preview_size_display').innerHTML = preview_size_string;
+						document.getElementById('sq_preview_size_display_inner').innerHTML = preview_size_string;
 						// Set the preview size in the session via ajax request
 						if (size_changed) {
 							backend_preview_url = preview_url.replace('/_nocache', '/_admin/');
@@ -256,7 +256,6 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 				}//end update_preview_size()
-
 
 				function update_preview_url()
 				{
@@ -383,7 +382,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						document.getElementById("size_button").disabled = false;
 					}
 				}
-				
+
 				function toggleConditionViewOptions(link)
 				{
 					if(link.innerHTML.match(/View /g)) {
@@ -393,7 +392,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					else {
 					    document.getElementById('sq-preview-conditions').style.display='none';
 					    link.innerHTML = 'View conditions preview options';
-					}	
+					}
 				}
 
 				function autoResizeIframe(el)
@@ -410,8 +409,10 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		//Bug #4708 openRaw and closeRaw incompatible in LIMBO mode with buffering OFF as they behave as sections (creating tables).
 		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->closeRaw();
 
-		$o->openSection(translate('preview_options'));
-			$o->openField(translate('preview_url'));
+		$o->openSection(translate('Preview Options'));
+
+			$o->openField(translate('Preview URL'));
+
 				if (count($preview_urls) > 1) {
 					combo_box('preview_url', $preview_urls, FALSE, $primary_url, 1, 'onchange="update_preview_url()"');
 					echo '<div class="sq-preview-available-urls-show"><a href="#" onclick="document.getElementById(\'sq-preview-available-urls\').style.display=\'block\'; this.style.display=\'none\'" >View a list of available URLs ('.count($preview_urls).' available)</a></div>';
@@ -428,7 +429,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			$o->closeField();
 
-			$o->openField(translate('design'));
+			$o->openField(translate('Design'));
+
 				if (count($preview_designs) > 1) {
 					combo_box('preview_design', $preview_designs, FALSE, '', 1, 'onchange="update_preview_url()"');
 				} else {
@@ -436,7 +438,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			$o->closeField();
 
-			$o->openField(translate('preview_screen_screen_size'));
+			$o->openField(translate('Screen Size'));
 				$screen_size_options = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_PREVIEW_SCREEN_SIZES');
 				if (isset($screen_size_options['options']) && $screen_size_options['options'] > 0) {
 					// Global preference 'selected' value points to the index key of the selected screen size
@@ -463,12 +465,14 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 			$o->closeField();
 
-			$o->openField(translate('context'));
+			$o->openField(translate('Context'));
+
 				$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 				$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
 				if (count($contexts) > 1) {
 					$context_list = Array(
-										'-default-' => translate('use_normal_context_for_this_url'),
+										'-default-' => translate('Use normal context for this URL'),
+
 										'-sep-'		=> '----------------------',
 									);
 					foreach ($contexts as $context_item_id => $context_item) {
@@ -483,7 +487,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->closeField();
 
 			if(!empty($used_conditions)) {
-			    $o->openField(translate('conditions'));
+			    $o->openField(translate('Conditions'));
+
 				    echo '<div class="sq-preview-conditions-show"><a href="#" onclick="toggleConditionViewOptions(this)" >View conditions preview options</a></div>';
 				    echo '<div id="sq-preview-conditions" class="sq-preview-conditions" >';
 				    echo '<table class="sq-backend-table">';
@@ -496,20 +501,23 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					echo '<td>';
 					echo '<span class="sq-condition-name">'.$condition_name.' (#'.$assetid.')</span>';
 					echo '</td>';
-					
+
 					echo '<td width="270px;">';
 					echo '<div class="sq-preview-condition-radio-group">';
 					echo '<label id="'.'conditions_'.$condition_full_name.'_3" >';
 					radio_button('conditions_'.$condition_full_name.'', '3', TRUE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
-					echo(translate('automatic'));
+					echo(translate('Automatic'));
+
 					echo '</label>';
 					echo '<label id="'.'conditions_'.$condition_full_name.'_1">';
 					radio_button('conditions_'.$condition_full_name.'', '1', FALSE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
-					echo(translate('true'));
+					echo(translate('True'));
+
 					echo '</label>';
 					echo '<label id="'.'conditions_'.$condition_full_name.'_0">';
 					radio_button('conditions_'.$condition_full_name.'', '0', FALSE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
-					echo(translate('false'));
+					echo(translate('False'));
+
 					echo '</label>';
 					echo '</div>';
 					echo '</td>';
@@ -519,55 +527,65 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				    echo '</div>';
 			    $o->closeField();
 			}
-			
 
-			$o->openField(translate('use_cache'));
+
+			$o->openField(translate('Use Cache'));
+
 				check_box('use_cache', '1', FALSE, 'if (this.checked && document.getElementById(\'show_diff\') !== null) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
-				label(translate('show_cached_asset'), 'use_cache');
+				label(translate('Show the cached version of this asset'), 'use_cache');
+
 			$o->closeField();
 
 			if ($owner->status & SQ_SC_STATUS_SAFE_EDITING) {
-				$o->openField(translate('show_diff'));
+				$o->openField(translate('Show Diff'));
+
 					check_box('show_diff', '1', FALSE, 'if (this.checked) { document.getElementById(\'use_cache\').checked = false; } update_preview_url()');
-					label(translate('show_safe_edit_difference'), 'show_diff');
+					label(translate('Show the differences between the system version and the edited version'), 'show_diff');
+
 				$o->closeField();
 			}
 			$o->openField('');
 				if($contains_diff_domain) {
 				    if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) {
-					echo translate('different_domain_preview_new_window');
+					echo translate('As the Same Origin Frame setting is enabled, URLs using a different domain than the system\'s current domain will be opened in a new window.');
+
 				    }
 				    else if (!$owner->effectiveUnrestricted()) {
-					echo translate('different_domain_login', $current_url['host']);
+					echo sprintf(translate('You may be presented with a Login screen if you choose a URL from a domain different to <b>%s</b>.'), $current_url['host']);
+
 				    }
 				}
 			$o->closeField();
-		
+
 			$o->openField('<span id="size_title"></span>');
 			?>
 				<span id="size_elements"></span>
 				<p>
-					<?php normal_button('preview_button', translate('preview'), 'do_preview()'); echo ' ';
-					normal_button('size_button', translate('calculate'), 'get_size()');?>
+					<?php normal_button('preview_button', translate('Preview'), 'do_preview()'); echo ' ';
+
+					normal_button('size_button', translate('Calculate Size'), 'get_size()');?>
+
 				</p>
 				<?php
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection(translate('preview'));
+		$o->openSection(translate('Preview'));
+
 			$o->openRaw('');
 				if ($add_nocache) {
 					$primary_url .= '/'.SQ_CONF_NOCACHE_SUFFIX;
 				}
 				ob_start();
-					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('open_preview_in_new_window'); ?></a><?php
+					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('Open preview in new window'); ?></a><?php
+
 					$replacements_link = ob_get_contents();
 				ob_end_clean();
 
 				$selected_size_parts = Array();
 				if (isset($selected_size) && $selected_size != 'auto') {
 					$selected_size_parts = explode(',', $selected_size);
-					$size_dispay_string = '<strong>'.$selected_size_parts[0].' x '.$selected_size_parts[1].'</strong>';
+					$size_display_string = $selected_size_parts[0].' x '.$selected_size_parts[1];
 					$iframe_style = 'width: '.$selected_size_parts[0].'px; height:'.$selected_size_parts[1].'px;';
 					$iframe_onload = '';
 				} else {
@@ -578,12 +596,12 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 				?>
 				<p>
-					<span><?php echo translate('currently_previewing', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?></span>
+					<?php echo sprintf(translate('Currently previewing <strong>"%1$s"</strong> (%2$s)'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
 					<span id='sq_preview_size_display'><?php
-							if (!empty($size_dispay_string)) {
-								echo ' - '.translate('currently_previewing_screen_size').$size_dispay_string;
-							}
-						?></span>
+                        if (!empty($size_display_string)) {
+                            echo ' - '.sprintf(translate('Currently previewing screen size <strong id="sq_preview_size_display_inner">%s</strong>'), $size_display_string);
+                        }
+                    ?></span>
 				</p>
 				<div align="center">
 					<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" <?php echo $iframe_onload; ?> style="<?php echo $iframe_style;?> border: 1px solid #C3C3C3;"</iframe>
@@ -595,9 +613,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	} else {
 
 		// there is no preview URL available for this asset
-		$o->openSection(translate('no_preview_available'));
+		$o->openSection(translate('No preview available'));
+
 			$o->openField('');
-				echo translate('asset_cannot_preview');
+				echo translate('This asset cannot be previewed or does not have a URL assigned to it.');
+
 			$o->closeField();
 		$o->closeSection();
 

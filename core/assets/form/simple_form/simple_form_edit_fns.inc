@@ -75,30 +75,37 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 		<thead>
 		<tr>
 			<th>
-				<?php echo translate('question'); ?>
+				<?php echo translate('Question'); ?>
+
 			</th>
 			<th>
-				<?php echo translate('type'); ?>
+				<?php echo translate('Type'); ?>
+
 			</th>
 			<?php if ($write_access) {
 			?><th style="width:30px; text-align:center">
-				<?php echo translate('up'); ?>
+				<?php echo translate('Up'); ?>
+
 			</th>
 			<th colspan="2" style="text-align:center">
-				<?php echo translate('position'); ?>
+				<?php echo translate('Position'); ?>
+
 			</th>
 			<th style="width:30px; text-align:center">
-				<?php echo translate('down'); ?>
+				<?php echo translate('Down'); ?>
+
 			</th>
 			<th style="width:50px; text-align:center">
-				<?php echo translate('delete'); ?>
+				<?php echo translate('Delete'); ?>
+
 			</th><?php
 			}
 		?></tr>
 		</thead>
 		<tbody>
 			<?php if (count($asset->attr('questions')) <= 0) {
-				?><tr><td colspan="<?php echo $write_access ? 8 : 3 ?>" style="font-style:italic; text-align:center"><?php echo translate('core_simple_form_no_questions'); ?></td></tr><?php
+				?><tr><td colspan="<?php echo $write_access ? 8 : 3 ?>" style="font-style:italic; text-align:center"><?php echo translate('This form contains no questions'); ?></td></tr><?php
+
 			} else {
 				foreach ($asset->attr('questions') as $shadowid => $asset_data) {
 				$assetid = $asset->id.':q'.$shadowid;
@@ -209,13 +216,15 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			?><i><?php echo translate('core_simple_form_lock_to_add_questions'); ?></i><?php
+			?><i><?php echo translate('Lock this asset to add questions'); ?></i><?php
+
 			return FALSE;
 		}
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
-		$questions = Array('' => '-- '.translate('choose_type').' --');
+		$questions = Array('' => '-- '.translate('Choose Type').' --');
+
 
 		foreach ($question_types as $question) {
 			$q = str_replace('form_question_type', '', $question);
@@ -324,14 +333,18 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 
 		if ($write_access) {
 			$options = Array(
-						'1'	=> translate('yes'),
-						'0'	=> translate('no'),
+						'1'	=> translate('Yes'),
+
+						'0'	=> translate('No'),
+
 					   );
 
 			combo_box($prefix.'_use_bodycopy', $options, FALSE, Array($enabled));
 
 		} else {
-			echo $enabled ? translate('on') : translate('off');
+			echo $enabled ? translate('On') : translate('Off');
+
+
 		}
 
 		return $write_access;

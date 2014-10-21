@@ -61,7 +61,8 @@ class Asset_Status_Pending_Approval extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_pending_approval');
+		return translate('Pending Approval');
+
 
 	}//end getDescription()
 
@@ -104,20 +105,25 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					$is_dependant =  $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
 					if ($wf_complete && (($m_complete && !$is_dependant) || $is_dependant)) {
-						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
+						$statii[SQ_STATUS_APPROVED] = translate('Approve');
+
 					} else if (in_array($userid, $publishers)) {
-						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
+						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Approve Changes');
+
 					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata, but only if workflow is complete
 					if ($wf_complete) {
-						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
-						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
+						$statii[SQ_STATUS_APPROVED] = translate('Approve');
+
+						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Approve Changes');
+
 					}
 				}
 
-				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
+				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Reject Changes');
+
 			}
 		} else {
 			// workflow is not currently running for this asset
@@ -153,7 +159,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 		if ($new_status & SQ_SC_STATUS_CAN_APPROVE) {
 			// someone has rejected the changes, so we need to cancel the workflow
 			if (!$wfm->cancelWorkflow($this->owner->id)) {
-				trigger_localised_error('SYS0260', E_USER_WARNING);
+				trigger_localised_error('SYS0260', translate('Workflow cancel failed'), E_USER_WARNING);
 				return FALSE;
 			} else {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -178,7 +184,11 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					} else {
 						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 					}
-					$log->type    = 'asset.workflow.log.reject';
+					$log->subject = translate('Asset Changes Rejected');
+                    $log->body    = translate('User "%workflow_user%" has rejected the changes made to %type_code% "%asset_name%". The status of "%asset_name%" has reverted to %status%.')."\n\n".
+                                        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                    $log->type    = 'asset.workflow.log.reject';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
@@ -199,13 +209,13 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
-						trigger_localised_error('SYS0261', E_USER_WARNING);
+						trigger_localised_error('SYS0261', translate('Workflow completion failed'), E_USER_WARNING);
 						return FALSE;
 					}
 				} else {
 					// we are doing a workflow and someone has just approved the asset, so record this
 					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-						trigger_localised_error('SYS0077', E_USER_WARNING, $current_userid,$this->owner->name);
+						trigger_localised_error('SYS0077', sprintf(translate('Approval by user %1$s not set in processStatusChange for "%2$s"'), $current_userid,$this->owner->name), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -213,7 +223,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					// as long as all our metadata is also complete
 					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
 						if (!$wfm->completeWorkflow($this->owner->id)) {
-							trigger_localised_error('SYS0261', E_USER_WARNING);
+							trigger_localised_error('SYS0261', translate('Workflow completion failed'), E_USER_WARNING);
 							return FALSE;
 						}
 					}
@@ -226,7 +236,6 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 					if (!$wfm->silentWorkflowParty($this->owner->id)) {
 						$log = $ms->newMessage();
-						$log->subject = 'Workflow Completed';
 						$msg_reps = Array(
 										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 										'asset_name'	=> $this->owner->name,
@@ -241,7 +250,11 @@ class Asset_Status_Pending_Approval extends Asset_Status
 							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 						}
 
-						$log->type    = 'asset.workflow.log.complete';
+						$log->subject = translate('Workflow Completed');
+                        $log->body    = translate('The workflow process for %type_code% "%asset_name%" has been completed. "%asset_name%" is now approved and can be made live by an administrator.')."\n\n".
+                                            translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                            translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                        $log->type    = 'asset.workflow.log.complete';
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 						$ms->enqueueMessage($log);

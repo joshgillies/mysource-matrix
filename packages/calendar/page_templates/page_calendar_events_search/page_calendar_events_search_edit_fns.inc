@@ -57,23 +57,28 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 		$filters = $asset->attr('events_filters');
 
 		$query_types = Array(
-						'none'				=> '-- '.ucfirst(translate('page_events_search_filter_select_options').' --'),
-						'single_date'		=> ucfirst(translate('page_events_search_filter_select_options_single_date')),
-						'date_range'		=> ucfirst(translate('page_events_search_filter_select_options_date_range')),
-						'fuzzy_dropdown'	=> ucfirst(translate('page_events_search_filter_select_options_fuzzy_dropdown')),
-						'fuzzy_checkboxes'	=> ucfirst(translate('page_events_search_filter_select_options_fuzzy_checkboxes')),
+						'none'				=> '-- '.ucfirst(translate('Select filter type').' --'),
+
+						'single_date'		=> ucfirst(translate('Single Date')),
+
+						'date_range'		=> ucfirst(translate('Date Range')),
+
+						'fuzzy_dropdown'	=> ucfirst(translate('Fuzzy Date (Dropdown selection)')),
+
+						'fuzzy_checkboxes'	=> ucfirst(translate('Fuzzy Date (Checkboxes selection)')),
+
 					   );
-					   
+
 		$fuzzy_options = Array();
 		$default_fuzzy_options = Array();
 		foreach($asset->fuzzy_date_types as $fuzzy_opt => $default) {
 			$fuzzy_options[$fuzzy_opt] = ucwords(str_replace('_', ' ',$fuzzy_opt));
-			
+
 			if ($default) {
 				$default_fuzzy_options[] = $fuzzy_opt;
 			}
 		}//end foreach
-		
+
 		?>
 		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
 			<tr>
@@ -90,21 +95,21 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 			foreach ($filters as $filter_name => $filter_data) {
 				echo "<tr>";
 				echo "<td>$filter_name</td>";
-				
-				echo "<td>";				
+
+				echo "<td>";
 				if (isset($filter_data['type'])) {
 					echo ucwords(str_replace('_', ' ', $filter_data['type']));
-					
-					switch($filter_data['type']) {						
+
+					switch($filter_data['type']) {
 						case 'single_date':
 						case 'date_range':
-							echo "<br />";							
+							echo "<br />";
 							check_box($prefix.'_filters['.$filter_name.'][use_picker]', 1, array_get_index($filter_data, 'use_picker', TRUE), '', $input_box_extra);
-							echo "Include date picker";							
+							echo "Include date picker";
 						break;
-						
+
 						case 'fuzzy_dropdown':
-						case 'fuzzy_checkboxes':							
+						case 'fuzzy_checkboxes':
 							$selected_fuzzy_options = array_get_index($filter_data, 'fuzzy_options', $default_fuzzy_options);
 							// Selected "event horizon" in days for "upcoming events" type
 							$event_horizon = array_get_index($filter_data, 'event_horizon', 180);
@@ -116,16 +121,16 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 								text_box($prefix.'_filters['.$filter_name.'][event_horizon]', $event_horizon, 3, '', FALSE, $input_box_extra);
 								echo " days";
 							}
-						break;					
+						break;
 					}//end switch
 					echo "<br /><br>";
 				}
-				if ($write_access) {					
+				if ($write_access) {
 					combo_box($prefix.'_filters['.$filter_name.'][type]', $query_types, FALSE, 'none');
 				}
-				
+
 				echo "</td>";
-				
+
 				if ($write_access) {
 					echo "<td>";
 					check_box($prefix.'_filters['.$filter_name.'][delete]');
@@ -177,7 +182,7 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 							$new_filters[$filter_name]['type'] = $old_filters[$filter_name]['type'];
 							if (isset($filter['fuzzy_options'])) {
 								$new_filters[$filter_name]['fuzzy_options'] = $filter['fuzzy_options'];
-							}							
+							}
 							if (isset($filter['event_horizon'])) {
 								$new_filters[$filter_name]['event_horizon'] = $filter['event_horizon'];
 							} else if (isset($old_filters[$filter_name]['event_horizon'])) {
@@ -185,8 +190,8 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 							}
 						}//end if
 					}
-					$new_filters[$filter_name]['use_picker']  = isset($filter['use_picker']) ? TRUE : FALSE;					
-					
+					$new_filters[$filter_name]['use_picker']  = isset($filter['use_picker']) ? TRUE : FALSE;
+
 				}//end if
 			}//end foreach
 		}//end if
@@ -197,14 +202,14 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 			// If filter already exists, don't overwrite it
 			if (!isset($old_filters[$safe_name])) {
 				$new_filters[$safe_name]['name'] = $_POST[$prefix.'_new_events_date_filter_name'];
-				$new_filters[$safe_name]['use_picker'] = TRUE;				
+				$new_filters[$safe_name]['use_picker'] = TRUE;
 			}
 		}
 
 		return $asset->setAttrValue('events_filters', $new_filters);
 
 	}//end processFields()
-	
+
 
 //--        SAVED SEARCH        --//
 
@@ -235,7 +240,7 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 		$fields = $asset->attr('events_filters');
 		foreach ($fields as $fieldname => $fieldvalue) {
 			$current_params['parameters']['f:'.$fieldname] = 'Date Filter: '.$fieldname;
-		}		
+		}
 		$pmap->_params = $current_params;
 		if ($wa) {
 			$pmap->paint($prefix);
@@ -244,7 +249,7 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 		}
 
 	}//end paintSavedSearch()
-	
+
 
 }//end class
 ?>

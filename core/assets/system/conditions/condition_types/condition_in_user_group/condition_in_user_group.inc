@@ -72,6 +72,27 @@ class Condition_In_User_Group extends Condition
 	}//end evaluate()
 
 
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The user is in any of the following user groups'),
+							'0' => translate('The user is NOT in any of the following user groups'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
+
+
 }//end class
 
 ?>

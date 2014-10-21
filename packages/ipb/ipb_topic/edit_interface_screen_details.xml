@@ -16,33 +16,43 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="40" height="1" />
-		</field>
-		<field attribute="description">
-			<text width="40" height="2" />
-		</field>
-		<field attribute="posts">
-			<int width="5" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStarterName" />
-				<process_function name="processStarterName" />
-			</function_call>
-		</field>
-		<field attribute="start_date">
-			<text width="40" height="1" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintLastPosterName" />
-				<process_function name="processLastPosterName" />
-			</function_call>
-		</field>
-		<field attribute="last_post">
-			<text width="40" height="1" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note>%description%</note>
+            <text width="40" height="1" />
+        </field>
+        <field attribute="description">
+            <display_name>Description</display_name>
+            <note>%description%</note>
+            <text width="40" height="2" />
+        </field>
+        <field attribute="posts">
+            <display_name>Number of Posts</display_name>
+            <note>%description%</note>
+            <int width="5" />
+        </field>
+        <field>
+            <function_call>
+                <paint_function name="paintStarterName" />
+                <process_function name="processStarterName" />
+            </function_call>
+        </field>
+        <field attribute="start_date">
+            <display_name>Topic start date</display_name>
+            <note>%description%</note>
+            <text width="40" height="1" />
+        </field>
+        <field>
+            <function_call>
+                <paint_function name="paintLastPosterName" />
+                <process_function name="processLastPosterName" />
+            </function_call>
+        </field>
+        <field attribute="last_post">
+            <display_name>Last post date</display_name>
+            <note>%description%</note>
+            <text width="40" height="1" />
+        </field>
+    </section>
 </contents>

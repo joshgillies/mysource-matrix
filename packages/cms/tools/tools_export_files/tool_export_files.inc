@@ -74,24 +74,32 @@ class Tool_Export_Files extends Tool
 
 		$o->openSection($tool_info['name']);
 
-			$o->openField(translate('cms_tool_export_files_root_node'));
+			$o->openField(translate('Root Node'));
+
 				multiple_asset_finder($type_code.'_root_node', Array(), $filetypes);
-				$o->note(translate('cms_tool_export_files_root_node_note'));
+				$o->note(translate('Export all the files under this root node'));
+
 			$o->closeField();
 
-			$o->openField(translate('cms_tool_export_files_save_name'));
+			$o->openField(translate('Save As'));
+
 				text_box($type_code.'_save_name', $save_name, 30);
-				$o->note(translate('cms_tool_export_files_save_name_note'));
+				$o->note(translate('Name to save the exported files as'));
+
 			$o->closeField();
 
-			$o->openField(translate('cms_tool_export_files_save_location'));
+			$o->openField(translate('Save Location'));
+
 				text_box($type_code.'_save_location', $save_location, 30);
-				$o->note(translate('cms_tool_export_files_save_location_note'));
+				$o->note(translate('Location to save the exported files'));
+
 			$o->closeField();
 
-			$o->openField(translate('cms_tool_export_files_keep_structure'));
+			$o->openField(translate('Keep Structure'));
+
 				check_box($type_code.'_keep', 1, TRUE);
-				$o->note(translate('cms_tool_export_files_keep_structure_note'));
+				$o->note(translate('When exporting, keep the structure underneath the root node'));
+
 			$o->closeField();
 
 		$o->closeSection();
@@ -112,25 +120,25 @@ class Tool_Export_Files extends Tool
 	{
 		// error: root node not specified
 		if (!isset($_REQUEST[$type_code.'_root_node']) || empty($_REQUEST[$type_code.'_root_node'])) {
-			trigger_localised_error('CMS0100', E_USER_NOTICE);
+			trigger_localised_error('CMS0100', translate('Cannot complete the export. No root node specified.'), E_USER_NOTICE);
 			return FALSE;
 		}//end if
 
 		// error: save name not specified
 		if (!isset($_REQUEST[$type_code.'_save_name']) || empty($_REQUEST[$type_code.'_save_name'])) {
-			trigger_localised_error('CMS0101', E_USER_NOTICE);
+			trigger_localised_error('CMS0101', translate('Cannot complete the export. No save name specified.'), E_USER_NOTICE);
 			return FALSE;
 		}//end if
 
 		// error: save location not specified
 		if (!isset($_REQUEST[$type_code.'_save_location']) || empty($_REQUEST[$type_code.'_save_location'])) {
-			trigger_localised_error('CMS0102', E_USER_NOTICE);
+			trigger_localised_error('CMS0102', translate('Cannot complete the export. No save location specified.'), E_USER_NOTICE);
 			return FALSE;
 		}//end if
 
 		// error: save location not directory and not writable
 		if (!is_dir($_REQUEST[$type_code.'_save_location']) || !is_writable($_REQUEST[$type_code.'_save_location'])) {
-			trigger_localised_error('CMS0103', E_USER_NOTICE);
+			trigger_localised_error('CMS0103', translate('Cannot complete the export. Save location is NOT writable.'), E_USER_NOTICE);
 			return FALSE;
 		}//end if
 

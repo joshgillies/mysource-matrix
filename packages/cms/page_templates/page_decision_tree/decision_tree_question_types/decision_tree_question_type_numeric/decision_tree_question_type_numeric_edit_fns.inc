@@ -38,8 +38,8 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 		parent::__construct();
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Paint a table for the destination data for each key of the 'rules' attribute.
 	* Destination data includes the next question, result bodycopy and points value.
@@ -56,24 +56,28 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 		$write_access = $asset->writeAccess('attributes');
 		$rules = $asset->attr('rules');
 		$q_dest = $asset->attr('question_destinations');
-		
+
 		?>
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('answer_rule'); ?>
+					<?php echo translate('Answer Rule'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('next_question'); ?>
+					<?php echo translate('Next Question'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('result_bodycopy'); ?>
+					<?php echo translate('Result Bodycopy'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('points_value'); ?>
+					<?php echo translate('Points Value'); ?>
+
 				</td>
 			</tr>
-		<?php 
+		<?php
 		foreach ($rules as $rule => $details){
 			?>
 			<tr>
@@ -86,7 +90,7 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 				<?php
 				$nxt_q = (!empty($q_dest[$rule]['next_question'])) ? $q_dest[$rule]['next_question'] : '';
 				if ($write_access){
-					$type_codes = Array ( 
+					$type_codes = Array (
 									  'decision_tree_question_type_select' 	=> 'I',
 									  'decision_tree_question_type_numeric' => 'I',
 									);
@@ -100,7 +104,7 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 				<?php
 				$res_body = (!empty($q_dest[$rule]['result_bodycopy'])) ? $q_dest[$rule]['result_bodycopy'] : '';
 				if ($write_access){
-					$type_codes = Array ( 
+					$type_codes = Array (
 									  'bodycopy' 	=> 'I',
 									);
 					asset_finder($prefix.'_bodycopy_'.$rule, $res_body, $type_codes);
@@ -121,13 +125,13 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 				</td>
 			</tr>
 		<?php }
-		?> 
-		</table> 
+		?>
+		</table>
 		<?php
 		return TRUE;
 	}//end paintDestinations()
-	
-	
+
+
 	/**
 	* Processes a table for the destination data for each key of the 'rules' attribute.
 	* Destination data includes the next question, result bodycopy and points value.
@@ -144,9 +148,9 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		$rules = $asset->attr('rules');
 		$q_dest = Array();
-		
+
 		foreach ($rules as $rule => $details){
-			
+
 			$nxt_q = (isset($_POST[$prefix.'_next_question_'.$rule])) ? $_POST[$prefix.'_next_question_'.$rule]['assetid'] : '';
 			if (!empty($nxt_q)){
 				//check if its a child else create a link under it
@@ -156,26 +160,26 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 					if(!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $minor, SQ_LINK_TYPE_2)) $nxt_q = '';
 				}
 			}
-			$q_dest[$rule]['next_question'] = $nxt_q; 
-			
+			$q_dest[$rule]['next_question'] = $nxt_q;
+
 			$res_body = (isset($_POST[$prefix.'_bodycopy_'.$rule])) ? $_POST[$prefix.'_bodycopy_'.$rule]['assetid'] : '';
 			$q_dest[$rule]['result_bodycopy'] = $res_body;
-			
+
 			$points = (isset($_POST[$prefix.'_points_value_'.$rule])) ? $_POST[$prefix.'_points_value_'.$rule] : 0;
 			if (!is_numeric($points)) {
-				trigger_localised_error('CMS0114', E_USER_NOTICE);
+				trigger_localised_error('CMS0114', translate('The Points Value field must be numeric for Answer Destinations.'), E_USER_NOTICE);
 				$points = 0;
 			}
 			$q_dest[$rule]['points_value'] = $points;
-			
+
 		}
-		
+
 		$asset->setAttrValue('question_destinations', $q_dest);
 		$asset->saveAttributes();
-			
+
 		return TRUE;
 	}//end processDestinations()
-	
+
 	/**
 	* Print the interface for adding potential numeric answer ranges.
 	*
@@ -188,36 +192,39 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 	*/
 	function paintOptions(&$asset, &$o, $prefix)
 	{
-		
+
 		$write_access = $asset->writeAccess('attributes');
-		
+
 		$rules = $asset->attr('rules');
 		$contents = $asset->getOperators();
-		
+
 		if ($write_access) {
 
 			?><table class="sq-backend-table" style="width:auto">
 			<tr>
-				<th><?php echo translate('range_type'); ?></th>
-				<th><?php echo translate('range_values'); ?></th>
-				<th><?php echo translate('delete'); ?></th>
+				<th><?php echo translate('Range Type'); ?></th>
+
+				<th><?php echo translate('Range Values (min to max)'); ?></th>
+
+				<th><?php echo translate('Delete'); ?></th>
+
 			</tr><?php
 			foreach ($rules as $key => $item) {
 				?><tr><?php
-				?><td><?php 
-				
+				?><td><?php
+
 				combo_box($prefix.'[RULES][default]['.$key.'][logic]', $contents, FALSE, $item['logic']);
 
 				?></td><?php
-				?><td><?php 
-				
+				?><td><?php
+
 				text_box($prefix.'[RULES][default]['.$key.'][value_1]', $item['value_1'], 10);
 				echo '&nbsp';
 				text_box($prefix.'[RULES][default]['.$key.'][value_2]', $item['value_2'], 10);
-				
+
 				?></td><?php
 				?><td><?php check_box($prefix.'[RULES][default]['.$key.'][delete]', 1, FALSE, 'document.getElementById("'.$prefix.'[RULES][default]['.$key.'][logic]").disabled = document.getElementById("'.$prefix.'[RULES][default]['.$key.'][value_1]").disabled = document.getElementById("'.$prefix.'[RULES][default]['.$key.'][value_2]").disabled = this.checked') ?></td><?php
-				?></tr><?php	
+				?></tr><?php
 			}
 			?>
 			<tr>
@@ -227,7 +234,7 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 			<script type="text/javascript">
 			nextIndex = <?php echo (int)count($rules); ?>;
 			function addAnother(node) {
-				
+
 				var options = '<?php foreach ($contents as $value => $desc) {
 										echo '<option value="'.$value.'">'.$desc.'</option>';
 									}
@@ -272,11 +279,11 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 			}
 			?></table><?php
 		}
-		
+
 		return TRUE;
-		
+
 	}//end paintOptions()
-	
+
 	/**
 	* Processes the interface for adding potential numeric answer ranges.
 	*
@@ -289,13 +296,13 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 	*/
 	function processOptions(&$asset, &$o, $prefix)
 	{
-		
+
 		if (!$asset->writeAccess('attributes')) return FALSE;
-		
+
 		if (isset($_POST[$prefix]['RULES'])) {
 			// Get what we have been given
 			$rules = $_POST[$prefix]['RULES']['default'];
-			
+
 			foreach ($rules as $key => $value) {
 				// Get rid of indexes we don't need, as a cleansing measure
 				$allowed_sub_keys = Array('logic', 'value_1', 'value_2', 'delete');
@@ -304,13 +311,13 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 						unset($rules[$key][$sub_key]);
 					}
 				}
-	
+
 				// If we are set to delete a row, then delete the lot of it
 				if (array_get_index($value, 'delete', FALSE)) {
 					unset($rules[$key]);
 				}
 			}
-			
+
 			$processed_rules = Array();
 			foreach ($rules as &$value) {
 				$value['value_1'] = trim($value['value_1']);
@@ -320,13 +327,13 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 				$processed_rules[$new_key] = $value;
 			}
 			unset($value);
-			
+
 			$asset->setAttrValue('rules', $processed_rules);
 			$asset->saveAttributes();
 		}
-		
+
 		return TRUE;
-			
+
 	}//end processOptions()
 
 

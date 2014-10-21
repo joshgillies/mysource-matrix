@@ -87,11 +87,14 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			$rules = is_array($stream->attr('stream_selection_rules')) ? $stream->attr('stream_selection_rules') : unserialize($stream->attr('stream_selection_rules'));
 			if(empty($rules)) continue;
 			$logic = $stream->attr('rules_logic');
-			$string .= $logic === 'all' ? translate('match_all_rules_description') : translate('match_any_rule_description');
+			$string .= $logic === 'all' ? translate('Match on ALL rules:') : translate('Match on ANY rule:');
+
+
 			$string .= '<ul>';
 			foreach ($rules as $rule) {
 				$string .= '<li>';
-				$string .= translate('stream_selection_rule_description', $rule['keyword'], $rule['pattern']);
+				$string .= sprintf(translate('%1$s matches "%2$s"'), $rule['keyword'], $rule['pattern']);
+
 				$string .= '</li>';
 			}
 			$string .= '</ul>';
@@ -114,13 +117,18 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					?>
 				</colgroup>
 				<tr>
-					<th><p><?php echo translate('edit_question'); ?></p></th>
-					<th><?php echo translate('stream_name'); ?></th>
-					<th><?php echo translate('workflow_summary'); ?></th>
-					<th><?php echo translate('selection_rules'); ?></th>
+					<th><p><?php echo translate('Edit?'); ?></p></th>
+
+					<th><?php echo translate('Stream Name'); ?></th>
+
+					<th><?php echo translate('Workflow Summary'); ?></th>
+
+					<th><?php echo translate('Selection Rules'); ?></th>
+
 					<?php
 					if ($write_access === TRUE) {
-						?><th style="text-align:center"><b><?php echo translate('delete_question'); ?></b></th><?php
+						?><th style="text-align:center"><b><?php echo translate('Delete?'); ?></b></th><?php
+
 					}
 					?>
 				</tr>
@@ -188,7 +196,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 								$dynamic_userids = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('dynamic_userid', 'workflow_step_condition', Array($condition['minorid']));
 								$dynamic_userid = $dynamic_userids[$condition['minorid']];
 								if(empty($dynamic_userid)) {
-									trigger_localised_error('SYS0348', E_USER_NOTICE, $userid, $condition['minorid']);
+									trigger_localised_error('SYS0348', sprintf(translate('User asset #%1$s set for the workflow step condition #%2$s does not exist'), $userid, $condition['minorid']), E_USER_NOTICE);
 									continue;
 								}
 								$condition_name = $dynamic_userid;
@@ -220,9 +228,11 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						if ($expiry > 0) {
 							if ($step_asset->attr('escalate')) {
 								$esc_links = array_reverse($GLOBALS['SQ_SYSTEM']->am->getLinks($step_assetid, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE));
-								echo translate('workflow_stream_escalation_msg', $expiry_text, count($esc_links));
+								echo sprintf(translate('<span class="sq-backend-warning">Escalates</span> after %1$s, %2$s escalation step(s)'), $expiry_text, count($esc_links));
+
 							} else {
-								echo translate('workflow_stream_reminder_sent_msg', $expiry_text);
+								echo sprintf(translate('Reminder sent after %1$s'), $expiry_text);
+
 							}
 						}
 
@@ -243,9 +253,11 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					$class_style .= ' alt';
 				}
 				if ($alt_stream_num === 0) {
-					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('default_stream'); ?></td></tr><?php
+					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('Default Stream'); ?></td></tr><?php
+
 				} else if ($alt_stream_num === 1) {
-					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
+					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('Alternate Streams'); ?></td></tr><?php
+
 				}
 			?>
 				<tr class="<?php echo $class_style ?>">
@@ -271,7 +283,8 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			}
 
 			if (count($streams_info) <= 1) {
-				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
+				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('Alternate Streams'); ?></td></tr><?php
+
 				?><tr class="sq-table-row"><td></td><td colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('workflow_stream_no_alternate_'.($write_access ? 'locked' : 'unlocked')); ?></td></tr><?php
 			}
 
@@ -282,7 +295,8 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					<td></td>
 					<td colspan="4"><?php
 						check_box($prefix.'_new_stream', '1', FALSE, 'document.getElementById("'.$prefix.'_new_stream_name").disabled = !this.checked; if (this.checked == true) { document.getElementById("'.$prefix.'_new_stream_name").focus() };');
-						label(translate('create_new_stream_called'), $prefix.'_new_stream');
+						label(translate('Create a new stream called:'), $prefix.'_new_stream');
+
 						text_box($prefix.'_new_stream_name', '', 30, 0, FALSE, ' disabled="disabled"');
 					?></td>
 				</tr>
@@ -497,18 +511,22 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$o->openField(translate('current_restrict'));
+		$o->openField(translate('Current Restrictions'));
+
 			$restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
 			if (!empty($restrictions)) {
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-						<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('inherit').'?'; ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('Asset Type'); ?></td>
+
+						<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('Inherit').'?'; ?></td>
+
 						<?php
 						if ($write_access) {
 						?>
-						<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('remove').'?'; ?></td>
+						<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('Remove').'?'; ?></td>
+
 						<?php
 						}
 						?>
@@ -518,7 +536,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						?>
 						<tr>
 							<td class="sq-backend-table-cell">
-								<?php 
+								<?php
 									get_asset_type_icon($asset_type);
 									echo ucfirst(str_replace('_', ' ', $asset_type));
 								?>
@@ -549,13 +567,15 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 
 				<?php
 			} else {
-				echo '<em>'.translate('no_restriction').'</em>';
+				echo '<em>'.translate('No Restrictions').'</em>';
+
 			}
 		$o->closeField();
 
 		if ($write_access) {
 			// New Restrictions
-			$o->openField(translate('new_restriction'));
+			$o->openField(translate('New Restriction'));
+
 				asset_type_chooser($prefix.'_add_restriction', TRUE, Array(), NULL, FALSE, TRUE);
 			$o->closeField();
 		}
@@ -774,11 +794,15 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			$page_num = min($page_num, $num_pages);
 
 			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
+				$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
+
 			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+				$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_usage_page');
+
 			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
+			$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
+
+
 
 			$tree_tops = array_slice($tree_tops, ($page_num - 1) * $page_size, $page_size);
 
@@ -791,19 +815,27 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					);
 
 			if ($page_num > 1) {
-				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
-				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+				$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
+
+				$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+
 			} else {
-				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
-				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+				$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
+
+				$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
+
 			}
 
 			if ($page_num < $num_pages) {
-				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
-				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+				$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
+
+				$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+
 			} else {
-				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
-				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+				$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
+
+				$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
+
 			}
 
 			hidden_field($prefix.'_usage_page', $page_num); ?>
@@ -814,9 +846,12 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 				<td class="sq-backend-table-header-header" colspan="2" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
 			</tr>
 			<tr class="sq-backend-table-row">
-				<th class="sq-backend-table-cell"><?php echo translate('asset'); ?></th>
-				<th style="width: 15%" class="sq-backend-table-cell"><?php echo translate('granted_question') ?></th>
-				<th style="width: 15ex" class="sq-backend-table-cell"><?php echo translate('cascade_question') ?></th>
+				<th class="sq-backend-table-cell"><?php echo translate('Asset'); ?></th>
+
+				<th style="width: 15%" class="sq-backend-table-cell"><?php echo translate('Granted?') ?></th>
+
+				<th style="width: 15ex" class="sq-backend-table-cell"><?php echo translate('Cascade?') ?></th>
+
 			</tr>
 			</thead>
 			<tbody>
@@ -836,15 +871,18 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						$tag_line = get_asset_tag_line($tree_info['assetid'], 'details');
 
 						echo ($tree_info['depth'] === 0 ? '' : '<span style="padding-left: '.($tree_info['depth']*5).'ex">');
-						echo translate('asset_and_child_count_0', $tag_line);
+						echo sprintf(translate('%1$s'), $tag_line);
+
 						echo ($tree_info['depth'] === 0 ? '' : '</span>');
 
 						?></td>
 						<td class="sq-backend-table-cell">
-							<strong><span style="color: <?php echo (($tree_info['granted'] == '0') ? 'red' : 'green'); ?>"><?php echo (($tree_info['granted'] == '0') ? translate('denied') : translate('applied')) ?></span></strong>
+							<strong><span style="color: <?php echo (($tree_info['granted'] == '0') ? 'red' : 'green'); ?>"><?php echo (($tree_info['granted'] == '0') ? translate('Denied') : translate('Applied')) ?></span></strong>
+
+
 						</td>
 						<td class="sq-backend-table-cell">
-							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo translate($tree_info['cascades'] === '1' ? 'yes' : 'no'); ?>" />
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo ($tree_info['cascades'] === '1' ? translate('Yes') : translate('No')); ?>" />
 						</td>
 					</tr>
 					<?php
@@ -859,10 +897,14 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			</table>
 			<?php
 
-			$o->note(translate('core_schema_usage_explanation'));
+			$o->note(translate('<p>This screen shows which assets have this schema either applied or denied.</p>
+
+	<p>Where the applying or denying of the schema is cascaded unaffected through a tree of assets, only the top asset of that tree will be displayed. However, if any children underneath the asset do anything different to its parent - such as denying the schema where its parent had applied (or vice-versa), or it no longer cascades to new assets - a child entry in the table is created.</p>'));
+
 
 		} else {
-			$o->note(translate('core_schema_usage_no_assets'));
+			$o->note(translate('<p>This schema is not applied to any assets.</p>'));
+
 		}
 
 		$o->closeRaw();

@@ -73,7 +73,7 @@ class Package_Manager_Search extends Package_Manager
 		$search_manager = new Search_Manager();
 		$search_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$search_manager->create($search_manager_link)) {
-			trigger_localised_error('SCH0007', E_USER_ERROR);
+			trigger_localised_error('SCH0007', translate('Search Manager NOT CREATED'), E_USER_ERROR);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('search_manager', $search_manager->id);

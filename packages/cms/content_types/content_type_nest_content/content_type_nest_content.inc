@@ -93,7 +93,8 @@ class Content_Type_Nest_Content extends Content_Type
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if ($link['value'] == 'nested_asset') {
-			return translate('cms_ct_nest_content_link_desc');
+			return translate('The asset being nested in a nest content cell');
+
 		}
 
 	}//end describeLink()
@@ -156,11 +157,11 @@ class Content_Type_Nest_Content extends Content_Type
 		return parent::linksUpdated();
 
 	}//end linksUpdated()
-	
-	
+
+
 	/**
 	 * Called to generate the special interface for snippet content type
-	 * 
+	 *
 	 * @return string
 	 * @access public
 	 */
@@ -169,17 +170,19 @@ class Content_Type_Nest_Content extends Content_Type
 		$edit_fns = $this->getEditFns();
 		$nested_asset = $edit_fns->_getNestedAsset($this);
 		$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
-		
+
 		if (empty($asset_link)) {
 			$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 		}
-		$content = '<strong>'.translate('cms_ct_nest_content_nested_content').get_asset_tag_line($nested_asset->id).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
-		
+		$content = '<strong>'.sprintf(translate('Nested Content - %s'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('Click to preview in a new window').'</a>.';
+
+
+
 		return $content;
-		
+
 	}//end getSnippetInterface()
-	
-	
+
+
 }//end class
 
 ?>

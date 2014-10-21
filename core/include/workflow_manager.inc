@@ -245,23 +245,23 @@ class Workflow_Manager extends MySource_Object
 
 		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error('SYS0175', E_USER_WARNING, $schemaid);
+			trigger_localised_error('SYS0175', sprintf(translate('Failed setting workflow schema, Schema Asset #%s does not exist'), $schemaid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!($schema instanceof Workflow_Schema)) {
-			trigger_localised_error('SYS0173', E_USER_WARNING, $schema->name, $schemaid);
+			trigger_localised_error('SYS0173', sprintf(translate('Failed setting workflow schema, "%1$s" (Asset #%2$s) is not a workflow schema'), $schema->name, $schemaid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0174', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0174', sprintf(translate('Failed setting workflow schema, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_localised_error('SYS0117', E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0117', sprintf(translate('Unable to set workflow schema for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -293,7 +293,7 @@ class Workflow_Manager extends MySource_Object
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 		if (!empty($running_schemas)) {
-			trigger_localised_error('SYS0118', E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0118', sprintf(translate('Unable to set workflow schema for "%s", workflow is currently running'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -320,7 +320,7 @@ class Workflow_Manager extends MySource_Object
 					$new_access     = ($granted) ? 'apply'  : 'deny';
 					$current_access = ($granted) ? 'denied' : 'applied';
 
-					trigger_localised_error('SYS0124', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
+					trigger_localised_error('SYS0124', sprintf(translate('Unable to %1$s workflow schema "%2$s" on "%3$s" because this asset already has this schema %3$s'), $new_access, $schema->name, $asset->name, $current_access), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -374,12 +374,12 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0153', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0153', sprintf(translate('Failed deleting workflow schema, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_localised_error('SYS0105', E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0105', sprintf(translate('Unable to delete workflow schema for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -387,7 +387,7 @@ class Workflow_Manager extends MySource_Object
 			// check for any running schemas - because if the asset is in workflow we cant do anything
 			$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 			if (!empty($running_schemas)) {
-				trigger_localised_error('SYS0106', E_USER_WARNING, $asset->name);
+				trigger_localised_error('SYS0106', sprintf(translate('Unable to delete workflow schema for "%s", workflow is currently running'), $asset->name), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -502,12 +502,12 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0177', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0177', sprintf(translate('Failed setting workflow, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_localised_error('SYS0117', E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0117', sprintf(translate('Unable to set workflow schema for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -520,14 +520,14 @@ class Workflow_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error('SYS0174', E_USER_WARNING, $schemaid);
+				trigger_localised_error('SYS0174', sprintf(translate('Failed setting workflow schema, Asset #%s does not exist'), $schemaid), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
 			if (!($schema instanceof Workflow_Schema)) {
-				trigger_localised_error('SYS0176', E_USER_WARNING, $schema->name, $schemaid);
+				trigger_localised_error('SYS0176', sprintf(translate('Failed setting workflow, "%1$s" (Asset #%2$s) is not a workflow schema'), $schema->name, $schemaid), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -613,7 +613,7 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0180', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0180', sprintf(translate('Failed to notify, asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -699,13 +699,18 @@ class Workflow_Manager extends MySource_Object
 					// Does this schema have a custom message?
 					if (trim($schema->attr('message_notify_on_live')) !== '' ) {
 						$msg->body = trim($schema->attr('message_notify_on_live'));
+					} else {
+					    $msg->body = translate('%type_code% "%asset_name%" has gone live from "%status%".')."\n\n".
+					                    translate('You can view the asset <SQ_MSG_LINK href="%asset_url%">here</SQ_MSG_LINK>.');
 					}//end if
 
 					// Does this schema have a custom subject?
+					$default_subject = translate('Asset Made Live');
 					if (trim($schema->attr('subject_notify_on_live')) !== '') {
 						$subject = trim($schema->attr('subject_notify_on_live'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Asset Made Live';
-					}//end if
+					} else {
+					    $msg->subject = (!empty($subject)) ? $subject : $default_subject;
+					}
 
 					if ($schema->attr('schema_reply_to_email_address') != '') {
 						$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
@@ -745,7 +750,7 @@ class Workflow_Manager extends MySource_Object
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			// TODO: Check error
-			trigger_localised_error('SYS0180', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0180', sprintf(translate('Failed to notify, asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1079,7 +1084,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0160', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0160', sprintf(translate('Failed recording workflow publish, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1151,6 +1156,9 @@ class Workflow_Manager extends MySource_Object
 					);
 		$log->replacements = $msg_reps;
 		$log->type = 'asset.workflow.log.approve';
+		$log->subject = translate('Asset Changes Approved');
+		$log->body    = translate('User "%workflow_user%" has approved the changes to %type_code% "%asset_name%".')."\n\n".
+		                    translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>');
 		$log->parameters['assetid'] = $asset->id;
 		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
 		$ms->enqueueMessage($log);
@@ -1173,7 +1181,7 @@ class Workflow_Manager extends MySource_Object
 					$workflow =& $schema_workflows[$schemaid];
 					$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
 					// Does this step have a custom message?
-					if (isset($current_step['message_approve']) || isset($current_step['subject_approve'])) 
+					if (isset($current_step['message_approve']) || isset($current_step['subject_approve']))
 					{
 						$msg = clone $base_msg;
 						$msg->to = $publishers_step;
@@ -1187,10 +1195,22 @@ class Workflow_Manager extends MySource_Object
 							$msg->from = $schema->attr('schema_from_email_address');
 						}
 
-						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
-						if(!empty($subject)) $msg->subject = $subject;
+						$default_subject = translate('Asset Changes Approved');
+						$subject = trim(array_get_index($current_step, 'subject_approve'));
+						if (!empty($subject)) {
+						    $msg->subject = $subject;
+						} else {
+						    $msg->subject = $default_subject;
+						}
+
 						$body = trim(array_get_index($current_step, 'message_approve', ''));
-						if(!empty($body)) $msg->body = $body;
+						if (!empty($body)) {
+						    $msg->body = $body;
+						} else {
+						    $msg->body = translate('User "%workflow_user%" has approved the changes to %type_code% "%asset_name%".')."\n\n".
+						                    translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>');
+						}
+
 						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 						$ms->enqueueMessage($msg);
 					} else {
@@ -1324,12 +1344,20 @@ class Workflow_Manager extends MySource_Object
 						// Does this step have a custom message (for inviting users to the next step)?
 						if (isset($current_step['message_review_invitation']) && trim($current_step['message_review_invitation']) !== '' ) {
 							$msg->body = trim($current_step['message_review_invitation']);
+						} else {
+						    $msg->body = translate('User "%workflow_user%" has placed %type_code% "%asset_name%" up for review.')."\n".
+						                    translate('You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.')."\n\n".
+						                    translate('<SQ_MSG_LINK href="%workflow_url%">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.')."\n".
+						                    translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 						}
 
 						// Does this step have a custom subject (for inviting users to the next step)?
+						$default_subject = translate('Asset Up For Review');
 						if (isset($current_step['subject_review_invitation']) && trim($current_step['subject_review_invitation']) !== '' ) {
-							$subject = trim(array_get_index($current_step, 'subject_review_invitation', 'Asset Up For Review'));
-							$msg->subject = (!empty($subject)) ? $subject : 'Asset Up For Review';
+							$subject = trim(array_get_index($current_step, 'subject_review_invitation'));
+							$msg->subject = (!empty($subject)) ? $subject : $default_subject;
+						} else {
+						    $msg->subject = $default_subject;
 						}
 
 						$msg->replacements = $msg_reps;
@@ -1383,12 +1411,21 @@ class Workflow_Manager extends MySource_Object
 						// Does this step have a custom message?
 						if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
 							$msg->body = trim($current_step['message_invitation']);
-						}//end if
+						} else {
+						    $msg->body = translate('%type_code% "%asset_name%" is currently in workflow and has progressed from step %previous_step_id% "%previous_step_name%" to step %current_step_id% "%current_step_name%".')."\n".
+                                            translate('You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.')."\n\n".
+                                            translate('You can <SQ_MSG_LINK href="%accept_url%">Accept</SQ_MSG_LINK> or<SQ_MSG_LINK href="%reject_url%">Reject</SQ_MSG_LINK> the changes.')."\n".
+                                            translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>')."\n\n".
+                                            translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                        }//end if
 
 						// Does this step have a custom subject?
+						$default_subject = translate('Workflow Approval Required');
 						if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '' ) {
-							$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
-							$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
+							$subject = trim(array_get_index($current_step, 'subject_invitation'));
+							$msg->subject = (!empty($subject)) ? $subject : $default_subject;
+						} else {
+						    $msg->subject = $default_subject;
 						}//end if
 
 						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
@@ -1407,7 +1444,7 @@ class Workflow_Manager extends MySource_Object
 		// Test they are the next user in workflow
 		if (in_array($current_userid, $list_of_publishers)) {
 			if (!$this->recordPublish($asset->id, $current_userid)) {
-				trigger_localised_error('SYS0078', E_USER_WARNING, $current_userid);
+				trigger_localised_error('SYS0078', sprintf(translate('Approval by user %s not set in processStatusChange'), $current_userid), E_USER_WARNING);
 				// dont die here because they can try to approve again later, we just want to warn them
 			}
 		}
@@ -1664,18 +1701,18 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0155', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0155', sprintf(translate('Failed getting workflow, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid);
 		if (is_null($stream)) {
-			trigger_localised_error('SYS0156', E_USER_WARNING, $streamid);
+			trigger_localised_error('SYS0156', sprintf(translate('Failed getting workflow, Schema #%s does not exist'), $streamid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!($stream instanceof Workflow_Stream)) {
-			trigger_localised_error('SYS0154', E_USER_WARNING, $stream->name, $streamid);
+			trigger_localised_error('SYS0154', sprintf(translate('Failed getting workflow, "%1$s" (Asset #%2$s) is not a workflow schema'), $stream->name, $streamid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1708,7 +1745,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid  = (int) $assetid;
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0179', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0179', sprintf(translate('Failed starting workflow, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1793,7 +1830,7 @@ class Workflow_Manager extends MySource_Object
 			$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 			if (in_array($current_userid, $publishers)) {
 				if (!$this->recordPublish($asset->id, $current_userid)) {
-					trigger_localised_error('SYS0078', E_USER_WARNING, $current_userid);
+					trigger_localised_error('SYS0078', sprintf(translate('Approval by user %s not set in processStatusChange'), $current_userid), E_USER_WARNING);
 					// dont die here because they can try to approve again later, we just want to warn them
 				} else {
 					// bug fix #3807 Workflow email send to second reviewer contains wrong content and link
@@ -1891,41 +1928,61 @@ class Workflow_Manager extends MySource_Object
 					$msg->replacements = $msg_reps;
 
 					// Does this step have a custom message?
-					if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+					$default_subject = translate('Workflow Approval Required');
+					$default_body    = translate('%type_code% "%asset_name%" is currently in workflow.')."\n".
+                                        translate('You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.')."\n\n".
+                                        translate('You can <SQ_MSG_LINK href="%accept_url%">Accept</SQ_MSG_LINK> or <SQ_MSG_LINK href="%reject_url%">Reject</SQ_MSG_LINK> the changes.')."\n".
+                                        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>')."\n\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+
+                    $is_generic = FALSE;
+                    if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
 						// This message has a custom body. Just send it.
-						$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
+						$subject = trim(array_get_index($current_step, 'subject_invitation'));
+						$msg->subject = (!empty($subject)) ? $subject : $default_subject;
 						$msg->body = trim($current_step['message_invitation']);
 					} else if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '') {
 						// This message has a custom subject. Just send it.
-						$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
+						$subject = trim(array_get_index($current_step, 'subject_invitation'));
+						$msg->subject = (!empty($subject)) ? $subject : $default_subject;
+						$msg->body    = $default_body;
 					} else {
 						// This is the generic message. Make sure only one of these are sent out,
 						// regardless of how many schemas trigger it.
 						if ($generic_msg === NULL) {
-							$generic_msg = $msg;
-						} else {
+						    $is_generic   = TRUE;
+							$msg->subject = $default_subject;
+							$msg->body    = $default_body;
+                        } else {
 							$generic_msg->to = array_merge($generic_msg->to, $msg->to);
 							continue;
 						}
 					}
 
 				}//end if
+
 				if (empty($msg->type)) {
 					$msg->type = 'asset.workflow.invitation';
 				} else if ($msg->type == 'asset.workflow.review'){
+				    // NOTE: If this is an Up For Review workflow, then the default message will be
+				    // set in the base message, in the Live status.
 					// Does this step have a custom message?
+					$default_subject = translate('Asset Up For Review');
 					if (isset($current_step['message_review_invitation']) && trim($current_step['message_review_invitation']) !== '' ) {
 						$msg->body = trim($current_step['message_review_invitation']);
 					}//end if
 
 					// Does this step have a custom subject?
 					if (isset($current_step['subject_review_invitation']) && trim($current_step['subject_review_invitation']) !== '' ) {
-						$subject = trim(array_get_index($current_step, 'subject_review_invitation', 'Asset Up For Review'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Asset Up For Review';
+						$subject = trim(array_get_index($current_step, 'subject_review_invitation'));
+						$msg->subject = (!empty($subject)) ? $subject : $default_subject;
 					}//end if
 				}
+
+				// Set the generic message if this was our first one.
+				if ($is_generic === TRUE) {
+				    $generic_msg = $msg;
+                }
 
 				$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 
@@ -1941,6 +1998,8 @@ class Workflow_Manager extends MySource_Object
 					$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
 					$message->parameters['assetid'] = $assetid;
 					$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+					$message->subject = translate('Workflow User Log');
+					$message->body    = $log_message;
 					$message->send();
 				}
 
@@ -2018,7 +2077,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0146', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0146', sprintf(translate('Failed cancelling workflow, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -2113,18 +2172,26 @@ class Workflow_Manager extends MySource_Object
 					$msg->replacements = $msg_reps;
 
 					// Does this step have a custom message?
+					$default_subject = translate('Asset Changes Rejected');
+					$default_body    = translate('User "%workflow_user%" has rejected the changes made to %type_code% "%asset_name%". The workflow process has been cancelled.')."\n\n".
+                                        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+					$is_generic = FALSE;
 					if (isset($current_step['message_reject']) && trim($current_step['message_reject']) !== '' ) {
-						$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
+						$subject = trim(array_get_index($current_step, 'subject_reject'));
+						$msg->subject = (!empty($subject)) ? $subject : $default_subject;
 						$msg->body = trim($current_step['message_reject']);
 					} else if (isset($current_step['subject_reject']) && trim($current_step['subject_reject']) !== '') {
-						$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
+						$subject = trim(array_get_index($current_step, 'subject_reject'));
+						$msg->subject = (!empty($subject)) ? $subject : $default_subject;
+						$msg->body    = $default_body;
 					} else {
 						// This is the generic message. Make sure only one of these are sent out,
 						// regardless of how many schemas trigger it.
 						if ($generic_msg === NULL) {
-							$generic_msg = $msg;
+						    $is_generic   = TRUE;
+							$msg->subject = $default_subject;
+							$msg->body    = $default_body;
 						} else {
 							$generic_msg->to = array_merge($generic_msg->to, $msg->to);
 							continue;
@@ -2133,26 +2200,26 @@ class Workflow_Manager extends MySource_Object
 				}
 				if (empty($msg->type)) {
 					$msg->type = 'asset.workflow.announce.reject';
-				} else if ($msg->type == 'asset.workflow.review.cancel'){
+				} else if ($msg->type == 'asset.workflow.review.cancel') {
+				    // NOTE: If this is an Up For Review workflow, then the default cancel message will be
+				    // set in the base message, in the Up For Review (LIVE_APPROVAL) status.
 					// Does this step have a custom message?
+					$default_subject = translate('Asset Review Cancelled');
 					if (isset($current_step['message_review_cancel']) && trim($current_step['message_review_cancel']) !== '' ) {
-						$subject = trim(array_get_index($current_step, 'subject_review_cancel', 'Asset Review Cancelled'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Asset Review Cancelled';
 						$msg->body = trim($current_step['message_review_cancel']);
-					} else if (isset($current_step['subject_review_cancel']) && trim($current_step['subject_review_cancel']) !== '') {
-						$subject = trim(array_get_index($current_step, 'subject_review_cancel', 'Asset Review Cancelled'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Asset Review Cancelled';
-					} else {
-						// This is the generic message. Make sure only one of these are sent out,
-						// regardless of how many schemas trigger it.
-						if ($generic_msg === NULL) {
-							$generic_msg = $msg;
-						} else {
-							$generic_msg->to = array_merge($generic_msg->to, $msg->to);
-							continue;
-						}
-					}
+					}//end if
+
+					// Does this step have a custom subject?
+					if (isset($current_step['subject_review_cancel']) && trim($current_step['subject_review_cancel']) !== '' ) {
+						$subject = trim(array_get_index($current_step, 'subject_review_cancel'));
+						$msg->subject = (!empty($subject)) ? $subject : $default_subject;
+					}//end if
 				}
+
+				// Set the generic message if this was our first one.
+				if ($is_generic === TRUE) {
+				    $generic_msg = $msg;
+                }
 
 				$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 				$msg->parameters['assetid'] = $asset->id;
@@ -2180,7 +2247,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0150', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0150', sprintf(translate('Failed completing workflow, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -2297,7 +2364,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0160', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0160', sprintf(translate('Failed recording workflow publish, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -2377,12 +2444,18 @@ class Workflow_Manager extends MySource_Object
 			// Does this step have a custom message for stale workflow?
 			if (isset($current_step['message_stale']) && trim($current_step['message_stale']) !== '' ) {
 				$msg->body = trim($current_step['message_stale']);
+			} else {
+			    $msg->body = translate('Asset "%asset_name%" [#%assetid%] has been in step %step_id% "%step_name%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.').'  '.
+			                    translate('You may want to consider intervening to progress this workflow by visiting the asset\'s <SQ_MSG_LINK href="%workflow_url%">workflow screen</SQ_MSG_LINK>.');
 			}
 
 			// Does this step have a custom subject for stale workflow?
+			$default_subject = translate('Stale Workflow Step');
 			if (isset($current_step['subject_stale']) && trim($current_step['subject_stale']) !== '' ) {
-				$subject = trim(array_get_index($current_step, 'subject_stale', 'Stale Workflow Step'));
-				$msg->subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
+				$subject = trim(array_get_index($current_step, 'subject_stale'));
+				$msg->subject = (!empty($subject)) ? $subject : $default_subject;
+			} else {
+			    $msg->subject = $default_subject;
 			}//end if
 
 			$msg->parameters['assetid'] = $asset->id;
@@ -2471,6 +2544,10 @@ class Workflow_Manager extends MySource_Object
 
 		$log->replacements = $msg_reps;
 		$log->type = 'asset.workflow.log.escalated';
+		$log->subject = translate('Workflow Escalated');
+		$log->body    = translate('Asset "%asset_name%" [#%assetid%] was in step %previous_step_id% "%previous_step_name%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.').'  '.
+                            translate('Workflow has been escalated to step %current_step_id% "%current_step_name%".')."\n\n".
+                            translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.');
 
 		$log->parameters['assetid'] = $asset->id;
 		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
@@ -2498,12 +2575,20 @@ class Workflow_Manager extends MySource_Object
 			// Does this step have a custom message for escalation?
 			if (isset($step_before['message_escalated']) && trim($step_before['message_escalated']) !== '' ) {
 				$msg->body = trim($step_before['message_escalated']);
+			} else {
+                $msg->body = translate('Asset "%asset_name%" [#%assetid%] was in step %previous_step_id% "%previous_step_name%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.').'  '.
+                                translate('Workflow has been escalated to step %current_step_id% "%current_step_name%".')."\n\n".
+                                translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.');
+
 			}
 
 			// Does this step have a custom subject for escalation?
+			$default_subject = translate('Workflow Escalated');
 			if (isset($step_before['subject_escalated']) && trim($step_before['subject_escalated']) !== '' ) {
-				$subject = trim(array_get_index($step_before, 'subject_escalated', 'Workflow Escalated'));
-				$msg->subject = (!empty($subject)) ? $subject : 'Workflow Escalated';
+				$subject = trim(array_get_index($step_before, 'subject_escalated'));
+				$msg->subject = (!empty($subject)) ? $subject : $default_subject;
+			} else {
+			    $msg->subject = $default_subject;
 			}
 
 			$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
@@ -2557,12 +2642,20 @@ class Workflow_Manager extends MySource_Object
 				// Does this step have a custom message (for inviting users to the next step)?
 				if (isset($current_step['message_review_invitation']) && trim($current_step['message_review_invitation']) !== '' ) {
 					$msg->body = trim($current_step['message_review_invitation']);
+				} else {
+				    $msg->body = translate('User "%workflow_user%" has placed %type_code% "%asset_name%" up for review.')."\n".
+                                    translate('You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.')."\n\n".
+                                    translate('<SQ_MSG_LINK href="%workflow_url%">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.')."\n".
+                                    translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 				}
 
 				// Does this step have a custom subject (for inviting users to the next step)?
+				$default_subject = translate('Asset Up For Review');
 				if (isset($current_step['subject_review_invitation']) && trim($current_step['subject_review_invitation']) !== '' ) {
-					$subject = trim(array_get_index($current_step, 'subject_review_invitation', 'Asset Up For Review'));
-					$msg->subject = (!empty($subject)) ? $subject : 'Asset Up For Review';
+					$subject = trim(array_get_index($current_step, 'subject_review_invitation'));
+					$msg->subject = (!empty($subject)) ? $subject : $default_subjecft;
+				} else {
+				    $msg->subject = $default_subject;
 				}
 
 				$msg->replacements = $msg_reps;
@@ -2617,12 +2710,21 @@ class Workflow_Manager extends MySource_Object
 				// Does this step have a custom message (for inviting users to the next step)?
 				if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
 					$msg->body = trim($current_step['message_invitation']);
+				} else {
+                    $msg->body = translate('%type_code% "%asset_name%" is currently in workflow and has progressed from step %previous_step_id% "%previous_step_name%" to step %current_step_id% "%current_step_name%".')."\n".
+                                    translate('You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.')."\n\n".
+                                    translate('You can <SQ_MSG_LINK href="%accept_url%">Accept</SQ_MSG_LINK> or<SQ_MSG_LINK href="%reject_url%">Reject</SQ_MSG_LINK> the changes.')."\n".
+                                    translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>')."\n\n".
+                                    translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 				}
 
 				// Does this step have a custom subject (for inviting users to the next step)?
+				$default_subject = translate('Workflow Approval Required');
 				if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '' ) {
-					$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
-					$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
+					$subject = trim(array_get_index($current_step, 'subject_invitation'));
+					$msg->subject = (!empty($subject)) ? $subject : $default_subject;
+				} else {
+				    $msg->subject = $default_subject;
 				}
 
 				$msg->replacements = $msg_reps;
@@ -2934,10 +3036,10 @@ class Workflow_Manager extends MySource_Object
 
 
 	/**
-	* When the user is directly approving the asset changes without having to 
-	* initiate the workflow, we need to set this user id as the value for 
-	* 'last_started_by' col in the sq_ast_wflow table to prevent the issue 
-	* cause in Bug #5871 Matrix emailing the workflow initiator from previous 
+	* When the user is directly approving the asset changes without having to
+	* initiate the workflow, we need to set this user id as the value for
+	* 'last_started_by' col in the sq_ast_wflow table to prevent the issue
+	* cause in Bug #5871 Matrix emailing the workflow initiator from previous
 	* workflow process when asset pushed to Live.
 	*
 	* @param string	$userid		userid to set 'last_started_by' col value in db
@@ -2950,8 +3052,8 @@ class Workflow_Manager extends MySource_Object
 		// we need the workflow on this asset that aren't running
 		$schemas = $this->getSchemas($assetid, TRUE, FALSE);
 
-		$sql = "UPDATE sq_ast_wflow 
-				SET last_started_by = :last_started_by 
+		$sql = "UPDATE sq_ast_wflow
+				SET last_started_by = :last_started_by
 				WHERE schemaid = :schemaid AND assetid = :assetid";
 
 		foreach ($schemas as $schemaid) {
@@ -2962,7 +3064,7 @@ class Workflow_Manager extends MySource_Object
 				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
-				trigger_localised_error('CORE0320', E_USER_NOTICE, $assetid, $schemaid, $e->getMessage());
+				trigger_localised_error('CORE0320', sprintf(translate('Error updating \'last_started_by\' column for Asset #%1$s with Workflow Schema %2$s : %3$s'), $assetid, $schemaid, $e->getMessage()), E_USER_NOTICE);
 				continue;
 			}//end try/catch
 		}//end foreach
@@ -3031,7 +3133,7 @@ class Workflow_Manager extends MySource_Object
 			$keyword_replacement = $details['keyword'];
 			//replace global keywords
 			replace_global_keywords($keyword_replacement);
-	
+
 			//replace asset keywords
 			$keywords = retrieve_keywords_replacements($keyword_replacement);
 			$replacements = Array();

@@ -15,47 +15,65 @@
 */
 -->
 <contents write_access="write:attributes">
-	<section name="Context Screens">
-		<field>
-			<function_call>
-				<paint_function name="paintContextScreens" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Checkout Screen">
-		<field attribute="go_to_confirmation_button_text">
-			<text width="40" height="1" />
-		</field>
-	</section>
-	<section name="Confirmation Screen">
-		<field attribute="confirm_order_button_text">
-			<text width="40" height="1" />
-		</field>
-		<field attribute="return_to_checkout_button_text">
-			<text width="40" height="1" />
-		</field>
-		<field attribute="promotional_code_button_text">
-			<text width="40" height="1" />
-		</field>
-		<field attribute="promotional_code_field_size">
-			<int width="5" height="1" />
-		</field>
-		<field attribute="refund_info_text">
-			<text width="40" height="1" />
-		</field>
-	</section>
-	<section name="Customise Receipt" write_access="write:attributes">
-		<field attribute="currency_symbol">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="float_precision">
-			<int width="5" height="1" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintCustomiseReceipt" />
-				<process_function name="processCustomiseReceipt" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Context Screens">
+        <field>
+            <function_call>
+                <paint_function name="paintContextScreens" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Checkout Screen">
+        <field attribute="go_to_confirmation_button_text">
+            <display_name>Go to Confirmation Button Text</display_name>
+            <note />
+            <text width="40" height="1" />
+        </field>
+    </section>
+    <section name="Confirmation Screen">
+        <field attribute="confirm_order_button_text">
+            <display_name>Checkout Button Text</display_name>
+            <note />
+            <text width="40" height="1" />
+        </field>
+        <field attribute="return_to_checkout_button_text">
+            <display_name>Go Back Button Text</display_name>
+            <note />
+            <text width="40" height="1" />
+        </field>
+        <field attribute="promotional_code_button_text">
+            <display_name>Promotional Code Button Text</display_name>
+            <note />
+            <text width="40" height="1" />
+        </field>
+        <field attribute="promotional_code_field_size">
+            <display_name>Promotional Code Text Field Size</display_name>
+            <note />
+            <int width="5" height="1" />
+        </field>
+        <field attribute="refund_info_text">
+            <display_name>Product Non-Refund Text</display_name>
+            <note>Text to be displayed in summary if some products in cart are non-refundable</note>
+            <text width="40" height="1" />
+        </field>
+    </section>
+    <section name="Customise Receipt" write_access="write:attributes">
+        <field attribute="currency_symbol">
+            <display_name>Currency Symbol</display_name>
+            <note>The symbol prefixed on all costs.</note>
+            <text width="5" height="1" />
+        </field>
+        <field attribute="float_precision">
+            <display_name>Float Precision</display_name>
+            <note>The precision of the floating point decimal numbers used to denote all item costs.</note>
+            <int width="5" height="1" />
+        </field>
+        <field>
+            <display_name>Customise Receipt Contents</display_name>
+            <note>You may choose to customise the receipt that is generated and available throughout the Checkout and Delivery Method assets.&lt;br/&gt;If you choose to customise the receipt, Type Format and Page Contents bodycopies will be made available for you to customise.</note>
+            <function_call>
+                <paint_function name="paintCustomiseReceipt" />
+                <process_function name="processCustomiseReceipt" />
+            </function_call>
+        </field>
+    </section>
 </contents>

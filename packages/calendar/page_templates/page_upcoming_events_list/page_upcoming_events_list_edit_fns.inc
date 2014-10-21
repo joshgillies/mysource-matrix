@@ -111,11 +111,14 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('edit_format') ?></th>
-				<th><?php echo translate('note') ?></th>
+				<th><?php echo translate('Edit Format') ?></th>
+
+				<th><?php echo translate('Note') ?></th>
+
 			</tr>
 			<?php
-			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('calendar_upcoming_events_page_contents_desc'));
+			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %%event_list%% keyword to include the list of events on the page.'));
+
 			?>
 		</table>
 		<?php
@@ -177,12 +180,15 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('asset_type') ?></th>
-					<th><?php echo translate('edit_format') ?></th>
+					<th><?php echo translate('Asset Type') ?></th>
+
+					<th><?php echo translate('Edit Format') ?></th>
+
 					<?php
 					if ($write_access) {
 						?>
-						<th><?php echo translate('delete_question') ?></th>
+						<th><?php echo translate('Delete?') ?></th>
+
 						<?php
 					}
 					?>
@@ -225,7 +231,8 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		} else {
-			echo translate('calendar_upcoming_events_no_type_formats');
+			echo translate('There are no custom type formats defined');
+
 		}//end if cutomised formats
 
 		if ($write_access) {
@@ -235,7 +242,8 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 				$new_format_options[$type] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
 			}
 			if (count($new_format_options) > 0) {
-				echo '<p><b>'.translate('calendar_upcoming_events_new_type_format').'</b> ';
+				echo '<p><b>'.translate('New Type Format:').'</b> ';
+
 				combo_box($prefix.'_new_type', $new_format_options, FALSE, '');
 				echo '</p>';
 			}
@@ -264,7 +272,7 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
 		$new_type = array_get_index($_POST, $prefix.'_new_type', '');
 		if (isset($deleted_formats[$new_type])) {
-			trigger_localised_error('CMS0042', E_USER_WARNING, $new_type);
+			trigger_localised_error('CMS0042', sprintf(translate('You cant delete a format and create it at the same time. The current type format for type %s has not been deleted.'), $new_type), E_USER_WARNING);
 			unset($deleted_formats[$new_type]);
 			$new_type = '';
 		}
@@ -272,17 +280,17 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 		foreach ($deleted_formats as $type => $on) {
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type);
 			if (empty($current_link)) {
-				trigger_localised_error('CMS0043', E_USER_WARNING, $type);
+				trigger_localised_error('CMS0043', sprintf(translate('Failed deleting format for type %s, couldnt get format bodycopy link'), $type), E_USER_WARNING);
 			} else {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
-					trigger_localised_error('CMS0044', E_USER_WARNING, $type);
+					trigger_localised_error('CMS0044', sprintf(translate('Failed deleting format for type %s'), $type), E_USER_WARNING);
 				}
 			}
 		}
 
 		// check that the new type is valid
 		if ($new_type != '' && !isset($types[$new_type])) {
-			trigger_localised_error('CMS0045', E_USER_WARNING, $new_type);
+			trigger_localised_error('CMS0045', sprintf(translate('Cannot customise the format of type %s, type is not valid'), $new_type), E_USER_WARNING);
 			$new_type = '';
 		}
 
@@ -308,7 +316,7 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			} else {
-				trigger_localised_error('CMS0046', E_USER_WARNING, $new_type);
+				trigger_localised_error('CMS0046', sprintf(translate('Cannot customise type %s, it is already customised'), $new_type), E_USER_WARNING);
 			}
 		}
 		if (isset($asset->_tmp['formats']['type_formats'])) {

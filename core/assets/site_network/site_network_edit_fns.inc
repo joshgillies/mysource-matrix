@@ -67,9 +67,11 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 			}
 			if (!is_null($site_asset)) {
 				echo $asset->getPrimaryURL();
-				echo '<br/ ><i>'.strtolower(translate('from')).' '.get_asset_tag_line($site_asset->id).'</i>';
+				echo '<br/ ><i>'.strtolower(translate('From')).' '.get_asset_tag_line($site_asset->id).'</i>';
+
 			} else {
-				echo translate('core_primary_url_not_set');
+				echo translate('No primary URL has been set');
+
 			}
 		} else {
 			asset_finder($prefix.'_primary_site', (!empty($site_link)) ? $site_link['minorid'] : '', Array('site' => 'D'));
@@ -107,7 +109,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 		// make sure this new primary site is in our network
 		$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $new_site, SQ_SC_LINK_SIGNIFICANT);
 		if (empty($network_link)) {
-			trigger_localised_error('CORE0122', E_USER_WARNING);
+			trigger_localised_error('CORE0122', translate('You must select a Site from inside this Site Network to use for the primary URL'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -123,7 +125,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 			if (!is_null($site)) {
 				if (!$asset->createLink($site, SQ_LINK_NOTICE, 'primary_site')) {
 					$ok = FALSE;
-					trigger_localised_error('CORE0028', E_USER_WARNING, $site->name, $site->id);
+					trigger_localised_error('CORE0028', sprintf(translate('Failed adding new primary site "%1$s" [#%2$s]'), $site->name, $site->id), E_USER_WARNING);
 				}
 			}
 		}

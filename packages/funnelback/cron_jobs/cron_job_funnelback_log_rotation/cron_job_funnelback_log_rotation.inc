@@ -126,7 +126,7 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 		return FALSE;
 
 	}//end morph()
@@ -146,7 +146,7 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 
 	}//end canDelete()
 
-	
+
 	/**
 	* Run this cron job
 	*
@@ -208,7 +208,7 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 								if ($log_date_expiry < $expiry_date) {
 									// Log expired, removing....
 									unlink($archive_log);
-									
+
 									// Also remember to remove from rotated (no point trying to generate a report if a log is missing)
 									if (isset($rotated[$collection_id]) && $rotated[$collection_id] == $found_archive_log_name) {
 										unset($rotated[$collection_id]);
@@ -224,10 +224,10 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 		if (!empty($rotated)) {
 			// Logs were rotated, now to generate some reports
 			$log_reports  = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('funnelback_search_log_report', FALSE, TRUE);
-	
+
 			// start up a hipo for each report
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-	
+
 			foreach ($log_reports as $reportid => $info) {
 					$report = $GLOBALS['SQ_SYSTEM']->am->getAsset($reportid);
 					$vars   = Array(

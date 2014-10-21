@@ -189,7 +189,7 @@ class Form_Question extends Asset
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$form->writeAccess('attributes')) {
-			trigger_localised_error('CORE0121', E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CORE0121', sprintf(translate('You do not have permission to save the attributes of "%1$s" (#%2$s)'), $this->name, $this->id), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -648,9 +648,9 @@ class Form_Question extends Asset
 							$value[$idx] = str_replace($pattern, $keyword, $val);
 						}
 					}
-				} else {    
+				} else {
 					$value = str_replace(chr(0), '' , $value);
-					$keywords = extract_keywords($value);				
+					$keywords = extract_keywords($value);
 					foreach ($keywords as $keyword) {
 						$pattern = '%'.$keyword.'%';
 						$value = str_replace($pattern, $keyword , $value);
@@ -730,7 +730,7 @@ class Form_Question extends Asset
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$rule_asset = new $type_code();
-			
+
 			// If a validation condition (cross field validation) is set, we need to validate only when
 			// the condition is met, otherwise the validation shouldn't be run.
 			// Check if the validation needs to be run or not and run it only when it's necessary.
@@ -1158,30 +1158,30 @@ class Form_Question extends Asset
 	{
 		return FALSE;
 	}//end useFieldset()
-	
+
 
 	/**
 	* Checks if validation is required for simple validation rules
 	*
 	* When a validation condition is set, the validation needs to be executed only when the condition is met.
 	* This function determins if such a condition is set and if so the condition is met, in which case the validation
-	* is required to be executed. 
+	* is required to be executed.
 	*
 	* @return bool
 	* @access public
 	*/
-	function _isValidationRequired() 
+	function _isValidationRequired()
 	{
 		// fabricate a form question rule as a temporary vehicle to check the condition
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_question_rule');
 		$rule_asset = new Form_Question_Rule();
-		
-		// if the condition settings are specified in simple validation rules, check if the condition is met or not 
+
+		// if the condition settings are specified in simple validation rules, check if the condition is met or not
 		$rule_data = $this->attr('validation_condition');
 		if (!$rule_data || empty($rule_data)) return TRUE;
-		
+
 		return $rule_asset->isValidationRequired($rule_data);
 	}
-	
+
 }//end class
 ?>

@@ -60,7 +60,8 @@ class Condition_User_Agent_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('pattern'); ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('Pattern'); ?></th>
+
 				<td>
 					<?php
 					if ($write_access) {
@@ -70,7 +71,8 @@ class Condition_User_Agent_Edit_Fns extends Condition_Edit_Fns
 						if (strlen($current_pattern)){
 							echo $current_pattern;
 						} else {
-							echo '<em>'.translate('condition_no_pattern_entered').'</em>';
+							echo '<em>'.translate('No pattern entered.').'</em>';
+
 						}
 					}
 					?>
@@ -78,7 +80,8 @@ class Condition_User_Agent_Edit_Fns extends Condition_Edit_Fns
 			</tr>
 		</table>
 		<?php
-		$o->note(translate('condition_user_agent_is_regular_expression_enabled'));
+		$o->note(translate('This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the user agent. Or, you can use a more advanced pattern.'));
+
 
 	}//end paintEditInterface()
 

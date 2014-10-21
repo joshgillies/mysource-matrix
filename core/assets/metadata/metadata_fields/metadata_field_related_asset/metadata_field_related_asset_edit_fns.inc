@@ -60,7 +60,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
-		
+
 		$is_default = FALSE;
 		$default_value = trim($asset->getDefaultValue());
 		if (is_null($value_str)) {
@@ -81,14 +81,16 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 						$checkbox_extra = 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
 
 						check_box($prefix.'_default', '1', $is_default, 'handleMetadataRelatedAssetDefaultClickFor'.$prefix.'()');
-						label(translate('use_default'), $prefix.'_default');
+						label(translate('Use default'), $prefix.'_default');
+
 					echo '</span>';
 				}
 
 				if ($print_cascade_values_option) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
-						label(translate('cascade_value'), $prefix.'_cascade_value');
+						label(translate('Cascade value'), $prefix.'_cascade_value');
+
 					echo '</span>';
 				}
 			echo '</span>';
@@ -109,7 +111,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 					function handleMetadataRelatedAssetDefaultClickFor<?php echo $prefix; ?>() {
 						var ra_div = document.getElementById('<?php echo $prefix.'_ra_container'; ?>');
 						var default_ra_div = document.getElementById('<?php echo $prefix.'_default_ra_container'; ?>');
-	
+
 						if (ra_div.style.display == 'block') {
 							ra_div.style.display = 'none';
 							default_ra_div.style.display = 'block';
@@ -125,12 +127,14 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			echo '<span class="sq-metadata-settings-wrapper">';
 				if ($is_default) {
-					echo ' <em>('.translate('using_default_value').')</em>';
+					echo ' <em>('.translate('Using default value').')</em>';
+
 				} else{
 
-				}	
+				}
 			echo '</span>';
-            echo !$value_str ? translate('no_asset_selected') : get_asset_tag_line($value_str);
+            echo !$value_str ? translate('No asset selected') : get_asset_tag_line($value_str);
+
 		}
 
 		return $write_access;
@@ -169,7 +173,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 
 			if ($value && !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($value))) {
-				trigger_localised_error('SYS0087', E_USER_WARNING, $value);
+				trigger_localised_error('SYS0087', sprintf(translate('Asset #%s does not exist'), $value), E_USER_WARNING);
 				return FALSE;
 			}
 			$new_value_str = $value;
@@ -210,7 +214,8 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 
 	   	if (!$write_access) {
             if (!$value) {
-                echo translate('no_asset_selected');
+                echo translate('No asset selected');
+
             } else {
                 echo get_asset_tag_line($value);
             }
@@ -251,7 +256,7 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 		$save_value = FALSE;
 		if ($new_value != $value) {
 			if ($new_value && !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($new_value))) {
-				trigger_localised_error('SYS0087', E_USER_WARNING, $new_value);
+				trigger_localised_error('SYS0087', sprintf(translate('Asset #%s does not exist'), $new_value), E_USER_WARNING);
 				return FALSE;
 			}
 			$save_value = TRUE;

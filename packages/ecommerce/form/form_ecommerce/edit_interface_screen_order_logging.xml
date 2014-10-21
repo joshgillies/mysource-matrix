@@ -16,28 +16,45 @@
 -->
 
 <contents>
-	<section name="Log To File">
-		<field attribute="log_to_file">
+    <section name="Log To File">
+        <field attribute="log_to_file">
+            <display_name>Log To File</display_name>
 			<boolean true_text="enabled" false_text="disabled" />
-		</field>
-		<field>
+        </field>
+        <field>
+            <display_name>Info</display_name>
 			<function_call>
-				<paint_function	 name="paintLogFileInfo" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Log File Formatting" write_access="write:attributes" >
-		<field attribute="log_asset_item_format">
-			<text width="60" height="4" />
-		</field>
-		<field attribute="log_question_item_format">
-			<text width="60" height="4" />
-		</field>
-		<field attribute="log_item_block_format">
-			<text width="60" height="10" />
-		</field>
-		<field attribute="log_entry_format">
-			<text width="60" height="15" />
-		</field>
-	</section>
+                <paint_function name="paintLogFileInfo" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Log File Formatting" write_access="write:attributes">
+        <note>In this section, you can format your order logging as you wish. Original values show you how to log in XML format.</note>
+        <field attribute="log_asset_item_format">
+            <display_name>Asset Item Format</display_name>
+            <note>Each Purchasable Asset will be represented by this format. You can use any keyword on the asset being purchase. Also you can use %item_name%, %item_price% and %item_id% keywords. <![CDATA[<br /><em>Original Value:</em>&lt;asset&gt;&lt;id&gt;%asset_assetid%&lt;/id&gt;&lt;price&gt;%item_price%&lt;/price&gt;&lt;/asset&gt;]]></note>
+            <text width="60" height="4" />
+        </field>
+        <field attribute="log_question_item_format">
+            <display_name>Question Item Format</display_name>
+            <note>Each Ecommerce question will be represented by this format. You can use only %item_name%, %item_price% and %item_id% keywords
+			<![CDATA[<br /><em>Original Value:</em> &lt;item&gt;&lt;id&gt;%item_id%&lt;/id&gt;&lt;price&gt;%item_price%&lt;/price&gt;&lt;/item&gt;]]>
+			</note>
+            <text width="60" height="4" />
+        </field>
+        <field attribute="log_item_block_format">
+            <display_name>Item Block Format</display_name>
+            <note>Block of ecom items will be represented by this format. If nothing is being purchased this format will not produce any output. You can use only %asset_item_list% and %question_item_list% keywords to replace
+			<![CDATA[<br /><em>Original Value:</em> %asset_item_list% %question_item_list%]]>
+			</note>
+            <text width="60" height="10" />
+        </field>
+        <field attribute="log_entry_format">
+            <display_name>Entry Format</display_name>
+            <note>This is the format of a complete log entry. You can use any keywords supported by this Ecom Form asset. %item_block% keyword will output the formats specified above. %item_block% keyword will be empty if nothing is being purchased.
+			<![CDATA[<br /><em>Original Value:</em> &lt;order&gt;%item_block%&lt;id&gt;%order_id%&lt;/id&gt;&lt;other&gt;%form_summary%&lt;/other&gt;]]>
+			</note>
+            <text width="60" height="15" />
+        </field>
+    </section>
 </contents>

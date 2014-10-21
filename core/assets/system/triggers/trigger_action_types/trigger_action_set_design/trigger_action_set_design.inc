@@ -56,7 +56,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
-	
+
 		// see if the id is set in the parameter map
 		$value_map = array_get_index($settings, 'value_map', serialize(Array()));
 		$param_map_attr = new Asset_Attribute_Parameter_Map(0, $value_map);
@@ -67,7 +67,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			// if no settings, fail
 			return FALSE;
 		}
-		
+
 		// whether we use the parameter map value or the settings value for the target asset
 		$assetid = is_null($param_map_value) ? $settings['assetid'] : $param_map_value;
 
@@ -87,10 +87,10 @@ class Trigger_Action_Set_Design extends Trigger_Action
 				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
-		
+
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		
+
 		// setting the default frontend design
 		if ($design_type == 'design::system') {
 			$design_final_name = 'design::system::frontend';
@@ -197,10 +197,12 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			if ($write_access) {
 				asset_finder($prefix.'[assetid]', $selected_assetid, Array('design' => 'D'));
 				echo '<br /><br />';
-				echo translate('trigger_set_design_select_design_type');
+				echo translate('Type of design (will override existing or create new if nonexistent)');
+
 				combo_box($prefix.'[design_type]', $design_types, FALSE, $design_type, 0, $extra);
 				echo '<br /><br />';
-				echo translate('trigger_set_design_set_user_design_name').': ';
+				echo translate('Set user defined design name to').': ';
+
 				text_box($prefix.'[design_name]', $design_name, '', '', FALSE, $disabled);
 				echo '<br /><br />';
 			} else {
@@ -208,7 +210,8 @@ class Trigger_Action_Set_Design extends Trigger_Action
 					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
 					echo get_asset_tag_line($selected_assetid);
 				} else {
-					echo '<em>'.translate('trigger_set_design_no_design_message').'</em>';
+					echo '<em>'.translate('Eitehr no design has been specified, or design ID value is sourced from a dynamic parameter.').'</em>';
+
 				}
 			}
 			// prints the parameter map to accept dynamic values
@@ -225,7 +228,8 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_set_design_basic', $basic_part_1);
+		return sprintf(translate('Set the asset\'s design to: %s'), $basic_part_1);
+
 
 	}//end getInterface()
 
@@ -250,7 +254,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		if (!empty($request_data['design_name'])) {
 			$settings['design_name'] = $request_data['design_name'];
 		}
-		
+
 		// parameter map to accept dynamic value
 		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		if ($new_prefix) {
@@ -258,7 +262,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 				$param_map_attr->process($new_prefix.'_parameter_map');
 				$settings['value_map'] = $param_map_attr->value;
 		}
-		
+
 		$value_map = unserialize($settings['value_map']);
 		// make sure the assetid isn't blank
 		if (empty($settings['assetid']) && empty($value_map)) {

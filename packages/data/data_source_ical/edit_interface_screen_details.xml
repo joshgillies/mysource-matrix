@@ -16,22 +16,28 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="iCal Feed Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="path">
-			<text width="35" height="1"/>
-		</field>
-	</section>
-	<section name="Shadow Asset Name">
-		<field>
-			<function_call>	
-				<paint_function		name="paintKeywords" />
-				<process_function	name="processKeywords" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="iCal Feed Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="path">
+            <display_name>Path to iCal Feed</display_name>
+            <note />
+            <text width="35" height="1"/>
+        </field>
+    </section>
+    <section name="Shadow Asset Name">
+        <field>
+            <display_name>Available Keywords</display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintKeywords" />
+                <process_function name="processKeywords" />
+            </function_call>
+        </field>
+    </section>
 </contents>

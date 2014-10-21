@@ -80,11 +80,13 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 						// paint the start time using a one off job's edit fns
 						$cron_job = new Cron_Job();
 						$edit_fns = $cron_job->getEditFns();
-						echo translate('cron_job_refresh_cache_at');
+						echo translate('Refresh cache at');
+
 						$edit_fns->_paintWhenBox($cron_job, $o, $prefix);
 
 						// paint the repeat frequency using repeating time interval job's edit fns
-						echo '<br />'.translate('cron_job_regenerate_report_repeat');
+						echo '<br />'.translate('and repeat this process every');
+
 						$this->_paintWhenBox($asset, $o, $prefix);
 					?>
 					</span>
@@ -144,7 +146,7 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 
 				// repeat frequency is set, but start time not specified, error
 				if (!$when_oo) {
-					trigger_localised_error('CRON0050', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'));
+					trigger_localised_error('CRON0050', sprintf(translate('Start time for %s is not defined.'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -152,7 +154,7 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 				// mute warning as we are only using this bit to working out the start time
 				if (!@$cron_job->setAttrValue('when', $when_oo)) {
 					$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-					trigger_localised_error('CRON0048', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun()));
+					trigger_localised_error('CRON0048', sprintf(translate('Unable to schedule a repeating %1$s to be run before the next job run is scheduled (which is at %2$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun())), E_USER_WARNING);
 					return FALSE;
 				}
 

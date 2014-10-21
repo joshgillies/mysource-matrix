@@ -17,7 +17,13 @@
 
 <contents>
 	<section name="Status">
-		<field code="status_current" />
-		<field code="status_change" />
+		<field code="status_current">
+			<display_name>Current</display_name>
+			<note />
+		</field>
+		<field code="status_change">
+			<display_name>Change ?</display_name>
+			<note />
+		</field>
 	</section>
 </contents>

@@ -17,11 +17,15 @@
 <contents>
 	<section name="Structured File Import Tool Settings" write_access="write:attributes">
 		<field>
+			<display_name>Import Directory</display_name>
+			<note>Directory on the Unix system to import processed HTML files from. Use config file data/private/conf/import_tools_manager.inc. Path is relative to Matrix installation location unless prefixed with '/'.</note>
 			<function_call>
 				<paint_function   name="paintStructuredFileImportDirectory"   />
 			</function_call>
 		</field>
 		<field attribute="max_file_size">
+			<display_name>Maximum File Size</display_name>
+			<note>Maximum File Size of any HTML or Word Document Uploaded (In bytes, 0 = no limit)</note>
 			<int width="30" height="1" />
 		</field>
 		<field>
@@ -31,6 +35,8 @@
 			</function_call>
 		</field>
 		<field attribute="create_css_file" write_access="write:attributes">
+			<display_name>Create CSS File?</display_name>
+			<note>Select Yes to create a text file with each document's CSS Styles, under the root element of the import</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>

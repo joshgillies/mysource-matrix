@@ -236,7 +236,8 @@ class Trigger_Action_Add_Url extends Trigger_Action
 		$https = array_get_index($settings, 'https', '');
 		$base_contextid = array_get_index($settings, 'base_contextid', 0);
 
-		echo translate('add_url').' ';
+		echo translate('Add the URL').' ';
+
 		if ($write_access) {
 			text_box($prefix.'[url]', $url, 40);
 			echo '&nbsp;';
@@ -286,7 +287,8 @@ class Trigger_Action_Add_Url extends Trigger_Action
 		// process url
 		$url = array_get_index($request_data, 'url', '');
 		$url = trim($url);
-		if ($url == '') return translate('url_not_specified');
+		if ($url == '') return translate('The URL is not specified');
+
 		$settings['url'] = $url;
 
 		// process protocol
@@ -294,7 +296,8 @@ class Trigger_Action_Add_Url extends Trigger_Action
 		$https = array_get_index($request_data, 'https', 0);
 		$base_contextid = (int)array_get_index($request_data, 'base_contextid', 0);
 		if (!$http && !$https) {
-			return translate('protocol_not_specified');
+			return translate('One of the protocols must be specified');
+
 		}
 
 		$settings['http'] = ($http == '1') ? '1' : '0';

@@ -21,5 +21,6 @@
 			<paint_function   name="paintPassthroughVarQuestionLinks"   />
 			<process_function name="processPassthroughVarQuestionLinks" />
 		</function_call>
+		<note>Key value pair pass-through variables. These variables will be sent to the Payment Gateways. Each Payment Gateway defines different pass-through variables for their own usage. For example, Datacash Payment Gateway can use Address 1, Address 2, Address 3, Address 4 and Postcode values from Ecommerce Form to run AVS check.</note>
 	</section>
 </contents>

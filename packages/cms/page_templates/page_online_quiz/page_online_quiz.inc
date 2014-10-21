@@ -99,11 +99,16 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		parent::__construct($assetid);
 
 		$this->_bodycopies = Array(
-								'page_contents'	=> translate('cms_page_contents'),
-								'no_results'	=> translate('cms_page_contents_no_results'),
-								'thank_you'		=> translate('online_quiz_bodycopy_thank_you'),
-								'already_taken'	=> translate('online_quiz_bodycopy_already_taken'),
-								'user_details'	=> translate('online_quiz_bodycopy_user_details'),
+								'page_contents'	=> translate('Page Contents'),
+
+								'no_results'	=> translate('Page Contents (No Results)'),
+
+								'thank_you'		=> translate('Thank You Bodycopy'),
+
+								'already_taken'	=> translate('Already Taken Bodycopy'),
+
+								'user_details'	=> translate('User Details Bodycopy'),
+
 							 );
 
 	}//end constructor
@@ -212,10 +217,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if (!empty($existing)) return TRUE;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 		$folder = new Folder();
-		$folder->setAttrValue('name', translate('submissions'));
+		$folder->setAttrValue('name', translate('Submissions'));
+
 		$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'submissions_folder', 'is_dependant' => 1, 'is_exclusive' =>      1);
 		if (!$folder->create($folder_link)) {
-			trigger_localised_error('CMS0070', E_USER_WARNING);
+			trigger_localised_error('CMS0070', translate('Cannot create form - problem creating submissions folder'), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -264,7 +270,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$submission = new Online_Quiz_Submission();
 		$submissions_folder = $this->getSubmissionsFolder();
 		if (is_null($submissions_folder)) {
-			trigger_localised_error('CMS0069', E_USER_WARNING);
+			trigger_localised_error('CMS0069', translate('Cannot create form submission - submissions folder not found.  Upgrade may be required.'), E_USER_WARNING);
 			$null = NULL;
 			return $null;
 		}
@@ -322,18 +328,22 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$content  = '%asset_listing% %submit_button%';
 			break;
 			case 'no_results':
-				return '<p>'.translate('online_quiz_bodycopy_no_result_default').'</p>';
+				return '<p>'.translate('There are no quiz questions to display.').'</p>';
+
 			break;
 			case 'thank_you':
-				$content  = '<p>'.translate('online_quiz_bodycopy_thank_you_default').'</p>'."\n";
+				$content  = '<p>'.translate('Thank you for taking the quiz; your results are displayed below:').'</p>'."\n";
+
 				$content .= '%results_table_full%';
 			break;
 			case 'user_details':
-				$content  = '<p>'.translate('online_quiz_bodycopy_user_details_default').'</p>'."\n";
+				$content  = '<p>'.translate('Please fill out your details below:').'</p>'."\n";
+
 				$content .= '%form_contents%';
 			break;
 			case 'already_taken':
-				$content = '<p>'.translate('online_quiz_bodycopy_already_taken_default').'</p>';
+				$content = '<p>'.translate('You\'ve already taken this quiz, and cannot take it again.').'</p>';
+
 			break;
 
 			// type formats
@@ -587,7 +597,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if (empty($form_link)) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('simple_form');
 			$form = new Simple_Form();
-			$form->setAttrValue('name', translate('online_quiz_form_user_details'));
+			$form->setAttrValue('name', translate('User Details Form'));
+
 			$link = Array(
 						'asset'			=> &$this,
 						'link_type'		=> $link_type,
@@ -699,7 +710,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// check that the new type is valid
 		if ($new_type != '' && !isset($types[$new_type])) {
-			trigger_localised_error('CMS0045', E_USER_WARNING, $new_type);
+			trigger_localised_error('CMS0045', sprintf(translate('Cannot customise the format of type %s, type is not valid'), $new_type), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -730,7 +741,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		} else {
-			trigger_localised_error('CMS0046', E_USER_WARNING, $new_type);
+			trigger_localised_error('CMS0046', sprintf(translate('Cannot customise type %s, it is already customised'), $new_type), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1711,7 +1722,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 						reset($questions);
 						$question_id = key($questions);
 						if (empty($question_id)) {
-							trigger_localised_error('CMS0112', E_USER_WARNING, $pool_id);
+							trigger_localised_error('CMS0112', sprintf(translate('Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access.'), $pool_id), E_USER_WARNING);
 							break;
 						}
 						$question_pagination['pages_to_questions'][$page_no][$question_id] = $questions[$question_id]['type_code'];
@@ -1727,7 +1738,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 							reset($questions);
 							$question_id = key($questions);
 							if (empty($question_id)) {
-								trigger_localised_error('CMS0112', E_USER_WARNING, $pool_id);
+								trigger_localised_error('CMS0112', sprintf(translate('Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access.'), $pool_id), E_USER_WARNING);
 								break;
 							}
 							$question_pagination['pages_to_retry_questions'][$page_no][$question_id] = $questions[$question_id]['type_code'];
@@ -2133,7 +2144,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$vars['keywords'] += $this->_getUserDetailsKeywords();
 				$vars['keywords'] += $this->_getQuestionResultKeywords();
 				$vars['keywords'] += $this->_getQuestionGroupResultKeywords();
-				$vars['keywords'] += Array ('quiz_score' => translate('online_quiz_keyword_quiz_score'));
+				$vars['keywords'] += Array ('quiz_score' => translate('Quiz Score (using Quiz Score Format setting)'));
+
 				return;
 			}
 		}
@@ -2175,7 +2187,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// if any type formats present, override the asset_position keyword
 		if (count($type_formats) > 0) {
 			// set up the 'question_number' alias (mimics asset_position)
-			$vars['keywords']['asset_position'] = translate('online_quiz_keyword_question_number');
+			$vars['keywords']['asset_position'] = translate('Question Number (Asset Position)');
+
 		}
 
 	}//end onRequestKeywords()
@@ -2200,10 +2213,14 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('page_asset_listing');
 
 		$keywords += Array(
-						'error_list'		=> translate('online_quiz_keyword_error_list'),
-						'warning_list'		=> translate('online_quiz_keyword_warning_list'),
-						'question_range'	=> translate('online_quiz_keyword_question_range'),
-						'question_count'	=> translate('online_quiz_keyword_question_count'),
+						'error_list'		=> translate('Error list'),
+
+						'warning_list'		=> translate('Warning list'),
+
+						'question_range'	=> translate('Question Range (which questions are currently being displayed)'),
+
+						'question_count'	=> translate('Question Count (number of questions in this quiz)'),
+
 					 );
 
 		// unset the next_page_href and previous_page_href for safety (allows for the form
@@ -2227,8 +2244,10 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$keywords = Array();
 
-		$keywords['form_contents'] = translate('cms_form_contents');
-		$keywords['form_errors'] = translate('cms_form_errors');
+		$keywords['form_contents'] = translate('Form Contents');
+
+		$keywords['form_errors'] = translate('List of Submission Errors');
+
 
 		return $keywords;
 
@@ -2278,8 +2297,10 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$keywords = Array();
 
-		$keywords['results_table_full']   = translate('online_quiz_keyword_results_table_full');
-		$keywords['results_table_simple'] = translate('online_quiz_keyword_results_table_simple');
+		$keywords['results_table_full']   = translate('Results Table (Full)');
+
+		$keywords['results_table_simple'] = translate('Results Table (Simple)');
+
 
 		return $keywords;
 
@@ -2296,12 +2317,18 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$keywords = Array();
 
-		$keywords['interactive_question_response_form']   = translate('online_quiz_keyword_interactive_question_response_form');
-		$keywords['interactive_question_text'] = translate('online_quiz_keyword_interactive_question_text');
-		$keywords['interactive_question_note'] = translate('online_quiz_keyword_interactive_question_note');
-		$keywords['interactive_question_number'] = translate('online_quiz_keyword_interactive_question_number');
-		$keywords['interactive_button'] = translate('online_quiz_keyword_interactive_button');
-		$keywords['quiz_score'] = translate('online_quiz_keyword_quiz_score');
+		$keywords['interactive_question_response_form']   = translate('Interactive Question Response Form');
+
+		$keywords['interactive_question_text'] = translate('Interactive Question Text');
+
+		$keywords['interactive_question_note'] = translate('Interactive Question Note');
+
+		$keywords['interactive_question_number'] = translate('Interactive Question Number');
+
+		$keywords['interactive_button'] = translate('Interactive Button');
+
+		$keywords['quiz_score'] = translate('Quiz Score (using Quiz Score Format setting)');
+
 
 		return $keywords;
 
@@ -2359,26 +2386,39 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$keywords = Array();
 		$available_keywords = Array(
-								'question_number'		=> translate('online_quiz_results_header_question_num'),
-								'question_text'			=> translate('online_quiz_results_header_question_text'),
-								'answer'				=> translate('online_quiz_results_header_value'),
-								'answer_text'			=> translate('online_quiz_results_header_summary'),
-								'correct_answer'		=> translate('online_quiz_results_header_correct_value'),
-								'correct_answer_text'	=> translate('online_quiz_results_header_correct_summary'),
-								'points'				=> translate('online_quiz_results_header_points'),
-								'available_points'		=> translate('online_quiz_results_header_available_points'),
-								'response_supplement'	=> translate('online_quiz_results_response_supplement'),
-								'question_note'			=> translate('online_quiz_results_question_note'),
+								'question_number'		=> translate('Question Number'),
+
+								'question_text'			=> translate('Question Text'),
+
+								'answer'				=> translate('Your Answer'),
+
+								'answer_text'			=> translate('Answer Text'),
+
+								'correct_answer'		=> translate('Correct Answer'),
+
+								'correct_answer_text'	=> translate('Correct Answer Text'),
+
+								'points'				=> translate('Your Score'),
+
+								'available_points'		=> translate('Maximum Score'),
+
+								'response_supplement'	=> translate('Response Supplement'),
+
+								'question_note'			=> translate('Question Note'),
+
 							  );
 
-		$locale_text = translate('online_quiz_results_question_x');
+		$locale_text = translate('Result for Question X');
+
 		foreach ($available_keywords as $keyword => $description) {
 			$keywords['result_X_'.$keyword] = $locale_text.': '.$description;
 		}
 
 		// And some more general keywords...
-		$keywords['quiz_total_points'] = translate('online_quiz_results_quiz_total_points_obtained');
-		$keywords['quiz_total_available_points'] = translate('online_quiz_results_quiz_maximum_total_points');
+		$keywords['quiz_total_points'] = translate('Quiz: Total Points Obtained');
+
+		$keywords['quiz_total_available_points'] = translate('Quiz: Maximum Total Points');
+
 
 		return $keywords;
 
@@ -2395,8 +2435,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function _getQuestionGroupResultKeywords()
 	{
 		$keywords = Array();
-		$keywords['question_group_X_score_category_name'] = translate('online_quiz_results_question_group_x').': '.translate('online_quiz_results_score_category_name');
-		$keywords['question_group_X_score_category_supplement'] = translate('online_quiz_results_question_group_x').': '.translate('online_quiz_results_score_category_supplement');
+		$keywords['question_group_X_score_category_name'] = translate('Result for Question Group X').': '.translate('Score Category Name');
+
+
+		$keywords['question_group_X_score_category_supplement'] = translate('Result for Question Group X').': '.translate('Score Category Supplementary Content');
+
+
 
 		return $keywords;
 
@@ -2938,23 +2982,35 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if (!is_array($show_columns)) {
 			// set to defaults
 			$show_columns = Array(
-								'question_num'		=> translate('online_quiz_results_header_question_num'),
-								'points'			=> translate('online_quiz_results_header_points'),
-								'available_points'	=> translate('online_quiz_results_header_available_points'),
+								'question_num'		=> translate('Question Number'),
+
+								'points'			=> translate('Your Score'),
+
+								'available_points'	=> translate('Maximum Score'),
+
 							);
 		}
 
 		// slight hack - tabs show up when printing plain text, but not when displaying as html
 		$available_columns = Array(
-								'question_num'		=> translate('online_quiz_results_header_question_num'),
-								'assetid'			=> translate('online_quiz_results_header_assetid'),
-								'question_text'		=> translate('online_quiz_results_header_question_text'),
-								'value'				=> translate('online_quiz_results_header_value'),
-								'summary'			=> translate('online_quiz_results_header_summary'),
-								'correct_value'		=> translate('online_quiz_results_header_correct_value'),
-								'correct_summary'	=> translate('online_quiz_results_header_correct_summary'),
-								'points'			=> translate('online_quiz_results_header_points'),
-								'available_points'	=> translate('online_quiz_results_header_available_points'),
+								'question_num'		=> translate('Question Number'),
+
+								'assetid'			=> translate('Asset ID'),
+
+								'question_text'		=> translate('Question Text'),
+
+								'value'				=> translate('Your Answer'),
+
+								'summary'			=> translate('Answer Text'),
+
+								'correct_value'		=> translate('Correct Answer'),
+
+								'correct_summary'	=> translate('Correct Answer Text'),
+
+								'points'			=> translate('Your Score'),
+
+								'available_points'	=> translate('Maximum Score'),
+
 							 );
 
 		// plain-text column formatting:
@@ -3083,7 +3139,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 						$cell_contents = ob_get_clean();
 						if ($html && !strlen($cell_contents)) {
-							echo translate('online_quiz_results_empty_cell');
+							echo translate('&nbsp;');
+
 						} else {
 							echo $cell_contents;
 						}
@@ -3140,10 +3197,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 								} else {
 									if ($column_counter == 0 && count($columns) > $points_columns_counter + 1) {
 										// print "Totals"
-										echo translate('online_quiz_results_header_totals');
+										echo translate('Totals');
+
 									} else {
 										// otherwise print an "empty" cell
-										echo translate('online_quiz_results_empty_cell');
+										echo translate('&nbsp;');
+
 									}
 								}
 
@@ -3157,8 +3216,10 @@ class Page_Online_Quiz extends Page_Asset_Listing
 							// plain-text column formatting:
 							$longest_column_length = 0;
 							$totals_columns = Array(
-												translate('online_quiz_results_header_total_points'),
-												translate('online_quiz_results_header_total_available_points'),
+												translate('Total Score'),
+
+												translate('Total Maximum Score'),
+
 											  );
 							foreach ($totals_columns as $column_name) {
 								if (strlen($column_name) > $longest_column_length) {
@@ -3206,15 +3267,24 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function getResultsTableFullKeywordReplacement($html=TRUE)
 	{
 		$columns = Array(
-					'question_num'			=> translate('online_quiz_results_header_question_num'),
-					'question_text'			=> translate('online_quiz_results_header_question_text'),
-					'value'					=> translate('online_quiz_results_header_value'),
-					'summary'				=> translate('online_quiz_results_header_summary'),
-					'correct_value'			=> translate('online_quiz_results_header_correct_value'),
-					'correct_summary'		=> translate('online_quiz_results_header_correct_summary'),
-					'points'				=> translate('online_quiz_results_header_points'),
-					'available_points'		=> translate('online_quiz_results_header_available_points'),
-					'response_supplement'	=> translate('online_quiz_results_header_available_points'),
+					'question_num'			=> translate('Question Number'),
+
+					'question_text'			=> translate('Question Text'),
+
+					'value'					=> translate('Your Answer'),
+
+					'summary'				=> translate('Answer Text'),
+
+					'correct_value'			=> translate('Correct Answer'),
+
+					'correct_summary'		=> translate('Correct Answer Text'),
+
+					'points'				=> translate('Your Score'),
+
+					'available_points'		=> translate('Maximum Score'),
+
+					'response_supplement'	=> translate('Maximum Score'),
+
 				   );
 		return $this->getResultsTableKeywordReplacement($columns, TRUE, $html);
 
@@ -3245,11 +3315,16 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function getResultsTableSimpleKeywordReplacement($html=TRUE)
 	{
 		$columns = Array(
-					'question_num'		=> translate('online_quiz_results_header_question_num'),
-					'value'				=> translate('online_quiz_results_header_value'),
-					'correct_value'		=> translate('online_quiz_results_header_correct_value'),
-					'points'			=> translate('online_quiz_results_header_points'),
-					'available_points'	=> translate('online_quiz_results_header_available_points'),
+					'question_num'		=> translate('Question Number'),
+
+					'value'				=> translate('Your Answer'),
+
+					'correct_value'		=> translate('Correct Answer'),
+
+					'points'			=> translate('Your Score'),
+
+					'available_points'	=> translate('Maximum Score'),
+
 				   );
 		return $this->getResultsTableKeywordReplacement($columns, TRUE, $html);
 

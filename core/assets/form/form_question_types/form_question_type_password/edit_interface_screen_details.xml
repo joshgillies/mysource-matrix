@@ -15,47 +15,69 @@
 -->
 
 <contents>
-	<section>
-	    <field>
-			<function_call>
-				<paint_function   name="paintLockMessage"   />
-				<process_function name="processLockMessage" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Question Options" write_access="write:attributes">
-		<field attribute="name">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="field_name">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="confirm_field_name">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="note">
-			<text width="40" height="2" />
-		</field>
-		<field attribute="default">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="width">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="max">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="min">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="verify">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="tabindex">
-			<int width="5" />
-		</field>
-		<field attribute="extra">
-			<text width="80" height="4" />
-		</field>
-	</section>
+    <section>
+        <field>
+            <function_call>
+                <paint_function name="paintLockMessage" />
+                <process_function name="processLockMessage" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Question Options" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Title</display_name>
+            <note></note>
+            <text width="20" height="1" />
+        </field>
+        <field attribute="field_name">
+            <display_name>Field Name</display_name>
+            <note></note>
+            <text width="20" height="1" />
+        </field>
+        <field attribute="confirm_field_name">
+            <display_name>Confirm Field Name</display_name>
+            <note></note>
+            <text width="20" height="1" />
+        </field>
+        <field attribute="note">
+            <display_name>Note</display_name>
+            <note></note>
+            <text width="40" height="2" />
+        </field>
+        <field attribute="default">
+            <display_name>Default</display_name>
+            <note></note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="width">
+            <display_name>Width</display_name>
+            <note></note>
+            <text width="5" height="1" />
+        </field>
+        <field attribute="max">
+            <display_name>Maximum Length</display_name>
+            <note></note>
+            <text width="5" height="1" />
+        </field>
+        <field attribute="min">
+            <display_name>Minimum Length</display_name>
+            <note></note>
+            <text width="5" height="1" />
+        </field>
+        <field attribute="verify">
+            <display_name>Requires Verification</display_name>
+            <note>If this is set to Yes, two fields will appear on the form, which have to be entered correctly for the form to be submitted</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="tabindex">
+            <display_name>Tab Index</display_name>
+            <note>If a tab index is supplied it will be added to the input tag</note>
+            <int width="5" />
+        </field>
+        <field attribute="extra">
+            <display_name>Extras</display_name>
+            <note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
+            <text width="80" height="4" />
+        </field>
+    </section>
 </contents>

@@ -196,7 +196,8 @@ class Trigger_Action_Set_Role extends Trigger_Action
 				if ($selected_roleid) {
 					echo get_asset_tag_line($selected_roleid);
 				} else {
-					echo '<em>['.translate('trigger_set_role_no_role_selected').']</em>';
+					echo '<em>['.translate('No Role Selected').']</em>';
+
 				}
 			}
 			$role_select_role_part = ob_get_contents();
@@ -207,7 +208,8 @@ class Trigger_Action_Set_Role extends Trigger_Action
 				multiple_asset_finder($prefix.'[user_assetid]', $selected_userids, Array('user' => 'D', 'user_group' => 'D'));
 				echo '<em>AND / OR</em><br/>';
 				echo check_box($prefix.'[use_current_user]', 1, $current_user);
-				label(translate('trigger_set_role_user_firing_trigger'), $prefix.'[use_current_user]');
+				label(translate('Use Current User (one who fires the trigger)'), $prefix.'[use_current_user]');
+
 				echo '<br/><br/>';
 			} else {
 				if ($selected_userids || $current_user) {
@@ -220,12 +222,16 @@ class Trigger_Action_Set_Role extends Trigger_Action
 						echo '</ul>';
 					}
 					echo '<br/>';
-					echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_user ? 'tick' : 'cross').'.gif" alt="'.($current_user ? translate('yes') : translate('no')).'" /> ';
-					echo translate('trigger_set_role_user_firing_trigger');
+					echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_user ? 'tick' : 'cross').'.gif" alt="'.($current_user ? translate('Yes') : translate('No')).'" /> ';
+
+
+					echo translate('Use Current User (one who fires the trigger)');
+
 					echo '<br/>';
 
 				} else {
-					echo '<b>['.translate('trigger_set_role_no_users_selected').']</b>';
+					echo '<b>['.translate('No Users Selected').']</b>';
+
 				}
 			}
 			$role_select_user_part = ob_get_contents();
@@ -234,17 +240,25 @@ class Trigger_Action_Set_Role extends Trigger_Action
 		ob_start();
 			if ($write_access) {
 				check_box($prefix.'[cascade]', '1', $cascade);
-				label(translate('cascade_roles_option'), $prefix.'[cascade]');
-				echo '<br />';
-				check_box($prefix.'[cascade_to_dependents]', '1', $cascade_to_dependents);
-				label(translate('cascade_roles_to_dependents'), $prefix.'[cascade_to_dependents]');
-			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
-				echo translate('cascade_roles_option');
+				label(translate('Yes, cascade role assignment changes'), $prefix.'[cascade]');
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_dependents ? translate('yes') : translate('no')).'" /> ';
-				echo translate('cascade_roles_to_dependents');
+				check_box($prefix.'[cascade_to_dependents]', '1', $cascade_to_dependents);
+				label(translate('Cascade roles to dependents'), $prefix.'[cascade_to_dependents]');
+
+			} else {
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Yes, cascade role assignment changes');
+
+
+				echo '<br />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_dependents ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Cascade roles to dependents');
+
 			}
 			$role_cascade_part = ob_get_contents();
 		ob_end_clean();
@@ -252,18 +266,24 @@ class Trigger_Action_Set_Role extends Trigger_Action
 		ob_start();
 			if ($write_access) {
 				check_box($prefix.'[delete_all_before_adding]', '1', $delete_all_before_adding);
-				label(translate('delete_all_before_adding'), $prefix.'[delete_all_before_adding]');
+				label(translate('Delete all the Users from the Role before assigning new one'), $prefix.'[delete_all_before_adding]');
+
 				echo '<br />';
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all_before_adding ? 'tick' : 'cross').'.gif" alt="'.($delete_all_before_adding ? translate('yes') : translate('no')).'" /> ';
-				echo translate('delete_all_before_adding');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all_before_adding ? 'tick' : 'cross').'.gif" alt="'.($delete_all_before_adding ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Delete all the Users from the Role before assigning new one');
+
 			}
 			$role_delete_all_part = ob_get_contents();
 		ob_end_clean();
 
-		$contents = '<div class="sq-break-line-inputs">'.translate('select_a_role').': '.
+		$contents = '<div class="sq-break-line-inputs">'.translate('Select a role').': '.
+
 					$role_select_role_part.'</div>'.
-					'<div class="sq-break-line-inputs">'.translate('select_users_for_role').': '.
+					'<div class="sq-break-line-inputs">'.translate('Select the users who will perform the role on this asset').': '.
+
 					$role_select_user_part.'</div>'.
 					'<div class="sq-break-line-inputs">'.$role_cascade_part.'<br />'.
 					$role_delete_all_part.'</div>';
@@ -292,7 +312,8 @@ class Trigger_Action_Set_Role extends Trigger_Action
 		if (!empty($request_data['role']['assetid'])) {
 			$selected_roleid = $request_data['role']['assetid'];
 		} else {
-			return translate('no_roles_set');
+			return translate('No roles have been assigned');
+
 		}
 
 		$raw_userids = $request_data['user_assetid'];
@@ -305,7 +326,8 @@ class Trigger_Action_Set_Role extends Trigger_Action
 		$settings['use_current_user']   = array_get_index($request_data, 'use_current_user', FALSE);
 
 		if (empty($userids) && !$settings['use_current_user']) {
-			return translate('select_users_for_role');
+			return translate('Select the users who will perform the role on this asset');
+
 		}
 
 		// optional fields

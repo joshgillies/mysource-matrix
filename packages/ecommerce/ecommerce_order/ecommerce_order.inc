@@ -152,7 +152,7 @@ class Ecommerce_Order extends Asset
 	function _linkProducts($products)
 	{
 		if (empty($products)) {
-			trigger_localised_error('ECOM0014', E_USER_WARNING);
+			trigger_localised_error('ECOM0014', translate('Ecommerce Order can not be created without products'), E_USER_WARNING);
 			return false;
 		}
 
@@ -170,7 +170,7 @@ class Ecommerce_Order extends Asset
 			$product = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 
 			if ($GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $product, SQ_LINK_NOTICE) == 0) {
-				trigger_localised_error('ECOM0019', E_USER_WARNING);
+				trigger_localised_error('ECOM0019', translate('Ecommerce Order can not create Notice link to Product'), E_USER_WARNING);
 				$success = false;
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($product);
@@ -203,18 +203,21 @@ class Ecommerce_Order extends Asset
 				case SQ_ECOM_ORDER_STATUS_PROCESSING :
 					$new_status = SQ_ECOM_ORDER_STATUS_PROCESSING;
 					if (empty($message)) {
-						$status_message = translate('ecom_order_status_processing');
+						$status_message = translate('Processing');
+
 					} else {
 						$status_message = $message;
 					}
 				break;
 				case SQ_ECOM_ORDER_STATUS_SUCCESS :
 					$new_status = SQ_ECOM_ORDER_STATUS_SUCCESS;
-					$status_message = translate('ecom_order_status_success');
+					$status_message = translate('Completed');
+
 				break;
 				case SQ_ECOM_ORDER_STATUS_FAILED :
 					$new_status = SQ_ECOM_ORDER_STATUS_FAILED;
-					$status_message = translate('ecom_order_status_failed');
+					$status_message = translate('Failed');
+
 				break;
 				default:
 					return false;
@@ -307,14 +310,21 @@ class Ecommerce_Order extends Asset
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['checkout_assetid']	= translate('ecom_order_keyword_checkout_assetid');
-		$keywords['order_summary']		= translate('ecom_order_keyword_order_summary');
-		$keywords['status']				= translate('ecom_order_keyword_status');
-		$keywords['status_message']		= translate('ecom_order_keyword_status_message');
-		$keywords['edit_url']			= translate('ecom_order_keyword_edit_url');
-		$keywords['order_xml']			= translate('ecom_order_keyword_order_xml');
-		$keywords['order_grand_total']	= translate('ecom_order_keyword_order_grand_total');
-		
+		$keywords['checkout_assetid']	= translate('Assetid of checkout form which created this order');
+
+		$keywords['order_summary']		= translate('Summary of this order');
+
+		$keywords['status']				= translate('Status of ecommerce order');
+
+		$keywords['status_message']		= translate('Message which is related to the status');
+
+		$keywords['edit_url']			= translate('URL to the page where to edit this ecommerce order');
+
+		$keywords['order_xml']			= translate('XML representation of this order');
+
+		$keywords['order_grand_total']	= translate('The grand total price of this Order asset');
+
+
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -420,7 +430,7 @@ class Ecommerce_Order extends Asset
 
 	}//end getEditUrlKeywordReplacement()
 
-	
+
 	/**
 	* Get order_xml keyword replacement
 	*
@@ -445,7 +455,7 @@ class Ecommerce_Order extends Asset
 		return $this->attr('order_grand_total');
 
 	}//end getCheckoutAssetidKeywordReplacement()
-	
+
 
 	/**
 	* Get the delivery method related to this order, if set

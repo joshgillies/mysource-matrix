@@ -111,7 +111,8 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_asset_id', $basic_part_1);
+		return sprintf(translate('Asset ID is %s'), $basic_part_1);
+
 
 	}//end getInterface()
 

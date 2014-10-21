@@ -58,7 +58,8 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('fnb_hipo_reindex'));
+		$o->openField(translate('Funnelback Reindex'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -67,6 +68,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 			echo SQ_HIPO_REINDEX_FUNNELBACK;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -129,7 +131,8 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('fnb_hipo_reindex');
+		return translate('Funnelback Reindex');
+
 
 	}//end getHipoName()
 
@@ -145,7 +148,8 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('fnb_hipo_reindex_step_name0'),
+					'name'			=> translate('Reindexing'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processReindex',
 									   ),
@@ -198,7 +202,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 		$this->_running_vars['done_collections'] = Array();
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 		if (is_null($fm)) {
-			trigger_localised_error('FNB0020', E_USER_WARNING);
+			trigger_localised_error('FNB0020', translate('Unable to load Funnelback Manager, Funnelback Manager is not installed'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 		$collections = $fm->getCollections();
@@ -251,7 +255,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 
 
 	/**
-	* Reindex using Funnelback 
+	* Reindex using Funnelback
 	*
 	* @param array	&$step_data	a reference to the array of information about the current step
 	* @param string	$prefix		prefix for form vars
@@ -279,10 +283,11 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 			$assetid = array_get_index($collection_info, 'asset', 0);
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 			unset($this->_running_vars['todo_collections'][$next]);
-		
+
 			if (!empty($url) && !is_null($asset)) {
 				// Let people know what you are thinking ;-)
-				$step_data['message'] = translate('fnb_hipo_reindexing_url', htmlspecialchars($asset->attr('name')));
+				$step_data['message'] = sprintf(translate('Reindexing URL: "%s"'), htmlspecialchars($asset->attr('name')));
+
 
 				// Build the parameters
 				$output = '';
@@ -298,7 +303,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 
 				// Check for permissions and show a fail if cannot write
 				if (!is_writable($data_path)) {
-					trigger_localised_error('FNB0030', E_USER_WARNING);
+					trigger_localised_error('FNB0030', translate('Unable to reindex'), E_USER_WARNING);
 					return FALSE;
 				}//end if
 
@@ -350,25 +355,25 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 					$final_status = $fm->runCommand($make_live_cmd, $output, NULL, $log_file, $coll_path);
 					if ($status !== 0) {
 						// Failed making live
-						trigger_localised_error('FNB0032', E_USER_WARNING);
+						trigger_localised_error('FNB0032', translate('Unable to make index live'), E_USER_WARNING);
 						return FALSE;
 					}//end if
 				} else {
 					// Fail....
-					trigger_localised_error('FNB0031', E_USER_WARNING);
+					trigger_localised_error('FNB0031', translate('Indexing failed'), E_USER_WARNING);
 					return FALSE;
 				}//end if
 
 				// Forget some information
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
 			}//end if
-		
+
 			// add this assetid to the done array
 			$this->_running_vars['done_collections'][] = $collection_id;
 		}//end if
-	
+
 		$GLOBALS['SQ_SYSTEM']->restoreContext();
-	
+
 		if (empty($this->_running_vars['todo_collections'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;

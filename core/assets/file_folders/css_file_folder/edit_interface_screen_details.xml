@@ -16,25 +16,34 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="title">
+			<display_name>Title</display_name>
+			<note>%description%</note>
 			<text width="25" height="1" />
 		</field>
 		<field keyword="filename">
+			<display_name>File Name</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintFilename"   />
 				<process_function name="processFilename" />
 			</function_call>
 		</field>
-		<field keyword="filename">
+		<field keyword="last_updated">
+			<display_name>Last Updated</display_name>
 			<function_call>
 				<paint_function   name="paintFileLastUpdateDate" />
 			</function_call>
 		</field>
 		<field attribute="allow_unrestricted">
+			<display_name>Allow Unrestricted Access</display_name>
+			<note>Set to Yes to allow this file to be served by the web server if it is Live and publicly readable.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Linked Files" write_access="write:links" limbo_access="1">
 		<field>
+			<display_name>Linked Files</display_name>
+			<note>Select the file assets to add to this File Folder</note>
 			<function_call>
 				<paint_function   name="paintLinkedFiles" />
 				<process_function   name="processLinkedFiles" />
@@ -43,12 +52,24 @@
 	</section>
 	<section name="Minification" write_access="write:links" limbo_access="1">
 		<field>
+			<display_name>Compiler</display_name>
+			<note>Compiler to use for the merging the linked files and the minification</note>
 			<function_call>
 				<paint_function   name="paintMinifyOption" />
 				<process_function name="processMinifyOption" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Minify</display_name>
+			<note>Whether to minify the content when merging the files</note>
+			<function_call>
+				<paint_function   name="paintMinifyOption" />
+				<process_function name="processMinifyOption" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Renegerate File</display_name>
+			<note>Regenerate the merged file now</note>
 			<function_call>
 				<paint_function   name="paintRegenerateFile" />
 				<process_function name="processRegenerateFile" />

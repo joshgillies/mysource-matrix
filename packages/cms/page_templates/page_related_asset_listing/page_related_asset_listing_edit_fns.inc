@@ -125,7 +125,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			if (!empty($node['assetid'])) {
 				$new_relator = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_relator, SQ_LINK_NOTICE, 'relator')) {
-					trigger_localised_error('CMS0016', E_USER_WARNING, $new_relator->name, $new_relator->id);
+					trigger_localised_error('CMS0016', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $new_relator->name, $new_relator->id), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
@@ -154,10 +154,10 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintThesaurusFilters(&$asset, &$o, $prefix)
 	{
 		return $this->paintNoticeLinkedAsset($asset, 'thesaurus_filter', Array('thesaurus' => 'D'), $prefix.'thesaurus_filters', TRUE);
-		
+
 	}//end paintThesaurusFilter()
 
-	
+
 	/**
 	* Processes the value input from thesaurus filter selection box
 	*
@@ -174,9 +174,9 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			$this->processNoticeLinkedAsset($asset, 'thesaurus_filter', $prefix.'thesaurus_filters', TRUE);
 		}
 		return FALSE; // no need to save attrs, it's only links
-		
+
 	}//end processThesaurusFilter()
-	
+
 }//end class
 
 ?>

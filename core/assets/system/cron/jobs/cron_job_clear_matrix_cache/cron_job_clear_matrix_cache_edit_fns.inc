@@ -57,8 +57,11 @@ class Cron_Job_Clear_Matrix_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	public function paintInLineBackend(Cron_Job_Clear_Matrix_Cache $asset, Backend_Outputter $o, $prefix, $when='', $form_extra_elements='')
 	{
-		$preposition = ($asset->attr('type') == 'one_off') ? translate('matrix_cache_clear_at') : translate('matrix_cache_clear_every');
-		echo translate('matrix_cache_clear_this', $preposition);
+		$preposition = ($asset->attr('type') == 'one_off') ? translate('at') : translate('every');
+
+
+		echo sprintf(translate('Clear this cache %s'), $preposition);
+
 		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 
 		return TRUE;

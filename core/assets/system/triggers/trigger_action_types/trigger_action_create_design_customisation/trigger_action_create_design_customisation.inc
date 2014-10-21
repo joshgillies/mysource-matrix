@@ -63,7 +63,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		// This clone will be morphed to customisation later, so it will NOT clone the parse file.
 		$asset->_tmp['custom'] = TRUE;
 		$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
@@ -91,13 +91,13 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 			return FALSE;
 		}
 
-				
+
 		// Now let's morph the dupe into a design customisation
 		// since 3.18, morph() returns the result asset instead of a boolean
 		$customisation = $clone->morph('design_customisation');
-		
-		
-	
+
+
+
 		if (!$customisation) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -147,7 +147,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		foreach ($file_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0162', E_USER_WARNING);
+				trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -162,7 +162,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		foreach ($css_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0161', E_USER_WARNING);
+				trigger_localised_error('CORE0161', translate('Failed creating css file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -215,10 +215,13 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 			$combo_box = ob_get_contents();
 		ob_end_clean();
 
-		$contents =	translate('trigger_create_design_customisation_usage')
-		.'<br /><br />'.translate('trigger_create_design_customisation_select_keyword').$combo_box
+		$contents =	translate('This trigger will create a design customisation of the design asset in which the trigger condition is matched.')
+
+		.'<br /><br />'.translate('Available keywords for naming:').$combo_box
+
 		.'<br /><br />'.
-		translate('trigger_create_design_customisation_specify_name').$text_box.'<br />'
+		translate('Specify a name for the customisation:').$text_box.'<br />'
+
 		;
 
 		return $contents;
@@ -241,7 +244,8 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 	{
 		// make sure the assetid isn't blank
 		if (empty($request_data['customisation_name'])) {
-			return translate('trigger_create_design_customisation_name_missing');
+			return translate('Design customisation name is missing');
+
 		}
 
 		$settings['customisation_name']   = $request_data['customisation_name'];

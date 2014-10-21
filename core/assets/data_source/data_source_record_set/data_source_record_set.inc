@@ -139,14 +139,21 @@ class Data_Source_Record_Set extends Asset
 			return $keywords;
 		}
 		$columns = array_keys($this->vars);
-		$keywords['asset_assetid'] = translate('record_set_id');
-		$keywords['asset_version'] = translate('record_set_version');
-		$keywords['asset_status'] = translate('record_set_status');
-		$keywords['asset_name'] = translate('record_set_name');
-		$keywords['asset_short_name'] = translate('record_set_short_name');
-		$keywords['asset_data_source_id'] = translate('data_source_id');
+		$keywords['asset_assetid'] = translate('ID of the Record Set');
 
-		$attr_string = translate('record_set_attribute');
+		$keywords['asset_version'] = translate('Version of the Record Set');
+
+		$keywords['asset_status'] = translate('Status of the Record Set');
+
+		$keywords['asset_name'] = translate('Name of the Record Set');
+
+		$keywords['asset_short_name'] = translate('Short Name of the Record Set');
+
+		$keywords['asset_data_source_id'] = translate('ID of the Data Source For The Record Set');
+
+
+		$attr_string = translate('Record Set Attribute');
+
 		foreach ($columns as $column) {
 			$keywords['data_source_record_set_'.$column] = $attr_string.' : '.$column;
 			$keywords['ds__'.$column] = $attr_string.' : '.$column;
@@ -165,9 +172,9 @@ class Data_Source_Record_Set extends Asset
 	* @access public
 	*/
 	public function getKeywordReplacement($keyword)
-	{	
+	{
 		$replacement = NULL;
-		
+
 		// Remove any modifiers from keyword
 		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
@@ -187,7 +194,7 @@ class Data_Source_Record_Set extends Asset
 
 				// Then apply the ones we had remaining, then return it
 				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
-				
+
 				unset($contexted_asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
@@ -195,7 +202,7 @@ class Data_Source_Record_Set extends Asset
 			}//end if contextid is not the currently active context
 
 		}//end if contextid is not NULL
-		
+
 
 		if (strpos($keyword, 'data_source_record_set_') !== FALSE) {
 			$keyword = substr($keyword, strlen('data_source_record_set_'));
@@ -239,13 +246,13 @@ class Data_Source_Record_Set extends Asset
 		else {
 					// we still have to ask parent to replace those unfamilier keyword
 					$replacement = parent::getKeywordReplacement($keyword);
-		} 
- 
-		
+		}
+
+
 		if (count($modifiers) > 0) {
 			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		}
-		
+
 		return $replacement;
 
 	}//end getKeywordReplacement()

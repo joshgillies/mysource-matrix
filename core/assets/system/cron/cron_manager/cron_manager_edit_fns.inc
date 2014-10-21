@@ -43,15 +43,18 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$this->static_screens = Array(
 									'details'		=> Array(
-														'name'			=> translate('view_jobs'),
+														'name'			=> translate('View Scheduled Jobs'),
+
 														'force_unlock'	=> FALSE,
 													   ),
 									'permissions'	=> Array(
-														'name'			=> translate('permissions'),
+														'name'			=> translate('Permissions'),
+
 														'force_unlock'	=> TRUE,
 													   ),
 									'logs'			=> Array(
-														'name'			=> translate('logs'),
+														'name'			=> translate('Logs'),
+
 														'force_unlock'	=> TRUE,
 													   ),
 								);
@@ -164,7 +167,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$jobs = $asset->getJobs('cron_job', FALSE);
 		if (empty($jobs)) {
 			$o->openField('');
-				$o->note(translate('cron_no_jobs_registered'));
+				$o->note(translate('No Jobs Registered'));
+
 		} else {
 			$num_per_page = 20;
 			$total_assets = count($jobs);
@@ -200,10 +204,12 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					hidden_field($prefix.'_link_offset', $link_offset);
 					if ($link_offset > 0) {
 					?>
-						<a title="<?php echo translate('pagination_go_to_first') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
+						<a title="<?php echo translate('Go to the first page') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
+
 					<?php
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 					}
 					?>
 					&lt;&lt;
@@ -215,9 +221,11 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_previous') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the previous page') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 					}
 					?>
 					&lt;
@@ -228,12 +236,15 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						?></span><?php
 					}
 					?>
-					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					&nbsp; &nbsp; <?php echo sprintf(translate('Page %1$s of %2$s'), round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+
 					<?php
 					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_next') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the next page') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 					}
 					?>
 					&gt;
@@ -245,9 +256,11 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_last') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the last page') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 					}
 					?>
 					&gt;&gt;
@@ -273,20 +286,23 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						<table class="sq-backend-table" id="<?php echo $prefix.'_'.$type.'_block' ?>">
 							<tr>
 								<th style="width:25%;">
-									<?php echo translate('when'); ?>
+									<?php echo translate('When'); ?>
+
 								</th>
 								<th style="width:40%;">
-									<?php echo translate('name'); ?>
+									<?php echo translate('Name'); ?>
+
 								</th>
 								<th style="width:25%;">
-									<?php echo translate('run_as'); ?>
+									<?php echo translate('Run As'); ?>
+
 								</th>
 							<?php
 								if ($asset->writeAccess('links')) {
 								?>
 								<th style="text-align: center;" style="width:10%;">
 									<?php 
-									echo label(translate('delete_question'), $prefix.'_'.$type).'<br />'; 
+									echo label(translate('Delete?'), $prefix.'_'.$type).'<br />'; 
 									check_box($prefix.'_'.$type, '1', FALSE, 'check_all_by_parent('.$prefix.'_'.$type.'_block, \''.$prefix.'_remove_jobs\' , this.checked)');	
 									?>
 								</th>
@@ -318,7 +334,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 										if ($user) {
 											echo get_asset_tag_line($user->id);
 										} else {
-											?><em><?php echo translate('system'); ?></em><?php
+											?><em><?php echo translate('System'); ?></em><?php
+
 										}
 									?>
 								</td>
@@ -535,25 +552,32 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					<table border="0">
 						<tr>
 							<td class="sq-backend-data">
-								<?php echo translate('cron_deadlock_warning_section_1', $asset->attr('warn_after_num_run_checks')); ?>
+								<?php echo sprintf(translate('This is only a potential warning brought about because the Scheduled Jobs Manager has attempted to run %s times, but has not been able to. Two potential reasons for this are :'), $asset->attr('warn_after_num_run_checks')); ?>
+
 								<ol class="sq-backend-data">
-									<li class="sq-backend-data"><?php echo translate('cron_deadlock_warning_list_item_1'); ?></li>
-									<li class="sq-backend-data"><?php echo translate('cron_deadlock_warning_list_item_2'); ?></li>
+									<li class="sq-backend-data"><?php echo translate('An existing Scheduled Jobs Manager instance is currently running an extremely long running job.'); ?></li>
+
+									<li class="sq-backend-data"><?php echo translate('Some thing has caused the Scheduled Jobs Manager to exit uncleanly when it was running and the lock wasn\'t able to be removed.'); ?></li>
+
 								</ol>
 
 								<?php
 								if (!empty($current_job_id)) {
 								?>
 								<p class="sq-backend-data">
-									<?php echo translate('cron_deadlock_warning_offending_job', get_asset_tag_line($current_job_id)); ?>
+									<?php echo sprintf(translate('The Scheduled Jobs Manager believes this job is still running: %s'), get_asset_tag_line($current_job_id)); ?>
+
 								</p>
 								<?php
 								}
 								?>
-								<?php echo translate('cron_deadlock_warning_check_error_log', hide_system_root(SQ_LOG_PATH).'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION); ?>
-								<p class="sq-backend-data"><?php echo translate('cron_deadlock_warning_section_2'); ?></p>
+								<?php echo sprintf(translate('Check the cron error log (in "%s") for any information.'), hide_system_root(SQ_LOG_PATH).'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION); ?>
+
+								<p class="sq-backend-data"><?php echo translate('To confirm the removal of the lock flag for the Scheduled Jobs Manager, enter the character string you see below into the box supplied, then press the Commit button.'); ?></p>
+
 								<p class="sq-backend-data">
-								<b><?php echo translate('cron_deadlock_warning_section_3'); ?></b>
+								<b><?php echo translate('ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE SCHEDULED JOBS MANAGER IS NOT RUNNING.'); ?></b>
+
 								</p>
 							</td>
 						</tr>
@@ -561,7 +585,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 							<td valign="top" class="sq-backend-data">
 								<?php
 									check_box($prefix.'_force_remove_lock');
-									label(translate('cron_force_lock_removal'));
+									label(translate('Force Removal of Lock'));
+
 								?>
 							</td>
 						</tr>
@@ -573,16 +598,19 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					</table>
 					<?php
 				} else {
-					echo translate('cron_deadlock_must_acquire_lock');
+					echo translate('You must acquire the lock in order resolve this issue');
+
 				}
 			} else {
-				echo translate('cron_deadlock_warning_contact_root');
+				echo translate('You must contact the root user to resolve this issue');
+
 			}//end if
 
 		// else everything is OK
 		} else {
-			$o->openField(translate(''), 'wide_col');
-			echo '<em>'.translate('cron_manager_appears_to_be_fine').'</em>';
+			$o->openField('', 'wide_col');
+			echo '<em>'.translate('Scheduled Jobs Manager appears to be fine.').'</em>';
+
 
 		}//end if run_check
 
@@ -616,7 +644,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					return TRUE;
 
 				} else {
-					trigger_localised_error('CRON0013', E_USER_NOTICE);
+					trigger_localised_error('CRON0013', translate('The security key entered was incorrect.'), E_USER_NOTICE);
 				}//end if
 			}//end if
 		}//endif
@@ -665,13 +693,20 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						23	=> '23',
 					   );
 		$days_array = Array(
-						0	=> translate('sunday'),
-						1	=> translate('monday'),
-						2	=> translate('tuesday'),
-						3	=> translate('wednesday'),
-						4	=> translate('thursday'),
-						5	=> translate('friday'),
-						6	=> translate('saturday'),
+						0	=> translate('Sunday'),
+
+						1	=> translate('Monday'),
+
+						2	=> translate('Tuesday'),
+
+						3	=> translate('Wednesday'),
+
+						4	=> translate('Thursday'),
+
+						5	=> translate('Friday'),
+
+						6	=> translate('Saturday'),
+
 					  );
 
 		$write_access = $asset->writeAccess('all') && $GLOBALS['SQ_SYSTEM']->userRoot();
@@ -682,10 +717,12 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><?php echo translate('cron_excluded_time') ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('Blackout Periods') ?></th>
+
 					<?php
 						if ($write_access) {
-							?><th class="sq-backend-table-header" style="text-align:center;"><?php echo translate('delete') ?>?</th><?php
+							?><th class="sq-backend-table-header" style="text-align:center;"><?php echo translate('Delete') ?>?</th><?php
+
 						}
 					?>
 				</tr><?php
@@ -714,8 +751,10 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				?><td class="sq-backend-table-cell sq-top-align-children">
 					<span class="sq-inline-fields-wrapper">
 					<?php
-					echo translate('cron_excluded_time_hour', $from, $to);
-					echo translate('cron_excluded_time_days', $days);
+					echo sprintf(translate('Do not process jobs between %1$s:00 and %2$s:00'), $from, $to);
+
+					echo sprintf(translate('on %s'), $days);
+
 					?>
 					</span>
 				</td><td class="sq-backend-table-cell" style="text-align:center;"><?php
@@ -724,7 +763,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<tr><td colspan="2">
-				<?php 
+				<?php
 					check_box($prefix.'_add_exclude_time', TRUE, FALSE);
 					label('Add new blackout period', $prefix.'_add_exclude_time');
 				?></tr>
@@ -747,18 +786,22 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						$days = implode(', ', $selected_days);
 					}
 					?><td class="sq-backend-table-cell" colspan="2"><?php
-						echo translate('cron_excluded_time_hour', $from, $to);
+						echo sprintf(translate('Do not process jobs between %1$s:00 and %2$s:00'), $from, $to);
+
 						if (!empty($days)) {
 							if (count($selected_days) == 7) {
-								echo translate('cron_excluded_time_every_day');
+								echo translate('on every day');
+
 							} else {
-								echo translate('cron_excluded_time_days', $days);
+								echo sprintf(translate('on %s'), $days);
+
 							}
 						}
 					?></td></tr><?php
 				}
 			} else {
-				echo translate('cron_excluded_not_specified');
+				echo translate('There are no blackout periods');
+
 			}
 		}
 
@@ -871,7 +914,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				echo $hours_array[$log_rotate_time];
 			}//end if
 
-			echo translate('cron_log_rotate_time_desc2');
+			echo translate(':00');
+
 		echo '</span>';
 
 		return $write_access;
@@ -931,7 +975,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			multiple_asset_finder($prefix.'_dead_lock_emails_to', $users, Array('user' => 'D', 'user_group' => 'D'));
 		} else {
 			?><ul><?php
-			
+
 				foreach ($users as $assetid) {
 					if ($assetid == '0') continue;
 					echo '<li>'.get_asset_tag_line($assetid).'</li>';

@@ -59,7 +59,8 @@ class Asset_Status_Editing extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_editing');
+		return translate('Safe Editing');
+
 
 	}//end getDescription()
 
@@ -79,7 +80,8 @@ class Asset_Status_Editing extends Asset_Status
 		if (!$this->owner->writeAccess('')) return $statii;
 
 		// any editor can cancel the safe edit
-		$statii[SQ_STATUS_LIVE] = translate('status_change_cancel_safe_edit');
+		$statii[SQ_STATUS_LIVE] = translate('Cancel Safe Edit');
+
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
@@ -94,14 +96,15 @@ class Asset_Status_Editing extends Asset_Status
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			if ($mm->allowsMetadata($this->owner->id)) {
                 $is_dependant =  $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
-				
+
 				$schemas = $wfm->getSchemas($this->owner->id, true);
                 if (($mm->requiredFieldsComplete($this->owner->id) && !$is_dependant) || $is_dependant) {
 					// metadata is complete
 					if (empty($schemas)) {
 						// no workflow schemas applied, so any admin can make this live
 						if ($this->owner->adminAccess('')) {
-							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+							$statii[SQ_STATUS_EDITING_APPROVED] = translate('Approve');
+
 						}
 					} else {
 
@@ -151,25 +154,30 @@ class Asset_Status_Editing extends Asset_Status
 						// if some streams can be approved straight off and
 						// some must go through workflow
 						if ($wf_complete === TRUE) {
-							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+							$statii[SQ_STATUS_EDITING_APPROVED] = translate('Approve');
+
 						}
 						if ($needs_workflow === TRUE) {
-							$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+							$statii[SQ_STATUS_EDITING_APPROVAL] = translate('Apply for Approval');
+
 						}
 					}
 				} else {
 					// can't grant approval yet because owner is a independent asset with incomplete metadata
 					// but if workflow is applied we can at least start the process
 					if (!empty($schemas)) {
-					    $statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+					    $statii[SQ_STATUS_EDITING_APPROVAL] = translate('Apply for Approval');
+
 					}
 				}
 
 			} else {
 				// this asset needs to allow both statuses because it cant check metadata requirements
 				// due to it not allowing metadata
-				$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
-				$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+				$statii[SQ_STATUS_EDITING_APPROVED] = translate('Approve');
+
+				$statii[SQ_STATUS_EDITING_APPROVAL] = translate('Apply for Approval');
+
 			}
 		}//end if workflow running
 
@@ -188,7 +196,9 @@ class Asset_Status_Editing extends Asset_Status
 	{
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if ($mm->allowsMetadata($this->owner->id) && !$mm->requiredFieldsComplete($this->owner->id)) {
-			return translate('cannot_approve_metadata_incomplete', '<a href="'.htmlspecialchars(replace_query_string_vars(Array('asset_ei_screen' => 'metadata'))).'">'.strtolower(translate('metadata')).'</a>');
+			return sprintf(translate('This asset cannot be approved to go live because some mandatory %s fields are empty'), '<a href="'.htmlspecialchars(replace_query_string_vars(Array('asset_ei_screen' => 'Metadata'))).'">'.strtolower(translate('Metadata')).'</a>');
+
+
 		}
 		return '';
 
@@ -235,6 +245,8 @@ class Asset_Status_Editing extends Asset_Status
 								);
 					$log->replacements = $msg_reps;
 					$log->type = 'asset.workflow.log.safeedit.cancel';
+					$log->subject = translate('Asset Safe Edit Cancelled');
+					$log->body    = translate('User "%workflow_user%" has cancelled the safe edit of %type_code% "%asset_name%". "%asset_name%" has reverted to the previously saved version and the status of "%asset_name%" is now %status%');
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
@@ -251,7 +263,7 @@ class Asset_Status_Editing extends Asset_Status
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 				if (!$wfm->startWorkflow($this->owner->id)) {
-					trigger_localised_error('SYS0262', E_USER_WARNING, $this->owner->name);
+					trigger_localised_error('SYS0262', sprintf(translate('Workflow failed to start for "%s"'), $this->owner->name), E_USER_WARNING);
 					return false;
 				}
 
@@ -278,7 +290,11 @@ class Asset_Status_Editing extends Asset_Status
 					}
 					$log->replacements = $msg_reps;
 
-					$log->type = 'asset.workflow.log.started';
+					$log->type    = 'asset.workflow.log.started';
+					$log->subject = translate('Workflow Started');
+					$log->body    = translate('User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.')."\n\n".
+translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);
@@ -302,7 +318,11 @@ class Asset_Status_Editing extends Asset_Status
 							}
 
 							$msg->to = array_merge($msg->to, $publishers);
-							$msg->replacements = $msg_reps;
+							$msg->subject = translate('Workflow Started');
+                            $msg->body    = translate('User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.')."\n\n".
+        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                            $msg->replacements = $msg_reps;
 							$msg->parameters['assetid'] = $this->owner->id;
 							$ms->enqueueMessage($msg);
 						}

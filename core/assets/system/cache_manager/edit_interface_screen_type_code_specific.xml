@@ -17,6 +17,8 @@
 <contents>
 	<section name="Type Code Cache Management" read_access="write:" write_access="write:attributes">
 		<field>
+			<display_name>Configure Type Code</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintCustomiseTypeCodeCaching" />
 				<process_function name="processCustomiseTypeCodeCaching" />
@@ -25,6 +27,8 @@
 	</section>
 	<section name="Select Asset Type" read_access="write:" write_access="write:attributes">
 		<field>
+			<display_name>Caching Status</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintChooseTypeCode" />
 				<process_function name="processChooseTypeCode" />

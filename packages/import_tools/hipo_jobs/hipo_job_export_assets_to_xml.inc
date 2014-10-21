@@ -73,7 +73,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('tool_export_assets_to_xml_hipo_name');
+		return translate('Hipo Job Export Assets To XML');
+
 
 	}//end getHipoName()
 
@@ -89,7 +90,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('tool_export_assets_to_xml_hipo_name'),
+					'name'			=> translate('Hipo Job Export Assets To XML'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processExportAsset',
 									   ),
@@ -114,7 +116,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	*/
 	function freestyle() {
 		$step_data = reset($this->getInitialStepData());
-		
+
 		while(!$step_data['complete']) {
 			$this->processExportAsset($step_data, '');
 		}
@@ -141,7 +143,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// by default we save to a file, but optionally we can output to stdout
 		// (which only makes sense when being called via a freestyle hipo on the cli)
 		if (!isset($this->_running_vars['stdout'])) $this->_running_vars['stdout'] = false;
-		
+
 		// only in script mode, don't worry about permission checking
 		if (!isset($this->_running_vars['ignore_permission'])) $this->_running_vars['ignore_permission'] = false;
 
@@ -165,7 +167,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$asset_infos = $this->_running_vars['root_node_mapping'];
 		$initial_link_type = SQ_LINK_TYPE_1;
 		$action = array_shift($this->_running_vars['sections']);
-		
+
 		if (!$this->_running_vars['stdout']) {
 			ob_start();
 		}
@@ -184,7 +186,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				}
 				$step_data['percent_done'] = 20;
 				$step_data['complete']     = FALSE;
-			break;	
+			break;
 			case 'attribute':
 				foreach($asset_infos as $asset_info) {
 					$asset_from_to_id = explode(':',$asset_info);
@@ -211,30 +213,30 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				}
 				$step_data['percent_done'] = 80;
 				$step_data['complete']     = FALSE;
-			break;	
+			break;
 			case 'permission':
 				foreach($asset_infos as $asset_info) {
 					$asset_from_to_id = explode(':',$asset_info);
 					if(!isset($asset_from_to_id[0])) 	trigger_error("Failed to parse second argument\n", E_USER_ERROR);
 					$this->printPermissionXML($asset_from_to_id[0]);
-				}			
+				}
 				echo "</actions>\n\n";
 				$step_data['percent_done'] = 100;
 				$step_data['complete']     = TRUE;
-			break;		
+			break;
 		}
-		
+
 		if (!$this->_running_vars['stdout']) {
 			$output = ob_get_clean();
 			file_put_contents($path.'/export.xml', $output, FILE_APPEND | LOCK_EX);
 		}
-		
+
 		return TRUE;
 
 	}//end processExportAsset()
-	
-	
-	
+
+
+
 
 
 	/**
@@ -308,9 +310,9 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			// Then, if it has dependant children, we add those too
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
 		} else if ($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') {
-			
+
 			// okie this part is a bit tricky
-			// we need to check if 
+			// we need to check if
 			//	- we are dealing with design
 			//	- if design has a parse file attached
 			//	- and the attribute name we are dealing is 'contents'
@@ -378,10 +380,10 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		// if we created the asset, get it from array, otherwise, if it's a system asset, we have to use system asset name.
 		if (isset($this->_running_vars['asset_id_map'][$link_info['minorid']])){
-			$remap_id =	"[[output://create_".$this->_running_vars['asset_id_map'][$link_info['minorid']].".assetid]]"; 
+			$remap_id =	"[[output://create_".$this->_running_vars['asset_id_map'][$link_info['minorid']].".assetid]]";
 		}
 		else {
-			//before we use asset id, we should make sure if it's a system asset, we use system asset name instead of id. 
+			//before we use asset id, we should make sure if it's a system asset, we use system asset name instead of id.
 			//because new system may have different system assets ids.
 			$system_asset_name = $this->replace_system_assetid($link_info['minorid']);
 			$system_asset_name == NULL ? $remap_id = $link_info['minorid'] : $remap_id = "[[system://".$system_asset_name."]]" ;
@@ -401,7 +403,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 	}// end printLinkXML()
 
-	
+
 	/**
 	* create the attrbute XML
 	*
@@ -438,7 +440,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 			// if the value is an assetid attribute, we should match it with asset_id_map first
 			if (preg_match("/assetid/",$attr_name) && isset($this->_running_vars['asset_id_map'][$value])){
-				$value =	"[[output://create_".$this->_running_vars['asset_id_map'][$value].".assetid]]"; 
+				$value =	"[[output://create_".$this->_running_vars['asset_id_map'][$value].".assetid]]";
 			}
 			$assets_done[$asset->id] = TRUE;
 
@@ -512,7 +514,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 	}//end printAttributeXML()
 
-	
+
 	/**
 	* create the notice link XML
 	*
@@ -535,7 +537,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				$remap_id =	"[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]" ;
 			}
 			else {
-				//before we use asset id, we should make sure if it's a system asset, we use system asset name instead of id. 
+				//before we use asset id, we should make sure if it's a system asset, we use system asset name instead of id.
 				//because new system may have different system assets ids.
 				$system_asset_name = $this->replace_system_assetid($asset_id);
 				$system_asset_name == NULL ? $remap_id = $asset_id : $remap_id = "[[system://".$system_asset_name."]]" ;
@@ -585,8 +587,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 	}//end printNoticeLinksXML()
 
-	
-	
+
+
 	/**
 	* create the permision XML
 	*
@@ -594,7 +596,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	*
 	* @return void
 	* @access public
-	*/	
+	*/
 	function printPermissionXML($asset_id) {
 
 		$assets_done = Array();
@@ -603,18 +605,18 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// Now, some permissions
 		$read_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset_id, SQ_PERMISSION_READ, NULL, FALSE, FALSE, TRUE, TRUE);
 		foreach ($read_permissions as $permission_id => $permission_granted) {
-			// if the asset is created by this script, use asset_id_map	
+			// if the asset is created by this script, use asset_id_map
 			if (isset($this->_running_vars['asset_id_map'][$permission_id])){
 				$remap_id =	"[[output://create_".$this->_running_vars['asset_id_map'][$permission_id].".assetid]]" ;
 			}
 			else {
-				//if it's a system asset, we use system asset name instead of id. 
+				//if it's a system asset, we use system asset name instead of id.
 				//because new system may have different system assets ids.
 				$system_asset_name = $this->replace_system_assetid($permission_id);
 				$system_asset_name == NULL ? $remap_id = $permission_id : $remap_id = "[[system://".$system_asset_name."]]" ;
 			}
-			
-		
+
+
 
 			// if the action is to deny a previous permission, make sure we will remove the permission first
 			// and if there is no existing permission to remove, fail silently
@@ -643,12 +645,12 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$write_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset_id, SQ_PERMISSION_WRITE, NULL, FALSE, FALSE, TRUE, TRUE);
 		foreach ($write_permissions as $permission_id => $permission_granted) {
 
-			// if the asset is created by this script, use asset_id_map	
+			// if the asset is created by this script, use asset_id_map
 			if (isset($this->_running_vars['asset_id_map'][$permission_id])){
 				$remap_id =	"[[output://create_".$this->_running_vars['asset_id_map'][$permission_id].".assetid]]" ;
 			}
 			else {
-				//if it's a system asset, we use system asset name instead of id. 
+				//if it's a system asset, we use system asset name instead of id.
 				//because new system may have different system assets ids.
 				$system_asset_name = $this->replace_system_assetid($permission_id);
 				$system_asset_name == NULL ? $remap_id = $permission_id : $remap_id = "[[system://".$system_asset_name."]]" ;
@@ -752,7 +754,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 	}//end printPermissionXML()
 
-	
+
 	/**
 	* recursively create the metadata XML for export
 	*
@@ -760,7 +762,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	*
 	* @return void
 	* @access public
-	*/	
+	*/
 	function printMetadataXML($asset_id) {
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -810,7 +812,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 				echo "<action>\n";
 				echo "   <action_id>set_".$this->_running_vars['asset_id_map'][$asset_id]."_metadata_field_".$field_id."</action_id>\n";
-				echo "   <action_type>set_metadata_value</action_type>\n";				
+				echo "   <action_type>set_metadata_value</action_type>\n";
 				echo "   <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
 				echo "   <fieldid>".(isset($this->_running_vars['asset_id_map'][$field_id]) ? "[[output://create_".$this->_running_vars['asset_id_map'][$field_id].".assetid]]" : $field_id)."</fieldid>\n";
 				echo "   <value><![CDATA[".$this->_escapeCDATA($field_info[0]['value'])."]]></value>\n";
@@ -855,8 +857,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 	}//end printMetadataXML()
-		
-	
+
+
 	/**
 	* Saves the file on the file system to keep a copy for our import.
 	* if the asset id provided the information about the file like 'name', 'path'
@@ -880,7 +882,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			$file_info = $file;
 			$file_type = $file['type'];
 			$assetid = substr($file_info['filename'], 0 ,strrpos($file_info['filename'], '_'));
-		}		
+		}
 
 		$path = $this->_running_vars['export_path'];
 		$export_path = $path.'/export/'.$file_type.'/'.$file_info['filename'];
@@ -905,7 +907,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// path that we return should be relative
 		return 'export/'.$file_type.'/'.$file_info['filename'];
 	}//end _saveFileAsset()
-	
+
 	/**
 	* process the attribute value for reference of asset ids. e.g ?a=xx links should be replaced if the referred the asset is exported together
 	*
@@ -1097,12 +1099,12 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 		return NULL;
 	}
-	
-	
+
+
 	/**
-	* 
+	*
 	* Test if a string is serialized
-	* @param string	
+	* @param string
 	*
 	* @return boolean
 	* @access public
@@ -1110,7 +1112,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	function isSerialized($str) {
    	 	return ($str == serialize(false) || @unserialize($str) !== false);
 	}
-	
+
     /**
 	 * If the value string contains CDATA section, escape it
 	 *
@@ -1142,21 +1144,21 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$null_asset = NULL;
 
-		// lets copy the parse file to a location and 
+		// lets copy the parse file to a location and
 		// then add an action to add it to our new design asset
 		$new_file_path = $this->_saveFileAsset($null_asset, $file_info);
 
 		if ($new_file_path != '') {
 			echo "<action>\n";
 			echo "   <action_id>set_".$design_id."_parse_file</action_id>\n";
-			echo "   <action_type>set_design_parse_file</action_type>\n";				
+			echo "   <action_type>set_design_parse_file</action_type>\n";
 			echo "   <asset>[[output://create_".$design_id.".assetid]]</asset>\n";
 			echo "   <file_path>".$new_file_path."</file_path>\n";
 			echo "</action>\n\n";
 		}
 
 	}// end _updateParseFileForDesign()
-       
+
 	/**
 	 * Print a headline to STDERR
 	 *

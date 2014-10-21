@@ -51,7 +51,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @param string					$prefix	prefix for form elements
 	* @param array			$keywords   for keywords replacement plugin
 	* @param array			$snippets   for snippets replacement plugin
-	* 
+	*
 	* @return WYSIWYG
 	* @access private
 	*/
@@ -226,18 +226,18 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 					$wysiwyg->add_plugin('view_source');
 				}
 			$wysiwyg->close_group();
-			
+
 			$this->_tmp['wysiwg_object'] =& $wysiwyg;
 
 		}//end if WYSIWYG object doesn't already exist
 
 		// contents must be set AFTER all plugins are loaded
 		$this->_tmp['wysiwg_object']->set_contents($html);
-		
+
 		// set dir attribute to include in wysiwyg iframe
 		if(!empty($this->_tmp['dir_attr']))
 			$this->_tmp['wysiwg_object']->set_dir_attr($this->_tmp['dir_attr']);
-		
+
 		return $this->_tmp['wysiwg_object'];
 
 	}//end _createEditor()
@@ -266,14 +266,14 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			// get snippet replacements
 			$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 			$snippets_encoded = htmlentities(json_encode_array($snippets));
-			    
+
 			if(!is_null($o) && $o->isViperAvailable()) {
-			    
+
 			    $o->enableViperEditor();
 
 				// check to see what plugins are enabled/disabled for the Viper Editor
 				$viper_plugins = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_VIPER_PLUGINS'));
-				
+
 				if (in_array('MatrixLinkPlugin', $viper_plugins)) $viper_plugins[] = 'ViperLinkPlugin';
 
 				// if all the plugins are enabled then we need not worry about anything
@@ -354,7 +354,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	public function paintBackendStatusIcons(Content_Type_WYSIWYG $asset, $prefix, $o=NULL)
 	{
 		if(!is_null($o) && $o->isViperAvailable()) {
-		     //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Edit+ Content Area', translate('edit+_editor_enabled_icon_note'), 'viper_logo', '[Edit+ Content Area]');
+		     //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Edit+ Content Area', translate('Click inside the content area to start editing using the Edit+ Content Editor.'), 'viper_logo', '[Edit+ Content Area]');
+
 		}
 		else {
 		    require_once SQ_DATA_PATH.'/private/conf/tools.inc';
@@ -362,21 +363,26 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		    // prints the status of the last run of htmltidy tool as a tag icon
 		    if (!SQ_TOOL_HTML_TIDY_ENABLED || !file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
 			    // tool is not enabled
-			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
+			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('HTMLTidy is disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
+
 		    } else {
 
 			    $status = $asset->attr('htmltidy_status');
-			    $status_msg = translate('wysiwyg_htmltidy_status_wait');
+			    $status_msg = translate('HTMLTidy has not been used to clean this content');
+
 			    $image_filename = 'htmltidy_'.$status;
 			    switch ($status) {
 				    case 'pass':
-					    $status_msg = translate('wysiwyg_htmltidy_status_pass');
+					    $status_msg = translate('HTMLTidy has cleaned this content');
+
 				    break;
 				    case 'fail':
-					    $status_msg = translate('wysiwyg_htmltidy_status_fail');
+					    $status_msg = translate('HTMLTidy failed to clean this content');
+
 				    break;
 				    case 'wait':
-					    $status_msg = translate('wysiwyg_htmltidy_status_wait');
+					    $status_msg = translate('HTMLTidy has not been used to clean this content');
+
 				    break;
 			    }//end switch
 			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
@@ -385,7 +391,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			    $res = (str_replace("\n", '<br />', htmlentities($asset->attr('htmltidy_errors'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 
 			    $htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
-		Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
+		Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('No warning for Accessibility check'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
+
 
 		    }
 		}
@@ -447,7 +454,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	public function processBackend(Array $link, Content_Type_WYSIWYG $asset, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
-		
+
 		if(isset($_REQUEST[$prefix.'_contents_div_viper_input'])) {
 		    $html = $_REQUEST[$prefix.'_contents_div_viper_input'];
 		}
@@ -475,8 +482,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		return $asset->setAttrValue('html', $html);
 
 	}//end processBackend()
-	
-	
+
+
 	/**
 	* Sets the tmp var for dir attribute
 	*
@@ -488,9 +495,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	public function setDirAttr($dir_attribute)
 	{
 		$this->_tmp['dir_attr'] = $dir_attribute;
-		
+
 	}//end setDirAttr()
-	
+
 
 }//end class
 

@@ -164,8 +164,10 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('tag');?></th>
-				<th><?php echo translate('attributes');?></th>
+				<th><?php echo translate('Tag');?></th>
+
+				<th><?php echo translate('Attributes');?></th>
+
 			</tr>
 			<?php
 			for ($i=0; $i<count($tags); $i++) {

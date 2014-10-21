@@ -263,12 +263,14 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 					<td><p><?php text_box($prefix.'_url', array_get_index($settings, 'url', ''), 120, '', FALSE, $wsdl_disabled); ?></p></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('username'); ?></td>
+					<td><?php echo translate('Username'); ?></td>
+
 					<td><p><?php text_box($prefix.'_username', array_get_index($settings, 'username', ''), 35, '', FALSE, $wsdl_disabled); ?><br />
 					</p></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('password'); ?></td>
+					<td><?php echo translate('Password'); ?></td>
+
 					<td><p><?php password_box($prefix.'_password', array_get_index($settings, 'password', ''), 35, '', $wsdl_disabled); ?></p></td>
 				</tr>
 			</table>

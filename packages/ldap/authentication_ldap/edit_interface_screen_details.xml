@@ -18,6 +18,8 @@
 <contents>
 	<section name="Authentication Options" write_access="write:attributes">
 		<field attribute="log_in_as">
+			<display_name>Log In As</display_name>
+			<note>This option allows you to select which type of user to log in as, after the user name and password are authenticated on the LDAP bridge. If set to "Local User", the authentication system will attempt to locate, and will log in as a (local) User asset with the same user name as was logged in with. If such a user cannot be found, the login will fail.</note>
 			<selection style="list" />
 		</field>
 	</section>

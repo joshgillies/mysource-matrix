@@ -33,11 +33,9 @@ class Site_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT'	=> Array(
-																'name'			=> 'child_creation_type_2_restriction',
-																'description'	=> 'Link type options prior to asset creation will be restricted to a TYPE 2 link for any asset to be located anywhere under the specified Site Asset IDs. Link type can still be changed after creation e.g. via Linking Screen.',
-																'default'		=> Array(),
-																'protected'		=> FALSE,
-																),
+                                                                    'default'		=> Array(),
+                                                                    'protected'		=> FALSE,
+                                                                   ),
 					);
 
 
@@ -48,6 +46,9 @@ class Site_Prefs extends Prefs
 	function __construct($pref_file='')
 	{
 		parent::__construct($pref_file);
+
+		$this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['name'] = translate('Child Creation TYPE_2 Link Restriction');
+		$this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['desc'] = translate('Link type options prior to asset creation will be restricted to a TYPE_2 link for any asset to be located anywhere under the specified Site Asset IDs. Link type can still be changed after creation e.g. via Linking Screen.');
 
 	}//end constructor
 
@@ -64,26 +65,11 @@ class Site_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		$is_admin  = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $have_lock = $have_lock && $is_admin;
 
-		if (is_null($pref) || $pref == 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['name']));
-			}
-
-			if ($have_lock && $is_admin) {
-				multiple_asset_finder('prefs[SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT]', $this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['default'], Array ('site' => 'I'));
-			} else {
-				echo '<ul>';
-				foreach ($this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['default'] as $index => $assetid) {
-						echo '<li>'.get_asset_tag_line($assetid).'</li>';
-				}
-				echo '</ul>';
-			}
-			echo '<div class="sq-backend-note">'.$this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['description'].'</div>';
-			if (is_null($pref)) $o->closeField();
-		}//end if
+		// Paint TYPE_2 restrictions.
+        $this->paintAssetMapField($o, $have_lock, $pref, 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT', TRUE, Array ('site' => 'I'));
 
 		return TRUE;
 
@@ -105,7 +91,7 @@ class Site_Prefs extends Prefs
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$is_admin || !$have_lock) return FALSE;
-		
+
 		if (is_null($pref) || $pref == 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT') {
 			if (isset($_POST['prefs']['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT'])) {
 				$site_assets = $_POST['prefs']['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT'];
@@ -115,7 +101,7 @@ class Site_Prefs extends Prefs
 						$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_info['assetid'], 'site');
 						if (!empty($type_info)) $save_assets[] = $asset_info['assetid'];
 					}//end if
-				}//end foreach 			
+				}//end foreach
 				$this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['default'] = $save_assets;
 			}
 		}

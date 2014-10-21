@@ -80,6 +80,27 @@ class Condition_Asset_Status extends Condition
 	}//end evaluate()
 
 
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The current asset is in any of the following statuses'),
+							'0' => translate('The current asset is NOT in any of the following statuses'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
+
+
 
 
 }//end class

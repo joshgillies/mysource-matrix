@@ -64,10 +64,12 @@ function sq_toggle_lock_info() {
 	var lockToggle = document.getElementById('sq_lock_info_toggle');
 	if (lockInfo.style.display == 'none') {
 		lockInfo.style.display = 'block';
-		lockToggle.innerHTML = js_translate('hide_lock_details');
+		lockToggle.innerHTML = js_translate('Hide Lock Details');
+
 	} else {
 		lockInfo.style.display = 'none';
-		lockToggle.innerHTML = js_translate('show_lock_details');
+		lockToggle.innerHTML = js_translate('Show Lock Details');
+
 	}
 }//end sq_toggle_lock_info()
 
@@ -77,10 +79,12 @@ function sq_toggle_asset_info(clicked) {
 	var assetInfo = document.getElementById('sq_asset_info');
 	if (assetInfo.style.display == 'none') {
 		assetInfo.style.display = 'block';
-		clicked.innerHTML = '[ '+ js_translate('less_info') +' ]';
+		clicked.innerHTML = '[ '+ js_translate('Less Info') +' ]';
+
 	} else {
 		assetInfo.style.display = 'none';
-		clicked.innerHTML = '[ '+ js_translate('more_info') +' ]';
+		clicked.innerHTML = '[ '+ js_translate('More Info') +' ]';
+
 	}
 }//end sq_toggle_asset_info()
 

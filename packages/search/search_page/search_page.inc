@@ -187,11 +187,14 @@ class Search_Page extends Listing_Engine
 	{
 		switch ($bodycopy_code) {
 			case 'initial':
-				return '<p>'.translate('sch_page_search_for').'</p><p>%submit_button%</p>';
+				return '<p>'.translate('Search for ...').'</p><p>%submit_button%</p>';
+
 			case 'results':
-				return '<p>'.translate('sch_page_x_results_found', '%result_count%').'</p>%result_list%';
+				return '<p>'.sprintf(translate('%s results found:'), '%result_count%').'</p>%result_list%';
+
 			case 'no_results':
-				return '<p>'.translate('sch_page_no_results_try_again').'</p>%initial_layout%';
+				return '<p>'.translate('No results found.  Try searching again:').'</p>%initial_layout%';
+
 		}
 		return parent::_getDefaultBodycopyContent($bodycopy_code);
 
@@ -246,7 +249,8 @@ class Search_Page extends Listing_Engine
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
 		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && in_array($bodycopy_link['value'], $this->bodycopies) && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('sch_page_cannot_delete_bodycopies');
+			return translate('You can\'t delete the link between the search page and its bodycopies');
+
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -285,7 +289,8 @@ class Search_Page extends Listing_Engine
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'root' :
-				return translate('sch_page_root_node_link_desc');
+				return translate('The root asset from where searches are conducted from');
+
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -726,9 +731,11 @@ class Search_Page extends Listing_Engine
 		if (empty($from_string) && empty($to_string)) {
 			return;
 		} else if (empty($from_string)) {
-			echo translate('sch_page_date_range_prior_to', $to_string);
+			echo sprintf(translate('Prior to %s'), $to_string);
+
 		} else if (empty($to_string)) {
-			echo translate('sch_page_date_range_onwards', $from_string);
+			echo sprintf(translate('%s onwards'), $from_string);
+
 		} else if ($from_string == $to_string) {
 			echo $from_string;
 		} else {
@@ -769,7 +776,8 @@ class Search_Page extends Listing_Engine
 		?>
 		<table border="0" cellspacing="0" cellpadding="0">
 			<tr>
-				<td align="right"><?php echo ucfirst(translate('from')) ?>:</td>
+				<td align="right"><?php echo ucfirst(translate('From')) ?>:</td>
+
 				<td>
 					<?php
 					if ($read_only && $current_value['from'] != '---------- --:--:--') {
@@ -801,7 +809,8 @@ class Search_Page extends Listing_Engine
 				?>
 			</tr>
 			<tr>
-				<td align="right"><?php echo ucfirst(translate('to')) ?>:</td>
+				<td align="right"><?php echo ucfirst(translate('To')) ?>:</td>
+
 				<td>
 					<?php
 					if ($read_only && $current_value['to'] != '---------- --:--:--') {
@@ -1594,8 +1603,10 @@ class Search_Page extends Listing_Engine
 			if (preg_match('/(.+)_query_logic$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$current_logic = array_get_index($_REQUEST, $keyword, array_get_index($fields[$matches[1]], 'word_logic'));
 				$options = Array(
-							'AND'	=> translate('sch_page_format_logic_and'),
-							'OR'	=> translate('sch_page_format_logic_or'),
+							'AND'	=> translate('all of the words'),
+
+							'OR'	=> translate('any of the words'),
+
 						   );
 				ob_start();
 					$this->registerFormField($keyword);
@@ -1950,7 +1961,9 @@ class Search_Page extends Listing_Engine
 					if (preg_match('/(.+)_query_logic$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
-						$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
+						$options = Array('AND' => translate('all of the words'), 'OR' => translate('any of the words'));
+
+
 						ob_start();
 							$this->registerFormField($keyword);
 							combo_box($keyword, $options, FALSE, $current_logic);
@@ -2105,7 +2118,9 @@ class Search_Page extends Listing_Engine
 													'1'	=> $search_styles[$attribute->id]['true_text'],
 												   );
 									} else {
-										$options = Array('0' => translate('false'), '1' => translate('true'));
+										$options = Array('0' => translate('False'), '1' => translate('True'));
+
+
 									}
 									$not_selected_text = array_get_index($search_styles[$attribute->id], 'empty_text');
 								}
@@ -2122,7 +2137,8 @@ class Search_Page extends Listing_Engine
 								$base_url .= '&'.$query_key.'=';
 
 								if ($not_selected_text == '') {
-									$not_selected_text = translate('no_selection');
+									$not_selected_text = translate('No Selection');
+
 								}
 								ob_start();
 									?>
@@ -2333,7 +2349,7 @@ class Search_Page extends Listing_Engine
 		if (!empty($from_date)) {
 			// invalid FROM date?
 			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $from_date, $matches)) {
-				trigger_localised_error('CMS0053', E_USER_WARNING, $from_date);
+				trigger_localised_error('CMS0053', sprintf(translate('From date "%s" is not a valid date. No assets will be displayed.'), $from_date), E_USER_WARNING);
 				return;
 			}
 
@@ -2342,7 +2358,7 @@ class Search_Page extends Listing_Engine
 
 			// invalid FROM time?
 			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $from_time, $matches)) {
-				trigger_localised_error('CMS0054', E_USER_WARNING, $from_time);
+				trigger_localised_error('CMS0054', sprintf(translate('From time "%s" is not a valid time. No assets will be displayed.'), $from_time), E_USER_WARNING);
 				return;
 			}
 			$restrict_date_range_from = $from_date.' '.$from_time;
@@ -2353,7 +2369,7 @@ class Search_Page extends Listing_Engine
 		if (!empty($to_date)) {
 			// invalid TO date?
 			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $to_date, $matches)) {
-				trigger_localised_error('CMS0055', E_USER_WARNING, $to_date);
+				trigger_localised_error('CMS0055', sprintf(translate('To date "%s" is not a valid date. No assets will be displayed.'), $to_date), E_USER_WARNING);
 				return;
 			}
 
@@ -2362,7 +2378,7 @@ class Search_Page extends Listing_Engine
 
 			// invalid TO time?
 			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $to_time, $matches)) {
-				trigger_localised_error('CMS0056', E_USER_WARNING, $to_time);
+				trigger_localised_error('CMS0056', sprintf(translate('To time "%s" is not a valid time. No assets will be displayed.'), $to_time), E_USER_WARNING);
 				return;
 			}
 			$restrict_date_range_to = $to_date.' '.$to_time;
@@ -2454,7 +2470,7 @@ class Search_Page extends Listing_Engine
 			if ($value == $empty_dates) continue;
 
 			if (count($fields[$field_name]['data_sources']) == 0) {
-				trigger_localised_error('SCH0028', E_USER_NOTICE, $field_name);
+				trigger_localised_error('SCH0028', sprintf(translate('The datasource of the search field "%1$s" is not specified'), $field_name), E_USER_NOTICE);
 				continue;
 			}
 
@@ -2795,7 +2811,7 @@ class Search_Page extends Listing_Engine
 
 					case 'metadata' :
 						if (empty($data_source['params']['assetid'])) {
-							trigger_localised_error('SCH0027', E_USER_NOTICE, $field_name);
+							trigger_localised_error('SCH0027', sprintf(translate('You have not selected a metadata field asset for metadata search field "%1$s".  This search field will be ignored.'), $field_name), E_USER_NOTICE);
 							$queries[$field_name] = '';
 							break;
 						}
@@ -3165,9 +3181,11 @@ class Search_Page extends Listing_Engine
 				// work out the query field keywords
 				$fields = $this->attr('fields');
 				foreach ($fields as $field => $field_data) {
-					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
+					$keywords[$field.'_query'] = sprintf(translate('Input field for %s'), $field);
+
 					if ($bodycopy == 'initial') {
-						$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
+						$keywords[$field.'_query_logic'] = sprintf(translate('Word Logic Chooser for %s'), $field);
+
 					}
 				}
 				// work out search category keywords
@@ -3178,10 +3196,12 @@ class Search_Page extends Listing_Engine
 
 			// add in the buttons for the customisation bodycopies
 			if ($bodycopy == 'search_form') {
-				$keywords['submit_button'] = translate('cms_listing_keyword_submit_button');
+				$keywords['submit_button'] = translate('Submit Button');
+
 			}
 			if ($bodycopy == 'sis_form') {
-				$keywords['search_in_search_button'] = translate('sch_page_keyword_sis_button');
+				$keywords['search_in_search_button'] = translate('Search in Search Button');
+
 			}
 
 			if ($bodycopy != 'sis_form' && $bodycopy != 'search_form') {
@@ -3219,8 +3239,10 @@ class Search_Page extends Listing_Engine
 	{
 		$keywords = parent::_getAdditionalSingleAssetFormatKeywords();
 
-		$keywords['result_number'] = translate('sch_page_keyword_result_number');
-		$keywords['score'] = translate('sch_page_keyword_search_score');
+		$keywords['result_number'] = translate('Result Number');
+
+		$keywords['score'] = translate('Search Score');
+
 
 		return $keywords;
 
@@ -3237,7 +3259,8 @@ class Search_Page extends Listing_Engine
 	{
 		$keywords = Array();
 
-		$keywords['search_form'] = translate('sch_page_keyword_search_form');
+		$keywords['search_form'] = translate('Search Form');
+
 
 		return $keywords;
 
@@ -3254,9 +3277,12 @@ class Search_Page extends Listing_Engine
 	{
 		$keywords = Array();
 
-		$keywords['search_form'] = translate('sch_page_keyword_search_form');
-		$keywords['search_in_search_form'] = translate('sch_page_keyword_sis_form');
-		$keywords['search_in_search_button'] = translate('sch_page_keyword_sis_button');
+		$keywords['search_form'] = translate('Search Form');
+
+		$keywords['search_in_search_form'] = translate('Search in Search Form');
+
+		$keywords['search_in_search_button'] = translate('Search in Search Button');
+
 
 		return $keywords;
 

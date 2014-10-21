@@ -63,13 +63,15 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p><em>'.translate('js_api_no_asset_types_selected').'.</em></p>';
+				echo '<p><em>'.translate('No asset types have been selected').'.</em></p>';
+
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('type') ?></th>
+							<th><?php echo translate('Type') ?></th>
+
 						</tr>
 				<?php
 				foreach ($types as $type => $value) {
@@ -120,8 +122,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return FALSE;
 
 	}//end processAssetTypes()
-	
-	
+
+
 	/**
 	* Paints the root node selection box
 	*
@@ -141,7 +143,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 			multiple_asset_finder($prefix.'_roots', $curr_list, Array('asset' => 'D'));
 		} else {
 			if (empty($curr_list)) {
-				echo '<p class="sq-backend-warning"><em>'.translate('js_api_no_root_nodes_selected').'.</em></p>';
+				echo '<p class="sq-backend-warning"><em>'.translate('No root nodes have been selected').'.</em></p>';
+
 			} else {
 				?><ul style="margin:1px 15px;"><?php
 				foreach ($curr_list as $assetid) {
@@ -206,8 +209,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end processRootNode()
-	
-	
+
+
 	/**
 	* Paints the api key field
 	*
@@ -221,18 +224,19 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 	function paintApiKey(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		
+
 		if ($write_access) {
-			text_box($prefix.'_key', $asset->attr('api_key')); 
+			text_box($prefix.'_key', $asset->attr('api_key'));
 		} else {
-			echo '<p><em>'.translate('js_api_api_key_lock').'.</em></p>';
+			echo '<p><em>'.translate('Locks must be aquired to see the api key').'.</em></p>';
+
 		}//end else
 
 		return $write_access;
 
 	}//end paintApiKey()
-	
-	
+
+
 	/**
 	* Processes the value input from the api key field
 	*
@@ -249,8 +253,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('api_key', $_POST[$prefix.'_key']);
 
 	}//end processRootNode()
-	
-	
+
+
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
@@ -272,13 +276,15 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p><em>'.translate('js_api_no_asset_types_selected').'.</em></p>';
+				echo '<p><em>'.translate('No asset types have been selected').'.</em></p>';
+
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('type') ?></th>
+							<th><?php echo translate('Type') ?></th>
+
 						</tr>
 				<?php
 				foreach ($types as $type => $value) {
@@ -299,8 +305,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		}//end else - if write access to content
 
 	}//end paintParentTypes()
-	
-	
+
+
 	/**
 	* Process the asset types to list
 	*
@@ -329,8 +335,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		return FALSE;
 
 	}//end processAssetTypes()
-	
-	
+
+
 	/**
 	* Print set all buttons
 	*
@@ -350,8 +356,8 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 			print_set_all('Yes','1');
 			print_set_all('No','0');
 			echo '</span>';
-		} 
-		
+		}
+
 		return FALSE;
 
 	}//end processAssetTypes()
@@ -392,11 +398,13 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo translate('standard_mode_deprecated'); ?>
+						<?php echo translate('Standard Mode Deprecated'); ?>
+
 					</th>
-				</tr>	
+				</tr>
 				<tr>
-					<td colspan="2" ><?php echo translate('standard_mode_deprecated_note'); ?>
+					<td colspan="2" ><?php echo translate('"Standard Mode" for JS API Asset has been deprecated since Matrix version 5.1. This won\'t be available for use in future MINOR Matrix releases. It is strongly recommended that you replace this by using Enhanced JS API in your Matrix system.'); ?>
+
 					</td>
 				</tr>
 			</table>
@@ -404,7 +412,7 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		<?php
 
 		return TRUE;
-	
+
 	}//end paintWarning()
 
 

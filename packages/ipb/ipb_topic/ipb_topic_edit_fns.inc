@@ -62,14 +62,17 @@ class Ipb_Topic_Edit_Fns extends Ipb_Forum_Edit_Fns
 			$ipb =& $ipb_bridge->getIpbConn();
 			$result = $ipb->getMemberInfoByName($starter_name);
 
-			$o->openField(translate('topic_started_by'));
+			$o->openField(translate('Topic started by'));
+
 				echo get_asset_tag_line($asset->_ipbid.':'.'u_'.$result['id']);
 			$o->closeField();
 
 		} else {
 
-			$o->openField(translate('topic_started_by'));
-				echo translate('none');
+			$o->openField(translate('Topic started by'));
+
+				echo translate('None');
+
 			$o->closeField();
 
 		}
@@ -98,14 +101,17 @@ class Ipb_Topic_Edit_Fns extends Ipb_Forum_Edit_Fns
 			$ipb =& $ipb_bridge->getIpbConn();
 			$result = $ipb->getMemberInfoByName($asset->attr('last_poster_name'));
 
-			$o->openField(translate('last_posted_by'));
+			$o->openField(translate('Last posted by'));
+
 				echo get_asset_tag_line($asset->_ipbid.':'.'u_'.$result['id']);
 			$o->closeField();
 
 		} else {
 
-			$o->openField(translate('last_posted_by'));
-				echo translate('none');
+			$o->openField(translate('Last posted by'));
+
+				echo translate('None');
+
 			$o->closeField();
 
 		}

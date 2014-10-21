@@ -156,12 +156,12 @@ class Session_Handler_Default extends Session_Handler
 		$session_file = session_save_path().'/sess_'.$session_id;
 
 		if (!file_exists($session_file)) {
-			trigger_localised_error('CORE0072', E_USER_WARNING, $session_file);
+			trigger_localised_error('CORE0072', sprintf(translate('Session file "%s" does not exist'), $session_file), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!is_array($session_contents)) {
-			trigger_localised_error('CORE0004', E_USER_WARNING, gettype($session_contents));
+			trigger_localised_error('CORE0004', sprintf(translate('Array expected for second argument, got %s'), gettype($session_contents)), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -171,7 +171,7 @@ class Session_Handler_Default extends Session_Handler
 		}
 
 		if (!string_to_file($session_str, $session_file)) {
-			trigger_localised_error('CORE0021', E_USER_WARNING, $session_file);
+			trigger_localised_error('CORE0021', sprintf(translate('Unable to write to session file "%s"'), $session_file), E_USER_WARNING);
 			return FALSE;
 		}
 		return TRUE;
@@ -212,7 +212,7 @@ class Session_Handler_Default extends Session_Handler
 
 		if (!is_array($pri_sess)) {
 			// something is definately wrong
-			trigger_localised_error('CORE0071', E_USER_ERROR);
+			trigger_localised_error('CORE0071', translate('Primary session is corrupt'), E_USER_ERROR);
 			return FALSE;
 		}
 
@@ -250,7 +250,7 @@ class Session_Handler_Default extends Session_Handler
 
 		// *** JEDI MIND TRICK *** you did not see us doing this... move along
 		if (!self::serialiseSession($pri_sessionid, $pri_sess)) {
-			trigger_localised_error('CORE0020', E_USER_ERROR);
+			trigger_localised_error('CORE0020', translate('Unable to write session back to primary session file'), E_USER_ERROR);
 			return FALSE;
 		}
 		return TRUE;

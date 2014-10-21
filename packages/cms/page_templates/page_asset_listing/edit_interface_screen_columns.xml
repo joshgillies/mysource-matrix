@@ -18,20 +18,28 @@
 <contents>
 	<section name="Column Settings" write_access="write:attributes"  limbo_access="1">
 		<field>
+			<display_name>Current Settings</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintColumnSettings"   />
 				<process_function name="processColumnSettings" />
 			</function_call>
 		</field>
         <field attribute="column_layout_type">
+			<display_name>Column Type</display_name>
+			<note>Generate the column in table style or using a div for each row</note>
 			<selection style="list" />
 		</field>
         <field attribute="div_row_class">
+            <display_name>Row Class</display_name>
+			<note>If column type is Div based, a style class can be specified for each row</note>
 			<text width="30" />
 		</field>
 	</section>
 	<section name="Column Layout Preview"  limbo_access="1">
 		<field>
+			<display_name />
+			<note></note>
 			<function_call>
 				<paint_function   name="paintColumnPreview"   />
 				<process_function name="processColumnPreview" />

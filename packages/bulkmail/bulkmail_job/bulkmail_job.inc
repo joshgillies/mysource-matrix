@@ -94,7 +94,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$details_info = $bm->generateJobDetails($this, $post_office);
 		$errors = $bm->isValidJob($details_info, TRUE);
 		if (!empty($errors)) {
-			trigger_localised_error('BML0001', E_USER_WARNING, $errors[0]);
+			trigger_localised_error('BML0001', sprintf(translate('Invalid job. %s'), $errors[0]), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -161,7 +161,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$status = @$mail_object->send($recipient, $headers, $body);
 		if ($status instanceof PEAR_Error) {
 			// unable to send bulkmail
-			trigger_localised_error('BML0002', E_USER_WARNING, $status->getMessage());
+			trigger_localised_error('BML0002', sprintf(translate('Post Office Server Details Error: Unable to send preview mail, %s.'), $status->getMessage()), E_USER_WARNING);
 			return FALSE;
 		}
 

@@ -73,7 +73,8 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	*/
 	public function getHipoName()
 	{
-		return translate('squid_hipo_name_clear_squid_cache');
+		return translate('Clear Squid Cache');
+
 
 	}//end getHipoName()
 
@@ -89,7 +90,8 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('squid_hipo_clearing_squid_cache'),
+					'name'			=> translate('Clearing Squid Cache'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processClearCache',
 									   ),
@@ -153,7 +155,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 		} else if ($this->_running_vars['cascade'] === '0' || $this->_running_vars['cascade'] === FALSE ) {
 			$this->_running_vars['cascade'] = 'single';
 		}
-		
+
 
 		// if cascade option is enabled, get the children of the selected asset
 		$assetids = is_array($this->_running_vars['assetid']) ? $this->_running_vars['assetid'] : Array($this->_running_vars['assetid']);
@@ -248,17 +250,22 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 
 						// error_log("\n\t"."$path -h $hostname $port $options -m PURGE $protocol://$url \n". serialize($output)."\n");
 						if (empty($output)) {
-							trigger_localised_error('SQUID0002', E_USER_WARNING);
+							trigger_localised_error('SQUID0002', translate('Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Squid Cache section of External Tools Configuration.'), E_USER_WARNING);
 						} else {
 							// add a system log message if successful
 							$msg = $ms->newMessage();
 							$msg->type = 'purge.squid.cache';
 							$msg->from = 0; // a system message
-
+							$msg->subject = translate('Purge Squid Cache');
+							$msg->body = '%command%'."\n".'%result%';
 							$command_str = $system_log_command;
-							$repopulate = ($this->_running_vars['repopulate']) ? translate('yes') : translate('no');
+							$repopulate = ($this->_running_vars['repopulate']) ? translate('Yes') : translate('No');
+
+
 							$command_str .= "\nRepopulate Cache: ".$repopulate;
-							$cascade = ($this->_running_vars['cascade']) ? translate('yes') : translate('no');
+							$cascade = ($this->_running_vars['cascade']) ? translate('Yes') : translate('No');
+
+
 							$command_str .= ', Cascade: '.$cascade;
 							$system_log_output = "Output : \n";
 							foreach ($output as $key=>$line) {
@@ -289,7 +296,8 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			}
 
 			// add this url to the done array
-			$step_data['message'] = translate('squid_clearing_squid_cache', $url);
+			$step_data['message'] = sprintf(translate('Clearing %s'), $url);
+
 			$this->_running_vars['done_urls'][] = $url;
 
 			// clean up

@@ -42,8 +42,8 @@
 		<table class="sq-backend-table compact">
 			<tr><th colspan="2">Unattached Questions</th></tr>
 			<?php
-				foreach ($questions as $q_id => $question) { 
-				?>							
+				foreach ($questions as $q_id => $question) {
+				?>
 					<tr>
 						<td>%response_<?php echo $asset->id.'_q'.$q_id; ?>%</td>
 						<td><?php echo get_asset_tag_line($asset->id.':q'.$q_id); ?></td>
@@ -63,7 +63,7 @@
 					<?php
 						$replacements['section_title_'.$section->id] = $section->attr('name');
 						$questions = $section->getQuestions();
-						foreach ($questions as $q_id => $question) { 
+						foreach ($questions as $q_id => $question) {
 							?>
 								<tr>
 									<td>%response_<?php echo $section->id.'_q'.$q_id; ?>%</td>

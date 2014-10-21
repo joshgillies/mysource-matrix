@@ -69,7 +69,8 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 			<table class="sq-backend-table" style="width: 350px;">
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('show_line_numbers'); ?>
+						<?php echo translate('Show Line Numbers:'); ?>
+
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
@@ -79,20 +80,24 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('line_number_orientation'); ?>
+						<?php echo translate('Line Number Orientation:'); ?>
+
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 						radio_button($prefix.'_line_number_left', 'left', $line_number_prefs['line_number_left'] == TRUE);
-						label(translate('left'), $prefix.'_line_number_left');
+						label(translate('Left'), $prefix.'_line_number_left');
+
 						radio_button($prefix.'_line_number_left', 'right', $line_number_prefs['line_number_left'] == FALSE);
-						label(translate('right'), $prefix.'_line_number_left');
+						label(translate('Right'), $prefix.'_line_number_left');
+
 					?>
 					</td>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('line_number_style'); ?>
+						<?php echo translate('Line Number Style:'); ?>
+
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
@@ -102,7 +107,8 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 				</tr>
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
-						<?php echo translate('line_number_class'); ?>
+						<?php echo translate('Line Number Class:'); ?>
+
 					</td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php

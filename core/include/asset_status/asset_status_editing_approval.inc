@@ -61,7 +61,8 @@ class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
 	*/
 	public static function getDescription()
 	{
-		return translate('status_editing_approval');
+		return translate('Safe Editing Pending Approval');
+
 
 	}//end getDescription()
 

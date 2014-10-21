@@ -113,7 +113,8 @@ class Trigger_Condition_Status extends Trigger_Condition
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_has_status_basic', $basic_part_1);
+		return sprintf(translate('Asset has the current status of: %s'), $basic_part_1);
+
 
 	}//end getInterface()
 
@@ -139,7 +140,8 @@ class Trigger_Condition_Status extends Trigger_Condition
 			$settings['status'] = $status;
 			return FALSE;
 		} else {
-			return translate('trigger_selected_status_invalid');
+			return translate('Selected status is invalid');
+
 		}
 
 	}//end processInterface()

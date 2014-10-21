@@ -106,7 +106,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 						 );
 			$parsed_datetime = date('Y-m-d H:i:s', $timestamp);
 			if (strcmp($parsed_datetime, $datetime) != 0) {
-				trigger_localised_error('SYS0311', E_USER_NOTICE, $datetime);
+				trigger_localised_error('SYS0311', sprintf(translate('%1$s is not a valid date/time.  The field value has been adjusted to the closest valid value.'), $datetime), E_USER_NOTICE);
 			}
 
 			// Set a one-off job to run based on the supplied attribute value
@@ -177,6 +177,13 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 								SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 								SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
 							   );
+
+		$section_titles = Array(
+		                    'new_link_type'   => translate('New Link Type'),
+		                    'new_link_parent' => translate('New Link Parent'),
+		                    'at'              => translate('At'),
+		                  );
+
 		ob_start();
 			combo_box($prefix.'[link_type]', $editable_link_types, FALSE, $settings['link_type']);
 		$output['new_link_type'] = ob_get_clean();
@@ -187,7 +194,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			echo ' ';
 			check_box($prefix.'[delete_link_all]', 1, $settings['delete_link_all']);
 			echo ' ';
-			label(translate('cron_fl_delete_all_existing_links_long'), $prefix.'[delete_link_all]');
+			label(translate('Delete all existing links'), $prefix.'[delete_link_all]');
+
 		$output['new_link_parent'] = ob_get_clean();
 
 		// We'll use the cron job we're going to create to print the 'when' part of the interface.
@@ -211,12 +219,14 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			echo ' attribute ';
 
 			if ($selected_type == '') {
-				echo '<b>['.translate('asset_type_not_selected').']</b';
+				echo '<b>['.translate('asset type not selected').']</b';
+
 			} else {
 				$attribute = array_get_index($settings, 'attribute', '');
 				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type);
 				if (empty($attrs)) {
-					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+					echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 				} else {
 					if ($write_access) {
 						$attr_options = Array();
@@ -228,7 +238,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 						if (count($attr_options) > 0) {
 							combo_box($prefix.'[attribute]', $attr_options, FALSE, $attribute);
 						} else {
-							echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+							echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 						}
 					} else {
 						echo '<b>'.$attribute.'</b>';
@@ -249,7 +260,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		ob_start();
 			?><table class="sq-backend-table"><?php
 				foreach ($output as $title => $text) {
-					?><tr><th><?php echo translate($title); ?></th><td><?php echo $text; ?></td></tr><?php
+					?><tr><th><?php echo $section_titles[$title]; ?></th><td><?php echo $text; ?></td></tr><?php
 				}
 			?></table><?php
 		return ob_get_clean();

@@ -286,13 +286,15 @@ function confirmDrag(movingElt, newCell)
 
 	// can't drag in or out of the 'other' column
 	if (Boolean(old_time == 'allday') != Boolean(new_time == 'allday')) {
-		statusBarMsg(js_translate('cal_page_all_day_cannot_drag'));
+		statusBarMsg(js_translate('Events cannot be dragged in or out of the "all day" row'));
+
 		return false;
 	}
 
 	// can't drag in or out of the 'all day' row
 	if (Boolean(old_loc == '*') != Boolean(new_loc == '*')) {
-		statusBarMsg(js_translate('cal_page_other_cannot_drag'));
+		statusBarMsg(js_translate('Events cannot be dragged in or out of the "other" column'));
+
 		return false;
 	}
 	toggleFlashing(movingElt.id);

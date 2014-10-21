@@ -65,7 +65,7 @@ class Image_Variety extends Asset
 		$this->data_path        = $image->data_path.'/varieties';
 		$this->data_path_suffix = $image->data_path_suffix.'/varieties';
 		$this->data_path_public = $image->data_path_public.'/varieties';
-		
+
 		// use image's alt attribute
 		if(!isset($data['alt'])) {
 		    $data['alt'] = $image->attr('alt');
@@ -107,10 +107,10 @@ class Image_Variety extends Asset
 		switch ($name) {
 			case 'name' :
 				if (trim($this->attr('name')) != '') {
-					trigger_localised_error('CORE0116', E_USER_WARNING);
+					trigger_localised_error('CORE0116', translate('Unable to change the name of a variety'), E_USER_WARNING);
 					return FALSE;
 				} else if (trim($value) == '') {
-					trigger_localised_error('CORE0120', E_USER_WARNING);
+					trigger_localised_error('CORE0120', translate('Unable to set a blank name for a variety'), E_USER_WARNING);
 				} else {
 					// make sure the name is valid for a web path
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -121,11 +121,11 @@ class Image_Variety extends Asset
 			case 'width' :
 			case 'height' :
 				if ((int) $value < 0) {
-					trigger_localised_error('CORE0101', E_USER_WARNING, $name, $this->name, $this->id);
+					trigger_localised_error('CORE0101', sprintf(translate('Unable to set %1$s in "$%2$s" (#%3$s) - it must be greater than or equal to zero'), $name, $this->name, $this->id), E_USER_WARNING);
 					return FALSE;
 				}
 				if ((int) $value == 0 && ($this->attr('constrain') == 'none' || ($this->attr('constrain') == $name && $this->attr('variety_type') == 'resize'))) {
-					trigger_localised_error('CORE0102', E_USER_WARNING, $name, $this->name, $this->id);
+					trigger_localised_error('CORE0102', sprintf(translate('Unable to set %1$s in "%2$s" (#%3$s) - it must be greater than zero if it is going to be constrained to'), $name, $this->name, $this->id), E_USER_WARNING);
 					return FALSE;
 				}
 				// If constrain = dimension but there's none set, use the value from here
@@ -180,13 +180,13 @@ class Image_Variety extends Asset
 		if (empty($this->_tmp['vars_set'])) return TRUE;
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
-			trigger_localised_error('CORE0121', E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CORE0121', sprintf(translate('You do not have permission to save the attributes of "%1$s" (#%2$s)'), $this->name, $this->id), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if ($this->attr('variety_type') == 'resize' && $this->attr('constrain') != 'none' && $this->attr('constrain') != 'centre_weighted_square') {
 			if ((int) $this->attr($this->attr('constrain')) == 0) {
-				trigger_localised_error('CORE0096', E_USER_WARNING, $this->name, $this->id, $this->attr('constrain'));
+				trigger_localised_error('CORE0096', sprintf(translate('Unable to save "%1$s" (#%2$s) - Unable to constrain by %3$s and have %3$s set to zero'), $this->name, $this->id, $this->attr('constrain')), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -297,7 +297,7 @@ class Image_Variety extends Asset
 			switch ($this->attr('constrain')) {
 				case 'width' :
 					if ($d_width <= 0) {
-						trigger_localised_error('CORE0007', E_USER_WARNING);
+						trigger_localised_error('CORE0007', translate('Unable to constrain to width if width is zero'), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -306,7 +306,7 @@ class Image_Variety extends Asset
 
 				case 'height' :
 					if ($d_height <= 0) {
-						trigger_localised_error('CORE0006', E_USER_WARNING);
+						trigger_localised_error('CORE0006', translate('Unable to constrain to height if height is zero'), E_USER_WARNING);
 						return FALSE;
 					}
 					$d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
@@ -339,7 +339,7 @@ class Image_Variety extends Asset
 			}
 
 			if ($d_width <= 0 || $d_height <= 0) {
-				trigger_localised_error('CORE0005', E_USER_WARNING);
+				trigger_localised_error('CORE0005', translate('Both height and width needs to be greater than zero'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -353,7 +353,7 @@ class Image_Variety extends Asset
 					$up_to_date = $fv->upToDate($d_new_file);
 					if ($up_to_date & FUDGE_FV_OLD_VERSION) {
 						if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-							trigger_localised_error('COR0103', E_USER_WARNING);
+							trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING);
 							return FALSE;
 						}
 					}
@@ -374,7 +374,7 @@ class Image_Variety extends Asset
 					$fv->add($this->data_path_suffix, $d_new_file, '');
 
 					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-						trigger_localised_error('COR0103', E_USER_WARNING);
+						trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -436,7 +436,7 @@ class Image_Variety extends Asset
 
 		} else {
 			if (!($fv->remove($d_file, '') & FUDGE_FV_OK)) {
-				trigger_localised_error('CORE0041', E_USER_WARNING, $d_filename);
+				trigger_localised_error('CORE0041', sprintf(translate('Failed removing "%s" from the repository'), $d_filename), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -459,7 +459,7 @@ class Image_Variety extends Asset
 	function checkFileState($public)
 	{
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
-		
+
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -479,7 +479,7 @@ class Image_Variety extends Asset
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
-					trigger_localised_error('COR0103', E_USER_WARNING);
+					trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -487,7 +487,7 @@ class Image_Variety extends Asset
 			// need to make sure our file is in the NOT in the public data directory
 			if (is_file($unrestricted)) {
 				if (!$fv->clearOut($unrestricted) & FUDGE_FV_OK) {
-					trigger_localised_error('COR0104', E_USER_WARNING);
+					trigger_localised_error('CORE0104', translate('Update failed deleting file from public data directory'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -514,7 +514,7 @@ class Image_Variety extends Asset
 		if (is_file($unrestricted)) {
 			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			if (!$fv->clearOut($unrestricted) & FUDGE_FV_OK) {
-				trigger_localised_error('COR0104', E_USER_WARNING);
+				trigger_localised_error('CORE0104', translate('Update failed deleting file from public data directory'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -549,7 +549,7 @@ class Image_Variety extends Asset
 		// if there is no current file or if the current file is out of date, check out a fresh copy
 		if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 			if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
-				trigger_localised_error('COR0103', E_USER_WARNING);
+				trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -576,7 +576,7 @@ class Image_Variety extends Asset
 		}
 
 		if (!$public && !$safe_edit) return parent::updateLookups();
-		
+
 		// if safe edit status, we still want to insert standard matrix urls
 		if($safe_edit) parent::updateLookups();
 
@@ -588,7 +588,7 @@ class Image_Variety extends Asset
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
-		
+
 		if($safe_edit) {
 		    // If it's safe edit status, we just want to remove those __data urls because we will insert proper ones later
 		    try {
@@ -616,11 +616,11 @@ class Image_Variety extends Asset
 		    $GLOBALS['SQ_SYSTEM']->setCurrentUser($public_user);
 		    $variety = $image->getAsset($this->id);
 		    $filename = $variety->attr('filename');
-		    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();	    
+		    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 		}
 
-		
-		// if the public version of the file doesn't even exist in __data, it means this variety is just created, don't bother insert __data urls for it	
+
+		// if the public version of the file doesn't even exist in __data, it means this variety is just created, don't bother insert __data urls for it
 		// if there is no filename there is nothing more for us to do
 		if (!$filename || ($safe_edit && !is_file($this->data_path_public.'/'.$filename))) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -811,7 +811,9 @@ class Image_Variety extends Asset
 		}
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
 

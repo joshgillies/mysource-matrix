@@ -79,21 +79,17 @@ class Condition_Referrer_Url extends Condition
 	/**
 	* Get a list of match keywords
 	*
-	* For User IP condition, we are not using the true/false condition - we are
-	* using our own Grant/Deny logic. Therefore we will limit the 'match'
-	* condition to just the TRUE condition
-	*
 	* @param string	$type_code	the type code of this asset
 	*
 	* @return array
 	* @access public
 	* @static
 	*/
-	public static function getMatchKeywords($type_code)
+	public static function getMatchKeywords()
 	{
 		$match_options = Array(
-							'1'	=> translate($type_code.'_true'),
-							'0' => translate($type_code.'_false'),
+							'1'	=> translate('The page referrer URL matches any of the following patterns'),
+							'0' => translate('The page referrer URL does NOT match any of the following patterns'),
 						 );
 
 		return $match_options;

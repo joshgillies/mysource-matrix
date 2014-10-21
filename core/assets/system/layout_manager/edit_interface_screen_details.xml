@@ -15,25 +15,31 @@
 */
 -->
 <contents>
-	<section name="CSS Settings" write_access="write:attributes">
-		<field attribute="edit_css">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Edit Layouts">
-		<field read_access="write:" write_access="write:">
-			<function_call>
-				<paint_function		name="paintEditLayouts" />
-				<process_function	name="processEditLayouts" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Add A Layout">
-		<field read_access="write:" write_access="write:">
-			<function_call>
-				<paint_function		name="paintAddLayout" />
-				<process_function	name="processAddLayout" />
-			</function_call>
-		</field>
-	</section>
+    <section name="CSS Settings" write_access="write:attributes">
+        <field attribute="edit_css">
+            <display_name>Output Edit CSS file?</display_name>
+            <note>If this option is disabled, no Simple Edit formatting will be provided by MySource Matrix.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Edit Layouts">
+        <field read_access="write:" write_access="write:">
+            <display_name></display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintEditLayouts" />
+                <process_function name="processEditLayouts" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Add A Layout">
+        <field read_access="write:" write_access="write:">
+            <display_name></display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintAddLayout" />
+                <process_function name="processAddLayout" />
+            </function_call>
+        </field>
+    </section>
 </contents>

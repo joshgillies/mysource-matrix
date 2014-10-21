@@ -26,6 +26,8 @@
 	</section>
 	<section name="Date Range Settings" write_access="write:attributes">
 		<field attribute="date_field">
+			<display_name>Date Field</display_name>
+			<note>This is the date used to determine if something is "new"</note>
 			<selection style="list" />
 		</field>
 		<field>
@@ -61,6 +63,8 @@
 			</function_call>
 		</field>
 		<field attribute="exclude_current_asset" write_access="write:attributes">
+			<display_name>Exclude This Asset</display_name>
+			<note>If set to 'Yes', this asset will not list the Asset thats been currently been accessed.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
@@ -84,12 +88,18 @@
 			</function_call>
 		</field>
 		<field attribute="link_value_filter">
+			<display_name>Link Types</display_name>
+			<note>Only assets that are linked underneath the root node(s) with the appropriate link types will be listed. The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links. This setting only applies when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned on.</note>
 			<text width="50" height="1" />
 		</field>
 		<field attribute="link_value_filter_logic">
+			<display_name>Link Value Filtering Logic</display_name>
+			<note>This specifies if assets returned should have link value equal or different from the 'Link Value' field. You will need to enable 'Link Value Filtering'.</note>
 			<boolean true_text="match" false_text="does_not_match" />
 		</field>
 		<field attribute="link_value_filter_enabled">
+			<display_name>Enable Link Value Filtering</display_name>
+			<note>If set to 'Yes' and lookup direction is set to 'down the tree', only assets with the link value equal to the 'Link Value' field will be returned. If set to 'Yes' and the lookup direction is set as 'up the tree', only parents of children assets with the link value equal to the 'Link Value' field will be returned.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
@@ -149,6 +159,8 @@
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes" limbo_access="1">
 		<field attribute="parameter_map" format="new_line">
+			<display_name />
+			<note />
 			<parameter_map />
 		</field>
 	</section>

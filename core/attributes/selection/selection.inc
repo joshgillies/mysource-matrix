@@ -133,7 +133,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('style'); ?></td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('Style'); ?></td>
+
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) {
@@ -157,7 +158,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('height'); ?></td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('Height'); ?></td>
+
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) {
@@ -169,7 +171,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('columns'); ?></td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('Columns'); ?></td>
+
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) {
@@ -184,7 +187,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			if ($this->_params['allow_empty']) {
 				?>
 				<tr>
-					<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('empty_text'); ?></td>
+					<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('Empty Text'); ?></td>
+
 					<td class="sq-backend-table-cell">
 						<?php
 						if ($write_access) {
@@ -308,7 +312,8 @@ function paint($prefix, $read_only=FALSE)
 			if (!isset($options[$value])) {
 				// may be an "other" choice
 				if ($this->_params['allow_other']) {
-					echo translate('other').': '.$value;
+					echo translate('Other').': '.$value;
+
 				}
 				// may have a value left over from when we
 				// were a mutiple selection field
@@ -341,7 +346,8 @@ function paint($prefix, $read_only=FALSE)
 
 		if ($this->_edit_params['style'] == 'list') {
 			if (empty($this->_params['multiple']) && $this->_params['allow_other']) {
-				$options['__other__'] = translate('other');
+				$options['__other__'] = translate('Other');
+
 				$onchange_code = 'document.getElementById(\''.$prefix.'_other\').style.visibility = (this.options[this.selectedIndex].value == \'__other__\') ? \'visible\' : \'hidden\'';
 				$onchange_pos = strpos(strtolower($this->_edit_params['extras']), 'onchange=');
 				if (FALSE === $onchange_pos) {
@@ -360,7 +366,8 @@ function paint($prefix, $read_only=FALSE)
 			}
 		} else {
 			if (empty($this->_params['multiple']) && $this->_params['allow_other']) {
-				$options['__other__'] = translate('other');
+				$options['__other__'] = translate('Other');
+
 				$onclick_pos = strpos(strtolower($this->_edit_params['extras']), 'onchange=');
 				if (FALSE === $onclick_pos) {
 					$this->_edit_params['extras'] .= ' onclick="%on_click%"';

@@ -198,7 +198,8 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		// Painting the interface
 		ob_start();
 			echo '<div class="sq-break-line-inputs">';
-			echo translate('trigger_create_image_variety_basic', $basic_part_1);
+			echo sprintf(translate('Create an Image Variety with the name: <strong>%1$s</strong>'), $basic_part_1);
+
 			echo '<br />';
 
 			$js_prefix = preg_replace('/[^a-z0-9_]/', '_', $prefix);
@@ -241,7 +242,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "inline-block";
 					}//end if
 					return true;
-					
+
 				}// end <?php echo $prefix; ?>_update_visible_fields()
 
 				// -->
@@ -249,14 +250,20 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		<?php
 			$javascript = 'onchange="return '.$js_prefix.'_update_visible_fields();"';
 			$options = Array(
-						'width'						=> translate('width'),
-						'height'					=> translate('height'),
-						'dimension'					=> translate('both'),
-						'none'						=> translate('neither'),
-						'centre_weighted_square'	=> translate('square_center_weighted'),
+						'Width'						=> translate('Width'),
+
+						'Height'					=> translate('Height'),
+
+						'dimension'					=> translate('Both'),
+
+						'none'						=> translate('Neither'),
+
+						'centre_weighted_square'	=> translate('Centre-Weighted Square'),
+
 					   );
-			
-			echo translate('constrain_by').': ';
+
+			echo translate('Constrain by').': ';
+
 			if ($write_access) {
 				combo_box($prefix.'[constrain]', $options, FALSE, $settings['constrain'], 0, $javascript);
 			} else {
@@ -266,7 +273,8 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 			echo '<div id="'.$prefix.'_width_section" style="display:'.$width_section_display_style.'">';
 			echo '<span id="'.$prefix.'_width_label" style="display:'.$width_display_style.'; width: 75px;">';
-			echo translate('width').':';
+			echo translate('Width').':';
+
 			echo '&nbsp;</span>';
 			if ($write_access) {
 				int_text_box($prefix.'[width]', $settings['width'], FALSE, 6);
@@ -278,10 +286,12 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 			echo '<div id="'.$prefix.'_height_section" style="display:'.$height_section_display_style.'">';
 			echo '<span id="'.$prefix.'_height_label" style="display:'.$height_display_style.'; width: 75px;">';
-			echo translate('height').':';
+			echo translate('Height').':';
+
 			echo '&nbsp;</span>';
 			echo '<span id="'.$prefix.'_dimension_label" style="display:'.$dimension_display_style.'; width: 75px;">';
-			echo translate('dimension').':';
+			echo translate('Dimension').':';
+
 			echo '&nbsp;</span>';
 			if ($write_access) {
 				int_text_box($prefix.'[height]', $settings['height'], FALSE, 6);
@@ -314,16 +324,19 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_missing');
+			return translate('Input Data is missing');
+
 		}
 
 		// check if the name, constrain, width and height are set
 		if (empty($request_data['name'])) {
-			return translate('trigger_variety_name_cannot_be_empty');
+			return translate('Variety name cannot be empty');
+
 		}
 
 		if (!isset($request_data['constrain']) || !isset($request_data['width']) || !isset($request_data['height'])) {
-			return translate('trigger_require_constrain_width_height');
+			return translate('must have constrain, height and width set, even if one is zero');
+
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
@@ -333,22 +346,30 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		// name
 		if (!$variety->setAttrValue('name', $request_data['name'])) {
-			return translate('trigger_cannot_set_variety_value', translate('name'));
+			return sprintf(translate('Unable to set the variety\'s "%s" value'), translate('Name'));
+
+
 		}
 
 		// constrain
 		if (!$variety->setAttrValue('constrain', $request_data['constrain'])) {
-			return translate('trigger_cannot_set_variety_value', translate('constrain'));
+			return sprintf(translate('Unable to set the variety\'s "%s" value'), translate('constrain'));
+
+
 		}
 
 		// width
 		if (!$variety->setAttrValue('width', $request_data['width'])) {
-			return translate('trigger_cannot_set_variety_value', translate('width'));
+			return sprintf(translate('Unable to set the variety\'s "%s" value'), translate('Width'));
+
+
 		}
 
 		// height
 		if (!$variety->setAttrValue('height', $request_data['height'])) {
-			return translate('trigger_cannot_set_variety_value', translate('height'));
+			return sprintf(translate('Unable to set the variety\'s "%s" value'), translate('Height'));
+
+
 		}
 
 		unset($variety);

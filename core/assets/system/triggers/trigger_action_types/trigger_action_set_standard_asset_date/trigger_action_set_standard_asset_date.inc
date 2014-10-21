@@ -171,9 +171,9 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 
 		$state['asset']->$date_field = $when;
 		$state['asset']->$date_field_userid = $userid;
-		
+
 		$em->broadcastEvent($state['asset'], 'AssetUpdate', $changed_data);
-		
+
 		return Array(
 				'assetid'		=> $state['asset']->id,
 				'userid'		=> $userid,
@@ -235,37 +235,43 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 		}
 
 		echo '<p>';
-		label(translate('set_standard_date_field_type').': ', $prefix.'_date_field');
+		label(translate('Set the following standard asset date field').': ', $prefix.'_date_field');
+
 		if ($write_access) {
 			combo_box($prefix.'_date_field', $date_field_types, FALSE, $settings['date_field']);
 		} else {
-			echo '<strong>'.translate($settings['date_field']).'</strong>';
+			echo '<strong>'.$date_field_types[$settings['date_field']].'</strong>';
 		}
 		echo '</p>';
 
 		$formats = Array();
 
 		ob_start();
-			label(translate('immediately_when_trigger_fired'), $prefix.'_when_type_on_trigger_fire');
+			label(translate('To the time when the trigger was fired'), $prefix.'_when_type_on_trigger_fire');
+
 		$formats['on_trigger_fire'] = ob_get_clean();
 
 		ob_start();
-			label(translate('to_this_exact_time').' ', $prefix.'_when_type_explicit_exact');
+			label(translate('To this exact time').' ', $prefix.'_when_type_explicit_exact');
+
 			$datetime->paint($prefix.'_explicit_exact', !$write_access);
 		$formats['explicit_exact'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_asset_attribute').'&nbsp', $prefix.'_as_determined_from_attr');
+			label(translate('To the value of this Asset Attribute').'&nbsp', $prefix.'_as_determined_from_attr');
+
 			echo self::getAttributeChooser($prefix.'_exact_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
 		$formats['by_attr_value'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_metadata_field').'&nbsp;', $prefix.'_as_determined_from_meta');
+			label(translate('To the value of this Metadata Field').'&nbsp;', $prefix.'_as_determined_from_meta');
+
 			$metadata_field_id = $settings['when_meta_field_id'];
 			if ($write_access) {
 				asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
 				?>
-				<p><?php echo translate('trigger_action_future_status_date_format'); ?></p>
+				<p><?php echo translate('<strong>Note:</strong> Metadata Date Field must provide ISO8601 format as "Y-m-d H:i:s".'); ?></p>
+
 				<?php
 			} else {
 				if ($metadata_field_id) {
@@ -308,21 +314,27 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 		}
 
 		echo '<br/><br/><p>';
-		label(translate('offset_for_above_fields').': ', $prefix.'_offset');
+		label(translate('Offset for the above fields').': ', $prefix.'_offset');
+
 		if ($write_access) {
 			$duration->paint($prefix.'_offset_value', !$write_access);
 			echo ' ';
 			combo_box($prefix.'_offset_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($settings['offset'] < 0) ? '-' : '+');
-			echo ' '.translate('specified_value');
+
+
+			echo ' '.translate('the specified value');
+
 		} else {
 			echo '<strong>';
 			$duration->paint($prefix.'_offset_value', !$write_access);
 			echo ' ';
 			echo translate(($settings['offset'] < 0) ? 'before' : 'after');
-			echo ' '.translate('specified_value');
+			echo ' '.translate('the specified value');
+
 			echo '</strong>';
 		}
-		echo '<br />'.translate('offset_ignored_for_exact_time').'</p>';
+		echo '<br />'.translate('<strong>Note:</strong> When an exact time is set, the offset setting is ignored.').'</p>';
+
 
 		return ob_get_clean();
 
@@ -423,10 +435,11 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 	protected static function _getValidDateTypes()
 	{
 		$date_types = Array(
-						'created'	=> translate('created_date'),
-						'published'	=> translate('published_date'),
-						'updated'	=> translate('last_updated_date'),
-						'status_changed'	=> translate('status_changed_date'),
+						'created'	        => translate('Created Date'),
+						'published'      	=> translate('Published Date'),
+						'updated'	        => translate('Last Updated Date'),
+						'status_changed'	=> translate('Status Changed Date'),
+
 					  );
 		return $date_types;
 
@@ -457,11 +470,13 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 
 		ob_start();
 			if ($type == '') {
-				echo '<em>['.translate('asset_type_not_selected').']</em>';
+				echo '<em>['.translate('asset type not selected').']</em>';
+
 			} else {
 				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type, Array('name', 'type'));
 				if (empty($attrs)) {
-					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+					echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 				} else {
 					if ($write_access) {
 						$attr_options = Array();

@@ -711,7 +711,8 @@ function prependClearButton(elt, inherit)
 	newButton = document.createElement('input');
 	newButton.type = 'button';
 	newButton.style.marginBottom = '3px';
-	newButton.value = js_translate('clear');
+	newButton.value = js_translate('Clear');
+
 	if (inherit) {
 		newButton.onclick = new Function("resetLastSelect(this); clearLastCheckbox(this);");
 	} else {

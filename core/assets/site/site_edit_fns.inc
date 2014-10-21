@@ -541,7 +541,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 	}//end processNotFoundPage()
 
-	
+
 	/**
 	* Paint the interface for the design setting the not found page for this site
 	*
@@ -574,7 +574,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		return $this->processNoticeLinkedAsset($asset, 'not_found_design');
 
 	}//end processNotFoundPageDesign()
-	
+
 
 	/**
 	* Paint the interface for the paint layout setting the not found page for this site
@@ -608,8 +608,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		return $this->processNoticeLinkedAsset($asset, 'not_found_layout');
 
 	}//end processNotFoundPagePaintLayout()
-	
-	
+
+
 	/**
 	* Paint the interface for setting authentication redirects for the site
 	*
@@ -678,15 +678,18 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$body = ob_get_clean();
 
-		$o->openSection(translate('core_site_current_redirects'));
+		$o->openSection(translate('Current Redirects'));
+
 		$o->openField('');
 
 		if ($paint_table) {
 			?>
 			<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('old_url') ?></th>
-				<th><?php echo translate('new_url') ?></th>
+				<th><?php echo translate('Old URL') ?></th>
+
+				<th><?php echo translate('New URL') ?></th>
+
 				<?php if ($write_access) {
 					?><th>Delete?</th><?php
 				}
@@ -710,13 +713,16 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			$combo_box_from = Array('' => '-- Select URL --') + $combo_box_from;
 			$combo_box_urls = Array('' => '-- Select URL --') + $combo_box_urls;
 
-			$o->openSection(translate('core_site_add_redirect'));
+			$o->openSection(translate('Add Redirect'));
 
-				$o->openField(translate('from'));
+
+				$o->openField(translate('From'));
+
 					combo_box($prefix.'auth_url[from]', $combo_box_from);
 				$o->closeField();
 
-				$o->openField(translate('to'));
+				$o->openField(translate('To'));
+
 					combo_box($prefix.'auth_url[to]', $combo_box_urls);
 				$o->closeField();
 
@@ -798,7 +804,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		if ($this->_isCircularReference($urls)) {
 			// Cannot update private URLs, the submitted set-up would cause a
 			// redirect loop
-			trigger_localised_error('CORE0269', E_USER_WARNING);
+			trigger_localised_error('CORE0269', translate('Could not update authentication redirects, the set-up submitted would cause a redirect loop'), E_USER_WARNING);
 			return FALSE;
 		} else {
 			// determine if there are any new or deleted urls, we are only interested in the deleted ones

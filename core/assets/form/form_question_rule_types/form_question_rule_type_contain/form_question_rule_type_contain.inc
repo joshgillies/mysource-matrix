@@ -55,8 +55,10 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_contain_true'),
-				0	=> translate('core_form_rule_contain_false'),
+				1	=> translate('Must contain'),
+
+				0	=> translate('Must NOT contain'),
+
 			   );
 
 	}//end getOperators()
@@ -192,12 +194,28 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
+	    $errors = Array(
+                    'true_q'             => translate('The response to "%1$s" must contain the response to question "%2$s" (%3$s)'),
+                    'false_q'            => translate('The response to "%1$s" must NOT contain the response to question "%2$s" (%3$s)'),
+                    'true'               => translate('The response to "%1$s" must contain "%2$s" (%3$s)'),
+                    'false'              => translate('The response to "%1$s" must NOT contain "%2$s" (%3$s)'),
+                    'true_q_accessible'  => translate('The response must contain the response to question "%2$s" (%3$s).'),
+                    'false_q_accessible' => translate('The response must NOT contain the response to question "%2$s" (%3$s).'),
+                    'true_accessible'    => translate('The response must contain "%2$s" (%3$s).'),
+                    'false_accessible'   => translate('The response must NOT contain "%2$s" (%3$s).'),
+        );
+
+        $case_options = Array(
+                            0 => translate('not case-sensitive'),
+                            1 => translate('case sensitive'),
+        );
+
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
-		$string_code = 'core_form_rule_contain_desc_'.($operator ? 'true' : 'false');
+		$string_code = ($operator ? 'true' : 'false');
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
@@ -209,10 +227,17 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 		} else {	// sent just a value
 			$value = array_get_index($rule_data, 'value', '');
 		}
-		if($use_accessible_string)
-		    $error_str = translate($string_code.'_accessible', $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
-		else
-		    $error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
+
+		if ($use_accessible_string) {
+		    $string_code .= '_accessible';
+		}
+
+	    $error_str = sprintf(
+	        $errors[$string_code],
+	        $q_asset->name,
+	        $value,
+	        $case_options[(int) $case_sensitive]
+	    );
 
 		return $error_str;
 

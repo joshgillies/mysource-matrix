@@ -49,19 +49,22 @@ class Form_Question_Rule_Type_Selection_Edit_Fns extends Form_Question_Rule_Edit
 		$options = $q_asset->getOptions();
 
 		if (!$write_access) {
-			$o->openField(translate('core_form_rule_details'));
+			$o->openField(translate('Rule Details'));
+
 			echo translate('core_form_rule_selection_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'),  $q_asset->getSummary($rule_data['value']));
 
 			$o->closeField();
 
 		} else {
 
-			$o->openField(translate('operator'));
+			$o->openField(translate('Operator'));
+
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
 			$o->closeField();
 
-			$o->openField(translate('option'));
+			$o->openField(translate('Option'));
+
 			// give a text box to write the comparison value in
 			combo_box($prefix.'[value]', $options, false, array_get_index($rule_data, 'value', ''));
 			$o->closeField();

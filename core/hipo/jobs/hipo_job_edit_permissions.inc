@@ -68,7 +68,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('permissions_threshold'));
+		$o->openField(translate('Permissions Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -77,7 +78,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			echo SQ_HIPO_PERMISSIONS_THRESHOLD;
 		}
 		echo ' '.translate('assets');
-		$o->note(translate('hipo_value_divided_by_permission'));
+
+		$o->note(translate('Value will be divided by number of affected permissions.'));
+
 		echo '</span>';
 
 		$o->closeField();
@@ -121,7 +124,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_permissions');
+		return translate('Edit Permissions');
+
 
 	}//end getHipoName()
 
@@ -137,7 +141,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_updating_permissions'),
+					'name'			=> translate('Updating Permissions'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processPermissions',
 									   ),
@@ -199,13 +204,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['permission_changes'])) {
-			trigger_localised_error('HIPO0014', E_USER_WARNING);
+			trigger_localised_error('HIPO0014', translate('Unable to initialise Edit Permissions HIPO, no permission changes specified'), E_USER_WARNING);
 			return '';
 		}
 
 		$this->_running_vars['done_changes']  = 0;
 		$this->_running_vars['total_changes'] = 0;
-		
+
 		if (empty($this->_running_vars['permission_changes'])) {
 			// no schema changes, so do nothing
 			$this->_running_vars['todo_assetids'] = Array();
@@ -217,7 +222,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 					$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
 					if (empty($asset_info)) {
-						trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
+						trigger_localised_error('HIPO0013', sprintf(translate('Unable to initialise Edit Permissions HIPO, invalid asset ID specified (%s)'), $assetid), E_USER_WARNING);
 						return '';
 					}
 
@@ -255,20 +260,20 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 					$need_all = true;
 				}
 			}//end foreach
-			
+
 			$assetid = $this->_running_vars['permission_screen_assetid'];
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 			if (empty($asset_info)) {
-				trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
+				trigger_localised_error('HIPO0013', sprintf(translate('Unable to initialise Edit Permissions HIPO, invalid asset ID specified (%s)'), $assetid), E_USER_WARNING);
 				return '';
 			}
 
 			if ($need_all) {
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 			} else {
-				$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);			
+				$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 			}
-			
+
 			// Add the parent asset to the list too
 			$todo_assetids = Array(
 								$assetid => Array(
@@ -282,11 +287,11 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			}//end foreach
 			unset($dep_children);
 			unset($children);
-			
-			$this->_running_vars['todo_assetids'] = $todo_assetids;			
-			$this->_running_vars['total_changes'] = count($todo_assetids);		
+
+			$this->_running_vars['todo_assetids'] = $todo_assetids;
+			$this->_running_vars['total_changes'] = count($todo_assetids);
 		}
-		
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -341,9 +346,14 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 								// at all - either grant OR deny - for this user
 								$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], FALSE, FALSE, TRUE, TRUE);
 								if (isset($current[$set_data['userid']])) {
-									$new_access     = ($set_data['granted']) ? translate('grant') : translate('revoke');
-									$current_access = ($current[$set_data['userid']]) ? translate('granted') : translate('revoked');
-									$this->_addError(translate('hipo_cannot_modify_permission', $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
+									$new_access     = ($set_data['granted']) ? translate('Grant') : translate('Revoke');
+
+
+									$current_access = ($current[$set_data['userid']]) ? translate('Granted') : translate('Revoked');
+
+
+									$this->_addError(sprintf(translate('Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.'), $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
+
 									continue;
 								}
 							} else {
@@ -352,9 +362,14 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 								if (!isset($current[$set_data['userid']])) {
 									continue;
 								} else if ($current[$set_data['userid']] != $set_data['previous_access']) {
-									$new_access     = ($set_data['previous_access']) ? translate('grant') : translate('revoke');
-									$current_access = ($set_data['previous_access']) ? translate('revoked') : translate('granted');
-									$this->_addError(translate('hipo_cannot_modify_permission', $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
+									$new_access     = ($set_data['previous_access']) ? translate('Grant') : translate('Revoke');
+
+
+									$current_access = ($set_data['previous_access']) ? translate('Revoked') : translate('Granted');
+
+
+									$this->_addError(sprintf(translate('Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.'), $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
+
 									continue;
 								}
 
@@ -382,7 +397,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						if (count($perm_changes) > 1) {
 							$step_data['message'] = htmlentities('Making '.count($perm_changes).' permission changes to '.$asset->name.' (Id: #'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 						} else if (count($perm_changes) == 0) {
-							$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+							$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
 						}
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'permissions');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
@@ -390,15 +406,17 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 					} else {
 						// we do not have admin access
-						trigger_localised_error('SYS0111', E_USER_WARNING, $asset->name);
+						trigger_localised_error('SYS0111', sprintf(translate('Unable to set permission for "%s", permission denied'), $asset->name), E_USER_WARNING);
 					}
 				} else {
 					// we do not acquire lock
-					trigger_localised_error('SYS0100', E_USER_WARNING, 'permissions', $asset->name, ' skipping asset.');
+					trigger_localised_error('SYS0100', sprintf(translate('Unable to acquire "%1$s" lock on "%2$s", %3$s', 'permissions'), $asset->name, ' skipping asset.'), E_USER_WARNING);
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_skipping_permission', $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not edit permissions for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 		}//end if

@@ -59,29 +59,38 @@ class Tool_Import_File extends Tool
 	{
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
-			$o->openField(translate('file_root_node'));
+			$o->openField(translate('File Bridge Root Node'));
+
 				$root_nodes = Array(
 								'physical_file'		=> 'I',
 								'physical_folder'	=> 'I',
 								'file_bridge'		=> 'I',
 							 );
 				asset_finder($type_code.'_importing_root_assetid', '', $root_nodes);
-				$o->note(translate('file_root_node_note'));
+				$o->note(translate('If a file is selected as the root node, it will be imported as a new File asset. If a folder or file bridge is selected, then all files and folders underneath will be imported, and not the selected node.'));
+
 			$o->closeField();
-			$o->openField(translate('file_parent_node'));
+			$o->openField(translate('New Parent Node'));
+
 				asset_finder($type_code.'_importing_parent_assetid', '');
 			$o->closeField();
-			$o->openField(translate('file_recursive'));
+			$o->openField(translate('Recursive'));
+
 				check_box($type_code.'_recursive', '1');
-				$o->note(translate('file_recursive_note'));
+				$o->note(translate('If selected, the import tool will import the contents of any folder found underneath the root node'));
+
 			$o->closeField();
-			$o->openField(translate('file_index_file'));
+			$o->openField(translate('Import "index.html" as a Standard Page'));
+
 				check_box($type_code.'_index_file', '1');
-				$o->note(translate('file_index_file_note'));
+				$o->note(translate('If selected, the file "index.html", if any, will be imported as a Standard Page asset and will replace the folder containing this index file'));
+
 			$o->closeField();
-			$o->openField(translate('allow_virus_scan'));
+			$o->openField(translate('Allow Virus Scan'));
+
 				combo_box($type_code.'_allow_virus_scan', Array(1 => 'Yes', 0 => 'No'));
-				$o->note(translate('allow_virus_scan_note'));
+				$o->note(translate('If global Virus Checker is enabled, perform immediate virus scan on each imported file. This will slow down import process.'));
+
 			$o->closeField();
 		$o->closeSection();
 
@@ -146,9 +155,9 @@ class Tool_Import_File extends Tool
 		} else {
 			// Fail
 			if (empty($importr) && $sanity_check) {
-				trigger_localised_error('FIL0001', E_USER_ERROR);
+				trigger_localised_error('FIL0001', translate('No root node specified'), E_USER_ERROR);
 			} else {
-				trigger_localised_error('FIL0003', E_USER_ERROR);
+				trigger_localised_error('FIL0003', translate('No parent node specified'), E_USER_ERROR);
 			}//end if
 			return FALSE;
 		}//end if

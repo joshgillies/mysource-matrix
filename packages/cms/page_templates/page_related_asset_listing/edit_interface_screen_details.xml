@@ -18,9 +18,13 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
@@ -40,6 +44,8 @@
 	</section>
 	<section name="Asset Locations" write_access="write:content">
 		<field>
+			<display_name>Related Nodes</display_name>
+			<note>Only assets that are related to these nodes will be listed. Leave blank to list all assets related to this asset listing.</note>
 			<function_call>
 				<paint_function   name="paintRelator" />
 				<process_function name="processRelator" />
@@ -52,6 +58,8 @@
 			</function_call>
 		</field>
 		<field>
+			<display_name>Thesaurus Filters</display_name>
+			<note>Only assets that are tagged by terms defined by these thesauruses will be listed. Leave blank to list all the related assets of the related nodes</note>
 			<function_call>
 				<paint_function   name="paintThesaurusFilters" />
 				<process_function name="processThesaurusFilters" />
@@ -64,12 +72,18 @@
 			<selection style="list" />
 		</field>
 		<field attribute="min_depth">
+			<display_name>Minimum Depth/Height</display_name>
+			<note>Optional setting that defines the minimum number of levels below/above a root node an asset must be to qualify for listing. The immediate child/parent is level '1' for the purposes of this and the Maximum Depth/Height setting. Only makes sense when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned off.</note>
 			<int width="5" />
 		</field>
 		<field attribute="max_depth">
+			<display_name>Maximum Depth/Height</display_name>
+			<note>Optional setting that defines the maximum number of levels below/above a root node an asset can be to qualify for listing.</note>
 			<int width="5" />
 		</field>
 		<field>
+			<display_name>Link Types</display_name>
+			<note>Only assets that are linked underneath the root node(s) with the appropriate link types will be listed. The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links. This setting only applies when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned on.</note>
 			<function_call>
 				<paint_function   name="paintLinkTypes" />
 				<process_function name="processLinkTypes" />
@@ -123,11 +137,15 @@
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes">
 		<field attribute="parameter_map" format="new_line">
+			<display_name />
+			<note />
 			<parameter_map />
 		</field>
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes">
 		<field>
+			<display_name></display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintStructuredDropdownOptions"   />
 				<process_function name="processStructuredDropdownOptions" />
@@ -136,9 +154,13 @@
 	</section>
 	<section name="Button Text" write_access="write:attributes">
 		<field attribute="submit_button_text">
+            <display_name>Submit Button Text</display_name>
+            <note />
 			<text width="25" height="1" />
 		</field>
 		<field attribute="reset_button_text">
+            <display_name>Reset Button Text</display_name>
+            <note />
 			<text width="25" height="1" />
 		</field>
 	</section>

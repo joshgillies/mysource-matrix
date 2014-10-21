@@ -55,7 +55,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 		if (empty($settings['asset_id'])) return FALSE;
 		if (!isset($settings['value']) || ($settings['value'] == '')) return FALSE;
 		if (!isset($state['asset']) || is_null($state['asset'])) $state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getasset($state['assetid']);
-		
+
 		$compared_value = $settings['value'];
 		replace_global_keywords($compared_value);
 
@@ -82,7 +82,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 					return (preg_match('/'.str_replace('/', '\/', $compared_value).'/', $metadata_value) > 0);
 			}
 		}
-		
+
 		return FALSE;
 
 	}//end evaluate()
@@ -109,9 +109,10 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 		}
 
 		$type_of_search = Array(
-							'exact'		=> translate('exact_match'),
-							'partial'	=> translate('partial_match'),
-							'regex'		=> translate('regex_match'),
+							'exact'		=> translate('Exact Match'),
+							'partial'	=> translate('Partial Match'),
+							'regex'		=> translate('RegEx Match'),
+
 						  );
 
 		// Check if not set
@@ -143,7 +144,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 			if ($write_access) {
 				combo_box($prefix.'[match]', $type_of_search, FALSE, $settings['match']);
 			} else {
-				echo translate($settings['match'].'_match');
+				echo $type_of_search[$settings['match']];
 			}
 			$match_component = ob_get_contents();
 		ob_end_clean();
@@ -158,7 +159,8 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 			$value_component = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_metadata_value', $asset_id_component, $match_component, $value_component);
+		return sprintf(translate('If the metadata value of the %1$s field in the asset has a %2$s with %3$s'), $asset_id_component, $match_component, $value_component);
+
 
 	}//end getInterface()
 
@@ -176,12 +178,14 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$asset_id = array_get_index($request_data, 'asset_id', FALSE);
 		if (!$asset_id) {
-			return translate('trigger_asset_not_supplied');
+			return translate('Asset ID has not been supplied');
+
 		}
 
 		if (!empty($asset_id['assetid'])) {

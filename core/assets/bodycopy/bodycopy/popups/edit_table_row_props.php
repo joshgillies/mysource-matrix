@@ -91,7 +91,7 @@ include(dirname(__FILE__).'/header.php');
 								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
 								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
 							</select>
-						</td> 
+						</td>
 					</tr>
 				</table>
 			</fieldset>

@@ -64,7 +64,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$sections = $asset->getSections();
 
 		if (empty($sections)) {
-			echo translate('cms_form_no_sections');
+			echo translate('This form does not contain any sections');
+
 			return FALSE;
 		}
 		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
@@ -116,7 +117,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		<script type="text/javascript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
-				  alert('<?php echo translate('cms_form_no_getelementbyid'); ?>');
+				  alert('<?php echo translate('Browser cannot support script - Get Element By ID is not defined'); ?>');
+
 				  return;
 			  }
 			  // move a question up a row
@@ -129,7 +131,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			  if (!nextElement) return;
 
 			  if (!currentElement.innerHTML) {
-				  alert('<?php echo translate('cms_form_no_innerhtml'); ?>');
+				  alert('<?php echo translate('Browser cannot support script - Inner HTML is not defined'); ?>');
+
 				  return;
 			  }
 
@@ -163,7 +166,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			function sortOrderMoveUp(currentOrder) {
 			  // move a question up a row
 			  if (!document.getElementById) {
-				  alert('<?php echo translate('cms_form_no_getelementbyid'); ?>');
+				  alert('<?php echo translate('Browser cannot support script - Get Element By ID is not defined'); ?>');
+
 				  return;
 			  }
 
@@ -175,7 +179,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder - 1));
 
 			  if (!currentElement.innerHTML) {
-				  alert('<?php echo translate('cms_form_no_innerhtml'); ?>');
+				  alert('<?php echo translate('Browser cannot support script - Inner HTML is not defined'); ?>');
+
 				  return;
 			  }
 
@@ -217,27 +222,32 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<th>
-							<?php echo translate('question'); ?>
+							<?php echo translate('Question'); ?>
+
 						</th>
 						<th>
-							<?php echo translate('type'); ?>
+							<?php echo translate('Type'); ?>
+
 						</th>
 						<?php
 						if ($admin_access) {
 							?>
 							<th style="text-align:center;">
 								<?php
-								label(translate('delete_question'));
+								label(translate('Delete?'));
+
 								echo '<br/>';
 								if (!empty($questions)) {
-									$delete_all = check_box($prefix.'_order[delete]', '1', FALSE, 'changeAllDelStatuses(this.checked)', 'title="'.translate('check_uncheck_all').'"');
+									$delete_all = check_box($prefix.'_order[delete]', '1', FALSE, 'changeAllDelStatuses(this.checked)', 'title="'.translate('Check/Uncheck all').'"');
+
 								} else {
 									$delete_all = '';
 								}
-								echo $delete_all; 
+								echo $delete_all;
 								?>
 							</th>
-							<th style="text-align:center;"><?php echo translate('move'); ?></th>
+							<th style="text-align:center;"><?php echo translate('Move'); ?></th>
+
 							<?php
 						}
 						?>
@@ -370,7 +380,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			if ($num_bodycopies == 0) {
-				echo translate('cms_form_none_customised').'<br />';
+				echo translate('No bodycopies are customised').'<br />';
+
 			}
 		} else {
 			foreach ($bodycopies as $bc_code => $bc_name) {
@@ -593,7 +604,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				return FALSE;
 			}
 
-			// Our form section depends on form_email it is linked under although the 
+			// Our form section depends on form_email it is linked under although the
 			// is_dependent flag on the link isn't set we still have to make sure the
 			// status of the section is in sync with the Custom form
 			if ($section[$i]->status != $asset->status && in_array($asset->status, array_keys($section[$i]->getAvailableStatii()))) {
@@ -654,7 +665,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function paintSimpleFormatting(&$asset, &$o, $prefix)
 	{
 		?>
-		<p><?php echo translate('cms_form_simple_formatting_note') ?></p>
+		<p><?php echo translate('These options apply only if you use the \'Form Contents\' (<b>%%form_contents%%</b>) keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.') ?></p>
+
 
 		<?php
 		return TRUE;
@@ -694,9 +706,12 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function paintComplexFormatting(&$asset, &$o, $prefix)
 	{
 		?>
-		<p><?php echo translate('cms_form_complex_formatting_note') ?><br/>
-		<?php echo translate('cms_form_page_contents_popup_link', sq_web_path('lib').'/web/popups/page_contents_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
-		<?php echo translate('cms_form_thank_you_popup_link', sq_web_path('lib').'/web/popups/thank_you_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
+		<p><?php echo translate('If you use complex formatting, you can position question fields and responses individually, rather than in a single block.') ?><br/>
+
+		<?php echo sprintf(translate('Click here for a <a href="#" onClick="javascript: var win = window.open(\'%1$s\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=%2$s,height=%3$s\')">list of keywords for the Page Contents bodycopy</a>'), sq_web_path('lib').'/web/popups/page_contents_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
+
+		<?php echo sprintf(translate('Click here for a <a href="#" onClick="javascript: var win = window.open(\'%1$s\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=%2$s,height=%3$s\')">list of keywords for the Thank You bodycopy</a>'), sq_web_path('lib').'/web/popups/thank_you_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
+
 		<?php
 		return TRUE;
 
@@ -742,7 +757,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			if ($ttf_file_id > 0) {
 				echo get_asset_tag_line($ttf_file_id);
 			} else {
-				echo translate('none_selected');
+				echo translate('None selected');
+
 			}
 		}
 		return TRUE;
@@ -777,7 +793,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 					if (($extension_index !== FALSE) && ($extension_index == strlen($filename)-4)) {
 						return $asset->setAttrValue('captcha_ttf', $ttf_file_id);
 					} else {
-						trigger_localised_error('CMS0109', E_USER_WARNING);
+						trigger_localised_error('CMS0109', translate('The CAPTCHA Font specified was not a TrueType Font File (ie; did not have a .ttf extension)'), E_USER_WARNING);
 					}
 				} else {
 					return $asset->setAttrValue('captcha_ttf', NULL);
@@ -863,7 +879,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$output = '';
 		$sort_order = $asset->attr('sort_order');
 		if (empty($sort_order)) return;
-		
+
 		if($asset->useAccessibleFormat()) {
 		    // new semantic format
 		    $output .= '<div class="sq-form-unattached">';
@@ -874,7 +890,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				    if (is_null($q)) continue;
 				    $type = str_replace('_', '-', str_replace('form_question_type_', '', $q->type()));
 				    // add error class
-				    $output .= '<'.'?php 
+				    $output .= '<'.'?php
 					$error_class = isset($this->question_errors[$question->id]) ? "sq-form-question-error" : "";
 					 ?'.'>'."\n";
 				    // question wrapper
@@ -895,7 +911,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				    // question content
 				    $output .= '<div class="sq-form-question-answer"><'.'?php echo $question->getHtmlField(); ?'.'></div>'."\n";
 				    // question error
-				    $output .= '<'.'?php 
+				    $output .= '<'.'?php
 					if(isset($this->question_errors[$question->id])) {
 					    $errors = $this->question_errors[$question->id];
 					    $error = array_pop($errors);
@@ -933,14 +949,14 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			    echo $q->getHtmlField(); ?'.'>'."\n";
 			    $output .= '</td></tr>';
 		    }
-		    $output .= '</table>';    
+		    $output .= '</table>';
 		}
-			
+
 		return $output;
 
 	}//end generateGenericSection()
 
-	
+
 //--         MOLLOM CAPTCHA          --//
 
 
@@ -958,33 +974,36 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current = $asset->attr('mollom_questions_to_check');
-		
+
 		$relevent_question_types = Array('form_question_type_text', 'form_question_type_email_address');
-		$form_questions = $asset->getAllQuestions();		
-		
-		$questions = Array();		
+		$form_questions = $asset->getAllQuestions();
+
+		$questions = Array();
 		foreach ($form_questions as $q_id => $q_info) {
-		
+
 			$q_type = isset($q_info['question_type_code']) ? $q_info['question_type_code'] : '';
 			if (!in_array($q_type, $relevent_question_types)) {
 				continue;
 			}
-			
+
 			$q_name = isset($q_info['attributes']['name']) ? $q_info['attributes']['name'] : $q_id.' (No name)';
 			$questions[$q_id] = $q_id.' '.ucwords(str_replace('_', ' ', $q_name));
 		}
-		
+
 		if (empty($current)) {
-			echo translate('cms_form_mollom_no_question_to_check');
+			echo translate('No attributes are set be checked for spam');
+
 		} else {
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Name') ?></td>
+
 					<td class="sq-backend-table-header">Content Type</td>
 					<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('Delete?') ?></td><?php
+
 					}
 					?>
 				</tr>
@@ -993,7 +1012,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 					$question_name = isset($questions[$q_id]) ? $questions[$q_id] : '';
 					if (!$question_name) {
 						continue;
-					}					
+					}
 					?>
 					<tr>
 						<td class="sq-backend-table-cell"><?php echo $question_name; ?></td>
@@ -1005,7 +1024,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 								$mollom = new Mollom();
 								$content_types = $mollom->getContentTypes();
 							}
-							
+
 							if ($write_access) {
 								combo_box($prefix.'_content_type['.$q_id.']', $content_types, FALSE, $content_type);
 							} else {
@@ -1031,13 +1050,15 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		}//end else
 
 		if ($write_access) {
-			$new_questions = Array('' => '-- '.translate('select_question').' --');
+			$new_questions = Array('' => '-- '.translate('Select Question').' --');
+
 			foreach ($questions as $q_id => $q_name) {
 				if (isset($current[$q_id])) continue;
 				$new_questions[$q_id] = $q_name;
 			}
-			
-			echo '<br/><b>'.translate('cms_form_new_mollom_question').' </b>';
+
+			echo '<br/><b>'.translate('New question to check ?').' </b>';
+
 			combo_box($prefix.'_new_content_type', $new_questions, FALSE, '');
 		}
 
@@ -1061,7 +1082,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$current = $asset->attr('mollom_questions_to_check');
 		$content_types = Array();
 
-		// construct new questions to check fields array removing deleted questions 
+		// construct new questions to check fields array removing deleted questions
 		// and updating the question's answer type
 		foreach ($current as $q_id => $q_name) {
 			if (!isset($_POST[$prefix.'_delete_content_type'][$q_id]) || !$_POST[$prefix.'_delete_content_type'][$q_id]) {
@@ -1079,11 +1100,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			if (!isset($content_types[$new_question])) {
 				$content_types[$new_question] = '';
 			}
-		}	
-		
+		}
+
 		return $asset->setAttrValue('mollom_questions_to_check', $content_types);
 
-	}//end processMollomQuestionToCheck()	
+	}//end processMollomQuestionToCheck()
 
 
 	/**
@@ -1185,14 +1206,18 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintUseAccessibleFormat(&$asset, &$o, $prefix)
 	{
-		
+
 		$write_access = $asset->writeAccess('all');
 		$useAccessibleFormat = $asset->attr('use_accessible_format');
 		if (!$write_access) {
-			echo $useAccessibleFormat ? translate('yes') : translate('no');
+			echo $useAccessibleFormat ? translate('Yes') : translate('No');
+
+
 		} else {
-			$options[1] = translate('yes');
-			$options[0] = translate('no');
+			$options[1] = translate('Yes');
+
+			$options[0] = translate('No');
+
 			combo_box($prefix.'_use_accessible_format', $options, FALSE, $useAccessibleFormat);
 		}
 
@@ -1218,9 +1243,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 		$old_option = $asset->attr('use_accessible_format');
 		$new_option = $_POST[$prefix.'_use_accessible_format'];
-		
+
 		$asset->setAttrValue('use_accessible_format', $new_option);
-		
+
 		// make sure we regenerate content file for all sections
 		if($new_option !== $old_option) {
 		    $sections = $asset->getAllSections();
@@ -1228,7 +1253,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			   $section->fileRegeneration(FALSE);
 		    }
 		}
-		
+
 		return TRUE;
 
 	}//end processUseAccessibleFormat()
@@ -1246,7 +1271,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintNoAccessToSubmissions(&$asset, &$o, $prefix)
 	{
-		echo '<em>'.translate('cms_form_no_access_to_submissions').'</em>';
+		echo '<em>'.translate('This form has the "Restrict Submission Access" setting enabled, which means only users with admin permissions can access the form submission details.').'</em>';
+
 
 	}//end paintNoAccessToSubmissions()
 

@@ -60,7 +60,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	{
 		$parent =& $link['asset'];
 		if (!is_a($parent, 'calendar_event_recurring')) {
-			trigger_localised_error('CAL0054', E_USER_WARNING);
+			trigger_localised_error('CAL0054', translate('Recurring Event Cancellations can only be created underneath recurring events'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -71,7 +71,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		if (!($link['value'] = $this->getStartDate())) {
-			trigger_localised_error('CAL0053', E_USER_WARNING);
+			trigger_localised_error('CAL0053', translate('You need to specify a start date before you can call create() for a modification event'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -98,7 +98,8 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		}//end if
 
 		if ($short_name) {
-			return translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date'))));
+			return sprintf(translate('Cancelled %s'), date('d M Y', iso8601_ts($this->attr('start_date'))));
+
 		}//end if
 
 		// Obtain the attribute value for Name from the specified Context
@@ -140,7 +141,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	{
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_localised_error('CAL0055', E_USER_WARNING, $this->getStartDate());
+			trigger_localised_error('CAL0055', sprintf(translate('There is no occurrence of the specified recurring event on the specified date, being %s'), $this->getStartDate()), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -151,10 +152,11 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$this->setAttrValue('start_date', $sd.' '.$st.':00');
 		}
 		if ($duration = $parent->getDuration()) {
-			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));			
+			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));
 		}
 		// set our name based on the parent
-		$this->setAttrValue('name', translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))).': '.$parent->attr('name'));
+		$this->setAttrValue('name', sprintf(translate('Cancelled %s'), date('d M Y', iso8601_ts($this->attr('start_date')))).': '.$parent->attr('name'));
+
 
 		return TRUE;
 
@@ -174,7 +176,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	function addReplacement($start_date, $end_date, $description)
 	{
 		if (!$this->writeAccess('')) {
-			trigger_localised_error('CAL0056', E_USER_WARNING);
+			trigger_localised_error('CAL0056', translate('You don\'t have sufficient access to create a cancellation for this event'), E_USER_WARNING);
 			return FALSE;
 		}
 		if ($existing_link = $this->getReplacementLink()) {
@@ -195,7 +197,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$replacement_event->create($link);
 		} else {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($replacement_event->id, 'attributes')) {
-				trigger_localised_error('CAL0057', E_USER_WARNING, $replacement_event->name);
+				trigger_localised_error('CAL0057', sprintf(translate('Could not get lock to save attributes of asset "%s"'), $replacement_event->name), E_USER_WARNING);
 				return 0;
 			}
 			$replacement_event->saveAttributes();
@@ -250,7 +252,8 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				$parent_object = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetids[0]);
 
 				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
-				$res .= '<tr><td style="vertical-align: top">'.translate('cal_event_start_and_end').'</td><td>';
+				$res .= '<tr><td style="vertical-align: top">'.translate('Start and End').'</td><td>';
+
 				ob_start();
 					$edit_fns = $this->getEditFns();
 					$edit_fns->paintStartEndChooser($this, 'event');
@@ -258,10 +261,13 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				ob_end_clean();
 				$res .= '</td></tr>';
 
-				$res .= '<tr><td style="vertical-align: top">'.translate('description').': </td><td><textarea name="event_description">';
+				$res .= '<tr><td style="vertical-align: top">'.translate('Description').': </td><td><textarea name="event_description">';
+
 				$res .= $parent_object->attr('description');
 				$res .= '</textarea></td></tr>';
-				$res .= '<tr><td colspan="2"><input type="submit" value="'.translate('cal_event_add_replacement').'"/>&nbsp;&nbsp;<input type="button" value="'.translate('cancel').'" onclick="document.location=\''.$_SERVER['PHP_SELF'].'?SQ_CALENDAR_EVENT_ID='.$parent_object->id.'&SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'\'" /></td></tr></table></form>';
+				$res .= '<tr><td colspan="2"><input type="submit" value="'.translate('Add Replacement').'"/>&nbsp;&nbsp;<input type="button" value="'.translate('Cancel').'" onclick="document.location=\''.$_SERVER['PHP_SELF'].'?SQ_CALENDAR_EVENT_ID='.$parent_object->id.'&SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'\'" /></td></tr></table></form>';
+
+
 			break;
 
 			case 'addreplacement2':
@@ -289,7 +295,8 @@ class Calendar_Event_Cancellation extends Calendar_Event
 
 				$replacement_event = $this->addReplacement(sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']),  sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']),  $_REQUEST['event_description']);
 				if ($replacement_event) {
-					$res = '<p>'.translate('cal_event_replacement_event_added').'</p>';
+					$res = '<p>'.translate('Replacement event added').'</p>';
+
 				}
 			break;
 
@@ -321,7 +328,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				// get the parent recurring event asset
 				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE));
 				if (empty($recurring_event_ids)) {
-					trigger_localised_error('CAL0054', E_USER_ERROR);
+					trigger_localised_error('CAL0054', translate('Recurring Event Cancellations can only be created underneath recurring events'), E_USER_ERROR);
 					return FALSE;
 				}
 				$recurring_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
@@ -351,11 +358,13 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b><?php echo translate('name') ?></b></td>
+				<td><b><?php echo translate('Name') ?></b></td>
+
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cancels') ?></b></td>
+				<td><b><?php echo translate('Cancels') ?></b></td>
+
 				<td><?php
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE)) {
@@ -367,15 +376,18 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				</td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_cancelled_start_date'); ?></b></td>
+				<td><b><?php echo translate('Start Date of cancelled instance'); ?></b></td>
+
 				<td><?php echo $this->getFriendlyStart(); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_cancelled_end_date'); ?></b></td>
+				<td><b><?php echo translate('End Date of cancelled instance'); ?></b></td>
+
 				<td><?php echo $this->getFriendlyEnd(); ?></td>
 			</tr>
 			<tr>
-				<td><b><?php echo translate('cal_event_reason_for_cancellation'); ?></b></td>
+				<td><b><?php echo translate('Reason for cancellation'); ?></b></td>
+
 				<td><?php echo $this->attr('description'); ?></td>
 			</tr>
 		</table>

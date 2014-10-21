@@ -382,7 +382,7 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 	function processOptions(&$asset, &$o, $prefix)
 	{
 		$prefix = str_replace(':','_',$prefix);	// handle shadow assets
-	
+
 		// Save the values
 		if (!isset($_REQUEST[$prefix.'_options'])) return;
 		$value = $_REQUEST[$prefix.'_options'];
@@ -390,7 +390,7 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 			$value[$i] = htmlentities($v, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 			if ($v == '') unset($value[$i]);
 		}
-	
+
 		// Save the key fields
 		if (!isset($_REQUEST[$prefix.'_options_keys'])) return;
 		$key_value = $_REQUEST[$prefix.'_options_keys'];
@@ -406,7 +406,7 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 				unset($key_value[$j]);
 			}
 		}
-	
+
 		$key_value_count = count($key_value);
 		$value_count = count($value);
 		if ($key_value_count != $value_count) return;
@@ -415,13 +415,13 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 		} else {
 			$values = Array();
 		}
-	
+
 		$processed_value = $values;
 		if ($asset->writeAccess('attributes')) {
 			$asset->setAttrValue('options', $processed_value);
 			$asset->saveAttributes();
 		}
-	
+
 	}//end processOptions()
 
 
@@ -503,8 +503,8 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 		<?php
 
 	}//end _printOptionField()
-	
-	
+
+
 	/**
 	* Paint a table for the destination data for each key of the 'options' attribute.
 	* Destination data includes the next question, result bodycopy and points value.
@@ -521,24 +521,28 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 		$write_access = $asset->writeAccess('attributes');
 		$options = $asset->getOptions();
 		$q_dest = $asset->attr('question_destinations');
-		
+
 		?>
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('answer_key'); ?>
+					<?php echo translate('Answer Key'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('next_question'); ?>
+					<?php echo translate('Next Question'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('result_bodycopy'); ?>
+					<?php echo translate('Result Bodycopy'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('points_value'); ?>
+					<?php echo translate('Points Value'); ?>
+
 				</td>
 			</tr>
-		<?php 
+		<?php
 		foreach ($options as $key => $value){
 			if ($key === $asset->attr('empty_key')) continue;
 			?>
@@ -552,7 +556,7 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 				<?php
 				$nxt_q = (!empty($q_dest[$key]['next_question'])) ? $q_dest[$key]['next_question'] : '';
 				if ($write_access){
-					$type_codes = Array ( 
+					$type_codes = Array (
 									  'decision_tree_question_type_select' 	=> 'I',
 									  'decision_tree_question_type_numeric' => 'I',
 									);
@@ -566,7 +570,7 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 				<?php
 				$res_body = (!empty($q_dest[$key]['result_bodycopy'])) ? $q_dest[$key]['result_bodycopy'] : '';
 				if ($write_access){
-					$type_codes = Array ( 
+					$type_codes = Array (
 									  'bodycopy' 	=> 'I',
 									);
 					asset_finder($prefix.'_bodycopy_'.$key, $res_body, $type_codes);
@@ -587,13 +591,13 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 				</td>
 			</tr>
 		<?php }
-		?> 
-		</table> 
+		?>
+		</table>
 		<?php
 		return TRUE;
 	}//end paintDestinations()
-	
-	
+
+
 	/**
 	* Processes a table for the destination data for each key of the 'options' attribute.
 	* Destination data includes the next question, result bodycopy and points value.
@@ -610,7 +614,7 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		$options = $asset->getOptions();
 		$q_dest = Array();
-		
+
 		foreach ($options as $key => $value){
 			if ($key === $asset->attr('empty_key')) continue;
 			$nxt_q = (isset($_POST[$prefix.'_next_question_'.$key])) ? $_POST[$prefix.'_next_question_'.$key]['assetid'] : '';
@@ -622,27 +626,27 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 					if(!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $minor, SQ_LINK_TYPE_2)) $nxt_q = '';
 				}
 			}
-			$q_dest[$key]['next_question'] = $nxt_q; 
-			
+			$q_dest[$key]['next_question'] = $nxt_q;
+
 			$res_body = (isset($_POST[$prefix.'_bodycopy_'.$key])) ? $_POST[$prefix.'_bodycopy_'.$key]['assetid'] : '';
 			$q_dest[$key]['result_bodycopy'] = $res_body;
-			
+
 			$points = (!empty($_POST[$prefix.'_points_value_'.$key])) ? $_POST[$prefix.'_points_value_'.$key] : 0;
-	
+
 			if (!is_numeric($points)) {
-				trigger_localised_error('CMS0114', E_USER_NOTICE);
+				trigger_localised_error('CMS0114', translate('The Points Value field must be numeric for Answer Destinations.'), E_USER_NOTICE);
 				$points = 0;
 			}
 			$q_dest[$key]['points_value'] = $points;
-			
+
 		}
-		
+
 		$asset->setAttrValue('question_destinations', $q_dest);
 		$asset->saveAttributes();
-			
+
 		return TRUE;
 	}//end processDestinations()
-	
+
 
 
 }//end class

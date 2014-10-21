@@ -16,39 +16,56 @@
 -->
 
 <contents>
-	<section name="Details" limbo_access="1">
-		<field write_access="write:attributes" attribute="name">
-			<text width="30" />
-		</field>
-		<field write_access="write:attributes" format="new_line" keyword="price">
-			<function_call>
-				<paint_function   name="paintProductPrice" />
-				<process_function name="processProductPrice" />
-			</function_call>
-		</field>
-		<field write_access="write:attributes" attribute="product_code">
-			<text width="20" />
-		</field>
-		<field write_access="write:attributes" attribute="financial_code">
-			<text width="20" />
-		</field>		
-		<field write_access="write:attributes" attribute="refund_type">
-			<selection style="list" />
-		</field>		
-		<field write_access="write:attributes" attribute="accept_promotional_code">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	
-	<section name="Product Description" limbo_access="1">
-		<field write_access="write:attributes" attribute="description">
-			<text width="60" height="5" />
-		</field>
-		<field write_access="write:attributes" attribute="short_description">
-			<text width="60" height="4" />
-		</field>
-		<field write_access="write:attributes" attribute="details">
-			<text width="60" height="4" />
-		</field>
-	</section>
+    <section name="Details" limbo_access="1">
+        <field write_access="write:attributes" attribute="name">
+            <display_name>Product Name</display_name>
+            <note />
+            <text width="30" />
+        </field>
+        <field write_access="write:attributes" format="new_line" keyword="price">
+            <display_name>Product Price</display_name>
+            <note />
+            <function_call>
+                <paint_function name="paintProductPrice" />
+                <process_function name="processProductPrice" />
+            </function_call>
+        </field>
+        <field write_access="write:attributes" attribute="product_code">
+            <display_name>Product Code</display_name>
+            <note>Product code attached to the product</note>
+            <text width="20" />
+        </field>
+        <field write_access="write:attributes" attribute="financial_code">
+            <display_name>Financial Code</display_name>
+            <note>Financial code attached to the product</note>
+            <text width="20" />
+        </field>
+        <field write_access="write:attributes" attribute="refund_type">
+            <display_name>Refund Type</display_name>
+            <note>If product is refundable</note>
+            <selection style="list" />
+        </field>
+        <field write_access="write:attributes" attribute="accept_promotional_code">
+            <display_name>Accept Promotional Code</display_name>
+            <note>Set this value to 'Yes' to accept promotional codes to work on this product.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Product Description" limbo_access="1">
+        <field write_access="write:attributes" attribute="description">
+            <display_name>Product Description</display_name>
+            <note />
+            <text width="60" height="5" />
+        </field>
+        <field write_access="write:attributes" attribute="short_description">
+            <display_name>Short Description</display_name>
+            <note />
+            <text width="60" height="4" />
+        </field>
+        <field write_access="write:attributes" attribute="details">
+            <display_name>Details/ Product Specifications</display_name>
+            <note />
+            <text width="60" height="4" />
+        </field>
+    </section>
 </contents>

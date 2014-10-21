@@ -378,13 +378,17 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			$o->openField('Data Source');
 				asset_finder($prefix.'_data_source', !empty($datasets[$plot_name]['assetid']) ? $datasets[$plot_name]['assetid'] : '0', Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));
 			$o->closeField();
-			$o->openField(translate('choose').' x-Axis');
+			$o->openField(translate('Choose').' x-Axis');
+
 				combo_box($prefix.'_x_axis', $fields, FALSE, empty($datasets[$plot_name]['settings']['x_axis']) ? current($fields) : $datasets[$plot_name]['settings']['x_axis']);
 			$o->closeField();
-			$o->openField(translate('choose').' y-Axis');
+			$o->openField(translate('Choose').' y-Axis');
+
 				combo_box($prefix.'_y_axis', $fields, FALSE, empty($datasets[$plot_name]['settings']['y_axis']) ? current($fields) : $datasets[$plot_name]['settings']['y_axis']);
 			$o->closeField();
-			$o->openField(translate('choose').' '.translate('graph_type'));
+			$o->openField(translate('Choose').' '.translate('Type Of Graph'));
+
+
 				combo_box($prefix.'_graph_type', $this->graph_types, FALSE, array_search($datasets[$plot_name]['settings']['graph_type'], $this->graph_types));
 			$o->closeField();
 			$o->openField('Accumulative?');

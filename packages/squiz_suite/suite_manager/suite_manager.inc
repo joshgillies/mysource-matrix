@@ -18,9 +18,9 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
-* Suite_Manager 
+* Suite_Manager
 *
-* A manager to organise and connect to a Squiz Suite product 
+* A manager to organise and connect to a Squiz Suite product
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
@@ -39,14 +39,14 @@ class Suite_Manager extends Page
 	private $_userAgentPrefix = 'SquizSuite-';
 
 	/**
-	 * Is Squiz Suite User. 
+	 * Is Squiz Suite User.
 	 *
 	 * @var boolean
 	 */
 	private $_suiteSystemUser = FALSE;
 
 	/**
-	 * Product cache 
+	 * Product cache
 	 *
 	 * @var array
 	 */
@@ -128,7 +128,7 @@ class Suite_Manager extends Page
 
 		// Create the data directory, ready for use
 		if (!create_directory($this->data_path)) {
-			trigger_localised_error('SYS0148', E_USER_WARNING, $this->name);
+			trigger_localised_error('SYS0148', sprintf(translate('Failed clearing system version of asset "%s", could not create data directory'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 		return $linkid;
@@ -274,7 +274,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('suiteid' => $suiteid);
 			$results   = MatrixDAL::executeAssoc('squiz_suite_package', 'getProduct', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', E_USER_ERROR);
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -306,7 +306,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('systemid' => $systemid);
 			$results   = MatrixDAL::executeAssoc('squiz_suite_package', 'getProductBySystemid', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', E_USER_ERROR);
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -334,7 +334,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('systemid' => $systemid, 'url' => $url);
 			$results   = MatrixDAL::executeAssoc('squiz_suite_package', 'getProductBySystemidURL', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', E_USER_ERROR);
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -365,7 +365,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('token' => $token);
 			$results   = MatrixDAL::executeAssoc('squiz_suite_package', 'getProductByToken', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', E_USER_ERROR);
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -430,7 +430,7 @@ class Suite_Manager extends Page
 		try {
 			$results = MatrixDAL::executeAssoc('squiz_suite_package', 'getCurrentProduct', Array('is_current'=>'1'));
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0030', E_USER_ERROR);
+			trigger_localised_error('SQS0030', translate('Unable to access the Database'), E_USER_ERROR);
 			return Array();
 		}//end try-catch
 
@@ -494,7 +494,7 @@ class Suite_Manager extends Page
 			MatrixDAL::bindValueToPdo($query, $attrName, $attrValue);
 			MatrixDAL::execPdoQuery($query);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0031', E_USER_ERROR);
+			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FALSE;
 		}//end try-catch
@@ -539,7 +539,7 @@ class Suite_Manager extends Page
 	 					 );
 			MatrixDAL::executeQuery('squiz_suite_package', 'registerProduct', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0031', E_USER_ERROR);
+			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return '';
 		}//end try-catch
@@ -566,7 +566,7 @@ class Suite_Manager extends Page
 			$bind_vars = Array('suiteid' => $suiteid, 'is_current'=>(int) $current);
 			MatrixDAL::executeQuery('squiz_suite_package', 'removeProduct', $bind_vars);
 		} catch (PDOException $e) {
-			trigger_localised_error('SQS0031', E_USER_ERROR);
+			trigger_localised_error('SQS0031', translate('Unable to perform query'), E_USER_ERROR);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FALSE;
 		}//end try-catch
@@ -578,7 +578,7 @@ class Suite_Manager extends Page
 
 
 	/**
-	 * Print the frontend to this asset. 
+	 * Print the frontend to this asset.
 	 *
 	 * @return void
 	 * @access public
@@ -694,7 +694,7 @@ class Suite_Manager extends Page
 
 
 	/**
-	 * Check the permissions for SquizSuite. 
+	 * Check the permissions for SquizSuite.
 	 *
 	 * @param array $request The request parameters to check for permissions.
 	 *
@@ -741,7 +741,7 @@ class Suite_Manager extends Page
 
 
 	/**
-	 * Determine whether the current API exists or not. 
+	 * Determine whether the current API exists or not.
 	 *
 	 * @param string	$system The system (read: asset) to load.
 	 * @param string	$method The method the system should be able to handle.
@@ -773,8 +773,8 @@ class Suite_Manager extends Page
 
 	/**
 	 * Encode a string into JSON
-	 * 
-	 * @param mixed $data	The content to encode into JSON 
+	 *
+	 * @param mixed $data	The content to encode into JSON
 	 *
 	 * @return string
 	 * @access public
@@ -796,8 +796,8 @@ class Suite_Manager extends Page
 
 	/**
 	 * Decode a string into JSON
-	 * 
-	 * @param string $data	The content to encode into JSON 
+	 *
+	 * @param string $data	The content to encode into JSON
 	 *
 	 * @return string
 	 * @access public
@@ -1027,7 +1027,7 @@ class Suite_Manager extends Page
 
 
 	/**
-	 * Send a request to another system. 
+	 * Send a request to another system.
 	 *
 	 * @param string $targetid ID of the destination system.
 	 * @param string $format   The format to return the results as.
@@ -1104,7 +1104,7 @@ class Suite_Manager extends Page
 		}//end if
 
 		$response = $this->sendCURLAPIRequest(
-				$apiURL,	
+				$apiURL,
 				$message,
 				$userAgentStr
 			);
@@ -1146,7 +1146,7 @@ class Suite_Manager extends Page
 		// First collect the systems marked for deletion and addition.
 		// Once it pulls from all live systems, and if everyone has the same
 		// addition/deletion, then we can remove the sync_status. If any of the
-		// systems have not got the message, then we will turn the flag to be 
+		// systems have not got the message, then we will turn the flag to be
 		// FALSE, and sync_status will remain.
 		$markedForDeletion = array();
 		$markedForAddition = array();
@@ -2085,7 +2085,7 @@ class Suite_Manager extends Page
 	}//end buildResponseXMLDom()
 
 
-	/**  
+	/**
 	 * Get the response type from the XML DOM structure.
 	 *
 	 * @param object $parentNode Parent DOM node to have the content tree.
@@ -2301,7 +2301,7 @@ class Suite_Manager extends Page
 
 
 	/**
-	 * Build the JSON response string. 
+	 * Build the JSON response string.
 	 *
 	 * @param mixed $content	The content to JSON-ify
 	 *

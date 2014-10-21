@@ -68,11 +68,14 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	{
 		// set a hidden field with initial value of '0'
 		// set value to '1' when the validate button is clicked
-		$o->openField(translate('bm_job_validation_button'));
+		$o->openField(translate('Validate Job'));
+
 			?> <?php
-				echo normal_button($prefix.'_validation_button', translate('bm_job_validation_button'), 'onClick= validate(); this.form.submit();');
+				echo normal_button($prefix.'_validation_button', translate('Validate Job'), 'onClick= validate(); this.form.submit();');
+
 				echo hidden_field($prefix.'_validation_hidden', '0');
-				echo $o->note(translate('bm_job_validation_validate_job'));
+				echo $o->note(translate('Press the Validate Job button to check for setting errors'));
+
 			// javascript to update the value of hidden validation form element
 			?>
 			<script>
@@ -92,15 +95,19 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 			$details_info = $bm->generateJobDetails($asset, $post_office);
 			$errors = $bm->isValidJob($details_info, TRUE);
-			$o->openField(translate('bm_job_validation_result'));
+			$o->openField(translate('Result'));
+
 				if (empty($errors)) {
-					echo translate('bm_job_validation_successful');
+					echo translate('Job is valid.');
+
 				} else {
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<th class="sq-backend-table-header"><?php echo translate('bm_configuration'); ?></th>
-							<th class="sq-backend-table-header"><?php echo translate('bm_warning'); ?></th>
+							<th class="sq-backend-table-header"><?php echo translate('Configuration'); ?></th>
+
+							<th class="sq-backend-table-header"><?php echo translate('Warning'); ?></th>
+
 						</tr>
 					<?php
 					foreach ($errors as $error) {
@@ -150,7 +157,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function paintWarning(&$asset, &$o, $prefix)
 	{
-		?><span class="sq-backend-warning"><?php echo translate('bm_warning_changes_no_effect'); ?></span><?php
+		?><span class="sq-backend-warning"><?php echo translate('This job has already been started. Configuration changes will not affect the current mailout unless the job is cancelled and restarted'); ?></span><?php
+
 		return TRUE;
 
 	}//end paintWarning()
@@ -302,9 +310,12 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th class="sq-backend-table-header"><?php echo translate('date'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('body'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('Date'); ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Subject'); ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Body'); ?></th>
+
 					</tr>
 				<?php
 				foreach ($logs as $log_entry) {
@@ -421,7 +432,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		$recipient = array_get_index($_REQUEST, $prefix.'_preview_address', '');
 		if (empty($recipient) || !valid_email($recipient)) {
-			trigger_localised_error('BML0013', E_USER_WARNING, $recipient);
+			trigger_localised_error('BML0013', sprintf(translate('Invalid email address \'%s\'.'), $recipient), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -433,6 +444,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$message = $ms->newMessage(Array(), 'bulkmail.preview', $msg_reps);
+			$message->subject = translate('Bulkmail Previewed');
+			$message->body    = translate('<SQ_MSG_TAGLINE>%assetid%</SQ_MSG_TAGLINE> has sent a preview email to %email_addr%');
 
 			$message->parameters['assetid'] = $asset->id;
 			$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
@@ -467,9 +480,12 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><?php echo translate('date'); ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('body'); ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('Date'); ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Subject'); ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Body'); ?></th>
+
 				</tr>
 			<?php
 			foreach ($logs as $log_entry) {
@@ -483,7 +499,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			}
 			?></table><?php
 		} else {
-			echo translate('bm_job_preview_never');
+			echo translate('This email has never been previewed');
+
 		}
 
 		return $write_access;
@@ -532,18 +549,23 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			// Match (drop-down) \ disable when "disable" selected
 			// Text  (text)      /
 			$contents = Array(
-							1	=> translate('enabled'),
-							0	=> translate('disabled'),
+							1	=> translate('Enabled'),
+
+							0	=> translate('Disabled'),
+
 						);
 
 			combo_box($field_prefix.'_enabled', $contents, FALSE, $enabled, FALSE);
 
 			echo '<div id="'.$field_prefix.'_settings" style="padding: 1em 0em;">';
 				$contents = Array(
-								1	=> translate('matches'),
-								0	=> translate('does_not_match'),
+								1	=> translate('Matches'),
+
+								0	=> translate('Does Not Match'),
+
 							);
-				echo translate('bulkmail_job_filter_explanation').'<br/>';
+				echo translate('Emails will be sent if the filter is enabled, and the body text of each bulkmail:').'<br/>';
+
 				combo_box($field_prefix.'_match', $contents, FALSE, $match, FALSE);
 				echo ' ';
 				text_box($field_prefix.'_text', $filter_text, 30);
@@ -552,21 +574,28 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		} else {
 			if ($enabled) {
 				if (!empty($filter_text)) {
-					echo translate('enabled').'<br/>';
-					echo translate('bulkmail_job_filter_explanation').'<br/>';
+					echo translate('Enabled').'<br/>';
+
+					echo translate('Emails will be sent if the filter is enabled, and the body text of each bulkmail:').'<br/>';
+
 					if ($match) {
-						echo translate('bulkmail_job_filter_enabled_format_true', $filter_text);
+						echo sprintf(translate('Matches: %s'), $filter_text);
+
 					} else {
-						echo translate('bulkmail_job_filter_enabled_format_false', $filter_text);
+						echo sprintf(translate('Does Not Match: %s'), $filter_text);
+
 					}
 				} else {
 					echo '<span class="sq-backend-warning">';
-					echo translate('bulkmail_job_enabled_but_not_valid');
+					echo translate('Enabled, but not valid');
+
 					echo '</span><br/>';
-					echo translate('bulkmail_job_enabled_but_not_valid_explanation');
+					echo translate('The body filter is set to be enabled, however it cannot run without text to match against.');
+
 				}
 			} else {
-				echo translate('disabled');
+				echo translate('Disabled');
+
 			}
 		}
 
@@ -627,7 +656,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 						 );
 
 		if ($subscription_enabled) {
-			$o->openField(translate('categories'));
+			$o->openField(translate('Categories'));
+
 				echo '<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">';
 				echo '<tr><td rowspan =2 width="12%">Name</td><td colspan="3">Rules</td></tr>';
 				echo '<tr><td width="15%">Type</td><td>Details</td><td>Delete?</td></tr>';
@@ -686,7 +716,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				}//end foreach
 				echo "</table>";
 				if ($write_access) {
-					label(translate('new_category'), $prefix.'_new_category_name');
+					label(translate('New Category'), $prefix.'_new_category_name');
+
 					echo '&nbsp;';
 					text_box($prefix.'_new_category_name', '', 15);
 				}
@@ -786,7 +817,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		<tr>
 			<td>
 				<?php
-					echo '<b>'.translate('start_date').'</b>';
+					echo '<b>'.translate('Start Date').'</b>';
+
 				?>
 			</td>
 			<td>
@@ -813,7 +845,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 						$from->printField();
 				} else {
 					if ($start_date == date('Y-m-d H:i').':00') {
-						echo translate('not_configured');
+						echo translate('Not Configured');
+
 					} else {
 						echo $start_date;
 					}
@@ -824,7 +857,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		<tr>
 			<td>
 				<?php
-					echo '<b>'.translate('repeating').'</b>';
+					echo '<b>'.translate('Repeating').'</b>';
+
 				?>
 			</td>
 			<td>

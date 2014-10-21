@@ -20,7 +20,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 /**
 * Squiz_Suite_System_Search
 *
-* This system provides method that any registered Squiz Suite product can call on. 
+* This system provides method that any registered Squiz Suite product can call on.
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
@@ -47,7 +47,7 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 
 
     /**
-    * Returns a list of sitemap xml for use with Funnelback. 
+    * Returns a list of sitemap xml for use with Funnelback.
     *
     * @param array $urls     An array of urls to get the sitemap for.
     * @param array $excludes An array of urls to exclude from the sitemap.
@@ -65,27 +65,27 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 		if ($systemid === NULL) {
 			return '';
 		}//end if
-        
+
         // Remove duplicate
         $urls = array_unique($urls);
         $excludes = array_unique($excludes);
-        
+
         foreach ($urls as $single_url) {
             $protocol = parse_url($single_url, PHP_URL_SCHEME);
             $real_url = str_replace($protocol.'://', '', $single_url);
-        
+
             $asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $real_url, TRUE, TRUE);
-        
+
             // Asset not found, skip over
             if (is_null($asset)) continue;
-        
+
             // Pass into Funnelback
             $collected_xmls = $fb->getXMLCache(Array($single_url), $asset->id, FALSE, $excludes);
-        
+
             foreach ($collected_xmls as $collect_xml) {
                 $content = array_get_index($collect_xml, 'xml', '');
                 if (empty($content)) continue;
-        
+
                 $xml[] = $content;
             }//end foreach
         }//end foreach
@@ -106,14 +106,14 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
                         $real_userids = array();
                         foreach ($userids as $userid) {
                             if ($userid == 'public') {
-                                $real_userids[] = "'public'"; 
+                                $real_userids[] = "'public'";
                             } else {
                                 $real_userids[] = "'".$systemid.'://'.$userid."'";
                             }//end if
                         }//end foreach
 
                         $real_userids_string = implode(',', $real_userids);
-                        
+
                         // Finally, replace the corrected string.
                         $pattern = '/<fbmeta name="access_locks" content="(.*?)" \/>/i';
                         $replace = '<fbmeta name="access_locks" content="'.$real_userids_string.'" />';
@@ -124,18 +124,18 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 
 			$xml[$index] = preg_replace('/<url>(.*?)<\/url>/i', '<url>\\1<fbmeta name="SQUIZPRODUCTID" content="'.$systemid.'" /></url>', $piece);
 		}
-        
+
         if (!empty($xml)) {
             return $xml;
         }//end if
-        
+
         throw new Exception('Error: No urls found');
 
     }//end getSitemapXml()
 
 
     /**
-    * Returns the page content of a url 
+    * Returns the page content of a url
     *
     * @param string $url        The url to get the page content for.
     *
@@ -210,14 +210,14 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 		$_SERVER['PHP_SELF']  = $old_server_self;
 
 		return $response;
-        
+
         throw new Exception('Error: No urls found');
 
     }//end getPageContent()
 
 
     /**
-     * The API function for returning the asset info. 
+     * The API function for returning the asset info.
      *
      * @param array $urls     An array of the URLs to get the info for.
      *
@@ -359,7 +359,7 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 		if (empty($userid)) return Array('success' => FALSE);
 		if (!$am->assetExists($userid)) return Array('success' => FALSE);
 
-		// passed userid doesnt match 
+		// passed userid doesnt match
 		// the user configured return false
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager', TRUE);
 		if ($fm->attr('user') != $userid) return Array('success' => FALSE);
@@ -368,7 +368,7 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 		$fb_user = $am->getAsset($userid);
 		if ($fb_user->status === $status) return Array('success' => TRUE);
 
-		// all checks done and now we sure we need to 
+		// all checks done and now we sure we need to
 		// change the status of the user asset passed
 		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_status.inc';
 		$init_hipo = new HIPO_Job_Edit_Status();
@@ -385,7 +385,7 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 			return Array('success' => FALSE);
 		}
 		$init_hipo->freestyle();
-		
+
 		$errors = $init_hipo->getErrors();
 		if(!empty($errors)) {
 			error_log($errors);
@@ -417,7 +417,7 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 		// Get a list of all the installed authentication systems
 		$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', E_USER_ERROR);
+			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 			return;
 		}
 

@@ -72,7 +72,7 @@ class Package_Manager_Import_Tools extends Package_Manager
 		$import_tools_manager = new Import_Tools_Manager();
 		$import_tools_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$import_tools_manager->create($import_tools_manager_link)) {
-			trigger_localised_error('IMP0001', E_USER_ERROR);
+			trigger_localised_error('IMP0001', translate('Import Tools Manager NOT CREATED'), E_USER_ERROR);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('import_tools_manager', $import_tools_manager->id);

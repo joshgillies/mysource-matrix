@@ -56,8 +56,10 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		}
 
 		// set default edit parameters
-		$this->_edit_params['true_text']  = translate('true');
-		$this->_edit_params['false_text'] = translate('false');
+		$this->_edit_params['true_text']  = translate('True');
+
+		$this->_edit_params['false_text'] = translate('False');
+
 		$this->_edit_params['empty_text'] = '';
 
 	}//end constructor
@@ -102,7 +104,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('true_text'); ?></td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('True Text'); ?></td>
+
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) {
@@ -114,7 +117,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('false_text'); ?></td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('False Text'); ?></td>
+
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) {
@@ -129,7 +133,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 			if ($this->_params['allow_empty']) {
 				?>
 				<tr>
-					<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('empty_text'); ?></td>
+					<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('Empty Text'); ?></td>
+
 					<td class="sq-backend-table-cell">
 						<?php
 						if ($write_access) {

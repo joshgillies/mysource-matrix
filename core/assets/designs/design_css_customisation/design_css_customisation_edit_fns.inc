@@ -58,9 +58,11 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	{
 		$customised_areas = $asset->getCustomisedAreas();
 		if (empty($customised_areas)) {
-			echo translate('core_design_customisation_no_design_areas_customised');
+			echo translate('No design areas are customised yet.');
+
 		} else {
-			$this->_paintDesignAreaList($customised_areas, translate('core_remove_customisation_question'), $prefix.'_remove_customisation', $asset->writeAccess('links'), TRUE, TRUE);
+			$this->_paintDesignAreaList($customised_areas, translate('Remove Customisation?'), $prefix.'_remove_customisation', $asset->writeAccess('links'), TRUE, TRUE);
+
 		}
 
 	}//end paintCustomisedDesignAreas()
@@ -105,7 +107,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// regenerate the design_file.php and css_file.php here (because the processBackend function
 		// doesn't do it automatically any more
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -114,7 +116,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 		    'parentid'	=> $parent_design->id,
 		);
 		$hh->queueHipo('hipo_job_regenerate_design', $vars);
-		
+
 		return TRUE;
 
 	}//end processCustomisedDesignAreas()
@@ -134,9 +136,11 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	{
 		$uncustomised_areas = $asset->getUnCustomisedAreas();
 		if (empty($uncustomised_areas)) {
-			echo translate('core_design_customisation_all_design_areas_customised');
+			echo translate('All design areas have been customised.');
+
 		} else {
-			$this->_paintDesignAreaList($uncustomised_areas, translate('core_customise_question'), $prefix.'_customise', $asset->writeAccess('links'));
+			$this->_paintDesignAreaList($uncustomised_areas, translate('Customise?'), $prefix.'_customise', $asset->writeAccess('links'));
+
 		}
 
 	}//end paintUnCustomisedDesignAreas()
@@ -344,8 +348,10 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-backend-table-header" width="33%"><?php echo translate('type'); ?></th>
-				<th class="sq-backend-table-header" width="33%"><?php echo translate('core_design_area'); ?></th>
+				<th class="sq-backend-table-header" width="33%"><?php echo translate('Type'); ?></th>
+
+				<th class="sq-backend-table-header" width="33%"><?php echo translate('Design Area'); ?></th>
+
 			<?php
 				if ($write_access) {
 			?>
@@ -361,14 +367,14 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			$da = $am->getAsset($link['minorid'], $link['minor_type_code']);
 
 			if ($da->attr('id_name') == '') {
-				trigger_localised_error('CORE0154', E_USER_NOTICE, $da->id);
+				trigger_localised_error('CORE0154', sprintf(translate('Design Area #%s does not have an id_name set. Attempting to recover.'), $da->id), E_USER_NOTICE);
 				foreach ($links as $link) {
 					if ($link['minorid'] == $da->id) {
 						if (!empty($link['value'])) {
 							$da->setAttrValue('id_name', $link['value']);
 							$da->saveAttributes();
 						} else {
-							trigger_localised_error('CORE0149', E_USER_WARNING, $da->id);
+							trigger_localised_error('CORE0149', sprintf(translate('Could not recover id_name for design area #%s'), $da->id), E_USER_WARNING);
 						}
 						break;
 					}

@@ -16,90 +16,122 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes"  limbo_access="1">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="25" height="1" />
-		</field>
-	</section>
-	<section name="Asset Selection" write_access="write:content"  limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetTypes"   />
-				<process_function name="processAssetTypes" />
-			</function_call>
-		</field>
-	</section>
-	<section name="List Settings" write_access="write:content"  limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintRootNode"  />
-				<process_function name="processRootNode" />
-			</function_call>
-		</field>
-		<field attribute="display_all_assets">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="subs_only">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="direction">
-			<selection style="list" />
-		</field>
-		<field attribute="min_depth">
-			<int width="5" />
-		</field>
-		<field attribute="max_depth">
-			<int width="5" />
-		</field>
-		<field attribute="group_by">
-			<selection style="list" />
-		</field>
-		<field attribute="num_per_page">
-			<text width="30" />
-		</field>
-		<field attribute="a_z_style">
-			<selection style="list" />
-		</field>
-		<field attribute="a_z_letter_format">
-			<text width="30" />
-		</field>
-		<field attribute="min_hitcount">
-			<int width="5" />
-		</field>
-		<field attribute="max_hitcount">
-			<int width="5" />
-		</field>
-	</section>
-	<section name="List Position Settings" write_access="write:attributes"  limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetPositions"   />
-				<process_function name="processAssetPositions" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Dynamic Parameters" write_access="write:attributes"  limbo_access="1">
-		<field attribute="parameter_map" format="new_line">
-			<parameter_map />
-		</field>
-	</section>
-	<section name="Structured Root Selector Options" write_access="write:attributes"  limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredDropdownOptions"   />
-				<process_function name="processStructuredDropdownOptions" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Button Text" write_access="write:attributes"  limbo_access="1">
-		<field attribute="submit_button_text">
-			<text width="25" height="1" />
-		</field>
-		<field attribute="reset_button_text">
-			<text width="25" height="1" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="Asset Selection" write_access="write:content" limbo_access="1">
+        <field>
+            <function_call>
+                <paint_function name="paintAssetTypes" />
+                <process_function name="processAssetTypes" />
+            </function_call>
+        </field>
+    </section>
+    <section name="List Settings" write_access="write:content" limbo_access="1">
+        <field>
+            <function_call>
+                <paint_function name="paintRootNode" />
+                <process_function name="processRootNode" />
+            </function_call>
+        </field>
+        <field attribute="display_all_assets">
+            <display_name>Assets With No Hit Count</display_name>
+            <note>If set to 'Yes', all assets above or below the root node (depending on your Order setting) will be displayed regardless of whether or not they have a hit count.  Otherwise, only assets with a hit count will be displayed.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="subs_only">
+            <display_name>Direct Links Only</display_name>
+            <note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="direction">
+            <display_name>Lookup Direction</display_name>
+            <note>Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below.</note>
+            <selection style="list" />
+        </field>
+        <field attribute="min_depth">
+            <display_name>Minimum Depth/Height</display_name>
+            <note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0, will include the root nodes in the results</note>
+            <int width="5" />
+        </field>
+        <field attribute="max_depth">
+            <display_name>Maximum Depth/Height</display_name>
+            <note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0 (with the minimum depth/height set to 0 as well) will only return the root nodes.</note>
+            <int width="5" />
+        </field>
+        <field attribute="group_by">
+            <display_name>List Format</display_name>
+            <note>A standard list displays all assets on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;An A-Z listing displays search terms grouped by their first letter.
+			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.</note>
+            <selection style="list" />
+        </field>
+        <field attribute="num_per_page">
+            <display_name>Assets Per Page</display_name>
+            <note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard or custom grouping list formats..&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).&lt;br/&gt;Keywords can be used to dynamically set the number of items on the page.</note>
+            <text width="30" />
+        </field>
+        <field attribute="a_z_style">
+            <display_name>A-Z Listing Style</display_name>
+            <note>A Single Page will display all assets on one page, with headings for each letter in the list. When a user clicks a letter in the list of characters, it will automatically jump to that letter on the page.</note>
+            <selection style="list" />
+        </field>
+        <field attribute="a_z_letter_format">
+            <display_name>A-Z Letter Format</display_name>
+            <note>This option only applies for a Single Page A-Z Listing.&lt;br/&gt; Available keyword is %letter_group% which generates an anchored heading for each letter.</note>
+            <text width="30" />
+        </field>
+        <field attribute="min_hitcount">
+            <display_name>Minimum Hit Count Value</display_name>
+            <note>If this value is set, only assets with a hit count value greater than or equal to the specified value will be listed. If a negative value is specified there will be no minimum hit count value.</note>
+            <int width="5" />
+        </field>
+        <field attribute="max_hitcount">
+            <display_name>Maximum Hit Count Value</display_name>
+            <note>If this value is set, only assets with a hit count value less than or equal to the specified value will be listed. If a negative value is specified there will be no maximum hit count value.</note>
+            <int width="5" />
+        </field>
+    </section>
+    <section name="List Position Settings" write_access="write:attributes" limbo_access="1">
+        <field>
+            <display_name>Asset Positions</display_name>
+            <note>You can configure the list to include certain assets at specific positions, even if they would not normally be included in the list.</note>
+            <function_call>
+                <paint_function name="paintAssetPositions" />
+                <process_function name="processAssetPositions" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Dynamic Parameters" write_access="write:attributes" limbo_access="1">
+        <field attribute="parameter_map" format="new_line">
+            <parameter_map />
+        </field>
+    </section>
+    <section name="Structured Root Selector Options" write_access="write:attributes" limbo_access="1">
+        <field>
+            <display_name>Customise No Results Bodycopy?</display_name>
+            <note>If this is set to Yes, an additional &quot;Page Contents (No Results)&quot; bodycopy will appear, allowing you to specify different contents when there are no assets to list. Note that this is turned on by default.</note>
+            <function_call>
+                <paint_function name="paintStructuredDropdownOptions" />
+                <process_function name="processStructuredDropdownOptions" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Button Text" write_access="write:attributes" limbo_access="1">
+        <field attribute="submit_button_text">
+            <display_name>Submit Button Text</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+        <field attribute="reset_button_text">
+            <display_name>Reset Button Text</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
 </contents>

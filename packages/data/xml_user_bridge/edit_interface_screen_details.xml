@@ -16,26 +16,34 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="data_url">
-			<url width="30" height="1" protocols="http,https" />
-		</field>
-		<field attribute="refresh_time">
-			<duration biggest_units="days" smallest_units="seconds" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintUserTypeChooser" />
-				<process_function name="processUserTypeChooser" />
-			</function_call>
-		</field>
-	</section>
-	<section name="XML Format" write_access="write:attributes">
-		<function_call>
-			<paint_function name="paintXMLFormat" />
-		</function_call>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note></note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="data_url">
+            <display_name>Data URL</display_name>
+            <note></note>
+            <url width="30" height="1" protocols="http,https" />
+        </field>
+        <field attribute="refresh_time">
+            <display_name>Refresh Time</display_name>
+            <note>The bridge will refresh its data file from the data URL above if the data file is older than the duration set here</note>
+            <duration biggest_units="days" smallest_units="seconds" />
+        </field>
+        <field>
+            <display_name>User Type</display_name>
+            <note>Choose the asset type that the bridge should expose under the groups</note>
+            <function_call>
+                <paint_function name="paintUserTypeChooser" />
+                <process_function name="processUserTypeChooser" />
+            </function_call>
+        </field>
+    </section>
+    <section name="XML Format" write_access="write:attributes">
+        <function_call>
+            <paint_function name="paintXMLFormat" />
+        </function_call>
+    </section>
 </contents>

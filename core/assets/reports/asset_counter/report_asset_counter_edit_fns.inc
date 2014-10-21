@@ -76,7 +76,8 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 		if (empty($job_vars['unique_types'])) {
 			// setup initial report parameters
 
-			$step_data['message'] = translate('core_obtaining_asset_list');
+			$step_data['message'] = translate('Obtaining and preparing the list of assets ...');
+
 
 			$children = Array();
 			if (!empty($types)) {
@@ -110,7 +111,8 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			if (empty($children)) {
 				$step_data['percent_done'] = 100;
 				$step_data['complete']     = TRUE;
-				$job->_addError(translate('report_not_generated'),TRUE);
+				$job->_addError(translate('This report has not been generated'),TRUE);
+
 				return FALSE;
 			}
 
@@ -126,7 +128,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($report_dir)) {
 				if (!create_directory($report_dir)) {
-					trigger_localised_error('CORE0011', E_USER_WARNING);
+					trigger_localised_error('CORE0011', translate('Unable to create data directory, report generation aborted'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -138,8 +140,9 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			// provide human descriptions for each type of Asset
 			// and save the report
 
-			$step_data['message'] = translate('core_get_readable_asset_descriptions');
-			
+			$step_data['message'] = translate('Getting readable asset type descriptions ...');
+
+
 			$report_contents .= '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n";
 			// generate the report
 			$report_contents .= '<asset_types>';
@@ -159,7 +162,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			// file manipulation section
 			$file_handler = fopen($xml_file_name, 'w');
 			if ($file_handler === FALSE) {
-				trigger_localised_error('CORE0017', E_USER_WARNING);
+				trigger_localised_error('CORE0017', translate('Unable to open report file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 			fwrite($file_handler, $report_contents);
@@ -192,7 +195,8 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 
 		$report_path = $asset->data_path.'/'.$this->report_name;
 		if (!is_file($report_path)) {
-			echo translate('report_not_generated');
+			echo translate('This report has not been generated');
+
 			return;
 		}
 
@@ -202,7 +206,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			$dom = new DOMDocument();
 			// use DOMDocument::loadXML() to see if there is any entity  reference loop
 			// which may exhaust us of the memory limit, if not then continue as normal
-			if ($dom->loadXML(file_get_contents($report_path), LIBXML_NOENT)) { 
+			if ($dom->loadXML(file_get_contents($report_path), LIBXML_NOENT)) {
 				$root = simplexml_import_dom($dom);
 			} else {
 				// don't worry about any warning, if we are here then PHP has already raised the warning for us
@@ -229,7 +233,8 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 
 		$o->closeSection();
 
-		$o->openSection(translate('asset_type_counts'));
+		$o->openSection(translate('Asset Type Counts'));
+
 			$o->openField('');
 				if (empty($asset_types)) {
 					echo 'Report is empty';
@@ -333,19 +338,23 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 
 		$types = $asset->attr('types');
 		if (empty($types)) {
-			echo translate('core_no_types_defined');
+			echo translate('There are no Types Defined');
+
 			return FALSE;
 		}
 
 		?>
 		<table class="sq-backend-table">
 		<tr>
-			<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-			<td class="sq-backend-table-header"><?php echo translate('inherit_types'); ?></td>
+			<td class="sq-backend-table-header"><?php echo translate('Asset Type'); ?></td>
+
+			<td class="sq-backend-table-header"><?php echo translate('Inherit Types'); ?></td>
+
 			<?php
 			if ($write_access) {
 				?>
-				<td class="sq-backend-table-header"><?php echo translate('remove_question'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('Remove?'); ?></td>
+
 				<?php
 			}
 			?>
@@ -364,7 +373,9 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 						if ($write_access) {
 							check_box($prefix."_inherit_types[$type]", $type, $inherit);
 						} else {
-							echo ($inherit) ? translate('yes') : translate('no');
+							echo ($inherit) ? translate('Yes') : translate('No');
+
+
 						}
 						?>
 					</td>

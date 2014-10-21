@@ -95,7 +95,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 		<table border="0" class="sq-backend-table">
 			<tr>
-                <th width="20%"><?php echo translate('oauth_consumer_key'); ?></th>
+                <th width="20%"><?php echo translate('Consumer Key'); ?></th>
+
                 <td>
                     <?php
                         if ($read_only) {
@@ -107,7 +108,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
                 </td>
             </tr>
 			<tr>
-                <th width="20%"><?php echo translate('oauth_consumer_secret'); ?></th>
+                <th width="20%"><?php echo translate('Consumer Secret'); ?></th>
+
                 <td>
                     <?php
                         if ($read_only) {
@@ -120,7 +122,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
             </tr>
 			<?php if (!isset($current_value['type']) || $current_value['type'] == 'THREE_LEGGED') {?>
 			<tr>
-				<th width="20%"><?php echo translate('http_request_method'); ?></th>
+				<th width="20%"><?php echo translate('Method'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -132,7 +135,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('oauth_request_token_url'); ?></th>
+				<th><?php echo translate('Request Token Request URL'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -144,7 +148,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 				</td>
 			</tr>
 			<tr>
-                <th><?php echo translate('oauth_authorization_url'); ?></th>
+                <th><?php echo translate('Authorisation Request URL'); ?></th>
+
                 <td>
                     <?php
                         if ($read_only) {
@@ -156,7 +161,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
                 </td>
 			</tr>
 			<tr>
-                <th><?php echo translate('oauth_access_token_url'); ?></th>
+                <th><?php echo translate('Access Token Request URL'); ?></th>
+
                 <td>
                     <?php
                         if ($read_only) {
@@ -168,7 +174,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
                 </td>
             </tr>
 			<tr>
-                <th><?php echo translate('oauth_callback_url'); ?></th>
+                <th><?php echo translate('Call Back URL'); ?></th>
+
                 <td>
                     <?php
                         if ($read_only) {
@@ -181,7 +188,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			</tr>
 			<?php }?>
 			<tr>
-                <th><?php echo translate('oauth_signature_method'); ?></th>
+                <th><?php echo translate('Signature Method'); ?></th>
+
                 <td>
                     <?php
                         if ($read_only) {
@@ -194,7 +202,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			</tr>
 			<?php if (!isset($current_value['type']) || $current_value['type'] == 'THREE_LEGGED') {?>
 			<tr>
-				<th><?php echo translate('http_request_request_headers'); ?></th>
+				<th><?php echo translate('Request Headers'); ?></th>
+
 				<td>
 					<?php
 					$hl = new Asset_Attribute_Option_List();
@@ -209,7 +218,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			if (($current_value['method'] == 'POST') || ($current_value['method'] == 'PUT')) {
 			?>
 			<tr>
-				<th><?php echo translate('http_request_request_body'); ?></th>
+				<th><?php echo translate('Request Body'); ?></th>
+
 				<td>
 					<?php
 						if ($read_only) {
@@ -221,7 +231,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 				</td>
 			</tr>
             <tr>
-                <th><?php echo translate('http_request_timeout'); ?></th>
+                <th><?php echo translate('Timeout (seconds)'); ?></th>
+
                 <td>
                     <?php
                         if ($read_only) {
@@ -597,7 +608,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 			// to move on to user authorization, token and token secret are required
 			if (empty($token_info) || !isset($token_info['oauth_token']) || !isset($token_info['oauth_token_secret'])) {
-				$this->_errors[] = translate('oauth_request_token_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+				$this->_errors[] = sprintf(translate('A request for a request token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s'), $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+
 				return $this->_res;
 			}
 
@@ -607,7 +619,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		}
 
 		// shouldn't reach here...but if it does, it means we didn't get a response body, so, something must have gone wrong...
-		$this->_errors[] = translate('oauth_request_token_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+		$this->_errors[] = sprintf(translate('A request for a request token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s'), $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+
 
 		return NULL;
 
@@ -652,7 +665,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		if (empty($request_token) || !isset($request_token['oauth_token'])) {
 			$auth_url = $this->_config['authorization_url'];
 			$this->_replaceKeywords($auth_url);
-			$this->_errors[] = translate('oauth_request_token_not_found', $auth_url);
+			$this->_errors[] = sprintf(translate('A user authorisation has been request without a request token. URL: %1$s'), $auth_url);
+
 			return NULL;
 		}
 
@@ -698,7 +712,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		// we need to rely on the http code they return in the response to check if the request went through
 		// as the presentation of authorization/log in pages are up to the service provider...
 		if ($this->_res['response']['info']['http_code'] >= 400) {
-			$this->_errors[] = translate('oauth_authorization_request_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+			$this->_errors[] = sprintf(translate('A user authorisation has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s'), $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+
 			return $this->_res;
 		}
 
@@ -729,7 +744,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		if (!isset($authorized_token) || !isset($verifier) || !isset($token_secret)) {
 			$access_url = $this->_config['access_token_url'];
 			$this->_replaceKeywords($access_url);
-			$this->_errors[] = translate('oauth_access_token_missing_params', $access_url, $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+			$this->_errors[] = sprintf(translate('Missing paramters (authorised request token, token secret and/or verifier) required for an access token request. URL: %1$s'), $access_url, $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+
 			return NULL;
 		}
 
@@ -827,7 +843,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			$token_info = $this->_getTokenInfoArray($this->_res['response']['body']);
 
 			if (empty($token_info) || !isset($token_info['oauth_token']) || !isset($token_info['oauth_token_secret'])) {
-				$this->_errors[] = translate('oauth_access_token_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+				$this->_errors[] = sprintf(translate('A request for an access token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s'), $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
+
 				return $this->_res;
 			}
 
@@ -856,7 +873,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 		// we need feed url, access token and access secret
 		if (empty($url) || ($this->getType() == 'THREE_LEGGED' && (empty($access_token) || empty($access_token_secret)))) {
-			$this->_errors[] = translate('oauth_user_data_missing_params', $url);
+			$this->_errors[] = sprintf(translate('Missing parameters (request url, access token and/or access token secret) required to access user data. URL: %1$s'), $url);
+
 			return;
 		}
 

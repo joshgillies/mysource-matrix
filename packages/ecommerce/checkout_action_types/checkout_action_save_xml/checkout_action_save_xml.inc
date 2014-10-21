@@ -71,7 +71,8 @@ class Checkout_Action_Save_Xml extends Checkout_Action
 					}
 					if (empty($location) || !is_dir($location) || !is_writable($location)) {
 						?><br />
-						<span class="sq-backend-warning"><?php echo translate('location_warning'); ?></span>
+						<span class="sq-backend-warning"><?php echo translate('Location does not exist or is not writable'); ?></span>
+
 						<?php
 					}//end if
 					?>

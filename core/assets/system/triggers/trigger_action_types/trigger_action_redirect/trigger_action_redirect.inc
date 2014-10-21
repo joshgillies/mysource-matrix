@@ -108,13 +108,16 @@ class Trigger_Action_Redirect extends Trigger_Action
 
 		$url_string = array_get_index($settings, 'url_string', '');
 		echo '<div class="sq-break-line-inputs">';
-		echo translate('trigger_action_redirect_redirect_url').': ';
+		echo translate('Redirect to URL').': ';
+
 		if ($write_access) {
 			text_box($prefix.'[url_string]', $url_string, 75);
 		} else {
 			echo '<b>"'.$url_string.'"</b>';
 		}
-		echo '<br /><strong>'.translate('note').':</strong> '.translate('trigger_action_redirect_url_instructions');
+		echo '<br /><strong>'.translate('Note').':</strong> '.translate('You may use asset based keywords to construct the redirect URL.');
+
+
 		echo '</div>';
 
 		return ob_get_clean();

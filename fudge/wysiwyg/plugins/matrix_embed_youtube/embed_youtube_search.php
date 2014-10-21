@@ -169,7 +169,7 @@ if ($search_for != '') {
 	// build the results box
 	if (empty($results) && empty($found_asset_line)) {
 		$box_title = translate('search_failed');
-		$html = translate('failed_searching_for', addslashes($search_for));
+		$html = sprintf(translate('failed_searching_for'), addslashes($search_for));
 		$style_base = 'search-failed';
 	} else {
 		$box_title = translate('search_results');

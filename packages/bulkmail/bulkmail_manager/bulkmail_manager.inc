@@ -150,7 +150,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function deleteLink($linkid)
 	{
-			trigger_localised_error('CORE0118', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0118', sprintf(translate('You cannot delete anything from the %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 
 	}//end deleteLink()
@@ -232,7 +232,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		$recipients = $am->assetExists($recipients);
 		if (empty($recipients)) {
-			trigger_localised_error('BML0010', E_USER_ERROR);
+			trigger_localised_error('BML0010', translate('Problematic recipient id found: %s.'), E_USER_ERROR);
 			return FALSE;
 		}
 
@@ -293,7 +293,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$details_info = $this->generateJobDetails($job, $post_office);
 		$errors = $this->isValidJob($details_info, TRUE);
 		if (!empty($errors)) {
-			trigger_localised_error('BML0001', E_USER_WARNING, $errors[0]);
+			trigger_localised_error('BML0001', sprintf(translate('Invalid job. %s'), $errors[0]), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -390,7 +390,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$progress_info['last_updated'] = 0;
 			$data_dir = $this->getJobDataPath($job_id);
 			if (!array_to_file($progress_info, 'progress_info', $data_dir.'/progress_info')) {
-				trigger_localised_error('BML0008', E_USER_WARNING, $data_dir.'/progress_info');
+				trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $data_dir.'/progress_info'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -553,7 +553,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 						 );
 
 		if (!array_to_file($progress_info, 'progress_info', $data_dir.'/progress_info')) {
-			trigger_localised_error('BML0007', E_USER_WARNING, $data_dir.'/progress_info');
+			trigger_localised_error('BML0007', sprintf(translate('Unable to create file: %s.'), $data_dir.'/progress_info'), E_USER_WARNING);
 			return FALSE;
 		} else {
 			return TRUE;
@@ -660,7 +660,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 										 );
 
 		if (!array_to_file($details_info, 'details_info', $data_dir.'/details_info')) {
-			trigger_localised_error('BML0007', E_USER_WARNING, $data_dir.'/details_info');
+			trigger_localised_error('BML0007', sprintf(translate('Unable to create file: %s.'), $data_dir.'/details_info'), E_USER_WARNING);
 			return FALSE;
 		} else {
 			return TRUE;
@@ -709,34 +709,40 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$mf = new Mail();
 		$mail_object = $mf->factory($driver, $details_info['server_details']);
 		if ($mail_object instanceof PEAR_Error) {
-			$errors[] = translate('bm_warning_server_details_error', $mail_object->getMessage());
+			$errors[] = sprintf(translate('Server Details: "%s"'), $mail_object->getMessage());
+
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($mail_object);
 
 		// no recipient
 		$recipients = $details_info['recipients'];
 		if (empty($recipients)) {
-			$errors[] = translate('bm_warning_no_recipient');
+			$errors[] = translate('Recipients: Recipients not set.');
+
 		}
 
 		// no content page
 		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		if (empty($details_info['content_id'])) {
-			$errors[] = translate('bm_warning_no_asset_to_send');
+			$errors[] = translate('Content: \'Asset to Send\' not set.');
+
 		} else {
 			// page is not live
 			$content_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
 			if ($content_page->status != SQ_STATUS_LIVE) {
-				$errors[] = translate('bm_warning_asset_to_send_not_live', $content_page->name, $content_page->id);
+				$errors[] = sprintf(translate('Content: "Asset to Send", %1$s (Id #%2$s), is not live.'), $content_page->name, $content_page->id);
+
 			} else {
 				// no pre-selected user
 				if (empty($details_info['content_gen_as'])) {
-					$errors[] = translate('bm_warning_no_generate_as');
+					$errors[] = translate('Content: \'Generate As\' not set.');
+
 				} else {
 					// cannot login as pre-selected user, is in trash or not live
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_gen_as']);
 					if (!($user instanceof Public_User) && !$user->canLogin()) {
-						$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
+						$errors[] = sprintf(translate('Content: Unable to generate content as %1$s (Id #%2$s), user is either in trash or not live.'), $user->name, $user->id);
+
 					}
 					// pre-selected user does not have (effective) read permission for content page
 					$ids = $GLOBALS['SQ_SYSTEM']->am->getParents($user->id, 'user_group', FALSE);
@@ -744,7 +750,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 					$content_gen_as_read_access = $content_page->readAccess(array_keys($ids));
 					$public_read_access = $content_page->readAccess(Array($public_user->id));
 					if (!$content_gen_as_read_access && !$public_read_access) {
-						$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
+						$errors[] = sprintf(translate('Content: %1$s (Id #%2$s) does not have Read Access to \'Asset to Send\' - %3$s (Id #%4$s).'), $user->name, $user->id, $content_page->name, $content_page->id);
+
 					}
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 				}
@@ -775,7 +782,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			}//end foreach
 			if (!empty($problematic_list)) {
 				asort($problematic_list);
-				$errors[] = translate('bm_warning_recipient_no_read_access', $content_page->name, $content_page->id, implode(', ', $problematic_list));
+				$errors[] = sprintf(translate('Content: The following recipients do not have Read Access to "%1$s" (ID #%2$s): %3$s.'), $content_page->name, $content_page->id, implode(', ', $problematic_list));
+
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
@@ -786,7 +794,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_design']);
 			$public_read_access = $design->readAccess(Array($public_user->id));
 			if (!$public_read_access) {
-				$errors[] = translate('bm_warning_no_public_read_access', $design->name, $design->id);
+				$errors[] = sprintf(translate('Content: %1$s (Id #%2$s) does not have public user read access. Check the status and permissions.'), $design->name, $design->id);
+
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
 		}
@@ -796,7 +805,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_layout']);
 			$public_read_access = $layout->readAccess(Array($public_user->id));
 			if (!$public_read_access) {
-				$errors[] = translate('bm_warning_no_public_read_access', $layout->name, $layout->id);
+				$errors[] = sprintf(translate('Content: %1$s (Id #%2$s) does not have public user read access. Check the status and permissions.'), $layout->name, $layout->id);
+
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($layout);
 		}
@@ -805,17 +815,20 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// no 'from' field
 		if (empty($details_info['from'])) {
-			$errors[] = translate('bm_warning_no_from_field');
+			$errors[] = translate('Header Details: Missing \'From\' field.');
+
 		// 'from' field is not a valid email address
 		} else {
 			if (!valid_email($details_info['from'])) {
-				$errors[] = translate('bm_warning_from_field_invalid_email');
+				$errors[] = translate('Header Details: Email address provided in \'From\' field is invalid.');
+
 			}
 		}
 
 		// no 'subject' field
 		if (empty($details_info['subject'])) {
-			$errors[] = translate('bm_warning_no_subject_field');
+			$errors[] = translate('Header Details: Missing \'Subject\' field');
+
 		}
 
 		if ($report_error) {

@@ -91,16 +91,20 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 
 						<!-- Daily Options -->
 						<div id="<?php echo $prefix; ?>DailyOptions" style="display: <?php echo (($freq{0} == 'D') ? 'block' : 'none') ?>">
-							<input type="radio" <?php echo ((($freq == 'DED') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DED" value="DED" /><?php echo translate('cal_event_every_day'); ?>
+							<input type="radio" <?php echo ((($freq == 'DED') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DED" value="DED" /><?php echo translate('Every day'); ?>
+
 							<?php
 							// Every 'X' days textbox
 							ob_start(); ?>
 								<input type="text" size="2" value="<?php echo trim(substr($freq, 3)); ?>" name="<?php echo $prefix; ?>_num_days" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_DEDx');" />
 								<?php $x_days_tb = ob_get_contents();
 							ob_end_clean(); ?>
-							<br /><input type="radio" <?php echo ((($freq != 'DED') && (substr($freq, 0, 3) == 'DED')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DEDx" value="DEDx" /><?php echo translate('cal_event_every_x_days', $x_days_tb); ?>
-							<br /><input type="radio" <?php echo (((substr($freq, 0, 3) == 'DWD')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DWD" value="DWD" /><?php echo translate('cal_event_every_weekday'); ?>
-							<br /><input type="radio" <?php echo (((substr($freq, 0, 3) == 'DWE')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DWE" value="DWE" /><?php echo translate('cal_event_every_weekend'); ?>
+							<br /><input type="radio" <?php echo ((($freq != 'DED') && (substr($freq, 0, 3) == 'DED')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DEDx" value="DEDx" /><?php echo sprintf(translate('Every %s days'), $x_days_tb); ?>
+
+							<br /><input type="radio" <?php echo (((substr($freq, 0, 3) == 'DWD')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DWD" value="DWD" /><?php echo translate('Every weekday'); ?>
+
+							<br /><input type="radio" <?php echo (((substr($freq, 0, 3) == 'DWE')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DWE" value="DWE" /><?php echo translate('Every weekend day'); ?>
+
 						</div>
 
 						<!-- Weekly Options -->
@@ -123,8 +127,10 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 								<input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_weeks" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_WEWx');" />
 								<?php $x_weeks_tb = ob_get_contents();
 							ob_end_clean(); ?>
-							<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" /><?php echo translate('cal_event_every_week', $week_link); ?>
-							<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" /><?php echo translate('cal_event_every_x_weeks', $x_weeks_tb, $x_weeks_link); ?>
+							<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" /><?php echo sprintf(translate('Every week on %s'), $week_link); ?>
+
+							<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" /><?php echo sprintf(translate('Every %1$s weeks on %2$s'), $x_weeks_tb, $x_weeks_link); ?>
+
 						</div>
 
 						<!-- Monthly options -->
@@ -138,8 +144,10 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 									<?php $x_months_tb = ob_get_contents();
 								ob_end_clean();
 								?>
-								<input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) == 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_M" value="M"><?php echo translate('cal_event_every_month'); ?>
-								<br /><input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) != 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_Mx" value="Mx"><?php echo translate('cal_event_every_x_months', $x_months_tb); ?>
+								<input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) == 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_M" value="M"><?php echo translate('Every month'); ?>
+
+								<br /><input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) != 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_Mx" value="Mx"><?php echo sprintf(translate('Every %s months'), $x_months_tb); ?>
+
 							</td>
 							<td style="width: 60ex">
 								<?php
@@ -149,7 +157,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 									<?php $mfn_month_link = ob_get_contents();
 								ob_end_clean(); ?>
 
-								<input type="radio" <?php echo ((($freq{0} != 'M') || (substr($freq, 0, 3) == 'MFN')) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MFN" /><?php echo translate('cal_event_month_on_day', $mfn_month_link) ?><span id="<?php echo $prefix; ?>_month_date_warning" style="display: none"><?php echo translate('cal_event_when_it_exists') ?></span><br />
+								<input type="radio" <?php echo ((($freq{0} != 'M') || (substr($freq, 0, 3) == 'MFN')) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MFN" /><?php echo sprintf(translate('On the %s day of the month'), $mfn_month_link) ?><span id="<?php echo $prefix; ?>_month_date_warning" style="display: none"><?php echo translate('(when it exists)') ?></span><br />
+
+
 
 								<?php
 								// link to day number on Every 'X' Months on Weekday link
@@ -163,20 +173,26 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 									<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_2"></a>
 									<?php $mfw_day_link = ob_get_contents();
 								ob_end_clean(); ?>
-								  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MFW') ? 'checked="checked" ' : ''); ?>name="<?php echo $prefix; ?>_monthly_type" value="MFW" /><?php echo translate('cal_event_month_on_weekday', $mfw_month_link, $mfw_day_link) ?> <span id="<?php echo $prefix; ?>_month_week_warning" style="display: none"><?php echo translate('cal_event_when_it_exists') ?></span><br />
+								  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MFW') ? 'checked="checked" ' : ''); ?>name="<?php echo $prefix; ?>_monthly_type" value="MFW" /><?php echo sprintf(translate('On the %1$s %2$s of the month'), $mfw_month_link, $mfw_day_link) ?> <span id="<?php echo $prefix; ?>_month_week_warning" style="display: none"><?php echo translate('(when it exists)') ?></span><br />
+
+
 
 								<?php
 								// link to day number on Every 'X' Months on Last Day link
 								ob_start(); ?>
-									<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_date_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"><?php echo translate('last') ?></a>
+									<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_date_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"><?php echo translate('Last') ?></a>
+
 									<?php $mrn_month_link = ob_get_contents();
 								ob_end_clean(); ?>
-								<input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRN') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRN" /><?php echo translate('cal_event_month_on_last_day', $mrn_month_link) ?> <span id="<?php echo $prefix ?>_reverse_month_date_warning" style="display: none"><?php echo translate('cal_event_when_it_exists') ?></span><br />
+								<input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRN') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRN" /><?php echo sprintf(translate('On the %s last day of the month'), $mrn_month_link) ?> <span id="<?php echo $prefix ?>_reverse_month_date_warning" style="display: none"><?php echo translate('(when it exists)') ?></span><br />
+
+
 
 								<?php
 								// link to day number on Every 'X' Months on Last Weekday link
 								ob_start(); ?>
-									<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_week_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"><?php echo translate('last') ?></a>
+									<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_week_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"><?php echo translate('Last') ?></a>
+
 									<?php $mrw_month_link = ob_get_contents();
 								ob_end_clean();
 
@@ -185,7 +201,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 									<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_3"></a>
 									<?php $mrw_day_link = ob_get_contents();
 								ob_end_clean(); ?>
-								<input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRW') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRW" /><?php echo translate('cal_event_month_on_last_weekday', $mrw_month_link, $mrw_day_link) ?> <span id="<?php echo $prefix; ?>_reverse_month_week_warning" style="display: none"><?php echo translate('cal_event_when_it_exists') ?></span>
+								<input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRW') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRW" /><?php echo sprintf(translate('On the %1$s last %2$s of the month'), $mrw_month_link, $mrw_day_link) ?> <span id="<?php echo $prefix; ?>_reverse_month_week_warning" style="display: none"><?php echo translate('(when it exists)') ?></span>
+
+
 							</td>
 						</tr></table>
 
@@ -200,8 +218,10 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 						parent::printDateChooser($prefix.'_stop', $stopdate);
 						$date_chooser = ob_get_contents();
 						ob_end_clean(); ?>
-					  <input type="radio" name="<?php echo $prefix; ?>_stop_date_selected" value="0" <?php echo ($stopdate ? '' : 'checked="checked" '); ?> onkeypress="this.click();" onclick="disableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(translate('cal_event_recur_until_further_notice')); ?>
-					  <br /><input type="radio" <?php echo ($stopdate ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_stop_date_selected" value="1" onkeypress="this.click();" onclick="enableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(translate('cal_event_recur_until_date', '')).$date_chooser; ?>
+					  <input type="radio" name="<?php echo $prefix; ?>_stop_date_selected" value="0" <?php echo ($stopdate ? '' : 'checked="checked" '); ?> onkeypress="this.click();" onclick="disableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(translate('until further notice')); ?>
+
+					  <br /><input type="radio" <?php echo ($stopdate ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_stop_date_selected" value="1" onkeypress="this.click();" onclick="enableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(sprintf(translate('until %1$s%'), '')).$date_chooser; ?>
+
 					</td>
 				</tr>
 
@@ -247,17 +267,17 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		if (isset($_REQUEST[$prefix.'_stop_date_selected']) && ($_REQUEST[$prefix.'_stop_date_selected'])) {
 			$_REQUEST[$prefix.'_stop_year'] = (int)$_REQUEST[$prefix.'_stop_year'];
 			if (($_REQUEST[$prefix.'_stop_year'] < 1900) || ($_REQUEST[$prefix.'_stop_year'] > 2100)) {
-				trigger_localised_error('CAL0039', E_USER_WARNING);
+				trigger_localised_error('CAL0039', translate('You entered an invalid year value in the \'Stop Date\' field'), E_USER_WARNING);
 				return FALSE;
 			}
 			$_REQUEST[$prefix.'_stop_month'] = (int)$_REQUEST[$prefix.'_stop_month'];
 			if (($_REQUEST[$prefix.'_stop_month'] < 1) || ($_REQUEST[$prefix.'_stop_month'] > 12)) {
-				trigger_localised_error('CAL0040', E_USER_WARNING);
+				trigger_localised_error('CAL0040', translate('You entered an invalid month value in the \'Stop Date\' field'), E_USER_WARNING);
 				return FALSE;
 			}
 			$_REQUEST[$prefix.'_stop_day'] = (int)$_REQUEST[$prefix.'_stop_day'];
 			if (($_REQUEST[$prefix.'_stop_day'] < 1) || ($_REQUEST[$prefix.'_stop_day'] > 31)) {
-				trigger_localised_error('CAL0041', E_USER_WARNING);
+				trigger_localised_error('CAL0041', translate('You entered an invalid day value in the \'Stop Date\' field'), E_USER_WARNING);
 				return FALSE;
 			}
 			$res &= $asset->setAttrValue('stop_date', sprintf('%04d-%02d-%02d', $_REQUEST[$prefix.'_stop_year'],  $_REQUEST[$prefix.'_stop_month'], $_REQUEST[$prefix.'_stop_day']).' --:--:--');
@@ -283,7 +303,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				if ((($interval = (int)$_REQUEST[$prefix.'_num_days']) > 0)) {
 					$frequency = 'DED'.$interval;
 				} else {
-					trigger_localised_error('CAL0042', E_USER_WARNING);
+					trigger_localised_error('CAL0042', translate('You entered an invalid number of days in the "every x days" field - it must be between 1 and 30'), E_USER_WARNING);
 					return FALSE;
 				}
 			break;
@@ -292,7 +312,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				if ((($interval = (int)$_REQUEST[$prefix.'_num_weeks']) > 0)) {
 					$frequency = 'WEW'.$interval;
 				} else {
-					trigger_localised_error('CAL0043', E_USER_WARNING);
+					trigger_localised_error('CAL0043', translate('You entered an invalid number of weeks in the "every x weeks" field - it must be at least 1'), E_USER_WARNING);
 					return FALSE;
 				}
 			break;
@@ -301,7 +321,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				if (isset($_REQUEST[$prefix.'_monthly_type']) && in_array($_REQUEST[$prefix.'_monthly_type'], Array('MFN', 'MFW', 'MRN', 'MRW'))) {
 					$frequency = $_REQUEST[$prefix.'_monthly_type'];
 				} else {
-					trigger_localised_error('CAL0044', E_USER_WARNING);
+					trigger_localised_error('CAL0044', translate('You entered an invalid type of monthly frequency'), E_USER_WARNING);
 					return FALSE;
 				}
 			break;
@@ -311,11 +331,11 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					if ((($interval = (int)$_REQUEST[$prefix.'_num_months']) > 0)) {
 						$frequency = $_REQUEST[$prefix.'_monthly_type'].$interval;
 					} else {
-						trigger_localised_error('CAL0045', E_USER_WARNING);
+						trigger_localised_error('CAL0045', translate('You entered an invalid number of months in the "every x months" field\' - it must be at least 1'), E_USER_WARNING);
 						return FALSE;
 					}
 				} else {
-					trigger_localised_error('CAL0046', E_USER_WARNING);
+					trigger_localised_error('CAL0046', translate('You entered an invalid type of monthly frequency'), E_USER_WARNING);
 					return FALSE;
 				}
 			break;

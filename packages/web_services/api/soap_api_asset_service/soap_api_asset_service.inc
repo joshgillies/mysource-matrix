@@ -1162,7 +1162,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 		$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', E_USER_ERROR);
+			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 			return;
 		}
 		$auth_systems = $auth_folder->getAuthSystems();
@@ -1219,7 +1219,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 		$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', E_USER_ERROR);
+			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 			return;
 		}
 		$auth_systems = $auth_folder->getAuthSystems();

@@ -57,7 +57,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('lookups_updating_threshold'));
+		$o->openField(translate('Lookups Updating Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -66,6 +67,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			echo SQ_HIPO_LOOKUPS_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -114,7 +116,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_update_lookups');
+		return translate('Update Lookups');
+
 
 	}//end getHipoName()
 
@@ -130,7 +133,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_updating_lookups'),
+					'name'			=> translate('Updating Lookups'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processLookups',
 									   ),
@@ -193,7 +197,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	{
 		// to start updating lookups, we need to have an asset id to start updating lookups at
 		if (empty($this->_running_vars['assetids'])) {
-			trigger_localised_error('HIPO0001', E_USER_WARNING);
+			trigger_localised_error('HIPO0001', translate('Unable to initialise Update Lookups HIPO, no start asset IDs specified'), E_USER_WARNING);
 			return FALSE;
 		}
 		$db = MatrixDAL::getDb();
@@ -210,7 +214,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if ($asset instanceof Bridge) {
 					if (!method_exists($asset, 'getChildren')) {
-						trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
+						trigger_localised_error('SYS0204', sprintf(translate('Shadow asset handler "%s" can not get children'), $asset->name), E_USER_WARNING);
 					} else {
 						$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren($assetid)));
 					}
@@ -235,7 +239,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 								 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						AND (('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_BACKEND_NAV).' > 0) OR 
+						AND (('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_BACKEND_NAV).' > 0) OR
 							 (('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_SIGNIFICANT).' > 0) AND ';
 				$sql .= (MatrixDAL::getDbType() === 'oci') ? '(l.value IS NOT NULL)))' : '(l.value <> \'\'))) ';
 				$where = 't.treeid LIKE :treeid
@@ -299,12 +303,15 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 
 			if (!is_null($asset)) {
 				if (!$asset->updateLookups($this->_running_vars['auto_add_remaps'])) return FALSE;
-				$step_data['message'] = translate('hipo_updating_lookups_for', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				$step_data['message'] = sprintf(translate('Updating Lookups for "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_cannot_update_lookups', $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not update lookups for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again

@@ -358,12 +358,14 @@ class Conditions_List
 			$conditions_parameters = $this->_getAllConditions();
 			if (!count($conditions_parameters)) {
 				$o->openField('','wide_col');
-					echo '<em>'.translate('no_existing_conditions').'</em>';
+					echo '<em>'.translate('There are no existing conditions.').'</em>';
+
 				$o->closeField();
 			} else {
 				if(!($asset instanceof Paint_Layout_Bodycopy)) {
 					$o->openField('','wide_col');
-						$o->note(translate('condition_configuration_instructions'));
+						$o->note(translate('Setting the <strong>Force No Cache</strong> value to "Yes" on a Condition, will force any page that uses that Condition to always get served with a "no-cache" Cache-Control header.'));
+
 					$o->closeField();
 				}
 			}
@@ -373,7 +375,8 @@ class Conditions_List
 				$o->openSection(ucwords(str_replace('_', ' ', str_replace('condition_', '', $parameters['type_code']))).' Condition');
 
 				// paint keyword name
-				$o->openField(translate('name'));
+				$o->openField(translate('Name'));
+
 				if ($write_access) {
 					text_box($condition_prefix.'_keyword_name', $condition_name, 30);
 				} else {
@@ -387,7 +390,8 @@ class Conditions_List
 				$condition_edit_fns = $this->_getConditionAsset($condition_type, TRUE);
 
 				// paint TRUE/FALSE bit
-				$o->openField(translate('condition_is_true_if'));
+				$o->openField(translate('Condition Is True If'));
+
 				$match_options = call_user_func(Array($condition_type, 'getMatchKeywords'), $condition_type);
 				if ($write_access) {
 					combo_box($condition_prefix.'_match', $match_options, FALSE, $parameters['restriction']['match']);
@@ -405,14 +409,16 @@ class Conditions_List
 				ob_end_clean();
 
 				if (!empty($condition_interface)) {
-					$o->openField(translate('options'));
+					$o->openField(translate('Options'));
+
 					echo $condition_interface;
 					$o->closeField();
 				}
 
 				// force no cache header to be sent
 				if(!($asset instanceof Paint_Layout_Bodycopy)) {
-					$o->openField(translate('force_no_cache').'?');
+					$o->openField(translate('Force No Cache').'?');
+
 					$force_no_cache = isset($parameters['force_no_cache']) ? $parameters['force_no_cache'] : TRUE;
 					$force_no_cache_text = $force_no_cache ? 'Yes' : 'No';
 					if ($write_access) {
@@ -422,11 +428,13 @@ class Conditions_List
 					}
 					$o->closeField();
 				}
-				
+
 				if ($write_access) {
-					$o->openField(translate('delete').'?');
+					$o->openField(translate('Delete').'?');
+
 					check_box($condition_prefix.'_delete', $value='1', $checked=FALSE);
-					label(translate('delete_this_condition'), $condition_prefix.'_delete');
+					label(translate('Delete this condition'), $condition_prefix.'_delete');
+
 					$o->closeField();
 				}
 
@@ -440,7 +448,8 @@ class Conditions_List
 			if ($write_access) {
 				$o->closeSection();
 					// get the list of all condition types
-					$options = Array('' => '- '.translate('select_condition_type').' -');
+					$options = Array('' => '- '.translate('Select condition type').' -');
+
 
 					$conditions_type_code = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition', FALSE);
 					sort($conditions_type_code);
@@ -448,9 +457,11 @@ class Conditions_List
 						$options[$type_code] = str_replace(' Condition', '', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name'));
 					}
 
-					$o->openSection(translate('create_new_condition'));
+					$o->openSection(translate('Create New Condition'));
 
-					$o->openField(translate('condition_type'));
+
+					$o->openField(translate('Condition Type'));
+
 					combo_box($prefix.'_new_condition_type', $options, FALSE, '');
 					$o->closeField();
 

@@ -18,10 +18,14 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<text width="15" />
+			<display_name>Name</display_name>
+			<note />
+			<text width="35" />
 		</field>
 		<field attribute="short_name">
-			<text width="15" />
+			<display_name>Short Name</display_name>
+			<note />
+			<text width="25" />
 		</field>
 	</section>
 </contents>

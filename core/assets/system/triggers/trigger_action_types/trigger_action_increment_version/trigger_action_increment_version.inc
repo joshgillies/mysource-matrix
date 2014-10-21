@@ -114,7 +114,8 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 		ob_end_clean();
 
 
-		return translate('trigger_increment_version', $basic_part_1);
+		return sprintf(translate('Increment this component of the Asset\'s %s version number.'), $basic_part_1);
+
 
 	}//end getInterface()
 

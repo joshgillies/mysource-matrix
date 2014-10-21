@@ -18,12 +18,16 @@
 <contents>
 	<section name="Questions (not attached to a section)">
 		<field>
+			<display_name>Current Questions</display_name>
+			<note>If you reorder or delete questions, you must commit the changes before they will take effect</note>
 			<function_call>
 				<paint_function   name="paintQuestionLinks"   />
 				<process_function name="processQuestionLinks" />
 			</function_call>
 		</field>
 		<field read_access="write:menu" write_access="write:menu">
+			<display_name>Add Questions</display_name>
+			<note>Select the question type and the number of questions to add</note>
 			<function_call>
 				<paint_function   name="paintAddQuestions"   />
 				<process_function name="processAddQuestions" />
@@ -32,12 +36,16 @@
 	</section>
 	<section name="Sections">
 		<field>
+			<display_name>Add Sections</display_name>
+			<note>Enter names for new sections you want to add</note>
 			<function_call>
 				<paint_function   name="paintSectionLinks"   />
 				<process_function name="processSectionLinks" />
 			</function_call>
 		</field>
 		<field read_access="write:menu" write_access="write:menu">
+			<display_name>Current Sections</display_name>
+			<note>Click on a section's name to display that section</note>
 			<function_call>
 				<paint_function   name="paintAddSections"   />
 				<process_function name="processAddSections" />
@@ -46,60 +54,95 @@
 	</section>
 	<section name="Formatting">
 		<field>
+			<display_name>Accessible Format</display_name>
+			<note>Enable this option to output WCAG 2.0 accessible HTML content on the form, rather than the standard tabular format.</note>
 			<function_call>
 				<paint_function   name="paintUseAccessibleFormat"   />
 				<process_function name="processUseAccessibleFormat" />
 			</function_call>
 		</field>
 		<field attribute="required_field_mark">
-			<text width="120" height="1" />
+			<display_name>Required field mark</display_name>
+			<note>HTML included in label to indicate the question is required</note>
+		<text width="120" height="1" />
 		</field>
 		<field attribute="required_field_note">
-			<text width="120" height="1" />
+			<display_name>Required field note</display_name>
+			<note>The meaning of required field mark is defined at the start of form</note>
+		<text width="120" height="1" />
 		</field>
 		<field attribute="submit_button">
-			<text width="30" height="1" />
+			<display_name>Submit Button Text</display_name>
+			<note>If no custom text is entered here, &quot;Submit&quot; will be used.</note>
+		<text width="30" height="1" />
 		</field>
 		<field attribute="reset_button">
-			<text width="30" height="1" />
+			<display_name>Reset Button Text</display_name>
+			<note>If no custom text is entered here, &quot;Clear Form&quot; will be used.</note>
+		<text width="30" height="1" />
 		</field>
 		<field attribute="note_size">
-			<text width="4" height="1" />
+			<display_name>Note Text Size</display_name>
+			<note>Question notes (if any) will be displayed at this size.</note>
+		<text width="4" height="1" />
 		</field>
 		<field attribute="form_extra_attribute">
-			<text width="30" height="1" />
+			<display_name>Form Extra Attribute</display_name>
+			<note>Adding extra attributes to the Form HTML Tag.e.g autocomplete="off"</note>
+		<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Validation">
 		<field attribute="use_client_side">
-			<boolean true_text="on" false_text="off" />
+			<display_name>Client-Side Validation</display_name>
+			<note>Server-side validation is always used to trap invalid input, after the form is submitted. Turn on client-side validation to provide an extra layer of validation that is executed at the browser level, before the form is submitted. Note that most but not all browsers support client-side validation</note>
+		<boolean true_text="on" false_text="off" />
 		</field>
 		<field attribute="submission_errors_msg">
-			<wysiwyg height="40" />
+			<display_name>Error Message Format</display_name>
+			<note>The %form_errors_message% keyword will be replaced with this text if there are submission errors</note>
+		<wysiwyg height="40" />
 		</field>
 	</section>
 	<section name="CAPTCHA">
 		<field attribute="require_captcha">
-			<boolean true_text="yes" false_text="no" />
+			<display_name>Require CAPTCHA</display_name>
+			<note>CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included for form submissions to be accepted.</note>
+		<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="captcha_length">
-			<int width="5" />
+			<display_name>CAPTCHA Key Length</display_name>
+			<note>Number of characters in the CAPTCHA key</note>
+		<int width="5" />
 		</field>
 		<field attribute="captcha_zoom">
-			<float width="5" />
+			<display_name>CAPTCHA Character Zoom</display_name>
+			<note>Each character will be randomly zoomed between x1 and this figure.</note>
+		<float width="5" />
 		</field>
 		<field attribute="captcha_link_text">
-			<text width="50" />
+			<display_name>CAPTCHA Regen Link Text</display_name>
+			<note>This text will appear when the %form_captcha_link% keyword is used.</note>
+		<text width="50" />
 		</field>
 	</section>
 	<section name="Simple Formatting">
+		<note>
+			These options apply only if you use the 'Form Contents' <![CDATA[(<b>%form_contents%</b>)]]> keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.
+		</note>
 		<field attribute="form_width">
-			<html_width />
+			<display_name>Form Width</display_name>
+			<note>The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage</note>
+		<html_width />
 		</field>
 		<field attribute="question_col_width">
-			<html_width />
+			<display_name>Question Width</display_name>
+			<note>The width of the column for question names. This can be a number of pixels or a percentage of the form width</note>
+		<html_width />
 		</field>
 		<field attribute="answer_col_width">
+			<display_name>Answer Width</display_name>
+			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width</note>
 			<html_width />
 		</field>
 	</section>

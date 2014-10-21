@@ -65,7 +65,8 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 			if (!empty($root_link)) {
 				echo get_asset_tag_line($root_link['minorid']);
 			} else {
-				echo translate('cms_no_root_node');
+				echo translate('No root node has been selected');
+
 			}
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
@@ -114,7 +115,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;
-					trigger_localised_error('CMS0016', E_USER_WARNING, $root->name, $root->id);
+					trigger_localised_error('CMS0016', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name, $root->id), E_USER_WARNING);
 				}
 			}
 		}
@@ -150,7 +151,8 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 			multiple_asset_finder($prefix.'_exclude_list', $curr_list, Array('asset' => 'D'));
 		} else {
 			if (empty($curr_list)) {
-				echo translate('cms_no_assets_excluded');
+				echo translate('No assets are currently excluded');
+
 			} else {
 				?><ul style="margin:1px 15px;"><?php
 				foreach ($curr_list as $assetid) {
@@ -210,7 +212,8 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 			asset_type_chooser($prefix.'_include_types', TRUE, $curr_list, NULL, TRUE, TRUE);
 		} else {
 			if (empty($curr_list)) {
-				echo translate('cms_page_site_map_all_asset_types_included');
+				echo translate('All Asset Types Included');
+
 			} else {
 				?><ul style="margin:1px 15px;"><?php
 
@@ -232,7 +235,8 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 						echo ' '.$type_name;
 
 						if ($inherit) {
-							echo ' ('.translate('cms_page_site_map_inherits_child_types').')';
+							echo ' ('.translate('Inherits Child Types').')';
+
 						}
 
 						echo '</li>';
@@ -289,7 +293,8 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		if ($write_access) {
 			$formats[] = Array();
 		} else if (empty($formats)) {
-			echo translate('cms_page_site_map_no_display_formats');
+			echo translate('No asset type display formats defined.');
+
 			return;
 		}
 
@@ -297,7 +302,11 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('asset_type'); ?></th><?php echo (!$write_access ?  '<th>'.translate('inherit').'</th>' : ''); ?><th><?php echo translate('format'); ?></th><?php echo ($write_access ?  '<th>'.translate('delete').'</th>' : ''); ?>
+				<th><?php echo translate('Asset Type'); ?></th><?php echo (!$write_access ?  '<th>'.translate('Inherit').'</th>' : ''); ?><th><?php echo translate('Format'); ?></th><?php echo ($write_access ?  '<th>'.translate('Delete').'</th>' : ''); ?>
+
+
+
+
 			</tr>
 		<?php
 		foreach ($formats as $key => $format) {
@@ -322,7 +331,9 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 					} else {
 				?>
 					<td class="sq-backend-table-cell"><?php get_asset_type_icon($key); echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($key, 'name'); ?></td>
-					<td class="sq-backend-table-cell"><?php echo ($format['inherit'] ? translate('yes') : translate('no')); ?></td>
+					<td class="sq-backend-table-cell"><?php echo ($format['inherit'] ? translate('Yes') : translate('No')); ?></td>
+
+
 					<td class="sq-backend-table-cell"><?php echo $format['format']; ?></td>
 				<?php
 					}

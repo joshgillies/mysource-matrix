@@ -61,7 +61,8 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	public function paintInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix, $when='', $cascade=FALSE, $form_extra_elements='', Array $exclude_status=Array())
 	{
 		echo '<span class="sq-inline-fields-wrapper">';
-		echo translate('set_status_to');
+		echo translate('Set Status to');
+
 
 		$descs = $asset->_getAllStatiiDescs();
 		foreach ($exclude_status as $status) {
@@ -74,17 +75,20 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 			echo $descs[$asset->attr('status')];
 		}
 
-		echo '&nbsp;'.strtolower(translate('at')).'&nbsp;';
+		echo '&nbsp;'.strtolower(translate('At')).'&nbsp;';
+
 		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 
 		echo '&nbsp;';
 			echo '<span class="sq-keep-inline">';
 				check_box($prefix.'_change_status_all_children', '1', $cascade, 'checkStatusDisplayWarningFutureStatus');
-				label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
+				label(translate('Cascade Status Change'), $prefix.'_change_status_all_children');
+
 			echo '</span>';
 		echo '</span>';
-		
-		echo '<div id="warning_message_for_live_plus_cascade_fs" style="display:none" class="sq-warning-message top-margin">'.translate('asset_status_live_warning').'</div>';
+
+		echo '<div id="warning_message_for_live_plus_cascade_fs" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.').'</div>';
+
 
 		return TRUE;
 
@@ -108,7 +112,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 			if ($when = $this->_processWhenBox($asset, $o, $prefix)) {
 				return ($asset->setAttrValue('when', $when) && $asset->setAttrValue('dependants_only', $dependants_only));
 			} else {
-				trigger_localised_error('CRON0046', E_USER_NOTICE);
+				trigger_localised_error('CRON0046', translate('To add a future status you must specify the date and time at which the status should be changed'), E_USER_NOTICE);
 			}
 		}
 

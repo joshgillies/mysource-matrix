@@ -55,8 +55,10 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_integer_true'),
-				0	=> translate('core_form_rule_integer_false'),
+				1	=> translate('Must be an integer'),
+
+				0	=> translate('Must NOT be an integer'),
+
 			   );
 
 	}//end getOperators()
@@ -88,7 +90,7 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 		if (strlen(trim($condition_js))) {
 			$additional_condition = 'if (!'.$condition_js.') return true;';
 		}
-		
+
 		ob_start();			// buffer this please
 
 			if (!$printed_fn) {

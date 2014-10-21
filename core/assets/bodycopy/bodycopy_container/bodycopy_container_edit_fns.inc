@@ -164,13 +164,15 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						$this->paint($asset, FALSE);
 					$container_content = ob_get_clean();
 					$container_content = ''
-						.'<div class="sq-source-mode-forced" title="'.translate('bodycopy_html_conflict_warning').'">'
-							.'<img align="absmiddle" src="'.sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode_grey.png" title="'.translate('bodycopy_html_conflict_warning').'" width="16" height="16" />'
+						.'<div class="sq-source-mode-forced" title="'.translate('HTML contents of this container interfere with the edit interface. HTML parsing has been disabled for this container. Below is the raw HTML content.').'">'
+
+							.'<img align="absmiddle" src="'.sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode_grey.png" title="'.translate('HTML contents of this container interfere with the edit interface. HTML parsing has been disabled for this container. Below is the raw HTML content.').'" width="16" height="16" />'
+
 						.'</div>'
 						.'<pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre>'
 						.'';
 				}
-				
+
 				$content_type = $asset->getContentType();
 				$content_type_name = '';
 				if(!empty($content_type) && is_object($content_type)) {
@@ -182,7 +184,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$content_type_name = str_replace('Nest Content', 'Nested', $content_type_name);
 				//print a div wrapper around the content so we can style the container properly
 				echo '<div class="sq-locked-content-block-wrapper status-after-'.str_replace(' ', '-', strtolower(get_status_description($asset->status))).'" data-id"'.$asset->id.'" data-status-code="'.$asset->status.'" data-status="'.get_status_description($asset->status).'" data-title="'.$asset->name.' - '.$content_type_name.'" title="'.$asset->name.' #'.$asset->id.' ('.get_status_description($asset->status).') - '.$content_type_name.'">';
-					echo $container_content; 
+					echo $container_content;
 				echo '</div>';
 
 			} else {
@@ -295,7 +297,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$keywords = retrieve_keywords_replacements($output);
 
 		// Temporarily remove the keywords containing './?a=xxx' from the contnet
-		// This will ensure the './?a=xxx' urls in the keywords are not replaced here in the bodycopy level 
+		// This will ensure the './?a=xxx' urls in the keywords are not replaced here in the bodycopy level
 		// but rather at global level, hence not breaking the keywords having matrix assetid URLs (bug #5906)
 		$matrix_url_keywords = Array();
 		$condition_keywords_used = FALSE;
@@ -304,10 +306,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$hash = md5($keyword);
 				$matrix_url_keywords[$hash] = $keyword;
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.escape_regex_chars($keyword).'((<([^>]+?)>)+)?%|', '%${1}'.$hash.'$4%', $output);
-			}//end 
-			
+			}//end
+
 			// replace condition keywords with PHP code
-			
+
 			if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts) && count($condition_parts) ==3) {
 				$test_keyword = $condition_parts[2];
 				switch ($condition_parts[1]) {
@@ -394,9 +396,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$file_name = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
-		
+
 		$result = string_to_file($output, $asset->data_path.'/'.$file_name);
-		
+
 		// check php syntax error if there is conditional keywords and php code in it
 		if ($condition_keywords_used && !isset($asset->_tmp['syntax_checked'])) {
 		    // don't waste time double checking it
@@ -407,7 +409,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				return FALSE;
 		    }
 		}
-		
+
 		return $result;
 
 	}//end generateContentFile()
@@ -437,7 +439,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// Grab the output from other contexts, so we can keep notice
 		// links from them, too. (Content file is fine enough.)
 		// But exclude the current context, because it's either been
-		// sent to us, or generated above. 
+		// sent to us, or generated above.
 		$files = glob($asset->data_path.'/content_file*.php');
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$current_filename = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
@@ -650,7 +652,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		
+
 		// if there's no write access to the content
 		if (!$asset->writeAccess('content')) {
 			if ($asset->useSystemVersion()) {
@@ -845,7 +847,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				var container_type = 'div';
 				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
 			}
-	
+
 			function bodycopy_has_class(element, className) {
 				if(element != null && element != undefined) {
 		    		return element.className && new RegExp("(^|\\s)" + className + "(\\s|$)").test(element.className);
@@ -867,7 +869,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$edit_fns->paintGenericBackend($asset, $o, $prefix);
 		}
 
-		
+
 		?>
 
 		<!-- Begin Tooltip -->
@@ -984,7 +986,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$attributes['desc'] = $value;
 				$asset->setAttrValue('attributes', $attributes);
 				if (!$asset->saveAttributes()) {
-					trigger_localised_error('CORE0121', E_USER_WARNING, $asset->name, $asset->id);
+					trigger_localised_error('CORE0121', sprintf(translate('You do not have permission to save the attributes of "%1$s" (#%2$s)'), $asset->name, $asset->id), E_USER_WARNING);
 					return FALSE;
 				}
 			} else {

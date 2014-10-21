@@ -18,47 +18,76 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Redirect Type" write_access="write:attributes" limbo_access="1">
 		<field attribute="permanent_redirect">
+			<display_name>Permanent Redirect</display_name>
+			<note>HTTP 301 response code will be sent to tell user-agents that the location has permanently moved. This is useful for search engines.
+				If permanent redirect is used, &lt;strong&gt;New Window&lt;/strong&gt; option and &lt;strong&gt;Redirect Timeout&lt;/strong&gt; option will have no effect.
+			</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Location" write_access="write:redirect" limbo_access="1">
 		<field attribute="redirect_url">
+			<display_name>URL</display_name>
+			<note>%description% (for example, &lt;i&gt;http://matrix.squiz.net/&lt;/i&gt;). Global keywords are supported.
+			</note>
 			<text width="80" height="1" />
 		</field>
 		<field>
+			<display_name>or Asset</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRedirectAssetid" />
 				<process_function name="processRedirectAssetid" />
 			</function_call>
 		</field>
  		<field attribute="use_querystring_parameter">
- 			<text width="20" height="1"/>
+ 			<display_name>or Use query &lt;br /&gt; string parameter?</display_name>
+ 			<note>%description% &lt;br /&gt;
+			For example if &lt;i&gt;url&lt;/i&gt; was entered and a part of the inbound query string is
+			&lt;em&gt;url=http://matrix.squiz.net&lt;/em&gt; then the user would be redirected to matrix.squiz.net
+			</note>
+			<text width="20" height="1"/>
  		</field>
 	</section>
 	<section name="Location Options" write_access="write:attributes" limbo_access="1">
 		<field attribute="url_suffix">
+			<display_name>URL Suffix</display_name>
+			<note>%description%. Global keywords are supported.</note>
 			<text width="80" height="1" />
 		</field>
  		<field attribute="append_querystring">
+ 			<display_name>Pass through query &lt;br /&gt; string parameters?</display_name>
+ 			<note/>
  			<boolean true_text="yes" false_text="no"/>
  		</field>
 		<field attribute="timeout">
+			<display_name>Redirect Timeout</display_name>
+			<note>Setting a value greater than 0 in this field will apply a timeout on the redirect page, automatically redirecting a user after the specified period of time has passed (in seconds). This will allow you to, for example, display a redirect message to users through the use of a Paint Layout. Please note that the use of a Paint Layout is required if a timeout has been configured in this field.&lt;br&gt;
+			By default, this value is set to 0 (zero), meaning that this asset will redirect immediately. This setting will have no effect if the redirect page's &lt;b&gt;New Window&lt;/b&gt; option is enabled.</note>
 			<float width="5" height="1" />
 		</field>
 	</section>
 	<section name="Session Variables" write_access="write:attributes" limbo_access="1">
 		<field attribute="session_vars">
+			<display_name>Session Variable Names</display_name>
+			<note>The names of the session variables</note>
 			<option_list allow_reorder="no"/>
 		</field>
 		<field keyword="session_variables">
+			<display_name>Session Variables</display_name>
+			<note>This section allows for content to be set from the redirect page into the current session. For example, if you have a web campaign and make this page the target link, then by using the session data, you can change content on the redirected asset based on the campaign.</note>
 			<function_call>
 				<paint_function		name="paintSessionVariables" />
 				<process_function	name="processSessionVariables" />
@@ -67,15 +96,23 @@
 	</section>
 	<section name="New Window" write_access="write:attributes" limbo_access="1">
 		<field attribute="new_window">
+			<display_name>New Window?</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="new_window_options">
+			<display_name>Options</display_name>
+			<note />
 			<selection style="boxes" />
 		</field>
 		<field attribute="new_window_width">
+			<display_name>Window Width</display_name>
+			<note />
 			<int width="3" />
 		</field>
 		<field attribute="new_window_height">
+			<display_name>Window Height</display_name>
+			<note />
 			<int width="3" />
 		</field>
 	</section>

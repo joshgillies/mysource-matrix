@@ -57,7 +57,8 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('metadata_regeneration_threshold'));
+		$o->openField(translate('Metadata Regeneration Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -66,6 +67,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			echo SQ_HIPO_REGENERATE_METADATA_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -110,7 +112,8 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_regenerate_metadata');
+		return translate('Regenerate Metadata');
+
 
 	}//end getHipoName()
 
@@ -126,7 +129,8 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_generating_metadata_files'),
+					'name'			=> translate('Generating Metadata Files'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processMetadata',
 									   ),
@@ -191,7 +195,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	{
 		// to start regenerating metadata, we need to have a schema that has been updated
 		if (empty($this->_running_vars['schemaids'])) {
-			trigger_localised_error('HIPO0003', E_USER_WARNING);
+			trigger_localised_error('HIPO0003', translate('Unable to initialise Regenerate Metadata HIPO, no schemaID(s) specified'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -251,20 +255,23 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			if (!is_null($asset)) {
 				// try to acquire lock
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'metadata')) {
-					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-					trigger_localised_error('HIPO0077', E_USER_WARNING, $asset->name, $assetid);
+					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+					trigger_localised_error('HIPO0077', sprintf(translate('Unable to regenerate metadata on asset "%1$s" (Id: %2$s) as the lock has expired; aborting job - contact your system administrator to increase the lock length and try again'), $asset->name, $assetid), E_USER_WARNING);
 				}
 
 				if (!$asset->writeAccess('metadata')) {
 					// we don't have write access to this asset for another
 					// reason (eg. status = Archived), skip the asset
-					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-					trigger_localised_error('HIPO0078', E_USER_WARNING, $asset->name, $assetid);
+					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+					trigger_localised_error('HIPO0078', sprintf(translate('Skipped regenerating metadata on asset "%1$s" (Id: %2$s) as the current user does not have write access to the asset'), $asset->name, $assetid), E_USER_WARNING);
 				} else {
 					foreach ($this->_running_vars['contextids'] as $contextid) {
 						if (!$mm->regenerateMetadata($asset->id, $contextid)) return FALSE;
 					}
-					$step_data['message'] = translate('hipo_generate_metadata', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('Generating metadata file for "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				}
@@ -273,8 +280,10 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
 
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_cannot_regenerate_metadata', $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not regenerate metadata file for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again

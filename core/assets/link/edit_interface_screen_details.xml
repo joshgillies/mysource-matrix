@@ -18,17 +18,25 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Title</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="Link Information" write_access="write:attributes" limbo_access="1">
 		<field attribute="link_url">
+			<display_name>URL</display_name>
+			<note />
 			<text width="80" height="1" />
 		</field>
 		<field attribute="link_asset_id">
+			<display_name>or Asset</display_name>
+			<note />
 			<assetid type_codes="asset:D" />
 		</field>
 		<field attribute="link_relation">
+			<display_name>Relation</display_name>
+			<note />
 			<text width="60" height="1" />
 		</field>
 	</section>

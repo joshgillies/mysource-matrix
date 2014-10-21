@@ -66,7 +66,27 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content')));
+		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
+<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> (%%transaction_gst%% percent GST)  dollars are about to be debited from your card</div>
+<table cellpadding="5">
+	<tr>
+		<td align="right">Card Number</td>
+		<td>%%card_number%%  %%card_cv2%%</td>
+	</tr>
+	<tr>
+		<td align="right">Expiry Date (MM/YY)</td>
+		<td>%%card_expiry_month%% / %%card_expiry_year%%</td>
+	</tr>
+	<tr>
+		<td align="right">Card Type</td>
+		<td>%%card_type%%</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>')));
+
 
 	}//end _createAdditional()
 
@@ -215,12 +235,14 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 			}
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+			$this->appendPendingOrderAuditLog(translate('Payment has no amount'));
+
 
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($card_info) {
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+			$this->appendPendingOrderAuditLog(translate('Payment Attempted (gateway contacted)'));
+
 			$success = $this->processPayment($card_info);
 		}
 
@@ -249,12 +271,14 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 				}
 			}
 
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+			$this->appendPendingOrderAuditLog(translate('Payment is successful'));
+
 
 			$this->returnToCaller('SUCCESS');
 		} else {
 			if ($card_info) {
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+				$this->appendPendingOrderAuditLog(translate('Payment Declined'));
+
 			}
 		}
 
@@ -360,28 +384,32 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 		if (!empty($acc_user)) {
 			$processor->setAccountUser($acc_user);
 		} else {
-			$this->_setError(translate('payflow_account_user_not_specified'));
+			$this->_setError(translate('Payflow User ID not specified'));
+
 		}
 
 		$acc_vendor = $this->attr('vendor');
 		if (!empty($acc_vendor)) {
 			$processor->setAccountVendor($acc_vendor);
 		} else {
-			$this->_setError(translate('payflow_account_vendor_not_specified'));
+			$this->_setError(translate('Payflow Vendor ID not specified'));
+
 		}
 
 		$acc_partner = $this->attr('partner');
 		if (!empty($acc_partner)) {
 			$processor->setAccountPartner($acc_partner);
 		} else {
-			$this->_setError(translate('payflow_account_partner_not_specified'));
+			$this->_setError(translate('Payflow Partner ID not specified'));
+
 		}
 
 		$acc_password = $this->attr('password');
 		if (!empty($acc_password)) {
 			$processor->setAccountPassword($acc_password);
 		} else {
-			$this->_setError(translate('payflow_account_password_not_specified'));
+			$this->_setError(translate('Payflow Password not specified'));
+
 		}
 		$currency = $this->attr('currency');
 		if (!empty($currency)) {
@@ -396,7 +424,8 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 		if (!empty($amount) && is_numeric($amount) && $amount > 0) {
 			$processor->setTransactionAmount($amount);
 		} else {
-			$this->_setError(translate('payflow_amount_not_specified_error'));
+			$this->_setError(translate('Transaction amount is invalid'));
+
 		}
 
 		// Set card number
@@ -404,7 +433,8 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 			$card_info['number'] = preg_replace('|[^0-9]|', '', $card_info['number']);
 			$processor->setCardNumber($card_info['number']);
 		} else {
-			$this->_setError(translate('payflow_card_number_not_specified_error'));
+			$this->_setError(translate('Card number is not specified'));
+
 		}
 
 		// Set card holder's first name
@@ -421,7 +451,8 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 		if ($this->_isValidDate(array_get_index($card_info, 'expiry_month', ''), array_get_index($card_info, 'expiry_year', ''))) {
 			$processor->setCardExpiryDate($card_info['expiry_month'], $card_info['expiry_year']);
 		} else {
-			$this->_setError(translate('payflow_expiry_date_invalid_error'));
+			$this->_setError(translate('Card expiry date is invalid'));
+
 		}
 
 		// Set card CV2 if required
@@ -429,7 +460,8 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 			if (!empty($card_info['cv2']) && $this->_isValidCV2($card_info['cv2'])) {
 				$processor->setCardCV2($card_info['cv2']);
 			} else {
-				$this->_setError(translate('payflow_card_cv2_invalid_error'));
+				$this->_setError(translate('Card CVV2 value is invalid'));
+
 			}
 		}
 
@@ -439,7 +471,8 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 			if (!empty($card_info['billing_address_street'])) {
 				$processor->setStreet($card_info['billing_address_street']);
 			} else {
-				$this->_setError(translate('payflow_street_not_specified'));
+				$this->_setError(translate('Card billing address\'s street value is required'));
+
 			}
 
 			// Set city
@@ -452,7 +485,8 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 				$processor->setPostcode($card_info['billing_address_postcode']);
 				$billing_addr = $card_info['billing_address_postcode']." ";
 			} else {
-				$this->_setError(translate('payflow_postcode_not_specified'));
+				$this->_setError(translate('Card billing address\'s postcode value is required'));
+
 			}
 
 			// Set state

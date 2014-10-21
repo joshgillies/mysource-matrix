@@ -18,17 +18,25 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Donation Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="Donation Description" write_access="write:attributes" limbo_access="1">
 		<field attribute="description">
+			<display_name>Donation Description</display_name>
+			<note />
 			<text width="60" height="5" />
 		</field>
 		<field attribute="short_description">
+			<display_name>Short Description</display_name>
+			<note />
 			<text width="60" height="4" />
 		</field>
 		<field attribute="details">
+			<display_name>Details/Donation Specifications</display_name>
+			<note />
 			<text width="60" height="4" />
 		</field>
 	</section>

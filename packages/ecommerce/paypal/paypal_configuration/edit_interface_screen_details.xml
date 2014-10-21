@@ -18,11 +18,15 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Payment Button Configuration" write_access="write:attributes" limbo_access="1">
 		<field attribute="custom_param_secret_str">
+			<display_name>Custom Parameter Secret String</display_name>
+			<note>The secret string that is used to calculate the checksum of custom variable so that no malicious users can modify it.</note>
 			<text width="60" height="1" />
 		</field>
 	</section>

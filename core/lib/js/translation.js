@@ -115,6 +115,6 @@ function js_translate()
 	}
 
 	// no string code to be found anywhere
-	return 'string code '+arguments[0]+' not found';
+	return arguments[0];
 
 }//end js_translate();

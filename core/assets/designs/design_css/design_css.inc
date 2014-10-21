@@ -57,7 +57,7 @@ class Design_Css extends Design
 	{
 		// Ensure this is reinitialised when restored from a serialised state.
 		$this->_tmp['updated_cache'] = FALSE;
-		
+
 	}//end wakeup
 
 
@@ -218,7 +218,7 @@ class Design_Css extends Design
 
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-						trigger_localised_error('CORE0162', E_USER_WARNING);
+						trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING);
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -252,7 +252,7 @@ class Design_Css extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', sprintf(translate('Existing Link #%s not found, unable to delete link'), $linkid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -277,7 +277,7 @@ class Design_Css extends Design
 					if ($link['minorid'] == $delete_link['minorid']) {
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_localised_error('CORE0165', E_USER_WARNING);
+							trigger_localised_error('CORE0165', translate('Failed deleting file link from customisation'), E_USER_WARNING);
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -321,7 +321,7 @@ class Design_Css extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', sprintf(translate('Existing Link #%s not found, unable to delete link'), $linkid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -354,9 +354,11 @@ class Design_Css extends Design
 	*/
 	public function printFrontend()
 	{
-		if (!$this->readAccess()) { 	 
-		    $GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name)); 	 
-		    return; 	 
+		if (!$this->readAccess()) {
+		    $GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
+		    return;
 		}
 		$this->paint($this);
 
@@ -434,22 +436,22 @@ echo '/*
 	* @access public
 	*/
 	public function processBackend(Backend_Outputter $o, Array &$link)
-	{	
+	{
 		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-		
+
 		//store old attributes, status and public read permission that can affect the regeneration of static cache file
 		$cache = $this->attr('cache_css');
 		$strip = $this->attr('strip_whitespace');
-		//status and public read permission can make the URLs of child assets changed, so we will need to regenerate cache file 
+		//status and public read permission can make the URLs of child assets changed, so we will need to regenerate cache file
 		$status = $this->status;
 		$read_access = $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid));
-		
+
 		if (!parent::processBackend($o, $link)) return FALSE;
 
 		//URLs only changed if status is changed from or to live, and/or when public read permission is changed
 		$status_changed = ($status != $this->status) && (($status == SQ_STATUS_LIVE) || ($this->status == SQ_STATUS_LIVE));
 		$read_access_changed = ($read_access != $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid)));
-		
+
 		$regen = $this->attr('cache_css') && (($cache != $this->attr('cache_css')) || ($strip != $this->attr('strip_whitespace')) || $status_changed
 												|| $read_access_changed);
 		// Okay, if after processing everything in the backend, and the
@@ -556,7 +558,7 @@ echo '/*
 		$file_status = $fv->upToDate($cache_asset->data_path.'/'.$cache_asset->_getName());
 		if (FUDGE_FV_MODIFIED & $file_status) {
 			if (!$fv->commit($cache_asset->data_path.'/'.$cache_asset->_getName())) {
-				trigger_localised_error('CORE0034', E_USER_WARNING);
+				trigger_localised_error('CORE0034', translate('Failed committing file version'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -564,8 +566,8 @@ echo '/*
 		return $cache_asset->_updated();
 
 	}//end _updateCacheFile()
-	
-	
+
+
 	/**
 	* Gets the static cache file asset id of this CSS asset
 	*
@@ -581,7 +583,7 @@ echo '/*
 
 	}//end getCacheFileId()
 
-	
+
 	/**
 	* Creates the cache file asset that this CSS asset will display in the cache
 	*
@@ -616,7 +618,7 @@ echo '/*
 		$new_file->setAttrValue('allow_unrestricted', FALSE);
 
 		if (!$new_file->create($import_link, $temp_info)) {
-			trigger_localised_error('CORE0058', E_USER_WARNING, $filename);
+			trigger_localised_error('CORE0058', sprintf(translate('File upload failed. Unable to create %s'), $filename), E_USER_WARNING);
 			return $null;
 		}
 
@@ -714,7 +716,7 @@ echo '/*
 				}
 			}
 		}
-		
+
 		// Adjust the file URLs based on selected reference method
 		$this->_adjustFileUrls($FILE_URLS);
 
@@ -727,7 +729,7 @@ echo '/*
 			}
 			require $file_path;
 		} else {
-			trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->name);
+			trigger_localised_error('CORE0259', sprintf(translate('Cannot find the design file to print the asset, "%s"'), $ASSET->name), E_USER_WARNING);
 		}
 
 	}//end paint()

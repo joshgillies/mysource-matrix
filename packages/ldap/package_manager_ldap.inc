@@ -63,7 +63,7 @@ class Package_Manager_LDAP extends Package_Manager
 
 		if (!function_exists('ldap_connect')) {
 			// just a friendly pointer
-			trigger_localised_error('LDAP0002', E_USER_WARNING);
+			trigger_localised_error('LDAP0002', translate('LDAP Module doesn\'t seem to be installed in PHP'), E_USER_WARNING);
 		}
 
 		return parent::checkPackageDetails($update_assets);

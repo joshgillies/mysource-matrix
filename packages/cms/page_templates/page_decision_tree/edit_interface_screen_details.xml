@@ -17,20 +17,28 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Questions">
 		<field write_access="write:menu">
+			<display_name>First Question</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintFirstQuestion"   />
 				<process_function name="processFirstQuestion" />
 			</function_call>
 		</field>
 		<field write_access="write:menu">
+			<display_name>Add a Question</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintAddQuestions"   />
 				<process_function name="processAddQuestions" />
@@ -39,12 +47,16 @@
 	</section>
 	<section name="Result Bodycopies">
 		<field write_access="write:menu">
+			<display_name>Number of Bodycopies</display_name>
+			<note> You can create up to 10 bodycopies at a time. These will be created under the Result Bodycopies folder.</note>
 			<function_call>
 				<paint_function   name="paintAddResultBodycopies"   />
 				<process_function name="processAddResultBodycopies" />
 			</function_call>
 		</field>
 		<field write_access="write:attributes">
+			<display_name>Points Range</display_name>
+			<note> If the points range is not satisfied, the Default Result Bodycopy will be used </note>
 			<function_call>
 				<paint_function   name="paintResultBodycopies"   />
 				<process_function name="processResultBodycopies" />

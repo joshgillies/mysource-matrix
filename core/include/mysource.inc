@@ -375,6 +375,8 @@ class MySource extends MySource_Object
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 				$ms = $this->getMessagingService();
 				$log = $ms->newMessage(Array(), 'system.security.alert', Array());
+				$log->subject = translate('Security Alert');
+				$log->body    = translate('Possible attempt to steal session detected!');
 				$log->parameters['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 				$log->parameters['sessionid'] = session_id();
 				$log->parameters['userid'] = $_SESSION['userid'];
@@ -549,8 +551,8 @@ class MySource extends MySource_Object
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 
 			if ($require_password_change) {
-				$error_message = SQ_IN_LIMBO ? translate('must_change_password_to_access_edit_mode') : translate('must_change_password_to_access_admin_mode');
-				$this->paintPasswordChange(translate('change_password'), $error_message);
+				$error_message = SQ_IN_LIMBO ? translate('You need to change your password before you can access Edit Mode') : translate('You need to change your password before you can access Admin Mode');
+				$this->paintPasswordChange(translate('Change Password'), $error_message);
 				exit();
 			}
 
@@ -588,12 +590,13 @@ class MySource extends MySource_Object
 					$backend->paint();
 				ob_end_flush();
 			} else {
-				$error_message = SQ_IN_LIMBO ? translate('must_login_to_access_edit_mode') : translate('must_login_to_access_admin_mode');
+
+				$error_message = SQ_IN_LIMBO ? translate('You need to login before you can access Edit Mode') : translate('You need to login before you can access Admin Mode');
 				$this->paintLogin(translate('login'), $error_message);
 			}
 
 		} else if (SQ_IN_LOGIN) {
-			$this->paintLogin(translate('login'), translate('must_login_to_access_admin_mode'));
+			$this->paintLogin(translate('login'), translate('You need to login before you can access Admin Mode'));
 
 		} else {
 			// we are on the frontend
@@ -645,7 +648,9 @@ class MySource extends MySource_Object
 
 			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
 				$page_name = '"'.$asset->name.'"';
-				$this->paintPasswordChange(translate('change_password'), translate('must_change_password_to_access_asset', $page_name));
+				$this->paintPasswordChange(translate('Change Password'), sprintf(translate('You need to change your password before you can access <%s>'), $page_name));
+
+
 				exit();
 			}
 
@@ -698,7 +703,7 @@ class MySource extends MySource_Object
 						}
 
 						// last resort, display little green error
-						trigger_localised_error('SYS0218', E_USER_NOTICE, $protocol.'://'.$url);
+						trigger_localised_error('SYS0218', sprintf(translate('URL "%s" not found'), $protocol.'://'.$url), E_USER_NOTICE);
 					}
 				}//end else
 
@@ -757,7 +762,7 @@ class MySource extends MySource_Object
 			// In _performance view mode
 			if (SQ_IN_PERFORMANCE) {
 				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || !$asset->writeAccess()) {
-					$this->paintLogin(translate('login'), translate('must_login_to_access_performance_mode'));
+					$this->paintLogin(translate('Login'), translate('You need to login before you can access Performance Mode'));
 				} else {
 					$this->pm->printFrames($asset);
 				}
@@ -1240,7 +1245,7 @@ class MySource extends MySource_Object
 			if (is_null($current_asset)) {
 				$current_asset = $this->am->getSystemAsset('root_folder');
 				if (is_null($current_asset)) {
-					trigger_localised_error('SYS0248', E_USER_ERROR);
+					trigger_localised_error('SYS0248', translate('Unable to get Root Folder Asset'), E_USER_ERROR);
 				}
 			}
 
@@ -1316,7 +1321,7 @@ class MySource extends MySource_Object
 			if (is_null($current_asset)) {
 				$current_asset = $this->am->getSystemAsset('root_folder');
 				if (is_null($current_asset)) {
-					trigger_localised_error('SYS0248', E_USER_ERROR);
+					trigger_localised_error('SYS0248', translate('Unable to get Root Folder Asset'), E_USER_ERROR);
 				}
 			}
 
@@ -1362,7 +1367,9 @@ class MySource extends MySource_Object
 			if (!SQ_SOAP_AUTH) {
 				if (isset($_SESSION['activated']) === FALSE || $_SESSION['activated'] != 1) {
 					// IP Address has changed, and we are not authenticating via SOAP.
-					$this->_logSecurityMsg('system.security.logout.ip_change', Array('old_ip' => $_SESSION['remote_addr'], 'new_ip' => $_SERVER['REMOTE_ADDR']));
+					$subject = translate('User Automatically Logged Out');
+					$body    = translate('User "%user_name%" was logged out since their IP address changed from %old_ip% to %new_ip%');
+					$this->_logSecurityMsg('system.security.logout.ip_change', $subject, $body, Array('old_ip' => $_SESSION['remote_addr'], 'new_ip' => $_SERVER['REMOTE_ADDR']));
 					$this->_clearSession();
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
@@ -1426,7 +1433,9 @@ class MySource extends MySource_Object
 			// See if it's been too long since their last MatrixActivity(R)
 			if (!empty($user_prefs['timeout'])) {
 				if (time() - $_SESSION['user_last_access'] > $user_prefs['timeout']) {
-					$this->_logSecurityMsg('system.security.logout.idle', Array('timeout' => $user_prefs['timeout']));
+				    $subject = translate('User Automatically Logged Out');
+				    $body    = translate('User "%user_name%" was logged out since they were inactive for %timeout% seconds');
+					$this->_logSecurityMsg('system.security.logout.idle', $subject, $body, Array('timeout' => $user_prefs['timeout']));
 					$this->_clearSession();
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
@@ -1444,9 +1453,11 @@ class MySource extends MySource_Object
 					$session_expiry_ts = $_SESSION['user_last_authentication'] + $user_prefs['max_length'];
 					$today_start_ts = strtotime('00:00:01 today');
 					$tomorrow_start_ts = strtotime('00:00:01 tomorrow');
-					if ($session_expiry_ts < $today_start_ts) {
+					$subject = translate('User Automatically Logged Out');
+                    $body    = translate('User "%user_name%" was logged out since they hadn\'t authenticated for %timeout% seconds');
+                    if ($session_expiry_ts < $today_start_ts) {
 						// it expired yesterday so clear the session / force a login right now
-						$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $user_prefs['max_length']));
+						$this->_logSecurityMsg('system.security.logout.staleauth', $subject, $body, Array('timeout' => $user_prefs['max_length']));
 						$this->_clearSession();
 						$this->loginPublicUser();
 						$this->generateLoginKey(TRUE);
@@ -1455,7 +1466,7 @@ class MySource extends MySource_Object
 						if (time() - $_SESSION['user_last_access'] > SQ_CONF_EDITING_TIME) {
 							// because they haven't done anything for a while we assume it's safe to log them out
 							// and ask for re-authentication
-							$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $user_prefs['max_length']));
+							$this->_logSecurityMsg('system.security.logout.staleauth', $subject, $body, Array('timeout' => $user_prefs['max_length']));
 							$this->_clearSession();
 							$this->loginPublicUser();
 							$this->generateLoginKey(TRUE);
@@ -1537,7 +1548,7 @@ class MySource extends MySource_Object
 					if ($result && $this->user->status != SQ_STATUS_LIVE) {
 						$available_statuses = $this->user->getAvailableStatii();
 						if (!isset($available_statuses[SQ_STATUS_LIVE]) || !$this->user->processStatusChange(SQ_STATUS_LIVE)) {
-							trigger_localised_error('SYS0304', E_USER_ERROR);
+							trigger_localised_error('SYS0304', translate('Unable to set the status of user "%s" to live'), E_USER_ERROR);
 							return;
 						}
 					}
@@ -1567,7 +1578,7 @@ class MySource extends MySource_Object
 					// get a list of all the installed authentication systems
 					$auth_folder = $this->am->getSystemAsset('authentication_folder');
 					if (is_null($auth_folder)) {
-						trigger_localised_error('SYS0249', E_USER_ERROR);
+						trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 						return;
 					}
 					$auth_systems = $auth_folder->getAuthSystems();
@@ -1605,27 +1616,35 @@ class MySource extends MySource_Object
 						}
 					}
 
-					$display_message = $failure_reason = translate('user_not_found');
+					$display_message = $failure_reason = translate('Invalid username or password entered');
+
 					if (!is_null($user_status)) {
 						if ($disallowed_user) {
-							$display_message = $failure_reason = translate('user_password_login_disallowed');
+							$display_message = $failure_reason = translate('User asset is not allowed to login via standard username and password. Only an external login system such as SAML or Oauth2 can authenticate this user.');
+
 						} else if ($login_username === 'root') {
-							$display_message = $failure_reason = translate('root_user_disabled');
+							$display_message = $failure_reason = translate('Root User account is disabled in this system');
+
 						} else if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
-							$failure_reason = translate('user_status_not_live');
+							$failure_reason = translate('User asset status not live');
+
 						} else {
-							$failure_reason = translate('user_asset_in_trash');
+							$failure_reason = translate('User asset is in trash');
+
 						}
 					}
 
 					$this->addMessage($display_message);
 					// log failed attempt
-					$this->_logSecurityMsg('system.security.login.failed', Array('login_name' => $login_username, 'failure_reason' => $failure_reason), TRUE);
+					$subject = translate('User Login Failed');
+                    $body    = translate('User "%login_name%" failed to login (%failure_reason%)');
+					$this->_logSecurityMsg('system.security.login.failed', $subject, $body, Array('login_name' => $login_username, 'failure_reason' => $failure_reason), TRUE);
 
 				} else {
 
 					// incorrect login key
-					$this->addMessage(translate('login_key_incorrect'));
+					$this->addMessage(translate('Login Key incorrect'));
+
 				}
 
 				// deliberately don't have a break here so if the
@@ -1636,9 +1655,13 @@ class MySource extends MySource_Object
 
 				// Log a slightly different system message if we logging out from secondary user session (after using "Login As...")
 				if (isset($_SESSION['login_as_invoker_user_full_name'])) {
-					$this->_logSecurityMsg('system.security.logout.secondary.manual', Array('secondary_user_name' => $_SESSION['login_as_invoker_user_full_name']));
+					$subject = translate('User Logged Out Secondary User');
+                    $body    = translate('User "%secondary_user_name%" has logged out from the account of "%user_name%" after user switching');
+					$this->_logSecurityMsg('system.security.logout.secondary.manual', $subject, $body, Array('secondary_user_name' => $_SESSION['login_as_invoker_user_full_name']));
 				} else {
-					$this->_logSecurityMsg('system.security.logout.manual');
+					$subject = translate('User Logged Out');
+                    $body    = translate('User "%user_name%" logged themselves out');
+					$this->_logSecurityMsg('system.security.logout.manual', $subject, $body);
 				}
 
 				// code below is added with respect to #5731 Login as and
@@ -1712,7 +1735,9 @@ class MySource extends MySource_Object
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_before_user_logout', $old_user, NULL);
 				}
-				$this->_logSecurityMsg('system.security.logout.manual');
+				$subject = translate('User Logged Out');
+                $body    = translate('User "%user_name%" logged themselves out');
+                $this->_logSecurityMsg('system.security.logout.manual', $subject, $body);
 				$this->_clearSession();
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
@@ -1908,7 +1933,7 @@ class MySource extends MySource_Object
 				$full_file_path = SQ_DATA_PATH.'/private/soap_action_file_responses/'.$sessionid.'/'.$filename;
 
 				if (!file_exists($full_file_path)) {
-					trigger_localised_error('FVER0007', E_USER_WARNING, $filename);
+					trigger_localised_error('FVER0007', sprintf(translate('File "%s" not found in the repository'), $filename), E_USER_WARNING);
 					exit();
 				}
 
@@ -2004,7 +2029,9 @@ class MySource extends MySource_Object
 
 			// Log out the invoking user (System Admin)
 			$this->broadcastTriggerEvent('trigger_event_before_user_logout', $this->user, NULL);
-			$this->_logSecurityMsg('system.security.logout.manual');
+			$subject = translate('User Logged Out');
+            $body    = translate('User "%user_name%" logged themselves out');
+            $this->_logSecurityMsg('system.security.logout.manual', $subject, $body);
 
 			// Prepare a new session
 			$this->_clearSession();
@@ -2019,7 +2046,7 @@ class MySource extends MySource_Object
 			// Get a list of all the installed authentication systems
 			$auth_folder = $this->am->getSystemAsset('authentication_folder');
 			if (is_null($auth_folder)) {
-				trigger_localised_error('SYS0249', E_USER_ERROR);
+				trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 				return;
 			}
 			$auth_systems = $auth_folder->getAuthSystems();
@@ -2027,7 +2054,8 @@ class MySource extends MySource_Object
 			// Try each auth system in order to see if we can load a user asset
 			$secondary_user = NULL;
 			$user_status = NULL;
-			$failure_reason = translate('user_not_found');
+			$failure_reason = translate('Invalid username or password entered');
+
 
 			foreach ($auth_systems as $systemid) {
 				$system = $this->am->getAsset($systemid);
@@ -2040,7 +2068,10 @@ class MySource extends MySource_Object
 					// are certain that we are logging back in to the correct account type
 					if ($resuming_session && ($secondary_user->id != $resuming_user_id_match)) {
 						// No go
-						$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('user_switching_access_denied')), TRUE);
+						$subject = translate('User Secondary Login Failed');
+                        $body    = translate('Login to user account "%secondary_login_name%" failed from account "%login_name%" (%failure_reason%)');
+                        $this->_logSecurityMsg('system.security.login.secondary.failed', $subject, $body, Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('User cannot be accessed when user switching')), TRUE);
+
 						return FALSE;
 					}
 
@@ -2083,7 +2114,8 @@ class MySource extends MySource_Object
 								// Ok all is good - login as the user we are after
 								return $this->loginUser($secondary_user, $old_user->name, TRUE);
 							} else {
-								$failure_reason = translate('user_switching_access_denied');
+								$failure_reason = translate('User cannot be accessed when user switching');
+
 								$user_status = NULL;
 							}
 
@@ -2096,16 +2128,21 @@ class MySource extends MySource_Object
 
 			if (!is_null($user_status)) {
 				if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
-					$failure_reason = translate('user_status_not_live');
+					$failure_reason = translate('User asset status not live');
+
 				} else {
-					$failure_reason = translate('user_asset_in_trash');
+					$failure_reason = translate('User asset is in trash');
+
 				}
 			}
 
-			$this->addMessage(translate('user_not_found'));
+			$this->addMessage(translate('Invalid username or password entered'));
+
 
 			// Log failed attempt
-			$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => $failure_reason), TRUE);
+			$subject = translate('User Secondary Login Failed');
+            $body    = translate('Login to user account "%secondary_login_name%" failed from account "%login_name%" (%failure_reason%)');
+            $this->_logSecurityMsg('system.security.login.secondary.failed', $subject, $body, Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => $failure_reason), TRUE);
 		}
 
 		return FALSE;
@@ -2130,7 +2167,7 @@ class MySource extends MySource_Object
 		// get a list of all the installed authentication systems
 		$auth_folder = $this->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', E_USER_ERROR);
+			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 			return;
 		}
 		$auth_systems = $auth_folder->getAuthSystems();
@@ -2163,7 +2200,7 @@ class MySource extends MySource_Object
 		// get a list of all the installed authentication systems
 		$auth_folder = $this->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', E_USER_ERROR);
+			trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 			return;
 		}
 		$auth_systems = $auth_folder->getAuthSystems();
@@ -2224,9 +2261,13 @@ class MySource extends MySource_Object
 
 		// log a message so we know someone has logged in
 		if (empty($invoking_user_full_name)) {
-			$this->_logSecurityMsg('system.security.login');
+			$subject = translate('User Logged In');
+            $body    = translate('User "%user_name%" logged in');
+            $this->_logSecurityMsg('system.security.login', $subject, $body);
 		} else {
-			$this->_logSecurityMsg('system.security.login.secondary', Array('secondary_user_name' => $invoking_user_full_name));
+			$subject = translate('User Logged In As Secondary User');
+            $body    = translate('User "%secondary_user_name%" logged in as "%user_name%" from user switching');
+            $this->_logSecurityMsg('system.security.login.secondary', $subject, $body, Array('secondary_user_name' => $invoking_user_full_name));
 		}
 
 		// Get login context if any. If the value returned is numeric, it's
@@ -2307,7 +2348,7 @@ class MySource extends MySource_Object
 	public function setCurrentUser(User $user)
 	{
 		if (!($user instanceof User)) {
-			trigger_localised_error('SYS0171', E_USER_WARNING);
+			trigger_localised_error('SYS0171', translate('Failed setting current user, passed object is not a user'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -2723,7 +2764,7 @@ class MySource extends MySource_Object
 	* @return void
 	* @access private
 	*/
-	protected function _logSecurityMsg($code, $extra_replacements=Array(), $failed_login=FALSE)
+	protected function _logSecurityMsg($code, $subject, $body, $extra_replacements=Array(), $failed_login=FALSE)
 	{
 		if ($this->userPublic($this->user) && !$failed_login) {
 			return;
@@ -2731,6 +2772,8 @@ class MySource extends MySource_Object
 		$ms = $this->getMessagingService();
 		$msg_reps = Array('user_name' => $this->user->name) + $extra_replacements;
 		$log = $ms->newMessage(Array(), $code, $msg_reps);
+		$log->subject = $subject;
+		$log->body    = $body;
 		$log->parameters['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		$log->parameters['sessionid'] = session_id();
 		$log->send();
@@ -3004,7 +3047,7 @@ class MySource extends MySource_Object
 	{
 		if (count($this->_context_stack) <= 0) {
 			// Cannot restore the context as the context stack is empty
-			trigger_localised_error('SYS0332', E_USER_ERROR);
+			trigger_localised_error('SYS0332', translate('Cannot restore the previous context; the context stack is empty'), E_USER_ERROR);
 		} else {
 			array_pop($this->_context_stack);
 		}
@@ -3701,7 +3744,7 @@ class MySource extends MySource_Object
 	{
 		if (empty($this->_run_level_stack)) {
 			// there is no run level to restore
-			trigger_localised_error('SYS0110', E_USER_ERROR);
+			trigger_localised_error('SYS0110', translate('Unable to restore run level - no previous run level set'), E_USER_ERROR);
 		}
 
 		array_pop($this->_run_level_stack);
@@ -3744,7 +3787,7 @@ class MySource extends MySource_Object
 		$current_run_level = $this->getRunLevel();
 		if (is_null($current_run_level)) {
 			// there is no run level to check
-			trigger_localised_error('SYS0102', E_USER_ERROR);
+			trigger_localised_error('SYS0102', translate('Unable to check run level - no run level set'), E_USER_ERROR);
 		}
 
 		return ($security_system & $current_run_level);
@@ -3923,7 +3966,8 @@ class MySource extends MySource_Object
 		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, TRUE);
 		$time_string .= (strpos($time_string, 'ago') !== FALSE) ? ')' : ' ago)';
 
-		$warning_message = translate('rollback_mode_warning_message', $time_string);
+		$warning_message = sprintf(translate('The system is as it appeared on <strong>%s</strong>.<br />While viewing in rollback mode you cannot make any changes to the system.'), $time_string);
+
 		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
 		if (!empty($_GET['assetid'])) {
 			$exit_url .= '&assetid='.$_GET['assetid'].'&am_section=edit_asset&asset_ei_screen='.array_get_index($_GET, 'asset_ei_screen', 'details');
@@ -3934,13 +3978,16 @@ class MySource extends MySource_Object
 			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo translate('in_rollback_mode'); ?>
+						<?php echo translate('You are currently viewing the system in ROLLBACK MODE'); ?>
+
 					</th>
 					<th style="text-align:right;">
 						<a href="#" onclick="window.top.location='<?php echo $exit_url; ?>'; return false;" >
 							<?php
-								echo translate('exit_rollback_mode').' ';
-								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('exit_rollback_view'), NULL);
+								echo translate('Exit Rollback Mode').' ';
+
+								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('Exit Rollback View'), NULL);
+
 							?>
 						</a>
 					</th>
@@ -4707,7 +4754,9 @@ class MySource extends MySource_Object
 			<table class="sq-backend-table sq-backend-warning-table <?php echo SQ_MAINTENANCE_MODE == '2' ? 'sq-maintenance-enabled' : 'sq-maintenance-notify'; ?>">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo SQ_MAINTENANCE_MODE == '2' ? translate('maintenance_mode_enabled') : translate('maintenance_mode_notify'); ?>
+						<?php echo SQ_MAINTENANCE_MODE == '2' ? translate('Maintenance Mode Enabled') : translate('Maintenance Mode Will Soon Be Enabled'); ?>
+
+
 					</th>
 				</tr>
 				<tr>
@@ -4752,11 +4801,13 @@ class MySource extends MySource_Object
 			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo translate('asset_deprecated_header'); ?>
+						<?php echo translate('Asset Deprecated'); ?>
+
 					</th>
 				</tr>
 				<tr>
-					<td colspan="2" ><?php echo translate('asset_deprecated_note', ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
+					<td colspan="2" ><?php echo sprintf(translate('Asset of type "%1$s" has been deprecated since Matrix version %2$s. This type of asset won\'t be available for use in future MINOR Matrix releases. It is strongly recommended that you replace this asset with a different implementation and delete all assets of this type in your Matrix system.'), ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
+
 					</td>
 				</tr>
 			</table>

@@ -62,7 +62,8 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// threshhold HIPO config entry
-		$o->openField(translate('trigger_execution_threshold'));
+		$o->openField(translate('Trigger Execution Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -71,6 +72,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 			echo SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -118,7 +120,8 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_trigger_batch_events');
+		return translate('Trigger Batch Events');
+
 
 	}//end getHipoName()
 
@@ -134,7 +137,8 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_processing_assets'),
+					'name'			=> translate('Processing Assets'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processAssets',
 									   ),
@@ -200,7 +204,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 	{
 		// to start the batch events, we need to have asset ids and the events to fire on each
 		if (empty($this->_running_vars['assets']) || empty($this->_running_vars['events'])) {
-			trigger_localised_error('HIPO0002', E_USER_WARNING);
+			trigger_localised_error('HIPO0002', translate('Unable to initialise Trigger Batch Events HIPO, no assets or events specified'), E_USER_WARNING);
 			return false;
 		}
 
@@ -209,7 +213,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		$this->_running_vars['step_value']  = (int) (100 / $this->_running_vars['total_steps']);
 
 		if (empty($this->_running_vars['event_parameters'])) $this->_running_vars['event_parameters'] = NULL;
-		
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -241,7 +245,8 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['current_assetid']);
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent($current_event, $asset, $this->_running_vars['event_parameters']);
 
-		$step_data['message'] = translate('hipo_broadcast_event', $current_event, $this->_running_vars['current_assetid']);
+		$step_data['message'] = sprintf(translate('Broadcasting Event %1$s from Asset #%2$s'), $current_event, $this->_running_vars['current_assetid']);
+
 		$step_data['percent_done'] += $this->_running_vars['step_value'];
 		$step_data['complete']     = false;
 

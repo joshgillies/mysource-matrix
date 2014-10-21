@@ -49,8 +49,8 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 	* @access public
 	*/
 	public static function execute($settings, &$state)
-	{	
-		// Check settings		
+	{
+		// Check settings
 		if (empty($settings['job_type'])) {
 			// If no settings, fail
 			return FALSE;
@@ -63,29 +63,29 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 			} else {
 				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
-		}		
+		}
 
 		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
-		$future_lineage_jobs = Cron_Job_Future_Lineage::getActiveJobs($state['asset']);		
-		if (empty($future_lineage_jobs)) return TRUE;		
-		
-		$jobids = Array();		
-		
+		$future_lineage_jobs = Cron_Job_Future_Lineage::getActiveJobs($state['asset']);
+		if (empty($future_lineage_jobs)) return TRUE;
+
+		$jobids = Array();
+
 		foreach ($future_lineage_jobs as $job) {
-			
+
 			$job_type = $job->attr('link_info') ? SQ_REMOVE_FUTURE_LINEAGE_CRON_ADD : SQ_REMOVE_FUTURE_LINEAGE_CRON_DELETE;
-			
-			if ($settings['job_type'] == SQ_REMOVE_FUTURE_LINEAGE_CRON_BOTH || $settings['job_type'] == $job_type) {			
+
+			if ($settings['job_type'] == SQ_REMOVE_FUTURE_LINEAGE_CRON_BOTH || $settings['job_type'] == $job_type) {
 				if (!$cron_mgr->removeJob($job)) {
-					trigger_localised_error('CORE0308', E_USER_WARNING, $job->id);
+					trigger_localised_error('CORE0308', sprintf(translate('Cannot remove future lineage cron job #%1$s'), $job->id), E_USER_WARNING);
 				} else {
 					$jobids[] = $job->id;
 				}
 			}//end if
-		}//end foreach		
+		}//end foreach
 
 		return Array(
 				'jobids'	=> $jobids,
@@ -114,7 +114,7 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 		}
 
 		$jobs_types = Trigger_Action_Remove_Future_Lineage_Cron::_getCronJobTypeList();
-						
+
 
 		if (!$write_access) {
 			$form_element_extras = 'disabled="disabled"';
@@ -123,8 +123,9 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 		}
 
 		ob_start();
-			echo translate('trigger_remove_future_lineage_cron');
-			combo_box($prefix.'[job_type]', $jobs_types, FALSE, $selected_type, NULL, $form_element_extras);			
+			echo translate('Delete all the asset\'s future lineage Scheduled Jobs of type');
+
+			combo_box($prefix.'[job_type]', $jobs_types, FALSE, $selected_type, NULL, $form_element_extras);
 			$html = ob_get_contents();
 		ob_end_clean();
 
@@ -150,7 +151,7 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 		if (!$job_type) {
 			return 'Cron job type not specified';
 		}
-		
+
 		$jobs_types = Trigger_Action_Remove_Future_Lineage_Cron::_getCronJobTypeList();
 
 		// check if the job_type is valid
@@ -162,8 +163,8 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 		return FALSE;
 
 	}//end processInterface()
-	
-	
+
+
 	/**
 	* Returns an array containing cron job action types
 	*
@@ -173,13 +174,13 @@ class Trigger_Action_Remove_Future_Lineage_Cron extends Trigger_Action
 	* @access private
 	*/
 	protected static function _getCronJobTypeList()
-	{	
+	{
 		return Array(
 				SQ_REMOVE_FUTURE_LINEAGE_CRON_ADD => "Create",
 				SQ_REMOVE_FUTURE_LINEAGE_CRON_DELETE => "Delete",
 				SQ_REMOVE_FUTURE_LINEAGE_CRON_BOTH => "Create/Delete",
 			);
-					
+
 	}//end _getCronJobTypeList()
 
 

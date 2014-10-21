@@ -62,24 +62,30 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$o->openField(translate('online_quiz_question_group_score_categories'));
+		$o->openField(translate('Score Categories'));
+
 
 			$score_categories = $asset->getScoreCategories();
 
 			if (empty($score_categories)) {
-				echo translate('online_quiz_question_group_empty_score_categories');
+				echo translate('No score categories have been defined');
+
 			} else {
 
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('online_quiz_question_group_score_category'); ?></th>
-					<th><?php echo translate('online_quiz_question_group_minimum_score'); ?></th>
-					<th><?php echo translate('online_quiz_question_group_maximum_score'); ?></th>
+					<th><?php echo translate('Score Category'); ?></th>
+
+					<th><?php echo translate('Minimum Score'); ?></th>
+
+					<th><?php echo translate('Maximum Score'); ?></th>
+
 					<?php
 						if ($write_access) {
 							?>
-							<th><?php echo translate('online_quiz_question_group_delete_category'); ?></th>
+							<th><?php echo translate('Delete Category'); ?></th>
+
 							<?php
 						}
 					?>
@@ -130,7 +136,8 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 		$o->closeField();
 
 		if ($write_access) {
-			$o->openField(translate('online_quiz_question_group_new_score_category'));
+			$o->openField(translate('New Score Category'));
+
 					text_box($prefix.'_new_score_category', '', 60);
 			$o->closeField();
 		}
@@ -227,19 +234,23 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$o->openField(translate('online_quiz_question_group_score_categories'));
+		$o->openField(translate('Score Categories'));
+
 
 			$score_categories = $asset->getScoreCategories();
 
 			if (empty($score_categories)) {
-				echo translate('online_quiz_question_group_empty_score_categories');
+				echo translate('No score categories have been defined');
+
 			} else {
 
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('online_quiz_question_group_score_category'); ?></th>
-					<th><?php echo translate('online_quiz_question_group_supplementary_content'); ?></th>
+					<th><?php echo translate('Score Category'); ?></th>
+
+					<th><?php echo translate('Supplementary Content'); ?></th>
+
 				</tr>
 				<?php
 

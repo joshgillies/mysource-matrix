@@ -18,9 +18,13 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Report Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field>
+			<display_name>Regenerate Report</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
@@ -29,9 +33,13 @@
 	</section>
 	<section name="Report Settings" write_access="write:attributes" limbo_access="1">
 		<field attribute="rollover_period">
+			<display_name>Rollover Period</display_name>
+			<note>Determines how often the current report is archived and a fresh report begun.</note>
 			<selection style="list" />
 		</field>
 		<field attribute="row_count">
+			<display_name>Display Rows</display_name>
+			<note>The number of search terms to display.</note>
 			<int width="3" />
 		</field>
 	</section>

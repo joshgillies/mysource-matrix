@@ -18,6 +18,8 @@
 <contents>
 	<section name="Delivery Methods" write_access="write:links">
 		<field>
+			<display_name>Delivery Methods</display_name>
+			<note>The assets that handle the interface and processing of delivery for an order.</note>
 			<function_call>
 				<paint_function   name="paintDeliveryMethod"  />
 				<process_function name="processDeliveryMethod" />

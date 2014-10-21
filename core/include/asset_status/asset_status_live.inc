@@ -58,7 +58,8 @@ class Asset_Status_Live extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_live');
+		return translate('Live');
+
 
 	}//end getDescription()
 
@@ -87,11 +88,15 @@ class Asset_Status_Live extends Asset_Status
 			log_dump(get_backtrace());
 		} else {
 			// workflow is not currently running for this asset
-			$statii[SQ_STATUS_LIVE_APPROVAL]          = translate('status_change_place_up_for_review');
-			$statii[SQ_STATUS_EDITING]                = translate('status_change_safe_edit');
+			$statii[SQ_STATUS_LIVE_APPROVAL]          = translate('Place Up For Review');
+
+			$statii[SQ_STATUS_EDITING]                = translate('Safe Edit');
+
 			if ($this->owner->adminAccess('')) {
-				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_place_under_construction');
-				$statii[SQ_STATUS_ARCHIVED]           = translate('status_change_archive');
+				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Place Under Construction');
+
+				$statii[SQ_STATUS_ARCHIVED]           = translate('Archive');
+
 			}
 		}//end if workflow running
 
@@ -131,7 +136,11 @@ class Asset_Status_Live extends Asset_Status
 				if (!empty($schemas)) {
 					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$msg = $ms->newMessage();
-					$msg->subject = 'Asset Up For Review';
+					$msg->subject = translate('Asset Up For Review');
+					$msg->body    = translate('User "%workflow_user%" has placed %type_code% "%asset_name%" up for review.')."\n".
+                                        translate('You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.')."\n\n".
+                                        translate('<SQ_MSG_LINK href="%workflow_url%">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 					$msg->type = 'asset.workflow.review';
 
 					$msg_reps = Array(
@@ -150,7 +159,7 @@ class Asset_Status_Live extends Asset_Status
 					}
 
 					if (!$wfm->startWorkflow($this->owner->id, false, $msg)) {
-						trigger_localised_error('SYS0262', E_USER_WARNING, $this->owner->name);
+						trigger_localised_error('SYS0262', sprintf(translate('Workflow failed to start for "%s"'), $this->owner->name), E_USER_WARNING);
 						return false;
 					}
 				}
@@ -158,6 +167,10 @@ class Asset_Status_Live extends Asset_Status
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
 					$log->type = 'asset.workflow.log.review';
+					$log->subject = translate('Asset Up For Review');
+					$log->body    = translate('User "%workflow_user%" has placed %type_code% "%asset_name%" up for review.')."\n\n".
+                                        translate('<SQ_MSG_LINK href="%workflow_url%">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.')."\n".
+                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
 									'workflow_user' => $user->name,
@@ -183,7 +196,7 @@ class Asset_Status_Live extends Asset_Status
 			case SQ_STATUS_EDITING :
 				// we are safe editing
 				if (!$this->owner->saveSystemVersion()) {
-					trigger_localised_error('SYS0208', E_USER_WARNING);
+					trigger_localised_error('SYS0208', translate('Status change failed, could not save to cache'), E_USER_WARNING);
 					return false;
 				}
 			break;

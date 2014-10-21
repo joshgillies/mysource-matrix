@@ -100,7 +100,7 @@ class Cron_Job_Clear_Matrix_Cache extends Cron_Job
 			}
 		} else {
 			// process failed
-			trigger_localised_error('CRON0057', E_USER_WARNING);
+			trigger_localised_error('CRON0057', translate('Failed to run clear Matrix cache cron job.'), E_USER_WARNING);
 		}
 
 		// we can be removed because the error is beyound our control

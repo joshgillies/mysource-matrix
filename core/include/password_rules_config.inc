@@ -62,6 +62,7 @@ class Password_Rules_Config extends Config
 	{
 		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/password_rules.inc';
+		$this->name = translate('Password Rules Configuration');
 
 	}//end constructor
 
@@ -85,7 +86,7 @@ class Password_Rules_Config extends Config
 
 			// if we dont have access, go away
 			if (!$is_admin) {
-				trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
+				trigger_localised_error('SYS0267', sprintf(translate('You need to be either the Root User or a System Administrator to save the %s'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -156,10 +157,13 @@ class Password_Rules_Config extends Config
 
 		$class = get_class_lower($this);
 
-		$o->openSection(translate('manage_passwd_rules'));
+		$o->openSection(translate('Manage Password Rules'));
 
 
-			$o->openField(translate('min_length'), '', translate('specify_min_length_passwd'));
+
+			$o->openField(translate('Minimum Length'), '', translate('Specify a minimum password length'));
+
+
 				if ($write_access && $is_root) {
 					text_box($class.'[SQ_PASSWD_RULE_LENGTH]', SQ_PASSWD_RULE_LENGTH, 5);
 				} else {
@@ -167,23 +171,35 @@ class Password_Rules_Config extends Config
 				}
 			$o->closeField();
 
-			$o->openField(translate('disallow_user_info'), '', translate('disallow_user_info_note'));
+			$o->openField(translate('Disallow User Info'), '', translate('If yes, then prevent users having their username or other user information as their password.'));
+
+
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_PASSWD_RULE_DISALLOW_USER_INFO]', Array('0' => translate('yes'), '1' => translate('no')), FALSE, SQ_PASSWD_RULE_DISALLOW_USER_INFO);
+					combo_box($class.'[SQ_PASSWD_RULE_DISALLOW_USER_INFO]', Array('0' => translate('Yes'), '1' => translate('No')), FALSE, SQ_PASSWD_RULE_DISALLOW_USER_INFO);
+
+
 				} else {
-					echo (SQ_PASSWD_RULE_DISALLOW_USER_INFO) ? translate('no') : translate('yes');
+					echo (SQ_PASSWD_RULE_DISALLOW_USER_INFO) ? translate('No') : translate('Yes');
+
+
 				}
 			$o->closeField();
 
-			$o->openField(translate('character_rules'), '', translate('character_rules_note'));
+			$o->openField(translate('Character Rules'), '', translate('Enforce the use of a certain type of character in passwords by specifying the minimum number of times it must be used.<br />Disallowing a character type will prevent users from including it in their passwords.'));
+
+
 
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<th style="width: 50px; text-align: center;" class="sq-backend-table-header"><?php echo translate('active_question'); ?></th>
-					<th style="width: 200px;" class="sq-backend-table-header"><?php echo translate('character_type'); ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('min_number'); ?></th>
-					<th style="width: 150px;" class="sq-backend-table-header"><?php echo translate('disallow_char_type_question'); ?></th>
+					<th style="width: 50px; text-align: center;" class="sq-backend-table-header"><?php echo translate('Active?'); ?></th>
+
+					<th style="width: 200px;" class="sq-backend-table-header"><?php echo translate('Character Type'); ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Minimum Number'); ?></th>
+
+					<th style="width: 150px;" class="sq-backend-table-header"><?php echo translate('Disallow Character Type?'); ?></th>
+
 				</tr>
 				<?php
 				foreach (get_constant_values('SQ_PASSWD_RULE_NUM') as $password_rule => $value) {
@@ -202,19 +218,24 @@ class Password_Rules_Config extends Config
 							<?php
 							switch ($password_rule) {
 								case 'SQ_PASSWD_RULE_NUM_CAPS':
-									echo ucfirst(translate('capital_letters'));
+									echo ucfirst(translate('capital letters'));
+
 								break;
 								case 'SQ_PASSWD_RULE_NUM_LOWER':
-									echo ucfirst(translate('lowercase_letters'));
+									echo ucfirst(translate('lower case letters'));
+
 								break;
 								case 'SQ_PASSWD_RULE_NUM_INT':
-									echo ucfirst(translate('numeric_digits'));
+									echo ucfirst(translate('numeric digits'));
+
 								break;
 								case 'SQ_PASSWD_RULE_NUM_PUNC':
-									echo ucfirst(translate('punctuation_characters'));
+									echo ucfirst(translate('punctuation characters'));
+
 								break;
 								case 'SQ_PASSWD_RULE_NUM_SPC':
 									echo ucfirst(translate('spaces'));
+
 								break;
 
 								default:
@@ -256,20 +277,25 @@ class Password_Rules_Config extends Config
 				</table>
 				<?php
 			$o->closeField();
-			
-			
-			$o->openField(translate('password_history_enforcement'), '', translate('password_history_enforcement_note'));
+
+
+			$o->openField(translate('Password History Enforcement'), '', translate('Number of unique new passwords that have to be associated with and used by a user before an old password can be reused again. Enter 0 to disable this feature and stop Matrix from recording history passwords.'));
+
+
 				if ($write_access && $is_root) {
 					text_box($class.'[SQ_PASSWD_RULE_PASSWORD_HISTORY]', SQ_PASSWD_RULE_PASSWORD_HISTORY, 0);
 				} else {
 					echo SQ_PASSWD_RULE_PASSWORD_HISTORY;
 				}
 			$o->closeField();
-			
+
 		$o->closeSection();
 
-		$o->openSection(translate('passwd_blacklist'));
-			$o->openField(translate('word_list'), '', translate('word_list_note'));
+		$o->openSection(translate('Password Blacklist'));
+
+			$o->openField(translate('Word List'), '', translate('New line separated list of words that are not allowed to be used as password.'));
+
+
 
 				if ($write_access) {
 					text_area($class.'[SQ_PASSWD_RULE_BLACK_LIST]', SQ_PASSWD_RULE_BLACK_LIST, 30, 8);
@@ -278,11 +304,14 @@ class Password_Rules_Config extends Config
 				}
 			$o->closeField();
 
-			$o->openField(translate('exact_match'), '', translate('exact_match_note'));
+			$o->openField(translate('Exact Match'), '', translate('If ticked, the system will only stop users using a word from the Word List as a password if it\'s an exact match.'));
+
+
 
 				if ($write_access) {
 					check_box($class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]', '1', SQ_PASSWD_RULE_BLACK_LIST_EXACT);
-					label(translate('exact_match_blacklist_words'), $class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]');
+					label(translate('Only blacklist exactly matched words'), $class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]');
+
 				} else {
 					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo SQ_PASSWD_RULE_BLACK_LIST_EXACT ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
 				}

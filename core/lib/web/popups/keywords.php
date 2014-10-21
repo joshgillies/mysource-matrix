@@ -39,13 +39,13 @@
 		$o->openSection('Asset Information');
 		$o->openField('', 'wide_col');
 		?>
-		
+
 			<table class="sq-backend-table compact">
 			<tr><th style="width: 250px;">Keyword</th><th>Description</th></tr>
 			<tr><td><strong>%asset_assetid%</strong></td><td>The ID of the asset</td></tr>
 			<tr><td><strong>%asset_name%</strong></td><td>Full name of the asset</td></tr>
 			<tr><td><strong>%asset_name_linked%</strong></td><td>Full name of the asset with hyperlink</td></tr>
-			<tr><td><strong>%asset_short_name%</strong></td><td>Short name of the asset</td></tr>			
+			<tr><td><strong>%asset_short_name%</strong></td><td>Short name of the asset</td></tr>
 			<tr><td><strong>%asset_short_name_linked%</strong></td><td>Short name of the asset with hyperlink</td></tr>
 			<tr><td><strong>%asset_version%</strong></td><td>Version of the asset being displayed</td></tr>
 			<tr><td><strong>%asset_url%</strong></td><td>URL of the asset</td></tr>
@@ -74,11 +74,11 @@
 		<?php
 		$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection('Last Updated Details');
 		$o->openField('', 'wide_col');
 		?>
-		
+
 			<table class="sq-backend-table compact">
 			<tr><th style="width: 250px;">Keyword</th><th>Description</th></tr>
 			<tr><td><strong>%asset_updated%</strong></td><td>Date/Time the asset was last updated (YYYY-MM-DD HH-MM-SS)</td></tr>
@@ -89,15 +89,15 @@
 			<tr><td><strong>%asset_updated_by_last_name%</strong></td><td>Surname of the user that last updated this asset</td></tr>
 			<tr><td><strong>%asset_updated_by_email%</strong></td><td>Email of the user that last updated this asset</td></tr>
 			</table>
-			
+
 		<?php
 		$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection('Last Published Details');
 		$o->openField('', 'wide_col');
 		?>
-		
+
 			<table class="sq-backend-table compact">
 			<tr><th style="width: 250px;">Keyword</th><th>Description</th></tr>
 			<tr><td><strong>%asset_published%</strong></td><td>Date/Time the asset was last published (YYYY-MM-DD HH-MM-SS)</td></tr>
@@ -108,15 +108,15 @@
 			<tr><td><strong>%asset_published_by_last_name%</strong></td><td>Surname of the user that last published this asset</td></tr>
 			<tr><td><strong>%asset_published_by_email%</strong></td><td>Email of the user that last published this asset</td></tr>
 			</table>
-			
+
 		<?php
 		$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection('Permissions');
 		$o->openField('', 'wide_col');
 		?>
-		
+
 			<table class="sq-backend-table compact">
 			<tr><th style="width: 250px;">Keyword</th><th>Description</th></tr>
 			<tr><td><strong>%asset_read_permission%</strong></td><td>Comma separated list of the full names for users with read access</td></tr>
@@ -129,11 +129,11 @@
 			<tr><td><strong>%asset_write_permission_email_linked%</strong></td><td>Comma separated list of linked email addresses for users with write access</td></tr>
 			<tr><td><strong>%asset_admin_permission_email_linked%</strong></td><td>Comma separated list of linked email addresses for users with administrator access</td></tr>
 			</table>
-			
+
 		<?php
 		$o->closeField();
 		$o->closeSection();
-		
+
 			$roles = Array();
 			if ($all) {
 				$roles_temp = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('role');
@@ -149,11 +149,11 @@
 			}
 
 			if (!empty($roles)) {
-		
+
 				$o->openSection('Roles');
 				$o->openField('', 'wide_col');
 				?>
-					
+
 					<table class="sq-backend-table compact">
 					<?php
 					$roleinfo = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($roles, Array(), FALSE, 'name');
@@ -180,7 +180,7 @@
 					}
 					?>
 					</table>
-					
+
 				<?php
 				$o->closeField();
 				$o->closeSection();

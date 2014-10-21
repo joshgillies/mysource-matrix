@@ -47,7 +47,7 @@ class Data_Source_RSS extends Data_Source
 
 	}//end constructor
 
-	
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -69,8 +69,8 @@ class Data_Source_RSS extends Data_Source
 		return $links;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Returns an array of the result of xml parsing either from cache or by parsing the file again
 	*
@@ -194,11 +194,16 @@ class Data_Source_RSS extends Data_Source
 	function getAvailableKeywords()
 	{
 		$keywords = parent::getAvailableKeywords();
-		$keywords['data_source_rss_channelInfo'] = translate('rss_channel_info');
-		$keywords['data_source_rss_imageInfo'] = translate('rss_image_info');
-		$keywords['data_source_rss_rss_type'] = translate('rss_type');
-		$keywords['data_source_rss_textinput'] = translate('rss_text_input');
-		$keywords['data_source_rss_items'] = translate('rss_items');
+		$keywords['data_source_rss_channelInfo'] = translate('RSS Channel Info');
+
+		$keywords['data_source_rss_imageInfo'] = translate('RSS Image Info');
+
+		$keywords['data_source_rss_rss_type'] = translate('RSS Type');
+
+		$keywords['data_source_rss_textinput'] = translate('RSS Text Input');
+
+		$keywords['data_source_rss_items'] = translate('RSS Items');
+
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -217,7 +222,7 @@ class Data_Source_RSS extends Data_Source
 		$feed_reader = new RSS_Feed_Reader();
 		$feed_reader->delimiter = $this->attr('data_delimiter');
 		$this->reader = $feed_reader;
-		
+
 		if (!empty($url)) {
 			if ($feed_reader->setInputFile($url)) {
 				$result = $feed_reader->parse();

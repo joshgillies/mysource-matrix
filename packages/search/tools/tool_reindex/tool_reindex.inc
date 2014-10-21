@@ -69,7 +69,8 @@ class Tool_Reindex extends Tool
 
 		$o->openField('System Wide');
 			check_box($type_code.'_reindexing_root_folder');
-			echo translate('sch_reindex_all_assets');
+			echo translate('Reindex all assets in the system');
+
 		$o->closeField();
 
 		$o->closeSection();

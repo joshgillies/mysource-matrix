@@ -32,10 +32,12 @@ function updateGlobalLinks()
 {
 	var container = document.getElementById('confirmations-container');
 	var allTbodies = container.getElementsByTagName('TBODY');
-	var text = js_translate('collapse_all');
+	var text = js_translate('Collapse All');
+
 	for (var i=0; i < allTbodies.length; i++) {
 		if (allTbodies[i].style.display == 'none') {
-			text = js_translate('expand_all');
+			text = js_translate('Expand All');
+
 			break;
 		}
 	}
@@ -47,11 +49,14 @@ function toggleAllTbodyDisplays(link)
 {
 	var container = document.getElementById('confirmations-container');
 	var allTbodies = container.getElementsByTagName('TBODY');
-	var display = (link.innerHTML == js_translate('collapse_all')) ? 'none' : '';
+	var display = (link.innerHTML == js_translate('Collapse All')) ? 'none' : '';
+
 	for (var i=0; i < allTbodies.length; i++) {
 		allTbodies[i].style.display = display;
 	}
-	text = (link.innerHTML == js_translate('collapse_all')) ? js_translate('expand_all') : js_translate('collapse_all');
+	text = (link.innerHTML == js_translate('Collapse All')) ? js_translate('Expand All') : js_translate('Collapse All');
+
+
 	document.getElementById('expand-collapse-link-top').innerHTML = text;
 	document.getElementById('expand-collapse-link-bottom').innerHTML = text;
 }
@@ -120,13 +125,16 @@ function setAllCheckboxes(link)
 {
 	var container = document.getElementById('confirmations-container');
 	var allInputs = container.getElementsByTagName('INPUT');
-	var checkState = (link.innerHTML == js_translate('select_all')) ? true : false;
+	var checkState = (link.innerHTML == js_translate('Select All')) ? true : false;
+
 	for (var i=0; i < allInputs.length; i++) {
 		if (allInputs[i].type.toLowerCase() == 'checkbox') {
 			allInputs[i].checked = checkState;
 		}
 	}
-	text = (link.innerHTML == 'Select All') ? js_translate('deselect_all') : js_translate('select_all');
+	text = (link.innerHTML == 'Select All') ? js_translate('Deselect All') : js_translate('Select All');
+
+
 	document.getElementById('select-deselect-link-top').innerHTML = text;
 	document.getElementById('select-deselect-link-bottom').innerHTML = text;
 }

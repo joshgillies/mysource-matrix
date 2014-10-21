@@ -16,65 +16,99 @@
 <contents>
 	<section name="General" write_access="write:attributes">
 		<field attribute="print">
+			<display_name>Print</display_name>
+			<note>Select whether this design area should be printed or hidden in this design customisation</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache">
+			<display_name>Cache?</display_name>
+			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache_globally">
+			<display_name>Cache Globally?</display_name>
+			<note>When enabled this design area will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the design area content is not dynamic based on URL. &lt;br/&gt; The URL recache suffix will not work for globally cached design areas. However you can clear global design area cache using the cache manager. </note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="asset_count">
+			<display_name>Asset Count</display_name>
+			<note>Maximum number of assets to print</note>
 			<int width="2" />
 		</field>
 		<field attribute="time_format">
+			<display_name>Timestamp Format</display_name>
+			<note>String format as specified by the PHP's date() function</note>
 			<text width="10" height="1" />
 		</field>
 		<field>
+			<display_name>Asset Types</display_name>
+			<note>Asset types to keep in history</note>
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
 				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Assets to Exclude</display_name>
+			<note>Assets selected here will never appear in the history</note>
 			<function_call>
 				<paint_function   name="paintExcludeAssets"   />
 				<process_function name="processExcludeAssets" />
 			</function_call>
 		</field>
 		<field attribute="auto_access_history">
+			<display_name>Auto Add to History</display_name>
+			<note>If enabled assets will be added to access history automatically.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="store_permanent">
+			<display_name>Store Permanently</display_name>
+			<note>If enabled then access history will be stored in database permanently for logged in users. This will decrease performance slightly.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Display Options" write_access="write:attributes">
 		<field attribute="add_history_button_image">
+			<display_name>Use Image for Access History Add Button</display_name>
+			<note>If enabled then image used instead of form button</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="add_history_button_label" show_if="useAddButton">
+			<display_name>Access History Add Button Label</display_name>
+			<note>Label for the Add to Access History button</note>
 			<text width="25" height="1" />
 		</field>
 		<field attribute="add_history_image" show_if="showAddImageSelection">
+			<display_name>Add to History Button Image</display_name>
+			<note>Selected asset will be used as the Add to History Button</note>
 			<assetid type_codes="file:D" />
 		</field>
 		<field attribute="remove_history_button_image">
+			<display_name>Use Image for Access History Remove Button</display_name>
+			<note>If enabled then image used instead of form button</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="remove_history_button_label" show_if="useRemoveButton">
+			<display_name>Access History Remove Button Label</display_name>
+			<note>Label for the Remove to Access History button</note>
 			<text width="25" height="1" />
 		</field>
 		<field attribute="remove_history_image" show_if="showRemoveImageSelection">
+			<display_name>Remove from History Button Image</display_name>
+			<note>Selected asset will be used as the Remove from History Button</note>
 			<assetid type_codes="file:D" />
 		</field>
 		<field attribute="remove_history_image_small">
+			<display_name>Remove from History Image</display_name>
+			<note>Selected asset will be used as the Remove from History Image when &lt;i&gt;remove_from_history_image&lt;/i&gt; var is specified in the parse file.</note>
 			<assetid type_codes="file:D" />
 		</field>
 		<field>
-			<function_call>
+			<display_name>Add to History Asset Types</display_name>
+			<note>Add to Access History button will be displayed for these asset types only</note>
+            <function_call>
 				<paint_function   name="paintAddHistoryAssetTypes"   />
 				<process_function name="processAddHistoryAssetTypes" />
 			</function_call>

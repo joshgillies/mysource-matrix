@@ -67,13 +67,20 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 															   ),
 											'parameters'	=> Array(
 																'options'		=> Array(
-																					'Sun'	=> translate('sunday'),
-																					'Mon'	=> translate('monday'),
-																					'Tue'	=> translate('tuesday'),
-																					'Wed'	=> translate('wednesday'),
-																					'Thu'	=> translate('thursday'),
-																					'Fri'	=> translate('friday'),
-																					'Sat'	=> translate('saturday'),
+																					'Sun'	=> translate('Sunday'),
+
+																					'Mon'	=> translate('Monday'),
+
+																					'Tue'	=> translate('Tuesday'),
+
+																					'Wed'	=> translate('Wednesday'),
+
+																					'Thu'	=> translate('Thursday'),
+
+																					'Fri'	=> translate('Friday'),
+
+																					'Sat'	=> translate('Saturday'),
+
 																				   ),
 																'multiple'		=> TRUE,
 																'allow_empty'	=> FALSE,
@@ -85,8 +92,11 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 											'parameters'	=> Array(
 																'options'		=> Array(
 																					'days'		=> translate('days'),
+
 																					'weeks'		=> translate('weeks'),
+
 																					'months'	=> translate('months'),
+
 																				   ),
 																'allow_empty'	=> FALSE,
 															   ),

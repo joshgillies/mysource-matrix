@@ -80,7 +80,8 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_bundled_assets_status');
+		return translate('Edit Bundle Status');
+
 
 	}//end getHipoName()
 
@@ -114,7 +115,8 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	{
 		return Array(
 				0	=> Array(
-						'name'			=> translate('hipo_job_edit_bundled_assets_status_status'),
+						'name'			=> translate('Editing Status of Bundled Assets'),
+
 						'function_call'	=> Array(
 											'paint_function'	=> 'paintStatusChangeWarning',
 											'process_function'	=> 'processStatusChangeWarning',
@@ -128,7 +130,8 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 						'message'		=> '',
 					   ),
 				1	=> Array(
-						'name'			=> translate('hipo_job_edit_bundled_assets_status_status'),
+						'name'			=> translate('Editing Status of Bundled Assets'),
+
 						'function_call'	=> Array(
 											'process_function'	=> 'processBundledAsset',
 										   ),
@@ -140,7 +143,8 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 						'message'		=> '',
 					   ),
 				2	=> Array(
-						'name'			=> translate('hipo_job_edit_bundled_assets_status_send'),
+						'name'			=> translate('Sending Bundle Workflow Message'),
+
 						'function_call'	=> Array(
 											'process_function'	=> 'sendBundleWorkflowMessage',
 										   ),
@@ -165,7 +169,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	{
 		// We must have a bundle asset ID
 		if (array_key_exists('bundle_assetid', $this->_running_vars) === FALSE) {
-			trigger_localised_error('HIPO0092', E_USER_WARNING);
+			trigger_localised_error('HIPO0092', translate('Unable to run HIPO job; this job requires a bundle asset ID'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -175,13 +179,13 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 
 		// The asset doesn't exist...
 		if (count($type_code) === 0) {
-			trigger_localised_error('HIPO0093', E_USER_WARNING, $bundle_assetid);
+			trigger_localised_error('HIPO0093', sprintf(translate('Unable to run HIPO job; the passed bundle asset ID (#%s) does not exist'), $bundle_assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// It's not a bundle...
 		if ($type_code[$bundle_assetid] !== 'workflow_bundle') {
-			trigger_localised_error('HIPO0094', E_USER_WARNING, $bundle_assetid);
+			trigger_localised_error('HIPO0094', sprintf(translate('Unable to run HIPO job; the passed bundle asset ID (#%s) is not a Workflow Bundle asset'), $bundle_assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -292,14 +296,21 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	*/
 	public function paintStatusChangeWarning(Array &$step_data, Hipo_Backend_Outputter $o, $prefix)
 	{
-		$o->openSection(translate('hipo_job_edit_bundled_assets_status_status'));
+		$o->openSection(translate('Editing Status of Bundled Assets'));
+
 
 		$o->openRaw();
-			echo translate('hipo_job_edit_bundled_assets_status_status_warning');
+			echo translate('<p>The following bundled assets will not follow the change of status expected from this bundle status change, and will instead change to the status(es) listed below. This may be due to a lack of workflow on the affected assets, or due to your ability to complete any workflow on them straight away.<br/><br/>
+
+Please check that these intended statuses are correct, and if desired, manually change the affected assets\' status and/or workflow before continuing.<br/><br/>
+
+If you are ready to continue, please click <strong>Next</strong> to proceed with the bundle status change.</p>');
+
 		$o->closeRaw();
 
 		foreach ($this->_running_vars['warn_assetids'] as $status => $warn_assetids) {
-			$o->openSection(translate('hipo_job_edit_bundled_assets_status_status_line', get_asset_status_icon($status), get_status_description($status)));
+			$o->openSection(sprintf(translate('New Status: %1$s %2$s'), get_asset_status_icon($status), get_status_description($status)));
+
 			$o->openRaw();
 			?><ul><?php
 			foreach ($warn_assetids as $assetid) {
@@ -404,9 +415,11 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 
 				$this->_running_vars['sub_job'] = $code_name;
 				$sub_job = $hh->getJob($code_name);
-				$step_data['message'] = translate('hipo_edit_status', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
+				$step_data['message'] = sprintf(translate('Editing status of "%1$s" (Id: #%2$s)'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
+
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
 			}
 		}
 
@@ -536,13 +549,51 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 		$msg_types = Array();
 
 		// Convert from our message types to internal message type codes
-		$im_types = Array(
-						'start'				=> 'asset.workflow.bundle.invitation',
-						'progress'				=> 'asset.workflow.bundle.invitation.progress',
-						'approve'				=> 'asset.workflow.bundle.announce.approve',
-						'reject'				=> 'asset.workflow.bundle.announce.reject',
-						'auto_approve_progress'	=> 'asset.workflow.bundle.started',
-					);
+		$im_types = Array();
+
+		$im_types['start'] = Array(
+		    'subject' => translate('Workflow Approval Required'),
+		    'body'    => translate('The bundle "%bundle_name%" has been placed into workflow, along with its bundled assets.')."\n\n".
+                            translate('There are assets within this bundle that require your review, and you are now required to approve or reject the changes made to them so the workflow process can continue:')."\n\n".
+                            '%asset_list%'."\n\n".
+                            translate('You can approve or reject the above assets one at a time. Clicking on the asset name will take you to its Workflow screen, where you may take action.')."\n".
+                            translate('You may also <SQ_MSG_LINK href="%bundle_approve_url%">Approve</SQ_MSG_LINK> all assets for which you have access to workflow, or <SQ_MSG_LINK href="%bundle_reject_url%">Reject</SQ_MSG_LINK> the entire bundle\'s changes.'),
+		    'code'    => 'asset.workflow.bundle.invitation',
+		);
+
+		$im_types['progress'] = Array(
+		    'subject' => translate('Workflow Approval Required'),
+		    'body'    => translate('The bundle "%bundle_name%" has been placed into workflow, along with its bundled assets.')."\n\n".
+                            translate('There are assets within this bundle that have progressed in their workflow, and now require your review. You are now required to approve or reject the changes made to them so the workflow process can continue:')."\n\n".
+                            '%asset_list%'."\n\n".
+                            translate('You can approve or reject the above assets one at a time. Clicking on the asset name will take you to its Workflow screen, where you may take action.')."\n".
+                            translate('You may also <SQ_MSG_LINK href="%bundle_approve_url%">Approve</SQ_MSG_LINK> all assets for which you have access to workflow, or <SQ_MSG_LINK href="%bundle_reject_url%">Reject</SQ_MSG_LINK> the entire bundle\'s changes.'),
+		    'code'    => 'asset.workflow.bundle.invitation.progress',
+		);
+
+		$im_types['approve'] = Array(
+		    'subject' => translate('Asset Changes Approved'),
+		    'body'    => translate('User "%workflow_user%" has approved the changes to the following assets in the bundle "%bundle_name%":')."\n\n".'%asset_list%',
+		    'code'    => 'asset.workflow.bundle.announce.approve',
+		);
+
+		$im_types['reject'] = Array(
+		    'subject' => translate('Asset Changes Rejected'),
+		    'body'    => translate('User "%workflow_user%" has approved the changes to the following assets in the bundle "%bundle_name%":')."\n\n".
+		                    '%asset_list%'."\n\n".
+		                    translate('The status of the bundle "%bundle_name%" is now "%new_status%"'),
+		    'code'    => 'asset.workflow.bundle.announce.reject',
+		);
+
+		$im_types['auto_approve_progress'] = Array(
+		    'subject' => translate('Workflow Approval Required'),
+		    'body'    => translate('The bundle "%bundle_name%" has been placed into workflow, along with its bundled assets.')."\n\n".
+                            translate('There are assets within this bundle that require your review, and you are now required to approve or reject the changes made to them so the workflow process can continue:')."\n\n".
+                            '%asset_list%'."\n\n".
+                            translate('You can approve or reject the above assets one at a time. Clicking on the asset name will take you to its Workflow screen, where you may take action.')."\n".
+                            translate('You may also <SQ_MSG_LINK href="%bundle_approve_url%">Approve</SQ_MSG_LINK> all assets for which you have access to workflow, or <SQ_MSG_LINK href="%bundle_reject_url%">Reject</SQ_MSG_LINK> the entire bundle\'s changes.'),
+		    'code'    => 'asset.workflow.bundle.started',
+		);
 
 		$msg_types = $this->_getRequiredBundleMessages($this->_running_vars['bundle_current_status'], $this->_running_vars['new_status']);
 
@@ -590,13 +641,19 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 						$replacements['workflow_user_last_name'] = $GLOBALS['SQ_SYSTEM']->user->attr('last_name');
 						$replacements['workflow_user_email'] = $GLOBALS['SQ_SYSTEM']->user->attr('email');
 
-						$msg = $ms->newMessage(Array($userid), $im_types[$msg_type], $replacements);
+						$msg = $ms->newMessage(Array($userid), $im_types[$msg_type]['code'], $replacements);
 						if ($subject !== '') {
 							$msg->subject = $subject;
+						} else {
+						    $msg->subject = $im_types[$msg_type]['subject'];
 						}
+
 						if ($body !== '') {
 							$msg->body = $body;
+						} else {
+						    $msg->body = $im_types[$msg_type]['body'];
 						}
+
 						$msg_list[] = $msg;
 					}//end foreach item in this filter
 

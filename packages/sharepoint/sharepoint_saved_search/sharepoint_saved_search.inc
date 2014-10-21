@@ -303,17 +303,19 @@ class Sharepoint_Saved_Search extends Data_Source
 	* @access public
 	*/
 	public function printFrontend()
-	{	
+	{
 		// don't let browser cache it
 	    	header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 		header('Pragma: no-cache');
 		header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
-		
+
 		if (!$this->readAccess()) {
-		    	$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+		    	$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
-		
+
 		// We are only doing synching in this asset, there's no need to check for update
 		if (isset($_GET['synch_now']) && !empty($_GET['synch_now'])) {
 			if ($this->adminAccess()) {
@@ -324,7 +326,7 @@ class Sharepoint_Saved_Search extends Data_Source
 				}//end if
 			}//end if
 		}//end else if
-		
+
 		// Get the sharepoint document from local server
 		if (isset($_GET['file_uri']) && !empty($_GET['file_uri'])) {
 			if (!$this->getAttachment($_GET['file_uri'])) {
@@ -405,16 +407,16 @@ class Sharepoint_Saved_Search extends Data_Source
         require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 
         $GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
-        
+
         $file_path = $this->data_path.'/'.$uri;
         if (!file_exists($file_path)) {
 			return FALSE;
         }//end else
-	
+
        $file_path = realpath($file_path);
        if(strpos(dirname($file_path), $this->data_path) !== 0)
 	       return FALSE;
-		
+
 	$file_info = pathinfo($file_path);
         if (empty($file_info)) {
             return FALSE;

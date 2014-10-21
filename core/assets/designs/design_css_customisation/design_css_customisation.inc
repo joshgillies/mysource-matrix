@@ -74,7 +74,7 @@ class Design_Css_Customisation extends Design_Css
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', sprintf(translate('Existing Link #%s not found, unable to delete link'), $linkid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -109,7 +109,7 @@ class Design_Css_Customisation extends Design_Css
 					// found the link to create
 					$new_minor = $am->getAsset($info['assetid']);
 					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', NULL, '1')) {
-						trigger_localised_error('CORE0162', E_USER_WARNING);
+						trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING);
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -147,7 +147,7 @@ class Design_Css_Customisation extends Design_Css
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', sprintf(translate('Existing Link #%s not found, unable to delete link'), $linkid), E_USER_WARNING);
 			return FALSE;
 		}
 

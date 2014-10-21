@@ -62,27 +62,34 @@ class Tool_Search_Replace extends Tool
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		// user input of search and replace strings
-		$o->openSection(translate('sch_search_terms'));
-			$o->openField(translate('sch_search_string'));
+		$o->openSection(translate('Search Terms'));
+
+			$o->openField(translate('Search String'));
+
 				text_box($type_code.'_search_string', '', 40);
 			$o->closeField();
 
-			$o->openField(translate('sch_tool_global_sr_replace_string'));
+			$o->openField(translate('Replace String'));
+
 				text_box($type_code.'_replace_string', '', 40);
 			$o->closeField();
 			$o->openField('');
 				check_box($type_code.'_match_case');
-				label(translate('sch_tool_global_sr_match_case'), $type_code.'_match_case');
+				label(translate('Match Case of Target String'), $type_code.'_match_case');
+
 			$o->closeField();
 		$o->closeSection();
 
 		// allow restrictions based on asset type and asset status
-		$o->openSection(translate('sch_search_restrictions'));
-			$o->openField(translate('asset_types'));
+		$o->openSection(translate('Search Restrictions'));
+
+			$o->openField(translate('Asset Types'));
+
 				asset_type_chooser($type_code.'_search_types', TRUE, Array());
 			$o->closeField();
 
-			$o->openField(translate('asset_status'));
+			$o->openField(translate('Asset Status'));
+
 				$statuses = get_constant_values('SQ_STATUS');
 				$options = Array();
 				foreach ($statuses as $constant => $value) {
@@ -93,15 +100,20 @@ class Tool_Search_Replace extends Tool
 		$o->closeSection();
 
 		// limit the search to certain parts (or all) of the system
-		$o->openSection(translate('sch_search_location'));
-			$o->openField(translate('root_node'));
+		$o->openSection(translate('Search Location'));
+
+			$o->openField(translate('Root Node'));
+
 				asset_finder($type_code.'_root_assetid', '');
-				echo '&nbsp;&nbsp;&nbsp;<b>'.strtoupper(translate('or')).'</b>';
+				echo '&nbsp;&nbsp;&nbsp;<b>'.strtoupper(translate('Or')).'</b>';
+
 			$o->closeField();
 
-			$o->openField(translate('sch_system_wide'));
+			$o->openField(translate('System Wide'));
+
 				check_box($type_code.'_root_folder');
-				label(translate('sch_search_entire_system'), $type_code.'_root_folder');
+				label(translate('Search entire system'), $type_code.'_root_folder');
+
 			$o->closeField();
 
 		$o->closeSection();
@@ -125,29 +137,29 @@ class Tool_Search_Replace extends Tool
 	{
 		// ensure we have a search string
 		if ($_REQUEST[$type_code.'_search_string'] == '') {
-			trigger_localised_error('SCH0002', E_USER_NOTICE);
+			trigger_localised_error('SCH0002', translate('Required search string was blank'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_search_types'])) {
-			trigger_localised_error('SCH0003', E_USER_NOTICE);
+			trigger_localised_error('SCH0003', translate('No asset types were selected'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_statuses'])) {
-			trigger_localised_error('SCH0004', E_USER_NOTICE);
+			trigger_localised_error('SCH0004', translate('No asset statuses were selected'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		if (empty($_REQUEST[$type_code.'_root_assetid']['assetid']) && !isset($_REQUEST[$type_code.'_root_folder'])) {
-			trigger_localised_error('SCH0005', E_USER_NOTICE);
+			trigger_localised_error('SCH0005', translate('No root has been specified'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		if (strlen($_REQUEST[$type_code.'_search_string']) < $sm->attr('min_word_length')) {
-			trigger_localised_error('SCH0026', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length'));
+			trigger_localised_error('SCH0026', sprintf(translate('The search term "%1$s" is too short - only words longer than %2$s characters are indexed by the search system'), $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length')), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -187,7 +199,7 @@ class Tool_Search_Replace extends Tool
 
 		// no matches were found, trigger error and paint getInterface
 		if (!$search_results) {
-			trigger_localised_error('SCH0006', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string']);
+			trigger_localised_error('SCH0006', sprintf(translate('No Matches for "%s" could be found'), $_REQUEST[$type_code.'_search_string']), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -195,7 +207,7 @@ class Tool_Search_Replace extends Tool
 
 		// after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
-			trigger_localised_error('SCH0006', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string']);
+			trigger_localised_error('SCH0006', sprintf(translate('No Matches for "%s" could be found'), $_REQUEST[$type_code.'_search_string']), E_USER_NOTICE);
 			return FALSE;
 		}
 

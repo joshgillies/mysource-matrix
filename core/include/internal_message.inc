@@ -166,7 +166,7 @@ class Internal_Message extends MySource_Object
 	*
 	* @param boolean $user_inbox_only	If TRUE, sends internal message to User's Matrix inbox only
 	*									This will bypass the Message Service logs config settings
-	*									
+	*
 	*
 	* @return boolean
 	* @access public
@@ -410,7 +410,7 @@ class Internal_Message extends MySource_Object
 						if(empty($this->replacements)) $this->replacements = Array();
 						$this->replacements['user_name'] = $user->name;
 					}
-		
+
 					$subject = empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale) : replace_keywords($this->subject, $this->replacements);
 					$hdrs = Array(
 								'From'		=> $from_string,
@@ -518,15 +518,18 @@ class Internal_Message extends MySource_Object
 			<body bgcolor="#FFFFFF">
 				<table border="0" cellspacing="1" cellpadding="2" width="100%" height="100%">
 					<tr>
-						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('subject')) ?>:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('Subject')) ?>:</b></td>
+
 						<td valign="top" class="sq-message-item" width="100%"><?php echo $info['subject']; ?></td>
 					</tr>
 					<tr>
-						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('from')) ?>:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('From')) ?>:</b></td>
+
 						<td valign="top" class="sq-message-item" width="100%"><?php echo $info['from_name'] ?></td>
 					</tr>
 					<tr>
-						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('date')) ?>:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('Date')) ?>:</b></td>
+
 						<td valign="top" class="sq-message-item" width="100%"><?php echo readable_datetime($info['sent']); ?></td>
 					</tr>
 					<tr height="100%">
@@ -627,17 +630,17 @@ class Internal_Message extends MySource_Object
 						switch ($type[1]) {
 							case 'linking' :
 								if (!isset($this->parameters['majorid'])) {
-									trigger_localised_error('SYS0168', E_USER_WARNING, $this->type);
+									trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING);
 								} else if (!isset($this->parameters['minorid'])) {
-									trigger_localised_error('SYS0168', E_USER_WARNING, $this->type);
+									trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING);
 								} else {
 									$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
 									if (is_null($major)) {
-										trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['majorid'], $this->type);
+										trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['majorid'], $this->type), E_USER_WARNING);
 									}
 									$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
 									if (is_null($minor)) {
-										trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['minorid'], $this->type);
+										trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['minorid'], $this->type), E_USER_WARNING);
 									}
 								}
 							break(2);
@@ -652,12 +655,12 @@ class Internal_Message extends MySource_Object
 
 					if (!isset($this->parameters['assetid'])) {
 						// cant send an asset message if we dont know which asset is affected
-						trigger_localised_error('SYS0168', E_USER_WARNING, $this->type);
+						trigger_localised_error('SYS0168', sprintf(translate('Failed sending internal message, no assetid specified (type	%s)'), $this->type), E_USER_WARNING);
 					} else {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
 						if (is_null($asset)) {
 							// cant send an asset message if we dont know which asset is affected
-							trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['assetid'], $this->type);
+							trigger_localised_error('SYS0167', sprintf(translate('Failed sending internal message, invalid assetid [%1$s] specified (type	%2$s)'), $this->parameters['assetid'], $this->type), E_USER_WARNING);
 						}
 
 						$this->to = array_merge($this->to, $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false));
@@ -721,7 +724,7 @@ class Internal_Message extends MySource_Object
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// Clear the current user's local cache for internal message
 		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
 			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();
@@ -752,7 +755,7 @@ class Internal_Message extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// Clear the current user's local cache for internal message
 		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
 			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();

@@ -127,7 +127,7 @@ class Cron_Job_Sync_CMIS_Bridges extends Cron_Job
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 		return FALSE;
 
 	}//end morph()
@@ -146,11 +146,11 @@ class Cron_Job_Sync_CMIS_Bridges extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
+
 
 	/**
 	* Run this cron job
-	* 
+	*
 	* Returns a bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*
 	* @param string	&$msg	used to return any messages about completion etc from _exec
@@ -164,7 +164,7 @@ class Cron_Job_Sync_CMIS_Bridges extends Cron_Job
 		$bridge_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('cmis_bridge', TRUE, TRUE);
 		foreach ($bridge_ids as $bridge_id => $type) {
 			if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($bridge_id, TRUE)) continue;
-			
+
 			$hh	= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$running_vars	= Array (
 								'bridge_id'	=> $bridge_id
@@ -172,7 +172,7 @@ class Cron_Job_Sync_CMIS_Bridges extends Cron_Job
 			$errors = $hh->freestyleHipo('hipo_job_sync_cmis_bridge', $running_vars, SQ_PACKAGES_PATH.'/sharepoint/hipo_jobs/');
 			if (!empty($errors)) trigger_error("CMIS Bridge (Id #:$bridge_id) HIPO errors:\n".print_r($errors, TRUE), E_USER_WARNING);
 		}
-			
+
 		return SQ_CRON_JOB_COMPLETED;
 
 	}//end _exec()

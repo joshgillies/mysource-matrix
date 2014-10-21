@@ -18,9 +18,13 @@
 <contents>
 	<section name="User Subscriptions" write_access="write:attributes">
 		<field attribute="user_subscriptions_status">
+			<display_name>Enabled?</display_name>
+			<note>When enabled, the below configured categories will be used to determine which of the subscribed users will be mailed.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
+			<display_name>Categories</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintUserSubscriptions"   />
 				<process_function name="processUserSubscriptions" />

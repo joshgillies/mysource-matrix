@@ -18,6 +18,8 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+    		<display_name>Name</display_name>
+			<note>Defines the name of the question</note>
 			<text width="12" height="1" />
 		</field>
 	</section>
@@ -39,18 +41,25 @@
 		</function_call>
 	</section>
 	<section name="Response Form: Supplementary Content" write_access="write:attributes">
+	    <note>Supplementary content related to a Question Option (specified above) can be provided in this section. This content is intended to provide further information related to a Question Option to be shown upon completion of the Quiz. This content can be printed in the &quot;Thank You&quot; bodycopy.</note>
 		<function_call>
 			<paint_function   name="paintResponseSupplements"   />
 		</function_call>
 	</section>
 	<section name="Response Form Settings" write_access="write:attributes">
 		<field attribute="option_style">
+		    <display_name>Option Style</display_name>
+			<note />
 			<selection style="list" />
 		</field>
 		<field attribute="max_option_selections">
+			<display_name>Maximum number of option selections</display_name>
+			<note>Defines the maximum number of options a user can select when answering this question without forfeiting points.</note>
 			<int width="10" />
 		</field>
 		<field attribute="forfeit_penalty">
+			<display_name>Forfeit Penalty</display_name>
+			<note>The number of points a user will lose if they forfeit this question (ie. selected too many options, or didn't answer the question).</note>
 			<int width="10" />
 		</field>
 	</section>

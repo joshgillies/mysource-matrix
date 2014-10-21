@@ -18,6 +18,8 @@
 <contents>
 	<section name="Funnelback Indexer" read_access="write:attributes" write_access="write:attributes">
 		<field>
+			<display_name>Root Node</display_name>
+			<note><![CDATA[Run the Funnelback Indexer. <em>Please note on large systems, this can take a long time</em>]]></note>
 			<function_call>
 				<paint_function		name="paintReindexing" />
 				<process_function	name="processReindexing" />

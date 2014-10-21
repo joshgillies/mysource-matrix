@@ -161,7 +161,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if ($this->_edit_params['show_to']) {
 			?>
 			<tr>
-				<th><?php echo translate('to'); ?></th>
+				<th><?php echo translate('To'); ?></th>
+
 				<td>
 					<?php
 					$ol = new Asset_Attribute_Option_List();
@@ -186,7 +187,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if ($this->_edit_params['show_from']) {
 			?>
 			<tr>
-				<th><?php echo translate('from'); ?></th>
+				<th><?php echo translate('From'); ?></th>
+
 				<td>
 					<?php
 					if ($read_only) {
@@ -202,7 +204,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if ($this->_edit_params['show_reply_to']) {
 			?>
 			<tr>
-				<th><?php echo translate('reply_to'); ?></th>
+				<th><?php echo translate('Reply-To'); ?></th>
+
 				<td>
 					<?php
 					if ($read_only) {
@@ -217,7 +220,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 		?>
 			<tr>
-				<th><?php echo translate('subject'); ?></th>
+				<th><?php echo translate('Subject'); ?></th>
+
 				<td>
 					<?php
 					if ($read_only) {
@@ -232,15 +236,18 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if ($this->_edit_params['show_inc_attachments']) {
 			?>
 			<tr>
-				<th><?php echo translate('attachments'); ?></th>
+				<th><?php echo translate('Attachments'); ?></th>
+
 				<td>
 					<?php
 					if ($read_only) {
 						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_value['inc_attachments'] ? 'tick' : 'cross').'.gif" width="15" height="15" />&nbsp;';
-						echo translate('include_file_attachments');
+						echo translate('Include file attachments');
+
 					} else {
 						check_box($prefix.'_inc_attachments', TRUE, $current_value['inc_attachments']);
-						label(translate('include_file_attachments'), $prefix.'_inc_attachments');
+						label(translate('Include file attachments'), $prefix.'_inc_attachments');
+
 					}
 					?>
 				</td>
@@ -249,26 +256,32 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 		?>
 			<tr>
-				<th><?php echo translate('body'); ?></th>
+				<th><?php echo translate('Body'); ?></th>
+
 				<td>
 					<table class="sq-email-format-body sq-grey-header-wrapper">
 						<tr>
 							<td class="sq-grey-header-wrapper sq-with-bottom-border">
 								<div class="sq-grey-header-row clearfix">
 									<span style="float:right;" id="<?php echo $prefix; ?>_format_mode" class="sq-email-format-version">
-										<?php echo translate('html_email_version'); ?>
+										<?php echo translate('HTML Email Version'); ?>
+
 									</span>
 									<?php
 									if ($read_only) {
 										?>
 										<strong>View <span class="sq-toggle-option-wrapper">
-											<a href="#" onclick="emailFormatSwitchReadingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('html_email_version')); ?>', '<?php echo addslashes(translate('text_email_version')); ?>', this); return sq_handle_toggle(this);">Text</a><a class="selected" href="#" onclick="emailFormatSwitchReadingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('html_email_version')); ?>', '<?php echo addslashes(translate('text_email_version')); ?>', this); return sq_handle_toggle(this);">HTML</a>
+											<a href="#" onclick="emailFormatSwitchReadingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('HTML Email Version')); ?>', '<?php echo addslashes(translate('Text Email Version')); ?>', this); return sq_handle_toggle(this);">Text</a><a class="selected" href="#" onclick="emailFormatSwitchReadingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('HTML Email Version')); ?>', '<?php echo addslashes(translate('Text Email Version')); ?>', this); return sq_handle_toggle(this);">HTML</a>
+
+
 										</span> Version</strong>
 										<?php
 									} else {
 										?>
 										<strong>Edit <span class="sq-toggle-option-wrapper">
-											<a href="#" onclick="emailFormatSwitchEditingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('html_email_version')); ?>', '<?php echo addslashes(translate('text_email_version')); ?>', this); return sq_handle_toggle(this);">Text</a><a class="selected" href="#" onclick="emailFormatSwitchEditingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('html_email_version')); ?>', '<?php echo addslashes(translate('text_email_version')); ?>', this); return sq_handle_toggle(this);">HTML</a>
+											<a href="#" onclick="emailFormatSwitchEditingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('HTML Email Version')); ?>', '<?php echo addslashes(translate('Text Email Version')); ?>', this); return sq_handle_toggle(this);">Text</a><a class="selected" href="#" onclick="emailFormatSwitchEditingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('HTML Email Version')); ?>', '<?php echo addslashes(translate('Text Email Version')); ?>', this); return sq_handle_toggle(this);">HTML</a>
+
+
 										</span> Version</strong>
 										<?php
 									}
@@ -327,24 +340,30 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			</tr>
 			<?php if ($this->_edit_params['show_asset_to_send']) {?>
 				<tr>
-					<th><?php echo translate('asset_to_send'); ?></th>
+					<th><?php echo translate('Asset To Send'); ?></th>
+
 					<td>
 						<?php asset_finder($prefix.'_asset_to_send', $current_value['asset_to_send'], Array('page' => 'D')); ?><br/>
-						<?php echo translate('asset_to_send_desc'); ?>
+						<?php echo translate('The content you would like sent in the emails<br />Note : If asset is selected to send, then Body of the email will not be sent'); ?>
+
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('design_to_apply'); ?></th>
+					<th><?php echo translate('Design to Apply'); ?></th>
+
 					<td>
 						<?php asset_finder($prefix.'_design_to_apply', $current_value['design_to_apply'], Array('design' => 'D')); ?><br/>
-						<?php echo translate('design_to_apply_desc'); ?>
+						<?php echo translate('Design to apply to the content'); ?>
+
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('layout_to_apply'); ?></th>
+					<th><?php echo translate('Layout to Apply'); ?></th>
+
 					<td>
 						<?php asset_finder($prefix.'_layout_to_apply', $current_value['layout_to_apply'], Array('paint_layout_page' => 'D')); ?><br/>
-						<?php echo translate('layout_to_apply_desc'); ?>
+						<?php echo translate('Paint layout to apply to the content'); ?>
+
 					</td>
 				</tr>
 			<?php } ?>
@@ -411,7 +430,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$value['send_mail_to_type'] = (isset($_REQUEST[$prefix.'_send_mail_to_type'])) ? $_REQUEST[$prefix.'_send_mail_to_type'] : SQ_EMAIL_FORMAT_SEND_TO_EMAIL;
 		// from address is not specified, print a warning message
 		if (isset($value['to']) && !empty($value['to']) && empty($value['from'])) {
-			trigger_localised_error('CORE0251', E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0251', sprintf(translate('"From" field is not set for %s.'), $this->name), E_USER_WARNING);
 		}
 
 		$this->processed = $this->setValue($value);
@@ -647,7 +666,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			// can't come up with a From: email address - bail for this email
 			if (empty($from)) {
-				trigger_localised_error('SYS0315', E_USER_WARNING);
+				trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
 				return;
 			}
 
@@ -672,7 +691,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
 
 			// restore the assetid for $from
-			if (!is_null($from_assetid)) $from = $from_assetid; 
+			if (!is_null($from_assetid)) $from = $from_assetid;
 
 			foreach ($to as $to_email) {
 
@@ -761,6 +780,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			$msg = $ms->newMessage($to_assetids, 'internal.message', $replacements, $from);
 			// Asset triggering the send mail process
 			$msg->parameters['assetid'] = array_get_index($current_value, 'triggering_assetid', '');
+			$msg->subject = $subject;
+			$msg->body    = $html_body ? $html_body : $text_body;
+
 			// Send the message to the user's Matrix inbox
 			$msg->send(TRUE);
 		}//end if send type = "Matrix inbox"

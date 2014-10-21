@@ -61,7 +61,8 @@ class Condition_Server_Variable_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('server_variable'); ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('Server Variable'); ?></th>
+
 				<td>
 					<?php
 					if ($write_access) {
@@ -71,14 +72,16 @@ class Condition_Server_Variable_Edit_Fns extends Condition_Edit_Fns
 						if (strlen($current_variable)){
 							echo $current_variable;
 						} else {
-							echo '<em>'.translate('condition_no_variable_entered').'</em>';
+							echo '<em>'.translate('No variable entered.').'</em>';
+
 						}
 					}
 					?>
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('pattern'); ?></th>
+				<th><?php echo translate('Pattern'); ?></th>
+
 				<td>
 					<?php
 					if ($write_access) {
@@ -88,7 +91,8 @@ class Condition_Server_Variable_Edit_Fns extends Condition_Edit_Fns
 						if (strlen($current_pattern)){
 							echo $current_pattern;
 						} else {
-							echo '<em>'.translate('condition_no_pattern_entered').'</em>';
+							echo '<em>'.translate('No pattern entered.').'</em>';
+
 						}
 					}
 					?>
@@ -96,7 +100,8 @@ class Condition_Server_Variable_Edit_Fns extends Condition_Edit_Fns
 			</tr>
 		</table>
 		<?php
-		$o->note(translate('condition_server_variable_is_regular_expression_enabled'));
+		$o->note(translate('This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the server variable chosen. Or, you can use a more advanced pattern.'));
+
 
 	}//end paintEditInterface()
 

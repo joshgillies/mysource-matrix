@@ -66,7 +66,8 @@ class Form_Action_Set_Session_Var extends Form_Action
 		?>
 		<table class="no-borders" style="width:auto">
 			<tr>
-				<td><?php echo translate('variable_name');?></td>
+				<td><?php echo translate('Variable Name');?></td>
+
 				<td>
 				<?php
 				text_box($prefix.'_var_name', $name, 30);
@@ -74,7 +75,8 @@ class Form_Action_Set_Session_Var extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('set_value');?></td>
+				<td><?php echo translate('Set Value');?></td>
+
 				<td>
 				<?php
 				text_box($prefix.'_var_value', $value, 30);
@@ -132,11 +134,13 @@ class Form_Action_Set_Session_Var extends Form_Action
 			</colgroup>
 			<tbody>
 				<tr>
-					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('variable_name');?></strong></p></td>
+					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('Variable Name');?></strong></p></td>
+
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php echo $name; ?></p></td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('set_value');?></strong></p></td>
+					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('Set Value');?></strong></p></td>
+
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php echo $value; ?></p></td>
 				</tr>
 			</tbody>

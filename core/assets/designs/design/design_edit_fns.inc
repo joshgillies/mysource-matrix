@@ -107,12 +107,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				{
 					var file_status = document.getElementById("<?php echo $prefix; ?>_parse_file_status").value;
 					if (file_status == 'loading') {
-						alert("<?php echo translate('core_design_parse_file_loading'); ?>");
+						alert("<?php echo translate('The parse file is being read to verify the content. Please press \'Ok\' and then commit again.'); ?>");
+
 						return false;
 					} else if (file_status == 'unknown') {
-						return confirm("<?php echo translate('core_design_cannot_read_parse_file'); ?>");
+						return confirm("<?php echo translate('Cannot read the parse file to verify its content. Continue processing the parse file anyway?'); ?>");
+
 					} else if (file_status == 'invalid') {
-						return confirm("<?php echo translate('core_design_invalid_parse_file_confirmation'); ?>");
+						return confirm("<?php echo translate('The parse file does not contain any Design Area tags. Continue processing the parse file?'); ?>");
+
 					}
 					return true;
 
@@ -157,7 +160,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$new_version = FALSE;
 
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		
+
 		$info = get_file_upload_info($prefix.'_parse_file');
 		if(!isset($info['tmp_name'])) {
 		    trigger_error('Design parse file is not found', E_USER_WARNING);
@@ -168,12 +171,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		     trigger_error('Empty design parse file is not allowed', E_USER_WARNING);
 		     return FALSE;
 		}
-		
+
 		// delete existing parse file if it exists
 		if (is_file($parse_file)) {
 			$new_version = TRUE;
 			if (!unlink($parse_file)) {
-				trigger_localised_error('CORE0164', E_USER_WARNING);
+				trigger_localised_error('CORE0164', translate('Failed deleting existing parse file'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -190,20 +193,20 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '')) {
-						trigger_localised_error('CORE0160', E_USER_WARNING);
+						trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 					}
 				}
 			} else {
 				// attempt to add the parse file to the repository
 				if (!$fv->add($asset->data_path_suffix, $parse_file, '')) {
-					trigger_localised_error('CORE1057', E_USER_WARNING);
+					trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING);
 				}
 			}
 		}//end if file uploaded
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
-			trigger_localised_error('CORE0158', E_USER_WARNING);
+			trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -227,10 +230,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$parse_file = $asset->data_path.'/parse.txt';
 			if (!is_file($parse_file)) {
-				echo translate('core_no_existing_parsefile');
+				echo translate('Not available - no existing parse file available');
+
 			} else {
 				check_box($prefix.'_reparse');
-				label(translate('core_manually_reparse'), $prefix.'_reparse');
+				label(translate('Yes, manually reparse the existing file'), $prefix.'_reparse');
+
 			}
 			return TRUE;
 		}
@@ -289,7 +294,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$parse_file = $asset->data_path.'/parse.txt';
 		}
 		if (!is_file($parse_file)) {
-			echo translate('core_require_upload_parsefile');
+			echo translate('You need to upload a parse file before you can edit it');
+
 			return TRUE;
 		}
 
@@ -302,7 +308,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				function validate_parse_file()
 				{	var parse_file_field = document.getElementById("<?php echo $prefix; ?>_new_parse_file");
 					if (parse_file_field.value.toLowerCase().indexOf("<mysource_area ") == '-1') {
-						return confirm("<?php echo translate('core_design_invalid_parse_file_confirmation'); ?>");
+						return confirm("<?php echo translate('The parse file does not contain any Design Area tags. Continue processing the parse file?'); ?>");
+
 					}
 					return true;
 				}
@@ -433,7 +440,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			    trigger_error('Empty design parse file is not allowed', E_USER_WARNING);
 			    return;
 			}
-			
+
 			// copy over the uploaded file
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (string_to_file($new_file, $parse_file)) {
@@ -449,19 +456,19 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '')) {
-						trigger_localised_error('CORE0160', E_USER_WARNING);
+						trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 					}
 				} else {
 					$changes = TRUE;
 				}
 
 			} else {
-				trigger_localised_error('CORE0167', E_USER_WARNING);
+				trigger_localised_error('CORE0167', translate('Failed writing parse file, trying to recover previous version from repository'), E_USER_WARNING);
 			}
 
 			// make sure we have the latest version of our file
 			if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
-				trigger_localised_error('CORE0158', E_USER_WARNING);
+				trigger_localised_error('CORE0158', translate('Failed checking out latest version of parse file'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -687,7 +694,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (!$asset->writeAccess('all')) {
 			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
-			echo translate('core_design_must_acquire_locks_new_customisation', strtolower($type_name));
+			echo sprintf(translate('You must acquire all locks on this %s to be able to create a new customisation'), strtolower($type_name));
+
 			return FALSE;
 		}
 
@@ -794,7 +802,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($file_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$cloned->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0162', E_USER_WARNING);
+				trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -809,7 +817,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($css_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$cloned->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0161', E_USER_WARNING);
+				trigger_localised_error('CORE0161', translate('Failed creating css file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -817,7 +825,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}
 		$am->forgetAsset($minor);
-		
+
 		// we skipped this step in cloneComponentsAdditional(), now we since got all design areas linked, it's time to generate a design file
 		$cloned->generateDesignFile();
 
@@ -856,7 +864,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}
 
 		} else {
-			echo translate('core_design_no_customisations_created');
+			echo translate('No Customisations Created');
+
 		}
 
 	}//end paintCurrentCustomisations()
@@ -902,18 +911,18 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// Let's place an print operation after the head tag
 		// to allow us to print the default header stuff like
 		// style sheets, JS files and meta tag stuff
-		if(strpos($file_contents, '</head>') !== FALSE) {  
+		if(strpos($file_contents, '</head>') !== FALSE) {
 		    $file_contents = str_replace('</head>', "\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n</head>", $file_contents);
 		}
 
 		// Let's place an print operation after the termination body tag
 		// to allow us to print the anything that has come to our attention
 		// like image rollovers
-		if(strpos($file_contents, '</body>') !== FALSE) {  
+		if(strpos($file_contents, '</body>') !== FALSE) {
 		    $file_contents = str_replace('</body>', "\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>", $file_contents);
 		}
 
-		
+
 		return parent::_parseString($file_contents);
 
 	}//end _parseString()
@@ -939,13 +948,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is a name and it's not the the same type as the current design area
 			if (empty($element['attributes']['id_name']) || empty($element['attributes']['design_area'])) {
-				trigger_localised_error('CORE0143', E_USER_WARNING);
+				trigger_localised_error('CORE0143', translate('All design areas need to have an "id_name" and a "design_area"'), E_USER_WARNING);
 				return FALSE;
 			}//end if
 
 			// validate id name
 			if (!preg_match('/^[a-z][a-z0-9_]*$/i', $element['attributes']['id_name']) || $element['attributes']['id_name'] != preg_replace('/__+/', '', $element['attributes']['id_name'])) {
-				trigger_localised_error('CORE0181', E_USER_WARNING, $element['attributes']['id_name']);
+				trigger_localised_error('CORE0181', sprintf('The id_name "%s" contains illegal characters, the id_name must be an alpha character, optionally followed by any number of alphanumeric characters or underscores. NOTE: you cannot have more that one consecutive underscore', $element['attributes']['id_name']), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -953,7 +962,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is a name and it's not the the same type as the current design area
 			if (isset($id_names[$element['attributes']['id_name']])) {
-				trigger_localised_error('CORE0142', E_USER_WARNING, $element['attributes']['id_name']);
+				trigger_localised_error('CORE0142', sprintf(translate('All design areas MUST have a unique id_name, "%s" is used at least twice'), $element['attributes']['id_name']), E_USER_WARNING);
 				return FALSE;
 			}//end if
 
@@ -995,7 +1004,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($id_names as $id_name => $design_area) {
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->installed($design_area)) {
-				trigger_localised_error('CORE0327', E_USER_WARNING, $design_area);
+				trigger_localised_error('CORE0327', sprintf(translate('Could not parse design file. Design Area "%s" is not installed in the system.'), $design_area), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -1099,17 +1108,21 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	public function paintImport(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('parsing');
-		$o->openField(translate('core_design_import_file'));
+		$o->openField(translate('Import File'));
+
 			if ($write_access) {
 				file_upload($prefix.'_import_file');
 			}
-			$o->note(translate('core_design_import_note'));
+			$o->note(translate('Select a file to import as a design file.'));
+
 		$o->closeField();
-		$o->openField(translate('core_design_existing_asset'));
+		$o->openField(translate('Existing Asset'));
+
 			if ($write_access) {
 				asset_finder($prefix.'_import_asset', 0, Array('file' => 'I'));
 			}
-			$o->note(translate('core_design_existing_asset_note'));
+			$o->note(translate('Select an existing file asset to import to this design'));
+
 		$o->closeField();
 
 		return TRUE;
@@ -1131,7 +1144,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$tar_upload = get_file_upload_info($prefix.'_import_file');
 		if ($tar_upload === FALSE) {
-			trigger_error(translate('core_design_import_upload_error'), E_USER_WARNING);
+			trigger_error(translate('Error uploading Design Archive'), E_USER_WARNING);
+
 		} else {
 			if (!empty($tar_upload)) {
 				$import_dir = $asset->data_path.'/temp/';
@@ -1179,13 +1193,16 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	public function paintExport(Design $asset, Backend_Outputter $o, $prefix)
 	{
-		$o->sectionNote(translate('core_design_export_warning'));
+		$o->sectionNote(translate('Customisations will not be exported. They will need to be recreated when this design is imported and applied.'));
+
 		$write_access = $asset->writeAccess('parsing');
-		$o->openField(translate('core_design_export_filename'));
+		$o->openField(translate('Export File Name'));
+
 			if ($write_access) {
 				text_box($prefix.'_export_filename', '');
 			}
-			$o->note(translate('core_design_export_note'));
+			$o->note(translate('Enter a file name to export the current design to. The new file will be suffixed with \'.tar.gz\' automatically.'));
+
 		$o->closeField();
 
 		return TRUE;
@@ -1293,17 +1310,21 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	public function paintCurrentFiles(Design $asset, Backend_Outputter $o, $prefix)
 	{
-		$o->sectionNote(translate('core_design_apply_warning'));
+		$o->sectionNote(translate('Applying a design will remove all customisations and associated files from the current design.'));
+
 		$write_access = $asset->writeAccess('parsing');
 		?>
 			<table class="sq-backend-table" style="width: 350px;">
 				<tr>
-					<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('core_design_export_file_name'); ?></td>
+					<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('Filename'); ?></td>
+
 					<?php
 					if ($write_access) {
 						?>
-						<td class="sq-backend-table-header" style="width: 75px;"><?php echo translate('download'); ?></td>
-						<td class="sq-backend-table-header" style="width: 75px;"><?php echo translate('apply'); ?></td>
+						<td class="sq-backend-table-header" style="width: 75px;"><?php echo translate('Download'); ?></td>
+
+						<td class="sq-backend-table-header" style="width: 75px;"><?php echo translate('Apply'); ?></td>
+
 						<?php
 					}
 					?>
@@ -1323,7 +1344,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 							<?php
 								if ($write_access) {
 								?>
-									<td><a href="./?a=<?php echo $id; ?>"><?php echo translate('download'); ?></a></td>
+									<td><a href="./?a=<?php echo $id; ?>"><?php echo translate('Download'); ?></a></td>
+
 									<td>
 										<?php radio_button($prefix.'_apply', $id);?>
 									</td>
@@ -1337,7 +1359,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				<?php
 					if ($write_access) {
 						?>
-						<tr><td colspan="2"><?php echo translate('core_design_export_no_change'); ?></td><td><?php radio_button($prefix.'_apply', '', TRUE);?></td></tr>
+						<tr><td colspan="2"><?php echo translate('No Change'); ?></td><td><?php radio_button($prefix.'_apply', '', TRUE);?></td></tr>
+
 						<?php
 					}
 				?>
@@ -1397,7 +1420,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}
 
 			if (!$parse_file_found) {
-				trigger_error(translate('core_design_export_no_parsefile'), E_USER_WARNING);
+				trigger_error(translate('No Valid Parse File Found in Archive'), E_USER_WARNING);
+
 				return FALSE;
 			}
 
@@ -1418,7 +1442,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (is_file($current_parse_file)) {
 				$new_version = TRUE;
 				if (!unlink($current_parse_file)) {
-					trigger_localised_error('CORE0164', E_USER_WARNING);
+					trigger_localised_error('CORE0164', translate('Failed deleting existing parse file'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -1434,13 +1458,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					$file_status = $fv->upToDate($parse_file);
 					if (FUDGE_FV_MODIFIED & $file_status) {
 						if (!$fv->commit($current_parse_file, '')) {
-							trigger_localised_error('CORE0160', E_USER_WARNING);
+							trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 						}
 					}
 				} else {
 					// attempt to add the parse file to the repository
 					if (!$fv->add($asset->data_path_suffix, $current_parse_file, '')) {
-						trigger_localised_error('CORE1057', E_USER_WARNING);
+						trigger_localised_error('CORE0157', translate('Failed adding parse file version'), E_USER_WARNING);
 					}
 				}
 
@@ -1476,7 +1500,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 						$info = Array('name' => basename($full_path), 'tmp_name' => $full_path);
 						$info['non_uploaded_file'] = TRUE;
 						if (!$this->_processUploadedFile($asset, $info)) {
-							trigger_error(translate('core_design_export_associated_file_problem', basename($full_path)), E_USER_WARNING);
+							trigger_error(sprintf(translate('Problem Uploading Associated File: %s'), basename($full_path)), E_USER_WARNING);
+
 						}
 					}
 				}
@@ -1484,7 +1509,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				delete_directory($files_dir);
 			}//end if copy successful
 		} else {
-			trigger_error(translate('core_design_export_opening_problem', $file_info['name']), E_USER_WARNING);
+			trigger_error(sprintf(translate('Error opening file %s'), $file_info['name']), E_USER_WARNING);
+
 		}
 		return $write_access;
 
@@ -1518,11 +1544,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$page_num = min($page_num, $num_pages);
 
 			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
+				$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
+
 			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+				$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_usage_page');
+
 			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('assets')));
+			$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('assets')));
+
+
 
 			$tree_tops = array_slice($tree_tops, ($page_num - 1) * $page_size, $page_size);
 
@@ -1535,19 +1565,27 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					);
 
 			if ($page_num > 1) {
-				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
-				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+				$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
+
+				$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+
 			} else {
-				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
-				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+				$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
+
+				$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
+
 			}
 
 			if ($page_num < $num_pages) {
-				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
-				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+				$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
+
+				$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+
 			} else {
-				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
-				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+				$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
+
+				$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
+
 			}
 
 			hidden_field($prefix.'_usage_page', $page_num); ?>
@@ -1558,7 +1596,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				<th class="sq-backend-table-header-header sq-no-side-border" style="text-align: right;"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
 			<tr class="sq-backend-table-row">
-				<th class="sq-backend-table-cell" colspan="2"><?php echo translate('asset'); ?></th>
+				<th class="sq-backend-table-cell" colspan="2"><?php echo translate('Asset'); ?></th>
+
 			</tr>
 			</thead>
 			<tbody>
@@ -1584,10 +1623,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			</table>
 			<?php
 
-			$o->note(translate('design_usage_explanation'));
+			$o->note(translate('This screen shows which parts of the asset tree this design is used in, by listing the highest-level assets to which it has been applied and the number of their children to which it has cascaded.'));
+
 
 		} else {
-			$o->note(translate('core_design_usage_no_assets'));
+			$o->note(translate('<p>This design is not applied to any assets.</p>'));
+
 		}
 
 		$o->closeRaw();
@@ -1678,11 +1719,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('core_design_class_name'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('core_design_class_short_name'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Class Name'); ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('Short Name'); ?></td>
+
 					<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td><?php
+
 					}
 					?>
 				</tr>
@@ -1727,15 +1771,19 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			<?php
 
 		} else {
-			echo translate('no_select_box_options');
+			echo translate('There are currently no select box options');
+
 		}//end if empty
 
 		// now adding two fields for new entry (key => value)
 		if ($write_access) {
-			$o->openField(translate('new_option'));
-				echo '<b>'.translate('key').'</b> ';
+			$o->openField(translate('New Option'));
+
+				echo '<b>'.translate('Key').'</b> ';
+
 				text_box($prefix.'_new_key','');
-				echo ' <b>'.translate('value').'</b> ';
+				echo ' <b>'.translate('Value').'</b> ';
+
 				text_box($prefix.'_new_val','');
 			$o->closeField();
 		}
@@ -1797,7 +1845,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$this->_paintSelection($asset, $o, $prefix.'_wysiwyg', 'wysiwyg_classes');
 		$o->openField('');
-		$o->note(translate('core_design_class_wysiwyg_note'));
+		$o->note(translate('Classes specified in this list will be available in WYSIWYG drop-down list for styles. If the list is empty, css file wil be parsed and all class definitions available.'));
+
 		$o->closeField();
 
 		return TRUE;
@@ -1834,7 +1883,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$this->_paintSelection($asset, $o, $prefix.'_div', 'div_classes');
 		$o->openField('');
-		$o->note(translate('core_design_class_div_note'));
+		$o->note(translate('Classes specified in this list will be available in DIV properties drop-down list for class. If the list is empty only text field will be used.'));
+
 		$o->closeField();
 
 		return TRUE;

@@ -59,19 +59,23 @@ function paintInlinePermissions(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 	// No permissions set at all for this asset?
 	if (empty($direct)) return FALSE;
 
-	$o->openSection(translate('permissions'));
+	$o->openSection(translate('Permissions'));
+
 		$o->openField('&nbsp;');
 		?>
 			<table class="sq-backend-table">
 				<tr>
 					<th>
-					  <?php echo translate('user'); ?>
+					  <?php echo translate('User'); ?>
+
 					</th>
 					<th>
-					  <?php echo translate('permissions'); ?>
+					  <?php echo translate('Permissions'); ?>
+
 					</th>
 					<th align="right">
-					  <?php echo translate('access'); ?>
+					  <?php echo translate('Access'); ?>
+
 					</th>
 				</tr>
 		<?php
@@ -96,7 +100,9 @@ function paintInlinePermissions(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 							<?php echo $title.' Permission'?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
-							<span class="sq-txt-highlight-<?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
+							<span class="sq-txt-highlight-<?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('Denied') : translate('Granted')) ?></span>
+
+
 						</td>
 					</tr>
 				<?php
@@ -135,9 +141,57 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 	$admin_access = $owner->adminAccess('permissions');
 	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
-	
+	$section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Read Permissions'),
+	    SQ_PERMISSION_WRITE => translate('Write Permissions'),
+	    SQ_PERMISSION_ADMIN => translate('Admin Permissions'),
+	);
+
+	$existing_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Existing Read Permissions'),
+	    SQ_PERMISSION_WRITE => translate('Existing Write Permissions'),
+	    SQ_PERMISSION_ADMIN => translate('Existing Admin Permissions'),
+	);
+
+	$granted_section_titles = Array(
+	    '0' => Array(
+            SQ_PERMISSION_READ  => translate('Denied Read Permissions'),
+            SQ_PERMISSION_WRITE => translate('Denied Write Permissions'),
+            SQ_PERMISSION_ADMIN => translate('Denied Admin Permissions'),
+        ),
+	    '1' => Array(
+            SQ_PERMISSION_READ  => translate('Granted Read Permissions'),
+            SQ_PERMISSION_WRITE => translate('Granted Write Permissions'),
+            SQ_PERMISSION_ADMIN => translate('Granted Admin Permissions'),
+        ),
+	);
+
+	$existing_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Existing Read Permissions'),
+	    SQ_PERMISSION_WRITE => translate('Existing Write Permissions'),
+	    SQ_PERMISSION_ADMIN => translate('Existing Admin Permissions'),
+	);
+
+	$add_new_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Add New Read Permissions'),
+	    SQ_PERMISSION_WRITE => translate('Add New Write Permissions'),
+	    SQ_PERMISSION_ADMIN => translate('Add New Admin Permissions'),
+	);
+
+	$public_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Public Read Permission'),
+	    SQ_PERMISSION_WRITE => translate('Public Write Permission'),
+	    SQ_PERMISSION_ADMIN => translate('Public Admin Permission'),
+	);
+
+	$specific_section_titles = Array(
+	    SQ_PERMISSION_READ  => translate('Specific Read Permission To'),
+	    SQ_PERMISSION_WRITE => translate('Specific Write Permission To'),
+	    SQ_PERMISSION_ADMIN => translate('Specific Admin Permission To'),
+	);
+
 	foreach ($perms as $title => $perm) {
-		$o->openSection(translate('permission_section', translate($title)));
+		$o->openSection($section_titles[$perm]);
 
 		$permissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm);
 
@@ -153,7 +207,8 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 		ksort($direct);
 
-		$o->openSection(translate('existing_permissions', translate($title)));
+		$o->openSection($existing_section_titles[$perm]);
+
 			$o->openRaw();
 
 				if (!empty($direct)) {
@@ -162,12 +217,17 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 						<table class="sq-backend-table">
 							<tr>
 								<th>
-									<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')).' '.translate($title).' '.translate('permissions'); ?></span>
+									<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo $granted_section_titles[$granted][$perm]; ?></span>
+
+
+
 								</th>
-								<th width="100" style="text-align:center;"><?php echo translate('cascade_question'); ?></th>
+								<th width="100" style="text-align:center;"><?php echo translate('Cascade?'); ?></th>
+
 								<?php
 								if ($admin_access) {
-									?><th width="100" style="text-align:center;"><?php echo translate('delete_question'); ?></th><?php
+									?><th width="100" style="text-align:center;"><?php echo translate('Delete?'); ?></th><?php
+
 								}
 								?>
 							</tr>
@@ -206,15 +266,18 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					}//end foreach inherited
 
 				} else {
-					echo '<p><em>'.translate('no_access_permissions_set', strtolower($title)).'</em></p>';
+					echo '<p><em>'.sprintf(translate('No %s access permissions have been set.'), strtolower($title)).'</em></p>';
+
 				}//end if
 			$o->closeRaw();
 		$o->closeSection();
 
 		if ($admin_access) {
 
-			$o->openSection(translate('add_new_permissions', translate($title)));
-				$o->openField(translate('new'));
+			$o->openSection($add_new_section_titles[$perm]);
+
+				$o->openField(translate('New'));
+
 					?>
 					<table class="sq-simple-table">
 					<?php
@@ -225,8 +288,11 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 							<td colspan="2">
 								<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
 								<?php
-								combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-								echo ' '.translate('public_type_permission', translate($title));
+								combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('Grant'), '0' => translate('Deny')), FALSE, '');
+
+
+								echo ' '.$public_section_titles[$perm];
+
 								?>
 								</span>
 							</td>
@@ -238,8 +304,12 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 							<td valign="top">
 								<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
 								<?php
-								combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-								echo ' '.translate('specific_type_permission', translate($title)).' '.translate('to');
+								combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('Grant'), '0' => translate('Deny')), FALSE, '');
+
+
+								echo ' '.$specific_section_titles[$perm];
+
+
 								?>
 								</span>&nbsp;
 							</td>
@@ -248,7 +318,8 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					</table>
 					<?php
 				$o->closeField();
-				$o->openField(translate('cascade_question'), '');
+				$o->openField(translate('Cascade?'), '');
+
 					check_box($prefix.'_permissions['.$perm.'][new][cascades]', 1, TRUE);
 					label('Automatically cascade this permission to new children',$prefix.'_permissions['.$perm.'][new][cascades]');
 					//$o->note('If unchecked, the new permission(s) above will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
@@ -262,50 +333,68 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 	if ($admin_access) {
 		$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 		if (count($kiddies)) {
-			$o->openSection(translate('cascade_permission_changes'));
-				$o->openField(translate('cascade_permission_changes'));
+			$o->openSection(translate('Cascade Permission Changes?'));
+
+				$o->openField(translate('Cascade Permission Changes?'));
+
 					check_box($prefix.'_permissions[cascade_changes]', '1', TRUE);
-					label(translate('cascade_permissions'), $prefix.'_permissions[cascade_changes]');
-					$o->note(translate('cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+					label(translate('Yes, cascade permission changes'), $prefix.'_permissions[cascade_changes]');
+
+					$o->note(sprintf(translate('If you choose to cascade the changes to permissions you make on <strong>"%1$s"</strong>, the changes will also be made on all assets that fall under  <strong>"%1$s" </strong> in the various hierarchies in which it exists. This will affect  <strong>%2$s</strong> other assets.'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+
 				$o->closeField();
 			$o->closeSection();
 
-			$o->openSection(translate('manually_cascade_permissions'));
-				$o->openField(translate('manually_cascade_permissions'));
+			$o->openSection(translate('Manually Cascade Permissions?'));
+
+				$o->openField(translate('Manually Cascade Permissions?'));
+
 					check_box($prefix.'_permissions[manual_cascade]');
-					label(translate('manually_cascade_permissions_option'), $prefix.'_permissions[manual_cascade]');
-					$o->note(translate('manually_cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+					label(translate('Yes, manually cascade permissions'), $prefix.'_permissions[manual_cascade]');
+
+					$o->note(sprintf(translate('Manually cascading permissions will try to set the current permissions of <strong>"%1$s"</strong> on all assets that fall under <strong>"%1$s"</strong> in the various hierarchies in which it exists. This will affect %2$s other assets.<br/><br/><i>Any additional permissions set on affected assets will <b>not</b> be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also <b>not</b> be changed.</i><br/><br/><b>NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.</b>'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
+
 				$o->closeField();
 			$o->closeSection();
 		}
 	}
-	
+
 	//FUTURE PERMISSION (SIMILAR TO FUTURE STATUS)
-	$o->openSection(translate('future_permission'));
-	
+	$o->openSection(translate('Future Permission'));
+
+
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
 	$fp_jobs = Cron_Job_Future_Permission::getActiveJobs($owner);
-	$o->openSection(translate('scheduled_future_permission_change'));
+	$o->openSection(translate('Scheduled Future Permission Changes'));
+
 		if (!empty($fp_jobs)) {
 			$o->openRaw();
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('action'); ?></th>
-					<th><?php echo translate('permission'); ?></th>
+					<th><?php echo translate('Action'); ?></th>
+
+					<th><?php echo translate('Permission'); ?></th>
+
 					<th>
-						<span style="color:green"><?php echo translate('grant'); ?></span>
+						<span style="color:green"><?php echo translate('Grant'); ?></span>
+
 					</th>
 					<th>
-						<span style="color:red"><?php echo translate('deny'); ?></span>
+						<span style="color:red"><?php echo translate('Deny'); ?></span>
+
 					</th>
-					<th><?php echo translate('when'); ?></th>
-					<th style="text-align: center;"><?php echo translate('cascade_question'); ?></th>
-					<th style="text-align: center;"><?php echo translate('update_all_question'); ?></th>
+					<th><?php echo translate('When'); ?></th>
+
+					<th style="text-align: center;"><?php echo translate('Cascade?'); ?></th>
+
+					<th style="text-align: center;"><?php echo translate('Update all?'); ?></th>
+
 					<?php
 					if ($admin_access) {
 					?>
-					<th style="text-align: center;"><?php echo translate('delete_question'); ?></th>
+					<th style="text-align: center;"><?php echo translate('Delete?'); ?></th>
+
 					<?php
 					}
 					?>
@@ -347,20 +436,24 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 						<td align="center" class="sq-backend-table-cell">
 						<?php
 							if ($fp_job->attr('cascade_to_new')) {
-								echo translate('yes');
+								echo translate('Yes');
+
 							} else {
-								echo translate('no');
+								echo translate('No');
+
 							}
 						?>
 						</td>
 						<td align="center" class="sq-backend-table-cell">
 						<?php
 							if ($fp_job->attr('dependants_only')) {
-								echo translate('no');
+								echo translate('No');
+
 							} else {
-								echo translate('yes');
+								echo translate('Yes');
+
 							}
-							
+
 							if ($admin_access) {
 						?>
 						</td>
@@ -380,18 +473,21 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				?>
 			</table>
 			<?php
-			
+
 			$o->closeRaw();
 		} else if (!$admin_access){
 			$o->openField('&nbsp;','wide_col');
-			echo '<p><em>'.translate('no_future_permissions_set').'</em></p>';
+			echo '<p><em>'.translate('No future permissions have been set.').'</em></p>';
+
 			$o->closeField();
 		}//end if
 	$o->closeSection();
 
 	if ($admin_access) {
-		$o->openSection(translate('add_new_future_permission'));
-			$o->openField(translate('new'));
+		$o->openSection(translate('Add New Future Permission'));
+
+			$o->openField(translate('New'));
+
 				$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 				$cron_epoc = (int)$cron_mgr->attr('epoch');
 				$cron_refresh = (int)$cron_mgr->attr('refresh_time');
@@ -403,17 +499,19 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					$edit_fns->paintInLineBackend($fp, $o, $prefix.'_new_fp');
 					echo '<br />';
 
-					$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+					$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+
 
 					$print_commit_button = TRUE;
 				} else {
-					echo translate('cron_manager_not_configured');
+					echo translate('The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset.');
+
 				}
 			$o->closeField();
 		$o->closeSection();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 	}//end if
-	
+
 	$o->closeSection();
 	//END FUTURE PERMISSION SECTION
 
@@ -436,7 +534,9 @@ function processPermissions(&$owner, &$o, &$ei)
 {
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+
+
 		exit();
 	}
 
@@ -474,7 +574,7 @@ function processPermissions(&$owner, &$o, &$ei)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
-					trigger_localised_error('SYS0232', E_USER_NOTICE);
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE);
 
 				}// end if
 
@@ -499,9 +599,9 @@ function processPermissions(&$owner, &$o, &$ei)
 		}// end if
 
 	}//end if is NULL cron mgr
-	
+
 	//END PROCESS FUTURE PERMISSION
-	
+
 	foreach ($perms as $title => $perm) {
 		// we need to check for write access each time because
 		// we may actually be revoking write access and then
@@ -528,7 +628,7 @@ function processPermissions(&$owner, &$o, &$ei)
 			foreach ($post_data['new']['userid'] as $entry) {
 				if (!empty($entry['assetid'])) {
 					if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-						trigger_localised_error('SYS0269', E_USER_NOTICE);
+						trigger_localised_error('SYS0269', translate('You need to select whether to grant or deny access, as well as choosing a user or group'), E_USER_NOTICE);
 						break;
 					} else {
 						$permission_vars[] = Array(
@@ -625,7 +725,7 @@ function _sortCronJobsByDate($cron_jobs) {
 	}
 	//sort the array by date but keep the keys associated with them
 	asort($assetid_date_arr);
-	
+
 	//the sorted cron jobs array
 	$sorted_cron_jobs = Array();
 	foreach ($assetid_date_arr as $assetid => $date) {
@@ -639,9 +739,9 @@ function _sortCronJobsByDate($cron_jobs) {
 		}
 		$sorted_cron_jobs[] = $matched;
 	}
-	
+
 	return $sorted_cron_jobs;
-	
+
 }//end _sortCronJobByDate()
 
 

@@ -19,18 +19,28 @@
 <contents>
 	<section name="User Details" write_access="root:attributes" limbo_access="1">
 		<field attribute="username" write_access="root:noEditAllowed">
+			<display_name>Username</display_name>
+			<note>Unique system wide login name</note>
 			<text width="8" height="1" />
 		</field>
 		<field attribute="password">
+			<display_name>Password</display_name>
+			<note>Enter once, then again to confirm</note>
 			<password width="8" />
 		</field>
 		<field attribute="first_name">
+			<display_name>First Name</display_name>
+			<note />
 			<text width="40" height="1" />
 		</field>
 		<field attribute="last_name">
+			<display_name>Last Name</display_name>
+			<note />
 			<text width="40" height="1" />
 		</field>
 		<field attribute="email">
+			<display_name>Email</display_name>
+			<note />
 			<email width="25" />
 		</field>
 	</section>

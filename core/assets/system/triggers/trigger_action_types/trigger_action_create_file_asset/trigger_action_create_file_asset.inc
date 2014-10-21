@@ -66,12 +66,12 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 		if (empty($settings['file_path'])) return FALSE;
 
 		if (!authorised_file_path($settings['file_path'])) {
-			trigger_localised_error('CORE0328', E_USER_WARNING, htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			trigger_localised_error('CORE0328', sprintf(translate('Access to the file "%s" is not authorised for this operation.'), htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!is_readable($settings['file_path'])) {
-			trigger_localised_error('CORE0276', E_USER_WARNING, htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			trigger_localised_error('CORE0276', sprintf(translate('File %s does not exist or is not readable'), htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -209,24 +209,29 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 					echo '<ul class="sq-radio-list">';
 						echo '<li>';
 							radio_button($prefix.'[parent_type]', 'explicit', !$parent_broadcasted, '', 'id="parent_type_explicit"');
-							label(strtolower(translate('asset')), 'parent_type_explicit');
+							label(strtolower(translate('Asset')), 'parent_type_explicit');
+
 							echo ' ';
 							asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
 						echo '</li>';
 						echo '<li>';
 							radio_button($prefix.'[parent_type]', 'broadcaster', $parent_broadcasted, '', 'id="parent_type_broadcaster"');
-							label(translate('trigger_create_under_broadcaster'), 'parent_type_broadcaster');
+							label(translate('the broadcasting asset'), 'parent_type_broadcaster');
+
 						echo '</li>';
 					echo '</ul>';
 				} else {
 					if ($parent_broadcasted) {
-						echo '<b>'.translate('trigger_create_under_broadcaster').'</b>';
+						echo '<b>'.translate('the broadcasting asset').'</b>';
+
 					} else {
 						echo translate('under').' ';
+
 						if (!empty($parentid)) {
 							echo '<b>'.get_asset_tag_line($parentid).'</b>';
 						} else {
-							echo '<b>['.translate('no_parent_selected').']</b>';
+							echo '<b>['.translate('no parent selected').']</b>';
+
 						}
 					}
 				}
@@ -261,7 +266,8 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 					text_box($prefix.'[value]', $value, '', '');
 				} else {
 					if (empty($value)) {
-						$value = '['.translate('no_value_entered').']';
+						$value = '['.translate('no value entered').']';
+
 					}
 					echo '<b>'.$value.'</b>';
 				}
@@ -270,8 +276,10 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 			ob_start();
 				$is_dependant_list = Array(
-										0	=> translate('non_dependently'),
-										1	=> translate('dependently'),
+										0	=> translate('Non-dependently'),
+
+										1	=> translate('Dependently'),
+
 									 );
 				if ($write_access) {
 					combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant);
@@ -284,8 +292,10 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 			ob_start();
 				$is_exclusive_list = Array(
-										0	=> translate('non_exclusively'),
-										1	=> translate('exclusively'),
+										0	=> translate('Non-exclusively'),
+
+										1	=> translate('Exclusively'),
+
 									 );
 				if ($write_access) {
 					combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive);
@@ -308,7 +318,8 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 							text_box($prefix.'[attributes]['.$index.'][value]', $attr['value'], 50, '', FALSE, 'style="margin-bottom: 3px;"');
 							echo '&nbsp;';
 							check_box($prefix.'[attributes]['.$index.'][delete]','delete', FALSE);
-							label(translate('delete_question'), $prefix.'[attributes]['.$index.'][delete]');
+							label(translate('Delete?'), $prefix.'[attributes]['.$index.'][delete]');
+
 							echo '<br />';
 						} else {
 							echo ucwords($attr['attribute']).':  '.$attr['value'].'<br />';
@@ -316,7 +327,8 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 					}
 				} else {
 					if (!$write_access) {
-						echo '<i>('.translate('none').')</i>';
+						echo '<i>('.translate('None').')</i>';
+
 					}
 				}
 				if ($write_access) {
@@ -330,13 +342,17 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 			ob_end_clean();
 
 			// now patch together the output
-			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3).
-						' and populate it with the file located on the server at <strong>'.$basic_part_4.'</strong>.'.
+			$contents =	sprintf(translate('Create a new asset of type %1$s %2$s using a %3$s link and populate it with the file located on the server at %4$s.'), $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4).
+
 						'<br /><br />'.
-						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
-						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
-						'<span>'.translate('trigger_create_file_required_attrs_warning').'</span>';
+						'<b>'.translate('Optional items for Advanced users').'</b><br />'.
+
+						sprintf(translate('Use the link value %1$s and link the asset %2$s and %3$s to the parent.'), $advanced_part_1, $advanced_part_2, $advanced_part_3).
+
+						'<br /><br /><b>'.translate('Set Attribute Values').'</b><br />'.$attributes.'<br /><br />'.
+
+						'<span>'.translate('<strong>Note:</strong> If the selected asset type has any required attributes, values for those attributes must be supplied here or the asset will not be created.').'</span>';
+
 
 		return $contents;
 
@@ -358,16 +374,19 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 	{
 		// make sure the parentid isn't blank
 		if (($request_data['parent_type'] != 'broadcaster') && empty($request_data['parentid']['assetid'])) {
-			return translate('parent_to_create_under_is_missing');
+			return translate('Parent to create under is missing');
+
 		}
 
 		if (!isset($request_data['file_path']) || empty($request_data['file_path'])) {
-			return translate('trigger_action_create_file_asset_file_path_not_set');
+			return translate('File Path is not set');
+
 		}
 
 		$link_type_list = get_link_type_names();
 		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
-			return translate('link_type_missing');
+			return translate('Link type is missing');
+
 		}
 
 		if (($request_data['parent_type'] == 'explicit')) {
@@ -379,12 +398,13 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 		$type_code = array_get_index($request_data, 'type_code', FALSE);
 		if (!$type_code) {
-			return translate('asset_type_not_specified');
+			return translate('Asset type not specified');
+
 		}
 
 		$settings['type_code'] = $type_code;
 		if (!authorised_file_path($request_data['file_path'])) {
-			trigger_localised_error('CORE0328', E_USER_WARNING, htmlentities($request_data['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			trigger_localised_error('CORE0328', sprintf(translate('Access to the file "%s" is not authorised for this operation.'), htmlentities($request_data['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 			$request_data['file_path'] = '';
 		}
 		$settings['file_path'] = $request_data['file_path'];

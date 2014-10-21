@@ -59,7 +59,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 		if (empty($settings['access_token']) === TRUE) {
 			// No access token
-			trigger_localised_error('CORE0289', E_USER_WARNING);
+			trigger_localised_error('CORE0289', translate('Cannot post a tweet without being properly authenticated'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -79,7 +79,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		replace_global_keywords($tweet_format);
 
 		if (strlen($tweet_format) === 0) {
-			trigger_localised_error('CORE0290', E_USER_WARNING);
+			trigger_localised_error('CORE0290', translate('Cannot post a tweet that is zero characters long'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -96,7 +96,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		switch ($settings['if_tweet_too_long']) {
 			case 'fail':
 				if ($tweet_length > 140) {
-					trigger_localised_error('CORE0291', E_USER_WARNING);
+					trigger_localised_error('CORE0291', translate('Tweet length is greater than 140 characters'), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -108,7 +108,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 				// It's still too long?
 				if ($tweet_length > 140) {
-					trigger_localised_error('CORE0292', E_USER_WARNING);
+					trigger_localised_error('CORE0292', translate('Tweet length is greater than 140 characters, and the trigger cannot reasonably condense it'), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -122,13 +122,13 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$result = json_decode_array($return);
 
 		if (isset($result['errors'])) {
-			trigger_localised_error('CORE0293', E_USER_WARNING, (string)$result['errors'][0]['message']);
+			trigger_localised_error('CORE0293', sprintf(translate('Twitter returned error while posting tweet: %s'), (string)$result['errors'][0]['message']), E_USER_WARNING);
 			return FALSE;
 		} else {
 			// Get the time that Twitter reported it as
 			$tweet_time = strtotime((string) $result['created_at']);
 		}
-		
+
 		return Array(
 				'status'	=> $tweet_format,
 				'time'		=> $tweet_time,
@@ -180,7 +180,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 			// returns a "denied" param in the link it gives to callback (it
 			// does not callback automatically).
 			if ($settings['request_token'] === $_REQUEST['denied']) {
-				trigger_localised_error('CORE0294', E_USER_WARNING);
+				trigger_localised_error('CORE0294', translate('Cannot complete authentication from Twitter, you denied access to your account'), E_USER_WARNING);
 			}
 		}
 
@@ -207,10 +207,10 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 					if (((string)$response['error']) === 'Could not authenticate you.') {
 						$settings['access_token'] = NULL;
 						$settings['access_token_secret'] = NULL;
-						trigger_localised_error('CORE0295', E_USER_NOTICE);
+						trigger_localised_error('CORE0295', translate('You revoked posting access from within Twitter, please restart authentication process'), E_USER_NOTICE);
 					} else {
 						// Think it's a temporary issue
-						trigger_localised_error('CORE0296', E_USER_NOTICE, (string)$response['error']);
+						trigger_localised_error('CORE0296', sprintf(translate('Temporary issue with identifying credentials: %s'), (string)$response['error']), E_USER_NOTICE);
 					}
 				} else {
 					$cache_mgr->saveToCache($trigger->id, 'trigger', $cache_key, '1', FALSE, 60);
@@ -246,13 +246,25 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		hidden_field($prefix.'[access_token_acct_for]', $settings['access_token_acct_for']);
 		?>
 		<div>
-			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_register_system_header') ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('Register System as Twitter Client') ?></p>
 
-			<?php echo translate('trigger_action_update_twitter_status_register_system_note') ?>
+
+			<?php echo translate('<p>Before you can use this trigger action, you need to register your system as a Twitter client. This trigger action uses OAuth to authenticate with Twitter, and
+		therefore requires you to obtain API access first. You only need to do this once for all Update Twitter Status trigger actions within the system.</p>
+
+		<p>To register your system, go to <a href="https://dev.twitter.com/apps" target="_blank" >Twitter\'s apps page</a>, and click on &quot;Create a new application&quot;.
+		Enter any system root URL as the Callback URL (it will be ignored - Matrix will provide it with a correct callback URL).</p>
+
+		<p>When you complete the registration, it will provide you with a <strong>consumer key</strong> and a
+		<strong>consumer secret</strong> string, which you need to enter below. </p>
+
+		<p>Apps are created Read Only by default. Make sure Read and Write is selected in the setting tab after registration.</p>') ?>
+
 		</div>
 
 		<div>
-			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_client_credentials_header') ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('Client Credentials') ?></p>
+
 
 			<table class="sq-backend-table with-bottom-margin">
 			<thead>
@@ -263,7 +275,8 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 			</thead>
 			<tbody>
 				<tr>
-					<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_key') ?></th>
+					<th><?php echo translate('Consumer key:') ?></th>
+
 					<td><?php
 					if (($write_access === TRUE) && ($consumer_details_locked === FALSE)) {
 						text_box($prefix.'[consumer_key]', $settings['consumer_key'], 50, 0);
@@ -274,7 +287,8 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 					?></td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_secret') ?></th>
+					<th><?php echo translate('Consumer secret string:') ?></th>
+
 					<td><?php
 					if (($write_access === TRUE) && ($consumer_details_locked === FALSE)) {
 						text_box($prefix.'[consumer_secret]', $settings['consumer_secret'], 50, 0);
@@ -285,24 +299,30 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 					?></td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_status') ?></th>
+					<th><?php echo translate('Authentication status:') ?></th>
+
 					<td><?php
 					if ((empty($settings['consumer_key']) === TRUE) || (empty($settings['consumer_secret']) === TRUE)) {
-						echo translate('trigger_action_update_twitter_status_client_credentials_status_no_consumer');
+						echo translate('<strong style="color: #f00">Error: no client credentials provided.</strong><br/>Please enter the Consumer Key and Consumer Secret provided by Twitter to attempt authentication.');
+
 					} else {
 						// We have a consumer key
 						if (empty($settings['access_token']) === FALSE) {
-							echo translate('trigger_action_update_twitter_status_client_credentials_status_yes', $settings['access_token_acct_for']);
+							echo sprintf(translate('<strong style="color: #060">Connected</strong> to <strong>%s</strong>'), $settings['access_token_acct_for']);
+
 							echo '<br/>';
 							check_box($prefix.'[deauthorise]');
 							?> <label for="<?php echo $prefix ?>[deauthorise]"><?php
-							echo translate('trigger_action_update_twitter_status_client_credentials_deauthorise');
+							echo translate('Use another account');
+
 						} else if (empty($settings['request_token']) === FALSE) {
 							if ($write_access === TRUE) {
 								$url = 'https://api.twitter.com/oauth/authenticate?oauth_token='.$settings['request_token'].'&force_login=true';
-								echo translate('trigger_action_update_twitter_status_client_credentials_status_no', $url);
+								echo sprintf(translate('<strong>Not started</strong><br/><strong><a href="%s" tagret="_blank" >Sign in with Twitter</a></strong> to connect to an account'), $url);
+
 							} else {
-								echo translate('trigger_action_update_twitter_status_client_credentials_status_no_unlocked');
+								echo translate('<strong>Not started</strong><br/>lock this trigger to begin the authentication process.');
+
 							}
 						} else {
 							?><strong style="color: #f00">Error: failed to gain request token</strong><?php
@@ -319,11 +339,15 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		</div>
 
 		<div>
-			<?php echo translate('trigger_action_update_twitter_status_client_credentials_note') ?>
+			<?php echo translate('<p>Once you have entered the <strong>consumer key</strong> and <strong>consumer secret</strong> string into the boxes above and commit, a &quot;Sign in with Twitter&quot; link will appear. Click this and follow the prompts to complete the authentication process. Remember to sign in with the Twitter account you want to tweet to.</p>
+
+		<p><strong>You will temporarily leave the Matrix backend during this process</strong> - permission is granted through the Twitter site. Your Matrix session will remain active (subject to session length rules), and you will be redirected back to this trigger once authentication is complete.</p>') ?>
+
 		</div>
 
 		<div>
-			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_tweet_format_header') ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('Tweet Format') ?></p>
+
 
 			<table class="sq-backend-table with-bottom-margin">
 				<thead>
@@ -334,7 +358,8 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 				</thead>
 				<tbody>
 				<tr>
-					<th><?php echo translate('trigger_action_update_twitter_status_tweet_format_format') ?></th>
+					<th><?php echo translate('Format of tweets:') ?></th>
+
 					<td><?php
 					echo '<span>';
 					if ($write_access === TRUE) {
@@ -342,17 +367,21 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 					} else {
 						echo $settings['tweet_contents'];
 						hidden_field($prefix.'[tweet_contents]', $settings['tweet_contents']);
-					}?> <?php echo translate('trigger_action_update_twitter_status_tweet_format_char_count', $prefix, 140 - strlen($settings['tweet_contents']));
+					}?> <?php echo sprintf(translate('(Characters left: <span id="%1$s_tweet_length">%2$s</span>)'), $prefix, 140 - strlen($settings['tweet_contents']));
+
 					echo '</span>';
 					?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_update_twitter_status_tweet_format_iftoolong') ?></th>
+					<th><?php echo translate('If tweet too long:') ?></th>
+
 					<td><?php
 					$options = Array(
-								'abbrev'	=> translate('trigger_action_update_twitter_status_tweet_format_iftoolong_option_abbrev'),
-								'fail'		=> translate('trigger_action_update_twitter_status_tweet_format_iftoolong_option_fail'),
+								'abbrev'	=> translate('Abbreviate tweet if possible'),
+
+								'fail'		=> translate('Fail the trigger'),
+
 							   );
 					if ($write_access === TRUE) {
 						combo_box($prefix.'[if_tweet_too_long]', $options, FALSE, $settings['if_tweet_too_long']);
@@ -366,7 +395,15 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		</div>
 
 		<div>
-			<?php echo translate('trigger_action_update_twitter_status_tweet_format_note') ?>
+			<?php echo translate('<p>You can use any global keyword, or asset keyword (which uses the triggering asset). In addition, you can use the keyword
+		<strong>&#37;asset_short_url&#37;</strong> to refer to the shortest URL that can be used to point to this asset - whether this is the main URL or a remap. It may be useful
+		to add an <strong>Add Remap</strong> action before this one, to ensure a short URL (based on asset ID) is created which can then be used by this action.</p>
+
+		<p>Due to the variable length of keyword replacements, the box above will <strong>not</strong> limit you to 140 characters. You may determine what occurs when the
+		length of the tweet (with all keywords replaced) is longer than 140 characters. If you choose <strong>Abbreviate where possible</strong>, the parts of text which
+		are not links will be abbreviated to reduce the size to 140 characters, where possible - if not reasonably possible, the trigger will fail. Or you can choose to
+		simply <strong>Fail the trigger</strong>.</p>') ?>
+
 		</div>
 
 		<?php

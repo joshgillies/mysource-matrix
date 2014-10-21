@@ -365,7 +365,7 @@ function asset_link_treeid_convert($value, $encode)
 			$i = floor($i / SQ_CONF_ASSET_TREE_BASE);
 		}
 		if (strlen($str) > SQ_CONF_ASSET_TREE_SIZE) {
-			trigger_localised_error('SYS0213', E_USER_WARNING, (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1));
+			trigger_localised_error('SYS0213', sprintf(translate('The length of the encoded value of %1$s size larger than than stored with %2$s digits - the range is 0 to %3$s inclusive'), (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1)), E_USER_WARNING);
 			return NULL;
 		} else {
 			return str_pad($str, SQ_CONF_ASSET_TREE_SIZE, $digits[0], STR_PAD_LEFT);
@@ -421,21 +421,23 @@ function make_valid_web_paths($paths, $fallback_path='')
 
 		// get rid of paths that are the same as the backend suffix
 		if ($path == SQ_CONF_BACKEND_SUFFIX || $path == SQ_CONF_LIMBO_SUFFIX || $path == SQ_CONF_LOGIN_SUFFIX || $path == SQ_CONF_NOCACHE_SUFFIX || $path == SQ_CONF_NOPROXYCACHE_SUFFIX) {
-			trigger_localised_error('SYS0114', E_USER_WARNING, $path);
+			trigger_localised_error('SYS0114', sprintf(translate('Unable to set web path to "%s", this is reserved for backend access'), $path), E_USER_WARNING);
 			continue;
 		}
 
 		// get rid of paths that start with the two underscores
 		if (preg_match('/^__/', $path)) {
-			trigger_localised_error('SYS0115', E_USER_WARNING);
+			trigger_localised_error('SYS0115', translate('Unable to set web path to start with two underscores ("__"), these are reserved for system use only'), E_USER_WARNING);
 			continue;
 		}
-		
+
 		// no ampersands in web paths
-		$path = str_replace('&amp;', SQ_CONF_WEB_PATH_SEPARATOR.translate('web_path_ampersand_replacement').SQ_CONF_WEB_PATH_SEPARATOR, $path);
+		$path = str_replace('&amp;', SQ_CONF_WEB_PATH_SEPARATOR.translate('and').SQ_CONF_WEB_PATH_SEPARATOR, $path);
+
 		$path = preg_replace('|&[^;]+;|', '', $path);
 		$path = preg_replace('|&#[0-9]+;|', '', $path);
-		$path = str_replace('&', SQ_CONF_WEB_PATH_SEPARATOR.translate('web_path_ampersand_replacement').SQ_CONF_WEB_PATH_SEPARATOR, $path);
+		$path = str_replace('&', SQ_CONF_WEB_PATH_SEPARATOR.translate('and').SQ_CONF_WEB_PATH_SEPARATOR, $path);
+
 
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
@@ -673,7 +675,7 @@ function parse_self_links($content)
 	// get the current frontend asset url
 	$url = str_replace("/", "\/", $GLOBALS['SQ_SYSTEM']->frontend_asset->getURL());
 	$web_path = substr($url, strrpos($url, "/") + 1);
-	
+
 	// preg for every occurence of full url or just web path
     $href_pattern = "/<a [^<]*href=\"(".$url.")\/?\"[^>]*>(.*?)<\/a>/msi";
     $web_path_pattern = "/<a [^<]*href=\"(\.{0,2}\/{1})?".$web_path."\/?\"[^>]*>(.*?)<\/a>/msi";
@@ -688,13 +690,13 @@ function parse_self_links($content)
 * Returns the given file size value in bytes
 *
 * @param string $size	file size string (e.g. 10b, 2mb, 3k)
-* 
+*
 * @return string
 * @access public
 */
 function sizeInBytes($size)
 {
-	$size = strtolower(str_replace(' ', '', $size));	
+	$size = strtolower(str_replace(' ', '', $size));
 	preg_match('/^([0-9]+)([a-z]+)$/', $size, $matches);
 
 	$value = (int) array_get_index($matches, 1, $size);
@@ -705,7 +707,7 @@ function sizeInBytes($size)
 		case 'gb':
 			$value = $value * 1024 * 1024 * 1024;
 		break;
-		
+
 		case 'm':
 		case 'mb':
 			$value = $value * 1024 * 1024;
@@ -714,7 +716,7 @@ function sizeInBytes($size)
 		case 'k':
 		case 'kb':
 			$value = $value * 1024;
-		break;		
+		break;
 	}
 
 	return $value;

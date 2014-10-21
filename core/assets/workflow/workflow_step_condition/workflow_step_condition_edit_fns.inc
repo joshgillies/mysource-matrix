@@ -69,19 +69,21 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		$userid = $asset->attr('userid');
 		$dynamic_userid = $asset->attr('dynamic_userid');
 		?>
-		<td class="sq-backend-table-cell"><?php 
+		<td class="sq-backend-table-cell"><?php
 		if(!empty($dynamic_userid)) {
 			echo $dynamic_userid;
 		}
 		else {
-			echo get_asset_tag_line($userid); 
+			echo get_asset_tag_line($userid);
 		}
 		?></td>
 		<td class="sq-backend-table-cell">
 			<?php
 			$notify = $asset->attr('notify');
 			if (!$write_access) {
-				echo ($notify) ? translate('yes') : translate('no');
+				echo ($notify) ? translate('Yes') : translate('No');
+
+
 			} else {
 				check_box($prefix.'_notify', '1', $notify);
 			}
@@ -91,7 +93,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			$require_comment = $asset->attr('require_comment');
 			if (!$write_access) {
-				echo ($require_comment) ? translate('yes') : translate('no');
+				echo ($require_comment) ? translate('Yes') : translate('No');
+
+
 			} else {
 				check_box($prefix.'_require_comment', '1', $require_comment);
 			}
@@ -134,7 +138,8 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 						text_box($prefix.'_logic_num', $cond_logic_num, 4);
 						$text_box = ob_get_contents();
 					ob_end_clean();
-					echo translate('members_must_approve', $text_box);
+					echo sprintf(translate('%s member(s) must approve'), $text_box);
+
 				}
 			}
 			?>
@@ -245,7 +250,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 				$workflow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				//replace global keywords
 				replace_global_keywords($dynamic_userid);
-	
+
 				//replace asset keywords
 				$keywords = retrieve_keywords_replacements($dynamic_userid);
 				$replacements = Array();

@@ -16,37 +16,62 @@
 -->
 
 <contents>
+    <section name="Details">
+		<field>
+			<display_name>Id Name</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintIdName" />
+			</function_call>
+		</field>
+	</section>
 	<section name="General" write_access="write:attributes">
 		<field attribute="print">
+			<display_name>Print</display_name>
+			<note>Select whether this design area should be printed or hidden in this design customisation</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache">
+			<display_name>Cache?</display_name>
+			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache_globally">
+			<display_name>Cache Globally?</display_name>
+			<note>When enabled this design area will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the design area content is not dynamic based on URL. &lt;br/&gt; The URL recache suffix will not work for globally cached design areas. However you can clear global design area cache using the cache manager. </note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Settings" write_access="write:attributes">
 		<field>
+			<display_name>Menu Level</display_name>
+			<note>The level in the hierarchy this menu will print</note>
 			<function_call>
 				<paint_function   name="paintLevel" />
 				<process_function name="processLevel" />
 			</function_call>
 		</field>
 		<field attribute="self_link">
+			<display_name>Self Link</display_name>
+			<note>Whether or not to add self-referential links</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="ignore_permissions">
+			<display_name>Ignore Permissions</display_name>
+			<note>Show all live assets in lineage, even if the current user does not have permission to view them</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
         <field>
+            <display_name>Excluded Asset Types</display_name>
+            <note>Assets of these types and their inherited types will be omitted from the lineage</note>
             <function_call>
                 <paint_function   name="paintExcludedTypes" />
                 <process_function name="processExcludedTypes" />
             </function_call>
         </field>
 		<field>
+			<display_name>Included Asset Types</display_name>
+			<note>Only assets of these types and their inherited types will be included in the lineage</note>
 			<function_call>
 		  		<paint_function   name="paintIncludedTypes" />
 		   		<process_function name="processIncludedTypes" />

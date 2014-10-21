@@ -39,9 +39,9 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		parent::__construct();
 	}//end constructor
-	
-	
-	
+
+
+
 	/**
 	* Paint the interface for setting the oauth token
 	*
@@ -104,9 +104,9 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		return $this->processNoticeLinkedAsset($asset, 'redirect_asset');
 	}//end processRedirectAssetid()
-	
-	
-	
+
+
+
 	/**
 	* Paint the interface for choosing the user type that is created
 	*
@@ -162,9 +162,9 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return FALSE;
 
 	}//end processAddCreateType()
-	
-	
-	
+
+
+
 	/**
 	* Paints the interface for choosing create types whose form should be customised
 	*
@@ -211,8 +211,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end processCreateFormCustomisation()
 
-		
-	
+
+
 	public function paintLinkedAccounts(&$asset, &$o, $prefix)
 	{
 		$page_size = 100;
@@ -231,11 +231,15 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			$page_num = min($page_num, $num_pages);
 
 			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
+				$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
+
 			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+				$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_usage_page');
+
 			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($result), $page_num * $page_size), count($result), strtolower(translate('links')));
+			$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $page_size + 1, min(count($result), $page_num * $page_size), count($result), strtolower(translate('Links')));
+
+
 
 			$result = array_slice($result, ($page_num - 1) * $page_size, $page_size);
 
@@ -248,19 +252,27 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					);
 
 			if ($page_num > 1) {
-				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
-				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+				$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
+
+				$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+
 			} else {
-				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
-				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+				$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
+
+				$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
+
 			}
 
 			if ($page_num < $num_pages) {
-				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
-				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+				$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
+
+				$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+
 			} else {
-				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
-				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+				$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
+
+				$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
+
 			}
 
 			hidden_field($prefix.'_usage_page', $page_num); ?>
@@ -271,9 +283,12 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				<td class="sq-backend-table-header-header" colspan="2" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
 			</tr>
 			<tr class="sq-backend-table-row">
-				<th class="sq-backend-table-cell"><?php echo translate('matrix_user'); ?></th>
-				<th style="" class="sq-backend-table-cell"><?php echo translate('oauth_user') ?></th>
-				<th style="" class="sq-backend-table-cell"><?php echo translate('created') ?></th>
+				<th class="sq-backend-table-cell"><?php echo translate('Matrix User'); ?></th>
+
+				<th style="" class="sq-backend-table-cell"><?php echo translate('Oauth User') ?></th>
+
+				<th style="" class="sq-backend-table-cell"><?php echo translate('Created') ?></th>
+
 			</tr>
 			</thead>
 			<tbody>
@@ -285,7 +300,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 						<?php
 
 						$tag_line = get_asset_tag_line($data['matrix_userid'], 'details');
-						echo translate('asset_and_child_count_0', $tag_line);
+						echo sprintf(translate('%1$s'), $tag_line);
+
 						?></td>
 						<td class="sq-backend-table-cell">
 							<?php echo htmlspecialchars($data['oauth_userid']); ?>
@@ -304,7 +320,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			<?php
 
 		} else {
-			$o->note(translate('oauth_account_manager_no_linked_accounts'));
+			$o->note(translate('There is no linked accounts.'));
+
 		}
 
 		$o->closeRaw();
@@ -312,8 +329,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return FALSE;
 
 	}//end paintLinkedAccounts()
-	
-	
+
+
 
 
 	/**
@@ -355,11 +372,14 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th class="sq-backend-table-header" style="width:190px;" ><?php echo translate('attribute') ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('value') ?></th>
+						<th class="sq-backend-table-header" style="width:190px;" ><?php echo translate('Attribute') ?></th>
+
+						<th class="sq-backend-table-header"><?php echo translate('Value') ?></th>
+
 						<?php
 						if ($write_access) {
-							?><th class="sq-backend-table-header" align="center" style="text-align:center;"><?php echo translate('delete_question') ?></th><?php
+							?><th class="sq-backend-table-header" align="center" style="text-align:center;"><?php echo translate('Delete?') ?></th><?php
+
 						}
 						?>
 					</tr>
@@ -375,7 +395,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 							if (!is_null($mf_asset)) {
 								$required_name = 'Metadata: '.$mf_asset->name;
 							} else {
-								$required_name = translate('unknown_metadata_field');
+								$required_name = translate('Unknown Metadata Field');
+
 							}
 						} else {
 							$required_name = $attributes[$attr];
@@ -411,7 +432,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 			if ($write_access) {
 
-				$new_required = Array('' => '-- '.translate('select_attribute').' --');
+				$new_required = Array('' => '-- '.translate('Select Attribute').' --');
+
 				foreach ($attributes as $attr => $name) {
 					if (isset($current[$create_type][$attr])) continue;
 					$new_required[$attr] = $name;
@@ -440,7 +462,8 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					}//end foreach
 				}
 
-				$o->openField(translate('add_attribute'));
+				$o->openField(translate('Add Attribute'));
+
 				combo_box($type_prefix.'_new_prefilled', $new_required, FALSE, '');
 				$o->closeField();
 			}
@@ -501,7 +524,7 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end processPrefillFields()
 
-	
+
 
 	/**
 	* Paint the interface for syncing attributes from user profile api response
@@ -552,7 +575,7 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		$this->processPrefillSyncFields($asset, $o, $prefix, TRUE);
 	}//end processPrefillFields()
 
-	
+
 }//end class
 
 ?>

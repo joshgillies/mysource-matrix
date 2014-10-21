@@ -16,91 +16,129 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="30" height="1" />
-		</field>
-	</section>
-	<section name="Connection Details" write_access="write:attributes">
-		<field attribute="wsdl">
-			<text width="80" height="1" />
-		</field>
-		<field attribute="auth_type">
-			<selection style="list" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintAuthenticationDetails"   />
-				<process_function name="processAuthenticationDetails" />
-			</function_call>
-		</field>		
-		<field attribute="local_cert">
-			<assetid type_codes="file:D" />
-		</field>
-		<field attribute="passphrase">
-			<password width="20" height="1" confirm_field="0" />
-		</field>
-		<field attribute="mute_exception">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="wsdl_caching">
-			<selection style="list" />
-		</field>
-		<field attribute="request_timeout">
-			<int width="3" />
-		</field>
-	</section>
-	<section name="SOAP Request Configuration" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintSoapServiceAddress"   />
-				<process_function name="processSoapServiceAddress" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintSoapRequestFunction"   />
-				<process_function name="processSoapRequestFunction" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintSoapRequestBody"   />
-				<process_function name="processSoapRequestBody" />
-			</function_call>
-		</field>
-		<field attribute="root_tag">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="selected_tags">
-			<text width="80" height="3" />
-		</field>
-		<field attribute="data_delimiter">
-			<text width="10" height="1" />
-		</field>
-	</section>
-	<section name="Transformations" write_access="write:links">
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <text width="30" height="1" />
+        </field>
+    </section>
+    <section name="Connection Details" write_access="write:attributes">
+        <field attribute="wsdl">
+            <display_name>WSDL</display_name>
+            <note>Soap service WSDL URL</note>
+            <text width="80" height="1" />
+        </field>
+        <field attribute="auth_type">
+            <display_name>Authentication Type</display_name>
+            <note>Authentication type to use for accessing the SOAP service</note>
+            <selection style="list" />
+        </field>
         <field>
-			<function_call>
-				<paint_function   name="paintXslFile"   />
-				<process_function name="processXslFile" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Record Set Asset Names" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintShadow"   />
-				<process_function name="processShadow" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Available Keywords" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintKeywords"   />
-				<process_function name="processKeywords" />
-			</function_call>
-		</field>
-	</section>
+            <display_name>Authentication Details</display_name>
+            <function_call>
+                <paint_function name="paintAuthenticationDetails" />
+                <process_function name="processAuthenticationDetails" />
+            </function_call>
+        </field>
+        <field attribute="local_cert">
+            <display_name>Local Certificate</display_name>
+            <note></note>
+            <assetid type_codes="file:D" />
+        </field>
+        <field attribute="passphrase">
+            <display_name>Passphrase</display_name>
+            <note>Certificate file and passphrase for HTTPS client certificate authentication</note>
+            <password width="20" height="1" confirm_field="0" />
+        </field>
+        <field attribute="jsessionid_url">
+            <display_name>JSESSIONID Auth URL</display_name>
+            <note>Only used for Oracle CRM JSESSIONID authentication</note>
+            <text width="60" />
+        </field>
+        <field attribute="mute_exception">
+            <display_name>Mute Exceptions</display_name>
+            <note>Whether to ignore the SOAP exceptions when making the SOAP request</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+        <field attribute="wsdl_caching">
+            <display_name>Cache WSDL</display_name>
+            <note>Whether to Cache the SOAP Service and optionally configure where to Cache it</note>
+            <selection style="list" />
+        </field>
+        <field attribute="request_timeout">
+            <display_name>Request Timeout</display_name>
+            <note>How long to wait for a response, in seconds, before returning an error. If left to 0 (zero) the default PHP setting will be used.</note>
+            <int width="3" />
+        </field>
+    </section>
+    <section name="SOAP Request Configuration" write_access="write:attributes">
+        <field>
+            <display_name>Service Address</display_name>
+            <function_call>
+                <paint_function name="paintSoapServiceAddress" />
+                <process_function name="processSoapServiceAddress" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Request Function</display_name>
+            <note>Select the SOAP function</note>
+            <function_call>
+                <paint_function name="paintSoapRequestFunction" />
+                <process_function name="processSoapRequestFunction" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Request Body</display_name>
+            <note>SOAP request message body</note>
+            <function_call>
+                <paint_function name="paintSoapRequestBody" />
+                <process_function name="processSoapRequestBody" />
+            </function_call>
+        </field>
+        <field attribute="root_tag">
+            <display_name>Root Tag</display_name>
+            <note>If no root tag is specified, the entire SOAP response will be parsed for the specified tag</note>
+            <text width="30" height="1" />
+        </field>
+        <field attribute="selected_tags">
+            <display_name>Tag Names</display_name>
+            <note>Comma-separated list of tag names in the SOAP response to capture</note>
+            <text width="80" height="3" />
+        </field>
+        <field attribute="data_delimiter">
+            <display_name>Data Delimiter</display_name>
+            <note>Delimiter to separate data from xml elements with same name</note>
+            <text width="10" height="1" />
+        </field>
+    </section>
+    <section name="Transformations" write_access="write:links">
+        <note>Select the XSL file to transform the SOAP response. You can view the XSLT output by previewing the asset.</note>
+        <field>
+            <display_name>XSL Transformation</display_name>
+            <function_call>
+                <paint_function name="paintXslFile" />
+                <process_function name="processXslFile" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Record Set Asset Names" write_access="write:attributes">
+        <note>Enter the name that should be used for record set assets exposed by this data source. It can either be a normal string or a combination of string and keywords. See the Available Keywords section below for the keywords available for use in this field.</note>
+        <field>
+            <display_name>Record Set Asset Names</display_name>
+            <function_call>
+                <paint_function name="paintShadow" />
+                <process_function name="processShadow" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Available Keywords" write_access="write:attributes">
+        <note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
+        <field>
+            <display_name>Available Keywords</display_name>
+            <function_call>
+                <paint_function name="paintKeywords" />
+                <process_function name="processKeywords" />
+            </function_call>
+        </field>
+    </section>
 </contents>

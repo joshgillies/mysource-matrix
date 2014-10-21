@@ -68,7 +68,7 @@ class Cron_Job extends Asset
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		if (!$this->attr('type') || !$this->attr('when')) {
-			trigger_localised_error('CRON0002', E_USER_WARNING);
+			trigger_localised_error('CRON0002', translate('A "type" and a "when" time need to be set for a cron job to be created'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -121,7 +121,7 @@ class Cron_Job extends Asset
 	*/
 	public function morph($new_type_code)
 	{
-		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 		return FALSE;
 
 	}//end morph()
@@ -140,7 +140,7 @@ class Cron_Job extends Asset
 	*/
 	public function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0041', sprintf(translate('Unable to move assets around in the %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 		return FALSE;
 
 	}//end moveLinkPos()
@@ -177,11 +177,11 @@ class Cron_Job extends Asset
 
 			$value = (string) $value;
 			if ($this->attr('type') != 'one_off' && substr($value, 0, 2) == 'OO') {
-				trigger_localised_error('CRON0009', E_USER_NOTICE);
+				trigger_localised_error('CRON0009', translate('Only one_off type cron jobs can have their "when" attributes set to a "OO=" prefixed value'), E_USER_NOTICE);
 				return FALSE;
 			}//end if
 			if ($this->attr('type') == 'one_off' && substr($value, 0, 2) != 'OO') {
-				trigger_localised_error('CRON0043', E_USER_NOTICE);
+				trigger_localised_error('CRON0043', translate('one_off type cron jobs MUST have their "when" attributes set to a "OO=" prefixed value'), E_USER_NOTICE);
 				return FALSE;
 			}// end if
 
@@ -196,7 +196,7 @@ class Cron_Job extends Asset
 						TI=1147416120,1,3600
 			*/
 			if ($this->attr('type') != 'repeating' && substr($value, 0, 2) == 'TI') {
-				trigger_localised_error('CRON0045', E_USER_NOTICE);
+				trigger_localised_error('CRON0045', translate('Only repeating type cron jobs can have their "when" attributes set to a "TI=" prefixed value'), E_USER_NOTICE);
 				return FALSE;
 			}//end if
 
@@ -271,7 +271,7 @@ class Cron_Job extends Asset
 								// we have removed an "if" block from here
 								// we need not worry about the minutes greater than 60
 								// PHP mktime() will take care if we pass minutes like
-								// 60 or greater, 11:60 and 12:00 OR 11:66 and 12:06 
+								// 60 or greater, 11:60 and 12:00 OR 11:66 and 12:06
 								// will give us same results as timestamp outta mktime
 								$fields[$field] = $minutes;
 								$when_str .= $fields[$field];
@@ -292,11 +292,11 @@ class Cron_Job extends Asset
 
 				if ($when_ts < (int) $cron_mgr->attr('last_run')) {
 					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-					trigger_localised_error('CRON0042', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime((int) $cron_mgr->attr('last_run')));
+					trigger_localised_error('CRON0042', sprintf(translate('Unable to schedule a one-off %1$s to be run before the last job run is scheduled (which is at %2$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime((int) $cron_mgr->attr('last_run'))), E_USER_WARNING);
 					return FALSE;
 				}//end if
 
-				// instead of using $when_str, convert back the date 
+				// instead of using $when_str, convert back the date
 				// from when_ts this will ensure us that the date if
 				// passed something like 11:64 to mktime will be
 				// converted back to 12:04 below
@@ -381,14 +381,22 @@ class Cron_Job extends Asset
 	public static function whenTypeName($type)
 	{
 		switch ($type) {
-			case 'ET' : return translate('every_time');
-			case 'OO' : return translate('one_off');
-			case 'HR' : return translate('hourly');
-			case 'DL' : return translate('daily');
-			case 'WK' : return translate('weekly');
-			case 'MT' : return translate('monthly');
-			case 'YR' : return translate('yearly');
-			case 'TI' : return translate('repeating');
+			case 'ET' : return translate('Every Time');
+
+			case 'OO' : return translate('One Off');
+
+			case 'HR' : return translate('Hourly');
+
+			case 'DL' : return translate('Daily');
+
+			case 'WK' : return translate('Weekly');
+
+			case 'MT' : return translate('Monthly');
+
+			case 'YR' : return translate('Yearly');
+
+			case 'TI' : return translate('Repeating');
+
 			default :
 				trigger_localised_error('CRON0005', $type, E_USER_NOTICE);
 			return '';
@@ -409,15 +417,22 @@ class Cron_Job extends Asset
 	public static function whenWeekDayName($wday)
 	{
 		switch ((int) $wday) {
-			case 0 : return translate('sunday');
-			case 1 : return translate('monday');
-			case 2 : return translate('tuesday');
-			case 3 : return translate('wednesday');
-			case 4 : return translate('thursday');
-			case 5 : return translate('friday');
-			case 6 : return translate('saturday');
+			case 0 : return translate('Sunday');
+
+			case 1 : return translate('Monday');
+
+			case 2 : return translate('Tuesday');
+
+			case 3 : return translate('Wednesday');
+
+			case 4 : return translate('Thursday');
+
+			case 5 : return translate('Friday');
+
+			case 6 : return translate('Saturday');
+
 			default :
-				trigger_localised_error('CRON0034', E_USER_NOTICE, $wday);
+				trigger_localised_error('CRON0034', sprintf(translate('Weekday "%s" not known'), $wday), E_USER_NOTICE);
 				return '';
 		}//end switch
 
@@ -435,7 +450,8 @@ class Cron_Job extends Asset
 	public function readableWhen($inc_type=TRUE)
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
-		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('at')).' ' : '';
+		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('At')).' ' : '';
+
 		if ($when_arr['type'] != 'TI') {
 			// do not do padding for repeating time interval cron job  (TI)
 			if (intval($when_arr['minute']) < 10 && strlen($when_arr['minute']) == 1) {
@@ -445,11 +461,13 @@ class Cron_Job extends Asset
 		$when_arr['hour'] = str_replace(':', '', $when_arr['hour']);
 		switch ($when_arr['type']) {
 			case 'OO' :
-				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], ltrim($when_arr['day'], '0').' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
+				$ret_val .= sprintf(translate('%1$s on %2$s'), $when_arr['hour'].':'.$when_arr['minute'], ltrim($when_arr['day'], '0').' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
+
 			break;
 
 			case 'YR' :
-				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)));
+				$ret_val .= sprintf(translate('%1$s on %2$s'), $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)));
+
 			break;
 
 			case 'MT' :
@@ -457,7 +475,8 @@ class Cron_Job extends Asset
 			break;
 
 			case 'WK' :
-				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'s');
+				$ret_val .= sprintf(translate('%1$s on %2$s'), $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'s');
+
 			break;
 
 			case 'DL' :
@@ -465,24 +484,34 @@ class Cron_Job extends Asset
 			break;
 
 			case 'HR' :
-				$ret_val .= translate('cron_run_hourly', $when_arr['minute']);
+				$ret_val .= sprintf(translate('%s minutes past the hour'), $when_arr['minute']);
+
 			break;
 
 			case 'ET' :
-				$ret_val = translate('cron_run_always');
+				$ret_val = translate('Every time the Scheduled Jobs Manager runs');
+
 			break;
 
 			case 'TI' :
 				if ($when_arr['minute'] != '') {
 					$interval_unit = 'minute';
+					$interval_str  = translate('%2$s minutes');
 				} else if ($when_arr['hour'] != '') {
 					$interval_unit = 'hour';
+					$interval_str  = translate('%2$s hours');
 				} else if ($when_arr['day'] != '') {
 					$interval_unit = 'day';
+					$interval_str  = translate('%2$s days');
 				}
+
 				// format date, eg. 02:00 on 21 Jan, 2006
 				$next_run = date('H:i \o\n j M, Y',$when_arr['duration']);
-				$ret_val = translate('cron_run_repeat',$next_run, $when_arr[$interval_unit], translate($interval_unit.'s'));
+				$ret_val = sprintf(
+				    translate('Next run %1$s. Repeating every %2$s'),
+				    $next_run,
+				    $when_arr[$interval_unit]
+				);
 			break;
 
 		}//end switch
@@ -618,7 +647,7 @@ class Cron_Job extends Asset
 
 				// else couldn't set the current user
 				} else {
-					trigger_localised_error('CRON0027', E_USER_WARNING, $this->name, $this->id, $user->name, $user->id);
+					trigger_localised_error('CRON0027', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), Unable to set the current system user to "%3$s" (#%4$s)'), $this->name, $this->id, $user->name, $user->id), E_USER_WARNING);
 					// we can retry because the user may have just been being edited, or something
 					$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 				}
@@ -627,7 +656,7 @@ class Cron_Job extends Asset
 
 			// else acquireLock failed
 			} else {
-				trigger_localised_error('CRON0025', E_USER_WARNING, $this->name, $this->id);
+				trigger_localised_error('CRON0025', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), Unable to acquire lock'), $this->name, $this->id), E_USER_WARNING);
 				// we can retry because the lock might be free by the time that we try again
 				$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 
@@ -635,7 +664,7 @@ class Cron_Job extends Asset
 
 		// else no running user
 		} else {
-			trigger_localised_error('CRON0026', E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CRON0026', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), Unable to find user to run as'), $this->name, $this->id), E_USER_WARNING);
 			// we can be removed because without the running user we can't do anything
 			$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
@@ -666,11 +695,25 @@ class Cron_Job extends Asset
 
 		// Exec failed
 		if ($exec_result & SQ_CRON_JOB_ERROR) {
-			$msg->type 	   = 'cron.job.fail';
+			$msg->type 	  = 'cron.job.fail';
+			$msg->subject = translate('%cron_type_code% Failure');
+			$msg->body    = '%cron_job_name%'."\n".
+                                translate('Scheduled : %cron_job_when%')."\n".
+                                translate('Failed')."\n\n".
+                                '%exec_msg%'."\n\n".
+                                translate('Error Messages :')."\n".
+                                '%errors%';
 
 		// Exec successful and completed
 		} else if ($exec_result & SQ_CRON_JOB_COMPLETED) {
 			$msg->type 	   = 'cron.job.success';
+			$msg->subject = translate('%cron_type_code% Success');
+			$msg->body    = '%cron_job_name%'."\n".
+                                translate('Scheduled : %cron_job_when%')."\n".
+                                translate('Completed Successfully')."\n\n".
+                                '%exec_msg%'."\n\n".
+                                translate('Error Messages :')."\n".
+                                '%errors%';
 
 			// If we are a one off type and we aren't yet being removed do so
 			if ($this->attr('type') == 'one_off' && !($exec_result & SQ_CRON_JOB_REMOVE)) {
@@ -691,6 +734,13 @@ class Cron_Job extends Asset
 		// Exec successful and but still more to do
 		} else if ($exec_result & SQ_CRON_JOB_NOT_COMPLETE) {
 			$msg->type 	   = 'cron.job.success.incomplete';
+			$msg->subject = translate('%cron_type_code% Success');
+			$msg->body    = '%cron_job_name%'."\n".
+                                translate('Scheduled : %cron_job_when%')."\n".
+                                translate('Successful, but there is more work to do')."\n\n".
+                                '%exec_msg%'."\n\n".
+                                translate('Error Messages :')."\n".
+                                '%errors%';
 
 		// Exec stuffed up, email the sys admins - SHOULD NEVER HAPPEN ;)
 		} else {
@@ -698,6 +748,17 @@ class Cron_Job extends Asset
 			$msg_reps['result']      = $exec_result;
 			$msg_reps['result_bits'] = implode(', ', get_bit_names('SQ_CRON_JOB_', $exec_result, TRUE));
 			$msg->type 	             = 'cron.job.error';
+			$msg->subject = translate('%cron_type_code% ERROR');
+			$msg->body    = '%cron_job_name%'."\n".
+                                translate('Scheduled : %cron_job_when%')."\n".
+                                '###################################################################'."\n".
+                                '#  '.translate('RETURNED AN INVALID RESULT FROM _exec()')."\n".
+                                '#  '.translate('Returned Value : %result%')."\n".
+                                '#  '.translate('(Translated : %result_bits%)')."\n".
+                                '###################################################################'."\n\n".
+                                '%exec_msg%'."\n\n".
+                                translate('Error Messages :')."\n".
+                                '%errors%';
 
 			$root_user  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			$sys_admins = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
@@ -810,6 +871,10 @@ class Cron_Job extends Asset
 			$msg->to           = Array(0, $user->id, $root_user->id, $sys_admins->id);
 			$msg->from         = 0; // a system message
 			$msg->type         = 'cron.job.term';
+			$msg->subject      = translate('TERMINATION of %cron_type_code%');
+			$msg->body         = translate('The job "%asset_name%" (#%assetid%) fatally triggered an error and terminated the cron script. It has been removed from the Scheduled Jobs Manager.')."\n".
+                                    translate('Error Messages :')."\n".
+                                    '%errors%';
 			$msg->replacements = $msg_reps;
 
 			$msg->send();
@@ -837,7 +902,7 @@ class Cron_Job extends Asset
 	*/
 	protected function _exec(&$msg)
 	{
-		trigger_localised_error('CRON0028', E_USER_WARNING, $this->name, $this->id);
+		trigger_localised_error('CRON0028', sprintf(translate('Unable to run "%1$s" (Id: #%2$s), _exec() not done'), $this->name, $this->id), E_USER_WARNING);
 		// we can be removed because we haven't been done
 		return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
@@ -1028,7 +1093,10 @@ class Cron_Job extends Asset
 						$msg->to           = Array($root_user->id, $sys_admins->id);
 						$msg->from         = 0; // a system message
 						$msg->type         = 'cron.job.startfail';
-						$msg->replacements = $msg_reps;
+						$msg->subject      = translate('Another instance of %cron_type_code% is still running');
+                        $msg->body         = translate('The job "%asset_name%" (#%assetid%) is still running while another instance tries to start at %run_time%.')." ".
+                                                translate('Please increase the time interval between each run.');
+                        $msg->replacements = $msg_reps;
 
 						$ms->enqueueMessage($msg);
 						$ms->closeQueue();

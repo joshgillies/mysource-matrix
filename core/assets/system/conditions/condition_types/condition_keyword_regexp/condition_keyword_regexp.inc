@@ -65,8 +65,8 @@ class Condition_Keyword_Regexp extends Condition
 				$keyword_replacement = $condition_data['keyword_value'];
 			}
 			else {
-				// If keyword is a global then its value is set as %global_%, which is evaluate only after bodycopy 
-				// is created. But for processing global keyword here, its value needs to be evaluated right here. 
+				// If keyword is a global then its value is set as %global_%, which is evaluate only after bodycopy
+				// is created. But for processing global keyword here, its value needs to be evaluated right here.
 				// See bug #3716
 
 				$keyword_replacement = replace_global_keywords($condition_data['keyword_value']);
@@ -74,13 +74,13 @@ class Condition_Keyword_Regexp extends Condition
 		} else {
 			$keyword_replacement = self::getRegExpKeywordReplacement($asset, $condition_data);
 		}
-		
+
 		$keyword_match = $condition_data['keyword_match'];
-		
+
 		if (array_get_index($condition_data, 'replace_keyword_in_match', '0') == '1') {
 			//replace global keywords
 			replace_global_keywords($keyword_match);
-	
+
 			//replace asset keywords
 			$keywords = retrieve_keywords_replacements($keyword_match);
 			$replacements = Array();
@@ -89,7 +89,7 @@ class Condition_Keyword_Regexp extends Condition
 			}
 			replace_keywords($keyword_match, $replacements);
 		}
-	
+
 		$matches = preg_match('/'.str_replace('/', '\\'.'/', $keyword_match).'/i', $keyword_replacement);
 		return ($matches > 0);
 
@@ -166,6 +166,27 @@ class Condition_Keyword_Regexp extends Condition
 		return Array($condition_data['keyword']);
 
 	}//end getRequiredKeywords()
+
+
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The following keyword matches the specified pattern'),
+							'0' => translate('The following keyword does NOT match the specified pattern'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
 
 
 }//end class

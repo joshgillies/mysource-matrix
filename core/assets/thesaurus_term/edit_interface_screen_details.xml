@@ -17,9 +17,11 @@
 <contents>
 	<section name="Term Information" limbo_access="0" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Name</display_name>
 			<text width="30" />
 		</field>
 		<field>
+			<note>If the checkbox is selected, the name will be changed in metadata fields that use this term</note>
 			<function_call>
 				<paint_function		name="paintName" />
 				<process_function	name="processName" />

@@ -117,7 +117,8 @@ class Site_Network extends Folder
 			// site assets can only be in a single site network
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
 			if (!empty($network_link)) {
-				return translate('core_one_network_for_site');
+				return translate('Sites can only be linked under one Site Network');
+
 			}
 		}
 
@@ -146,7 +147,8 @@ class Site_Network extends Folder
 			// network link - the one being moved from
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
 			if (count($network_link) > 1) {
-				return translate('core_one_network_for_site');
+				return translate('Sites can only be linked under one Site Network');
+
 			}
 		} else {
 			// if we aren't moving from a site network, the usual check applies
@@ -240,12 +242,12 @@ class Site_Network extends Folder
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		if (!file_exists($session_file)) {
-			trigger_localised_error('CORE0072', E_USER_WARNING, $session_file);
+			trigger_localised_error('CORE0072', sprintf(translate('Session file "%s" does not exist'), $session_file), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!is_array($session_contents)) {
-			trigger_localised_error('CORE0004', E_USER_WARNING, gettype($session_contents));
+			trigger_localised_error('CORE0004', sprintf(translate('Array expected for second argument, got %s'), gettype($session_contents)), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -255,7 +257,7 @@ class Site_Network extends Folder
 		}
 
 		if (!string_to_file($session_str, $session_file)) {
-			trigger_localised_error('CORE0021', E_USER_WARNING, $session_file);
+			trigger_localised_error('CORE0021', sprintf(translate('Unable to write to session file "%s"'), $session_file), E_USER_WARNING);
 			return FALSE;
 		}
 		return TRUE;
@@ -281,7 +283,7 @@ class Site_Network extends Folder
 
 		if (!is_array($pri_sess)) {
 			// something is definately wrong
-			trigger_localised_error('CORE0071', E_USER_ERROR);
+			trigger_localised_error('CORE0071', translate('Primary session is corrupt'), E_USER_ERROR);
 			return FALSE;
 		}
 
@@ -319,7 +321,7 @@ class Site_Network extends Folder
 
 		// *** JEDI MIND TRICK *** you did not see us doing this... move along
 		if (!$this->serialiseSessionFile(SQ_CACHE_PATH.'/sess_'.$pri_sessionid, $pri_sess)) {
-			trigger_localised_error('CORE0020', E_USER_ERROR);
+			trigger_localised_error('CORE0020', translate('Unable to write session back to primary session file'), E_USER_ERROR);
 			return FALSE;
 		}
 		return TRUE;

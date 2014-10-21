@@ -48,14 +48,18 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 	$prefix = $owner->getPrefix();
 
 	require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-	$o->openSection(translate('current_linking'));
+	$o->openSection(translate('Current Linking'));
+
 
 	// which display type?
-	$o->openField(translate('display_linking_type'));
+	$o->openField(translate('Display Type'));
+
 
 	$display_types = Array(
-							'display_linked_parents'	=> translate('display_linked_parents'),
-							'display_linked_children'	=> translate('display_linked_children'),
+							'Linked Parents'	=> translate('Linked Parents'),
+
+							'Linked Children'	=> translate('Linked Children'),
+
 							);
 	$current_display_type = isset($_POST[$prefix.'_display_type']) ? $_POST[$prefix.'_display_type'] : 'display_linked_parents';
 	echo hidden_field($prefix.'_display_type_changed', '0');
@@ -66,7 +70,8 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 
 
 	$o->openField('');
-	echo '<i>'.translate('link_types_note').'</i><br/><br/>';
+	echo '<i>'.translate('NOTE: "TYPE_1" links are displayed in both the frontend and backend navigation but "TYPE_2" links are only displayed in the backend navigation.').'</i><br/><br/>';
+
 
 	$db = MatrixDAL::getDb();
 	$assetids = Array();
@@ -164,9 +169,11 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 			<th class="sq-pagination-links" colspan="7"><?php
 				hidden_field($prefix.'_link_offset', $link_offset);
 				if ($link_offset > 0) {
-					?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the first page') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&lt;&lt;
@@ -178,9 +185,11 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 				}
 				?> &nbsp; &nbsp; <?php
 				if ($link_offset > 0) {
-					?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the previous page') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&lt;
@@ -191,12 +200,15 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 					?></span><?php
 				}
 				?>
-				&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+				&nbsp; &nbsp; <?php echo sprintf(translate('Page %1$s of %2$s'), round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+
 				<?php
 				if (($link_offset + $num_per_page) < $total_assets) {
-					?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the next page') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&gt;
@@ -208,9 +220,11 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 				}
 				?> &nbsp; &nbsp; <?php
 				if (($link_offset + $num_per_page) < $total_assets) {
-					?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('Go to the last page') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 				} else {
-					?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 				}
 				?>
 				&gt;&gt;
@@ -224,13 +238,20 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 			</th>
 			</tr>
 			<tr>
-				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('find'); ?></th>
-				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('link_id'); ?></th>
-				<th style="text-align: center;" width="10%"><?php echo translate('link_type'); ?></th>
-				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('assetid'); ?></th>
-				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('value'); ?></th>
-				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo ucwords(strtolower(translate('locked'))); ?></th>
-				<th width="70"><?php echo translate('lineage'); ?></th>
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('Find'); ?></th>
+
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('Link Id'); ?></th>
+
+				<th style="text-align: center;" width="10%"><?php echo translate('Link Type'); ?></th>
+
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('Assetid'); ?></th>
+
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('Value'); ?></th>
+
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo ucwords(strtolower(translate('LOCKED'))); ?></th>
+
+				<th width="70"><?php echo translate('Lineage'); ?></th>
+
 			</tr>
 			<?php
 				foreach ($output_lineages as $null => $lineage_data) {
@@ -248,23 +269,27 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 
 	if (!empty($fl_jobs)) {
 		$created = TRUE;
-		$o->openSection(translate('future_linking'));
+		$o->openSection(translate('Future Linking'));
+
 			if (!empty($fl_jobs)) {
 				$o->openField('', 'new_line');
 					?>
 					<table class="sq-backend-table">
 						<tr>
 							<td class="sq-backend-table-header">
-								<?php echo translate('action'); ?>
+								<?php echo translate('Action'); ?>
+
 							</td>
 							<td class="sq-backend-table-header">
-								<?php echo translate('when'); ?>
+								<?php echo translate('When'); ?>
+
 							</td>
 							<?php
 							if ($write_access) {
 								$created = TRUE;
 								?>
-								<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+								<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Delete?'); ?></td>
+
 								<?php
 							}
 							?>
@@ -352,7 +377,9 @@ function processLinking(&$owner, &$o, &$ei)
 
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->writeAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+
+
 		exit();
 	}
 
@@ -496,7 +523,7 @@ function processLinking(&$owner, &$o, &$ei)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
-					trigger_localised_error('SYS0232', E_USER_NOTICE);
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE);
 				}
 
 			}// end if
@@ -645,7 +672,8 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 				<tr>
 					<td class="sq-backend-table-cell" style="text-align: center;">
 						<a href="#">
-						<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0; cursor: pointer"  onclick="'.asset_locator_onclick($asset_lineage_ids, TRUE).'"');
+						<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('Show in Asset Map'), translate('Show in Asset Map'),' style="border: 0; cursor: pointer"  onclick="'.asset_locator_onclick($asset_lineage_ids, TRUE).'"');
+
 						?>
 						</a>
 					</td>
@@ -678,11 +706,11 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 						<?php
 						if ($link_type <= 2) {
 							$lock_status = ($link_locking == '1') ? 'tick' : 'cross';
-							$lock_status_desc = ($link_locking == '1') ? 'locked' : 'unlocked';
+							$lock_status_desc = ($link_locking == '1') ? translate('Locked') : translate('Unlocked');
 							if ($can_edit) {
 								check_box($prefix.'_link_locked['.$linkid.']', '1', (($link_locking == '1') ? TRUE : FALSE));
 							} else {
-								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$lock_status.'.gif" alt="'.translate($lock_status_desc).'" style="border: 0;" />';
+								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$lock_status.'.gif" alt="'.$lock_status_desc.'" style="border: 0;" />';
 							}//end if
 						}//end if
 						?>

@@ -202,7 +202,8 @@ class Report_Links extends Report
 
 		$report_path = $this->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			echo translate('report_not_generated');
+			echo translate('This report has not been generated');
+
 			return Array();
 		}
 
@@ -339,6 +340,10 @@ class Report_Links extends Report
 							$msg->to           = $asset_admins[$assetid];
 							$msg->from         = 0;
 							$msg->type         = 'asset.report.brokenlink';
+							$msg->subject      = translate('Broken Link(s) found in "%link_report_name%" (Id# %link_report_id%)');
+							$msg->body         = translate('A broken %type% link was found in asset #%assetid%')."\n".
+							                        translate('Link URL: %link%')."\n".
+							                        translate('Comment: %description%');
 							$msg->replacements = $msg_reps;
 							$ms->enqueueMessage($msg);
 						}
@@ -351,7 +356,8 @@ class Report_Links extends Report
 
 		// update the report info, so that the user cannot send multiple notification to asset admin
 		// disable the 'Report Broken Links Now' button if already sent
-		$this->setAttrValue('report_info', translate('cms_report_links_broken_info', $this->attr('generated_date')));
+		$this->setAttrValue('report_info', sprintf(translate('Broken link notification has already been sent for this version of the report (Date: %s)'), $this->attr('generated_date')));
+
 		$this->saveAttributes();
 
 		return TRUE;

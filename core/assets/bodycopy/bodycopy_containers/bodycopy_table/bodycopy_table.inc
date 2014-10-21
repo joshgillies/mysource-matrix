@@ -122,7 +122,8 @@ class Bodycopy_Table extends Bodycopy_Container
 				foreach ($link as $id => $type_link) {
 					$this->_tmp['content_type'][$id] = $GLOBALS['SQ_SYSTEM']->am->getAsset($type_link['minorid'], $type_link['minor_type_code']);
 					if (is_null($this->_tmp['content_type'][$id])) {
-						echo translate('content_type_not_found', $type_link['minorid']);
+						echo sprintf(translate('Content Type Asset Id : #%s not found. Please contact your system administrator'), $type_link['minorid']);
+
 					}
 				}//end foreach
 			} else {

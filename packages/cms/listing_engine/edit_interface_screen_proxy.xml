@@ -17,9 +17,12 @@
 
 <contents>
 	<section name="Proxy Asset Types" write_access="write:attributes">
-		<function_call>
-			<paint_function   name="paintProxyTypes" />
-			<process_function name="processProxyTypes" />
-		</function_call>
+		<field>
+			<display_name>Current Settings</display_name>
+			<function_call>
+				<paint_function   name="printProxyTypes" />
+				<process_function name="processProxyTypes" />
+			</function_call>
+		</field>
 	</section>
 </contents>

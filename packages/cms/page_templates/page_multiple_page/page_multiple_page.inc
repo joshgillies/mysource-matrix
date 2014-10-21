@@ -123,7 +123,8 @@ class Page_Multiple_Page extends Page
 		// This should never be called, unless there are no pages linked underneath this.
 		// printFrontend will divert the attention of the output to a child asset before this is hit
 
-		echo translate('currently_no_pages_to_display');
+		echo translate('There are currently no pages to display');
+
 
 	}//end printBody()
 
@@ -166,7 +167,8 @@ class Page_Multiple_Page extends Page
 	*/
 	function getContent($empty_content=TRUE)
 	{
-		$contents = translate('cms_page_multiple_page_get_content_msg');
+		$contents = translate('This asset uses its children to display its content. Getting here is a mistake');
+
 		return $contents;
 
 	}//end getContent()
@@ -326,7 +328,7 @@ class Page_Multiple_Page extends Page
 
 		if($this->getURL() == '') {
 			// Bug fix #3659 'Multiple Page' cloning loses 'Multiple Page Page' web paths
-			// force assign the url to the newly cloned asset as next block will try to 
+			// force assign the url to the newly cloned asset as next block will try to
 			// assign webpath to child pages, but if there is no URL on the parent asset
 			// then child assets wont have current URL.
 			$valid_paths = make_valid_web_paths(Array(strtolower($this->name)));
@@ -334,9 +336,9 @@ class Page_Multiple_Page extends Page
 			$this->saveWebPaths($good_paths, FALSE);
 		}
 
-		// when trying to rearrange we specifically dont want to run the following code because of 
+		// when trying to rearrange we specifically dont want to run the following code because of
 		// bug #4845 'Multiple Page' asset throws MySource Warning when trying to re-arrange the pages
-		// after re-arranging the pages, adding or deleting new pages linksUpdate() is called again 
+		// after re-arranging the pages, adding or deleting new pages linksUpdate() is called again
 		// which is when the following block of code should be executed
 		if ((isset($this->_tmp['no_sort_order_paths']) && $this->_tmp['no_sort_order_paths'] ) && (isset($new_paths) && !empty($new_paths))) {
 			foreach ($new_paths as $pageid => $new_webpaths) {
@@ -391,24 +393,42 @@ class Page_Multiple_Page extends Page
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['previous_page_href'] = translate('cms_page_multiple_page_previous_page_href');
-		$keywords['next_page_href'] = translate('cms_page_multiple_page_next_page_href');
-		$keywords['previous_page_name'] = translate('cms_page_multiple_page_previous_page_name');
-		$keywords['next_page_name'] = translate('cms_page_multiple_page_next_page_name');
-		$keywords['previous_page_link'] = translate('cms_page_multiple_page_previous_page_link');
-		$keywords['next_page_link'] = translate('cms_page_multiple_page_next_page_link');
-		$keywords['total_page_count'] = translate('cms_page_multiple_page_total_page_count');
-		$keywords['page_name_x'] = translate('cms_page_multiple_page_page_name_x');
-		$keywords['page_href_x'] = translate('cms_page_multiple_page_page_href_x');
-		$keywords['page_link_x'] = translate('cms_page_multiple_page_page_link_x');
-		$keywords['page_assetid_x'] = translate('cms_page_multiple_page_page_assetid_x');
-		$keywords['current_page_name'] = translate('cms_page_multiple_page_current_page_name');
-		$keywords['current_page_attribute_name'] = translate('cms_page_multiple_page_current_page_attribute_name');
-		$keywords['current_page_number'] = translate('cms_page_multiple_page_current_page_number');
-		$keywords['current_page_assetid'] = translate('cms_page_multiple_page_current_page_assetid');
-		$keywords['toc_unordered'] = translate('cms_page_multiple_page_toc_unordered');
-		$keywords['toc_ordered'] = translate('cms_page_multiple_page_toc_ordered');
-		$keywords['navigation_menu_selection_list'] = translate('cms_page_multiple_page_navigation_menu_selection_list');
+		$keywords['previous_page_href'] = translate('Previous Page Href');
+
+		$keywords['next_page_href'] = translate('Next Page Href');
+
+		$keywords['previous_page_name'] = translate('Previous Page Name');
+
+		$keywords['next_page_name'] = translate('Next Page Name');
+
+		$keywords['previous_page_link'] = translate('Previous Page Link');
+
+		$keywords['next_page_link'] = translate('Next Page Link');
+
+		$keywords['total_page_count'] = translate('Total Page Count');
+
+		$keywords['page_name_x'] = translate('Specific Page Name');
+
+		$keywords['page_href_x'] = translate('Specific Page Href');
+
+		$keywords['page_link_x'] = translate('Specific Page Link');
+
+		$keywords['page_assetid_x'] = translate('Specific Page Asset ID');
+
+		$keywords['current_page_name'] = translate('Current Page Name');
+
+		$keywords['current_page_attribute_name'] = translate('Current Page Name (for compatibility only)');
+
+		$keywords['current_page_number'] = translate('Current Page Number');
+
+		$keywords['current_page_assetid'] = translate('Current Page Asset ID');
+
+		$keywords['toc_unordered'] = translate('Table of Contents - Unordered');
+
+		$keywords['toc_ordered'] = translate('Table of Contents - Ordered');
+
+		$keywords['navigation_menu_selection_list'] = translate('Navigation Menu - Selection List');
+
 		$keywords['multiple_page_assetid'] = 'Multiple Page Asset ID';
 
 		return $keywords;
@@ -755,7 +775,7 @@ class Page_Multiple_Page extends Page
 			if (is_null($page_asset)) {
 				continue;
 			}
-			
+
 			$name = $page_asset->_getName();
 			echo '<li>';
 			if ($assetid == $current_assetid && !$link_current) {
@@ -801,7 +821,7 @@ class Page_Multiple_Page extends Page
 			if (is_null($page_asset)) {
 				continue;
 			}
-			
+
 			$name = $page_asset->_getName();
 			if ($assetid == $current_assetid && !$link_current) {
 				echo '<option value="" selected="selected">'.$name;
@@ -879,8 +899,8 @@ class Page_Multiple_Page extends Page
 			$current_ids = Array();
 			// save the information
 			// Bug fix #3659 'Multiple Page' cloning loses 'Multiple Page Page' web paths
-			// do this because, page_multiple_page saves its current child page asset ids 
-			// is the attributes, if we dont make it empty, newly cloned asset takes 
+			// do this because, page_multiple_page saves its current child page asset ids
+			// is the attributes, if we dont make it empty, newly cloned asset takes
 			// child pages from the sorce as its own child
 			$clone->setAttrValue('current_page_ids', $current_ids);
 			$clone->saveAttributes();

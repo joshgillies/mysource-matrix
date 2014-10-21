@@ -86,13 +86,13 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$parent = $this->am->getAsset($_REQUEST['parent_assetid']);
 				if (is_null($parent)) {
-					trigger_localised_error('SYS0200', E_USER_WARNING, $_REQUEST['parent_assetid']);
+					trigger_localised_error('SYS0200', sprintf(translate('Parent Asset #%s not found'), $_REQUEST['parent_assetid']), E_USER_WARNING);
 					break;
 				}
 
 				// make sure that we are allowed to link this type to the parent
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $_REQUEST['type_code'], $_REQUEST['link_type'])) !== TRUE) {
-					trigger_localised_error('SYS0303', E_USER_WARNING, $err_msg);
+					trigger_localised_error('SYS0303', sprintf(translate('Unable to link: %s'), $err_msg), E_USER_WARNING);
 					break;
 				}
 
@@ -140,7 +140,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$asset = $this->am->getAsset($_REQUEST['assetid']);
 				if (is_null($asset)) {
-					trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['assetid']);
+					trigger_localised_error('SYS0195', sprintf(translate('No Asset found for Id #%s'), $_REQUEST['assetid']), E_USER_WARNING);
 					return;
 				}
 				if (SQ_IN_LIMBO) {
@@ -194,10 +194,10 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					}
 
 					//Bug #5143: Commiting from "approved to go live" causes some attributes on some assets to be cleared.
-					//To safeguard against this, there is no point of having locks if we are Archived/Safe Edit Approved as write access will be blocked.	
+					//To safeguard against this, there is no point of having locks if we are Archived/Safe Edit Approved as write access will be blocked.
 					if ($do_process_backend && !$asset->accessEffective()){
 						if (!$this->am->releaseLock($asset->id, 'attributes')) {
-							trigger_localised_error('SYS0182', E_USER_WARNING, 'attributes', $asset->name);
+							trigger_localised_error('SYS0182', sprintf(translate('Failed to release "%1$s" lock on "%2$s', 'attributes'), $asset->name), E_USER_WARNING);
 							$do_process_backend = FALSE;
 						}
 					}
@@ -207,12 +207,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						if (!empty($_POST['sq_lock_release']) && !empty($_POST['sq_lock_type'])) {
 							// committing changes and releasing the lock
 							if (!$this->am->releaseLock($asset->id, $_POST['sq_lock_type'])) {
-								trigger_localised_error('SYS0182', E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
+								trigger_localised_error('SYS0182', sprintf(translate('Failed to release "%1$s" lock on "%2$s'), $_POST['sq_lock_type'], $asset->name), E_USER_WARNING);
 							}
 						} else {
 							// not releasing the lock, so re-acquire
 							if (!$this->am->updateLock($asset->id, $_POST['sq_lock_type'])) {
-								trigger_localised_error('SYS0181', E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
+								trigger_localised_error('SYS0181', sprintf(translate('Failed to re-acquire "%1$s" lock on "%2$s'), $_POST['sq_lock_type'], $asset->name), E_USER_WARNING);
 							}
 						}
 					}//end if
@@ -259,16 +259,18 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			// they have confirmed their intention to forceably acquire the lock on this asset
 			$asset = $this->am->getAsset($_GET['assetid']);
 			if (is_null($asset)) {
-				trigger_localised_error('SYS0086', E_USER_WARNING, $_GET['assetid']);
+				trigger_localised_error('SYS0086', sprintf(translate('Asset #%s not found'), $_GET['assetid']), E_USER_WARNING);
 				return;
 			}
 
 			// check that they entered the correct security key
 			if (!validate_security_key()) {
 				// the security key entered is wrong
-				$o->openSection(translate('security_key_incorrect'));
+				$o->openSection(translate('Security Key Incorrect'));
+
 				$o->openField('&nbsp;');
-				echo '<b><i>'.translate('security_key_incorrect_message', $asset->name).'</i></b>';
+				echo '<b><i>'.sprintf(translate('The security key entered was incorrect. The lock on "%s" has not been forcibly acquired. You may try again using the new security key displayed below.'), $asset->name).'</i></b>';
+
 				$o->closeSection();
 			} else {
 				$o->addOnLoad('window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire_by_force\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_type\', \''.addslashes($_GET['sq_lock_type']).'\'); window.opener.parent.frames["sq_main"].submit_form(); window.close();');
@@ -282,7 +284,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addFormActionGetVar('ignore_frames', '1');
 		$asset = $this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0086', E_USER_WARNING, $_GET['assetid']);
+			trigger_localised_error('SYS0086', sprintf(translate('Asset #%s not found'), $_GET['assetid']), E_USER_WARNING);
 			return;
 		}
 
@@ -299,15 +301,18 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			return;
 		}
 
-		$o->openSection(translate('forcibly_acquire'));
+		$o->openSection(translate('Forcibly Acquire'));
+
 			$o->openField('');
-				$o->note(translate('forcibly_acquire_lock_can_cause_losses', htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+				$o->note(sprintf(translate('You are about to forcibly acquire the following locks on "%1$s"<br><b>Any changes being made to "%2$s" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>'), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+
 			$o->openField('');
 		?>
 		<table border="0">
 			<tr>
 				<td>
-					<?php echo translate('enter_character_security_string'); ?>
+					<?php echo translate('To confirm the acquiring of the lock, enter the character string you see below into the box supplied, then press the Commit button.'); ?>
+
 				</td>
 			</tr>
 			<tr>
@@ -317,13 +322,15 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		<table class="sq-backend-table" style="width: auto;">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('lock_type'); ?>
+					<?php echo translate('Lock Type'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
 					&nbsp;
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('other_assets_in_chain'); ?>
+					<?php echo translate('Other Assets in Chain'); ?>
+
 				</td>
 			</tr>
 		<?php
@@ -354,14 +361,17 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					}
 
 					if (is_null($lock['expires'])) {
-						$expires_in = translate('lock_held_indefinitely');
+						$expires_in = translate('The lock is being held indefinitely and will not expire. The lock must be released manually or be forcibly acquired by a System Administrator.');
+
 					} else {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 						if (!$expires_in) {
 							$expires_in = '1 '.translate('second');
+
 						}
-						$expires_in = translate('due_to_expire', $expires_in);
+						$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
+
 					}
 
 					?>
@@ -379,7 +389,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						foreach ($lock['chained_assets'] as $chained_info) {
 							$chained_asset = $this->am->getAsset($chained_info['assetid']);
 							if (is_null($chained_asset)) {
-								trigger_localised_error('SYS0086', E_USER_WARNING, $chained_info['assetid']);
+								trigger_localised_error('SYS0086', sprintf(translate('Asset #%s not found'), $chained_info['assetid']), E_USER_WARNING);
 								continue;
 							}
 							echo '<li class="sq-backend-data">'.htmlspecialchars($chained_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</li>';
@@ -398,7 +408,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->closeSection();
 
 		$o->openField('', 'commit');
-		normal_button('cancel', translate('cancel'), 'window.close()');
+		normal_button('Cancel', translate('Cancel'), 'window.close()');
+
 		echo '&nbsp;';
 		submit_button('commit', SQ_CONF_COMMIT_BUTTON_TEXT);
 
@@ -421,7 +432,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
 
-		$o->openSection(translate('asset_types'));
+		$o->openSection(translate('Asset Types'));
+
 		$o->openField('', 'wide_col');
 
 

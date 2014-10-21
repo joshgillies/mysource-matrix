@@ -84,15 +84,18 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		<div id="<?php echo $prefix ?>_https_div" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" >
 				<tr>
-					<td><p><?php echo translate('local_cert'); ?></p></td>
+					<td><p><?php echo translate('Local Certificate'); ?></p></td>
+
 					<td><p><?php asset_finder($prefix.'_local_cert', array_get_index($settings, 'local_cert', ''), Array('file'=>'D')); ?><br/>
 				</tr>
 				<tr>
-					<td><p><?php echo translate('passphrase'); ?></p></td>
+					<td><p><?php echo translate('Passphrase'); ?></p></td>
+
 					<td><p><?php password_box($prefix.'_passphrase', array_get_index($settings, 'passphrase', ''), 35); ?></p></td>
 				</tr>
 				<tr>
-					<td colspan="2"><?php echo translate('use_https'); ?></td>
+					<td colspan="2"><?php echo translate('For HTTPS client certificate authentication use local certificate and passphrase options.'); ?></td>
+
 				</tr>
 			</table>
 		</div>
@@ -105,11 +108,13 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					<td><p><?php combo_box($prefix.'_cache_wsdl', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type); ?></p></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('mute_exceptions'); ?></td>
+					<td><?php echo translate('Mute SOAP Exceptions'); ?></td>
+
 					<td><p><?php check_box($prefix.'_mute_exceptions', 1, array_get_index($settings, 'mute_exceptions', 0)); ?></p></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('service_address'); ?></td>
+					<td><?php echo translate('Service Address'); ?></td>
+
 					<td><p><?php combo_box($prefix.'_service_address', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></p></td>
 				</tr>
 			</table>
@@ -154,12 +159,14 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 
 	<?php if(!isset($settings['actions']) || empty($settings['actions'])) return;?>
 
-		<p class="sq-backend-section-subheading"><?php echo translate('request_message'); ?></p>
+		<p class="sq-backend-section-subheading"><?php echo translate('SOAP Request Message'); ?></p>
+
 
 		<div id="<?php echo $prefix ?>_action_selection" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" >
 				<tr>
-					<td><strong><?php echo translate('action');?></strong><br /><br /></td>
+					<td><strong><?php echo translate('Action');?></strong><br /><br /></td>
+
 					<td>
 						<?php
 							foreach ($settings['actions'] as $name => $detail) {
@@ -171,7 +178,8 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					</td>
 				</tr>
 				<tr>
-					<td><span style="padding-top:10px;"><strong><?php echo translate('params');?></strong></span></td>
+					<td><span style="padding-top:10px;"><strong><?php echo translate('Parameters');?></strong></span></td>
+
 					<td>
 						<?php
 							$i = 0;
@@ -187,13 +195,15 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2"><?php echo translate('question_keyword_example'); ?></td>
+					<td colspan="2"><?php echo translate('Question keywords can be used in the message, for example, &#37;response_100_q1&#37;, &#37;question_name_100_q1&#37;, &#37;file_upload_100_q2&#37;'); ?></td>
+
 				</tr>
 			</table>
 		</div>
 
 
-		<p class="sq-backend-section-subheading"><?php echo translate('response_message'); ?></p>
+		<p class="sq-backend-section-subheading"><?php echo translate('SOAP Response Message'); ?></p>
+
 
 		<div id="<?php echo $prefix ?>_response" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" >
@@ -210,7 +220,8 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 				</tr>
 				<tr>
 					<td>
-						<?php echo translate('response_message_note'); ?>
+						<?php echo translate('Response will be stored in global session vars.They can be printed using keywords as below.'); ?>
+
 					</td>
 				</tr>
 				<tr>
@@ -232,9 +243,12 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 							?>
 							<table class="sq-backend-table">
 								<tr>
-									<td class="sq-backend-table-header"><?php echo translate('field_name'); ?></td>
-									<td class="sq-backend-table-header"><?php echo translate('error_text'); ?></td>
-									<td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td>
+									<td class="sq-backend-table-header"><?php echo translate('Field Name'); ?></td>
+
+									<td class="sq-backend-table-header"><?php echo translate('Error Text'); ?></td>
+
+									<td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td>
+
 								</tr>
 								<?php
 								$rules = SOAP_Form_Based_Common::validationRules();
@@ -278,7 +292,8 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 						?>
 						<br />
 						<?php
-							echo translate('add_new_field');
+							echo translate('New field to check?');
+
 							$response_fields = Array('' => '-- Select Field --');
 							if (isset($settings['response_keywords'][$settings['action']])) {
 								$response_keywords = explode('<br/>', $settings['response_keywords'][$settings['action']]);
@@ -297,13 +312,15 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 				</tr>
 
 				<tr>
-					<td><?php translate('fail_validation_error_msg'); ?></td>
+					<td><?php translate('If the specified field fails the validation, the step action will treat it as an regular form error.'); ?></td>
+
 				</tr>
 			</table>
 		</div>
 
 
-		<p class="sq-backend-section-subheading"><?php echo translate('response_keywords'); ?></p>
+		<p class="sq-backend-section-subheading"><?php echo translate('Keywords Available'); ?></p>
+
 
 		<div id="<?php echo $prefix ?>_response_keywords" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" >
@@ -319,13 +336,16 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					</td>
 				</tr>
 				<tr>
-					<td><?php echo translate('response_keyword_note'); ?></td>
+					<td><?php echo translate('Note: This list only shows the keywords for the first set of data for the array elements in the soap response, if any'); ?></td>
+
 				</tr>
 			</table>
-			<p class="sq-backend-section-subheading"><?php echo translate('response_to_download_as_file'); ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('Response to download as file'); ?></p>
+
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('field_keyword_tags'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Field Keyword (Tag)'); ?></td>
+
 				</tr>
 				<?php
 					$response_to_file = array_get_index($settings, $settings['action'].'_file_response_to_save', Array());
@@ -354,7 +374,8 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					</td>
 				</tr>
 				<tr>
-					<td><?php echo translate('response_to_download_as_file_note'); ?></td>
+					<td><?php echo translate('If a file is expected in the SOAP Response, you can configure the keywords above. This will ensure the file is temporary downloaded on the server and a relative link is provided to view that file in the replacement for above keyword.'); ?></td>
+
 				</tr>
 			</table>
 		</div>
@@ -442,11 +463,11 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			}//end if
 		}//end foreach
 
-		
+
 		// grab the specified address from WSDL
 		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], $settings['password']);
-		
-		
+
+
 		// Currently selected "Check response" fields
 		$current_selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
 		$field_rule = Array();
@@ -539,16 +560,19 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			</colgroup>
 			<tbody>
 				<tr>
-					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('action');?></strong></p></td>
+					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('Action');?></strong></p></td>
+
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 					if (isset ($settings['action'])) {
 						echo $settings['action'];
 					} else {
-						?><span class="sq-backend-warning"><?php echo translate('no_soap_action');?></span><?php
+						?><span class="sq-backend-warning"><?php echo translate('No SOAP action specified.');?></span><?php
+
 					}
 
 					if (!isset ($settings[$settings['action'].'parameters0'])) {
-						?><br/><span class="sq-backend-warning"><?php echo translate('no_parameter');?></span><?php
+						?><br/><span class="sq-backend-warning"><?php echo translate('Request parameters not set');?></span><?php
+
 					}
 					?></p></td>
 				</tr>
@@ -574,11 +598,13 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		}
 
 		if(!isset($settings['actions'][$settings['action']])) {
-			$form->submission_errors = array_merge($form->submission_errors, Array(translate('no_soap_action')));
+			$form->submission_errors = array_merge($form->submission_errors, Array(translate('No SOAP action specified.')));
+
 			return FALSE;
 		}
 		if(!isset($settings['wsdl'])) {
-			$form->submission_errors = array_merge($form->submission_errors, Array(translate('no_wsdl')));
+			$form->submission_errors = array_merge($form->submission_errors, Array(translate('SOAP WSDL not configured.')));
+
 			return FALSE;
 		}
 

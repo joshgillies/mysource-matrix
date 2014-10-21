@@ -16,20 +16,28 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="25" height="1" />
-		</field>
-	</section>
-	<section name="OAuth Parameters" write_access="write:attributes">
-		<field attribute="oauth">
-			<oauth />
-		</field>
-		<field attribute="allow_global_replace">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>	
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Page Short Name</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="OAuth Parameters" write_access="write:attributes">
+        <field attribute="oauth">
+            <display_name>OAuth Parameters</display_name>
+            <note />
+            <oauth />
+        </field>
+        <field attribute="allow_global_replace">
+            <display_name>Allow Keyword replacement</display_name>
+            <note>Enabling this option will allow Squiz Matrix to replace keywords found in the REST response body. This can be useful when the response is returned from another instance of Squiz Matrix. Disabling this option will ensure that the system does not replace any keywords (or content using a format similar to a keyword) in the response.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
 </contents>

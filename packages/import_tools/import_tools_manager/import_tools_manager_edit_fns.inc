@@ -57,7 +57,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
-	
+
 	/**
 	* Paint Structureed file import directory path
 	*
@@ -72,8 +72,8 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		echo STRUCTURED_FILE_IMPORT_DIR;
 	}
-	
-	
+
+
 	/**
 	* Paint Headings
 	*
@@ -157,12 +157,14 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintHtmlUpload(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$o->openField(translate('import_tools_new_html_file_select'));
+		$o->openField(translate('Select HTML File to Upload'));
+
 			if ($write_access) {
 				file_upload('structured_file_import_html_upload', $extras='');
 				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
 				check_box('structured_file_import_html_upload_overwrite');
-				label(translate('import_tools_overwrite_existing'), 'structured_file_import_html_upload_overwrite');
+				label(translate('Overwrite existing document'), 'structured_file_import_html_upload_overwrite');
+
 			}
 		$o->closeField();
 
@@ -218,23 +220,29 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 		$file_path = BULK_FILE_IMPORT_DIR;
 
 		if ($write_access) {
-			$o->openField(translate('import_tools_manager_allowed_import_type'));
+			$o->openField(translate('Allowed Import Type'));
+
 				combo_box($prefix.'_allowed_import_type', Array('Server and Local' => 'Server and Local', 'Server Only' => 'Server Only', 'Local Only' => 'Local Only'), FALSE, $allowed_import_type, 0);
 			$o->closeField();
 
-			$o->openField(translate('import_tools_manager_server_import_dir'));
+			$o->openField(translate('Server Import Directory'));
+
 				echo $file_path;
-				$o->note(translate('import_tools_manager_server_import_dir_msg'));
+				$o->note(translate('Directory on the Server to import uploaded files from.  Use config file data/private/conf/import_tools_manager.inc. Path is relative to Matrix installation location unless prefixed with \'/\'.'));
+
 			$o->closeField();
 
 		} else {
-			$o->openField(translate('import_tools_manager_allowed_import_type'));
+			$o->openField(translate('Allowed Import Type'));
+
 				echo $allowed_import_type;
 			$o->closeField();
 
-			$o->openField(translate('import_tools_manager_server_import_dir'));
+			$o->openField(translate('Server Import Directory'));
+
 				echo $file_path;
-				$o->note(translate('import_tools_manager_server_import_dir_msg'));
+				$o->note(translate('Directory on the Server to import uploaded files from.  Use config file data/private/conf/import_tools_manager.inc. Path is relative to Matrix installation location unless prefixed with \'/\'.'));
+
 			$o->closeField();
 		}
 
@@ -284,24 +292,32 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 		$server_export_name = $asset->attr('cms_file_export_name');
 
 		if ($write_access) {
-			$o->openField(translate('import_tools_manager_server_export_name'));
+			$o->openField(translate('Server Export Name'));
+
 				text_box($prefix.'_server_export_filename', $server_export_name, '50', '', FALSE);
-				$o->note(translate('import_tools_manager_server_export_name_msg'));
+				$o->note(translate('The basename of the exported files'));
+
 			$o->closeField();
 
-			$o->openField(translate('import_tools_manager_server_export_dir'));
+			$o->openField(translate('Server Export Directory'));
+
 				text_box($prefix.'_server_export_directory', $server_export_dir, '50', '', FALSE);
-				$o->note(translate('import_tools_manager_server_export_dir_msg'));
+				$o->note(translate('Directory on the Server to export files to. Path is relative to Matrix installation location unless prefixed with \'/\'.'));
+
 			$o->closeField();
 		} else {
-			$o->openField(translate('import_tools_manager_server_export_name'));
+			$o->openField(translate('Server Export Name'));
+
 				echo $server_export_name;
-				$o->note(translate('import_tools_manager_server_export_name_msg'));
+				$o->note(translate('The basename of the exported files'));
+
 			$o->closeField();
 
-			$o->openField(translate('import_tools_manager_server_export_dir'));
+			$o->openField(translate('Server Export Directory'));
+
 				echo $server_export_dir;
-				$o->note(translate('import_tools_manager_server_export_dir_msg'));
+				$o->note(translate('Directory on the Server to export files to. Path is relative to Matrix installation location unless prefixed with \'/\'.'));
+
 			$o->closeField();
 		}//end if
 

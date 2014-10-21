@@ -67,7 +67,9 @@ class Trigger_Condition_User_Sysadmin extends Trigger_Condition
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		ob_start();
-			$options = Array(0 => translate('is_not'), 1 => translate('is'));
+			$options = Array(0 => translate('is not'), 1 => translate('is'));
+
+
 			$value = array_get_index($settings, 'is_sysadmin', 1);
 			if ($write_access) {
 				combo_box($prefix.'[is_sysadmin]', $options, FALSE, $value);
@@ -76,7 +78,8 @@ class Trigger_Condition_User_Sysadmin extends Trigger_Condition
 			}
 			$var = ob_get_contents();
 		ob_end_clean();
-		return translate('trigger_asset_sysadmin', $var);
+		return sprintf(translate('Current user %s effectively a system administrator'), $var);
+
 
 	}//end getInterface()
 
@@ -94,7 +97,8 @@ class Trigger_Condition_User_Sysadmin extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$settings['is_sysadmin'] = $request_data['is_sysadmin'];

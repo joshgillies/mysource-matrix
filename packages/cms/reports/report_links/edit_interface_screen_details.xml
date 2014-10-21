@@ -24,32 +24,43 @@
 	</section>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Report Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field>
+			<display_name>Root Node</display_name>
+			<note>Leave blank to generate this report on the entire system</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Asset Statuses</display_name>
+			<note>Only assets in the statuses chosen will be included in report. Change of this option will require regenerating report.</note>
 			<function_call>
 				<paint_function   name="paintStatusSelection"  />
 				<process_function name="processStatusSelection" />
 			</function_call>
-
 		</field>
 		<field>
+			<display_name>Regenerate Report</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
 			</function_call>
 		</field>
 		<field attribute="report_broken_links">
-			 <boolean true_text="yes" false_text="no" />
+			<display_name>Report Broken Links?</display_name>
+			<note>Notify the asset administrators if a broken link is found during the report generation process. You will have to add 'asset.report.brokenlink' to 'Log To Email White List' in the Messaging Service Configuration for this to work.</note>
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="follow_link_redirect">
-			 <boolean true_text="yes" false_text="no" />
+			<display_name>Follow Redirect Link?</display_name>
+			<note>Follow redirect of external link to check the final url.</note>
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
 			<function_call>
@@ -60,12 +71,16 @@
 	</section>
 	<section name="Report Options" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name>Content To Display In Report</display_name>
+			<note>These options can be changed and are visible in the report display and export without regenerating the report.</note>
 			<function_call>
 				<paint_function   name="paintDisplayOptions"  />
 				<process_function name="processDisplayOptions" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Export Report</display_name>
+			<note>This will allow you download a CSV (Comma Separated Values) file, containing the content of the report as per the above display options.</note>
 			<function_call>
 				<paint_function   name="paintExport"   />
 				<process_function name="processExport" />

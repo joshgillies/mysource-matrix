@@ -95,12 +95,13 @@ class Content_Type_Markdown_Edit_Fns extends Content_Type_Edit_Fns
 					//if can not markdownify, keep the HTML value
 					if (!$is_markdownified) {
 						$markdown = $html;
-						$markdownify_not_configured_message = translate('cms_content_type_markdown_markdownify_tool_not_configured');
+						$markdownify_not_configured_message = translate('HTML content could not be converted to markdown content because markdownify tool has not been configured properly.');
+
 					}
 
 				}//end if (trim($html) != '')
 			}//end if ($markdown == '')
-			
+
 
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$keywords = Array();
@@ -128,7 +129,8 @@ class Content_Type_Markdown_Edit_Fns extends Content_Type_Edit_Fns
 				}
 			}
 			if (!$markdown_configured) {
-				echo '<span class="sq-backend-warning">'.translate('cms_content_type_markdown_markdown_tool_not_configured').'</span><br />';
+				echo '<span class="sq-backend-warning">'.translate('This markdown content type can not be saved because markdown tool has not been configured properly.').'</span><br />';
+
 			}
 
 			//print editor
@@ -186,7 +188,7 @@ class Content_Type_Markdown_Edit_Fns extends Content_Type_Edit_Fns
 							}
 						}
 					} else {
-						trigger_localised_error('CMS0107', E_USER_WARNING);
+						trigger_localised_error('CMS0107', translate('Markdown tool has not been configured correctly. Markdown content type could not be saved'), E_USER_WARNING);
 					}
 
 				}//end if

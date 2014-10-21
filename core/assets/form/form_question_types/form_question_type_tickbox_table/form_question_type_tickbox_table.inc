@@ -153,13 +153,15 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 				    $summary_string = 'summary="'.$summary.'"';
 				$to_output =	'<table border="0" cellpadding="0" cellspacing="0" class="sq-backend-table" id="'.$prefix.'" '.$summary_string.'>';
 				$caption = $this->attr('caption');
-				If(!empty($caption)) 
+				If(!empty($caption))
 				    $to_output .= '<caption>'.$caption.'</caption>';
 				$to_output .='	<tr>		<th class="sq-backend-table-header" scope="col">';
 				if (empty($question_contents) || empty($question_contents[0])) {
-					$to_output .= '<div align="center">'.translate('core_form_tickbox_table_not_properly_defined');
+					$to_output .= '<div align="center">'.translate('This question has not been properly defined.');
+
 					if ($type == 'passive') {
-						$to_output .= ' '.translate('core_form_tickbox_table_incorrectly_displayed');
+						$to_output .= ' '.translate('It will be incorrectly displayed on the front end.');
+
 					}
 					$to_output .= '</div></th>';
 				} else {
@@ -437,8 +439,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	{
 		return TRUE;
 	}//end useFieldset()
-	
-	
+
+
 	/**
 	* Get the HTML label for this form question
 	*
@@ -460,6 +462,6 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		}
 
 	}//end getHtmlLabel()
-	
+
 }//end class
 ?>

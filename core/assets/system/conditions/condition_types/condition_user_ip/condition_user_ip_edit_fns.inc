@@ -73,10 +73,13 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			$condition_data['user_ip_ranges']['new'] = Array('ip_address' => NULL, 'subnet' => NULL, 'grant' => 1);
 		}
 
-		$grant_options = Array(1 => translate('grant'), 0 => translate('deny'));
+		$grant_options = Array(1 => translate('Grant'), 0 => translate('Deny'));
+
+
 
 		if (!$write_access && empty($condition_data['user_ip_ranges'])) {
-			?><em><?php echo translate('condition_user_ip_no_conditions_set'); ?></em><?php
+			?><em><?php echo translate('There are no conditions set'); ?></em><?php
+
 		} else {
 			?>
 			<table class="sq-backend-table">
@@ -87,13 +90,17 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 				<?php
 				}
 				?>
-				<th><?php echo translate('network_ip_address'); ?></th>
+				<th><?php echo translate('Network IP Address'); ?></th>
+
 				<th></th>
-				<th><?php echo translate('subnet_mask'); ?></th>
-				<th><?php echo translate('action'); ?></th>
+				<th><?php echo translate('Subnet Mask'); ?></th>
+
+				<th><?php echo translate('Action'); ?></th>
+
 				<?php if ($write_access) {
 				?>
-					<th><?php echo translate('delete_question'); ?></th>
+					<th><?php echo translate('Delete?'); ?></th>
+
 				<?php
 				}
 				?>
@@ -106,7 +113,8 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 						<td>
 							<?php
 							if ($index === 'new') {
-								echo '<strong>'.translate('new_question').'</strong>';
+								echo '<strong>'.translate('New?').'</strong>';
+
 							}
 							?>
 						</td>
@@ -163,7 +171,8 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 		}//end else
 
 		echo '<p>';
-		echo translate('condition_user_ip_default_grant').': ';
+		echo translate('If IP address is outside one of these ranges').': ';
+
 		if ($write_access) {
 			combo_box($prefix.'[default_grant]', $grant_options, FALSE, Array($condition_data['default_grant']));
 		} else {
@@ -175,10 +184,12 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 		echo '</p>';
 
 		echo '<p>';
-		echo '<b>'.translate('condition_user_ip_import_from_file').':</b>&nbsp;';
+		echo '<b>'.translate('Import rules from CSV file').':</b>&nbsp;';
+
 		file_upload($prefix.'_import');
 		echo '</p>';
-		$o->note(translate('condition_user_ip_import_from_file_explain'));
+		$o->note(translate('The file uploaded should be a CSV file without a header row. Each line should contain exactly six fields: the first four being the octets of the network IP address, the fifth being the subnet mask (in CIDR format, eg. "255.255.255.0" would be represented in the file by "24"), and the sixth being a one (1) for a Grant rule or zero (0) for a Deny rule. The default Grant/Deny setting is not affected by any upload and should be set separately.'));
+
 
 	}//end paintEditInterface()
 
@@ -202,7 +213,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 					$condition_data['default_grant'] = $_POST[$prefix]['default_grant'];
 					return $condition_data;
 				} else {
-					trigger_localised_error('CORE0249', E_USER_WARNING);
+					trigger_localised_error('CORE0249', translate('Ignoring uploaded IP ranges file as it appears to be invalid'), E_USER_WARNING);
 				}
 			}
 		}
@@ -230,7 +241,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 				// of the other kind of rule
 				$this_row['grant'] = !$this_row['grant'];
 				if (in_array($this_row, $ip_ranges)) {
-					trigger_localised_error('CORE0250', E_USER_WARNING, $this_row['ip_address'], $this_row['subnet']);
+					trigger_localised_error('CORE0250', sprintf(translate('The IP/subnet combination "%1$s/%2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest'), $this_row['ip_address'], $this_row['subnet']), E_USER_WARNING);
 					continue;
 				}
 
@@ -241,7 +252,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 					$this_row['grant'] = $post_data['grant'];
 					$ip_ranges[] = $this_row;
 				} else {
-					trigger_localised_error('CORE0248', E_USER_WARNING, $this_row['ip_address'], $this_row['subnet']);
+					trigger_localised_error('CORE0248', sprintf(translate('The IP/subnet combination "%1$s/%2$s" does not represent a valid network IP - ignoring'), $this_row['ip_address'], $this_row['subnet']), E_USER_WARNING);
 				}
 			}//end if
 		}//end foreach
@@ -655,13 +666,13 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			// complain, then ignore it
 			$ip_range_field['grant'] = !$ip_range_field['grant'];
 			if (in_array($ip_range_field, $ip_ranges)) {
-				trigger_localised_error('CORE0250', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
+				trigger_localised_error('CORE0250', sprintf(translate('The IP/subnet combination "%1$s/%2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest'), $ip_range_field['ip_address'], $ip_range_field['subnet']), E_USER_WARNING);
 				continue;
 			}
 
 			// is it a valid combination?
 			if (!self::_doesIPBeginSubnet($ip_range_field['ip_address'], $ip_range_field['subnet'])) {
-				trigger_localised_error('CORE0248', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
+				trigger_localised_error('CORE0248', sprintf(translate('The IP/subnet combination "%1$s/%2$s" does not represent a valid network IP - ignoring'), $ip_range_field['ip_address'], $ip_range_field['subnet']), E_USER_WARNING);
 				continue;
 			}
 

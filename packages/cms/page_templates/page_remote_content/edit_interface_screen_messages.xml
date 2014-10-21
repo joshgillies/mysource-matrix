@@ -18,14 +18,20 @@
 <contents>
 	<section name="Unavailable Content" write_access="write:attributes" limbo_access="1">
 		<field attribute="display_error">
+		    <display_name>Display Error Message</display_name>
+			<note>Choose whether you want the error message displayed.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="error_message">
+		    <display_name>Error Message</display_name>
+			<note>This message is displayed if an error occurs while capturing remote content.</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
 	<section name="Binary Files" write_access="write:attributes" limbo_access="1">
 		<field attribute="binary_message">
+		    <display_name>Binary File Message</display_name>
+			<note>Site viewers will see this message if they follow a link to a binary file. Use the %remote_url% keyword replacement to make the url appear in the text of the message.</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>

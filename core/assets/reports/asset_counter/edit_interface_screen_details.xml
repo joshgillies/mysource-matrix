@@ -17,15 +17,21 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Report Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field>
+			<display_name>Root Node</display_name>
+			<note>Leave blank to generate this report on the entire system</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Regenerate Report</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
@@ -35,12 +41,16 @@
 
 	<section name="Asset Types" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name>Current Asset Types</display_name>
+			<note>This is a list of asset types that will be searched for. If types are not specified, a report will be generated for all the types. If you specify the types but they are not found, report will not be re-generated.</note>
 			<function_call>
 				<paint_function   name="paintCurrentAssetTypes"   />
 				<process_function name="processCurrentAssetTypes" />
 			</function_call>
 		</field>
 		<field read_access="write:contents">
+			<display_name>Add Asset Type</display_name>
+			<note>Select a type of asset to search for. If you are adding a type and re-generating the report in one step, the new type will be included in the report.</note>
 			<function_call>
 				<paint_function   name="paintAddAssetType"   />
 				<process_function name="processAddAssetType" />
@@ -50,9 +60,13 @@
 
 	<section name="Sorting" write_access="write:attributes" limbo_access="1">
 		<field attribute="sort_by">
+			<display_name>Sort By</display_name>
+			<note>What to sort by. This option does not require for report to be re-generated</note>
 			<selection style="list" />
 		</field>
 		<field attribute="reverse_sort">
+			<display_name>Reverse Sort</display_name>
+			<note>Choose "Yes" for results to be displayed in reverse order. This option does not require for report to be re-generated</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

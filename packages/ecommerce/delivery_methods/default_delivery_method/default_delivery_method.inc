@@ -298,7 +298,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 	}//end _getAllowedLinks()
 
-	
+
 	/**
 	* Check if question type can be used for pass through variable
 	*
@@ -325,7 +325,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		}
 
 	}//end _isAllowedPassThroughQuestionType()
-	
+
 
 	/**
 	* Get the XML representation of this delivery method to store in the order_xml attribute of Ecommerce Order asset
@@ -336,15 +336,15 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	function getDeliveryMethodXML()
 	{
 		$xml_str = '';
-		
+
 		$form =& $this->getForm();
 		$questions = $form->getQuestions();
 		$answers = unserialize($_SESSION['order_extra_information']);
-		
+
 		foreach ($questions as $q_id => $question_data) {
 			$id_parts = explode(':', $q_id);
 			$answer = array_get_index($answers, $id_parts[1], '');
-			
+
 			$xml_str .= <<<HEREDOC
 
 			<question>
@@ -361,12 +361,12 @@ HEREDOC;
 		</questions>
 	</delivery_method>
 HEREDOC;
-		
+
 		return $xml_str;
-		
+
 	}//end getDeliveryMethodXML()
-	
-	
+
+
 	/**
 	* Get the Receipt
 	*
@@ -489,7 +489,7 @@ HEREDOC;
 		$interface = parent::getInputInterface();
 
 		$form =& $this->getForm();
-		
+
 		// Retrieve answers from the session
 		$answers = array_get_index($_SESSION, 'SQ_DELIVERY_'.$this->id.'_ANSWERS', Array());
 
@@ -534,9 +534,9 @@ HEREDOC;
 				$order_extra_info[$key] = $answers[$key]['value'];
 			}
 		}
-		
+
 		$_SESSION['order_extra_information'] =  serialize($order_extra_info);
-		
+
 		// Save delivery question answers in the session
 		$_SESSION['SQ_DELIVERY_'.$this->id.'_ANSWERS'] = $answers;
 
@@ -700,7 +700,7 @@ HEREDOC;
 		$this->state['transaction_id']  = $order->id;
 
 		$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_PROCESSING, 'Pending');
-		
+
 		if ($this->attr('send_emails')) {
 			$email_receipt_attr = $this->getAttribute('receipt_emails_format');
 			$email_recipient_attr = $this->getAttribute('recipient_emails_format');
@@ -725,7 +725,7 @@ HEREDOC;
 			// get order id keyword replacements
 			$keywords_to_replace[] = 'order_id';
 			$keywords_replacements[] =  $this->state['transaction_id'];
-			
+
 			// get transaction reference id keyword replacements
 			$keywords_to_replace[] = 'transaction_id';
 			$keywords_replacements[] =  $order->attr('transaction_id');
@@ -733,7 +733,7 @@ HEREDOC;
 			// get merchant transaction reference id keyword replacements
 			$keywords_to_replace[] = 'merchant_transaction_id';
 			$keywords_replacements[] =  $order->attr('ecom_ref_no');
-			
+
 			// get keyword replacements for order receipt
 			$keywords_to_replace[] = 'order_receipt';
 
@@ -883,7 +883,7 @@ HEREDOC;
 		$_SESSION['SQ_ECOM_CANCEL_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=return_to_checkout';
 		$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
 		$_SESSION['SQ_ECOM_PAYMENT_GATEWAY_ASSETID'] = $gateway_assetid;
-		
+
 		//Add the pass through variables to SESSION variables
 		$pass_through_vars = $this->_getPassThroughVars();
 		if (!empty($pass_through_vars)) {
@@ -894,13 +894,14 @@ HEREDOC;
 		$pending_order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['pending_order_id']);
 
 		$pending_order->setAttrValue('ecom_ref_no', $_SESSION['SQ_ECOM_REF_NO']);
-		$pending_order->appendAuditLog(translate('ecom_ref_num_recorded_before_processing'));
+		$pending_order->appendAuditLog(translate('Order reference number recorded before processing'));
+
 
 		header('Location: '.$gateway_asset_url);
 
 	}//end processPaymentGateway()
 
-	
+
 	/**
 	* Get the pass through variables under key - value pair array
 	*
@@ -914,13 +915,13 @@ HEREDOC;
 		if (empty($var_rules)) {
 			return $key_val_arr;
 		}
-		
+
 		//get Asset Manager
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		
+
 		//get the current answers entered by the user
 		$current_answers = unserialize($_SESSION['order_extra_information']);
-		
+
 		$form =& $this->getForm();
 		$questions = $form->getQuestions();
 		foreach ($questions as $q_id => $question_data) {
@@ -930,7 +931,7 @@ HEREDOC;
 				if (trim($key) == '') {
 					continue;
 				}
-				
+
 				$val = '';
 				$question = $am->getAsset($q_id);
 				if ($question instanceof Form_Question_Type_Country) {
@@ -950,15 +951,15 @@ HEREDOC;
 						$val = $current_answers[$key_parts[1]];
 					}
 				}
-				
+
 				$key_val_arr[$key] = $val;
 			}//end if
 		}//end for
-		
+
 		return $key_val_arr;
 
 	}//end _getPassThroughVars()
-	
+
 
 }//end class
 

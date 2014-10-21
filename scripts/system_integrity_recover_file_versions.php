@@ -16,7 +16,7 @@
 
 /**
 * Check and recover file version integrity of file and its descendant assets
-* 
+*
 * Notes: YOU SHOULD BACK UP YOUR SYSTEM BEFORE USING THIS SCRIPT
 *
 * @author  Anh Ta <ata@squiz.co.uk>
@@ -93,15 +93,15 @@ foreach ($assetids as $assetid => $asset_info) {
 	}
 	$rep_file = $asset->data_path_suffix.'/'.$file_name;
 	$real_file = $asset->data_path.'/'.$file_name;
-	
+
 	//get the current version info of the file stored in database
 	$db_info = $fv->_getFileInfoFromPath($rep_file);
-	
+
 	//if there is no current version in database, set it to 0 and fix it later
 	if (empty($db_info)) {
 		$db_info = Array('version' => 0);
 	}
-	
+
 	//get the version info stored in the FFV file (in .FFV folder in data/private/{data_path} folder)
 	$fs_info = _getFileInfoFromRealFile($fv, $real_file);
 
@@ -110,7 +110,7 @@ foreach ($assetids as $assetid => $asset_info) {
 		$fs_info = Array('version' => 0);
 	}
 
-	
+
 	//if the 2 previous versions are different, there is something wrong with this file asset => report and fix it (if required)
 	if ($db_info['version'] != $fs_info['version']) {
 
@@ -173,7 +173,7 @@ foreach ($assetids as $assetid => $asset_info) {
 		}
 	}
 }
-	
+
 
 if ($error_count > 0) {
 	echo "\nThere are $error_count errors detected in the file versioning system. $error_fixed are fixed!\n";
@@ -197,7 +197,7 @@ if ($error_count > 0) {
 function _getFileInfoFromRealFile($file_versioning, $real_file)
 {
 	$ffv_dir = dirname($real_file).'/.FFV';
-	
+
 	if (!is_dir($ffv_dir)) return FUDGE_FV_NOT_CHECKED_OUT;
 
 	$ffv_file = $ffv_dir.'/'.basename($real_file);
@@ -207,7 +207,7 @@ function _getFileInfoFromRealFile($file_versioning, $real_file)
 
 	$ffv = parse_ini_file($ffv_file);
 	if (!is_array($ffv)) {
-		trigger_localised_error('FVER0025', E_USER_WARNING);
+		trigger_localised_error('FVER0025', translate('File Versioning information corrupt'), E_USER_WARNING);
 		return FUDGE_FV_ERROR;
 	}
 
@@ -234,9 +234,9 @@ function _getNextVersion($fileid){
 	} catch (Exception $e) {
 		$version = 0;
 	}
-	
+
 	return $version;
-	
+
 }
 
 
@@ -258,16 +258,16 @@ function _updateVersionFile($file_versioning, $rep_path, $real_file, $file_info,
 		$real_file_size = filesize($real_file);
 		$real_file_md5 = md5_file($real_file);
 		$real_file_sha1 = sha1_file($real_file);
-		
+
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$rep_dir = $file_versioning->_dir.'/'.$rep_path;
 		if (!is_dir($rep_dir) && !create_directory($rep_dir)) {
 			echo "ERROR: CAN NOT CREATE FOLDER: $rep_dir\n";
 			return FALSE;
 		}//end if
-	
+
 		$rep_file = $rep_dir.'/'.basename($real_file).',ffv'.$version;
-		
+
 		if (!file_exists($rep_file)) {
 			//this version does not exist, copy it
 			if (!copy($real_file, $rep_file)) return FALSE;
@@ -281,9 +281,9 @@ function _updateVersionFile($file_versioning, $rep_path, $real_file, $file_info,
 				//if next version is greater than current version, use _updateFile() method of File_Versioning class
 				if ($next_version > $version) {
 					$nv = $file_versioning->_updateFile($fileid, $rep_path, $real_file);
-				
+
 					if ($nv == 0) return FALSE;
-					
+
 					$new_version = $nv;
 				} else {
 					//if next version from database is not greater than version, copy version file and update database manually
@@ -296,7 +296,7 @@ function _updateVersionFile($file_versioning, $rep_path, $real_file, $file_info,
 				}
 			}
 		}
-		
+
 		//if new_version still equals version, check if the current file is the one stored in db
 		if (($new_version == $version) && isset($file_info['file_size'])) {
 			if (($real_file_size != $file_info['file_size']) || ($real_file_md5 != $file_info['md5']) || ($real_file_sha1 != $file_info['sha1'])) {
@@ -305,7 +305,7 @@ function _updateVersionFile($file_versioning, $rep_path, $real_file, $file_info,
 		}
 		return TRUE;
 	}
-	
+
 	return FALSE;
 
 }//end _updateVersionFile()
@@ -334,19 +334,19 @@ function _updateFileVersionHistory($file_versioning, $fileid, $real_file, $versi
 			echo "ERROR: THIS FILE (FILEID = $fileid, VERSION = $version) IS NO LONGER USED SINCE {$db_version_info['to_date']}\n";
 			return FALSE;
 		}
-		
+
 		$now = time();
 		$date = ts_iso8601($now);
 		/*if (MatrixDAL::getDbType() == 'oci') {
 			$date = db_extras_todate(MatrixDAL::getDbType(), $date);
 		}*/
-	
+
 		$sql = 'UPDATE sq_file_vers_history
 				SET to_date = :to_date
 				WHERE fileid = :fileid
 				  AND to_date IS NULL';
-	
-	
+
+
 		try {
 			if (MatrixDAL::getDbType() == 'oci') {
 				$sql = str_replace(':to_date', db_extras_todate(MatrixDAL::getDbType(), ':to_date', FALSE), $sql);
@@ -358,7 +358,7 @@ function _updateFileVersionHistory($file_versioning, $fileid, $real_file, $versi
 		} catch (Exception $e) {
 			throw new Exception('Unable to update version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
 		}
-	
+
 		if (file_exists($real_file)) {
 			$file_size = filesize($real_file);
 			$md5       = md5_file($real_file);
@@ -370,12 +370,12 @@ function _updateFileVersionHistory($file_versioning, $fileid, $real_file, $versi
 			$sha1      = '';
 			$removal   = '1';
 		}
-	
+
 		$sql = 'INSERT INTO sq_file_vers_history
 				(fileid, version, from_date, to_date, file_size, md5, sha1, removal, extra_info)
 				VALUES
 				(:fileid, :version, :from_date, :to_date, :file_size, :md5, :sha1, :removal, :extra_info)';
-	
+
 		try {
 			if (MatrixDAL::getDbType() == 'oci') {
 				$sql = str_replace(':from_date', db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE), $sql);
@@ -394,7 +394,7 @@ function _updateFileVersionHistory($file_versioning, $fileid, $real_file, $versi
 		} catch (Exception $e) {
 			throw new Exception('Unable to insert version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 	} catch (Exception $e) {
@@ -430,15 +430,15 @@ function _insertFileVersFileInfo($file_versioning, $fileid, $rep_file) {
 		echo "ERROR: ".$e->getMessage()."\n";
 		return;
 	}
-	
+
 	//the record info already exists, return without doing anything
 	if ($fileid_count != 0) {
 		return;
 	}
-	
+
 	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
+
 	$sql = 'INSERT INTO sq_file_vers_file (fileid, path, filename)
 			VALUES (:fileid, :path, :filename)';
 
@@ -471,7 +471,7 @@ function print_usage() {
 	echo "\tRunning direction: test (default) - show which assets have their file version integrity broken | recover - fix the broken integrity showed by test option\n";
 	echo "\tTREE_ID: The asset id of the root of the asset tree. If not specified, all file assets in the system will be used.\n";
 	echo "\nNOTES: YOU SHOULD BACKUP YOUR SYSTEM BEFORE USING THE recover (in lowercase) OPTION OF THIS SCRIPT\n\n";
-	
+
 }//end print_usage()
 
 ?>

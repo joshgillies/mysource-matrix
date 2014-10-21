@@ -305,7 +305,8 @@ class Comment extends Page
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['comment_max_length'] = translate('news_comment_max_length');
+		$keywords['comment_max_length'] = translate('Number of allowed characters in comment body');
+
 		$keywords['comment_max_rating'] = 'Max Rating Value';
 		$keywords['comment_rating'] = 'Rating Assigned to the comment (possibly a decimal)';
 		$keywords['comment_rating_integer'] = 'Rating Assigned to the comment as integer';
@@ -402,14 +403,14 @@ class Comment extends Page
 				// nothing at the moment
 			break;
 		}
-		
+
 		$disable_keyword_conf = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS');
-		
-		if ($disable_keyword_conf) {			
-			require_once SQ_FUDGE_PATH.'/general/text.inc';			
+
+		if ($disable_keyword_conf) {
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = extract_keywords($value);
-			
-			foreach ($keywords as $keyword) {				
+
+			foreach ($keywords as $keyword) {
 				$value = str_replace('%'.$keyword.'%', $keyword, $value);
 			}
 		}//end if disable keyword replacements

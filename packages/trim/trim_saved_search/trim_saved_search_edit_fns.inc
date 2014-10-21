@@ -166,7 +166,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 
 
 
-		$o->sectionNote(translate('trim_ds_search_default_options_note'));
+		$o->sectionNote(translate('These options above set the default value for TRIM record searching. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)'));
+
 
 		return $write_access;
 
@@ -198,7 +199,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$map->paint($prefix.'_parameter_map', !$write_access);
 		$o->closeRaw();
 
-		$o->sectionNote(translate('trim_ds_search_default_options_note'));
+		$o->sectionNote(translate('These options above set the default value for TRIM record searching. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)'));
+
 
 		return $write_access;
 
@@ -661,7 +663,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$global_logic = isset($var_list['search_clauses']['global_logic']) ? $var_list['search_clauses']['global_logic'] : 'AND';
 
 		//get possible search fields
-		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('trim_ds_search_add_search_field').' --'));
+		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('Add search field').' --'));
+
 		$list = $asset->getRetrievedFields('additional');
 		$available_fields += TRIM_Common::getRecordStringSearchClauseType() + $list;
 
@@ -675,25 +678,33 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		?>
 		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px; ">
 			<tr>
-				<th rowspan="2"><?php echo translate('trim_ds_search_groups'); ?></th>
-				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('trim_ds_search_search_fields'); ?></th>
-				<th rowspan="2"><?php echo translate('trim_ds_search_logic_group'); ?></th>
+				<th rowspan="2"><?php echo translate('Groups'); ?></th>
+
+				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('Search Fields'); ?></th>
+
+				<th rowspan="2"><?php echo translate('Group Logic'); ?></th>
+
 				<?php
 				if ($write_access) {
 					?>
-					<th rowspan="2"><?php echo translate('delete'); ?></th>
+					<th rowspan="2"><?php echo translate('Delete'); ?></th>
+
 					<?php
 				}
 				?>
-				<th rowspan="2"><?php echo translate('trim_ds_search_logic_global'); ?></th>
+				<th rowspan="2"><?php echo translate('Global Logic'); ?></th>
+
 			</tr>
 			<tr>
-				<th><?php echo translate('name');?></th>
-				<th><?php echo translate('keyword');?> </th>
+				<th><?php echo translate('Name');?></th>
+
+				<th><?php echo translate('Keyword');?> </th>
+
 				<?php
 				if ($write_access) {
 					?>
-					<th><?php echo translate('delete'); ?></th>
+					<th><?php echo translate('Delete'); ?></th>
+
 					<?php
 				}
 				?>
@@ -755,9 +766,12 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 							?>
 							<td rowspan="<?php echo count($group_data['content']);?>" style="vertical-align:middle; text-align:center;">
 								<?php
-								$group_logic_options = Array('AND' => translate('trim_ds_search_logic_and'), 'OR' => translate('trim_ds_search_logic_or'));
+								$group_logic_options = Array('AND' => translate('AND'), 'OR' => translate('OR'));
+
+
 								if ($write_access) {
-									combo_box($prefix.'_fields['.$group_index.'][group_logic]', $group_logic_options, FALSE, array_get_index($group_data, 'group_logic', 'AND'), 0, 'title="'.translate('trim_ds_search_group_logic_note').'"');
+									combo_box($prefix.'_fields['.$group_index.'][group_logic]', $group_logic_options, FALSE, array_get_index($group_data, 'group_logic', 'AND'), 0, 'title="'.translate('Use this logic operator to connect search fields').'"');
+
 								} else {
 									echo array_get_index($group_data, 'group_logic', 'AND');
 								}
@@ -782,9 +796,12 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 							?>
 							<td rowspan="<?php echo $total_rows; ?>" style="vertical-align:middle; text-align:center;">
 								<?php
-								$global_logic_options = Array('AND' => translate('trim_ds_search_logic_and'), 'OR' => translate('trim_ds_search_logic_or'));
+								$global_logic_options = Array('AND' => translate('AND'), 'OR' => translate('OR'));
+
+
 								if ($write_access) {
-									combo_box($prefix.'_fields[global_logic]', $global_logic_options, FALSE, $global_logic, 0, 'title="'.translate('trim_ds_search_global_logic_note').'"');
+									combo_box($prefix.'_fields[global_logic]', $global_logic_options, FALSE, $global_logic, 0, 'title="'.translate('Use this logic operator to connect search groups').'"');
+
 								} else {
 									echo $global_logic;
 								}
@@ -805,7 +822,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		</table>
 		<?php
 		if ($write_access) {
-			echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_add_search_field_group').'</div>');
+			echo ('<div class="sq-backend-smallprint">'.translate('Add search field in a new group').'</div>');
+
 			$count = count($search_groups);
 			combo_box($prefix.'_fields['.$count.'][new_search_group]', $available_fields, FALSE,'none');
 		}
@@ -921,7 +939,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$result_fields = isset($var_list['result_fields']) ? $var_list['result_fields'] : Array();
 
 		//get possible search fields
-		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('trim_ds_search_add_result_field').' --'));
+		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('Add result field').' --'));
+
 		$list = $asset->getRetrievedFields('all');
 		$available_fields += !empty($list) ? $list : TRIM_Common::getRecordProperties();
 
@@ -930,13 +949,17 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px; ">
 
 			<tr>
-				<th><?php echo translate('name');?></th>
-				<th><?php echo translate('type');?> </th>
-				<th><?php echo translate('field_category');?> </th>
+				<th><?php echo translate('Name');?></th>
+
+				<th><?php echo translate('Type');?> </th>
+
+				<th><?php echo translate('Category');?> </th>
+
 				<?php
 				if ($write_access) {
 					?>
-					<th><?php echo translate('delete'); ?></th>
+					<th><?php echo translate('Delete'); ?></th>
+
 					<?php
 				}
 				?>
@@ -958,7 +981,9 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 						</td>
 						<td>
 							<?php
-								echo(preg_match('/^udf:/', $name) ? translate('field_additional') : translate('field_standard'));
+								echo(preg_match('/^udf:/', $name) ? translate('Additional Field') : translate('Standard Field'));
+
+
 							?>
 						</td>
 						<?php
@@ -980,7 +1005,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		</table>
 		<?php
 		if ($write_access) {
-			echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_result_field_note').'</div>');
+			echo ('<div class="sq-backend-smallprint">'.translate('Tell TRIM server which infomation to be returned').'</div>');
+
 			combo_box($prefix.'_result_fields[new]', $available_fields, FALSE,'none');
 		}
 
@@ -1045,7 +1071,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$retrieved = $asset->attr('retrieved_fields');
-		$available_record_types = Array('none'	=>	'-- '.ucfirst(translate('trim_ds_search_add_record_type').' --'));
+		$available_record_types = Array('none'	=>	'-- '.ucfirst(translate('Add record type').' --'));
+
 		$available_record_types += isset($retrieved['record_types']) ? $retrieved['record_types'] : Array();
 
 		$var_list = $asset->attr('dynamic_vars');
@@ -1056,11 +1083,13 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px; width:300px;">
 
 			<tr>
-				<th><?php echo translate('name');?></th>
+				<th><?php echo translate('Name');?></th>
+
 				<?php
 				if ($write_access) {
 					?>
-					<th><?php echo translate('delete'); ?></th>
+					<th><?php echo translate('Delete'); ?></th>
+
 					<?php
 				}
 				?>
@@ -1094,10 +1123,12 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		</table>
 		<?php
 		if ($write_access) {
-			echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_record_type_filter_note').'</div>');
+			echo ('<div class="sq-backend-smallprint">'.translate('Only include above record types.').'</div>');
+
 			combo_box($prefix.'_record_type_filter[new]', $available_record_types, FALSE,'none');
 			if(count($available_record_types) ==1 ) {
-				echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_record_type_filter_no_record_type').'</div>');
+				echo ('<div class="sq-backend-smallprint">'.translate('No record types found, please retrieve from TRIM server.').'</div>');
+
 			}
 		}
 
@@ -1145,8 +1176,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		return ($asset->setAttrValue('dynamic_vars', $var_list));
 
 	}//end processResultFields()
-	
-	
+
+
 	/**
 	* Paints the interface for setting up the download file name
 	*
@@ -1161,23 +1192,23 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_value = $asset->attr('filename_field');
-		
-		$var_list = $asset->attr('dynamic_vars');		
+
+		$var_list = $asset->attr('dynamic_vars');
 		$result_fields = isset($var_list['result_fields']) ? $var_list['result_fields'] : Array();
 		// Append an empty option
 		array_unshift($result_fields, '');
-		
+
 		if ($write_access) {
 			combo_box($prefix.'_filename_field', $result_fields, FALSE, $current_value);
 		} else {
-			echo array_get_index($result_fields, $current_value, ''); 
+			echo array_get_index($result_fields, $current_value, '');
 		}
 
 		return TRUE;
 
 	}//end paintDownloadedFileName()
-	
-	
+
+
 	/**
 	* Process the interface for setting up the download file name
 	*
@@ -1193,17 +1224,17 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		if (!$asset->writeAccess('attributes')) {
 			return FALSE;
 		}
-		
-		$new_value = isset($_POST[$prefix.'_filename_field']) ? $_POST[$prefix.'_filename_field'] : FALSE;		
+
+		$new_value = isset($_POST[$prefix.'_filename_field']) ? $_POST[$prefix.'_filename_field'] : FALSE;
 		if ($new_value === FALSE) {
 			return FALSE;
 		}
-		
-		$current_value = $asset->attr('filename_field');		
+
+		$current_value = $asset->attr('filename_field');
 		if ($current_value == $new_value) {
 			return TRUE;
-		}		
-		
+		}
+
 		return $asset->setAttrValue('filename_field', $new_value);
 
 	}//end processDownloadedFileName()

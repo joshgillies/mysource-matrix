@@ -18,17 +18,55 @@
 <contents>
 	<section name="Time Periods" limbo_access="1">
 		<field attribute="submission_warning_time">
+			<display_name>Send Reminder Email After</display_name>
+			<note>A reminder email will be triggered when an incomplete submission has existed for longer than this time period. Set to zero (0) to disable. <![CDATA[If this period is shorter than the <em>Expire Submissions After</em> setting, then no reminder emails will be sent.]]></note>
 			<duration biggest_units="days" smallest_units="minutes" />
 		</field>
 		<field attribute="submission_expiry_time">
+			<display_name>Expire Submissions After</display_name>
+			<note>Incomplete submissions will be deleted when they have existed in the system beyond the set time period. Set to zero (0) to disable.</note>
 			<duration biggest_units="days" smallest_units="minutes" />
 		</field>
 	</section>
 	<section name="Reminder Email" limbo_access="1">
+	    <note>For the settings on this page to take effect, the Scheduled Jobs Manager must be properly set up by a system administrator. Forms will be inspected by the <em>Manage Incomplete Submissions Scheduled Job</em> on each run of the Scheduled Jobs Manager.</note>
 		<field attribute="warning_email_format">
+			<display_name>Logged User Email Format</display_name>
+			<note><![CDATA[<p>This email will be sent when an incomplete submission (created by a <strong>Logged User</strong>) has been in the system for longer than the <em>Send Reminder Email After</em> period. If the User that created the submission has an email address set, this email will be sent to them. You can also specify additional recipients of the email by entering valid email addresses into the <em>To:</em> field, or selecting User or User Group assets with the Asset Finder.</p>
+			<p>The following keywords are available:</p>
+			<ul>
+			<li><strong>%form_total_pages%</strong> - The total number of pages in the form.</li>
+			<li><strong>%return_to_form_url_current%</strong> - The URL that will return the user to the form, on the <em>Current Page</em>.</li>
+			<li><strong>%return_to_form_url_latest%</strong> - The URL that will return the user to the form, on the <em>Latest Page</em>.</li>
+			</ul>
+			<p>In addition, the following keyword wildcards are available (where "*" is any valid keyword for the appropriate asset):</p>
+			<ul>
+			<li><strong>%user_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the user that owns the incomplete submission.</li>
+			<li><strong>%form_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the form's parent page.</li>
+			<li><strong>%submission_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the incomplete submission.</li>
+			</ul>
+			<p>Of the submission asset keywords, the most important are probably the submission's asset ID (<strong>%submission_asset_assetid%</strong>) and the current and latest pages (<strong>%submission_asset_attribute_current_page%</strong>, <strong>%submission_asset_attribute_latest_page%</strong>).</p>
+			]]></note>
 			<email_format with_asset_finder="1" />
 		</field>
 		<field attribute="warning_email_format_public">
+			<display_name>Public User Email Format</display_name>
+			<note><![CDATA[<p>This email will be sent when an incomplete submission (created by a <strong>Public User</strong>) has been in the system for longer than the <em>Send Reminder Email After</em> period. Since the Public User account does not has any email address set, the email will be sent to the email address saved in the submission itself, as configured in the "Public User Incomplete Submission" section in the "Form Contents" screen. You can also specify additional recipients of the email by entering valid email addresses into the <em>To:</em> field, or selecting User or User Group assets with the Asset Finder.</p>
+			<p>The following keywords are available:</p>
+			<ul>
+			<li><strong>%form_submission_password%</strong> - Password required to access the submission saved by the <em>Public User</em>.</li>
+			<li><strong>%form_total_pages%</strong> - The total number of pages in the form.</li>
+			<li><strong>%return_to_form_url_current%</strong> - The URL that will return the user to the form, on the <em>Current Page</em>.</li>
+			<li><strong>%return_to_form_url_latest%</strong> - The URL that will return the user to the form, on the <em>Latest Page</em>.</li>
+			</ul>
+			<p>In addition, the following keyword wildcards are available (where "*" is any valid keyword for the appropriate asset):</p>
+			<ul>
+			<li><strong>%user_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the user that owns the incomplete submission.</li>
+			<li><strong>%form_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the form's parent page.</li>
+			<li><strong>%submission_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the incomplete submission.</li>
+			</ul>
+			<p>Of the submission asset keywords, the most important are probably the submission's asset ID (<strong>%submission_asset_assetid%</strong>) and the current and latest pages (<strong>%submission_asset_attribute_current_page%</strong>, <strong>%submission_asset_attribute_latest_page%</strong>).</p>
+			]]></note>
 			<email_format with_asset_finder="1" />
 		</field>
 	</section>

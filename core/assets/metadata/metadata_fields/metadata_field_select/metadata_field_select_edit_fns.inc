@@ -87,7 +87,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 		// If we're OK to edit, get our selection attribute, and paint it
 		if ($write_access) {
-			
+
 			echo '<span class="sq-metadata-settings-wrapper">';
 				if ($enable_default) {
 					echo '<span class="sq-metadata-default-wrapper">';
@@ -108,7 +108,8 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 						$default_vals_expr = '['.implode(', ', $default_vals).']';
 						$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
 						check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
-						label(translate('use_default'), $prefix.'_default');
+						label(translate('Use default'), $prefix.'_default');
+
 						$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
 					echo '</span>';
 				}
@@ -116,7 +117,8 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($write_access && $print_cascade_values_option) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
-						label(translate('cascade_value'), $prefix.'_cascade_value');
+						label(translate('Cascade value'), $prefix.'_cascade_value');
+
 					echo '</span>';
 				}
 			echo '</span>';
@@ -151,10 +153,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			} else {
 				echo '<span class="sq-metadata-settings-wrapper">';
 					if ($is_default) {
-						echo ' <em>('.translate('using_default_value').')</em>';
+						echo ' <em>('.translate('Using default value').')</em>';
+
 					} else{
 
-					}	
+					}
 				echo '</span>';
 			}
 		}
@@ -239,11 +242,14 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('option_key'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('option_value'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Option Key'); ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('Option Value'); ?></td>
+
 					<?php
 					if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
-						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td><?php
+
 					}
 					?>
 				</tr>
@@ -297,22 +303,27 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			<?php
 
 		} else {
-			echo translate('no_select_box_options');
+			echo translate('There are currently no select box options');
+
 		}//end if empty
 
 		// now adding two fields for new entry (key => value)
 		if (($write_access === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
-			$o->openField(translate('new_option'));
-				echo '<b>'.translate('key').'</b> ';
+			$o->openField(translate('New Option'));
+
+				echo '<b>'.translate('Key').'</b> ';
+
 				text_box($prefix.'_new_key','');
-				echo ' <b>'.translate('value').'</b> ';
+				echo ' <b>'.translate('Value').'</b> ';
+
 				text_box($prefix.'_new_val','');
 			$o->closeField();
 		}
 
 		if (!empty($select_options)) {
 			// displaying default value if any values were actually saved in the array
-			$o->openField(translate('default_value'));
+			$o->openField(translate('Default Value'));
+
 				$selection = $asset->getSelectionAttribute();
 				$selection->paint($prefix.'_default', !$write_access);
 			$o->closeField();
@@ -364,11 +375,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				$new_select_val  = trim($_POST[$prefix.'_new_val']);
 
 				if (strpos($new_select_key, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', E_USER_WARNING);
+					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
 					$new_select_key = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_select_key);
 				}
 				if (strpos($new_select_val, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', E_USER_WARNING);
+					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
 					$new_select_val = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_select_val);
 				}
 

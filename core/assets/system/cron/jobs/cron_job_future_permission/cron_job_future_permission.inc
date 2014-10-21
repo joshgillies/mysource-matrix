@@ -60,14 +60,14 @@ class Cron_Job_Future_Permission extends Cron_Job
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				trigger_localised_error('CRON0059', E_USER_WARNING);
+				trigger_localised_error('CRON0059', translate('Unable to create future permission cron job, unable to acquire "links" lock'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			$link = $this->_tmp['asset_in_link'];
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
-				trigger_localised_error('CRON0060', E_USER_WARNING);
+				trigger_localised_error('CRON0060', translate('Unable to create future permission cron job, Unable to set asset in link'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -92,11 +92,16 @@ class Cron_Job_Future_Permission extends Cron_Job
 	{
 		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
-			return translate('cron_job_asset_less_future_permission');
+			return translate('Asset-less Future Permission Scheduled Job');
+
 		} else if ($short_name) {
-			return translate('cron_fp_for', translate('asset_format', $asset->short_name, $asset->id));
+			return sprintf(translate('FP for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->short_name, $asset->id));
+
+
 		} else {
-			return translate('cron_future_permission_for', translate('asset_format', $asset->name, $asset->id));
+			return sprintf(translate('Future Permission for %s'), sprintf(translate('"%1$s" [#%2$s]'), $asset->name, $asset->id));
+
+
 		}
 
 	}//end _getName()
@@ -161,13 +166,13 @@ class Cron_Job_Future_Permission extends Cron_Job
 			case 'permission' :
 				$value = (int) $value;
 				if (!in_array($value, $this->_getAllPermissions())) {
-					trigger_localised_error('CRON0061', E_USER_NOTICE);
+					trigger_localised_error('CRON0061', translate('Unable to set the permission, it is not valid'), E_USER_NOTICE);
 					return FALSE;
 				}
 			break;
 
 			case 'type' :
-				trigger_localised_error('CRON0062', E_USER_NOTICE);
+				trigger_localised_error('CRON0062', translate('Unable to set the type of a future permission cron job; it can only be a one off event'), E_USER_NOTICE);
 				return FALSE;
 			break;
 		}//end if
@@ -188,7 +193,7 @@ class Cron_Job_Future_Permission extends Cron_Job
 	protected static function _getAllPermissions()
 	{
 		return Array('read' => SQ_PERMISSION_READ, 'write' => SQ_PERMISSION_WRITE, 'admin' => SQ_PERMISSION_ADMIN);
-		
+
 	}//end _getAllPermissions()
 
 
@@ -227,7 +232,7 @@ class Cron_Job_Future_Permission extends Cron_Job
 	{
 		$descs = self::getAllPermissionDescs();
 		return $descs[$this->attr('permission')];
-		
+
 	}//end permissionName()
 
 
@@ -235,7 +240,7 @@ class Cron_Job_Future_Permission extends Cron_Job
 	* Return the list of userids that will be granted permissions
 	*
 	* @param boolean	$grant	TRUE to get grant list, FALSE to get deny list
-	* 
+	*
 	* @return array
 	* @access public
 	*/
@@ -249,23 +254,25 @@ class Cron_Job_Future_Permission extends Cron_Job
 				$userids[] = $userid;
 			}
 		}
-		
+
 		return $userids;
-		
+
 	}//end getGrantedUsers()
-	
+
 	/**
 	 * Return the name of the action of the cron job. It is either 'Add' or 'Remove'.
-	 * 
+	 *
 	 * @return string
 	 * @access public
 	 */
 	public function actionName()
 	{
-		return ($this->attr('add')? translate('add') : translate('remove'));
-		
+		return ($this->attr('Add')? translate('Add') : translate('Remove'));
+
+
+
 	}//end actionName()
-	
+
 	/**
 	* Sets the asset that this cron job will be altering the permission on
 	*
@@ -373,12 +380,12 @@ class Cron_Job_Future_Permission extends Cron_Job
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed
-				trigger_localised_error('CRON0063', E_USER_WARNING, $asset->name, $asset->id);
+				trigger_localised_error('CRON0063', sprintf(translate('Failed changing Permission of "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING);
 			}
 
 		} else {
 			// asset not found
-			trigger_localised_error('CRON0064', E_USER_WARNING);
+			trigger_localised_error('CRON0064', translate('Unable to find asset to update the permission of'), E_USER_WARNING);
 		}
 
 		// we can be removed because the error is beyound our control
@@ -404,16 +411,16 @@ class Cron_Job_Future_Permission extends Cron_Job
 		foreach ($links as $link) {
 			$assetids[] = $link['majorid'];
 		}
-		
+
 		sort($assetids);
-		
+
 		$fp_jobs = Array();
 		foreach ($assetids as $assetid) {
 			$fp_jobs[] = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, 'cron_job_future_permission');
 		}
-		
+
 		return $fp_jobs;
-		
+
 	}//end getActiveJobs()
 
 

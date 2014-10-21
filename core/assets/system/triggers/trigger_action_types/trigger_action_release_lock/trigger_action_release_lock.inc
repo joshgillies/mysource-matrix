@@ -110,11 +110,13 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 			echo '<ul style="margin: 0; list-style: none">';
 				echo '<li>';
 					echo radio_button($prefix.'[release_type]', 'on_asset', ($lock_type == 'on_asset'), '', $form_element_extras);
-					label(translate('trigger_action_release_lock_on_asset'), $prefix.'[release_type]_on_asset');
+					label(translate('Release all currently held locks on the asset that the action is executing on'), $prefix.'[release_type]_on_asset');
+
 				echo '</li>';
 				echo '<li>';
 					echo radio_button($prefix.'[release_type]', 'held', ($lock_type == 'held'), '', $form_element_extras);
-					label(translate('trigger_action_release_lock_held'), $prefix.'[release_type]_held');
+					label(translate('Release all locks the asset that fired the trigger holds <em>(only works when fired on user assets)</em>'), $prefix.'[release_type]_held');
+
 				echo '</li>';
 			echo '</ul>';
 		$interface = ob_get_clean();

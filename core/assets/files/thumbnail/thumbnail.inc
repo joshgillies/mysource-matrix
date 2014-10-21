@@ -69,7 +69,7 @@ class Thumbnail extends Image
 	{
 		$size = @getimagesize($info['filename']);
 		if (!empty($size) && ($size[0] > $this->max_width || $size[1] > $this->max_height)) {
-			trigger_localised_error('CORE0108', E_USER_WARNING, $this->max_width, $this->max_height);
+			trigger_localised_error('CORE0108', sprintf(translate('Uploaded file is too large. Thumbnails must be no more than %1$s x %2$s pixels'), $this->max_width, $this->max_height), E_USER_WARNING);
 			return FALSE;
 		}
 

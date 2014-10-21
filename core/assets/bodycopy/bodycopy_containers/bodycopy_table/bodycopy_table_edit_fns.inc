@@ -466,7 +466,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (empty($dir_attribute) && isset($this->_tmp['dir_attr'])) {
 			$dir_attribute = $this->_tmp['dir_attr'];
 		}
-		
+
 		?>
 		<table class="sq-bodycopy-container-edit-table-table">
 		<tbody>
@@ -499,11 +499,17 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				$status_name = get_status_description($asset->status);
 				$status_img = get_asset_status_icon($asset->status);
 				$desc = '<table class="sq-toolbox-properties-table">';
-				$desc .= '<tr><td>'.translate('content_type_tooltip_status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
-				$desc .= '<tr><td>'.translate('content_type_tooltip_public').'</td><td>'.($public_read ? translate('yes') : translate('no')).'</td><tr>';
-				$desc .= '<tr><td>'.(($popup_attribute_list) ? translate('current_properties').'</td><td>'.$popup_attribute_list : '').'</td><tr>';
+				$desc .= '<tr><td>'.translate('Status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
+
+				$desc .= '<tr><td>'.translate('Public').'</td><td>'.($public_read ? translate('Yes') : translate('No')).'</td><tr>';
+
+
+
+				$desc .= '<tr><td>'.(($popup_attribute_list) ? translate('Current Properties').'</td><td>'.$popup_attribute_list : '').'</td><tr>';
+
 				$desc .= '</table>';
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_table_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', translate('edit_properties', $asset->attr('name')), $desc, 'table_properties', '', 'class="sq-icon"');
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_table_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', sprintf(translate('Edit %s\'s Properties'), $asset->attr('name')), $desc, 'table_properties', '', 'class="sq-icon"');
+
 
 			} else {
 				echo '&nbsp;';
@@ -524,22 +530,30 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		if ($i==0) {
 			if (($x+$i) == 0 && $multiCol && $colReorder) {
-				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_col_order('$prefix', $asset->id);", translate('reoder_columns_question', $asset->attr('name')), '', 'reorder', '['.translate('reorder_columns').']');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_col_order('$prefix', $asset->id);", sprintf(translate('Reorder %s\'s Columns?'), $asset->attr('name')), '', 'reorder', '['.translate('Reorder Columns').']');
+
+
 
 			}
 
 			// if there's more than one row, and we're on the first row, let the col be deleted.
 			if ($multiCol) {
-				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_col('$prefix', $asset->id, $x);", translate('delete_column_question', ($x + 1)), '', 'delete', '['.translate('delete_column').']');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_col('$prefix', $asset->id, $x);", sprintf(translate('Delete Column %s?'), ($x + 1)), '', 'delete', '['.translate('Delete Column').']');
+
+
 			}
 
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", translate('insert_new_column_on_right'), '', 'add', '['.translate('add_column').' >>]');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", translate('Insert New Column on Right'), '', 'add', '['.translate('Add Column').' >>]');
+
+
 		}
 
 		?> </span> <?php
 
 		if ($i==0) {
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", translate('insert_new_column_on_left'), '', 'add', '[<< '.translate('add_column').']');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", translate('Insert New Column on Left'), '', 'add', '[<< '.translate('Add Column').']');
+
+
 		}
 		$cell->setDirAttr($dir_attribute);
 		$cell->paintCell($asset, $prefix, $asset->id, $i, $x);
@@ -554,19 +568,30 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			<td id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>"  nowrap="nowrap">
 			<?php
 			if ($i == 0 && $multiRow) {
-				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_order('$prefix', $asset->id);", translate('reorder_rows_question', $asset->attr('name')), '', 'reorder', '['.translate('reorder_rows').']', ' class="sq-icon-vertical"');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_order('$prefix', $asset->id);", sprintf(translate('Reorder %s\'s Rows?'), $asset->attr('name')), '', 'reorder', '['.translate('Reorder Rows').']', ' class="sq-icon-vertical"');
+
+
 				echo '<br/>';
 			}
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", translate('insert_new_row_above'), '', 'add', '[^ '.translate('add_row').']', ' class="sq-icon-vertical"');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", translate('Insert a New Row Above'), '', 'add', '[^ '.translate('Add Row').']', ' class="sq-icon-vertical"');
+
+
 
 			echo '<br/>';
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", translate('edit_row_question', ($i + 1)), (($attribute_list) ? translate('current_properties').':<br>'.$attribute_list : ''), 'row_properties', '['.translate('edit_row').']', ' class="sq-icon-vertical"');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", sprintf(translate('Edit row %s Properties'), ($i + 1)), (($attribute_list) ? translate('Current Properties').':<br>'.$attribute_list : ''), 'row_properties', '['.translate('Edit Row Properties').']', ' class="sq-icon-vertical"');
+
+
+
 			if ($multiRow) {
 				echo '<br/>';
-				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_row('$prefix', $asset->id, $i);", translate('delete_row_question', ($i + 1)), '', 'delete', '['.translate('delete_row').']', ' class="sq-icon-vertical"');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_row('$prefix', $asset->id, $i);", sprintf(translate('Delete row %s?'), ($i + 1)), '', 'delete', '['.translate('Delete Row').']', ' class="sq-icon-vertical"');
+
+
 			}
 			echo '<br/>';
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", translate('insert_new_row_below'), '', 'add', '[v '.translate('add_row').']', ' class="sq-icon-vertical"');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", translate('Insert a New Row Below'), '', 'add', '[v '.translate('Add Row').']', ' class="sq-icon-vertical"');
+
+
 			?>
 		</td>
 		<?php

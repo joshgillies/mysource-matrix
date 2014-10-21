@@ -18,6 +18,8 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
         <field>
+			<display_name>When</display_name>
+            <note />
 			<function_call>
 				<paint_function		name="paintScheduleInterface" />
 				<process_function	name="processScheduleInterface" />

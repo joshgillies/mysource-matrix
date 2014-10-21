@@ -80,7 +80,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<!-- start -->
 		<table class="sq-calendar-date-table start">
 			<tr>
-				<td class="sq-backend-data" style="white-space: nowrap">&nbsp;<?php echo translate('cal_event_occurs_on') ?>&nbsp;
+				<td class="sq-backend-data" style="white-space: nowrap">&nbsp;<?php echo translate('Occurs on') ?>&nbsp;
+
 					<?php $this->printDateChooser($prefix.'_start', (isset($_REQUEST['SQ_CALENDAR_DATE']) && !$asset->id) ? strtotime($_REQUEST['SQ_CALENDAR_DATE']) : ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0), $attributes+Array('onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processStartDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')); ?>
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
@@ -98,18 +99,23 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				</td>
 				<!-- duration -->
 				<td class="sq-backend-data" style="white-space: nowrap">
-					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> <?php echo strtolower(translate('for')); ?>
+					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> <?php echo strtolower(translate('For')); ?>
+
 				</td>
 				<td colspan="2" class="sq-backend-data" style="white-space: nowrap">
 					<?php text_box($prefix.'_duration', $duration, 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValuesByPrefix(\''.$prefix.'\')" '.$end_disabled_code);
 					combo_box($prefix.'_duration_units', Array('i' => translate('minutes'), 'h' => translate('hours'), 'd' => translate('days')), FALSE, $duration_units, 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValuesByPrefix(\''.$prefix.'\')" '.$end_disabled_code); ?>
+
+
+
 				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 				<!-- end date -->
 				<td class="sq-backend-data" style="white-space: nowrap">
-					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  /> <?php echo strtolower(translate('until')); ?> &nbsp;
+					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  /> <?php echo strtolower(translate('Until')); ?> &nbsp;
+
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
 					<?php $this->printDateChooser($prefix.'_end', $occurrence_end_ts ? $occurrence_end_ts : ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : FALSE), $attributes+Array('onclick'=>'checkBox(\''.$prefix.'_end_date_enabled\');', 'onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processEndDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')+$end_disabled_array); ?>
@@ -151,29 +157,29 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			}
 			$_REQUEST[$prefix.$component.'_hours'] = (int)$_REQUEST[$prefix.$component.'_hours'];
 			if (($_REQUEST[$prefix.$component.'_hours'] < 0) || ($_REQUEST[$prefix.$component.'_hours'] > 23)) {
-				trigger_localised_error('CAL0001', E_USER_WARNING, $_REQUEST[$prefix.$component.'_hours']);
+				trigger_localised_error('CAL0001', sprintf(translate('You entered an invalid hour: %s'), $_REQUEST[$prefix.$component.'_hours']), E_USER_WARNING);
 				return FALSE;
 			}
 			$_REQUEST[$prefix.$component.'_minutes'] = (int)$_REQUEST[$prefix.$component.'_minutes'];
 			if (($_REQUEST[$prefix.$component.'_minutes'] < 0) || ($_REQUEST[$prefix.$component.'_minutes'] > 59)) {
-				trigger_localised_error('CAL0002', E_USER_WARNING, $_REQUEST[$prefix.$component.'_minutes']);
+				trigger_localised_error('CAL0002', sprintf(translate('You entered an invalid minute: %s'), $_REQUEST[$prefix.$component.'_minutes']), E_USER_WARNING);
 				return FALSE;
 			}
 		}
 		if (isset($_REQUEST[$prefix.$component.'_year'])) {
 			$_REQUEST[$prefix.$component.'_year'] = (int)$_REQUEST[$prefix.$component.'_year'];
 			if (($_REQUEST[$prefix.$component.'_year'] < 1900) || ($_REQUEST[$prefix.$component.'_year'] > 2100)) {
-				trigger_localised_error('CAL0003', E_USER_WARNING, $_REQUEST[$prefix.$component.'_year']);
+				trigger_localised_error('CAL0003', sprintf(translate('You entered an invalid year value: %s'), $_REQUEST[$prefix.$component.'_year']), E_USER_WARNING);
 				return FALSE;
 			}
 			$_REQUEST[$prefix.$component.'_month'] = (int)$_REQUEST[$prefix.$component.'_month'];
 			if (($_REQUEST[$prefix.$component.'_month'] < 1) || ($_REQUEST[$prefix.$component.'_month'] > 12)) {
-				trigger_localised_error('CAL0004', E_USER_WARNING, $_REQUEST[$prefix.$component.'_month']);
+				trigger_localised_error('CAL0004', sprintf(translate('You entered an invalid month value: %s'), $_REQUEST[$prefix.$component.'_month']), E_USER_WARNING);
 				return FALSE;
 			}
 			$_REQUEST[$prefix.$component.'_day'] = (int)$_REQUEST[$prefix.$component.'_day'];
 			if (($_REQUEST[$prefix.$component.'_day'] < 1) || ($_REQUEST[$prefix.$component.'_day'] > 31)) {
-				trigger_localised_error('CAL0005', E_USER_WARNING, $_REQUEST[$prefix.$component.'_day']);
+				trigger_localised_error('CAL0005', sprintf(translate('You entered an invalid day value: %s'), $_REQUEST[$prefix.$component.'_day']), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -238,12 +244,12 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		// the end is more complex...
 		if (isset($_REQUEST[$prefix.'_end_enabled'])) {
 			if (!isset($_REQUEST[$prefix.'_end_type'])) {
-				trigger_localised_error('CAL0006', E_USER_WARNING);
+				trigger_localised_error('CAL0006', translate('End type not specified'), E_USER_WARNING);
 				return FALSE;
 			}
 			if ($_REQUEST[$prefix.'_end_type'] == 'duration') {
 				if (!isset($_REQUEST[$prefix.'_duration'])) {
-					trigger_localised_error('CAL0007', E_USER_WARNING);
+					trigger_localised_error('CAL0007', translate('Duration value not specified'), E_USER_WARNING);
 					return FALSE;
 				}
 				$start_ts = iso8601_ts($start_date_value);

@@ -19,24 +19,32 @@
 		<field>
 			<function_call>
 				<paint_function name="paintCacheableHeadersSettings" />
-			</function_call>		
+			</function_call>
 		</field>
 		<field attribute="cacheale_header_protocol">
+			<display_name>Protocol(s)</display_name>
+			<note />
 			<selection style="list" />
 		</field>
 		<field attribute="cache_control_http">
+			<display_name>HTTP Cache Control Level</display_name>
+			<note />
 			<selection style="list" />
 		</field>
 		<field attribute="cache_control_https">
+			<display_name>HTTPS Cache Control Level</display_name>
+			<note />
 			<selection style="list" />
 		</field>
 	</section>
 	<section name="Root URLs to Send Cacheable Headers" read_access="write:" write_access="write:attributes">
 		<field>
+			<display_name>Root URLs to Send Cacheable Headers</display_name>
+			<note>Choose the system root URLs for which cacheable header should be sent.</note>
 			<function_call>
 				<paint_function name="paintCacheableHeadersRootURLs" />
 				<process_function name="processCacheableHeadersRootURLs" />
             </function_call>
 		</field>
-	</section>	
+	</section>
 </contents>

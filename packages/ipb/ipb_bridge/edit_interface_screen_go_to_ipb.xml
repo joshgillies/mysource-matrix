@@ -18,6 +18,8 @@
 <contents>
 	<section name="Go To IPB" write_access="root:noEditAllowed" limbo_access="1">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function   name="paintGoToIpb"   />
 				<process_function name="processGoToIpb" />

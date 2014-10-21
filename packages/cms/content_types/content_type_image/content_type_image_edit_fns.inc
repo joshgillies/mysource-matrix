@@ -205,7 +205,8 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				</td>
 			</tr>
 			<tr <?php echo (!$display_fields['caption_options']) ? 'style="display:none;"' : ''; ?>>
-				<td class="sq-backend-table-header" style="width: 250px;"><?php echo translate('caption'); ?>:</td>
+				<td class="sq-backend-table-header" style="width: 250px;"><?php echo translate('Caption'); ?>:</td>
+
 				<td class="sq-backend-table-cell">
 					<?php radio_button($prefix.'_caption_options', '0', !$current_settings['use_caption_attr'], $prefix.'_change_caption(\'original\');'); ?>
 					<?php hidden_field($prefix.'_caption_hidden', $current_settings['caption']); ?>
@@ -253,7 +254,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 					<?php label('Div', $prefix.'_html_layout_div_id'); ?>
 				</td>
 			</tr>
-			
+
 			<?php
 			?>
 			</table>
@@ -376,7 +377,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 					?>
 					<div class="<?php echo $preview_classes['surrounding_container']; ?>" id="<?php echo $prefix; ?>_roll_preview" style="visibility: hidden; z-index: 5; position: absolute; left">
 						<?php
-						if ($current_settings['html_layout'] == 'table') { 
+						if ($current_settings['html_layout'] == 'table') {
 						?>
 							<table class="<?php echo $preview_classes['preview_image_table']; ?>">
 								<tr>
@@ -460,7 +461,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				<?php
 				}//end if
 
-				if ($current_settings['html_layout'] == 'table') { 
+				if ($current_settings['html_layout'] == 'table') {
 					?>
 					<table class="<?php echo $classes['surrounding_container']; ?>">
 						<?php
@@ -512,7 +513,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 					</table>
 					<?php
 					} else {
-					// we are using div html layout 
+					// we are using div html layout
 					?>
 						<?php
 						if ($current_settings['caption_position'] == 'top') {

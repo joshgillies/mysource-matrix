@@ -66,22 +66,23 @@ class Tool_Clear_Squid_Cache extends Tool
 		$preferencesBroken = array();
 		$squid_hostnames = trim(SQ_TOOL_SQUID_CACHE_HOSTNAMES);
 		if (empty($squid_hostnames) === TRUE) {
-			$preferencesBroken[] = 'squid_tool_no_hostnames';
+			$preferencesBroken[] = translate('Please make sure there is at least one hostname in the Squid Cache section of External Tools Configuration.');
 		}
 
 		$squidclient_path = trim(SQ_TOOL_SQUID_CACHE_PATH);
 		if (empty($squidclient_path) === TRUE) {
-			$preferencesBroken[] = 'squid_tool_path_empty';
+			$preferencesBroken[] = translate('Please make sure you set the path to squidclient in the Squid Cache section of External Tools Configuration.');
 		} else {
 			if (is_file($squidclient_path) === FALSE) {
-				$preferencesBroken[] = 'squid_tool_path_invalid';
+				$preferencesBroken[] = translate('The squidclient path is invalid. Please check it in the Squid Cache section of External Tools Configuration.');
 			}
 		}
 
 		if (empty($preferencesBroken) === FALSE) {
-			$o->openField(translate('squid_tool_not_configured'));
+			$o->openField(translate('Squid Cache is not configured'));
+
 			foreach ($preferencesBroken as $brokenItem) {
-				$o->note(translate($brokenItem));
+				$o->note($brokenItem);
 			}
 			$o->closeField();
 			$o->closeSection();
@@ -89,39 +90,50 @@ class Tool_Clear_Squid_Cache extends Tool
 		}
 
 		// interface to get to asset using asset finder
-		$o->openField(translate('asset'));
+		$o->openField(translate('Asset'));
+
 			asset_finder($type_code.'_assetid');
-			$o->note(translate('squid_tool_asset_note'));
+			$o->note(translate('Squid cache will be cleared for all URLs applied to this asset.'));
+
 		$o->closeField();
 
 		// if clear now box is checked, cache is cleared at commit
-		$o->openField(translate('squid_tool_clear_now_field'));
+		$o->openField(translate('Clear Now'));
+
 			check_box($type_code.'_clear_now', TRUE);
 		$o->closeField();
 
 		// if populate now box is checked, will request page using CURL
-		$o->openField(translate('squid_tool_populate_question'));
+		$o->openField(translate('Repopulate?'));
+
 			check_box($type_code.'_populate_now', TRUE);
-			echo translate('squid_tool_populate_note');
+			echo translate('Request each URL after the purge action so that Squid can recache it.');
+
 		$o->closeField();
 
 		// cascade options
-		$o->openField(translate('cascade_question'));
+		$o->openField(translate('Cascade?'));
+
 			$options = Array(
-						'single'	=> translate('this_asset'),
-						'children'	=> translate('this_asset_and_children'),
+						'single'	=> translate('This asset'),
+
+						'children'	=> translate('This asset and its children'),
+
 					   );
 			check_box($type_code.'_cascade', TRUE);
 			// combo_box($type_code.'_cascade', $options, '', FALSE);
-			echo translate('squid_tool_cascade_note');
+			echo translate('Clear the cache of the selected asset and its children.');
+
 			echo '<br /><br />';
-			$o->note(translate('squid_tool_note'));
+			$o->note(translate('Note: Repopulate and Cascade option will also be applied to the Scheduled Job if you schedule one.'));
+
 		$o->closeField();
 
 		$o->closeSection();
 
 		// scheduled jobs section
-		$o->openSection(translate('squid_tool_schedule_section'));
+		$o->openSection(translate('Schedule Clear Cache'));
+
 
 		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_squid_cache_purge');
@@ -129,13 +141,17 @@ class Tool_Clear_Squid_Cache extends Tool
 
 		// print scheduled jobs, one_off or repeating
 		if (!empty($purge_jobs)) {
-			$o->openField(translate('squid_tool_scheduled_job_field'), 'new_line');
+			$o->openField(translate('Scheduled Jobs'), 'new_line');
+
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
-					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Asset'); ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('When'); ?></td>
+
+					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Delete?'); ?></td>
+
 				</tr>
 				<?php
 					for ($i = 0; $i < count($purge_jobs); $i++) {
@@ -174,7 +190,8 @@ class Tool_Clear_Squid_Cache extends Tool
 		if ($cron_epoc > 0 && $cron_refresh > 0) {
 
 			// prints the interface for adding a new one-off job
-			$o->openField(translate('squid_tool_one_off_field'), 'new_line');
+			$o->openField(translate('Schedule a One Off Job'), 'new_line');
+
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				$new_job = new Cron_Job_Squid_Cache_Purge();
 				$edit_fns = $new_job->getEditFns();
@@ -183,19 +200,22 @@ class Tool_Clear_Squid_Cache extends Tool
 			$o->closeField();
 
 			// prints the interface for adding a new repeating job
-			$o->openField(translate('squid_tool_repeating_field'), 'new_line');
+			$o->openField(translate('Schedule a Repeating Job'), 'new_line');
+
 				$new_job = new Cron_Job_Squid_Cache_Purge();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$new_job->setAttrValue('type', 'repeating');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$edit_fns = $new_job->getEditFns();
 				$edit_fns->paintInLineBackend($new_job, $o, $type_code.'_repeating');
-				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+				$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+
 			$o->closeField();
 
 		} else {
 			$o->openField('Note');
-				$o->note(translate('cron_manager_not_configured'));
+				$o->note(translate('The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset.'));
+
 			$o->closeField();
 		}
 
@@ -241,7 +261,7 @@ class Tool_Clear_Squid_Cache extends Tool
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 				} else {
-					trigger_localised_error('SYS0232', E_USER_NOTICE);
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE);
 				}
 			}
 			// remove job only, do not print error msg
@@ -252,7 +272,7 @@ class Tool_Clear_Squid_Cache extends Tool
 
 		// error: asset is not defined
 		if (!$_REQUEST[$type_code.'_assetid']['assetid']) {
-			trigger_localised_error('SQUID0001', E_USER_NOTICE);
+			trigger_localised_error('SQUID0001', translate('The Asset to be purged is not defined.'), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -288,7 +308,7 @@ class Tool_Clear_Squid_Cache extends Tool
 				if (!empty($url)) $o->setRedirect($url);
 				return TRUE;
 			}
-			
+
 			// one off
 			$new_job = new Cron_Job_Squid_Cache_Purge();
 			$edit_fns = $new_job->getEditFns();
@@ -317,7 +337,8 @@ class Tool_Clear_Squid_Cache extends Tool
 
 
 		} else {
-			trigger_localised_error('SQUID0003', E_USER_NOTICE, translate('squid_cron_name', $owner->id));
+			trigger_localised_error('SQUID0003', sprintf(translate('Unable to process tool, no admin access found, permission denied.'), sprintf(translate('Purge Squid Cache Scheduled Job #%s'), $owner->id)), E_USER_NOTICE);
+
 		}//end if has write access
 
 		return FALSE; // we want to repaint the tool

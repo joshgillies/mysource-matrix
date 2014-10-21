@@ -26,7 +26,7 @@ define('SQ_BO_MSG_ERROR',   4);
 
 
 /**
-* 
+*
 *
 * Purpose
 *
@@ -141,12 +141,12 @@ class Backend_Outputter
 	* @var integer
 	*/
 	var $_nb_section_count = 0;
-	
+
 	/*
 	 * Load viper editor
 	 */
 	var $_load_viper = FALSE;
-	
+
 	/*
 	 * viper toolbar section
 	 */
@@ -441,7 +441,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_screens)) {
-			trigger_localised_error('SYS0202', E_USER_ERROR, $name);
+			trigger_localised_error('SYS0202', sprintf(translate('Screen Code "%s" already in use'), $name), E_USER_ERROR);
 		}
 		$this->_screens[$url] = $name;
 
@@ -461,7 +461,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_static_screens)) {
-			trigger_localised_error('SYS0207', E_USER_ERROR, $name);
+			trigger_localised_error('SYS0207', sprintf(translate('Static Screen Code "%s" already in use'), $name), E_USER_ERROR);
 		}
 		$this->_static_screens[$url] = $name;
 
@@ -671,7 +671,7 @@ class Backend_Outputter
 				<?php
 			}//endif
 		}//endif
-		
+
 
 		?>
 			<tr>
@@ -708,7 +708,7 @@ class Backend_Outputter
 	*/
 	function _nbCloseSection()
 	{
-		// The counter "_nb_section_count" needs be > 1 to print the closing tags because 
+		// The counter "_nb_section_count" needs be > 1 to print the closing tags because
 		// the opening <tr><td> tags are printed only if _nb_section_count > 0, and then the counter is incremented
 		if ($this->_nb_section_count > 1) echo '</td></tr>';
 
@@ -1018,7 +1018,7 @@ class Backend_Outputter
 				$this->addCssInclude($this->filesPath('css/print.css'));
 				$this->addOnLoad('pagePrint()');
 			}
-			
+
 			$this->loadViperEditor();
 
 			foreach ($this->_css_includes as $file) {
@@ -1039,13 +1039,13 @@ class Backend_Outputter
 			$this->addJsInclude(sq_web_path('lib').'/js/state.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
 			$this->addOnLoad('fixIcons(\''.sq_web_path('lib').'/web/images/blank.gif\');');
-			
+
 
 			// and paint them all out
 			foreach ($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
 			}
-			
+
 			?>
 			<script type="text/javascript"><!--
 			//<![CDATA[
@@ -1137,7 +1137,8 @@ class Backend_Outputter
 				function form_on_submit()
 				{
 					if (SQ_FORM_SUBMITTED) {
-						alert(js_translate('form_already_submitted'));
+						alert(js_translate('The form has already been submitted, please wait ...'));
+
 						return;
 					}
 
@@ -1149,7 +1150,8 @@ class Backend_Outputter
 
 					// if the form contains errors and we don't want to submit, handle at here.
 					if (SQ_FORM_ERROR_CONTAINED) {
-						alert(js_translate('form_contains_error'));
+						alert(js_translate('The form can not be submitted, please check javascript errors.'));
+
 						return;
 					}
 
@@ -1199,11 +1201,11 @@ class Backend_Outputter
 				preload_image('<?php echo $file;?>');
 				<?php
 			}//end foreach
-						
-			    
+
+
 			?>
-			    
-			
+
+
 
 			//]]> -->
 			</script>
@@ -1280,7 +1282,8 @@ class Backend_Outputter
 									$this->printContextSwitcher();
 									$this->printScreenMenu();
 									echo '<span>';
-									sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('print_this_page'), NULL, 'onclick="showPrintPopup()" class="clickable"');
+									sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('Print this Page'), NULL, 'onclick="showPrintPopup()" class="clickable"');
+
 									echo '</span>';
 									?>
 								</div>
@@ -1300,7 +1303,8 @@ class Backend_Outputter
 							<tr>
 								<td class="sq-backend-nav-history-title">
 									<?php sq_print_icon($this->filesPath('images/icons/history.png'), '', '', 'Navigation History'); ?>
-									<span><?php echo translate('back_to'); ?>:</span>
+									<span><?php echo translate('Back to'); ?>:</span>
+
 								</td>
 								<td class="sq-backend-nav-history">
 									<?php
@@ -1326,7 +1330,7 @@ class Backend_Outputter
 											sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, htmlspecialchars($nav_asset->short_name));
 											?>
 											<span>
-												<?php echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?> 
+												<?php echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>
 												[<?php echo ($i + 1); ?>]
 											</span>
 										</a>&nbsp;
@@ -1412,7 +1416,7 @@ class Backend_Outputter
 				    <?php
 				}
 				?>
-				
+
 				<tr>
 					<td class="sq-backend-section-inner-table-wrapper">
 						<table class="sq-backend-section-table-inner">
@@ -1530,7 +1534,7 @@ class Backend_Outputter
 						break;
 
 						default :
-							trigger_localised_error('SYS0257', E_USER_ERROR, $section['areas'][$j]['area_type']);
+							trigger_localised_error('SYS0257', sprintf(translate('Unknown Area Type: "%s"'), $section['areas'][$j]['area_type']), E_USER_ERROR);
 
 					}//end switch area type
 
@@ -1662,7 +1666,8 @@ class Backend_Outputter
 			</tr>
 			<tr>
 				<td class="sq-backend-section-note-cell" colspan="2">
-					<div class="sq-backend-section-note"><strong><?php echo translate('note'); ?>: </strong><?php echo $str ?></div>
+					<div class="sq-backend-section-note"><strong><?php echo translate('Note'); ?>: </strong><?php echo $str ?></div>
+
 		<?php
 
 	}//end _nbSectionNote()
@@ -1745,7 +1750,8 @@ class Backend_Outputter
 			}
 			combo_box('screen_menu', $this->_screens, FALSE, $this->_action, 1, 'id="screen_menu" onchange="self.location = this.value"');
 			echo '&nbsp;';
-			normal_button('screen_menu_go', ' '.translate('go').' ', 'self.location = get_form_element_value("screen_menu");', 'class="sq-form-field sq-btn-small sq-btn-no-shadow"');
+			normal_button('screen_menu_go', ' '.translate('Go').' ', 'self.location = get_form_element_value("screen_menu");', 'class="sq-form-field sq-btn-small sq-btn-no-shadow"');
+
 			echo '&nbsp;';
 		}
 
@@ -1947,7 +1953,7 @@ class Backend_Outputter
 	}//end getCurrentSectionNumber()
 
 
-	
+
 	/**
 	* Is Viper available for us?
 	*
@@ -1963,8 +1969,8 @@ class Backend_Outputter
 		}
 		return FALSE;
 	}//end isViperAvailable()
-	
-	
+
+
 	/**
 	* Enable Viper editor on this div
 	*
@@ -1980,8 +1986,8 @@ class Backend_Outputter
 		}
 		$this->_load_viper = TRUE;
 	}//end enableViperEditor()
-	
-	
+
+
 	/**
 	* Load the Viper editor js and css files
 	*
@@ -2004,8 +2010,8 @@ class Backend_Outputter
 		    }
 		}
 	}//end loadViperEditor()
-	
-	
+
+
 }//end class
 
 ?>

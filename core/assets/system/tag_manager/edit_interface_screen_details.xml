@@ -16,12 +16,16 @@
 -->
 
 <contents>
-	<section name="Tagging Configuration" write_access="write:attributes">
-		<field attribute="restrict_tag_source">
-			<boolean true_text="tag_manager_do_restrict_tag_source" false_text="tag_manager_do_not_restrict_tag_source" />
-		</field>
-		<field attribute="thesaurus">
-			<assetid type_codes="thesaurus:I" />
-		</field>
-	</section>
+    <section name="Tagging Configuration" write_access="write:attributes">
+        <field attribute="restrict_tag_source">
+            <display_name>Tag Source Restrictions</display_name>
+            <note>NOTE: Turning on Tag Source Restrictions will leave any assets already tagged with terms from another thesaurus unchanged.</note>
+            <boolean true_text="tag_manager_do_restrict_tag_source" false_text="tag_manager_do_not_restrict_tag_source" />
+        </field>
+        <field attribute="thesaurus">
+            <display_name>Tagging Thesaurus</display_name>
+            <note>The thesaurus from which tags may be selected</note>
+            <assetid type_codes="thesaurus:I" />
+        </field>
+    </section>
 </contents>

@@ -155,7 +155,8 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_set_index_page_basic', $basic_part_1);
+		return sprintf(translate('Set the index page to: %s'), $basic_part_1);
+
 
 	}//end getInterface()
 

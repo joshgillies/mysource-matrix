@@ -70,7 +70,9 @@ class Trigger_Condition_User_LDAP extends Trigger_Condition
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		ob_start();
-			$options = Array(0 => translate('is_not'), 1 => translate('is'));
+			$options = Array(0 => translate('is not'), 1 => translate('is'));
+
+
 			$value = array_get_index($settings, 'is_ldap_user', 1);
 			if ($write_access) {
 				combo_box($prefix.'[is_ldap_user]', $options, FALSE, $value);
@@ -78,8 +80,9 @@ class Trigger_Condition_User_LDAP extends Trigger_Condition
 				echo '<b>'.$options[$value].'</b>';
 			}
 		$is_ldap_user_str = ob_get_clean();
-		
-		return translate('trigger_asset_ldap_user', $is_ldap_user_str);
+
+		return sprintf(translate('Current user %s a LDAP user'), $is_ldap_user_str);
+
 
 	}//end getInterface()
 
@@ -97,11 +100,12 @@ class Trigger_Condition_User_LDAP extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return translate('trigger_input_data_error');
+			return translate('There was an error with input data');
+
 		}
 
 		$settings['is_ldap_user'] = $request_data['is_ldap_user'];
-		
+
 		return FALSE;
 
 	}//end processInterface()

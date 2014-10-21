@@ -18,17 +18,21 @@
 <contents>
 	<section name="Filter Options">
 		<field write_access="write:attributes" attribute="filter_enabled">
+			<display_name>Filter Status</display_name>
 			<boolean true_text="on" false_text="off" />
-		</field>	
+		</field>
 		<field write_access="write:attributes" attribute="filter_logic">
+			<display_name>Logical Grouping</display_name>
 			<selection />
 		</field>
 		<field write_access="write:attributes" attribute="filter_mode">
+			<display_name>Filter Mode</display_name>
 			<selection />
 		</field>
 	</section>
-	<section name="Record Filters" write_access="write:attributes">		
+	<section name="Record Filters" write_access="write:attributes">
 		<field>
+			<display_name>Conditions</display_name>
 			<function_call>
 				<paint_function name="paintRecordFilter" />
 				<process_function name="processRecordFilter" />

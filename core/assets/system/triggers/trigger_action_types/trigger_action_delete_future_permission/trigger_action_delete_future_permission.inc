@@ -80,7 +80,7 @@ class Trigger_Action_Delete_Future_Permission extends Trigger_Action
 				if ($cron_mgr->removeJob($job)) {
 					$jobids[] = $job->id;
 				} else {
-					trigger_localised_error('CRON0065', E_USER_WARNING, $job->id);
+					trigger_localised_error('CRON0065', sprintf(translate('Unable to remove the future permission cron job id: %s'), $job->id), E_USER_WARNING);
 				}
 			}
 		}
@@ -120,9 +120,11 @@ class Trigger_Action_Delete_Future_Permission extends Trigger_Action
 		}
 
 		ob_start();
-			echo translate('trigger_delete_future_permission').'&nbsp;';
+			echo translate('Delete all future permission Scheduled Jobs that would change the asset\'s').'&nbsp;';
+
 			combo_box($prefix.'[permission]', $permission_list, FALSE, $selected_permission, NULL, $form_element_extras);
-			echo '&nbsp;'.translate('permission');
+			echo '&nbsp;'.translate('Permission');
+
 			$html = ob_get_contents();
 		ob_end_clean();
 
@@ -173,7 +175,7 @@ class Trigger_Action_Delete_Future_Permission extends Trigger_Action
 	protected static function _getPermissionList()
 	{
 		return Array(SQ_PERMISSION_READ => 'Read', SQ_PERMISSION_WRITE => 'Write', SQ_PERMISSION_ADMIN => 'Admin');
-		
+
 	}//end _getPermissionList()
 
 

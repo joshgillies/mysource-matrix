@@ -65,9 +65,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		// Set default value for validation email format attr
 		$val = Array();
-		$val['subject'] = translate('cms_account_manager_validation_email_default_subject');
-		$val['text_format'] = translate('cms_account_manager_validation_email_default_content', '%validation_url%');
-		$val['html_format'] = '<p>'.translate('cms_account_manager_validation_email_default_content', '<a href="%validation_url%">%validation_url%</a>').'</p>';
+		$val['subject'] = translate('Activating your new account');
+
+		$val['text_format'] = sprintf(translate('Thank you for registering.  To activate your account please go to %s.'), '%validation_url%');
+
+		$val['html_format'] = '<p>'.sprintf(translate('Thank you for registering.  To activate your account please go to %s.'), '<a href="%validation_url%">%validation_url%</a>').'</p>';
+
 		$val['from'] = SQ_CONF_SYSTEM_NAME.' <'.SQ_CONF_DEFAULT_EMAIL.'>';
 		$this->setAttrVAlue('validation_email_format', $val);
 
@@ -91,13 +94,16 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (isset($this->_tmp['vars_set']['use_email_validation'])) {
 			if ($this->attr('use_email_validation')) {
 				$new_names = Array(
-								'create_no_login'	=> translate('cms_account_manager_awaiting_validation'),
+								'create_no_login'	=> translate('Created, awaiting validation'),
+
 								'create_login'		=> translate ('cms_account_manager_validated'),
 							 );
 			} else {
 				$new_names = Array(
-								'create_no_login'	=> translate('cms_account_manager_created_not_live'),
-								'create_login'		=> translate('cms_account_manager_created_live'),
+								'create_no_login'	=> translate('Created but not live'),
+
+								'create_login'		=> translate('Created, live'),
+
 							 );
 			}
 			foreach (Array('create_login', 'create_no_login') as $value) {
@@ -123,11 +129,13 @@ class Page_Account_Manager extends Page_Asset_Builder
 				$required_fields[$create_type] = Array();
 			}
 			if (!isset($required_fields[$create_type]['username'])) {
-				$required_fields[$create_type]['username'] = translate('cms_account_manager_username_required');
+				$required_fields[$create_type]['username'] = translate('Username is required to send the validation email');
+
 				$save = TRUE;
 			}
 			if (!isset($required_fields[$create_type]['email'])) {
-				$required_fields[$create_type]['email'] = translate('cms_account_manager_email_required');
+				$required_fields[$create_type]['email'] = translate('Email is required to send the validation email');
+
 				$save = TRUE;
 			}
 
@@ -164,7 +172,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(Array($type_code_to_create), 'name');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
 				$layout = new Layout();
-				$layout->setAttrValue('name', translate('cms_account_manager_logged_in_layout_for_type', $type_names[$type_code_to_create]));
+				$layout->setAttrValue('name', sprintf(translate('%s Logged In Form Layout'), $type_names[$type_code_to_create]));
+
 				$link = Array(
 							'asset'			=> &$this,
 							'link_type'		=> SQ_LINK_TYPE_2,
@@ -317,7 +326,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 					}
 
 					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
-						$this->_replacements['edit_details_invite'] = '<p>'.translate('cms_account_manager_cannot_edit_details').'</p>';
+						$this->_replacements['edit_details_invite'] = '<p>'.translate('You do not have access to edit your details.').'</p>';
+
 						$current_user->printBody();
 					} else {
 						$this->_replacements['edit_details_invite'] = $this->attr('edit_details_invite');
@@ -622,7 +632,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
 					}
 				restore_error_handler();
-				
+
 				$errors = '';
 				if (!empty($this->_errors)) {
 					foreach($this->_errors as $text) {
@@ -667,17 +677,23 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		$res = Array();
 
-		$res['not_logged_in']['name'] = translate('not_logged_in');
+		$res['Not Logged In']['name'] = translate('Not Logged In');
+
 		$res['not_logged_in']['content'] = '<p>%create_error%%login_error%</p>'."\n".
 											'%create_invite%%create_form%%login_invite%%login_form%';
 
-		$res['create_no_login']['name'] = translate('cms_account_manager_created_not_live');
-		$res['create_no_login']['content'] = translate('cms_account_manager_created_need_activation');
+		$res['create_no_login']['name'] = translate('Created but not live');
 
-		$res['create_login']['name'] = translate('cms_account_manager_created_live');
-		$res['create_login']['content'] = translate('cms_account_manager_created_please_log_in')."\n%login_form%";
+		$res['create_no_login']['content'] = translate('Your account has been created but needs to be activated before you can log in.');
 
-		$res['logged_in']['name'] = translate('logged_in');
+
+		$res['create_login']['name'] = translate('Created, live');
+
+		$res['create_login']['content'] = translate('Your account has been created and activated.  Please log in using the form below.')."\n%login_form%";
+
+
+		$res['Logged in']['name'] = translate('Logged in');
+
 		$res['logged_in']['content'] = '<p>%edit_details_lock_error%%edit_details_success%%form_errors%</p>'."\n".
 										'%edit_details_invite%%edit_details_form%';
 
@@ -744,7 +760,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							+ $selected_create_locations;
 
 		if (empty($create_locations)) {
-			trigger_localised_error('CMS0071', E_USER_WARNING);
+			trigger_localised_error('CMS0071', translate('This user asset cannot be validated because no create locations to move it to have been found'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -961,7 +977,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 				}
 
 				if (is_null($user)) {
-					$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_user_not_found');
+					$this->_errors[] = translate('Specified user name was not found');
+
 					return FALSE;
 
 				} else {
@@ -984,7 +1001,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 						$new_value['to'][] = $replacements['email'];
 						$new_email_attr = new Asset_Attribute_Email_Format(0, serialize($new_value));
 						if (is_null($new_email_attr)) {
-							$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
+							$this->_errors[] = translate('Validation email cannot be sent to this user');
+
 							return FALSE;
 						}
 
@@ -994,14 +1012,16 @@ class Page_Account_Manager extends Page_Asset_Builder
 						return TRUE;
 
 					} else {
-						$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
+						$this->_errors[] = translate('Validation email cannot be sent to this user');
+
 						return FALSE;
 					}
 
 				}//end else
 
 		} else {
-			$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
+			$this->_errors[] = translate('Validation email cannot be sent to this user');
+
 			return FALSE;
 		}
 
@@ -1198,15 +1218,21 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords = parent::_getLoggedInKeywords();
 
 		// add new keywords
-		$keywords['edit_details_invite']		= translate('cms_account_manager_keyword_edit_details_invite');
-		$keywords['edit_details_form']			= translate('cms_account_manager_keyword_edit_details_form');
-		$keywords['edit_details_success']		= translate('cms_account_manager_keyword_edit_details_success');
-		$keywords['edit_details_lock_error']	= translate('cms_account_manager_keyword_edit_details_lock_error');
-		$keywords['form_errors']				= translate('cms_account_manager_keyword_form_errors');
+		$keywords['edit_details_invite']		= translate('Edit Details Invite');
 
-		$keywords['logout_form']				= translate('cms_asset_builder_keyword_logout_form');
+		$keywords['edit_details_form']			= translate('Edit Details Form');
 
-		// Exclude CAPTCHA keywords and other SPAM prevention functionality keywords from the "Logged In" form. 
+		$keywords['edit_details_success']		= translate('Edit Details Success Message');
+
+		$keywords['edit_details_lock_error']	= translate('Lock Error Message');
+
+		$keywords['form_errors']				= translate('List of Form Submission Errors');
+
+
+		$keywords['logout_form']				= translate('Logout Form');
+
+
+		// Exclude CAPTCHA keywords and other SPAM prevention functionality keywords from the "Logged In" form.
 		// Presume if the user has logged in, that they are not an artificial intelligence
 		if ($this->attr('require_captcha')) {
 			unset($keywords['form_captcha']);
@@ -1226,7 +1252,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			unset($keywords['form_recaptcha']);
 		}
 		unset($keywords['form_honeypot_field']);
-		
+
 		return $keywords;
 
 	}//end _getLoggedInKeywords()
@@ -1243,10 +1269,14 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords = parent::_getCreatedKeywords();
 
 		// override parent's keywords
-		$keywords['create_invite'] 			= translate('cms_account_manager_keyword_create_invite');
-		$keywords['create_form'] 			= translate('cms_account_manager_keyword_create_form');
-		$keywords['create_error'] 			= translate('cms_account_manager_keyword_create_error');
-		$keywords['resend_validation_form']	= translate('cms_account_manager_keyword_resend_validation_form');
+		$keywords['create_invite'] 			= translate('Create Account Invite');
+
+		$keywords['create_form'] 			= translate('Create Account Form');
+
+		$keywords['create_error'] 			= translate('Create Account Error Message');
+
+		$keywords['resend_validation_form']	= translate('Resend Validation Form');
+
 
 		return $keywords;
 
@@ -1262,9 +1292,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function _getNotLoggedInKeywords()
 	{
 		$keywords = parent::_getNotLoggedInKeywords();
-		$keywords['resend_validation_error']	= translate('cms_account_manager_keyword_resend_validation_error');
-		$keywords['resend_validation_form'] 	= translate('cms_account_manager_keyword_resend_validation_form');
-		$keywords['resend_validation_success'] 	= translate('cms_account_manager_keyword_resend_validation_success');
+		$keywords['resend_validation_error']	= translate('Resend Validation Error');
+
+		$keywords['resend_validation_form'] 	= translate('Resend Validation Form');
+
+		$keywords['resend_validation_success'] 	= translate('Resend Validation Success');
+
 
 		return $keywords;
 
@@ -1333,7 +1366,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 		ob_start();
 			?>
 			<form id="<?php echo $this->getPrefix() ?>_logout" method="POST" action="<?php echo current_url(TRUE, TRUE); ?>?SQ_ACTION=logout">
-				<?php echo submit_button('logout', translate('logout')); ?>
+				<?php echo submit_button('Logout', translate('Logout')); ?>
+
 			</form>
 			<?php
 			$replacement = ob_get_contents();
@@ -1434,7 +1468,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 					}
 
 					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
-						$this->_replacements['edit_details_invite'] = '<p>'.translate('cms_account_manager_cannot_edit_details').'</p>';
+						$this->_replacements['edit_details_invite'] = '<p>'.translate('You do not have access to edit your details.').'</p>';
+
 					} else {
 						$this->_replacements['edit_details_invite'] = $this->attr('edit_details_invite');
 					}

@@ -17,7 +17,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
-* Funnelback_Manager_Edit_Fns 
+* Funnelback_Manager_Edit_Fns
 *
 * Purpose
 *
@@ -73,7 +73,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the interface for enabling indexing by Funnelback 
+	* Paints the interface for enabling indexing by Funnelback
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -86,11 +86,15 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		$indexing = $asset->attr('indexing');
-		$options = Array('0'=>translate('disabled'),'1'=>translate('enabled'));
+		$options = Array('0'=>translate('Disabled'),'1'=>translate('Enabled'));
+
+
 		if ($wa) {
 			combo_box($prefix.'_indexing', $options, FALSE, (($indexing) ? '1' : '0'));
 		} else {
-			echo (($indexing) ? translate('enabled') : translate('disabled'));
+			echo (($indexing) ? translate('Enabled') : translate('Disabled'));
+
+
 		}//end if
 
 		return TRUE;
@@ -149,10 +153,12 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			asset_finder($prefix.'_rebuild_root_node', 0);
 
 			$o->closeField();
-			$o->openField(translate('system_wide'));
+			$o->openField(translate('System Wide'));
+
 
 			check_box($prefix.'_rebuild_all_system', 1);
-			echo translate('funnelback_rebuild_whole_system');
+			echo translate('Rebuild the cache for the whole system');
+
 		}//end if
 
 		return TRUE;
@@ -227,12 +233,15 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				}//end foreach
 
 				$o->closeField();
-				$o->openField(translate('system_wide'));
+				$o->openField(translate('System Wide'));
+
 
 				check_box($prefix.'_reindex_all_system', 1);
-				echo translate('funnelback_index_whole_system');
+				echo translate('Index the whole system');
+
 			} else {
-				echo translate('funnelback_indexing_not_enabled');
+				echo translate('Indexing is not enabled');
+
 			}//end if
 		}//end if
 
@@ -285,7 +294,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the interface for collections 
+	* Paints the interface for collections
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -301,13 +310,18 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		if ($wa) {
 			// New collection
 			$js = 'onChange="javascript:funnelbackDisableURL(this);"';
-			$o->openField(translate('funnelback_collection_id'), '', translate('funnelback_collection_id_note'));
+			$o->openField(translate('Collection ID'), '', translate('This is an internal identifier that will be used to uniquely name your collection. It cannot contain spaces.'));
+
+
 				text_box($prefix.'_new_collection');
 			$o->closeField();
-			$o->openField(translate('funnelback_collection_name'), '', translate('funnelback_collection_name_note'));
+			$o->openField(translate('Collection Name'), '', translate('This is the title for the collection that will appear in the search results.'));
+
+
 				text_box($prefix.'_new_collection_name');
 			$o->closeField();
-			$o->openField(translate('funnelback_collection_type'));
+			$o->openField(translate('Collection Type'));
+
 				combo_box($prefix.'_new_collection_type', $asset->_getCollectionTypes(), FALSE, 'web', 0, $js);
 			$o->closeField();
 		}//end if
@@ -318,7 +332,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Processes the interface for collections 
+	* Processes the interface for collections
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -360,7 +374,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the interface for collections 
+	* Paints the interface for collections
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -378,12 +392,18 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table class="sq-backend-table" style="width:100%">
 			<tr>
-			<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('edit'); ?></td><?php } ?>
-			<td class="sq-backend-table-header" width="20%"><?php echo translate('funnelback_collection_id'); ?></td>
-			<td class="sq-backend-table-header" width="50%"><?php echo translate('funnelback_collection_name'); ?></td>
-			<td class="sq-backend-table-header" width="20%"><?php echo translate('funnelback_collection_type'); ?></td>
-			<td class="sq-backend-table-header" width="20%"><?php echo translate('valid_question'); ?></td>
-			<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('delete'); ?>?</td><?php } ?>
+			<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('Edit'); ?></td><?php } ?>
+
+			<td class="sq-backend-table-header" width="20%"><?php echo translate('Collection ID'); ?></td>
+
+			<td class="sq-backend-table-header" width="50%"><?php echo translate('Collection Name'); ?></td>
+
+			<td class="sq-backend-table-header" width="20%"><?php echo translate('Collection Type'); ?></td>
+
+			<td class="sq-backend-table-header" width="20%"><?php echo translate('Valid?'); ?></td>
+
+			<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('Delete'); ?>?</td><?php } ?>
+
 			</tr>
 		<?php
 		if (!empty($collections)) {
@@ -421,7 +441,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			}//end foreach
 		} else {
 			$cols = ($wa) ? '6' : '4';
-			echo '<tr><td align="center" colspan="'.$cols.'">'.translate('funnelback_no_collection').'</td></tr>';
+			echo '<tr><td align="center" colspan="'.$cols.'">'.translate('No Collections Set').'</td></tr>';
+
 		}//end if
 		?>
 		</table>
@@ -433,7 +454,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Processes the interface for collections 
+	* Processes the interface for collections
 	*
 	* @param object	&$asset	the funnelback manager asset
 	* @param object	&$o		the backend outputter
@@ -495,13 +516,15 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				$current_name = array_get_index($collections[$collection_id], 'name', '');
 				$current_assetid = array_get_index($collections[$collection_id], 'asset', Array());
 				$current_url = array_get_index($collections[$collection_id], 'url', Array());
-				$o->openField(translate('funnelback_collection_name'));
+				$o->openField(translate('Collection Name'));
+
 					hidden_field($prefix.'_edit_collection_id', $collection_id);
 					text_box($prefix.'_edit_collection_name', $current_name);
 				$o->closeField();
 				switch ($current_type) {
 					case 'meta':
-						$o->openField(translate('funnelback_collections'));
+						$o->openField(translate('Collections'));
+
 							$all_collections = $asset->getCollections();
 							$selected_collections = array_get_index($collections[$collection_id], 'collections', Array());
 							unset($all_collections[$collection_id]);
@@ -509,9 +532,11 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 							<table class="sq-backend-table" style="width:70%">
 								<tr>
 								<td class="sq-backend-table-header" width="80%">
-									<?php echo translate('funnelback_collection_name'); ?>
+									<?php echo translate('Collection Name'); ?>
+
 								</td>
-								<td class="sq-backend-table-header"><?php echo translate('please_select'); ?>?</td>
+								<td class="sq-backend-table-header"><?php echo translate('Please Select'); ?>?</td>
+
 								</tr>
 							<?php
 							foreach ($all_collections as $each_collection_id => $each_collection) {
@@ -531,10 +556,12 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					break;
 
 					default:
-						$o->openField(translate('funnelback_collection_source'));
+						$o->openField(translate('Collection Source Asset'));
+
 							asset_finder($prefix.'_edit_collection_source', $current_assetid);
 						$o->closeField();
-						$o->openField(translate('funnelback_collection_url'));
+						$o->openField(translate('Collection URL'));
+
 							$urls = Array();
 							if (!empty($current_assetid)) {
 								$current_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_assetid, '', TRUE);
@@ -556,7 +583,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 							}//end if
 
 							if (empty($urls)) {
-								echo translate('funnelback_collection_no_url');
+								echo translate('No URL found');
+
 							} else {
 								foreach ($urls as $url) {
 									check_box($prefix.'_edit_collection_url[]', $url, ((in_array($url, $current_url)) ? TRUE : FALSE));
@@ -628,12 +656,12 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 						$source_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
 						if (!empty($source_asset)) {
 							$asset_url = $source_asset->getURL();
-							$unrestricted_asset = strpos($asset_url, '/__data/') !== FALSE || 
+							$unrestricted_asset = strpos($asset_url, '/__data/') !== FALSE ||
 												(SQ_CONF_STATIC_ROOT_URL && strpos($asset_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($source_asset);
 
 							if ($unrestricted_asset) {
-								trigger_localised_error('FNB0015', E_USER_WARNING);
+								trigger_localised_error('FNB0015', translate('Cannot use an unrestrict asset as a collection'), E_USER_WARNING);
 								return FALSE;
 							}
 							$collections[$collection_id]['asset'] = $source_assetid;
@@ -691,7 +719,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($collection_selecter)) {
 				echo combo_box($prefix.'_choose_thesaurus', $collection_selecter, FALSE, $current_choice);
 			} else {
-				echo translate('funnelback_no_collection_to_proceed');
+				echo translate('No Collections have been set, please go to the \'Collections\' screen and create a collection before continuing');
+
 			}//end if
 		}//end if
 
@@ -735,17 +764,24 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		$collections = $asset->getCollections();
 		$current_choice = array_get_index($_POST, $prefix.'_choose_thesaurus', '');
 		hidden_field($prefix.'_chosen_thesaurus', $current_choice);
-		$thesaurus_types = Array('term'=>translate('fb_term_term'), 'whole'=>translate('fb_whole'), 'regex'=>translate('fb_regex'));
+		$thesaurus_types = Array('term'=>translate('Term by Term Match'), 'whole'=>translate('Whole Query Match'), 'regex'=>translate('Regular Expression Match'));
+
+
+
 		if ($wa && !empty($current_choice) && isset($collections[$current_choice])) {
 			$thesaurus_config = $asset->getCollectionDataPath($current_choice, 'conf').'/synonyms.cfg';
 			$config = $asset->readConfiguration($thesaurus_config);
 			?>
 			<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('fb_query'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fb_term'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fb_replacement'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('delete'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('Query Type'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Term'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Replacement'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Delete'); ?></td>
+
 			</tr>
 			<?php
 			// Current thesaurus
@@ -779,7 +815,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			</table>
 			<?php
 		} else if (!empty($current_choice) && !isset($collections[$current_choice])) {
-			echo translate('funnelback_missing_collection', $current_choice);
+			echo sprintf(translate('Missing Collection: %s'), $current_choice);
+
 		}//end if
 
 		return TRUE;
@@ -865,7 +902,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($collection_selecter)) {
 				echo combo_box($prefix.'_edit_feature_page', $collection_selecter, FALSE, $current_choice);
 			} else {
-				echo translate('funnelback_no_collection_to_proceed');
+				echo translate('No Collections have been set, please go to the \'Collections\' screen and create a collection before continuing');
+
 			}//end if
 		}//end if
 
@@ -931,15 +969,21 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		hidden_field($prefix.'_edit_feature_page_line', $line_id);
 		if (!empty($collection_id)) {
 			$collection_name = array_get_index(array_get_index($collections, $collection_id, Array()), 'name', '');
-			echo translate('funnelback_editing_collection', $collection_name);
+			echo sprintf(translate('<b>Editing Collection: %s</b>'), $collection_name);
+
 			?>
 			<table class="sq-backend-table">
 			<tr>
-				<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('edit'); ?></td><?php } ?>
-				<td class="sq-backend-table-header"><?php echo translate('fb_trigger'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('valid_question'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
-				<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('delete'); ?>?</td><?php } ?>
+				<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('Edit'); ?></td><?php } ?>
+
+				<td class="sq-backend-table-header"><?php echo translate('Trigger Word'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Valid?'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('URL'); ?></td>
+
+				<?php if ($wa) { ?><td class="sq-backend-table-header"><?php echo translate('Delete'); ?>?</td><?php } ?>
+
 			</tr>
 			<?php
 			if (isset($config[$collection_id])) {
@@ -979,10 +1023,12 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			if ($wa) {
 				echo int_text_box($prefix.'_add_new', 0, FALSE, 5, 0, 10);
-				echo ' '.translate('funnelback_add_new_feature_page');
+				echo ' '.translate('Add new feature page entries');
+
 			}//end if
 		} else {
-			echo translate('funnelback_no_collection_selected');
+			echo translate('Choose a collection to start editing');
+
 		}//end if
 
 		return TRUE;
@@ -1057,10 +1103,14 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		$changed = '0';
 		$wa = $asset->writeAccess('attributes');
 		$feature_queries = Array(
-							'term'		=> translate('fb_term_term'),
-							'exact'		=> translate('fb_exact'),
-							'regex'		=> translate('fb_regex'),
-							'substring'	=> translate('fb_substring'),
+							'term'		=> translate('Term by Term Match'),
+
+							'exact'		=> translate('Exact Match'),
+
+							'regex'		=> translate('Regular Expression Match'),
+
+							'substring'	=> translate('Substring Match'),
+
 						   );
 		if ($wa) {
 			$config = $asset->attr('feature_pages');
@@ -1071,27 +1121,33 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					$changed = '1';
 					$line_data = $config[$collection_id][$line_id];
 					$o->closeField();
-					$o->openField(translate('fb_query'));
+					$o->openField(translate('Query Type'));
+
 						$query = array_get_index($line_data, 'query', 'substring');
 						echo combo_box($prefix.'_edit_selected_feature_page_query', $feature_queries, FALSE, $query);
 					$o->closeField();
-					$o->openField(translate('fb_trigger'));
+					$o->openField(translate('Trigger Word'));
+
 						$trigger = array_get_index($line_data, 'trigger', '');
 						echo text_box($prefix.'_edit_selected_feature_page_trigger', $trigger, 25);
 					$o->closeField();
-					$o->openField(translate('fb_title'));
+					$o->openField(translate('Page Title'));
+
 						$title = array_get_index($line_data, 'title', '');
 						echo text_box($prefix.'_edit_selected_feature_page_title', $title, 25);
 					$o->closeField();
-					$o->openField(translate('fb_desc'));
+					$o->openField(translate('Page Description'));
+
 						$desc = array_get_index($line_data, 'desc', '');
 						echo text_area($prefix.'_edit_selected_feature_page_desc', $desc, 22, 3);
 					$o->closeField();
-					$o->openField(translate('asset'));
+					$o->openField(translate('Asset'));
+
 						$assetid = array_get_index($line_data, 'assetid', 0);
 						echo asset_finder($prefix.'_edit_selected_feature_page_assetid', $assetid, Array('page'=>'D','site'=>'D'));
 					$o->closeField();
-					$o->openField(translate('url'));
+					$o->openField(translate('URL'));
+
 						$url = array_get_index($line_data, 'url', '');
 						if ($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
 							$asset_urls = Array();
@@ -1231,7 +1287,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($collection_selecter)) {
 				echo combo_box($prefix.'_edit_fluster', $collection_selecter, FALSE, $current_choice);
 			} else {
-				echo translate('funnelback_no_collection_to_proceed');
+				echo translate('No Collections have been set, please go to the \'Collections\' screen and create a collection before continuing');
+
 			}//end if
 		}//end if
 
@@ -1301,7 +1358,9 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					$opts->paint($prefix.'_fluster_opt_'.$name);
 				} else if (in_array($switch, $bool_opts)) {
 					// Boolean options
-					$options = Array('true' => translate('true'), 'false' => translate('false'));
+					$options = Array('True' => translate('True'), 'False' => translate('False'));
+
+
 					if (!array_key_exists($parameter, $options)) $parameter = 'false';
 					hidden_field($prefix.'_fluster_opts[]', $switch);
 					combo_box($prefix.'_fluster_opt_'.$name, $options, FALSE, $parameter);
@@ -1311,7 +1370,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				}//end if
 			}//end foreach
 		} else {
-			echo translate('funnelback_no_collection_selected');
+			echo translate('Choose a collection to start editing');
+
 		}//end if
 
 		return TRUE;
@@ -1395,7 +1455,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($collection_selecter)) {
 				echo combo_box($prefix.'_edit_metadata', $collection_selecter, FALSE, $current_choice);
 			} else {
-				echo translate('funnelback_no_collection_to_proceed');
+				echo translate('No Collections have been set, please go to the \'Collections\' screen and create a collection before continuing');
+
 			}//end if
 		}//end if
 
@@ -1456,23 +1517,35 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_mclass'); ?></td>
-					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_word_logic'); ?></td>
-					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_flag'); ?></td>
-					<td class="sq-backend-table-header" width="60%"><?php echo translate('funnelback_tag_name'); ?></td>
-					<td class="sq-backend-table-header" width="5%"><?php echo translate('delete'); ?></td>
+					<td class="sq-backend-table-header" width="15%"><?php echo translate('Metadata Class'); ?></td>
+
+					<td class="sq-backend-table-header" width="15%"><?php echo translate('Word Logic'); ?></td>
+
+					<td class="sq-backend-table-header" width="15%"><?php echo translate('Flag'); ?></td>
+
+					<td class="sq-backend-table-header" width="60%"><?php echo translate('Tag Name'); ?></td>
+
+					<td class="sq-backend-table-header" width="5%"><?php echo translate('Delete'); ?></td>
+
 				</tr>
 				<tr>
-					<td class="sq-backend-table-row"><?php echo translate('fb_mclass', 'S'); ?></td>
-					<td class="sq-backend-table-row" colspan="5"><?php echo translate('funnelback_reserved_class'); ?></td>
+					<td class="sq-backend-table-row"><?php echo sprintf(translate('Metadata Class %s'), 'S'); ?></td>
+
+					<td class="sq-backend-table-row" colspan="5"><?php echo translate('Reserved Metadata Class'); ?></td>
+
 				</tr>
 				<?php
 				$alias_options = $asset->getMetadataAliases();
-				$flag_options = Array(0=>translate('fb_noindex'),1=>translate('fb_index'));
+				$flag_options = Array(0=>translate('No Index'),1=>translate('Index'));
+
+
 				$word_logic_options = Array(
-										0 => translate('fb_logic_exclude'),
-										1 => translate('fb_logic_include_any'),
-										2 => translate('fb_logic_include_all'),
+										0 => translate('Exclude'),
+
+										1 => translate('Include any'),
+
+										2 => translate('Include all'),
+
 									);
 
 				if (isset($alias_options['S'])) unset($alias_options['S']);
@@ -1562,10 +1635,12 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					echo '</tr>';
 				}//end for
 			} else {
-				echo translate('funnelback_no_collection_selected');
+				echo translate('Choose a collection to start editing');
+
 			}//end if
 		} else {
-			echo translate('funnelback_no_collection_selected');
+			echo translate('Choose a collection to start editing');
+
 		}//end if
 
 		return TRUE;
@@ -1705,7 +1780,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				$user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($user, '', TRUE);
 				if (!is_null($user_asset)) {
 					if (!$user_asset->comparePassword($asset->attr('password'))) {
-						trigger_localised_error('FNB0014', E_USER_WARNING);
+						trigger_localised_error('FNB0014', translate('Invalid Password: Incorrect user or password, correct for proper use'), E_USER_WARNING);
 						return FALSE;
 					}//end if
 
@@ -1740,7 +1815,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			multiple_asset_finder($prefix.'_global_assetid_exclusions', $exclusions);
 		} else {
 			if (empty($exclusions)) {
-				echo translate('funnelback_no_assets');
+				echo translate('No assets selected');
+
 			} else {
 				?><ul style="margin:1px 15px;"><?php
 				foreach ($exclusions as $assetid) {
@@ -1806,7 +1882,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($exclusions)) {
-				echo '<p class="sq-backend-warning">'.translate('funnelback_no_asset_types_selected').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('No asset types selected').'</p>';
+
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($exclusions, 'name');
 				?><ul style="margin:1px 15px;"><?php
@@ -1874,7 +1951,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			multiple_asset_finder($prefix.'_global_tree_exclusions', $exclusions);
 		} else {
 			if (empty($exclusions)) {
-				echo translate('funnelback_no_root_nodes');
+				echo translate('No root nodes selected');
+
 			} else {
 				?><ul style="margin:1px 15px;"><?php
 				foreach ($exclusions as $assetid) {
@@ -1925,7 +2003,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Check if a collection is valid or not 
+	* Check if a collection is valid or not
 	*
 	* @param array	$collections	The collections to check
 	* @param string	$collection_id	The collection id to check, if empty return all collections with valid set

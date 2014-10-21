@@ -55,16 +55,19 @@ function paintInlineWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Inte
 	}
 	ksort($direct);
 
-	$o->openSection(translate('workflow_schemas'));
+	$o->openSection(translate('Workflow Schemas'));
+
 	$o->openField('&nbsp;');
 	?>
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('workflow_schema'); ?>
+					<?php echo translate('Workflow Schema'); ?>
+
 				</td>
 				<td class="sq-backend-table-header" align="right">
-					<?php translate('access'); ?>
+					<?php translate('Access'); ?>
+
 				</td>
 			</tr>
 	<?php
@@ -84,7 +87,9 @@ function paintInlineWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Inte
 					?>
 					</td>
 					<td class="sq-backend-table-cell" align="right">
-						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight: bold;"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
+						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight: bold;"><?php echo (($granted == '0') ? translate('Denied') : translate('Applied')) ?></span>
+
+
 					</td>
 				</tr>
 			<?php
@@ -177,7 +182,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 				$no_access_to_edit = TRUE;
 			}//end else if
 		} else {
-			trigger_localised_error('CORE0280', E_USER_WARNING);
+			trigger_localised_error('CORE0280', translate('Email link to process workflow is invalid because asset version is unknown or the workflow step has already been completed.'), E_USER_WARNING);
 		}
 
 	}//end if
@@ -227,7 +232,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					// shouldn't be able to changes status, so don't show anything
 					if ((!$can_publish) && (!$admin_access)) {
 						if ($no_access_to_edit) {
-							trigger_localised_error('CORE0281', E_USER_WARNING, $_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'));
+							trigger_localised_error('CORE0281', sprintf(translate('The workflow has already been %1$s or you do not have access to edit the workflow of the asset'), $_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed')), E_USER_WARNING);
 						}//end if
 						continue;
 					}
@@ -235,7 +240,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					if ($wf_email_link_updated) {
 						$o->openField('');
 						ob_start();
-						echo '<b class="sq-backend-warning">['.translate('workflow_email_link_updated', ($_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'))).']</b>';
+						echo '<b class="sq-backend-warning">['.sprintf(translate('You have %s the changes successfully'), ($_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'))).']</b>';
+
 						ob_end_flush();
 						$o->closeField();
 					}//end if
@@ -244,11 +250,13 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 						if ($email_link_require_comment) {
 							$o->openField('');
 							ob_start();
-									echo '<b class="sq-backend-warning">['.translate('email_link_require_comment').']</b>';
+									echo '<b class="sq-backend-warning">['.translate('Workflow step requires comment before proceeding').']</b>';
+
 							ob_end_flush();
 							$o->closeField();
 						}
-						$o->openField(translate('change_status'));
+						$o->openField(translate('Change Status?'));
+
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) {
 								ob_start();
 
@@ -257,9 +265,11 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							_paintStatusChange($owner, $o, $prefix, $available_statii, $email_link_require_comment ? $new_status : 0);
 							?><span class="sq-backend-fineprint"><?php
 							if (!empty($available_statii)) {
-								echo '<br />'.translate('change_to_approve_or_reject');
+								echo '<br />'.translate('Change the status to approve or reject the changes made to this asset');
+
 							} else {
-								echo translate('cannot_approve_or_reject');
+								echo translate('<i>You cannot approve or reject changes at this time</i>');
+
 							}
 							?></span><?php
 
@@ -281,13 +291,14 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					}
 					if (!empty($running_schemas)) {
 
-						$o->openField(translate('log_message'));
+						$o->openField(translate('Log Message'));
+
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) {
 								ob_start();
 							}
 
 							$requires_comment = $wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id);
-							
+
 							// If userlog required, add a required class. Note that we
 							// also have to provide sq-form-field because that is
 							// overridden otherwise.
@@ -295,14 +306,16 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							if ($requires_comment === TRUE) {
 							    $extras = ' class="sq-form-field sq-requires-userlog"';
 							}
-							
+
 							text_area($prefix.'_workflow_new_log_message', '', 60, 6, 0, $extras);
 							echo '<br/>';
 
 							if ($requires_comment === TRUE) {
-								echo translate('workflow_must_enter_reason_for_decision');
+								echo translate('You must enter the reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.');
+
 							} else {
-								echo translate('workflow_may_enter_reason_for_decision');
+								echo translate('You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.');
+
 							}
 
 							// if there is a keyword replacement for this, add it to the replacements
@@ -330,7 +343,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							$require_comment = $wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id);
 							$button_js = 'submit_form()';
 							if ($require_comment) {
-								$button_js = "elt = document.getElementById('".$prefix."_workflow_new_log_message'); if (elt && elt.value.replace(".'/^\s+|\s+$/g'.", '').length == 0) alert(js_translate('must_enter_comment_error')); else submit_form();";
+								$button_js = "elt = document.getElementById('".$prefix."_workflow_new_log_message'); if (elt && elt.value.replace(".'/^\s+|\s+$/g'.", '').length == 0) alert(js_translate('You must enter a comment for this workflow step.')); else submit_form();";
+
 							}
 							normal_button($prefix.'_workflow_status_update', SQ_CONF_COMMIT_BUTTON_TEXT, $button_js);
 
@@ -346,7 +360,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 				case 'workflow_logs' :
 
-					$o->openField(translate('workflow_logs'));
+					$o->openField(translate('Workflow Logs'));
+
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_logs'])) {
 							ob_start();
 						}
@@ -362,15 +377,19 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							?>
 							<table class="sq-backend-table">
 								<tr>
-									<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('log_time'); ?></td>
-									<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('logged_by'); ?></td>
-									<td class="sq-backend-table-header" width="100%"><?php echo translate('message'); ?></td>
+									<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('Log Time'); ?></td>
+
+									<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('Logged By'); ?></td>
+
+									<td class="sq-backend-table-header" width="100%"><?php echo translate('Message'); ?></td>
+
 								</tr>
 								<?php
 								if (!empty($user_logs)) {
 									?>
 									<tr>
-										<td class="sq-backend-table-header" colspan="3"><?php echo translate('most_recent_user_log_message'); ?></td>
+										<td class="sq-backend-table-header" colspan="3"><?php echo translate('Most recent user log messages'); ?></td>
+
 									</tr>
 									<?php
 									for ($log_num = 0; $log_num < 4; $log_num++) {
@@ -389,7 +408,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								if (!empty($logs)) {
 									?>
 									<tr>
-										<td class="sq-backend-table-header" colspan="3"><?php echo translate('most_recent_system_workflow_message'); ?></td>
+										<td class="sq-backend-table-header" colspan="3"><?php echo translate('Most recent system workflow messages'); ?></td>
+
 									</tr>
 									<?php
 									for ($log_num = 0; $log_num < 4; $log_num++) {
@@ -407,7 +427,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								?>
 								<tr>
 									<td colspan="3" align="left">
-										<a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow"><?php echo translate('view_all_workflow_logs'); ?></a>
+										<a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow"><?php echo translate('View all workflow logs'); ?></a>
+
 									</td>
 								</tr>
 							</table>
@@ -441,23 +462,30 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 							if (!in_array($schemaid, $running_schemas)) continue;
 
-							if (!isset($workflow['stream_name'])) $workflow['stream_name'] = translate('default_stream'); //Pre 3-26 systems
-							$schema_title = translate('running_workflow').' - '.$workflow['schema_name'].' - '.$workflow['stream_name'];
+							if (!isset($workflow['stream_name'])) $workflow['stream_name'] = translate('Default Stream'); //Pre 3-26 systems
+
+							$schema_title = translate('Running Workflow').' - '.$workflow['schema_name'].' - '.$workflow['stream_name'];
+
 							if (isset($workflow['complete']) && $workflow['complete']) {
-								$schema_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
+								$schema_title .= ' <span style="color:#008800">['.translate('Completed').']</span>';
+
 							} else {
-								$schema_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
+								$schema_title .= ' <span style="color:#880000">['.translate('Not Completed').']</span>';
+
 							}
 
 							$o->openSection($schema_title);
 
-								$o->openSection(translate('workflow_summary'));
+								$o->openSection(translate('Workflow Summary'));
 
-								$o->openField(translate('workflow_started'));
+
+								$o->openField(translate('Workflow Started'));
+
 									echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
 								$o->closeField();
 
-								$o->openField(translate('time_running'));
+								$o->openField(translate('Time Running'));
+
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 									echo easy_time_total(time() - $workflow['started'], TRUE);
 								$o->closeField();
@@ -467,18 +495,22 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 									$section_title = "Step $stepid - ".$step_data['step_name'];
 
 									if ($step_data['expired']) {
-										$section_title .= ' <span style="color:#FF9900">['.translate('escalated').']</span>';
+										$section_title .= ' <span style="color:#FF9900">['.translate('Escalated').']</span>';
+
 									} else {
 										if ($step_data['completed']) {
-											$section_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
+											$section_title .= ' <span style="color:#008800">['.translate('Completed').']</span>';
+
 										} else {
-											$section_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
+											$section_title .= ' <span style="color:#880000">['.translate('Not Completed').']</span>';
+
 										}
 									}
 									$o->openSection($section_title);
 
 										if ($step_data['started']) {
-											$o->openField(translate('step_duration'));
+											$o->openField(translate('Step Duration'));
+
 												echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
 												echo ' - ';
 												if ($step_data['completed']) {
@@ -496,7 +528,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 												echo '</i>)';
 											$o->closeField();
 											if ($step_data['expiry_time'] > 0) {
-												$o->openField(translate('expiry_time'));
+												$o->openField(translate('Expiry Time'));
+
 													$expiry_time = $step_data['started'] + $step_data['expiry_time'];
 													echo $GLOBALS['SQ_SYSTEM']->datetime($expiry_time);
 													echo ' (<i> ';
@@ -504,15 +537,19 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 													echo ' </i>)';
 												$o->closeField();
 											}
-											$o->openField(translate('automatically_escalate'));
+											$o->openField(translate('Automatically Escalate'));
+
 												if ($step_data['escalate']) {
-													echo translate('yes');
+													echo translate('Yes');
+
 												} else {
-													echo translate('no');
+													echo translate('No');
+
 												}
 											$o->closeField();
 										}//end if
-										$o->openField(translate('step_logic'));
+										$o->openField(translate('Step Logic'));
+
 											if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
 												// a special type of logic statement
 												$step_logic = $step_data['logic'];
@@ -532,7 +569,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 											}
 										$o->closeField();
 
-										$o->openField(translate('conditions'));
+										$o->openField(translate('Conditions'));
+
 
 											$has_conds = FALSE;
 											ob_start();
@@ -540,8 +578,10 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 											<table class="sq-backend-table">
 												<tr>
 													<td class="sq-backend-table-header">&nbsp;</td>
-													<td class="sq-backend-table-header" width="270"><b><?php echo translate('group_logic'); ?></b></td>
-													<td align="center" width="100" class="sq-backend-table-header"><b><?php echo translate('complete_question'); ?></b></td>
+													<td class="sq-backend-table-header" width="270"><b><?php echo translate('Group Logic'); ?></b></td>
+
+													<td align="center" width="100" class="sq-backend-table-header"><b><?php echo translate('Complete?'); ?></b></td>
+
 												</tr>
 											<?php
 											foreach ($step_data['conditions'] as $pub => $cond_data) {
@@ -582,11 +622,13 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 													<td align="center" class="sq-backend-table-cell">
 													<?php
 														if (isset($cond_data['complete']) && $cond_data['complete']) {
-															echo '<span style="color:#008800"><b>'.translate('yes').'</b></span>';
+															echo '<span style="color:#008800"><b>'.translate('Yes').'</b></span>';
+
 														} else {
 															// do some extra checking
 															if (is_null($asset) || $asset instanceof User) {
-																echo ((isset($cond_data['published_by'][$pub])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
+																echo ((isset($cond_data['published_by'][$pub])) ? '<span style="color:#008800"><b>'.translate('Yes').'</b></span>' : '&nbsp;');
+
 															} else {
 																if ($cond_logic_num) {
 																	$user_count = $cond_logic_num;
@@ -615,7 +657,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 											if (!$has_conds) {
 												ob_end_clean();
-												echo translate('none');
+												echo translate('None');
+
 											} else {
 												ob_end_flush();
 												?></table><?php
@@ -649,12 +692,14 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 						$o->openSection();
 
 					} else {
-						$o->openField(translate('workflow_status'));
+						$o->openField(translate('Workflow Status'));
+
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
 								ob_start();
 							}
 
-							echo translate('workflow_not_running');
+							echo translate('Workflow is not currently running for this asset');
+
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
@@ -676,7 +721,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 						if ($mm->allowsMetadata($owner->id)) {
 							$m_complete = $mm->requiredFieldsComplete($owner->id);
 							if (!$m_complete) {
-								$o->openField('<span class="sq-backend-warning"><b>'.ucfirst(strtolower(translate('warning'))).'</b></span>');
+								$o->openField('<span class="sq-backend-warning"><b>'.ucfirst(strtolower(translate('Warning'))).'</b></span>');
+
 									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) {
 										ob_start();
 									}
@@ -684,9 +730,12 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 									?>
 									<p class="sq-backend-data">
 										<span class="sq-backend-warning">
-											<b><?php echo translate('metadata_in_approval_requires_fields_completion', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></b>
+											<b><?php echo sprintf(translate('"%1$s" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "%1$s" can become \'Approved\' to go live.'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></b>
+
 										</span>
-										<?php echo translate('metadata_fields_only_completed_by_administrator', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '<a href="'.$owner->getBackendHref('metadata').'">'.translate('metadata_screen').'</a>'); ?>
+										<?php echo sprintf(translate('These metadata fields can be completed by any editor or administrator of "%1$s" by going to the %2$s.'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '<a href="'.$owner->getBackendHref('metadata').'">'.translate('Metadata screen').'</a>'); ?>
+
+
 									</p>
 									<?php
 
@@ -725,21 +774,27 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							}
 
 							if (empty($direct)) {
-								echo '<p><em>'.translate('no_workflow_schemas').'</em></p>';
+								echo '<p><em>'.translate('There are no workflow schemas applied to this asset.').'</em></p>';
+
 							} else {
 								foreach ($direct as $granted => $schema_list) {
 								?>
 									<table class="sq-backend-table">
 										<tr>
 											<th class="sq-backend-table-header">
-												<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?> <?php echo translate('schemas');?></span>
+												<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('Denied') : translate('Applied')) ?> <?php echo translate('Schemas');?></span>
+
+
+
 											</th>
 											<th style="text-align: center;" width="100" class="sq-backend-table-header">
-												<?php echo translate('cascade_question'); ?>
+												<?php echo translate('Cascade?'); ?>
+
 											</th>
 											<?php
 											if ($admin_access && $wfm->isWorkflowComplete($owner->id)) {
-												?><th style="text-align: center;" width="100" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></th><?php
+												?><th style="text-align: center;" width="100" class="sq-backend-table-header"><?php echo translate('Delete?'); ?></th><?php
+
 											}
 											?>
 										</tr>
@@ -808,8 +863,11 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 							$o->openField('Select Schema', '');
 								echo '<span class="sq-inline-fields-wrapper bottom-margin">';
-									combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
-									echo ' '.translate('workflow_schema').' ';
+									combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('Apply'), '0' => translate('Deny')), FALSE, '');
+
+
+									echo ' '.translate('Workflow Schema').' ';
+
 									asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 								echo '</span>';
 							$o->closeField();
@@ -824,9 +882,11 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								ob_end_flush();
 							}
 
-							$o->openField(translate('cascade_question'), '');
+							$o->openField(translate('Cascade?'), '');
+
 								check_box($prefix.'_workflow[new][cascades]', 1, TRUE);
-								label(translate('cascade_schema_changes_to_new_children'), $prefix.'_workflow[new][cascades]');
+								label(translate('Cascade this new schema to newly-created children'), $prefix.'_workflow[new][cascades]');
+
 								$o->note('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow schema to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
 							$o->closeField();
 
@@ -839,7 +899,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 				case 'workflow_cascade_options' :
 
-					$o->openField(translate('cascade_options'));
+					$o->openField(translate('Cascade Options'));
+
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_cascade_options'])) {
 							ob_start();
 						}
@@ -848,23 +909,30 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 							if (count($kiddies)) {
 
-								echo '<p><strong>'.translate('note').':</strong> '.translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
+								echo '<p><strong>'.translate('Note').':</strong> '.sprintf(translate('These actions will affect <strong>%1$s</strong> other assets below "<strong>%2$s</strong>"'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
+
+
 
 								check_box($prefix.'_workflow[cascade_changes]', '1', TRUE);
 								echo ' ';
-								label(translate('cascade_schema_changes'), $prefix.'_workflow[cascade_changes]');
+								label(translate('Cascade schema changes'), $prefix.'_workflow[cascade_changes]');
+
 								echo '<br/>';
 								check_box($prefix.'_workflow[manual_cascade]');
 								echo ' ';
-								label(translate('manually_cascade_schema'), $prefix.'_workflow[manual_cascade]');
+								label(translate('Manually cascade schemas'), $prefix.'_workflow[manual_cascade]');
+
 
 							} else {
-								echo translate('no_children_to_cascade_workflow');
+								echo translate('There are no children to cascade workflow schemas to');
+
 							}
 						} else if ($admin_access) {
-							echo translate('cannot_cascade_while_workflow_running');
+							echo translate('You cannot cascade workflow schemas while workflow is running');
+
 						} else {
-							echo translate('no_access_to_cascade_workflow');
+							echo translate('You do not have access to cascade workflow schemas for this asset');
+
 						}
 
 						// if there is a keyword replacement for this, add it to the replacements
@@ -937,6 +1005,8 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 		$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
 		$message->parameters['assetid'] = $owner->id;
 		$message->parameters['version'] = substr($owner->version, 0, strrpos($owner->version, '.'));
+		$message->subject = translate('Workflow User Log');
+		$message->body    = $message_body;
 		$message->send();
 		$updated = TRUE;
 	}
@@ -946,7 +1016,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 		_processStatusChange($owner, $o, $prefix);
 		$updated = TRUE;
 	}
-	
+
 	// if we dont have admin access, dont process anything
 	if (!$owner->adminAccess('workflow')) return $updated;
 
@@ -970,7 +1040,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-			trigger_localised_error('SYS0268', E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
+			trigger_localised_error('SYS0268', sprintf(translate('You need to select the type of access in order to apply schema #%s'), $post_data['new']['schemaid']['assetid']), E_USER_NOTICE);
 		} else {
 
 			// Cascade changes to lower assets if "cascade" is set
@@ -1086,18 +1156,22 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 	$section_title = 'Step '.implode('.',$step_address).' - '.$step_data['step_name'];
 
 	if ($step_data['expired']) {
-		$section_title .= ' <span style="color:#FF9900">['.translate('escalated').']</span>';
+		$section_title .= ' <span style="color:#FF9900">['.translate('Escalated').']</span>';
+
 	} else {
 		if ($step_data['completed']) {
-			$section_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
+			$section_title .= ' <span style="color:#008800">['.translate('Completed').']</span>';
+
 		} else {
-			$section_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
+			$section_title .= ' <span style="color:#880000">['.translate('Not Completed').']</span>';
+
 		}
 	}
 
 	$o->openSection($section_title);
 		if ($step_data['started']) {
-			$o->openField(translate('step_duration'));
+			$o->openField(translate('Step Duration'));
+
 				echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
 				echo ' - ';
 				if ($step_data['completed']) {
@@ -1115,7 +1189,8 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 				echo '</i>)';
 			$o->closeField();
 			if ($step_data['expiry_time'] > 0) {
-				$o->openField(translate('expiry_time'));
+				$o->openField(translate('Expiry Time'));
+
 					$expiry_time = $step_data['started'] + $step_data['expiry_time'];
 					echo $GLOBALS['SQ_SYSTEM']->datetime($expiry_time);
 					echo ' (<i> ';
@@ -1123,18 +1198,22 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 					echo ' </i>)';
 
 				$o->closeField();
-				$o->openField(translate('automatically_escalate'));
+				$o->openField(translate('Automatically Escalate'));
+
 					if ($step_data['escalate']) {
-						echo translate('yes');
+						echo translate('Yes');
+
 					} else {
-						echo translate('no');
+						echo translate('No');
+
 					}
 				$o->closeField();
 			}
 		}//end if started
 
 
-		$o->openField(translate('step_logic'));
+		$o->openField(translate('Step Logic'));
+
 			if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
 				// a special type of logic statement
 				$step_logic = $step_data['logic'];
@@ -1154,7 +1233,8 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 			}
 		$o->closeField();
 
-		$o->openField(translate('conditions'));
+		$o->openField(translate('Conditions'));
+
 
 			$has_conds = FALSE;
 			ob_start();
@@ -1162,8 +1242,10 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 			<table class="sq-backend-table">
 				<tr>
 					<td class="sq-backend-table-header">&nbsp;</td>
-					<td class="sq-backend-table-header" width="270"><b><?php echo translate('group_logic'); ?></b></td>
-					<td align="center" width="100" class="sq-backend-table-header"><b><?php echo translate('complete_question'); ?></b></td>
+					<td class="sq-backend-table-header" width="270"><b><?php echo translate('Group Logic'); ?></b></td>
+
+					<td align="center" width="100" class="sq-backend-table-header"><b><?php echo translate('Complete?'); ?></b></td>
+
 				</tr>
 			<?php
 			foreach ($step_data['conditions'] as $pub => $cond_data) {
@@ -1201,11 +1283,13 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 					<td align="center" class="sq-backend-table-cell">
 					<?php
 						if (isset($cond_data['complete']) && $cond_data['complete']) {
-							echo '<span style="color:#008800"><b>'.translate('yes').'</b></span>';
+							echo '<span style="color:#008800"><b>'.translate('Yes').'</b></span>';
+
 						} else {
 							// do some extra checking
 							if ($asset instanceof User) {
-								echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
+								echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>'.translate('Yes').'</b></span>' : '&nbsp;');
+
 							} else {
 								if ($cond_logic_num) {
 									$user_count = $cond_logic_num;
@@ -1234,7 +1318,8 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 
 			if (!$has_conds) {
 				ob_end_clean();
-				echo translate('none');
+				echo translate('None');
+
 			} else {
 				ob_end_flush();
 				?></table><?php

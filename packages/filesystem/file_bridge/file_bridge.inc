@@ -110,7 +110,7 @@ class File_Bridge extends Asset implements Bridge
 				$list[] = $element;
 			}//end if
 		}//end foreach
-		
+
 		return $list;
 
 	}//end _listFiles()
@@ -169,7 +169,7 @@ class File_Bridge extends Asset implements Bridge
 		$location = FILE_BRIDGE_PATH;
 		$location = rtrim($location, '/');
 		if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
-		
+
 		if ($this->_isValidFile($location.'/'.$shadowid)) {
 			if (is_dir($location.'/'.$shadowid)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('physical_folder');
@@ -227,14 +227,14 @@ class File_Bridge extends Asset implements Bridge
 			if ($this->id == $assetid) {
 				if ($side_of_link == 'minor') {
 					// should never happen...but anyway
-					trigger_localised_error('CORE0089', E_USER_ERROR);
+					trigger_localised_error('CORE0089', translate('Unable to get the links from the minor side to the major side when the assetid is not a shadow assets id'), E_USER_ERROR);
 
 				} else {
 					require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
 					$location = FILE_BRIDGE_PATH;
 					$location = rtrim($location, '/');
 					if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
-					
+
 					$files = $this->_listFiles($location);
 					$i = 0;
 					foreach ($files as $file) {
@@ -363,7 +363,7 @@ class File_Bridge extends Asset implements Bridge
 
 	}//end getChildren()
 
-	
+
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*

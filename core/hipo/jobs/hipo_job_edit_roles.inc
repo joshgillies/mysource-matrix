@@ -57,7 +57,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 
 	}//end constructor
 
-	
+
 	/**
 	* Paints backend of this job
 	*
@@ -69,7 +69,8 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('edit_role_threshold'));
+		$o->openField(translate('Edit Role Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -78,6 +79,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 			echo SQ_HIPO_EDIT_ROLE_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -121,7 +123,8 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_roles');
+		return translate('Edit Roles');
+
 
 	}//end getHipoName()
 
@@ -137,7 +140,8 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_updating_roles'),
+					'name'			=> translate('Updating Roles'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processRoles',
 									   ),
@@ -167,7 +171,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids']) || !isset($this->_running_vars['role_changes'])) {
 			return 0;
 		}
-		
+
 		//total userids in 'add' and 'delete' role changes - include duplicated userids because we are counting the number of calls to setRole and deleteRole methods
 		$total_userids = 0;
 		foreach ($this->_running_vars['role_changes'] as $action_data) {
@@ -175,7 +179,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 				$total_userids += count($userids);
 			}
 		}
-		
+
 		//we have to multiply with the number of users because we want to run runQueuedJobs() instead of freestyle() in hipo job
 		//when we want to set role for 1 asset but 1000 users. It will take time in this case
 		return ((count($this->_running_vars['todo_assetids']) * $total_userids / SQ_HIPO_EDIT_ROLE_THRESHOLD) * 100);
@@ -210,7 +214,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assets'])) {
-			trigger_localised_error('HIPO0075', E_USER_WARNING);
+			trigger_localised_error('HIPO0075', translate('Unable to initialise "Role Edit" HIPO, no asset(s) specified'), E_USER_WARNING);
 			return '';
 		}
 
@@ -223,7 +227,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 		for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 			if (empty($asset_info)) {
-				trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
+				trigger_localised_error('HIPO0013', sprintf(translate('Unable to initialise Edit Permissions HIPO, invalid asset ID specified (%s)'), $assetid), E_USER_WARNING);
 				return '';
 			}
 
@@ -284,21 +288,24 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 								}
 							}
 						}
-						$step_data['message'] = translate('hipo_edit_role', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						$step_data['message'] = sprintf(translate('Editing Roles for "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'roles');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						unset($asset);
 					} else {
 						// we do not have admin access
-						trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
+						trigger_localised_error('SYS0313', sprintf(translate('Unable to set role for "%s", permission denied'), $asset->name), E_USER_WARNING);
 					}
 				} else {
 					// we do not acquire lock
-					trigger_localised_error('SYS0100', E_USER_WARNING, 'roles', $asset->name, ' skipping asset.');
+					trigger_localised_error('SYS0100', sprintf(translate('Unable to acquire "%1$s" lock on "%2$s", %3$s', 'roles'), $asset->name, ' skipping asset.'), E_USER_WARNING);
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_skipping_role', $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not edit roles for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -372,7 +379,9 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+		$step_data['message'] = sprintf(translate('Releasing locks on %s'), $asset_info[$assetid]['name']).translate('and its dependent assets');
+
+
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

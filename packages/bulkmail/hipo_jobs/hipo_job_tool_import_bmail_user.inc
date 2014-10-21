@@ -47,7 +47,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 
 	}//end constructor
 
-	
+
 	/**
 	* Paints backend of this job's configuration
 	*
@@ -59,7 +59,8 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('bm_tool_import_bmail_user_hipo_job_import_threshold'));
+		$o->openField(translate('Bulkmail User Import Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -68,6 +69,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 			echo SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -89,7 +91,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 
 	}//end getConfigVars()
 
-	
+
 	/**
 	* Returns the current Threshold.
 	*
@@ -106,11 +108,11 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 			return 0;
 		}
 		$user_count = count($this->_running_vars['todo_asset_users']);
-		
+
 		return (($user_count / SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
-	
+
 
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
@@ -136,7 +138,8 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('bm_hipo_name_import_bmail_user');
+		return translate('Import Bulkmail User');
+
 
 	}//end getHipoName()
 
@@ -152,7 +155,8 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('bm_hipo_importing_bmail_users'),
+					'name'			=> translate('Importing Bulkmail Users'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processImport',
 									   ),
@@ -269,7 +273,8 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 						);
 				$status = $user->create($link);
 			}
-			$step_data['message'] = translate('bm_importing_bmail_user', $email);
+			$step_data['message'] = sprintf(translate('Importing %s'), $email);
+
 
 			// add this user to the done array
 			$this->_running_vars['done_asset_users'][] = $email;

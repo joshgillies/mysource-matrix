@@ -47,8 +47,8 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 								);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Paint the links to the questions under this question (i.e potential destination questions).
 	*
@@ -70,10 +70,12 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
-							<?php echo translate('question'); ?>
+							<?php echo translate('Question'); ?>
+
 						</td>
 						<td class="sq-backend-table-header">
-							<?php echo translate('type'); ?>
+							<?php echo translate('Type'); ?>
+
 						</td>
 					</tr>
 				<?php
@@ -122,8 +124,8 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processQuestionLinks()
-	
-	
+
+
 	/**
 	* Paint the dropdowns to add questions to this section
 	*
@@ -173,14 +175,14 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 	function processAddQuestions(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return FALSE;
-		
+
 		$type   = (isset($_POST[$prefix.'question_type'])) ? $_POST[$prefix.'question_type'] : '';
 		$name = (isset($_POST[$prefix.'question_name'])) ? $_POST[$prefix.'question_name'] : '';
 
 		if ($type && $name) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			
+
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
 			$type = ucwords($type);
 			$new_asset = new $type;
@@ -194,24 +196,24 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 						'is_dependant'	=> TRUE,
 						'is_exclusive'	=> FALSE,
 					);
-	
+
 			if(!$new_asset->create($link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				//trigger error
 				return FALSE;
 			}
-			
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			
+
 		}//end if
 
 		return TRUE;
 
 	}//end processAddQuestions()
-	
-	
+
+
 	/**
 	* Paint lock message telling the user to go to our parent to lock me
 	*
@@ -229,7 +231,7 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 			echo "<p>Locking for this asset is controlled by its parent Decision Tree Page.</p>";
 			return TRUE;
 		}
-		
+
 		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_parent[0]);
 
 		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($parent_asset->id, 'attributes', TRUE);

@@ -44,7 +44,7 @@ class Paypal_Configuration extends Asset
 
 	}//end constructor
 
-	
+
 	/**
 	* Perform any pre-validation required during the creation of this asset
 	*
@@ -61,7 +61,7 @@ class Paypal_Configuration extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -87,7 +87,7 @@ class Paypal_Configuration extends Asset
 		return $this->makeAndSaveInitialWebPath(strtolower($this->attr('name')), $link);
 
 	}//end _createAdditional()
-	
+
 
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
@@ -106,7 +106,7 @@ class Paypal_Configuration extends Asset
 		$allowed_links[SQ_LINK_TYPE_2]['paypal_payment_button']		= Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed_links[SQ_LINK_TYPE_1]['paypal_ipn_receiver']		= Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed_links[SQ_LINK_TYPE_2]['paypal_ipn_receiver']		= Array('card' => 'M', 'exclusive' => FALSE);
-		
+
 		return $allowed_links;
 
 	}//end _getAllowedLinks()

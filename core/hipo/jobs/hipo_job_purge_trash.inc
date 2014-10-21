@@ -60,7 +60,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('purge_trash_threshold'));
+		$o->openField(translate('Purge Trash Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -69,6 +70,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			echo SQ_HIPO_PURGE_TRASH_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -99,7 +101,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_purge_trash');
+		return translate('Purge Trash');
+
 
 	}//end getHipoName()
 
@@ -115,7 +118,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_purging_trash_determining'),
+					'name'			=> translate('Determining which assets to delete'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'buildListToDelete',
 									   ),
@@ -127,7 +131,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_purging_trash_deleting'),
+					'name'			=> translate('Deleting Assets'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'purgeAsset',
 									   ),
@@ -139,7 +144,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_purging_trash_cleaning'),
+					'name'			=> translate('Cleaning up the trash'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'deleteRemainingTrashLinks',
 									   ),
@@ -197,7 +203,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 			// is the root in the trash?
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($purge_root->id)) {
-				trigger_localised_error('HIPO0083', E_USER_WARNING);
+				trigger_localised_error('HIPO0083', translate('Purge aborted, Purge root is not in the trash"'), E_USER_WARNING);
 				return FALSE;
 			}
 			$purge_root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id);
@@ -357,14 +363,14 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				// we have an asset ready to delete, but we need to check with
 				// the asset manager that we are allowed to delete it
 				if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
-					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
+					trigger_localised_error('HIPO0004', sprintf(translate('Purge aborted, unable to delete "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->_running_vars['trash_id'], 'all') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $this->_running_vars['trash_id'])) {
-					trigger_localised_error('HIPO0005', E_USER_WARNING, $asset->name, $asset->id);
+					trigger_localised_error('HIPO0005', sprintf(translate('Purge aborted, unable to lock the asset "%s"'), $asset->name, $asset->id), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -388,7 +394,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 				// the delete function will remove all links in which the asset is the minor party
 				if (!$asset->delete(FALSE, FALSE)) {
-					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
+					trigger_localised_error('HIPO0004', sprintf(translate('Purge aborted, unable to delete "%1$s" (Id: #%2$s)'), $asset->name, $asset->id), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -398,7 +404,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 
-				$step_data['message'] = translate('hipo_deleting', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
+				$step_data['message'] = sprintf(translate('Deleting "%1$s" [%2$s]'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -443,7 +450,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		}
 
 		// We reverse the array to start deleting the assets with the highest sort-order.
-		// This is *much* faster because we don't have to update the sort order  
+		// This is *much* faster because we don't have to update the sort order
 		// of all the other assets under the trash each time
 		foreach (array_reverse($links) as $link) {
 			// Extra check to make sure the link is under trash exclusively before deleting the link itself

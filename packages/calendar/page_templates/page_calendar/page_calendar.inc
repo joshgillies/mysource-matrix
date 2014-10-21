@@ -121,9 +121,11 @@ class Page_Calendar extends Page
 
 			// if the user is trying to delete the bodycopy or the no results body copy return an error message
 			if ((!empty($bodycopy_link)) && ($bodycopy_link[0]['linkid'] == $linkid)) {
-				return translate('cal_page_error_bodycopy_link_cannot_delete');
+				return translate('You are now allow to delete this page contents');
+
 			} else if ((!empty($bodycopy_no_results_link) && ($bodycopy_no_results_link[0]['linkid'] == $linkid))) {
-				return translate('cal_page_error_bodycopy_no_results_link_cannot_delete');
+				return translate('You are now allow to delete this page contents (no results)');
+
 			}
 		}
 
@@ -232,7 +234,7 @@ class Page_Calendar extends Page
 	*/
 	function printFrontend()
 	{
-		
+
 		return parent::printFrontend();
 
 	}//end printFrontend()
@@ -492,7 +494,7 @@ class Page_Calendar extends Page
 		// if we've somehow ended up with an invalid date, use today's
 		list($year, $month, $day) = explode('-', $cal_date);
 		if (!checkdate($month, $day, $year)) {
-			trigger_localised_error('CAL0022', E_USER_WARNING, $cal_date);
+			trigger_localised_error('CAL0022', sprintf(translate('Date passed to calendar page (%s) is not valid, using today\'s date as fallback'), $cal_date), E_USER_WARNING);
 			$cal_date = date('Y-m-d');
 		}
 
@@ -500,7 +502,7 @@ class Page_Calendar extends Page
 		$event_id = FALSE;
 		if (($cal_view == 'event') || ($cal_view == 'edit')) {
 			if (!isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
-				trigger_localised_error('CAL0023', E_USER_WARNING, ucfirst($cal_view));
+				trigger_localised_error('CAL0023', sprintf(translate('%s View requested but no Event ID supplied'), ucfirst($cal_view)), E_USER_WARNING);
 				return FALSE;
 			}
 			if (!assert_valid_assetid($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
@@ -678,14 +680,22 @@ class Page_Calendar extends Page
 	function _getContentsKeywords()
 	{
 		$keywords = Array(
-						'calendar_contents'	=> translate('cal_page_calendar_contents'),
-						'calendar_title'	=> translate('cal_page_calendar_title'),
-						'up_link'			=> translate('cal_page_up_link'),
-						'prev_link'			=> translate('cal_page_prev_link'),
-						'next_link'			=> translate('cal_page_next_link'),
-						'current_user'		=> translate('cal_page_current_user'),
-						'today_link'		=> translate('cal_page_today_link'),
-						'root_nodes'		=> translate('root_node'),
+						'calendar_contents'	=> translate('Calendar Contents'),
+
+						'calendar_title'	=> translate('Calendar Title'),
+
+						'up_link'			=> translate('Up Link'),
+
+						'prev_link'			=> translate('Previous Link'),
+
+						'next_link'			=> translate('Next Link'),
+
+						'current_user'		=> translate('Name of Current User'),
+
+						'today_link'		=> translate('Link to jump to today\'s date in the current view'),
+
+						'root_nodes'		=> translate('Root Node'),
+
 					);
 
 		return $keywords;
@@ -703,32 +713,50 @@ class Page_Calendar extends Page
 	{
 		return Array(
 				'year'	=> Array(
-							''						=> translate('cal_no_display'),
-							'list_without_headings'	=> translate('cal_list_without_headings'),
-							'list_with_headings'	=> translate('cal_list_with_month_headings'),
-							'calendar_format'		=> translate('cal_calendar_format'),
+							''						=> translate('(none)'),
+
+							'list_without_headings'	=> translate('List Without Headings'),
+
+							'list_with_headings'	=> translate('List With Month Headings'),
+
+							'calendar_format'		=> translate('Calendar Format'),
+
 						   ),
 				'month'	=> Array(
-							''						=> translate('cal_no_display'),
-							'list_without_headings'	=> translate('cal_list_without_headings'),
-							'list_with_headings'	=> translate('cal_list_with_day_headings'),
-							'calendar_format'		=> translate('cal_calendar_format'),
+							''						=> translate('(none)'),
+
+							'list_without_headings'	=> translate('List Without Headings'),
+
+							'list_with_headings'	=> translate('List With Day Headings'),
+
+							'calendar_format'		=> translate('Calendar Format'),
+
 						   ),
 				'week'	=> Array(
-							''						=> translate('cal_no_display'),
-							'list_without_headings'	=> translate('cal_list_without_headings'),
-							'list_with_headings'	=> translate('cal_list_with_day_headings'),
-							'calendar_format'		=> translate('cal_calendar_format'),
+							''						=> translate('(none)'),
+
+							'list_without_headings'	=> translate('List Without Headings'),
+
+							'list_with_headings'	=> translate('List With Day Headings'),
+
+							'calendar_format'		=> translate('Calendar Format'),
+
 						   ),
 				'day'	=> Array(
-							''						=> translate('cal_no_display'),
-							'list_without_headings'	=> translate('cal_list_without_headings'),
-							'calendar_format'		=> translate('cal_calendar_format'),
+							''						=> translate('(none)'),
+
+							'list_without_headings'	=> translate('List Without Headings'),
+
+							'calendar_format'		=> translate('Calendar Format'),
+
 						   ),
 				'event'	=> Array(
-							''					=> translate('cal_no_display'),
-							'single_event_view'	=> translate('cal_show_single_event_view'),
-							'event_itself'		=> translate('cal_show_single_event_itself'),
+							''					=> translate('(none)'),
+
+							'single_event_view'	=> translate('Display individual events using this page'),
+
+							'event_itself'		=> translate('Show individual event assets at their own URLs'),
+
 						   ),
 			   );
 
@@ -749,7 +777,8 @@ class Page_Calendar extends Page
 	function getCalendarTitle()
 	{
 		$title_formats = $this->attr('view_title_formats');
-		$title_formats['edit'] = translate('cal_page_edit_event');
+		$title_formats['edit'] = translate('Edit Event');
+
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		if (($view == 'event') || ($view == 'edit')) {
 			// _validateRequest already made sure we have a valid event id
@@ -993,7 +1022,7 @@ class Page_Calendar extends Page
 		} else if ($format == 'list_with_headings') {
 			// Dates in month view with 'Listing with day Headings' option should always have url with day view
 			$drill_down_view = $enabled_views['day'] ? 'day' : '';
-			
+
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
 			$events_array = $raw_events;
@@ -1351,14 +1380,16 @@ class Page_Calendar extends Page
 				}
 
 				if (in_array('*', $column_ids)) {
-					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('other') : $this->attr('other_column_name');
+					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('Other') : $this->attr('other_column_name');
+
 				}
 				$raw_events = $this->getDayEvents($date);
 				$events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
 				$events = $this->groupDayEventsByRootNodeAndTime($raw_events);
 			} else {
-				$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('events') : $this->attr('other_column_name');
+				$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('Events') : $this->attr('other_column_name');
+
 				$raw_events = $this->getDayEvents($date);
 				$events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
@@ -1414,7 +1445,7 @@ class Page_Calendar extends Page
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o = new Limbo_Outputter();
 		if (!$event->id) {
-			trigger_localised_error('CAL0024', E_USER_WARNING, $event_id);
+			trigger_localised_error('CAL0024', sprintf(translate('Could not load calendar event asset #%s'), $event_id), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -1440,7 +1471,7 @@ class Page_Calendar extends Page
 
 		// Acquire the lock and print the interface
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($event_id, 'attributes')) {
-			trigger_localised_error('CAL0025', E_USER_WARNING, $event->name, $event_id);
+			trigger_localised_error('CAL0025', sprintf(translate('Couldn\'t acquire attributes lock to edit calendar event asset "%1$s" (#%2$s)'), $event->name, $event_id), E_USER_WARNING);
 			return $this->getEventView($event_id);
 		}
 		$o->addHiddenField('SQ_CALENDAR_VIEW', 'edit');
@@ -1452,7 +1483,8 @@ class Page_Calendar extends Page
 		$ei = $event->getEI();
 		$ei->printEditInterface('screen_details', $event, $o);
 		$o->closeRaw();
-		$o->commitButton(translate('cal_page_update_event'));
+		$o->commitButton(translate('Update Event'));
+
 		ob_start();
 			$o->_paintHeader();
 			$o->paint();
@@ -1552,7 +1584,8 @@ class Page_Calendar extends Page
 		// PRINT HEADER ROW
 		?>
 		<tr>
-			<th><?php echo translate('time'); ?></th>
+			<th><?php echo translate('Time'); ?></th>
+
 		<?php
 		foreach ($column_names as $id => $name) {
 			$today_class = ($id == $today_iso) ? ' today' : '';
@@ -1603,7 +1636,8 @@ class Page_Calendar extends Page
 					$cursor_code = $event_href ? ' cursor: pointer; cursor: hand' : '';
 					$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 					if (!empty($mousedown_code) && (($event['type_code'] == 'calendar_event_recurring') || (isset($event['expanded'])))) {
-						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
+						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('Recurring, multi-day and trimmed events cannot be dragged').'\')" onmouseup="statusBarMsg(\'\');"';
+
 					}
 					$current_mouse_over_out_code = '';
 					if (!empty($event['description'])) {
@@ -1760,7 +1794,8 @@ class Page_Calendar extends Page
 			$onclick_code = $event_href ? 'onclick="sq_cal_redirect(this)"' : '';
 			$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 			if (!empty($mousedown_code) && (($details['type_code'] == 'calendar_event_recurring') || (isset($details['expanded'])))) {
-				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
+				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('Recurring, multi-day and trimmed events cannot be dragged').'\')" onmouseup="statusBarMsg(\'\');"';
+
 			}
 			$current_mouse_over_out_code = '';
 
@@ -2229,7 +2264,7 @@ class Page_Calendar extends Page
 					}
 				}
 				if (!$found_bodycopy) {
-					trigger_localised_error('CAL0061', E_USER_WARNING, $assetid);
+					trigger_localised_error('CAL0061', sprintf(translate('Suitable bodycopy not fournt to print the event of %s'), $assetid), E_USER_WARNING);
 					continue;
 				}
 			}
@@ -2556,7 +2591,7 @@ class Page_Calendar extends Page
 
 		$root_ids = $this->_getRootNodeIds();
 		if (empty($root_ids)) {
-			trigger_localised_error('CAL0026', E_USER_WARNING);
+			trigger_localised_error('CAL0026', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING);
 			return Array();
 		}
 
@@ -2600,7 +2635,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			MatrixDAL::bindValueToPdo($query, 'start_date_ts', $end_ts);
 			$recurring_events = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -2709,10 +2744,10 @@ class Page_Calendar extends Page
 		// get the where clauses ready for tree restrictions
 		$root_ids = $this->_getRootNodeIds();
 		if (empty($root_ids)) {
-			trigger_localised_error('CAL0027', E_USER_WARNING);
+			trigger_localised_error('CAL0027', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING);
 			return Array();
 		}
-		
+
 		// formulate the date restriction clauses
 		$start_ts = strtotime("$year-$month-01 00:00:00 GMT");
 		$next_month = ($month % 12) + 1;
@@ -2724,7 +2759,7 @@ class Page_Calendar extends Page
 		$date_sql = '((cd.start_date_year = :start_date_year AND (cd.start_date_mon = :start_date_month OR cd.end_date_mon = :end_date_month)) OR (cd.start_date_ts < :start_date_ts AND cd.end_date_ts > :end_date_ts))';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids, 'calendar_event_single', TRUE, $bind_vars)."\n AND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
-		
+
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
@@ -2756,7 +2791,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -2830,10 +2865,10 @@ class Page_Calendar extends Page
 
 		$root_ids = $this->_getRootNodeIds();
 		if (empty($root_ids)) {
-			trigger_localised_error('CAL0028', E_USER_WARNING);
+			trigger_localised_error('CAL0028', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING);
 			return Array();
 		}
-		
+
 		// get the single events
 		$bind_vars = Array();
 		$start_date_stamp = Calendar_Common::_getDayStamp($date);
@@ -2847,7 +2882,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds',   $start_date_stamp, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds_1', $start_date_stamp, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds_2', $start_date_stamp, PDO::PARAM_INT);
@@ -2868,7 +2903,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -2922,7 +2957,7 @@ class Page_Calendar extends Page
 		$res = Array();
 		$day_in_second = 24 * 60 * 60;	// 86400 seconds
 		$days_to_show = $this->attr('week_view_show_days');
-		
+
 		$i = iso8601_ts($date);
 		while ($i <= iso8601_ts(add_days_to_iso($date, 6))) {
 			$iso_date = iso8601_date_component(ts_iso8601($i));
@@ -3003,7 +3038,7 @@ class Page_Calendar extends Page
 		$cal_date = date('Y-m-d', $first_day);
 
 		$last_day = add_days_to_iso($cal_date, 6);
-		
+
 		$i = iso8601_ts($cal_date);
 		while ($i <= iso8601_ts(add_days_to_iso($cal_date, 6))) {
 			$iso_date = iso8601_date_component(ts_iso8601($i));
@@ -3062,7 +3097,7 @@ class Page_Calendar extends Page
 
 		$root_ids = $this->_getRootNodeIds();
 		if (empty($root_ids)) {
-			trigger_localised_error('CAL0029', E_USER_WARNING);
+			trigger_localised_error('CAL0029', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING);
 			return Array();
 		}
 
@@ -3071,14 +3106,14 @@ class Page_Calendar extends Page
 		$today_date_stamp = Calendar_Common::_getDayStamp($date);
 		$date_sql = '(('.$today_date_stamp.' = cd.start_date_ds) OR ('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds))';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids, 'calendar_event_single', TRUE, $bind_vars).' AND '.$date_sql;
-		$sql .= $this->_getRootNodeRestrictionSQL();		
-		
+		$sql .= $this->_getRootNodeRestrictionSQL();
+
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$single_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -3095,7 +3130,7 @@ class Page_Calendar extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -3354,7 +3389,7 @@ class Page_Calendar extends Page
 				$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
 				$matching_root_ids = array_intersect(array_keys($dynamic_parents), $original_root_ids);
 				if (empty($matching_root_ids)) {
-					trigger_localised_error('CAL0067', E_USER_WARNING, $dynamic_root, $this->id);
+					trigger_localised_error('CAL0067', sprintf(translate('Supplied dynamic root node (Id: #%1$s) is in an unauthorised part of the system.  Defaulting to static root node. See Asset (Id: #%2$s)'), $dynamic_root, $this->id), E_USER_WARNING);
 				} else {
 					$dynamic_root_nodes[] = $dynamic_root;
 				}
@@ -3443,7 +3478,7 @@ class Page_Calendar extends Page
 
 	}//end formatDatesToCompare()
 
-	
+
 	/**
 	* Create a "No Results" bodycopy under this asset
 	*
@@ -3451,9 +3486,9 @@ class Page_Calendar extends Page
 	* @access public
 	*/
 	function createNoResultsBodycopy()
-	{		
+	{
 		$bodycopy_name = "page_contents_no_results";
-		
+
 		// Check if "No result page" already exists
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $bodycopy_name);
 		if (!empty($bodycopy_link)) {
@@ -3462,13 +3497,13 @@ class Page_Calendar extends Page
 
 		// Being here means bodycopy doesn't exist, so create it
 		$copy_link = Array(
-						'asset' 	=> &$this, 
-						'link_type' => SQ_LINK_TYPE_2, 
-						'is_dependant' => 1, 
-						'is_exclusive' => 1, 
+						'asset' 	=> &$this,
+						'link_type' => SQ_LINK_TYPE_2,
+						'is_dependant' => 1,
+						'is_exclusive' => 1,
 						'value' => $bodycopy_name,
 					);
-					
+
 		$page_contents_data = Array(
 								'content' => '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p><p>No events</p>',
 						);
@@ -3478,7 +3513,7 @@ class Page_Calendar extends Page
 		$bodycopy->setAttrValue('name', "Page Contents (No Results)");
 
 		if (!$bodycopy->create($copy_link, $page_contents_data)) {
-			trigger_localised_error('CAL0062', E_USER_WARNING);
+			trigger_localised_error('CAL0062', translate('Could not link the contents to the no results bodycopy'), E_USER_WARNING);
 			return FALSE;
 		}
 

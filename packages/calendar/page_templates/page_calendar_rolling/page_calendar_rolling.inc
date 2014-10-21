@@ -208,14 +208,19 @@ class Page_Calendar_Rolling extends Page
 
 		switch ($format_bodycopy) {
 			case '':
-				$vars['keywords']['event_list'] = translate('cal_rolling_keyword_event_list');
-				$vars['keywords']['root_nodes'] = translate('root_node');
+				$vars['keywords']['event_list'] = translate('List of Events');
+
+				$vars['keywords']['root_nodes'] = translate('Root Node');
+
 				return TRUE;
 			break;
 			case 'time_unit':
-				$vars['keywords']['time_unit_event_list'] = translate('cal_rolling_keyword_time_unit_event_list', $this->attr('time_unit'));
-				$vars['keywords']['time_unit_start_datetime_xxxx'] = translate('cal_rolling_keyword_time_unit_start_datetime_xxxx');
-				$vars['keywords']['time_unit_end_datetime_xxxx'] = translate('cal_rolling_keyword_time_unit_end_datetime_xxxx');
+				$vars['keywords']['time_unit_event_list'] = sprintf(translate('List of Events for this Time Unit (%s)'), $this->attr('time_unit'));
+
+				$vars['keywords']['time_unit_start_datetime_xxxx'] = translate('Dynamic Start Date (Replace the "XXXX" with a PHP Date format string - no space allowed)');
+
+				$vars['keywords']['time_unit_end_datetime_xxxx'] = translate('Dynamic End Date (Replace the "XXXX" with a PHP Date format string - no space allowed)');
+
 				return TRUE;
 			break;
 		}
@@ -264,11 +269,11 @@ class Page_Calendar_Rolling extends Page
 				}
 			}
 			if (is_null($this->_tmp['tf_folder_id'])) {
-				trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
+				trigger_localised_error('CAL0059', sprintf(translate('Type formats folder not found for Rolling Calendar Page #%s'), $this->id), E_USER_WARNING);
 				return;
 			}
 			if (is_null($pb_bodycopy_id)) {
-				trigger_localised_error('CAL0060', E_USER_WARNING, $this->id);
+				trigger_localised_error('CAL0060', sprintf(translate('Page Contents Bodycopy not found for Rolling Calendar Page #%s'), $this->id), E_USER_WARNING);
 				return;
 			}
 
@@ -733,7 +738,7 @@ class Page_Calendar_Rolling extends Page
 		// build sql to restrict the tree locations
 		$root_nodes = $this->attr('root_nodes');
 		if (empty($root_nodes)) {
-			trigger_localised_error('CAL0028', E_USER_WARNING);
+			trigger_localised_error('CAL0028', translate('WARNING: No valid root nodes are set for this Calendar Page'), E_USER_WARNING);
 			return Array();
 		}
 

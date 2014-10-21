@@ -62,15 +62,15 @@ class Paypal_Business_Account extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 
 		return TRUE;
 
 	}//end _preCreateCheck()
-	
-	
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -81,7 +81,7 @@ class Paypal_Business_Account extends Asset
 	function _getAllowedLinks()
 	{
 		$allowed_links = parent::_getAllowedLinks();
-		
+
 		$allowed_links[SQ_LINK_TYPE_2]['folder']   					= Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed_links[SQ_LINK_NOTICE]['paypal_order'] 			= Array('card' => 'M', 'exclusive' => FALSE);
 		//for better organization structure
@@ -89,12 +89,12 @@ class Paypal_Business_Account extends Asset
 		$allowed_links[SQ_LINK_TYPE_2]['paypal_payment_button']		= Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed_links[SQ_LINK_TYPE_1]['paypal_ipn_receiver']		= Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed_links[SQ_LINK_TYPE_2]['paypal_ipn_receiver']		= Array('card' => 'M', 'exclusive' => FALSE);
-		
+
 		return $allowed_links;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -128,18 +128,18 @@ class Paypal_Business_Account extends Asset
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
-		
+
 		return TRUE;
 
 	}//end _createAdditional()
-	
-	
+
+
 	/**
 	 * Add a new Paypal Order if it does not exist; otherwise, move it from Pending folder to Completed folder
-	 * 
+	 *
 	 * @param array		$payment_info	The payment information from IPN Receiver asset
 	 * @param string	$message 		The message shows the status of the add/move process
-	 * 
+	 *
 	 * @return bool		Return TRUE if success; otherwise, return FALSE
 	 * @access public
 	 */
@@ -157,7 +157,7 @@ class Paypal_Business_Account extends Asset
 				$message = "A NEW PAYPAL ORDER (#{$new_order->id}) IS CREATED.";
 				$success = TRUE;
 			}
-			
+
 		} else {
 			//order exist
 			if ($payment_info['payment_status'] == 'Completed') {
@@ -170,17 +170,17 @@ class Paypal_Business_Account extends Asset
 					} else {
 						$message = "THE PAYPAL ORDER #{$order->id} COULD NOT BE MOVED TO THE COMPLETED FOLDER.";
 					}
-					
+
 				} else {
 					$message = "THE TRANSACTION #{$payment_info['txn_id']} WAS ALREADY COMPLETED.";
 					$success = TRUE;
 				}
-				
+
 			} else {
 				//update the status if it is different
 				if ($order->attr('payment_status') != $payment_info['payment_status']) {
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-					
+
 					$paypal_order->setAttrValue('payment_status', $payment_info['payment_status']);
 					$paypal_order->setAttrValue('incomplete_reason', $payment_info['incomplete_reason']);
 					$paypal_order->setAttrValue('custom_info', $this->_getCustomInfo($payment_info));
@@ -190,25 +190,25 @@ class Paypal_Business_Account extends Asset
 					} else {
 						$message = "NEW PAYMENT STATUS {$payment_info['payment_status']} COULD NOT BE UPDATED TO THE PAYPAL ORDER #{$order->id}.";
 					}
-					
+
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-					
+
 				} else {
 					$message = "THE PAYMENT STATUS {$payment_info['payment_status']} OF THE PAYPAL ORDER #{$order->id} HAS NOT BEEN CHANGED.";
 					$success = TRUE;
 				}
 			}
 		}
-		
+
 		//if an error occurs, send emails to inform
 		if (!$success) {
 			$this->sendEmailOnError("An error occurs under the Paypal Business Account #{$this->id}.\nERROR MESSAGE: $message");
 		}
-		
+
 		return $success;
-		
+
 	}//end addPaypalOrder()
-	
+
 
 	/**
 	* Create a new Paypal Order under Pending or Completed folder
@@ -227,12 +227,12 @@ class Paypal_Business_Account extends Asset
 		$folder_link_value = $payment_completed? 'completed_orders' : 'pending_orders';
 		$order_folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $folder_link_value);
 		if (empty($order_folder_link)) return FALSE;
-		
+
 		$order_folder_id = $order_folder_link['minorid'];
 		$order_folder = $am->getAsset($order_folder_id);
-		
+
 		$success = FALSE;
-		
+
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -251,9 +251,9 @@ class Paypal_Business_Account extends Asset
 			$paypal_order->setAttrValue('total_amount', $payment_info['mc_gross']);
 			$paypal_order->setAttrValue('currency', $payment_info['mc_currency']);
 			$paypal_order->setAttrValue('custom_info', $this->_getCustomInfo($payment_info));
-			
+
 			$products = Array();
-			
+
 			if ($payment_info['txn_type'] == 'cart') {
 				for ($i = 1; $i <= $payment_info['num_cart_items']; $i++) {
 					$product = Array(
@@ -263,7 +263,7 @@ class Paypal_Business_Account extends Asset
 										'price'		=> $payment_info['price_'.$i],
 										'subtotal'	=> $payment_info['mc_gross_'.$i],
 									 );
-					
+
 					$products[] = $product;
 				}
 			} else {
@@ -274,36 +274,36 @@ class Paypal_Business_Account extends Asset
 									'price'		=> $payment_info['price'],
 									'subtotal'	=> $payment_info['mc_gross'],
 								 );
-				
+
 				$products = Array($product);
 			}
-			
+
 			$paypal_order->setAttrValue('products', $products);
-			
+
 			if ($paypal_order->saveAttributes()) {
 				//create notice link from this Paypal Account asset to the new Paypal_Order asset
 				if ($am->createAssetLink($this, $paypal_order, SQ_LINK_NOTICE, $payment_info['txn_id']) != 0) {
 					$success = TRUE;
-				}				
+				}
 			}
 		}
-		
+
 		if ($success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// restore runlevel
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-		
+
 		return ($success? $paypal_order : FALSE);
 
 	}//end _createOrder()
-	
-	
+
+
 	/**
 	* Move a pending Paypal Order to the Completed folder
 	*
@@ -323,7 +323,7 @@ class Paypal_Business_Account extends Asset
 
 		// get destination folder assetid
 		$order_folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'completed_orders');
-		
+
 		$success = FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -335,7 +335,7 @@ class Paypal_Business_Account extends Asset
 			$paypal_order->setAttrValue('payment_status', $payment_info['payment_status']);
 			$paypal_order->setAttrValue('incomplete_reason', $payment_info['incomplete_reason']);
 			$paypal_order->setAttrValue('custom_info', $this->_getCustomInfo($payment_info));
-			
+
 			if ($paypal_order->saveAttributes()) {
 				$success = TRUE;
 			}
@@ -347,20 +347,20 @@ class Paypal_Business_Account extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// restore runlevel
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-		
+
 		return $success;
 
 	}//end _moveOrder()
-	
-	
+
+
 	/**
 	 * Get custom information string from $payment_info array
-	 * 
+	 *
 	 * @param array		$payment_info	The payment information from IPN Receiver asset
-	 * 
+	 *
 	 * @return string	The string of custom information
 	 * @access private
 	 */
@@ -372,14 +372,14 @@ class Paypal_Business_Account extends Asset
 			$message = empty($payment_info[$index])? '[Empty]' : $payment_info[$index];
 			$custom_string .= "$index=$message\n";
 		}
-		
+
 		return $custom_string;
-		
+
 	}//end _getCustomInfo()
-	
+
 	/**
 	 * Send email to inform when an error occurs
-	 * 
+	 *
 	 * @return void
 	 * @access public
 	 */
@@ -390,7 +390,7 @@ class Paypal_Business_Account extends Asset
 			if (empty($to) && SQ_CONF_TECH_EMAIL) {
 				$to = SQ_CONF_TECH_EMAIL;
 			}
-			
+
 			if ($to) {
 				$subject = 'Matrix - '.SQ_CONF_SYSTEM_NAME.' - An error occurs when processing Payal Orders';
 				mail($to, $subject, $message, 'From: '.SQ_CONF_TECH_EMAIL."\r\n");

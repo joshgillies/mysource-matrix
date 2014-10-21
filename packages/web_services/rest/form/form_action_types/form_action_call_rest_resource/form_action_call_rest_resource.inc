@@ -62,7 +62,8 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 		// Set up HTTP request attribute and validation rule
 		?>
 		<div style="padding: 5px">
-			<p class="sq-backend-section-subheading"><?php echo translate('form_action_call_rest_resource_http_request') ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('HTTP Request') ?></p>
+
 			<?php
 		$http_request = new Asset_Attribute_HTTP_Request(0, $req_settings);
 
@@ -72,73 +73,90 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 			?>
 		</div>
 		<div style="padding: 5px">
-			<p class="sq-backend-section-subheading"><?php echo translate('form_action_call_rest_resource_js_processing') ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('JavaScript Processing') ?></p>
+
 			<table class="sq-backend-table">
 				<col width="20%" />
 				<col width="80%" />
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_js_processing_session_var'); ?></th>
+					<th><?php echo translate('Session Var Name'); ?></th>
+
 					<td><?php
 						text_box($prefix.'[js_session_var]', array_get_index($settings, 'js_session_var', ''), 20);
-						echo '<div class="sq-backend-smallprint">'.translate('form_action_call_rest_resource_js_processing_session_var_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('The response of HTTP Request will be stored as an array in the specified var in the Matrix session sandbox. NOTE: If you add any JavaScript code below to be executed, it will overwrite the HTTP response array that gets stored into this session variable by default.').'</div>';
+
 						?>
 					</td>
 				</tr>
 
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_js_processing_replace_keywords'); ?></th>
+					<th><?php echo translate('Pre-Process Matrix Global Keywords'); ?></th>
+
 					<td><?php
-						combo_box($prefix.'[js_replace_keywords]', Array(translate('no'), translate('yes')), FALSE, array_get_index($settings, 'js_replace_keywords', 0));
-						echo '<div class="sq-backend-smallprint">'.translate('form_action_call_rest_resource_js_processing_replace_keywords_note').'</div>';
+						combo_box($prefix.'[js_replace_keywords]', Array(translate('No'), translate('Yes')), FALSE, array_get_index($settings, 'js_replace_keywords', 0));
+
+
+						echo '<div class="sq-backend-smallprint">'.translate('Enabling this option will replace the global keywords in the JS code prior running the JS engine.').'</div>';
+
 						?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_js_processing_engine'); ?></th>
+					<th><?php echo translate('JS Engine'); ?></th>
+
 					<td><?php
 						$supported_js_engines = Rest_Common::$supported_js_engines;
 						$default_js_engine = Rest_Common::$default_js_engine;
 						combo_box($prefix.'[js_engine]', $supported_js_engines, FALSE, array_get_index($settings, 'js_engine', $default_js_engine));
-						echo '<div class="sq-backend-smallprint">'.translate('form_action_call_rest_resource_js_processing_engine_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('JavaScript enigne to process the JavaScript code.').'</div>';
+
 						?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_js_processing_include_files'); ?></th>
+					<th><?php echo translate('Include Files'); ?></th>
+
 					<td><?php
 						$include_files = array_get_index($settings, 'js_include_files', Array());
 						multiple_asset_finder($prefix.'[js_include_files]', $include_files, Array('file' => 'D'));
-						echo '<div class="sq-backend-smallprint">'.translate('form_action_call_rest_resource_js_processing_include_files_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('Selected JS files will be run sequentially before the JS code entered below.').'</div>';
+
 						?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_js_processing_javascript'); ?></th>
+					<th><?php echo translate('JavaScript Code'); ?></th>
+
 					<td><?php
 						$js_code = array_get_index($settings, 'js_code', '');
 						text_area($prefix.'[js_code]', $js_code, 71, 10, 0, 'style="font-family: monospace;');
-						echo '<div class="sq-backend-smallprint">'.translate('form_action_call_rest_resource_js_processing_javascript_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('The HTTP Request data is available as JSON data in the pre-defined variable "_REST". Use the "Run Test" feature to view this structure. For example "print(_REST.response.body);" will print the body of the first response. If you are using E4X to process an XML document, you will likely need to use "_REST.response.bodyx" to avoid the XML declaration choking the parser.<br/>NOTE: Any data printed via the JS "print();" function. will be stored into the Session Var configured above.').'</div>';
+
 						?>
 					</td>
 				</tr>
 			</table>
 		</div>
 		<div style="padding: 5px" id="xxx">
-			<p class="sq-backend-section-subheading"><?php echo translate('form_action_call_rest_resource_details') ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('Validation Rule') ?></p>
+
 			<table class="sq-backend-table">
 				<col width="20%" />
 				<col width="80%" />
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_validation'); ?></th>
+					<th><?php echo translate('Enable Validation'); ?></th>
+
 					<td><?php
 						$validation_enabled = isset($settings['validation_enabled']) && $settings['validation_enabled'] ? TRUE : FALSE;
 						check_box($prefix.'[validation_enabled]', 1, $validation_enabled);
-						label(translate('form_action_call_rest_resource_validation_label'), $prefix.'[validation_enabled]');
+						label(translate('Enable the validation rules below when this action is fired'), $prefix.'[validation_enabled]');
+
 						?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_details'); ?></th>
+					<th><?php echo translate('Validation Rule'); ?></th>
+
 					<td><?php
 						echo '<span id="'.$prefix.'_validation_scope">';
 						combo_box($prefix.'[validation_scope]', $options['scope'], false, array_get_index($settings, 'validation_scope', 0));
@@ -171,7 +189,8 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 						}
 					</script>
 				<tr>
-					<th><?php echo translate('form_action_call_rest_resource_custom_error_text'); ?></th>
+					<th><?php echo translate('Custom Error Text'); ?></th>
+
 					<td><?php text_box($prefix.'[validation_error_text]', array_get_index($settings, 'validation_error_text', ''), 80); ?></td>
 				</tr>
 			</table>
@@ -269,26 +288,30 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 			</colgroup>
 			<tbody>
 				<tr>
-				<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('http_request_method'); ?></strong></p></td>
+				<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('Method'); ?></strong></p></td>
+
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 
 					// Get manually-entered "method" settings.
 					if (!empty($req_settings['method'])) {
 						echo $req_settings['method'];
 					} else {
-						?><span class="<?php echo $warning_class; ?>"><?php echo translate('form_action_call_rest_resource_no_method'); ?></span><?php
+						?><span class="<?php echo $warning_class; ?>"><?php echo translate('Nm method specified.'); ?></span><?php
+
 					}
 					?></p></td>
 				</tr>
 				<tr>
-				<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('http_request_urls'); ?></strong></p></td>
+				<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('URL(s)'); ?></strong></p></td>
+
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 					if (!empty($req_settings['urls'])) {
 						foreach ($req_settings['urls'] as $url) {
 							echo ellipsisize($url, 512).'<br />';
 						}
 					} else {
-						?><span class="<?php echo $warning_class; ?>"><?php echo translate('form_action_call_rest_resource_no_urls'); ?></span><?php
+						?><span class="<?php echo $warning_class; ?>"><?php echo translate('No URLs specified.'); ?></span><?php
+
 					}
 				?></p></td></tr>
 			</tbody>
@@ -399,7 +422,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 				$ret = Rest_Common::processJavascript($js, $settings['js_engine']);
 				$GLOBALS['SQ_SYSTEM']->pm->stopTimer($form, 'processJavascript');
 				if (!empty($ret['error_message'])) {
-					trigger_localised_error('REST0001', E_USER_WARNING, $form->id, $ret['error_message']);
+					trigger_localised_error('REST0001', sprintf(translate('%1$s: Keyword %2$s not found in REST response.'), $form->id, $ret['error_message']), E_USER_WARNING);
 				} else {
 					$_SESSION[SQ_SESSION_SANDBOX_INDEX][$settings['js_session_var']] =  $ret['output'];
 				}
@@ -419,7 +442,8 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 				$error_text = array_get_index($settings, 'validation_error_text', '');
 				$failed_URLs_text = implode(', ', $failed_URLs);
 				if (!strlen(trim($error_text))) {
-					$error_text = translate('form_action_call_rest_resource_false', $failed_URLs_text);
+					$error_text = sprintf(translate('Validation failed on the response(s) from: %1$s.'), $failed_URLs_text);
+
 				}
 				$form->submission_errors[] = $error_text;
 
@@ -498,19 +522,28 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 	*/
 	protected function _getOptions() {
 		$options['scope'] = Array(
-							translate('form_action_call_rest_resource_all'),
-							translate('form_action_call_rest_resource_one'),
+							translate('All'),
+
+							translate('One of'),
+
 						);
 		$options['targets'] = Array(
-							translate('form_action_call_rest_resource_http_code'),
-							translate('form_action_call_rest_resource_response_bodies'),
-							translate('form_action_call_rest_resource_keywords_replacement'),
+							translate('HTTP codes'),
+
+							translate('response bodies'),
+
+							translate('keywords replacement'),
+
 						);
 		$options['operators'] = Array(
-							translate('form_action_call_rest_resource_match'),
-							translate('form_action_call_rest_resource_not_match'),
-							translate('form_action_call_rest_resource_greater'),
-							translate('form_action_call_rest_resource_less'),
+							translate('must match a regex'),
+
+							translate('must not match a regex'),
+
+							translate('must be greater than'),
+
+							translate('must be less than'),
+
 						);
 
 		return $options;

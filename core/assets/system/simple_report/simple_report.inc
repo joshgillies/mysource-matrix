@@ -153,16 +153,19 @@ class Simple_Report extends Asset
 	*/
 	protected static function paintReportNotGenerated($type_code)
 	{
-		$generate_link = '<a href="#'.$type_code.'" onclick="regen(\''.$type_code.'\');">'.translate('generate_report').'</a>';
+		$generate_link = '<a href="#'.$type_code.'" onclick="regen(\''.$type_code.'\');">'.translate('Generate Report').'</a>';
+
 
 		$table_format = '<table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header" width="35%%">'.translate('last_generated').'</th>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('Last Generated').'</th>
+
                                                         <td class="sq-backend-table-cell" id="'.$type_code.'_regen" align="right">%s &nbsp;&nbsp;( %s )</td>
                                                 </tr>
                                         </table>';
 
-		$table = sprintf($table_format, translate('report_not_generated'), $generate_link);
+		$table = sprintf($table_format, translate('This report has not been generated'), $generate_link);
+
 		echo $table;
 
 	}//end paintReportNotGenerated()
@@ -180,11 +183,13 @@ class Simple_Report extends Asset
 	*/
 	protected static function paintLastGeneratedDate($type_code, $date)
 	{
-		$regenerate_link = '<a href="#'.$type_code.'" onclick="regen(\''.$type_code.'\');">'.translate('regenerate_report').'</a>';
+		$regenerate_link = '<a href="#'.$type_code.'" onclick="regen(\''.$type_code.'\');">'.translate('Regenerate Report').'</a>';
+
 
 		$table_format = '<table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header" width="35%%">'.translate('last_generated').'</th>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('Last Generated').'</th>
+
                                                         <td class="sq-backend-table-cell" id="'.$type_code.'_regen" align="right">%s &nbsp;&nbsp;( %s )</td>
                                                 </tr>
                                         </table>';
@@ -197,7 +202,7 @@ class Simple_Report extends Asset
 
 	/**
 	* Paints a list of recommended maintenance tasks
-	* 
+	*
 	* @param object	&$o			reference to the backend outputter of the object painting the tool
 	* @param string	$type_code		Asset type code of the report
 	* @param array	$report_type_code	Asset type codes of recommended tools
@@ -210,7 +215,8 @@ class Simple_Report extends Asset
 	{
 		$table_format = '<table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header" width="35%%">'.translate('recommended_maintenance_tasks').'</th>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('Recommended Maintenance Tasks').'</th>
+
                                                         <td class="sq-backend-table-cell" align="right">%s</td>
                                                 </tr>
                                         </table>';
@@ -235,7 +241,7 @@ class Simple_Report extends Asset
 		foreach ($report_list as $report_name => $report) {
 			$row_string .= '<img src="'.sq_web_path('lib').'/web/images/icons/asset_map/myspace.png"> <a href="./?SQ_BACKEND_PAGE=main&backend_section=tools&tool_type_code='.$report['type_code'].'&redirect_to_sys_maintenance=1">'.$report_name.'</a>';
 		}
-		
+
 		$table = sprintf($table_format, $row_string);
 		echo $table;
 

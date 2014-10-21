@@ -73,12 +73,14 @@ class Ipb_User_Edit_Fns extends Backend_User_Edit_Fns
 		$user_custom_data = $ipb->getMemberCustomFieldData($asset->id);
 
 		if (empty($custom_fields)) {
-			echo translate('no_custom_field').'<br />';
+			echo translate('No custom fields found').'<br />';
+
 		} else {
 			foreach ($custom_fields as $field) {
 				$o->openField($field['pf_title']);
 					if (empty($user_custom_data[0]['field_'.$field['pf_id']])) {
-						echo translate('none');
+						echo translate('None');
+
 					} else {
 						echo $user_custom_data[0]['field_'.$field['pf_id']];
 					}

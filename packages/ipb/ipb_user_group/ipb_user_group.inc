@@ -85,7 +85,8 @@ class Ipb_User_Group extends User_Group
 			$this->name = $data['name'];
 		}
 		if (empty($this->name)) {
-			$this->name = translate('ipb_unknown_user');
+			$this->name = translate('Unknown IPB User');
+
 		}
 
 		$this->short_name = $this->name;

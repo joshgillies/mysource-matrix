@@ -74,7 +74,7 @@ class Bulk_Mailer
 		// login as root user
 		$root_user = $am->getSystemAsset('root_user');
 		if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-			trigger_localised_error('BML0003', E_USER_WARNING, $root_user->name, $root_user->id);
+			trigger_localised_error('BML0003', sprintf(translate('Unable to set %1$s (Id #%2$s) as the current user.'), $root_user->name, $root_user->id), E_USER_WARNING);
 			exit(1);
 		}
 
@@ -133,7 +133,7 @@ class Bulk_Mailer
 		$child_pid = pcntl_fork();
 		switch ($child_pid) {
 			case -1:
-				trigger_localised_error('BML0004', E_USER_WARNING);
+				trigger_localised_error('BML0004', translate('Failed to fork.'), E_USER_WARNING);
 				return NULL;
 			break;
 			case 0:
@@ -174,7 +174,7 @@ class Bulk_Mailer
 			if (file_exists($progress_path)) {
 				include $progress_path;
 			} else {
-				trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
+				trigger_localised_error('BML0009', sprintf(translate('File "%s" is not readable.'), $progress_path), E_USER_WARNING);
 			}
 
 			// start caching if not previously cached
@@ -184,7 +184,7 @@ class Bulk_Mailer
 				$progress_info['total_count'] = count($result['recipient']);
 				$progress_info['problematic'] = $result['problematic'];
 				if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
-					trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
+					trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $progress_path), E_USER_WARNING);
 				}
 
 				// cache recipients into smaller chunks
@@ -192,7 +192,7 @@ class Bulk_Mailer
 				$chunks = array_chunk($result['recipient'], $recip_per_chunk, TRUE);
 				foreach ($chunks as $index => $chunk) {
 					if (!array_to_file($chunk, 'recipient_chunk', $recipient_path.'/recipient_'.$index)) {
-						trigger_localised_error('BML0008', E_USER_WARNING, $recipient_path.'/recipient_'.$index);
+						trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $recipient_path.'/recipient_'.$index), E_USER_WARNING);
 					}
 				}
 			}
@@ -236,13 +236,13 @@ class Bulk_Mailer
 		$details['user_subscriptions'] = NULL;
 
 		if ((get_class($content_asset) == 'Search_Page') && !$details['user_subscriptions_status']) {
-			trigger_localised_error('BML0020', E_USER_WARNING);
+			trigger_localised_error('BML0020', translate('Asset to send is configured as a Search Page but the User subscription for the bulkmail Job is disabled.'), E_USER_WARNING);
 			return FALSE;
 		} else if ((get_class($content_asset) != 'Search_Page') && $details['user_subscriptions_status']) {
-			trigger_localised_error('BML0021', E_USER_WARNING);
+			trigger_localised_error('BML0021', translate('User subscription for the Bulkmail Job is enabled but the asset to send isn\'t set to a Search Page Asset.'), E_USER_WARNING);
 			return FALSE;
 		} else if ((get_class($content_asset) == 'Search_Page') && $details['user_subscriptions_status'] && empty($details['subscriptions'])) {
-			trigger_localised_error('BML0023', E_USER_WARNING);
+			trigger_localised_error('BML0023', translate('No dynamic Subscription configured for the Bulkmail Job'), E_USER_WARNING);
 			return FALSE;
 		} else if ((get_class($content_asset) == 'Search_Page') && $details['user_subscriptions_status']) {
 			// the settings seems to be correct
@@ -513,6 +513,8 @@ class Bulk_Mailer
 												);
 									$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 									$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+									$message->subject = translate('Bulkmail Test Mode');
+									$message->body    = translate('Mail request for %to% with a subject of \'%subject%\'');
 									$message->parameters['assetid'] = $job_id;
 									$message->send();
 
@@ -537,13 +539,13 @@ class Bulk_Mailer
 				try {
 					$status = $mail_queue->sendMailsInQueue();
 				} catch (Exception $e) {
-					trigger_localised_error('BML0001', E_USER_WARNING, $e->getMessage());
+					trigger_localised_error('BML0001', sprintf(translate('Invalid job. %s'), $e->getMessage()), E_USER_WARNING);
 					$this->nextChunk($progress_path);
 					exit;
 				}
 
 				if ($status instanceof PEAR_Error) {
-					trigger_localised_error('BML0001', E_USER_WARNING, $status->getMessage());
+					trigger_localised_error('BML0001', sprintf(translate('Invalid job. %s'), $status->getMessage()), E_USER_WARNING);
 					$this->nextChunk($progress_path);
 					exit;
 				}
@@ -580,6 +582,8 @@ class Bulk_Mailer
 
 				if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
 					$message_type = 'bulkmail.job.testmode.completed';
+					$msg_subject  = translate('Bulkmail Test Mode Completed');
+					$msg_body     = translate('Bulkmail Test mode was completed. Mail was requested for %num_recip% recipients.');
 					$msg_reps = Array(
 									'num_recip'		=> number_format($progress_info['total_count']),
 									'num_problem'	=> number_format(count($progress_info['problematic'])),
@@ -587,20 +591,30 @@ class Bulk_Mailer
 								);
 				} else {
 					$subtype = '';
+					$msg_subject = translate('Bulkmail Job Completed');
+					$msg_body    = translate('<strong>Mail successfully sent to %num_recip% recipients.</strong>');
 					if (count($progress_info['problematic']) > 0) {
-						trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $progress_info['problematic']));
+						trigger_localised_error('BML0010', sprintf(translate('Problematic recipient id found: %s.', implode(','), $progress_info['problematic'])), E_USER_WARNING);
 						$subtype = '.error';
+                        $msg_subject = translate('Bulkmail Job Completed with Error');
+                        $msg_body   .= '<br/>'.translate('%num_problem% recipients were skipped due to problems in generation.');
 					}
 
 					if (isset($progress_info['filtered']) && (count($progress_info['filtered']) > 0)) {
-						trigger_localised_error('BML0019', E_USER_WARNING, implode(',', $progress_info['filtered']));
+                        $msg_body .= '<br/>'.translate('%num_filtered% recipients were also skipped as their bulkmail\'s contents failed to match the enabled Body filter.');
+						trigger_localised_error('BML0019', sprintf(translate('Recipient id skipped due to body filter failing to match: %s.', implode(','), $progress_info['filtered'])), E_USER_WARNING);
 						if (empty($subtype)) {
-							$subtype = '.filtered';
-						} else {
-							$subtype = '+filtered';
+							$subtype     = '.filtered';
+							$msg_subject = translate('Bulkmail Job Completed, some Filtered');
+                        } else {
+							$subtype    .= '+filtered';
+							$msg_subject = translate('Bulkmail Job Completed with Error and some Filtered');
 						}
 					}
 
+					if ($subtype !== '') {
+					     $msg_body .= ' '.translate('Please check the Bulkmail Error log for details.');
+					}
 					$message_type = 'bulkmail.job.completed'.$subtype;
 
 					// format recipient count with grouped thousands
@@ -614,6 +628,8 @@ class Bulk_Mailer
 				// Send the message
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+				$message->subject = $msg_subject;
+				$message->body    = $msg_body;
 				$message->parameters['assetid'] = $job_id;
 				$message->send();
 				$am->forgetAsset($message);
@@ -672,7 +688,7 @@ class Bulk_Mailer
 		if (file_exists($progress_path)) {
 			include $progress_path;
 		} else {
-			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
+			trigger_localised_error('BML0009', sprintf(translate('File "%s" is not readable.'), $progress_path), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -689,7 +705,7 @@ class Bulk_Mailer
 		$progress_info['last_updated'] = time();
 
 		if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
-			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
+			trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $progress_path), E_USER_WARNING);
 			return FALSE;
 		} else {
 			return TRUE;
@@ -712,7 +728,7 @@ class Bulk_Mailer
 		if (file_exists($progress_path)) {
 			include $progress_path;
 		} else {
-			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
+			trigger_localised_error('BML0009', sprintf(translate('File "%s" is not readable.'), $progress_path), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -723,7 +739,7 @@ class Bulk_Mailer
 		}
 
 		if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
-			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
+			trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $progress_path), E_USER_WARNING);
 			return FALSE;
 		} else {
 			return TRUE;
@@ -937,7 +953,7 @@ class Bulk_Mailer
 				// Log in as generator
 				$generator_user = $am->getAsset($job_details['content_gen_as']);
 				if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($generator_user)) {
-					trigger_localised_error('BML0017', E_USER_WARNING); // localise
+					trigger_localised_error('BML0017', translate('Could not change to the correct user for content generation'), E_USER_WARNING);
 					return '';
 				}
 
@@ -978,7 +994,7 @@ class Bulk_Mailer
 			// in which case the current user is already the recipient
 			if (!empty($recipient_id)) {
 				if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($recipient)) {
-					trigger_localised_error('BML0017', E_USER_WARNING);
+					trigger_localised_error('BML0017', translate('Could not change to the correct user for content generation'), E_USER_WARNING);
 					return '';
 				}
 			}
@@ -1087,7 +1103,8 @@ class Bulk_Mailer
 	{
 		$mpm = 0;
 		foreach ($thresholds as $threshold) {
-			if ($threshold['type'] == translate('bulkmail_threshold_rule_send_rate')) {
+			if ($threshold['type'] == translate('Send Rate')) {
+
 				$value = $threshold['params']['value'];
 				$unit = $threshold['params']['unit'];
 				$mpm = ceil(($value/$unit) * 60);
@@ -1108,11 +1125,11 @@ class Bulk_Mailer
 		if (file_exists($progress_path)) {
 			include $progress_path;
 		} else {
-			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
+			trigger_localised_error('BML0009', sprintf(translate('File "%s" is not readable.'), $progress_path), E_USER_WARNING);
 		}
 		$progress_info['mpm'] = $mpm;
 		if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
-			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
+			trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $progress_path), E_USER_WARNING);
 		}
 
 		return $mpm;
@@ -1135,7 +1152,7 @@ class Bulk_Mailer
 		if (file_exists($progress_path)) {
 			include $progress_path;
 		} else {
-			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
+			trigger_localised_error('BML0009', sprintf(translate('File "%s" is not readable.'), $progress_path), E_USER_WARNING);
 			return FALSE;
 		}
 		if (!isset($progress_info['mpm'])) {
@@ -1157,7 +1174,7 @@ class Bulk_Mailer
 
 			// write the sleep time between recipient to the progress file
 			if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
-				trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
+				trigger_localised_error('BML0008', sprintf(translate('File "%s" is not writable.'), $progress_path), E_USER_WARNING);
 			}
 		}
 
@@ -1223,7 +1240,8 @@ class Bulk_Mailer
 					  );
 
 		foreach ($thresholds as $threshold) {
-			if ($threshold['type'] == translate('bulkmail_threshold_rule_excluded_time')) {
+			if ($threshold['type'] == translate('Excluded Time')) {
+
 				$excluded_days = Array();
 				foreach ($threshold['params']['days'] as $excluded_day) {
 					$excluded_days[] = $days_array[$excluded_day];

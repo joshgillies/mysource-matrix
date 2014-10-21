@@ -59,8 +59,10 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_email_true'),
-				0	=> translate('core_form_rule_email_false'),
+				1	=> translate('Must Be a Valid E-mail Address'),
+
+				0	=> translate('Must Not Be a Valid E-mail Address'),
+
 			   );
 
 	}//end getOperators()
@@ -85,7 +87,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 			$local = '\da-zA-Z-_+'; // allowed in the first char
 			$local_middle = $local.'.\w'; // allowed in the rest of the username
 			$regex_code = '/^(['.$local.']['.$local_middle.'\']*['.$local.']@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/';
-			
+
 			// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
 			$condition_js = parent::generateConditionJSCode($rule_data);
 			$additional_condition = '';

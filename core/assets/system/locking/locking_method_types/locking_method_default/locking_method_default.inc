@@ -208,6 +208,9 @@ class Locking_Method_Default extends Locking_Method
 		$sql = 'DELETE FROM sq_lock
 			WHERE source_lockid IN (SELECT source_lockid FROM sq_lock '.$where.')';
 
+log_write($sql);
+log_write(print_r($locks_passed, TRUE));
+
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($locks_passed as $bind_var => $bind_val) {
@@ -306,7 +309,7 @@ class Locking_Method_Default extends Locking_Method
 			$where = ' WHERE lockid = :lockid';
 			$locks_passed['lockid'] = $lockid;
 		}
-		
+
 		$sql = 'SELECT lockid, source_lockid, userid, expires
 				FROM sq_lock'.$where;
 
@@ -320,7 +323,7 @@ class Locking_Method_Default extends Locking_Method
 			$lock_error = (is_array($lockid)) ? ('s '.implode(', ', $lockid)) : (' '.$lockid);
 			throw new Exception('Unable to get lock information for lock ID"'.$lock_error.'" due to database error: '.$e->getMessage());
 		}
-		
+
 		if (!empty($results)) {
 			foreach ($results as $result_key => $result) {
 				$results[$result_key]['expires'] = empty($result['expires']) ? NULL : iso8601_ts($result['expires']);

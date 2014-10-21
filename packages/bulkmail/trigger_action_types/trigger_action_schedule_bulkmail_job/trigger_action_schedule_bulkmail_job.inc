@@ -222,7 +222,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 			<tr>
 				<th>
 				<?php
-					echo translate('asset_to_send');
+					echo translate('Asset To Send');
+
 				?>
 				</th>
 				<td>
@@ -230,14 +231,18 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 					if ($write_access) {
 						asset_finder($prefix.'[asset_to_send]', $asset_to_send);
 						check_box($prefix.'[current_asset]', '1', $current_asset, '', 'id="'.$prefix.'_current_asset"');
-						label(translate('use_current_asset'), $prefix.'_current_asset');
+						label(translate('Use Current Asset'), $prefix.'_current_asset');
+
 					} else {
 						if ($asset_to_send) {
 							echo get_asset_tag_line($asset_to_send);
 							echo "<br />";
 						}
-						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_asset ? 'tick' : 'cross').'.gif" alt="'.($current_asset ? translate('yes') : translate('no')).'" /> ';
-						echo translate('use_current_asset');
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_asset ? 'tick' : 'cross').'.gif" alt="'.($current_asset ? translate('Yes') : translate('No')).'" /> ';
+
+
+						echo translate('Use Current Asset');
+
 					}
 				?>
 				</td>
@@ -245,7 +250,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 			<tr>
 				<th>
 				<?php
-					echo translate('bulkmail_job');
+					echo translate('Bulkmail Job');
+
 				?>
 				</th>
 				<td>
@@ -256,7 +262,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 						if ($bulkmail_job_id) {
 							echo get_asset_tag_line($bulkmail_job_id);
 						} else {
-							echo translate('not_configured');
+							echo translate('Not Configured');
+
 						}
 					}
 				?>
@@ -265,7 +272,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 			<tr>
 				<th>
 				<?php
-					echo translate('recipients');
+					echo translate('Recipients');
+
 				?>
 				</th>
 				<td>
@@ -279,7 +287,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 								echo "<br />";
 							}
 						} else {
-							echo translate('not_configured');
+							echo translate('Not Configured');
+
 						}
 					}
 				?>
@@ -288,7 +297,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 			<tr>
 				<th>
 				<?php
-					echo translate('enable_subscription_filter');
+					echo translate('Enable Subscription Filter');
+
 				?>
 				</th>
 				<td>
@@ -296,7 +306,9 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 					if ($write_access) {
 						check_box($prefix.'[subscriptions_status]', '1', $sub_status);
 					} else {
-						echo '<img src="'.sq_web_path('lib').'/web/images/'.($sub_status ? 'tick' : 'cross').'.gif" alt="'.($sub_status ? translate('yes') : translate('no')).'" /> ';
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($sub_status ? 'tick' : 'cross').'.gif" alt="'.($sub_status ? translate('Yes') : translate('No')).'" /> ';
+
+
 					}
 				?>
 				</td>
@@ -307,7 +319,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 			<tr>
 				<th>
 				<?php
-					echo translate('filters');
+					echo translate('Filters');
+
 				?>
 				</th>
 				<td>
@@ -370,7 +383,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 				}//end foreach
 				echo "</table>";
 				if ($write_access) {
-					label(translate('new_category'), $prefix.'[new_category_name]');
+					label(translate('New Category'), $prefix.'[new_category_name]');
+
 					echo '&nbsp;';
 					text_box($prefix.'[new_category_name]', '', 15);
 				}

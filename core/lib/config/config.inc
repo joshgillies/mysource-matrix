@@ -76,7 +76,7 @@ class Config extends MySource_Object
 	public function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		if (!$this->writeAccess()) {
-			trigger_localised_error('SYS0026', E_USER_WARNING, $this->name);
+			trigger_localised_error('SYS0026', sprintf(translate('Unable to save "%s", permission denied'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -153,17 +153,24 @@ class Config extends MySource_Object
 			foreach ($changed_vars as $var_name => $values) {
 				if (array_get_index($this->config_vars[$var_name], 'skip_mailing', FALSE)) {
 					$msg_reps = Array(
+									'screen_name' => $this->name,
 									'setting'	=> $var_name,
 								);
 					$message = $ms->newMessage(Array(), 'config.'.get_class_lower($this).'.no_show_values', $msg_reps);
+					$msg_body = translate('Value (not shown here) for %setting% has been changed');
 				} else {
 					$msg_reps = Array(
-									'setting'	=> $var_name,
-									'old_value'	=> var_export($values['old'], true),
-									'new_value'	=> var_export($values['new'], true),
+					                'screen_name' => $this->name,
+									'setting'	  => $var_name,
+									'old_value'   => var_export($values['old'], true),
+									'new_value'	  => var_export($values['new'], true),
 								);
 					$message = $ms->newMessage(Array(), 'config.'.get_class_lower($this), $msg_reps);
+					$msg_body = translate('%setting% changed from %old_value% to %new_value%');
 				}
+
+				$message->subject = translate('%screen_name% Updated');
+				$message->body    = $msg_body;
 
 				$ms->enqueueMessage($message);
 			}//end foreach
@@ -319,21 +326,6 @@ class Config extends MySource_Object
 			require_once $this->config_file;
 		}
 
-		$map_array = Array (
-						'system_config'					=> 'system_configuration',
-						'squiz_server_config'			=> 'squiz_server_configuration',
-						'apache_config'					=> 'apache_configuration',
-						'hipo_config'					=> 'hipo_configuration',
-						'external_tools_config'			=> 'external_tools_configuration',
-						'password_rules_config'			=> 'password_rules_configuration',
-						'messaging_service_config'		=> 'messaging_service_configuration',
-						'proxy_authentication_config'	=> 'proxy_configuration',
-						'context_config'				=> 'context_configuration',
-						'system_maintenance_config'		=> 'system_maintenance_configuration',
-					 );
-
-		$config_screen = $map_array[strtolower(get_class($this))];
-
 		$lock = $this->getLockInfo();
 		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
 
@@ -348,10 +340,12 @@ class Config extends MySource_Object
 							echo '<div class="sq-locks-button-wrapper">';
 								if (!empty($lock)) {
 									if ($have_lock) {
-										submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+										submit_button('sq_lock_release_manual', translate('Release Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+
 									}
 								} else {
-									submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+									submit_button('sq_lock_acquire', translate('Acquire Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+
 								}
 							echo '</div>';
 							echo '<p class="sq-lock-message">';
@@ -365,17 +359,23 @@ class Config extends MySource_Object
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 									$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 									if (!$expires_in) $expires_in = '1 second';
-									$expires_in = translate('due_to_expire', $expires_in);
+									$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
+
 									if ($have_lock) {
-										echo translate('release_lock', translate('release_lock_button'), translate($config_screen));
+										echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), $this->name);
+
+
 									}
 									if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-										echo translate('lock_held_by_user', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+										echo sprintf(translate('Held by user "%s"'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+
 									}
 									echo ' '.$expires_in.'.';
 
 								} else {
-									echo translate('acquire_lock', translate('acquire_lock_button'), translate($config_screen));
+									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), $this->name);
+
+
 								}
 							echo '</p>';
 							?>
@@ -418,8 +418,8 @@ class Config extends MySource_Object
 		if (!empty($_POST['sq_lock_acquire'])) {
 			$this->acquireLock();
 		}
-		
-		
+
+
 		// if the save was successful, we need to redirect because the constants
 		// that are already defined cannot be redefined in this script execution
 		if ($saved) $o->setRedirect($o->getCurrentLocation());

@@ -153,7 +153,8 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 		?>
 			<table class="sq-backend-table with-bottom-margin">
 				<tr>
-					<th><?php echo translate('trigger_action_delete_image_variety_image_under') ?></th>
+					<th><?php echo translate('Image to look under') ?></th>
+
 					<td>
 					<?php
 						if ($write_access) {
@@ -162,7 +163,8 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 							if ($selected_image != 0) {
 								echo get_asset_tag_line($selected_image);
 							} else {
-								echo translate('trigger_action_delete_image_variety_no_image');
+								echo translate('No Image Selected');
+
 							}
 						}
 					?>
@@ -172,19 +174,24 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 					<td colspan="2"><?php echo"<b><i>OR</i></b>"; ?></td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_delete_image_variety_use_self')  ?></th>
+					<th><?php echo translate('Use Image Asset firing the Trigger')  ?></th>
+
 					<td>
 					<?php
 						if ($write_access) {
 							check_box($prefix.'[use_current]', '1', $use_current, '', ($write_access ? '' : 'disabled="disabled"'));
 						} else {
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.($use_current ? 'tick' : 'cross').'.gif" alt="'.($use_current ? translate('yes') : translate('no')).'" /> ';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.($use_current ? 'tick' : 'cross').'.gif" alt="'.($use_current ? translate('Yes') : translate('No')).'" /> ';
+
+
 						}
-						echo translate('trigger_action_delete_image_variety_note_use_self');
+						echo translate('<br/><strong>Note:</strong> If this is checked, it will overwrite the Image asset selected by asset picker.');
+
 					?>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_delete_image_variety_var_name'); ?></th>
+					<th><?php echo translate('Variety name to delete'); ?></th>
+
 					<td>
 					<?php
 						if ($write_access) {
@@ -196,15 +203,19 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_delete_image_variety_del_all'); ?></th>
+					<th><?php echo translate('Delete all varities'); ?></th>
+
 					<td>
 					<?php
 						if ($write_access) {
 							check_box($prefix.'[delete_all]', '1', $delete_all, '', ($write_access ? '' : 'disabled="disabled"'));
 						} else {
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all ? 'tick' : 'cross').'.gif" alt="'.($delete_all ? translate('yes') : translate('no')).'" /> ';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all ? 'tick' : 'cross').'.gif" alt="'.($delete_all ? translate('Yes') : translate('No')).'" /> ';
+
+
 						}
-						echo translate('trigger_action_delete_image_variety_del_all_note');
+						echo translate('<br/><strong>Note:</strong> If this is checked, it will overwrite Image variety name to delete as well as any value passed via parameter map.');
+
 					?>
 					</td>
 				</tr>

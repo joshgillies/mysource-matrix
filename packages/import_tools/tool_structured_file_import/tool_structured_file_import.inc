@@ -71,8 +71,10 @@ class Tool_Structured_File_Import extends Tool
 		if (empty($import_dir)) {
 
 			$o->openSection('Warning');
-				$o->openField(translate('import_tools_not_ready'));
-					echo translate('import_tools_not_ready_msg');
+				$o->openField(translate('Import Tool is not ready to use'));
+
+					echo translate('Please set the import directory using config file data/private/conf/import_tools_manager.inc.');
+
 				$o->closeField();
 			$o->closeSection();
 
@@ -83,10 +85,12 @@ class Tool_Structured_File_Import extends Tool
 			$o->openSection($tool_info['name']);
 
 				$compatible_types = $itm->attr('valid_file_types');
-				$o->openField(translate('import_tools_import_dir'));
+				$o->openField(translate('Import Directory'));
+
 					echo $import_dir;
 				$o->closeField();
-				$o->openField(translate('import_tools_files'));
+				$o->openField(translate('Files'));
+
 					// This will get us a list of all the files in the import directory
 					$files_array = list_files($import_dir, TRUE);
 					// Filter these to include only compatible files.
@@ -130,12 +134,16 @@ class Tool_Structured_File_Import extends Tool
 					</script>
 					<table class="sq-backend-table" style="width: 440px;">
 						<tr>
-							<th class="sq-backend-table-header" style="width: 240px;"><?php echo translate('import_tools_select_file'); ?></th>
-							<th class="sq-backend-table-header" style="width: 100px;"><?php echo translate('import_tools_select_for_import'); ?></th>
-							<th class="sq-backend-table-header" style="width: 100px; text-align: center;"><?php echo translate('import_tools_select_for_removal'); ?></th>
+							<th class="sq-backend-table-header" style="width: 240px;"><?php echo translate('Select a file to import into the system'); ?></th>
+
+							<th class="sq-backend-table-header" style="width: 100px;"><?php echo translate('Select For Import'); ?></th>
+
+							<th class="sq-backend-table-header" style="width: 100px; text-align: center;"><?php echo translate('Delete?'); ?></th>
+
 						</tr>
 						<tr>
-							<td class="sq-backend-table-cell"><?php echo translate('none'); ?></td>
+							<td class="sq-backend-table-cell"><?php echo translate('None'); ?></td>
+
 							<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', '', TRUE); ?></td>
 							<td class="sq-backend-table-cell" style="text-align: center;"></td>
 						</tr>
@@ -155,18 +163,22 @@ class Tool_Structured_File_Import extends Tool
 						?>
 					</table>
 					<?php
-					$o->note(translate('import_tools_select_file'));
+					$o->note(translate('Select a file to import into the system'));
+
 				$o->closeField();
 
-				$o->openField(translate('import_tools_asset_to_import'));
+				$o->openField(translate('Asset to import Under'));
+
 					asset_finder($type_code.'_root_assetid', '');
 				$o->closeField();
-				$o->openField(translate('import_tools_new_site'));
+				$o->openField(translate('New Site'));
+
 					?>
 					<table class="sq-backend-table" style="width: 300px;">
 						<tr>
 							<td>
-								<?php echo translate('import_tools_create_new_site'); ?>
+								<?php echo translate('Create A New Site'); ?>
+
 							</td>
 							<td>
 								<?php
@@ -176,7 +188,8 @@ class Tool_Structured_File_Import extends Tool
 						</tr>
 						<tr>
 							<td>
-								<?php echo translate('import_tools_create_new_site_name'); ?>
+								<?php echo translate('New Site Name'); ?>
+
 							</td>
 							<td>
 								<?php
@@ -196,7 +209,8 @@ class Tool_Structured_File_Import extends Tool
 						</tr>
 					</table>
 					<?php
-					$o->note(translate('import_tools_create_new_site_note'));
+					$o->note(translate('If this option is selected, the new site will be created under the asset selected above. If no \'Asset to import Under\' has been selected, the new site will be created under the root.'));
+
 				$o->closeField();
 				$o->openField('Headings to Split On');
 					check_box($type_code.'_no_headings', '1', FALSE, 'document.getElementById(\''.$type_code.'_headings_table\').style.visibility = (this.checked == true) ? \'hidden\' : \'\';');
@@ -205,8 +219,10 @@ class Tool_Structured_File_Import extends Tool
 					?>
 					<table id="<?php echo $type_code.'_headings_table'; ?>" class="sq-backend-table" style="width: 300px;">
 						<tr>
-							<th class="sq-backend-table-header"><?php echo translate('import_tools_heading_style'); ?></th>
-							<th class="sq-backend-table-header" style="width: 120px;"><?php echo translate('import_tools_use_for_structure'); ?></th>
+							<th class="sq-backend-table-header"><?php echo translate('Heading Style'); ?></th>
+
+							<th class="sq-backend-table-header" style="width: 120px;"><?php echo translate('Use for structure?'); ?></th>
+
 						</tr>
 
 						<?php
@@ -227,29 +243,40 @@ class Tool_Structured_File_Import extends Tool
 					</table>
 					<?php
 				$o->closeField();
-				$o->openField(translate('import_tools_create_css'));
+				$o->openField(translate('Create CSS'));
+
 					check_box($type_code.'_create_css', '1', $itm->attr('create_css_file'));
-					$o->note(translate('import_tools_create_css_note'));
+					$o->note(translate('Creating a separate CSS file for the page. This overrides the default setting in Import Tools Manager.'));
+
 				$o->closeField();
-				$o->openField(translate('import_tools_leading_text'));
+				$o->openField(translate('Include Leading Text'));
+
 					check_box($type_code.'_leading_text', '1');
-					$o->note(translate('import_tools_leading_text_note'));
+					$o->note(translate('Checking this will create a page for any text that is found in the document before the first heading'));
+
 				$o->closeField();
-				$o->openField(translate('import_tools_leading_page_name'));
+				$o->openField(translate('Leading Text Page Name'));
+
 					text_box($type_code.'_leading_name', 'Preface');
-					$o->note(translate('import_tools_leading_page_name_note'));
+					$o->note(translate('If the above option is checked, the page will be named this'));
+
 				$o->closeField();
 			$o->closeSection();
 
-			$o->openSection(translate('import_tools_tidying_options'));
-				$o->openField(translate('import_tools_word_tags'));
+			$o->openSection(translate('HTML Tidying Options'));
+
+				$o->openField(translate('Attempt to remove Microsoft Word Tags'));
+
 					check_box($type_code.'_remove_word', '1');
 				$o->closeField();
-				$o->openField(translate('import_tools_html_tidy'));
+				$o->openField(translate('Run HTML Tidy'));
+
 					check_box($type_code.'_run_tidy');
-					$o->note(translate('import_tools_tidy_note'));
+					$o->note(translate('Selecting this option will generate well-formed HTML, but may affect the formatting of the document. It can also slow down the importing process.'));
+
 				$o->closeField();
-				$o->openField(translate('import_tools_footnotes'));
+				$o->openField(translate('Fix Anchor Tags and Footnotes'));
+
 					check_box($type_code.'_footnotes');
 				$o->closeField();
 			$o->closeSection();

@@ -41,7 +41,7 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 
 	}//end constructor
 
-	
+
 	/**
 	* Returns a unique id for this job
 	*
@@ -50,7 +50,7 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		
+
 		$repositoryId = '';
 		if (!empty($this->_running_vars['repositoryId'])) $repositoryId = $this->_running_vars['repositoryId'];
 
@@ -67,7 +67,8 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('snyc_cmis_bridge_hipo_name');
+		return translate('Hipo Job Sync CMIS Bridge');
+
 
 	}//end getHipoName()
 
@@ -135,44 +136,44 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['bridge_id'])) {
-			trigger_localised_error('SHAR0002', E_USER_WARNING);
+			trigger_localised_error('SHAR0002', translate('Unable to initialise Sync CMIS Bridge HIPO, no start CMIS Bridge asset ID specified.'), E_USER_WARNING);
 			return FALSE;
 		}
-		
+
 		//some tests before we start
 		$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['bridge_id']);
 		foreach ($bridge->attr('wsdl') as $service_name => $url){
 			$connected = $bridge->connect($service_name, TRUE);
 			if (!$connected) {
-				trigger_localised_error('SHAR0005', E_USER_WARNING, $bridge->id);
+				trigger_localised_error('SHAR0005', sprintf(translate('Unable to initialise Sync CMIS Bridge HIPO, CMIS Bridge (Id: #%s) is disconnected.'), $bridge->id), E_USER_WARNING);
 				return FALSE;
 			}
 		}
-		
+
 		$repositoryId = $bridge->getRepositoryId();
 		if (empty($repositoryId)){
-			trigger_localised_error('SHAR0003', E_USER_WARNING, $bridge->id);
+			trigger_localised_error('SHAR0003', sprintf(translate('Unable to initialise Sync CMIS Bridge HIPO, invalid Repository Name supplied for CMIS Bridge (Id: #%s).'), $bridge->id), E_USER_WARNING);
 			return FALSE;
 		}
-		
+
 		$this->_running_vars['repositoryId'] = $repositoryId;
-		
+
 		$sync_info = $bridge->synchronizeCheck();
 		if (!empty($sync_info['delete_assetids'])) {
 			$this->_running_vars['todo_trash_assetids'] = $sync_info['delete_assetids'];
 			$this->_running_vars['done_trash_assetids'] = Array();
 		}
-		
+
 		if (!empty($sync_info['update_assetids'])) {
 			$this->_running_vars['todo_update_assetids'] = $sync_info['update_assetids'];
 			$this->_running_vars['done_update_assetids'] = Array();
 		}
-		
+
 		if (!empty($sync_info['create_objectIds'])){
 			$this->_running_vars['todo_create_objectIds'] = $sync_info['create_objectIds'];
 			$this->_running_vars['done_create_objectIds'] = Array();
 		}
-		
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -198,18 +199,18 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 				return FALSE;
 			}
 		}
-		
+
 		while (!empty($this->_running_vars['todo_create_objectIds'])) {
 			if (!$this->processCreateFiles($this->_steps[2], get_class($this))) {
 				return FALSE;
 			}
 		}
-		
+
 		return TRUE;
 
 	}//end freestyle()
 
-	
+
 	/**
 	* Trash Files
 	*
@@ -228,11 +229,11 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_SECURE);
 			$GLOBALS['SQ_SYSTEM']->am->trashAsset($assetid);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-			
+
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$asset->updateLookups();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			
+
 			$this->_running_vars['done_trash_assetids'][] = $assetid;
 		}
 
@@ -248,8 +249,8 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 		return TRUE;
 
 	}//end processTrashFiles()
-	
-	
+
+
 	/**
 	* Update Files
 	*
@@ -263,30 +264,30 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_update_assetids'])) {
 			$todo = array_shift($this->_running_vars['todo_update_assetids']);
-			
+
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['bridge_id']);
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($todo['assetid']);
 			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all')) {
 				$binary = $bridge->getObjectContents($this->_running_vars['repositoryId'], $todo['object_data']['cmis:objectId']);
 				if (!empty($binary)) {
-					//Status changes 
+					//Status changes
 					$available_statii = $asset->getAvailableStatii();
 					if (isset($available_statii[SQ_STATUS_UNDER_CONSTRUCTION])) $asset->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION);
-		
+
 					$full_path = tempnam($bridge->data_path, "cmis:update_");
 					file_put_contents($full_path, $binary);
-					
+
 					$file_name = $todo['object_data']['cmis:contentStreamFileName'];
 					$temp_info = Array('name' => $file_name, 'tmp_name' => $full_path, 'non_uploaded_file' => TRUE);
-					
+
 					require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 					$o = new Backend_Outputter();
 					$edit_fns = $asset->getEditFns();
 					$edit_fns->processFileUpload($asset, $o, $prefix, $temp_info);
-					
+
 					$asset->setAttrValue('title', $todo['object_data']['cmis:contentStreamFileName']);
 					$asset->saveAttributes();
-					
+
 					$metadata = Array();
 					foreach ($bridge->attr('metadata_fields') as $property => $info){
 						if ($info['field'] && isset($todo['object_data'][$property])) $metadata[$info['field']][0]['value'] = $todo['object_data'][$property];
@@ -294,22 +295,26 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					$mm->setMetadata($asset->id, $metadata);
 					$mm->regenerateMetadata($asset->id);
-					
+
 					$step_data['message'] = "Updated Asset $asset->name (Id: #$asset->id)";
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-					
+
 					unlink($full_path);
 				} else {
-					$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
-					$this->_addError(translate('snyc_cmis_bridge_hipo_can_not_update_file_no_content_stream', $todo['object_data']['cmis:contentStreamFileName']), TRUE);
+					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $asset->id);
+
+					$this->_addError(sprintf(translate('Update Files failed to update "%s". No content stream from CMIS Server.'), $todo['object_data']['cmis:contentStreamFileName']), TRUE);
+
 				}
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
-				
+
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
-				$this->_addError(translate('snyc_cmis_bridge_hipo_can_not_update_file', $asset->name, $asset->id), TRUE);
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $asset->id);
+
+				$this->_addError(sprintf(translate('Update Files failed to update "%1$s" (Id: #%2$s). No asset write access.'), $asset->name, $asset->id), TRUE);
+
 			}
-			
+
 			$this->_running_vars['done_update_assetids'][] = $todo;
 		}
 
@@ -325,8 +330,8 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 		return TRUE;
 
 	}//end processUpdateFiles()
-	
-	
+
+
 	/**
 	* Create Files
 	*
@@ -341,11 +346,11 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 		if (!empty($this->_running_vars['todo_create_objectIds'])) {
 			$todo = array_shift($this->_running_vars['todo_create_objectIds']);
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['bridge_id']);
-			
+
 			$binary = $bridge->getObjectContents($this->_running_vars['repositoryId'], $todo['cmis:objectId']);
 			if (!empty($binary)) {
 				$import_link = Array('asset' => &$bridge, 'link_type' => SQ_LINK_TYPE_1);
-				
+
 				$file_type = get_file_type($todo['cmis:contentStreamFileName']);
 				switch ($file_type) {
 					case 'doc' :
@@ -423,10 +428,10 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 						$new_asset_type = 'file';
 					break;
 				}
-				
+
 				$full_path = tempnam($bridge->data_path, "cmis:create_");
 				file_put_contents($full_path, $binary);
-				
+
 				$file_name = $todo['cmis:contentStreamFileName'];
 				$temp_info = Array('name' => $file_name, 'tmp_name' => $full_path, 'non_uploaded_file' => TRUE);
 				$new_file = new $new_asset_type();
@@ -434,13 +439,15 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 				$new_file->setAttrValue('name', $file_name);
 				$new_file->setAttrValue('title', $todo['cmis:contentStreamFileName']);
 				$new_file->setAttrValue('allow_unrestricted', TRUE);
-	
+
 				if (!$new_file->create($import_link, $temp_info)) {
-					$step_data['message'] = translate('snyc_cmis_bridge_hipo_skip_doc', $todo['cmis:contentStreamFileName']);
-					$this->_addError(translate('snyc_cmis_bridge_hipo_can_not_create_file', $todo['cmis:contentStreamFileName'], $bridge->id), TRUE);
+					$step_data['message'] = sprintf(translate('Skipping CMIS document "%s".'), $todo['cmis:contentStreamFileName']);
+
+					$this->_addError(sprintf(translate('Create Files failed to create "%1$s" asset under CMIS Bridge : (Id: #%2$s)'), $todo['cmis:contentStreamFileName'], $bridge->id), TRUE);
+
 				} else {
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'metadata');
-					
+
 					$metadata = Array();
 					foreach ($bridge->attr('metadata_fields') as $property => $info){
 						if ($info['field'] && isset($todo[$property])) $metadata[$info['field']][0]['value'] = $todo[$property];
@@ -448,19 +455,21 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					$mm->setMetadata($new_file->id, $metadata);
 					$mm->regenerateMetadata($new_file->id);
-					
+
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'metadata');
-					
+
 					$step_data['message'] = "Created Asset $new_file->name (Id: #$new_file->id)";
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_file);
 				}
-				
+
 				unlink($full_path);
 			} else {
-				$step_data['message'] = translate('snyc_cmis_bridge_hipo_skip_doc', $todo['cmis:contentStreamFileName']);
-				$this->_addError(translate('snyc_cmis_bridge_hipo_can_not_create_file_no_content_stream', $todo['cmis:contentStreamFileName']), TRUE);
+				$step_data['message'] = sprintf(translate('Skipping CMIS document "%s".'), $todo['cmis:contentStreamFileName']);
+
+				$this->_addError(sprintf(translate('Create Files failed to create "%s". No content stream from CMIS server.'), $todo['cmis:contentStreamFileName']), TRUE);
+
 			}
-			
+
 			$this->_running_vars['done_create_objectIds'][] = $todo;
 
 		}//end if
@@ -478,7 +487,7 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 		return TRUE;
 
 	}//end processCreateFiles()
-	
+
 
 }//end class
 

@@ -56,7 +56,8 @@ class Asset_Status_Approved extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_approved');
+		return translate('Approved To Go Live');
+
 
 	}//end getDescription()
 
@@ -85,8 +86,10 @@ class Asset_Status_Approved extends Asset_Status
 			log_dump(get_backtrace());
 		} else {
 			// workflow is not currently running for this asset
-			$statii[SQ_STATUS_LIVE] = translate('status_change_make_live');
-			$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
+			$statii[SQ_STATUS_LIVE] = translate('Make Live');
+
+			$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Reject Changes');
+
 		}//end if workflow running
 
 		return $statii;

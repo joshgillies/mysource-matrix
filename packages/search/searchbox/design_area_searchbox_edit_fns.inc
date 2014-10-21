@@ -64,7 +64,8 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			if ($search_pageid > 0) {
 				echo get_asset_tag_line($search_pageid);
 			} else {
-				echo translate('sch_no_search_page_specified');
+				echo translate('No search page specified');
+
 			}
 			return FALSE;
 		}
@@ -116,7 +117,8 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			if ($submit_imageid > 0) {
 				echo get_asset_tag_line($submit_imageid);
 			} else {
-				echo translate('sch_box_no_submit_image_specified');
+				echo translate('No submit image specified');
+
 			}
 			return FALSE;
 		}

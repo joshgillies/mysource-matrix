@@ -81,7 +81,7 @@ class Design_Area_Menu_Type extends Design_Area
 			// where setting type is either 'normal', 'heirarchy' or 'current'
 			$split = explode('.', $name);
 			if (count($split) != 3) {
-				trigger_localised_error('CORE0173', E_USER_WARNING, $name);
+				trigger_localised_error('CORE0173', sprintf(translate('Setting "%s" unable to be set, three elements in name not found'), $name), E_USER_WARNING);
 				return FALSE;
 			}
 			switch ($split[2]) {
@@ -99,7 +99,7 @@ class Design_Area_Menu_Type extends Design_Area
 				break;
 
 				default :
-					trigger_localised_error('CORE0174', E_USER_WARNING, $split[2]);
+					trigger_localised_error('CORE0174', sprintf(translate('Settings Type "%s" not known'), $split[2]), E_USER_WARNING);
 					return FALSE;
 			}// end switch
 
@@ -140,13 +140,13 @@ class Design_Area_Menu_Type extends Design_Area
 			}//end foreach
 
 		}// end if
-		
+
 		if (($name == 'unwanted_asset_types' || $name == 'wanted_asset_types')  && is_scalar($value)) {
-		
+
 			$value = preg_split('/[ ,]+/', (string)$value);
 			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
-					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
+					trigger_localised_error('CORE0145', sprintf(translate('Asset Type "%s" is not installed in this system, unable to set "type_codes"'), $type_code), E_USER_WARNING);
 					return FALSE;
 				}
 			}// end foreach
@@ -924,7 +924,7 @@ class Design_Area_Menu_Type extends Design_Area
 				// If does, use the customised settings in this asset
 				$current_designs = $sub->getDesigns();
 				foreach ($current_designs as $current_design) {
-					
+
 					if (is_null($current_design)) continue;
 
 					// Find the current customisations
@@ -958,6 +958,6 @@ class Design_Area_Menu_Type extends Design_Area
 		}//end switch
 
 	}//end _printContentItemCode()
-	
+
 }//end class
 ?>

@@ -18,6 +18,8 @@
 <contents>
 	<section name="Asset Selections" write_access="write:attributes" limbo_access="1">
 		<field>
+		    <display_name>Asset Selections</display_name>
+		    <note>Selection groups define selection columns available for use by the asset, eg. checkbox or radiobutton columns.</note>
 			<function_call>
 				<paint_function   name="paintSelections" />
 				<process_function name="processSelections" />
@@ -26,6 +28,8 @@
 	</section>
 	<section name="Asset Targets" write_access="write:attributes"  limbo_access="1">
 		<field>
+		    <display_name>Asset Targets</display_name>
+			<note>Asset Targets are used to send a list of selected assets to another asset, or URL.</note>
 			<function_call>
 				<paint_function   name="paintTargets" />
 				<process_function name="processTargets" />

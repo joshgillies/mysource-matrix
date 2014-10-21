@@ -1,46 +1,69 @@
+
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Payment Gateway" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function name="paintPaymentGateways"  />
-				<process_function name="processPaymentGateways" />
-			</function_call>
-		</field>
-		<field attribute="gateway_required">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Quantity Tracking" write_access="write:attributes">
-		<field attribute="negative_quantity_message">
-			<text width="50" height="2" />
-		</field>
-	</section>
-	<section name="Delivery Email Options" write_access="write:attributes">
-		<field attribute="send_emails">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Recipient Email Options" write_access="write:attributes">
-		<field attribute="recipient_emails_format">
-			<email_format with_asset_finder="0" show_inc_attachments="0" />
-		</field>
-	</section>
-	<section name="Receipt Email Options" write_access="write:attributes">
-		<field attribute="receipt_emails_format" write_access="write:attributes">
-			<email_format with_asset_finder="0" show_inc_attachments="0" />
-		</field>
-	</section>
-	<section name="Available Keywords" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintAvailableKeywords"   />
-				<process_function name="processAvailableKeywords" />
-			</function_call>
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Asset Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Payment Gateway" write_access="write:attributes">
+        <field>
+            <display_name>Payment Gateway</display_name>
+            <note>Select the payment gateway(s) which you would like to use to process items after the checkout process.</note>
+            <function_call>
+                <paint_function name="paintPaymentGateways" />
+                <process_function name="processPaymentGateways" />
+            </function_call>
+        </field>
+        <field attribute="gateway_required">
+            <display_name>Gateway Required?</display_name>
+            <note>Allow Check Out page to complete order without defining the payment gateway. This will let users submit the order without having to pay.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Quantity Tracking" write_access="write:attributes">
+        <field attribute="negative_quantity_message">
+            <display_name>Negative Quantity Message</display_name>
+            <note>A message that is printed if any negative quantities occur during the payment processing of an order, and if the keyword is used.</note>
+            <text width="50" height="2" />
+        </field>
+    </section>
+    <section name="Delivery Email Options" write_access="write:attributes">
+        <field attribute="send_emails">
+            <display_name>Send Emails</display_name>
+            <note>Whether the below recipient and receipt emails will be sent after a successful order is placed.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
+    </section>
+    <section name="Recipient Email Options" write_access="write:attributes">
+        <field attribute="recipient_emails_format">
+            <display_name>Recipient Email Format</display_name>
+            <note>
+			&lt;ul&gt;
+			&lt;li&gt;If the 'To' field is empty then no Recipient e-mails will be sent.&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+            <email_format with_asset_finder="0" show_inc_attachments="0" />
+        </field>
+    </section>
+    <section name="Receipt Email Options" write_access="write:attributes">
+        <field attribute="receipt_emails_format" write_access="write:attributes">
+            <display_name>Receipt Email Format</display_name>
+            <note>
+			&lt;ul&gt;
+			&lt;li&gt;If the 'To' field is empty then no Receipt e-mails will be sent.&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+            <email_format with_asset_finder="0" show_inc_attachments="0" />
+        </field>
+    </section>
+    <section name="Available Keywords" write_access="write:attributes">
+        <field>
+            <function_call>
+                <paint_function name="paintAvailableKeywords" />
+                <process_function name="processAvailableKeywords" />
+            </function_call>
+        </field>
+    </section>
 </contents>

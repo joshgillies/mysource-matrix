@@ -18,14 +18,20 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 	<field attribute="name">
+		<display_name>Page Name</display_name>
+		<note />
 		<text width="35" height="1" />
 	</field>
 	<field attribute="short_name">
+		<display_name>Page Short Name</display_name>
+		<note />
 		<text width="25" height="1" />
 	</field>
 	</section>
 	<section name="Event Sources" write_access="write:attributes">
 		<field>
+			<display_name></display_name>
+			<note><![CDATA[<p>Choose the locations in the asset tree from which you want to list events.  For each location you can specify a CSS class, or one of the CSS named colours, to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white and yellow).  Events that are linked under several of these event sources will have several CSS classes applied (Note that where there are conflicts between CSS rules the CSS standard dictates that rules defined later in the CSS file will take precedence).</p><p>Note that for the default calendar styling to work, you must use a design that uses the Head design area.</p>]]></note>
 			<function_call>
 				<paint_function   name="paintRootNodes"   />
 				<process_function name="processRootNodes" />
@@ -33,45 +39,68 @@
 		</field>
 	</section>
 	<section name="Event Source Restrictions" write_access="write:attributes">
-		<field attribute="personalised">
+	    <note>These event source restrictions do &lt;i&gt;not &lt;/i&gt;  affect the application of event-source CSS classes (above) or event-source columnisation (see below).</note>
+	    <field attribute="personalised">
+			<display_name>Personalise?</display_name>
+			<note>If personalisation is enabled, events will only be shown if they are linked somewhere under the current user as well as under one of the locations specified above.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="parameter_map">
+			<display_name>Dynamic Event Sources</display_name>
+			<note>Dynamic event sources only apply when personalisation is disabled</note>
 			<parameter_map />
 		</field>
 	</section>
 	<section name="Overall Presentation Settings" write_access="write:attributes">
 		<field>
+			<display_name>Enabled Views</display_name>
+			<note>Choose which calendar views you want to be available on the frontend, and their style.</note>
 			<function_call>
 				<paint_function	name="paintViewsChooser" />
 				<process_function name="processViewsChooser" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Initial View</display_name>
+			<note>Choose the first view you want frontend users to see</note>
 			<function_call>
 				<paint_function	name="paintInitialView" />
 				<process_function name="processInitialView" />
 			</function_call>
 		</field>
 		<field attribute="week_starts_on">
+			<display_name>First Day in Week</display_name>
+			<note />
 			<selection />
 		</field>
 		<field attribute="enable_description_popups">
+			<display_name>Description Popups</display_name>
+			<note>If you enable description popups, the description of an event will appear as a popup when you move the mouse pointer over the event in month, week or day view</note>
 			<boolean true_text="enabled" false_text="disabled" />
 		</field>
 		<field attribute="up_link_text">
+			<display_name>Up Link Text</display_name>
+			<note>Text for the link that takes the user to the next-broadest view (eg up from day view to week view).  The keyword %v% is available in this text, and will be replaced with the name of the next-broadest view.</note>
 			<text />
 		</field>
 		<field attribute="prev_link_text">
+			<display_name>Previous Link Text</display_name>
+			<note>Text for the link that takes the user to the previous period in the current view (eg from September to August).  The keyword %v% is available in this text, and will be replaced with the name of the current view.</note>
 			<text />
 		</field>
 		<field attribute="next_link_text">
+			<display_name>Next Link Text</display_name>
+			<note>Text for the link that takes the user to the next period in the current view (eg from January to February).  The keyword %v% is available in this text, and will be replaced with the name of the current view.</note>
 			<text />
 		</field>
 		<field attribute="today_link_text">
+			<display_name>Today Link Text</display_name>
+			<note>Text for the link that a user can use to go straight to today's date in the current view</note>
 			<text />
 		</field>
         <field>
+			<display_name>Use No Results Bodycopy</display_name>
+			<note>If this option is set to "Yes", a "No Results" bodycopy will be created, that will be used in place of the normal calendar view when there are no events within the current time period.</note>
 			<function_call>
 				<paint_function name="paintUseNoResultBodycopy" />
 				<process_function name="processUseNoResultBodycopy" />
@@ -81,12 +110,16 @@
 
 	<section name="Settings for Year View" write_access="write:attributes">
 		<field>
+			<display_name>Year Title Format</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintYearTitleFormat" />
 				<process_function name="processYearTitleFormat" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Navigation Limit</display_name>
+			<note>These values specify the limit for navigation in year view</note>
 			<function_call>
 				<paint_function name="paintYearNaviLimit" />
 				<process_function name="processYearNaviLimit" />
@@ -96,30 +129,44 @@
 
 	<section name="Settings for Month View" write_access="write:attributes">
 		<field>
+			<display_name>Month Title Format</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintMonthTitleFormat" />
 				<process_function name="processMonthTitleFormat" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Day Heading Format</display_name>
+			<note>This setting is applicable only when the month view is displayed with day headings.</note>
 			<function_call>
 				<paint_function name="paintMonthDayHeadingFormat" />
 				<process_function name="processMonthDayHeadingFormat" />
 			</function_call>
 		</field>
 		<field attribute="month_view_event_label_format">
+			<display_name>Event Label Format</display_name>
+			<note>This setting applies only when month view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
 			<text width="40" />
 		</field>
 		<field attribute="month_column_width">
+			<display_name>Width of columns (px)</display_name>
+			<note></note>
 			<int width="6" />
 		</field>
 		<field attribute="month_row_height">
+			<display_name>Height of rows (px)</display_name>
+			<note></note>
 			<int width="6" />
 		</field>
 		<field attribute="month_links_to_week">
+			<display_name>Week Links</display_name>
+			<note>If you enable week links, the calendar-format month view will display a link to the relevant week view at the start of each row</note>
 			<boolean true_text="enabled" false_text="disabled" />
 		</field>
 		<field>
+			<display_name>Navigation Limit</display_name>
+			<note>These values specify the limit for navigation in month view</note>
 			<function_call>
 				<paint_function name="paintMonthNaviLimit" />
 				<process_function name="processMonthNaviLimit" />
@@ -129,30 +176,42 @@
 
 	<section name="Settings for Week View" write_access="write:attributes">
 		<field>
+			<display_name>Week Title Format</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintWeekTitleFormat" />
 				<process_function name="processWeekTitleFormat" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Day Heading Format</display_name>
+			<note>This setting is applicable only when the week view is displayed with day headings.</note>
 			<function_call>
 				<paint_function name="paintWeekDayHeadingFormat" />
 				<process_function name="processWeekDayHeadingFormat" />
 			</function_call>
 		</field>
 		<field attribute="week_view_event_label_format">
+			<display_name>Event Label Format</display_name>
+			<note>This setting applies only when week view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
 			<text width="40" />
 		</field>
 		<field>
+			<display_name>Days to include in week</display_name>
+			<note>Only days enabled here will be displayed in week view.  <br />The order in which the days are displayed is controlled by the 'First Day in Week' setting above.</note>
 			<function_call>
 				<paint_function	name="paintWeekDays" />
 				<process_function name="processWeekDays" />
 			</function_call>
 		</field>
 		<field attribute="table_column_width">
+			<display_name>Width of columns (px)</display_name>
+			<note />
 			<int width="6" />
 		</field>
 		<field>
+			<display_name>Navigation Limit</display_name>
+			<note>These values specify the limit for navigation in week view</note>
 			<function_call>
 				<paint_function name="paintWeekNaviLimit" />
 				<process_function name="processWeekNaviLimit" />
@@ -162,57 +221,83 @@
 
 	<section name="Settings shared by Week and Day Views" write_access="write:attributes">
 		<field>
+			<display_name>Day start time</display_name>
+			<note />
 			<function_call>
 				<paint_function	name="paintDayStart" />
 				<process_function name="processDayStart" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Day end time</display_name>
+			<note />
 			<function_call>
 				<paint_function	name="paintDayEnd" />
 				<process_function name="processDayEnd" />
 			</function_call>
 		</field>
 		<field attribute="day_partition_time">
+			<display_name>Duration of Day Partitions</display_name>
+			<note />
 			<selection />
 		</field>
 		<field attribute="day_partition_height">
+			<display_name>Height of Day Partitions (px)</display_name>
+			<note></note>
 			<int width="6" />
 		</field>
 		<field attribute="column_capacity">
+			<display_name>Expected Column Capacity</display_name>
+			<note>Consider this as the number of events you expect to normally occur concurrently.  If you leave it blank or zero, event widths will be set only according to the number of events actually present.  However if you enter a nonzero value, event widths will be set so that there is always room for this number of events to sit side by side, even if fewer than this number of events are actually present</note>
 			<int width="3" />
 		</field>
 		<field attribute="asset_builder_page">
+			<display_name>Event Input Page</display_name>
+			<note>If you choose an asset builder page for this field, users will be able to click on empty cells in the calendar display to go to the asset builder page and add an event for that timeslot </note>
 			<assetid type_codes="page_asset_builder:D,page_appointment_builder:I" />
 		</field>
 		<field attribute="enable_event_dragging">
+			<display_name>Drag-and-Drop Editing</display_name>
+			<note>If you enable drag-and-drop editing, users with appropriate access will be able to drag single calendar events and drop them at another point in time.</note>
 			<boolean true_text="enabled" false_text="disabled" />
 		</field>
 	</section>
 
 	<section name="Settings for Day View" write_access="write:attributes">
 		<field>
+			<display_name>Day Title Format</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintDayTitleFormat" />
 				<process_function name="processDayTitleFormat" />
 			</function_call>
 		</field>
 		<field attribute="day_view_event_label_format">
+			<display_name>Event Label Format</display_name>
+			<note>This setting applies only when day view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
 			<text width="40" />
 		</field>
 		<field>
+			<display_name>Columns</display_name>
+			<note>Choose which of the event sources should have their own columns.  If an event is linked under several event sources it will appear in several columns.</note>
 			<function_call>
 				<paint_function name="paintColumnNodes" />
 				<process_function name="processColumnNodes" />
 			</function_call>
 		</field>
 		<field attribute="other_column_name">
+			<display_name>Name of 'Other' Column</display_name>
+			<note>If the 'other' column is the only column, its default name is 'Events'; otherwise the default is 'Other'. Enter a column name here to override these defaults.</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="day_column_width">
+			<display_name>Width of columns (px)</display_name>
+			<note />
 			<int width="6" />
 		</field>
 		<field>
+			<display_name>Navigation Limit</display_name>
+			<note>These values specify the limit for navigation in day view</note>
 			<function_call>
 				<paint_function name="paintDayNaviLimit" />
 				<process_function name="processDayNaviLimit" />
@@ -221,6 +306,8 @@
 	</section>
 	<section name="Look and Feel">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
 				<paint_function	name="paintLookAndFeel" />
 				<process_function name="processLookAndFeel" />

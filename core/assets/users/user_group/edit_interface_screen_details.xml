@@ -18,6 +18,8 @@
 <contents>
 	<section name="Details" read_access="write:" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Group Name</display_name>
+			<note />
 			<text width="12" height="1" />
 		</field>
 	</section>

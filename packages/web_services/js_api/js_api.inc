@@ -284,7 +284,9 @@ class JS_Api extends Page
 		    if (!$this->readAccess()) {
 		        // Paint the login page if we can't login.
 		        restore_error_handler();
-		        $GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+		        $GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 		    } else {
                 header('Content-Type: text/javascript');
                 header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -4963,7 +4965,7 @@ class JS_Api extends Page
 	    }
 
 	    if (strtotime($args['start_date']) > strtotime($args['end_date'])) {
-	        return $this->buildError(translate('Start date [%s] must not be after the end date [%s]', $args['start_date'], $args['end_date']), 'badRequest');
+	        return $this->buildError(sprintf(translate('Start date [%s] must not be after the end date [%s]'), $args['start_date'], $args['end_date']), 'badRequest');
 	    }
 
 	    if (array_key_exists('dimensions', $args) === FALSE) {

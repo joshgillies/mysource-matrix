@@ -18,57 +18,92 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Location" write_access="write:attributes" limbo_access="1">
 		<field attribute="remote_url">
+			<display_name>Remote URL</display_name>
+			<note>This is the URL to grab the contents from. Please supply the a complete URL, together with protocol, i.e. http://www.this.com</note>
 			<text width="80" height="1" />
 		</field>
 	</section>
 	<section name="Tunneling" write_access="write:attributes" limbo_access="1">
+		<note>If no types of tunneling are enabled, all elements of the remote page are requested directly from the remote server by the browser.  Tunneling can be useful if you are using this page to perform HTTP Authentication on the remote server, or if the target server is configured to only allow access from this matrix server. However, enabling these options may significantly increase the load time of the target page and may increase the traffic on the matrix server.</note>
 		<field>
+			<display_name>Overall Tunneling Rules</display_name>
 			<function_call>
 				<paint_function name="paintRewritingRestrictions" />
 				<process_function name="processRewritingRestrictions" />
 			</function_call>
 		</field>
 		<field attribute="load_links">
+			<display_name>Tunnel Linked Pages?</display_name>
+			<note>If this option is enabled, hyperlinks and form-action URLs in the remote page will be rewritten so that the linked-to pages will be requested through this asset just as the original remote page was.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="tunnel_images">
+			<display_name>Tunnel Embedded Images?</display_name>
+			<note>If this option is enabled, URLs in IMAGE and SUBMIT tags, and image URLs referenced in CSS or HTML 'background' declarations, will be rewritten so that the relevant image files will be tunneled through this asset.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="tunnel_media">
+			<display_name>Tunnel Other Embedded Media?</display_name>
+			<note>If this option is enabled, URLs in EMBED and PARAM tags will be rewritten so that the relevant media files (flash, movies etc) will be tunneled through this asset</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="tunnel_scripts">
+			<display_name>Tunnel Scripts and Style Sheets?</display_name>
+			<note>If this option is enabled, URLs in SCRIPT and LINK tags, or next to 'import' directives within STYLE blocks, will be rewritten so that the relevant CSS or Javascript files will be tunneled through this asset.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Content Filtering" write_access="write:attributes" limbo_access="1">
+		<note>When filtering content based on Start/End tags, please be aware that complex nested content might not be properly identified, i.e. if there is a table inside a table and you want to capture the top level table, the captured region might start at the right spot, but end when the included table ends, without reaching the end of the top level one.</note>
 		<field attribute="start_tag">
+			<display_name>Start Tag</display_name>
+			<note>
+			Content on the remote page will be discarded until this tag is reached. You can use standard HTML elements or define your own tag to use (for example <![CDATA[&#38;#60;&#33;-- START --&#62;]]>).
+			</note>
 			<text width="35" height="1" />
 		</field>
 		<field attribute="end_tag">
+			<display_name>End Tag</display_name>
+			<note>After the Start Tag has been encountered, all the content on the remote page will be captured until this tag is reached. You can use standard HTML elements or define your own tag to use (for example <![CDATA[&#38;#60;&#33;-- END --&#62;]]>). If this tag is not found, everything is captured till the end of page.</note>
 			<text width="35" height="1" />
 		</field>
 		<field attribute="no_tag_clear">
+			<display_name>When Tag(s) Not Found</display_name>
+			<note>This option can be used to determine what is displayed when Start and End Tags are configured for content filtering, but are not present in the remote content.</note>
 			<boolean true_text="cms_remote_content_no_tag_clear_display_none" false_text="cms_remote_content_no_tag_clear_display_all" />
 		</field>
 		<field attribute="include_tags">
+			<display_name>Include Start/End Tags?</display_name>
+			<note>
+			If start and end tags are specified this switch allows you to specify whether they should be included in the result.
+			</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="multi_occurence">
+			<display_name>Get content from all occurrences</display_name>
+			<note>If the required tag has more than one occurrences in the content then setting this to 'Yes' would give you the content of all of the occurrences and to 'No' would give you the content till the occurence of the first end tag</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="strip_images">
+			<display_name>Strip Images?</display_name>
+			<note>If you select "Yes", all images on the target page will be removed and replaced with their Alt tag values (or word 'Image')</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
+			<display_name>Tag Replacements</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintReplaceTagList" />
 				<process_function name="processReplaceTagList" />
@@ -77,20 +112,31 @@
 	</section>
 	<section name="Connection Settings" write_access="write:attributes" limbo_access="1">
 		<field attribute="timeout">
+			<display_name>Timeout in seconds</display_name>
+			<note>If the content cannot be retrieved within the specified period, an error message will be displayed. This value must be non-negative. If you try to submit a negative number, it will be changed to the default value.</note>
 			<int width="5" />
 		</field>
 		<field attribute="allow_redirect">
+			<display_name>Allow Redirects</display_name>
+			<note>If enabled, this asset will redirect to the necessary location automatically. It is important to leave this YES in the general case because many sites do silent redirects. If a redirect is required and this is set to NO, you will get an Error Message</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="verify_ssl">
+			<display_name>Verify SSL</display_name>
+			<note>If enabled, the SSL certificate of the remote content page will be verified, if the certificate fails verification an error message will be displayed</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="HTTP Authentication" write_access="write:attributes" limbo_access="1">
+		<note>Please note that HTTP Authentication may not properly work in the mixed content environments. This means that although this asset will be able to obtain the bare HTML page from the remote source, the images and other includes will be requested by the web browser (not this asset) so the user will be prompted to authenticate as well. To overcome this issue, you may try tunneling the content (above).</note>
 		<field attribute="username">
+			<display_name>User Name</display_name>
+			<note>If not using HTTP authentication, leave this blank.</note>
 			<text width="35" height="1" />
 		</field>
 		<field attribute="password">
+			<display_name>Password</display_name>
+			<note>Password will not be shown</note>
 			<password width="25" height="1" autocomplete="off"/>
 		</field>
 	</section>

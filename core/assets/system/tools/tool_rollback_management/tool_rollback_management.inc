@@ -71,7 +71,8 @@ class Tool_Rollback_Management extends Tool
 			return;
 		}
 
-		$o->openField(translate('tool_rollback_rb_status'));
+		$o->openField(translate('Rollback Status'));
+
 			$options = Array(
 						'0'	=> 'Disabled',
 						'1'	=> 'Enabled',
@@ -85,16 +86,21 @@ class Tool_Rollback_Management extends Tool
 		$o->openField('');
 		$o->closeField();
 
-		$o->openField(translate('tool_rollback_reset_all_rb_entries'));
+		$o->openField(translate('Reset All Rollback Entries'));
+
 			$options = Array(
-						'0'	=> translate('no'),
-						'1'	=> translate('yes'),
+						'0'	=> translate('No'),
+
+						'1'	=> translate('Yes'),
+
 					   );
 			combo_box($type_code.'_reset_rollback_entries', $options, FALSE, '');
-			$o->note('<b>'.translate('tool_rollback_reset_all_note').'</b>');
+			$o->note('<b>'.translate('WARNING: Resetting rollback will delete all existing rollback data. This data will not be recoverable. Ensure you have made a backup of your system before resetting rollback.').'</b>');
+
 		$o->closeField();
 
-		$o->openField(translate('tool_rollback_purge_rb_entries_before'));
+		$o->openField(translate('Purge Rollback Entries Before (period)'));
+
 			text_box($type_code.'_purge_rollback_entries_period_amount', '', 4, 4);
 
 			$options = Array(
@@ -108,7 +114,8 @@ class Tool_Rollback_Management extends Tool
 			combo_box($type_code.'_purge_rollback_entries_period_timeframe', $options, FALSE, '');
 		$o->closeField();
 
-		$o->openField(translate('tool_rollback_purge_file_versioning_entries_before'));
+		$o->openField(translate('Purge Files and File Versioning Entries Before (period)'));
+
 			text_box($type_code.'_purge_file_entries_period_amount', '', 4, 4);
 
 			$options = Array(
@@ -122,13 +129,16 @@ class Tool_Rollback_Management extends Tool
 			combo_box($type_code.'_purge_file_entries_period_timeframe', $options, FALSE, '');
 		$o->closeField();
 
-		$o->openField(translate('tool_delete_redundant_entries'));
+		$o->openField(translate('Delete Redundant Entries'));
+
 			$options = Array(
 						'0'	=> 'No',
 						'1'	=> 'Yes',
 					   );
-			combo_box($type_code.'_delete_redundant_entries', $options, FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('tool_delete_redundant_entries_confirm'))) { this.value = 0; } } \"");
-			$o->note(translate('tool_delete_redundant_entries_note'));
+			combo_box($type_code.'_delete_redundant_entries', $options, FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('Are you sure you want to delete all the redundant entries?'))) { this.value = 0; } } \"");
+
+			$o->note(translate('This will delete all the redundant Cron Manager rollback entries'));
+
 		$o->closeField();
 
 		$o->openField('');
@@ -140,8 +150,10 @@ class Tool_Rollback_Management extends Tool
 			}
 		$o->closeField();
 
-		$o->openField(translate('note'));
-			$o->note(translate('tool_rollback_usage_note'));
+		$o->openField(translate('Note'));
+
+			$o->note(translate('This tool provides options to manage Rollback data. Rollback can be enabled or disabled and existing rollback data can be removed, either by age or in its entirety.'));
+
 		$o->closeField();
 
 

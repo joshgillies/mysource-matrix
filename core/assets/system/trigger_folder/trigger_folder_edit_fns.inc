@@ -37,16 +37,17 @@ class Trigger_Folder_Edit_Fns extends Folder_Edit_Fns
 	function Trigger_Folder_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
-		
+
 		$this->static_screens = Array();
 		// enable just the details
 		// disable lock section
-		$this->static_screens['details']['name'] = translate('details');
+		$this->static_screens['details']['name'] = translate('Details');
+
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'none';
 
 	}//end constructor
-	
+
 
 /**
 	* Paint the interface for editing trigger folder details
@@ -60,19 +61,20 @@ class Trigger_Folder_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintDetails(&$asset, &$o, $prefix)
 	{
-	
+
 		if(!isset($asset->name) || empty($asset->name)) {
 			return FALSE;
 		}
-		
+
 		// display category delimited with '/'
 		$category = explode(':',$asset->name);
 		array_shift ($category);
 		$category_path = implode('/',$category);
 
-		$o->openField(translate('category'));
-		echo ($category_path);	
-		$o->closeField();	
+		$o->openField(translate('Category'));
+
+		echo ($category_path);
+		$o->closeField();
 		// no committing allowed
 		return FALSE;
 

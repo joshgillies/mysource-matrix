@@ -125,8 +125,10 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 
 		ob_start();
 			if (!$write_access) {
-				$layout_wa = !empty($selected_layout_assetid) ? get_asset_tag_line($selected_layout_assetid) : '<i>'.translate('none').'</i>';
-				$override_layout_wa = !empty($selected_override_layout_assetid) ? get_asset_tag_line($selected_override_layout_assetid) : '<i>'.translate('none').'</i>';
+				$layout_wa = !empty($selected_layout_assetid) ? get_asset_tag_line($selected_layout_assetid) : '<i>'.translate('None').'</i>';
+
+				$override_layout_wa = !empty($selected_override_layout_assetid) ? get_asset_tag_line($selected_override_layout_assetid) : '<i>'.translate('None').'</i>';
+
 			}
 
 			$layout_buttons = empty($selected_layout_assetid) ? Array('clear') : Array('clear', 'reset');
@@ -135,11 +137,13 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 			?>
 				<table class="sq-backend-table with-bottom-margin">
 					<tr>
-						<th><?php echo translate('trigger_set_paint_layout_select'); ?> </th>
+						<th><?php echo translate('Set the asset\'s paint layout to:'); ?> </th>
+
 						<td><?php echo $write_access ? asset_finder($prefix.'[layout_assetid]', $selected_layout_assetid, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $layout_buttons) : $layout_wa; ?> </td>
 					</tr>
 					<tr>
-						<th><?php echo translate('trigger_set_override_paint_layout_select'); ?></th>
+						<th><?php echo translate('Set the asset\'s override paint layout to:'); ?></th>
+
 						<td><?php echo $write_access ? asset_finder($prefix.'[override_layout_assetid]', $selected_override_layout_assetid, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $override_layout_buttons) : $override_layout_wa; ?> </td>
 					</tr>
 				</table>

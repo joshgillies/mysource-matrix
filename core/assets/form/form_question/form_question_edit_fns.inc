@@ -65,7 +65,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->getRuleCount() == 0) {
 			$o->openField('','wide_col');
-			echo '<em>'.translate('core_form_no_rules_set').'</em>';
+			echo '<em>'.translate('No rules set for this question.').'</em>';
+
 			$o->closeField();
 			return FALSE;
 		}
@@ -94,18 +95,22 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $this);
 
 			if ($write_access) {
-				$o->openField(translate('core_form_custom_error_text'));
+				$o->openField(translate('Custom Error Text'));
+
 				text_box($prefix.'_rule_'.$k.'[custom_text]', array_get_index($rule, 'custom_text', ''), 30);
 				$o->closeField();
 
-				$o->openField(translate('delete_question'));
+				$o->openField(translate('Delete?'));
+
 				check_box($prefix.'_rule_'.$k.'[delete]');
 				$o->closeField();
 			} else {
-				$o->openField(translate('core_form_custom_error_text'));
+				$o->openField(translate('Custom Error Text'));
+
 				$custom_text = array_get_index($rule, 'custom_text', '');
 				if (empty($custom_text)) {
-					?><i><?php echo translate('core_form_no_custom_error_text_set') ?></i><?php
+					?><i><?php echo translate('No custom error text set - a default message will be displayed.') ?></i><?php
+
 				} else {
 					echo $rule['custom_text'];
 				}
@@ -207,7 +212,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
-		combo_box('rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), FALSE, '', 0, '', 0, TRUE);
+		combo_box('rule', array_merge(Array(' ' => '------ '.translate('Please Select').' ------'), $desc), FALSE, '', 0, '', 0, TRUE);
+
 
 		return TRUE;
 
@@ -290,7 +296,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-			The <strong>"Attributes"</strong> lock to the <strong><?php echo ($section_asset instanceof Form_Section) ? 'Form Section' : 'Form' ?></strong> is held by user <strong>"<?php echo htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong> at <strong>"<?php echo htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong>. 
+			The <strong>"Attributes"</strong> lock to the <strong><?php echo ($section_asset instanceof Form_Section) ? 'Form Section' : 'Form' ?></strong> is held by user <strong>"<?php echo htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong> at <strong>"<?php echo htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong>.
 			<?php echo $expires_in; ?>
 			</p>
 			<?php
@@ -326,11 +332,11 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paint the validation condition for simple validation. 
+	* Paint the validation condition for simple validation.
 	* Validation condition can be set up so that, only when a condition is met, the validation rule will be executed.
 	* Only use vlidation condition when the quesiton is required.
 	*
-	* 
+	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
 	* @param string	$prefix	prefix for the form elements
@@ -342,12 +348,13 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		// this condition is only available when the simple validation is set up as a required field
 		if (!$asset->attr('is_required')) {
-			echo '<em>'.translate('core_form_required_validation_condition').'</em>';
+			echo '<em>'.translate('Validation condition can be specified only when this question requires an entry.').'</em>';
+
 			return TRUE;
 		}
 
 		// fabricate a form question rule to make use of the same condition feature handled there
-		$write_access = $asset->writeAccess('attributes');		
+		$write_access = $asset->writeAccess('attributes');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_question_rule');
 		$rule_asset = new Form_Question_Rule();
 		$rule_edit_fns = $rule_asset->getEditFns();
@@ -355,19 +362,19 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		// if we already have a condition previously set, use the condition settings otherwise print an empty condition
 		$rule_data = $asset->attr('validation_condition');
 		if (!$rule_data) $rule_data = Array();
-		
+
 		$rule_edit_fns->paintRule($rule_asset, $o, $prefix, $rule_data, $write_access, FALSE);
-		
+
 
 		return TRUE;
 	}//end paintCondition()
-	
-	
+
+
 	/**
 	* Process validation condition settings
 	*
 	* This feature is available only when this question requies an answer.
-	* 
+	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
 	* @param string	$prefix	prefix for the form elements
@@ -377,9 +384,9 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processCondition(&$asset, &$o, $prefix)
 	{
-		// this condition is only available when the simple validation is set up as a required field 
+		// this condition is only available when the simple validation is set up as a required field
 		if (!$asset->attr('is_required')) return TRUE;
-		
+
 		// if we don't have any relevant data committed, there's nothing we can do...
 		if (!isset($_POST[$prefix])) return FALSE;
 
@@ -389,17 +396,17 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$condition_operator = array_get_index($_POST[$prefix], 'condition_operator', '=');
 		$condition_value = array_get_index($_POST[$prefix], 'condition_value', null);
 		$enabled = array_get_index($_POST[$prefix], 'enable', 0);
-		
+
 		$condition = Array();
-		if($enabled) {		
+		if($enabled) {
 		    $condition['condition_asset'] = $condition_asset;
 		    $condition['condition_operator'] = $condition_operator;
 		    $condition['condition_value'] = $condition_value;
 		}
-		
+
 		$asset->setAttrValue('validation_condition', $condition);
 		return $asset->saveAttributes();
-		
+
 
 	}//end processCondition()
 

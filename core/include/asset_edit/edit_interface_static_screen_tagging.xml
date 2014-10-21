@@ -17,15 +17,26 @@
 
 <contents>
 	<section name="Suggest Tags"  show_if="isSearchInstalled">
-		<field code="suggest_tags" />
+		<field code="suggest_tags">
+			<display_name>Suggested Tags</display_name>
+			<note />
+		</field>
 	</section>
 	<section name="Tags">
-		<field code="tags" />
+		<field code="tags">
+			<display_name />
+			<note>Tags are applied to an asset to index its content.</note>
+		</field>
 	</section>
 	<section name="Weights">
-		<field code="weights" />
+		<field code="weights">
+			<display_name />
+			<note>The weight assigned to a tag describes how relevant it is to the asset.</note>
+		</field>
 	</section>
 	<section name="Cascading">
-		<field code="cascading" />
+		<field code="cascading">
+			<display_name>Cascading Options</display_name>
+		</field>
 	</section>
 </contents>

@@ -59,10 +59,12 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function paintKeywordInstructions(Metadata_Field $asset, Backend_Outputter $o, $prefix)
 	{
 		ob_start();
-			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib')?>/web/popups/keywords.php?assetid=<?php echo $asset->id; ?>&all=1', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('metadata_keywords_list_link_text'); ?></a></b>.<?php
+			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib')?>/web/popups/keywords.php?assetid=<?php echo $asset->id; ?>&all=1', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('View all available keyword replacements'); ?></a></b>.<?php
+
 			$replacements_link = ob_get_contents();
 		ob_end_clean();
-		$o->note(translate('metadata_keyword_replacements_usage', $replacements_link));
+		$o->note(sprintf(translate('You can use keyword replacements in place of values for metadata fields on this page. %s'), $replacements_link));
+
 
 	}//end paintKeywordInstructions()
 
@@ -114,15 +116,18 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 					text_box($prefix.'_new_vc', '', 30);
 				} else {
 					// Would have permission if we had the asset locked
-					echo '<i>'.translate('core_lock_asset_to_create_value_component').'</i>';
+					echo '<i>'.translate('Lock this asset to create a new value component').'</i>';
+
 				}
 			} else {
 				// Can't add/delete components in an alternate context
-				echo '<em>'.translate('core_cannot_create_value_component_in_alternate_context').'</em>';
+				echo '<em>'.translate('Only default values of value components can be changed in an alternate context. Change to the default context to change the names of value components, or to create or delete components.').'</em>';
+
 			}
 		} else {
 			// Would not have permission to do it even if able to be locked
-			echo '<i>'.translate('core_cannot_create_value_component').'</i>';
+			echo '<i>'.translate('You do not have permission to create a new value component').'</i>';
+
 		}
 		$o->closeField();
 
@@ -138,7 +143,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if (!empty($current_vc)) {
-			$o->openField(translate('current'));
+			$o->openField(translate('Current'));
+
 			$num_per_row = 3;
 			$num_done = 0;
 			?>
@@ -177,7 +183,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 							if ($can_change_keys === TRUE) {
 								echo '<br />';
 								check_box($prefix.'_vc_delete['.$vc_name.']');
-								label(translate('delete_question'), $prefix.'_vc_delete['.$vc_name.']');
+								label(translate('Delete?'), $prefix.'_vc_delete['.$vc_name.']');
+
 							}
 						}
 						echo '</td>';
@@ -261,11 +268,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_new_vc']) && trim($_POST[$prefix.'_new_vc']) != '') {
 			$new_vc = trim($_POST[$prefix.'_new_vc']);
 			if (isset($current_vc[$new_vc])) {
-				trigger_localised_error('CORE0206', E_USER_WARNING, $contexted_asset->name);
+				trigger_localised_error('CORE0206', sprintf(translate('Value component "%1%s" already exists for field "%1$s"'), $contexted_asset->name), E_USER_WARNING);
 			} else if (preg_match('/^[1-9][0-9]+$/', $new_vc)) {
 				// we are not allowing just numbers because we want to use array_merge()
 				// and if there is only numbers it thinks the elements are in from an indexed array and it all goes bad.
-				trigger_localised_error('CORE0207', E_USER_WARNING);
+				trigger_localised_error('CORE0207', translate('Value components are can not allowed to contain only all numeric characters is the first character is zero'), E_USER_WARNING);
 			} else {
 				$current_vc[$new_vc] = '';
 				$updated = TRUE;
@@ -316,7 +323,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->attr('required')) {
 			$field_name .= ' <span class="sq-backend-warning">*</span>';
 			if (!$complete && $write_access) {
-				$field_name .= '<br /><span class="sq-backend-warning">'.translate('currently_empty').'</span>';
+				$field_name .= '<br /><span class="sq-backend-warning">'.translate('Currently Empty').'</span>';
+
 			}
 		}
 
@@ -325,7 +333,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		$writable = $write_access && $asset->attr('editable');
 		$res = $this->paintValueInterface($asset, $o, $value_str, $writable, TRUE, $print_cascade_values_option, $type_code);
 		if (!$write_access && $asset->attr('required') && !$complete) {
-			echo '<b class="sq-backend-warning">['.strtoupper(translate('empty')).']</b>';
+			echo '<b class="sq-backend-warning">['.strtoupper(translate('Empty')).']</b>';
+
 		}
 		echo '<div class="sq-backend-smallprint sq-metadata-description">'.$asset->attr('description').'</div>';
 		$o->closeField();

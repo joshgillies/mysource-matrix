@@ -222,7 +222,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		foreach ($file_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
-				trigger_localised_error('CORE0162', E_USER_WARNING);
+				trigger_localised_error('CORE0162', translate('Failed creating file link to customisation'), E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -269,7 +269,8 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			}
 
 		} else {
-			echo translate('core_no_customisation_created');
+			echo translate('No Customisations Created');
+
 		}
 
 	}//end paintCurrentCustomisations()

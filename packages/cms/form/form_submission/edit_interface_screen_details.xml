@@ -18,11 +18,13 @@
 <contents>
 	<section name="Submission Information"  limbo_access="1">
 		<field>
+			<display_name>IP Address</display_name>
 			<function_call>
 				<paint_function name="paintSubmissionIpAddress" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Time Submitted</display_name>
 			<function_call>
 				<paint_function name="paintSubmissionTime" />
 			</function_call>

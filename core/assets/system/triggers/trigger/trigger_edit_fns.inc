@@ -43,7 +43,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array();
 
 		// enable just the details
-		$this->static_screens['details']['name'] = translate('details');
+		$this->static_screens['details']['name'] = translate('Details');
+
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -194,7 +195,9 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			* Deletes a div, with a confirmation box
 			*/
 			function deleteDiv(div) {
-				if(confirm(js_translate('confirm_delete_component'))) {
+				if(confirm(js_translate('Deleting a component cannot be undone.
+Are you sure you want to proceed?'))) {
+
 					div.parentNode.removeChild(div);
 				}
 			}
@@ -354,7 +357,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		echo '</div>';
 
 		if (!$write_access && !$events_selected) {
-			echo '<strong>'.translate('no_event_selected').'</strong>';
+			echo '<strong>'.translate('No Events Were Selected').'</strong>';
+
 		}
 
 		$o->closeRaw();
@@ -462,7 +466,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				$type_name = $tm->_getComponentName($type);
 
 				if (!$multiple_status[$type]){
-					$mutliple_indicator = '<span title="'.translate('condition_can_only_be_added_once').'">*</span>';
+					$mutliple_indicator = '<span title="'.translate('This trigger condition can only be added once').'">*</span>';
+
 				}else{
 					$mutliple_indicator = '';
 				}
@@ -478,7 +483,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 						if ($write_access) {
 						?>
 							<input type="checkbox" id="<?php echo $delete_prefix; ?>" name="<?php echo $delete_prefix; ?>" >
-							<?php echo label(translate('delete'), $delete_prefix); ?>
+							<?php echo label(translate('Delete'), $delete_prefix); ?>
+
 								&nbsp;&nbsp;&nbsp;&nbsp;
 							<a href="#" title="Move up" onclick="moveUp(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
 							<a href="#" title="Move down" onclick="moveDown(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
@@ -498,7 +504,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 							}
 
 							check_box($inverse_condition_prefix, 1, $inverse_condition, NULL, $extras);
-							label(translate('inverse_condition'), $inverse_condition_prefix);
+							label(translate('Inverse this condition (<strong>Note:</strong> this can decrease system performance as probably more assets will be affected)'), $inverse_condition_prefix);
+
 						?>
 					</div>
 					<div class="sq-backend-triggers-component-body">
@@ -517,9 +524,11 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			<input type="hidden" id="conditionOrderer" name="<?php echo $condition_order_prefix; ?>" />
 			<!-- Adding a New Condition -->
 			<div class="sq-backend-triggers-new-component-selector">
-				<?php echo translate('add_new_condition_type'); ?>:
+				<?php echo translate('Add new Condition type'); ?>:
+
 					<?php
-					$select_list = Array(' '=>' ---- '.translate('select_to_add').'  ---- ');
+					$select_list = Array(' '=>' ---- '.translate('Select to Add').'  ---- ');
+
 					$removed = FALSE;
 					foreach ($condition_type_list as $type => $name) {
 						if (!$multiple_status[$type] && $type_instance_count[$type] != 0) {
@@ -534,12 +543,14 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 					}
 
 					combo_box($prefix.'[new_condition]', $select_list, FALSE, ' ');
-					echo '<div class="sq-backend-note">'.translate('conditions_marked_with_can_only_be_added_once').'</div>';
+					echo '<div class="sq-backend-note">'.translate('Conditions marked with a * can only be added once.').'</div>';
+
 					?>
 			</div>
 			<?php
 			} else {
-				if ($i < 0) echo translate('no_conditions_specified');
+				if ($i < 0) echo translate('No Conditions Specified');
+
 			}
 			?>
 		</div><?php
@@ -631,7 +642,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			if (FALSE !== $error) {
-				trigger_localised_error('CORE0217', E_USER_NOTICE, $i, $type, $error);
+				trigger_localised_error('CORE0217', sprintf(translate('Condition %1$s (%2$s) not saved: %3$s'), $i, $type, $error), E_USER_NOTICE);
 			}
 
 			$processed_components[] = Array(
@@ -719,7 +730,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 							if ($write_access) {
 								?>
 								<input type="checkbox" id="<?php echo $delete_prefix; ?>" name="<?php echo $delete_prefix; ?>">
-								<?php echo label(translate('delete'), $delete_prefix); ?>
+								<?php echo label(translate('Delete'), $delete_prefix); ?>
+
 								&nbsp;&nbsp;&nbsp;&nbsp;
 								<a href="#" title="Move up" onclick="moveUp(this.parentNode.parentNode.parentNode); actionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
 								<a href="#" title="Move down" onclick="moveDown(this.parentNode.parentNode.parentNode); actionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
@@ -739,56 +751,71 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 						}
 
 						check_box($ignore_permissions_prefix, 1, $ignore_permissions, NULL, $extras);
-						label(translate('ignore_permissions'), $ignore_permissions_prefix);
+						label(translate('Ignore Permissions'), $ignore_permissions_prefix);
+
 
 						check_box($not_required_prefix, 1, $not_required, NULL, $extras);
-						label(translate('not_required'), $not_required_prefix);
+						label(translate('Non-Critical'), $not_required_prefix);
+
 
 						$other_assets_option_id = str_replace('[', '_', str_replace(']', '_', $other_assets_prefix));
 						$action_other_assets = array_get_index($other_assets, 'enabled', FALSE);
 						check_box($other_assets_prefix.'[enabled]', 1, $action_other_assets, NULL, $extras.' onclick="'.$prefix.'_toggle_other_assets_option(this, '.$other_assets_option_id.')"');
-						label(translate('trigger_action_other_assets'), $other_assets_prefix.'[enabled]');
+						label(translate('Action On Other Assets'), $other_assets_prefix.'[enabled]');
+
 
 						// "Action on Other Assets" interface
 						?>
 						<span id="<?php echo $other_assets_option_id; ?>" style="display:<?php echo $action_other_assets ? 'block' : 'none'; ?>">
-							<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_other_assets_title'); ?></p>
-							<p><?php echo translate('trigger_action_other_assets_note'); ?></p>
+							<p class="sq-backend-section-subheading"><?php echo translate('Assets To Action On'); ?></p>
+
+							<p><?php echo translate('Select which other assets, in addition to or instead of the broadcasting asset, this action will fire on.'); ?></p>
+
 							<table class="sq-backend-table">
 								<tr>
-									<th width="20%"><?php echo translate('trigger_action_include_current_asset'); ?></th>
+									<th width="20%"><?php echo translate('Include Current Asset?'); ?></th>
+
 									<td><?php
 										check_box($other_assets_prefix.'[current_asset]', 1, array_get_index($other_assets, 'current_asset', FALSE), NULL, $extras);
-										label(translate('trigger_action_include_current_asset_note'), $other_assets_prefix.'[current_asset]');
+										label(translate('Include the asset that the action is executing on'), $other_assets_prefix.'[current_asset]');
+
 									?>
 									</td>
 								</tr>
 								<tr>
-									<th><?php echo translate('trigger_action_include_linked_parents'); ?></th>
+									<th><?php echo translate('Include Linked Parents?'); ?></th>
+
 									<td class="bold-labels" style="vertical-align: bottom;">
 										<p style="margin-bottom: 0"><?php
 											$link_types = get_link_type_names();
-											echo translate('trigger_action_include_linked_parents_include_parents_note');
-											label(translate('trigger_action_link_type'), $other_assets_prefix.'[parent_link_types]');
+											echo translate('Include parents of the current asset with');
+
+											label(translate('Link Type'), $other_assets_prefix.'[parent_link_types]');
+
 											combo_box($other_assets_prefix.'[parent_link_types]', $link_types, TRUE, array_get_index($other_assets, 'parent_link_types', Array()), 4, $extras);
-											echo translate('trigger_action_and');
-											label(translate('trigger_action_link_value'), $other_assets_prefix.'[parent_link_value]');
+											echo translate('and');
+
+											label(translate('Link Value'), $other_assets_prefix.'[parent_link_value]');
+
 											text_box($other_assets_prefix.'[parent_link_value]', array_get_index($other_assets, 'parent_link_value', ''), 15, '', FALSE, $extras);
 										?></p>
 										<div class="sq-backend-note"><?php
-											echo translate('trigger_action_include_linked_parents_note');
+											echo translate('<strong>NOTE:</strong> For NOTICE type links where the linked parent is a Bodycopy Container or a Content Type asset, the trigger will action on the dependant parent instead.');
+
 										?></div>
 									</td>
 								</tr>
 								<tr>
-									<th><?php echo translate('trigger_action_assets'); ?></th>
+									<th><?php echo translate('Assets'); ?></th>
+
 									<td><?php
 										$selected_assets = array_get_index($other_assets, 'assets', Array());
 										if ($write_access) {
 											multiple_asset_finder($other_assets_prefix.'[assets]', $selected_assets);
 										} else {
 											if (empty($selected_assets)) {
-												echo '&nbsp; &nbsp;'.translate('no_asset_selected');
+												echo '&nbsp; &nbsp;'.translate('No asset selected');
+
 											} else {
 												echo '<ul class="sq-root-node-selections-wrapper">';
 													foreach($selected_assets as $selected_assetid) {
@@ -801,31 +828,39 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 									</td>
 								</tr>
 								<tr>
-									<th><?php echo translate('trigger_action_dynamic_parameters'); ?></th>
+									<th><?php echo translate('Dynamic Parameters'); ?></th>
+
 									<td><?php
 										$pm_prefix = str_replace(array('[',']'), '_', $other_assets_prefix).'_dynamic_source';
 										hidden_field($other_assets_prefix.'[pm_prefix]', $pm_prefix);
 										$parameter_map_value = array_get_index($other_assets, 'dynamic_source', serialize(Array()));
 										$attr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
-											$attr_parameter_map->setParameter('assetids', translate('trigger_action_dynamic_parameters_assets'));
+											$attr_parameter_map->setParameter('assetids', translate('Comma separated list of asset ids'));
+
 										echo $attr_parameter_map->paint($pm_prefix, !$write_access);
 									?></td>
 								</tr>
 								<tr>
-									<th><?php echo translate('trigger_action_asset_level'); ?></th>
+									<th><?php echo translate('Asset Level'); ?></th>
+
 									<td><?php
 										$level_options = Array(
-															'single'        => translate('selected_asset'),
-															'dependants'    => translate('selected_asset_and_dependants'),
-															'children'      => translate('selected_asset_and_children'),
+															'single'        => translate('Selected assets'),
+
+															'dependants'    => translate('Selected assets and their dependants'),
+
+															'children'      => translate('Selected assets and their children'),
+
 									                       );
 										echo combo_box($other_assets_prefix.'[asset_level]', $level_options, FALSE, array_get_index($other_assets, 'asset_level', ''), 0, $extras);
-										echo '<div class="sq-backend-note">'.translate('trigger_action_asset_level_note').'</div>';
+										echo '<div class="sq-backend-note">'.translate('<strong>NOTE:</strong> Selecting the "Selected assets and their children" as an asset level option can significantly decrease system performance when this action is fired as it can potentiall affect a large number of assets.').'</div>';
+
 									?>
 									</td>
 								</tr>
 								<tr>
-									<th><?php echo translate('trigger_action_asset_types'); ?></th>
+									<th><?php echo translate('Include Asset Types'); ?></th>
+
 									<td><?php
 										$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 										foreach ($asset_types as $type_code) {
@@ -834,7 +869,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 												$asset_types_options[$type_code] = $info['name'];
 											}
 										}
-								        $asset_types_options[''] = '-- '.translate('trigger_action_all_asset_types').' --';
+								        $asset_types_options[''] = '-- '.translate('All asset types').' --';
+
 										asort($asset_types_options);
 
 										$selected_types = array_get_index($other_assets, 'asset_types', Array());
@@ -854,7 +890,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
                                 				}//end foreach
 			                                	echo '</ul>';
 				                            } else {
-                			                echo '&nbsp; &nbsp;'.translate('trigger_action_all_asset_types');
+                			                echo '&nbsp; &nbsp;'.translate('All asset types');
+
                             				}
 										}
 									?>
@@ -877,9 +914,11 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				<input type="hidden" id="actionOrderer" name="<?php echo $action_order_prefix; ?>" />
 				<!-- Add a New Action -->
 				<div class="sq-backend-triggers-new-component-selector">
-					<?php echo translate('add_new_action_type'); ?>:
+					<?php echo translate('Add new Action type'); ?>:
+
 					<select name="<?php echo $prefix; ?>[new_action]" >
-						<option value="" > ---- <?php echo translate('select_to_add'); ?> ---- </option>
+						<option value="" > ---- <?php echo translate('Select to Add'); ?> ---- </option>
+
 						<?php
 						foreach ($action_type_list as $a_type => $a_name) {
 							echo '<option value="'.$a_type.'" >'.$a_name.'</option>';
@@ -889,7 +928,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				</div>
 				<?php
 			} else {
-				if ($i < 0) echo translate('no_action_specified');
+				if ($i < 0) echo translate('No Actions Specified');
+
 			}
 			?>
 			</div>
@@ -1026,7 +1066,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 									  );
 
 			if (FALSE !== $error) {
-				trigger_localised_error('CORE0130', E_USER_NOTICE, $i, $type, $error);
+				trigger_localised_error('CORE0130', sprintf(translate('Action %1$s (%2$s) not saved. %3$s'), $i, $type, $error), E_USER_NOTICE);
 			}
 			$i++;
 		}

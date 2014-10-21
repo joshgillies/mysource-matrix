@@ -78,17 +78,17 @@ class EES_Login_Design_Management extends Asset_Management
 			$source_parse_file_md5[] = '46c990414c686b66bc8f949d124010bf';
 			$source_parse_file_md5[] = 'c00cf668108207f1a41a50ab767cb42d';
 			$source_parse_file_md5[] = 'c9f3ec8e7860951262e40de8e034c57c';
-			
+
 			$new_file = file_get_contents($new_parse_file);
 			$design = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('ees_login_design');
 			$design_edit_fns = $design->getEditFns();
-			
+
 
 			// Update design parse file for ees_login_design, there is some css changes
 			$parse_file = $design->data_path.'/parse.txt';
 			$ext_file = file_get_contents($parse_file);
 			$parse_file_md5 = md5(file_get_contents($parse_file));
-			
+
 			$can_restore = FALSE;
 			foreach ($source_parse_file_md5 as $md5key) {
 			    if ($parse_file_md5 == $md5key) {
@@ -104,7 +104,7 @@ class EES_Login_Design_Management extends Asset_Management
 				trigger_error ('parse file is not available');
 				return FALSE;
 			}
-			else {		
+			else {
 
 				// update the parse file
 				if(!$this->_updateFile($new_parse_file, 'parse.txt', $design->data_path, $design->data_path_suffix)) {
@@ -116,18 +116,18 @@ class EES_Login_Design_Management extends Asset_Management
 				$design->generateDesignFile();
 
 				echo 'Parse file of EES login design is successfully updated...'."\n";
-			}	
-	
-	
+			}
+
+
 			pre_echo('EES LOGIN DESIGN UPGRADE COMPLETE - FROM VERSION 0.1');
 
 		}//end if - upgrade to version 0.2
-		
+
 		return TRUE;
 
 	}//end _upgrade()
-	
-	
+
+
 	/**
 	 * _updateFile
 	 * Update the target file by removing it first and then replace with a new file, update file versioning of it
@@ -150,7 +150,7 @@ class EES_Login_Design_Management extends Asset_Management
 			$file_status = $fv->upToDate($file_path);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($file_path, '')) {
-					trigger_localised_error('CORE0160', E_USER_WARNING);
+					trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 				}
 			}
 		} else {
@@ -159,7 +159,7 @@ class EES_Login_Design_Management extends Asset_Management
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($data_path_suffix.'/'.$file_name, $data_path)) {
-			trigger_localised_error('CORE0032', E_USER_WARNING);
+			trigger_localised_error('CORE0032', translate('Failed checking out latest version of file'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 

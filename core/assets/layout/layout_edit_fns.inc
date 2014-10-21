@@ -136,12 +136,14 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 
 		if ($write_access) {
 			check_box($prefix.'[show_cascade_metadata_field]', 1, $show_cascade_metadata_field);
-			label(translate('core_layout_show_cascade_metadata_field'), $prefix.'[show_cascade_metadata_field]');
+			label(translate('Show "Cascade Metadata" field'), $prefix.'[show_cascade_metadata_field]');
+
 		} else {
 			?>
 				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($show_cascade_metadata_field ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
 			<?php
-			echo translate('core_layout_show_cascade_metadata_field');
+			echo translate('Show "Cascade Metadata" field');
+
 		}
 
 		return TRUE;
@@ -168,7 +170,7 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 
 			// With checkboxes, default to unset unless it is set, in which case set the value. Now we're all set
 			$layout_display_options['show_cascade_metadata_field'] = FALSE;
-			
+
 			if (isset($_POST[$prefix]['show_cascade_metadata_field'])) {
 				$layout_display_options['show_cascade_metadata_field'] = (bool) $_POST[$prefix]['show_cascade_metadata_field'];
 			}

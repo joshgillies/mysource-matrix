@@ -61,7 +61,8 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 			asset_finder($prefix.'_redirect_assetid', (is_null($redirect_asset) ? 0 : $redirect_asset->id));
 		} else {
 			if (is_null($redirect_asset)) {
-				echo translate('cms_redirect_none_set');
+				echo translate('None Set');
+
 			} else {
 				echo get_asset_tag_line($redirect_asset->id);
 			}
@@ -101,7 +102,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paint the interface for selecting the session variables 
+	* Paint the interface for selecting the session variables
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class

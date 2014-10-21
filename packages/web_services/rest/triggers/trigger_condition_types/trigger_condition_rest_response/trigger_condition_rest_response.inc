@@ -46,9 +46,9 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 		// the responses are passed in $state
 		// we need something in response to test the condition
 		if (!isset($state['event']['data']) || (is_array($state['event']['data']) && empty($state['event']['data']))) return FALSE;
-		
+
 		// if any of the options are missing, we can't compare values properly
-		if (!isset($settings['match_target']) || !isset($settings['match_condition_type']) || 
+		if (!isset($settings['match_target']) || !isset($settings['match_condition_type']) ||
 			!isset($settings['match_type'])   || !isset($settings['match_value'])) {
 			return FALSE;
 		}//end if
@@ -99,11 +99,11 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 				default:
 					$match_result = FALSE;
 			}//end switch ($settings['match_type'])
-			
+
 			// if 'all match' option is selected but found the target value that does not match the specified value($target_value),
 			// we have found a value does not satisfy the trigger condition
 			if ($settings['match_condition_type'] == 'rest_response_match_condition_all' && !$match_result) return FALSE;
-			
+
 			// if 'at least one match' option is selected and if we found a target value that matches the specified value ($target_value),
 			// it satisfies the trigger condition
 			if ($settings['match_condition_type'] == 'rest_response_match_condition_one' && $match_result) return TRUE;
@@ -111,7 +111,7 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 
 		// if 'all match' option is selected and has reached this far, all values matched and satisfies the trigger condition
 		if ($settings['match_condition_type'] == 'rest_response_match_condition_all') return TRUE;
-		
+
 		// if 'at least one match' option is selected and has reached this far, there was no value that has matched
 		// and does not satisfy the trigger condition
 		if ($settings['match_condition_type'] == 'rest_response_match_condition_one') return FALSE;
@@ -136,31 +136,41 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 		$conditions = array_get_index($settings, 'conditions', Array());
 
 		$match_condition_type = Array(
-									'rest_response_match_condition_all'    => translate('rest_response_match_condition_all'),
-									'rest_response_match_condition_one'    => translate('rest_response_match_condition_one'),
+									'all'    => translate('all'),
+
+									'at least one'    => translate('at least one'),
+
 								);
 		$match_target         = Array(
-									'rest_response_match_target_req_urls'  => translate('rest_response_match_target_req_urls'),
-									'rest_response_match_target_http_code' => translate('rest_response_match_target_http_code'),
-									'rest_response_match_target_body'      => translate('rest_response_match_target_body'),
+									'request URLs'  => translate('request URLs'),
+
+									'http codes' => translate('http codes'),
+
+									'response bodies'      => translate('response bodies'),
+
 								);
 		$match_type           = Array(
-									'rest_response_match_type_match'       => translate('rest_response_match_type_match'),
-									'rest_response_match_type_contain'     => translate('rest_response_match_type_contain'),
-									'rest_response_match_type_gt'          => translate('rest_response_match_type_gt'),
-									'rest_response_match_type_lt'          => translate('rest_response_match_type_lt'),
-									'rest_response_match_type_regex_match' => translate('rest_response_match_type_regex_match'),
+									'match'       => translate('match'),
+
+									'contain'     => translate('contain'),
+
+									'is/are greater than'          => translate('is/are greater than'),
+
+									'is/are less than'          => translate('is/are less than'),
+
+									'match the regex' => translate('match the regex'),
+
 								);
 
 		// user default values if the setting has not been set
 		if (!array_key_exists('match_condition_type', $settings)) {
 			$settings['match_condition_type'] = 'rest_response_match_condition_all';
 		}
-		
+
 		if (!array_key_exists('match_target', $settings)) {
 			$settings['match_target'] = 'rest_response_match_target_http_code';
 		}
-		
+
 		if (!array_key_exists('match_type', $settings)) {
 			$settings['match_type'] = 'rest_response_match_type_match';
 		}
@@ -189,7 +199,8 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 			$conditions = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_rest_response', $conditions);
+		return sprintf(translate('The response received matches all of the following conditions: <br /> %1$s'), $conditions);
+
 
 	}//end getInterface()
 
@@ -206,18 +217,19 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 	public static function processInterface(&$settings, $request_data)
 	{
 		// check numeric only values
-		if (($request_data['match_type'] == 'rest_response_match_type_gt' || 
-				$request_data['match_type'] =='rest_response_match_type_lt') && 
+		if (($request_data['match_type'] == 'rest_response_match_type_gt' ||
+				$request_data['match_type'] =='rest_response_match_type_lt') &&
 				!is_numeric($request_data['match_value'])) {
-			return translate('trigger_numeric_only');
+			return translate('Only a numeric value is allowed when \'greater than\' or \'less than\' is selected.');
+
 		}//end if
-		
+
 		// save the selected options
 		$settings['match_condition_type'] = array_get_index($request_data, 'match_condition_type', 'rest_response_match_condition_all');;
 		$settings['match_target'] = array_get_index($request_data, 'match_target','rest_response_match_target_http_code');
 		$settings['match_type'] = array_get_index($request_data, 'match_type','rest_response_match_type_match');
 		$settings['match_value'] = array_get_index($request_data, 'match_value','');
-		
+
 		return FALSE;	// the return value is expected to indicate whether there has been an error or not
 
 	}//end processInterface()
@@ -234,7 +246,7 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 		return TRUE;
 
 	}//end allowMultiple()
-	
+
 }//end class
 
 ?>

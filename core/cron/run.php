@@ -38,24 +38,24 @@ ini_set('memory_limit', SQ_CONF_CRON_MEMORY_LIMIT.'M');
 
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (is_null($root_user)) {
-	trigger_localised_error('CRON0023', E_USER_ERROR);
+	trigger_localised_error('CRON0023', translate('Unable to get Root User'), E_USER_ERROR);
 }
 
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_localised_error('CRON0022', E_USER_ERROR);
+	trigger_localised_error('CRON0022', translate('Unable to set root user as the current user'), E_USER_ERROR);
 }
 
 $cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 if (is_null($cron_mgr)) {
-	trigger_localised_error('CRON0021', E_USER_ERROR);
+	trigger_localised_error('CRON0021', translate('Unable to get the Cron Manager'), E_USER_ERROR);
 }
 
 if (!empty($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'RESET_RUNNING') {
 	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'attributes', 0, TRUE)) {
-		trigger_localised_error('CRON0016', E_USER_ERROR, $cron_mgr->name);
+		trigger_localised_error('CRON0016', sprintf(translate('Unable to acquire lock of "%s"'), $cron_mgr->name), E_USER_ERROR);
 	}
 	if (!$cron_mgr->setAttrValue('running', FALSE)) {
-		trigger_localised_error('CRON0010', E_USER_ERROR);
+		trigger_localised_error('CRON0010', translate('SET RUNNING FAILED'), E_USER_ERROR);
 	}
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'attributes');
 }

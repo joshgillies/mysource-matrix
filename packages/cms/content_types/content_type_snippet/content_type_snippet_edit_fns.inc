@@ -113,7 +113,8 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 			// no access, do not change anything
 			$snippets = $asset->getSnippets();
 			if (empty($snippets)) {
-				echo translate('cms_ct_snippet_no_access');
+				echo translate('You do not have access to any of the available snippets');
+
 				return TRUE;
 			}
 
@@ -122,11 +123,13 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 			$current_view = $asset->attr('view_style');
 			$current_snippet = $asset->getCurrentSnippet();
 			$current_id = (is_null($current_snippet)) ? 0 : $current_snippet->id;
-			$current_content = translate('cms_ct_snippet_select_one');
+			$current_content = translate('Please select a snippet from the dropdown box');
+
 			if ($current_id) {
 				if (!isset($snippets[$current_id])) {
 					// no read access or snippet deleted
-					$current_content = translate('cms_ct_snippet_warning', get_asset_tag_line($current_id));
+					$current_content = sprintf(translate('Warning: Unable to preview selected snippet: %s<br />Make sure you have effective read access to the selected snippet<br />Make sure the snippet is correctly listed under the snippet root'), get_asset_tag_line($current_id));
+
 				} else {
 					$current_content = $snippets[$current_id]['content'];
 					$source_safe = TRUE;
@@ -177,7 +180,8 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 					var span = document.getElementById('<?php echo $prefix.'_displayarea'; ?>');
 					var style = document.getElementById('<?php echo $prefix.'_viewstyle'; ?>');
 					if (id == 0) {
-						span.innerHTML = '<?php echo translate('cms_ct_snippet_select_one'); ?>';
+						span.innerHTML = '<?php echo translate('Please select a snippet from the dropdown box'); ?>';
+
 						return;
 					}
 					var snippet = document.getElementById(('<?php echo $prefix; ?>_hidden_' + style.value + '_' + id));
@@ -229,7 +233,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 				// prevent accidental overwrite
 				return FALSE;
 			}
-			
+
 			if ($new_id) {
 				// user selected a different snippet
 				if ($new_id != $current_id) {

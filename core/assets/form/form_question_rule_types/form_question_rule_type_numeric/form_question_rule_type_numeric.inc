@@ -59,8 +59,10 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_numeric_true'),
-				0	=> translate('core_form_rule_numeric_false'),
+				1	=> translate('Must be numeric'),
+
+				0	=> translate('Must NOT be numeric'),
+
 			   );
 
 	}//end getOperators()
@@ -95,7 +97,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 		if (strlen(trim($condition_js))) {
 			$additional_condition = 'if (!'.$condition_js.') return true;';
 		}
-			
+
 		ob_start();			// buffer this please
 
             // output js function for *required* validation
@@ -197,7 +199,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-	  
+
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 	    	$use_accessible_string = $form->useAccessibleFormat();

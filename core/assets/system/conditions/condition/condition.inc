@@ -143,12 +143,7 @@ class Condition extends Asset
 	/**
 	* Get a list of match keywords
 	*
-	* Only override this in a child condition asset in very exceptional
-	* circumstances (see the User IP condition for an example).
-	*
-	* In the future, this could be potentially expanded to offer options other
-	* than TRUE or FALSE match options, but not without a fair bit of further
-	* development.
+	* Override in each class with the correct translate()'d text.
 	*
 	* @param string	$type_code	the type code of this asset
 	*
@@ -158,10 +153,7 @@ class Condition extends Asset
 	*/
 	public static function getMatchKeywords($type_code)
 	{
-		$match_options = Array(
-							'1'	=> translate($type_code.'_true'),
-							'0'	=> translate($type_code.'_false'),
-						 );
+		$match_options = Array();
 
 		return $match_options;
 

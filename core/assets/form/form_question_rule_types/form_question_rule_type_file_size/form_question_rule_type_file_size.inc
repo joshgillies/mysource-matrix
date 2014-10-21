@@ -56,8 +56,10 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	public static function getOperators()
 	{
 		$operators = Array(
-						'<='	=> translate('core_form_rule_file_size_<='),
-						'>='	=> translate('core_form_rule_file_size_>='),
+						'<='	=> translate('Must be no larger than'),
+
+						'>='	=> translate('Must be no smaller than'),
+
 					 );
 		return $operators;
 
@@ -84,7 +86,7 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	{
 		//get all data we need from either current submission or incomplete submission
 		if (!empty($_FILES['q'.$q_asset->id]['size'])) {
-			$filesize = $_FILES['q'.$q_asset->id]['size'];		
+			$filesize = $_FILES['q'.$q_asset->id]['size'];
 		}
 		else {
 			$extra_data = $q_asset->getExtraData();
@@ -92,14 +94,14 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 			if(!empty($temp_file) && strpos($temp_file, '/') !== 0) $temp_file = SQ_SYSTEM_ROOT.'/'.$temp_file;
 			$filesize = (int) filesize ($temp_file);
 		}
-		
+
 		$operator = array_get_index($rule_data, 'operator', '<=');
 
 		// comparison value will be the concatenation of the value and the
 		// multiplier
 		$comparison = array_get_index($rule_data, 'value', '').array_get_index($rule_data, 'multiplier', '');
 
-		
+
 		$comparison = strtolower(trim($comparison));
 		$comp_value = floatval($comparison);
 

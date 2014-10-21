@@ -63,7 +63,8 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 				if (!empty($root_info)) {
 					echo get_asset_tag_line($asset->attr('root_node'));
 				} else {
-					echo translate('cms_no_root_selected');
+					echo translate('No Root Node Selected');
+
 				}
 			}
 
@@ -120,7 +121,8 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 			combo_box($prefix.'_statuses', $options, TRUE, $current);
 		} else {
 			if (empty($current)) {
-				echo translate('no_status_selected');
+				echo translate('No statuses are selected');
+
 			} else {
 				echo '<ul>';
 				foreach ($current as $status) {

@@ -191,7 +191,7 @@ class Metadata_Manager extends MySource_Object
 		    $where = 'assetid = :assetid';
 		    $order_by = '';
 		}
-		
+
 		if (!is_null($schemaid)) {
 			$where .= ' AND schemaid = :schemaid';
 		}
@@ -257,23 +257,23 @@ class Metadata_Manager extends MySource_Object
 		$db_action = 'insert';
 		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error('SYS0047', E_USER_WARNING, $schemaid);
+			trigger_localised_error('SYS0047', sprintf(translate('Failed setting metadata schema, Schema Asset #%s does not exist'), $schemaid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!($schema instanceof Metadata_Schema)) {
-			trigger_localised_error('SYS0045', E_USER_WARNING, $schema->name, $schemaid);
+			trigger_localised_error('SYS0045', sprintf(translate('Failed setting metadata schema, "%1$s" (Asset #%2$s) is not a metadata schema'), $schema->name, $schemaid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0046', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0046', sprintf(translate('Failed setting metadata schema, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->adminAccess('metadata')) {
-			trigger_localised_error('SYS0031', E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0031', sprintf(translate('Unable to set metadata schema for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -304,7 +304,7 @@ class Metadata_Manager extends MySource_Object
 					$new_access		= ($granted) ? 'apply'	: 'deny';
 					$current_access = ($granted) ? 'denied' : 'applied';
 
-					trigger_localised_error('SYS0032', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
+					trigger_localised_error('SYS0032', sprintf(translate('Unable to to %1$s metadata schema "%2$s" on "%3$s" because this asset already has this schema %4$s'), $new_access, $schema->name, $asset->name, $current_access), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -321,6 +321,8 @@ class Metadata_Manager extends MySource_Object
 		$msg_type = 'asset.metadata.schema.set.fulllog';
 		$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 		$message->parameters['assetid'] = $asset->id;
+		$message->subject = translate('Asset Metadata Schema Applied');
+		$message->body    = translate('The metadata schema "%metadata_schema%" was applied to asset "%asset_name%"');
 		$ms->logMessage($message);
 
 		try {
@@ -360,7 +362,7 @@ class Metadata_Manager extends MySource_Object
 				}
 
 				$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-				
+
 				// Needs broadcast this event for all the "FastTracked" schemas
 				$fast_tracked_schemas = $asset->getFaskTrackedTaskAssetids('metadata_manager_generate_content_file');
 				if (!empty($fast_tracked_schemas)) {
@@ -395,12 +397,12 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0036', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0036', sprintf(translate('Failed deleting metadata schema, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->adminAccess('metadata')) {
-			trigger_localised_error('SYS0029', E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0029', sprintf(translate('Unable to delete metadata schema for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -420,6 +422,8 @@ class Metadata_Manager extends MySource_Object
 		$msg_type = 'asset.metadata.schema.delete.fulllog';
 		$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 		$message->parameters['assetid'] = $asset->id;
+		$message->subject = translate('Asset Metadata Schema Removed');
+		$message->body    = translate('The metadata schema "%metadata_schema%" was removed from asset "%asset_name%"');
 		$ms->logMessage($message);
 
 		try {
@@ -560,7 +564,7 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0043', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0043', sprintf(translate('Failed getting metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -591,7 +595,7 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error('SYS0044', E_USER_WARNING, $schemaid);
+				trigger_localised_error('SYS0044', sprintf(translate('Failed getting metadata, Schema #%s does not exist'), $schemaid), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -620,7 +624,14 @@ class Metadata_Manager extends MySource_Object
 			$metadata = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			// SYS0338 = Unable to get current metadata values due to DB error
-			throw new Exception(translate_error('SYS0338', $asset->id, $contextid, $e->getMessage()));
+			throw new Exception(
+			    sprintf(
+			        translate('Cannot get default value of metadata field ID #%1$s in context ID #%2$s, DB error while getting: "%3$s"'),
+			        $asset->id,
+			        $contextid,
+			        $e->getMessage()
+			    ).' [SYS0338]'
+			);
 		}//end try catch
 
 		return $metadata;
@@ -672,7 +683,13 @@ class Metadata_Manager extends MySource_Object
 			}
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
-			throw new Exception(translate_error('SYS0342', $assetid, $e->getMessage()));
+			throw new Exception(
+			    sprintf(
+			        translate('Cannot clean up metadata values of asset ID #%1$s, DB error while deleting: "%2$s"'),
+			        $assetid,
+			        $e->getMessage()
+			    ).' [SYS0342]'
+			);
 		}
 
 
@@ -702,7 +719,7 @@ class Metadata_Manager extends MySource_Object
 
 		$schema = $am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error('SYS0040', E_USER_WARNING, $schemaid);
+			trigger_localised_error('SYS0040', sprintf(translate('Failed getting default metadata, schema #%s does not exist'), $schemaid), E_USER_WARNING);
 			return Array();
 		}
 
@@ -737,7 +754,7 @@ class Metadata_Manager extends MySource_Object
 
 	}//end getSchemaDefaultValues()
 
-	
+
 	/**
 	 * Load metadata values, principally from $metadata_filename
 	 *
@@ -762,13 +779,13 @@ class Metadata_Manager extends MySource_Object
 		ob_start();
 			include $metadata_filename;
 		ob_end_clean();
-			
+
 		$metadata['values'] = $metadata_values;
 		$metadata['value_components'] = $metadata_value_components;
 		$metadata['warnings'] = $metadata_warnings;
-			
+
 		return $metadata;
-		
+
 	}//end loadMetadata
 
 
@@ -807,7 +824,7 @@ class Metadata_Manager extends MySource_Object
 		$field_values = Array();
 
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0038', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0038', sprintf(translate('Failed generating keyword replacements, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 			return $field_values;
 		}
@@ -843,7 +860,7 @@ class Metadata_Manager extends MySource_Object
 
 		if (isset($metadata['values'])) {
 			$metadata_values = $metadata['values'];
-			
+
 			// if the field_names is not empty return the value asked
 			// else return all the values
 			if (!empty($field_names)) {
@@ -891,12 +908,12 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0043', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0043', sprintf(translate('Failed getting metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$asset->writeAccess('metadata')) {
-			trigger_localised_error('SYS0030', E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0030', sprintf(translate('Unable to set metadata for "%s", permission denied'), $asset->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -958,7 +975,7 @@ class Metadata_Manager extends MySource_Object
 			}
 
 		}//end foreach
-		
+
 		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 		// log a message for the asset - this wont get logged until we close the queue
@@ -981,7 +998,7 @@ class Metadata_Manager extends MySource_Object
 					$old_value = $old_val;
 				}
 			}
-			
+
 			// If the field is set to 'use default', it wouldn't be set to any value,
 			if (!isset($value[0]['value'])) {
 			    $value[0]['value'] = $this->getMetadataFieldDefaultValue($fieldid, $contextid);
@@ -1001,6 +1018,8 @@ class Metadata_Manager extends MySource_Object
 							);
 				$msg_type = 'asset.metadata.set.fulllog';
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = translate('Asset Metadata Field Updated');
+				$message->body    = translate('The metadata field "%metadata_field%" of asset "%asset_name%" was updated from "%metadata_old%" to "%metadata_new%"');
 				$message->parameters['assetid'] = $asset->id;
 				$ms->logMessage($message);
 			}
@@ -1049,7 +1068,15 @@ class Metadata_Manager extends MySource_Object
 				}
 			} catch (Exception $e) {
 				// SYS0341 = Unable to revert fields to default due to DB error on delete
-				throw new Exception(translate_error('SYS0341', implode(', ', $delete_fieldids), $asset->id, $contextid, $e->getMessage()));
+                throw new Exception(
+				    sprintf(
+                        translate('Cannot revert metadata fields (%1$s) to default for asset ID #%2$s in context #%3$s, DB error while deleting current values: "%4$s"'),
+                        implode(', ', $delete_fieldids),
+                        $asset->id,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0341]'
+			    );
 			}//end try catch
 		}
 
@@ -1068,7 +1095,14 @@ class Metadata_Manager extends MySource_Object
                 $updates = MatrixDAL::executePdoAll($query);
             } catch (Exception $e) {
                 // SYS0338 = Unable to get current values due to DB error
-                throw new Exception(translate_error('SYS0338', $asset->id, $contextid, $e->getMessage()));
+                throw new Exception(
+                    sprintf(
+                        translate('Cannot get default value of metadata field ID #%1$s in context ID #%2$s, DB error while getting: "%3$s"'),
+                        $asset->id,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0338]'
+                );
             }
 
             // Group the existing contexted entries by contextid
@@ -1105,7 +1139,15 @@ class Metadata_Manager extends MySource_Object
 							$bind_vars['contextid'] = NULL;
 							$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
 						} catch (Exception $e) {
-							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+							throw new Exception(
+                                sprintf(
+                                    translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                    $fieldid,
+                                    $metadata[$fieldid][0]['value'],
+                                    $asset->id,
+                                    $contextid
+                                ).' [SYS0339]'
+                            );
 						}
 
 						// insert values of non-contextable for all contexts
@@ -1115,7 +1157,15 @@ class Metadata_Manager extends MySource_Object
 							$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 						} catch (Exception $e) {
 							// SYS0339 = Cannot set new value of metadata due to DB error
-							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+							throw new Exception(
+                                sprintf(
+                                    translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                    $fieldid,
+                                    $metadata[$fieldid][0]['value'],
+                                    $asset->id,
+                                    $contextid
+                                ).' [SYS0339]'
+                            );
 						}//end try catch
 					} else {
 						// insert values to this context
@@ -1125,7 +1175,15 @@ class Metadata_Manager extends MySource_Object
 							$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 						} catch (Exception $e) {
 							// SYS0339 = Cannot set new value of metadata due to DB error
-							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+							throw new Exception(
+                                sprintf(
+                                    translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                    $fieldid,
+                                    $metadata[$fieldid][0]['value'],
+                                    $asset->id,
+                                    $contextid
+                                ).' [SYS0339]'
+                            );
 						}
 
 						// Also copy the default context values to other contexts which are using default context values
@@ -1143,7 +1201,15 @@ class Metadata_Manager extends MySource_Object
 										$bind_vars['contextid'] = $ctxid;
 										$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
 									} catch (Exception $e) {
-										throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+										throw new Exception(
+                                            sprintf(
+                                                translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                                $fieldid,
+                                                $metadata[$fieldid][0]['value'],
+                                                $asset->id,
+                                                $contextid
+                                            ).' [SYS0339]'
+                                        );
 									}
 									$copy_entry = TRUE;
 								} else if (!isset($existing_fieldids[$ctxid][$fieldid])) {
@@ -1158,7 +1224,15 @@ class Metadata_Manager extends MySource_Object
 										$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 									} catch (Exception $e) {
 										// SYS0339 = Cannot set new value of metadata due to DB error
-										throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+										throw new Exception(
+                                            sprintf(
+                                                translate('Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"'),
+                                                $fieldid,
+                                                $metadata[$fieldid][0]['value'],
+                                                $asset->id,
+                                                $contextid
+                                            ).' [SYS0339]'
+                                        );
 									}
 								}//end if
 							}//end foreach
@@ -1177,7 +1251,15 @@ class Metadata_Manager extends MySource_Object
 						$result = MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 					} catch (Exception $e) {
 						// SYS0340 = Cannot update value of metadata due to DB error
-						throw new Exception(translate_error('SYS0340', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+						throw new Exception(
+                            sprintf(
+                                translate('Cannot update metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while updating: "%5$s"'),
+                                $fieldid,
+                                $metadata[$fieldid][0]['value'],
+                                $asset->id,
+                                $contextid
+                            ).' [SYS0340]'
+                        );
 					}//end try catch
 
 				}//end if
@@ -1197,7 +1279,7 @@ class Metadata_Manager extends MySource_Object
 		$updated_fields = Array('fieldids' => array_keys($metadata_updated));
 		$em->broadcastEvent($asset, 'MetadataUpdate', $broadcast_all_fields ? Array('all') : Array('fieldids' => array_keys($metadata)));
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset, $updated_fields);
-                                                            
+
 		return TRUE;
 
 
@@ -1227,7 +1309,7 @@ class Metadata_Manager extends MySource_Object
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
 		$contextid = (Int) $contextid;
-		
+
 		if ($contextid === 0) {
 			$metadata_filename = 'metadata.php';
 		} else {
@@ -1244,7 +1326,7 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0034', E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0034', sprintf(translate('Failed caching metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 			return FALSE;
 		}
@@ -1269,13 +1351,13 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error('SYS0035', E_USER_WARNING, $schemaid);
+				trigger_localised_error('SYS0035', sprintf(translate('Failed caching metadata, Schema #%s does not exist'), $schemaid), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return FALSE;
 			}
 
 			if (!($schema instanceof Metadata_Schema)) {
-				trigger_localised_error('SYS0033', E_USER_WARNING, $schema->name, $schemaid);
+				trigger_localised_error('SYS0033', sprintf(translate('Failed caching metadata, "%1$s" (Asset #%2$s) is not a metadata schema'), $schema->name, $schemaid), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return FALSE;
 			}
@@ -1364,7 +1446,7 @@ class Metadata_Manager extends MySource_Object
 								if ($part_keyword != $full_keyword && isset($field_replacements[$part_keyword])) {
 									$keyword_value = $field_replacements[$part_keyword];
 
-									// If the metadata field value referred by another metadata field has keyword(s), we cannot apply modifiers at this level 
+									// If the metadata field value referred by another metadata field has keyword(s), we cannot apply modifiers at this level
 									$mv_keywords = extract_keywords($keyword_value);
 									if (!empty($mv_keywords)) {
 										// Apply the modifiers dynamically when loading the metadata file
@@ -1394,7 +1476,7 @@ class Metadata_Manager extends MySource_Object
 
 				}//end foreach ($metadata_values)
 			} while ($fields_modified);
-	
+
 			echo 'if (!empty($modifier_applied_replacements)) {'."\n\t".
 					'foreach($modifier_applied_replacements as $key => $val) {'."\n\t\t".
 						'replace_keywords($val[\'replacement\'], $metadata_replacements);'."\n\t\t".
@@ -1775,7 +1857,8 @@ class Metadata_Manager extends MySource_Object
 						echo 'if (!empty($metadata_'.$field_name.'_by_user)) {'."\n";
 						echo '	$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->'.$user_member.";\n";
 						echo '} else {'."\n";
-						echo '	$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
+						echo '	$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+
 						echo '}'."\n";
 					break;
 
@@ -1790,7 +1873,8 @@ class Metadata_Manager extends MySource_Object
 						echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
 						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+
 						echo '}'."\n";
 
 					break;
@@ -1805,7 +1889,8 @@ class Metadata_Manager extends MySource_Object
 						echo 'if (!empty($metadata_published_by_user)) { ';
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->name;'."\n";
 						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+
 						echo '}}'."\n";
 					break;
 
@@ -1819,7 +1904,8 @@ class Metadata_Manager extends MySource_Object
 						echo 'if (!empty($metadata_published_by_user)) { ';
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
 						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+
 						echo '}}'."\n";
 
 					break;
@@ -1997,7 +2083,7 @@ class Metadata_Manager extends MySource_Object
 			// we need to ensure search reindexing is "fast tracked".
 			//
 			// We ensure reindex tasks are fast tracked for all but the last context, so the reindex
-			// events will be handled correctly once at the end.	
+			// events will be handled correctly once at the end.
 			foreach ($all_contexts as $contextid => $context_data) {
 
 				// Get the asset in each context
@@ -2083,12 +2169,12 @@ class Metadata_Manager extends MySource_Object
 	function getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE, &$has_errors=FALSE, $contextid=NULL)
 	{
 		if (empty($assetid)) return NULL;
-		
+
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
 			$has_errors = TRUE;
 			if (!$mute_errors) {
-				trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
+				trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING);
 			}
 			return NULL;
 		}
@@ -2107,7 +2193,7 @@ class Metadata_Manager extends MySource_Object
 			$has_errors = TRUE;
 			if (!$mute_errors) {
 				// SYS0307: Asset #<assetid> does not have the schema for field #<field assetid> applied
-				trigger_localised_error('SYS0307', E_USER_WARNING, $assetid, $field_assetid);
+				trigger_localised_error('SYS0307', sprintf(translate('Asset #%1$s does not have the schema for field #%2$s applied'), $assetid, $field_assetid), E_USER_WARNING);
 			}
 			return NULL;
 		}
@@ -2129,7 +2215,15 @@ class Metadata_Manager extends MySource_Object
 			$value = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			// Unable to get metadata interface value due to DB error
-			throw new Exception(translate_error('SYS0343', $field_assetid, $assetid, $contextid, $e->getMessage()));
+			throw new Exception(
+                sprintf(
+                    translate('Cannot get interface value of metadata field ID #%1$s for asset ID #%2$s in context ID #%3$s, DB error while getting: "%4$s"'),
+                    $field_assetid,
+                    $assetid,
+                    $contextid,
+                    $e->getMessage()
+                ).' [SYS0343]'
+            );
 		}//end try catch
 
 
@@ -2170,7 +2264,7 @@ class Metadata_Manager extends MySource_Object
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
 		$contextid = (Int) $contextid;
-		
+
 		if ($contextid === 0) {
 			$metadata_basename = 'metadata.php';
 		} else {
@@ -2197,7 +2291,7 @@ class Metadata_Manager extends MySource_Object
 					$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
 					if(isset($metadata_values[$field_names[$field_assetid]]))
 					    $value = $metadata_values[$field_names[$field_assetid]];
-				}	
+				}
 			}
 		}
 
@@ -2275,7 +2369,7 @@ class Metadata_Manager extends MySource_Object
 
 		// Whoops, the asset ID passed isn't a metadata field
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
-			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
+			trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING);
 		}
 
 		// If the current context is the default context, this has to get the default value in
@@ -2290,8 +2384,8 @@ class Metadata_Manager extends MySource_Object
 				if ($deja_vu) {
 					$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $field_assetid);
 				}
-			} 
-			
+			}
+
 			if (!empty($asset)) {
 				$is_contextable = (boolean)$asset->attr('is_contextable');
 			} else {
@@ -2327,7 +2421,14 @@ class Metadata_Manager extends MySource_Object
 				MatrixDAL::bindValueToPdo($query, 'contextid', $contextid);
 				$default_val = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
-				throw new Exception(translate_error('SYS0335', $field_assetid, $contextid, $e->getMessage()));
+				throw new Exception(
+				    sprintf(
+                        translate('Cannot get default value of metadata field ID #%1$s in context ID #%2$s, DB error while getting: "%3$s"'),
+                        $field_assetid,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0335]'
+			    );
 			}//end try catch
 
 			$cached_defaults[$contextid][$field_assetid] = $default_val;
@@ -2357,7 +2458,7 @@ class Metadata_Manager extends MySource_Object
 
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
-			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
+			trigger_localised_error('SYS0308', sprintf(translate('Asset #%s is not a metadata field'), $field_assetid), E_USER_WARNING);
 		}
 
 		// If the current context is the default context, this has to get the default value in
@@ -2372,8 +2473,8 @@ class Metadata_Manager extends MySource_Object
 				if ($deja_vu) {
 					$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $field_assetid);
 				}
-			} 
-			
+			}
+
 			if (!empty($asset)) {
 				$is_contextable = (boolean)$asset->attr('is_contextable');
 			} else {
@@ -2404,36 +2505,62 @@ class Metadata_Manager extends MySource_Object
 			}
 		} catch (Exception $e) {
 			// "Cannot get default value of field in context, DB error"
-			throw new Exception(translate_error('SYS0336', $field_assetid, $contextid, $e->getMessage()));
+			throw new Exception(
+                sprintf(
+                    translate('Cannot set default value of metadata field ID #%1$s in context ID #%2$s, DB error while inserting new defaults: "%3$s"'),
+                    $field_assetid,
+                    $contextid,
+                    $e->getMessage()
+                ).' [SYS0336]'
+            );
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		try {
-			// does the default value exist yet, then?
-			if (is_null($row) || empty($row)) {
-				// "Cannot set default value of field in context, DB error"
-				$message = 'SYS0336';
-				$bind_vars	= Array (
-								'field_assetid'	=> $field_assetid,
-								'contextid'		=> $contextid,
-								'value'			=> $value,
-							  );
-				$value = MatrixDAL::executeQuery('core', 'setMetadataFieldDefaultValue', $bind_vars);
-			} else {
-				// "Cannot update default value of field in context, DB error"
-				$message = 'SYS0337';
-				$bind_vars	= Array (
-								'field_assetid'	=> $field_assetid,
-								'contextid'		=> $contextid,
-								'default_val'	=> $value,
-							  );
-				$value = MatrixDAL::executeQuery('core', 'updateMetadataFieldDefaultValue', $bind_vars);
-			}
-		} catch (Exception $e) {
-			throw new Exception(translate_error($message, $field_assetid, $contextid, $e->getMessage()));
-		}//end try catch
+        // does the default value exist yet, then?
+        if (is_null($row) || empty($row)) {
+            // "Cannot set default value of field in context, DB error"
+            $message = 'SYS0336';
+            $bind_vars	= Array (
+                            'field_assetid'	=> $field_assetid,
+                            'contextid'		=> $contextid,
+                            'value'			=> $value,
+                          );
+            try {
+                $value = MatrixDAL::executeQuery('core', 'setMetadataFieldDefaultValue', $bind_vars);
+            } catch (Exception $e) {
+                throw new Exception(
+                    sprintf(
+                        translate('Cannot set default value of metadata field ID #%1$s in context ID #%2$s, DB error while inserting new defaults: "%3$s"'),
+                        $field_assetid,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0336]'
+                );
+            }//end try
+        } else {
+            // "Cannot update default value of field in context, DB error"
+            $message = 'SYS0337';
+            $bind_vars	= Array (
+                            'field_assetid'	=> $field_assetid,
+                            'contextid'		=> $contextid,
+                            'default_val'	=> $value,
+                          );
+
+            try {
+                $value = MatrixDAL::executeQuery('core', 'updateMetadataFieldDefaultValue', $bind_vars);
+            } catch (Exception $e) {
+                throw new Exception(
+                    sprintf(
+                        translate('Cannot update default value of metadata field ID #%1$s in context #%2$s, DB error while updating: "%3$s"'),
+                        $field_assetid,
+                        $contextid,
+                        $e->getMessage()
+                    ).' [SYS0337]'
+                );
+            }//end try
+        }//end if
 
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -2530,10 +2657,10 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-	 * For given asset with metadata schema(s) applied, this function returns 
+	 * For given asset with metadata schema(s) applied, this function returns
 	 * the value for all metadata fields of given type in following format:
 	 *
-	 * 	Array( 
+	 * 	Array(
 	 *		'<fieldname>' => '<metadata_value>'
 	 * 	)
 	 *
@@ -2544,17 +2671,17 @@ class Metadata_Manager extends MySource_Object
 	 * @return array
 	 * @access public
 	 */
-	public function getMetadataFieldTypeValues($assetid, $metadata_field_type, $contextid=NULL) 
+	public function getMetadataFieldTypeValues($assetid, $metadata_field_type, $contextid=NULL)
 	{
 		$schemas = $this->getSchemas($assetid, TRUE);
 		if (empty($schemas)) return Array();
 
 		$metadata_field_type = strtolower($metadata_field_type);
 		$field_values = Array();
-		
+
 		foreach($schemas as $schemaid) {
 			$fields = $this->getMetadataFields($schemaid);
-			
+
 			foreach($fields as $fieldid => $field_type) {
 				if ($field_type[0]['type_code'] != $metadata_field_type) continue;
 				$field_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($fieldid);

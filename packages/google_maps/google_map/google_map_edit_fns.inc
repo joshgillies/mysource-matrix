@@ -68,8 +68,6 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
         $map->paint($prefix.'_parameter_map', !$write_access);
         $o->closeRaw();
 
-        $o->sectionNote(translate('trim_ds_search_default_options_note'));
-
         return $write_access;
 
     }//end paintDataMapping()
@@ -119,7 +117,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
             $bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
         }
         if (is_null($bodycopy)) {
-            trigger_localised_error('CORE0016', E_USER_ERROR, $asset->name);
+            trigger_localised_error('CORE0016', sprintf(translate('Unable to locate the bodycopy for standard page "%s"'), $asset->name), E_USER_ERROR);
             return FALSE;
         }
 
@@ -478,7 +476,8 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 							<td class="sq-backend-table-cell" style="width:118px;padding-left:15px">Type Name</td>
 							<td class="sq-backend-table-cell">Listing Root Node Options</td>
 							<?php if ($wa) { ?>
-								<td class="sq-backend-table-cell"><?php echo translate('delete_question'); ?>
+								<td class="sq-backend-table-cell"><?php echo translate('Delete?'); ?>
+
 							<?php }//end if ?>
 
 						<?php
@@ -886,7 +885,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			echo nl2br(htmlentities($street_view_code));
 		}//end else
 		$o->closeField();
-	
+
 		return $wa;
 
     }//end paintMapInitialisation()

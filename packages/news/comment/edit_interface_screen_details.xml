@@ -18,24 +18,28 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field keyword="name">
+			<display_name>Name</display_name>
 			<function_call>
 				<paint_function   name="paintName"   />
 				<process_function name="processName" />
 			</function_call>
 		</field>
 		<field keyword="comment">
+			<display_name>Comment</display_name>
 			<function_call>
 				<paint_function   name="paintComment"   />
 				<process_function name="processComment" />
 			</function_call>
 		</field>
 		<field keyword="rating">
+			<display_name>Rating</display_name>
 			<function_call>
 				<paint_function   name="paintRating"   />
 				<process_function name="processRating" />
 			</function_call>
 		</field>
 		<field keyword="author">
+			<display_name>Author</display_name>
 			<function_call>
 				<paint_function   name="paintAuthor"   />
 			</function_call>

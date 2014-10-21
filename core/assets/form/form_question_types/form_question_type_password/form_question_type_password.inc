@@ -77,7 +77,7 @@ class Form_Question_Type_Password extends Form_Question
 		$title = $this->attr('name');
 		$field_name = $this->attr('field_name');
 		$confirm_field_name = $this->attr('confirm_field_name');
-		
+
 		// prepare a valid value for the field id
 		$extras_a = $extras.' id="'.str_replace(':', '_', $name_a).'"';
 		$extras_b = $extras.' id="'.str_replace(':', '_', $name_b).'"';
@@ -106,7 +106,7 @@ class Form_Question_Type_Password extends Form_Question
 			echo '</div>';
 			echo '</div>';
 		     }
-		 
+
 		}
 		else {
 		    password_box($name_a, $value, $width, $max, $extras_a);
@@ -142,23 +142,29 @@ class Form_Question_Type_Password extends Form_Question
 	{
 		if (is_null($answer)) $answer = $this->getValue();
 
-		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);   
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
 		if($use_accessible_string) {
-		    $core_form_password_entered_differently = translate('core_form_password_entered_differently_accessible');
-		    $core_form_password_length_min = translate('core_form_password_length_>=_accessible', $this->attr('min'));
-		    $core_form_password_length_max = translate('core_form_password_length_<=_accessible', $this->attr('max'));
+		    $core_form_password_entered_differently = translate('These passwords don\'t match. Try again?');
+
+		    $core_form_password_length_min = sprintf(translate('Password must be no less than %1$s characters'), $this->attr('min'));
+
+		    $core_form_password_length_max = sprintf(translate('Password must be no more than %1$s characters'), $this->attr('max'));
+
 		}
 		else {
-		    $core_form_password_entered_differently = translate('core_form_password_entered_differently', $this->attr('name'));
-		    $core_form_password_length_min = translate('core_form_password_length_>=', $this->attr('name'), $this->attr('min'));
-		    $core_form_password_length_max = translate('core_form_password_length_<=', $this->attr('name'), $this->attr('max'));
+		    $core_form_password_entered_differently = sprintf(translate('Password field "%s" was entered differently on each try'), $this->attr('name'));
+
+		    $core_form_password_length_min = sprintf(translate('Password field "%1$s" must be no less than %2$s characters'), $this->attr('name'), $this->attr('min'));
+
+		    $core_form_password_length_max = sprintf(translate('Password field "%1$s" must be no more than %2$s characters'), $this->attr('name'), $this->attr('max'));
+
 		}
-	
+
 		// Only try to check "passwords entered differently" if we've actually
 		// submitted something to the form
 		if ($this->attr('verify') && isset($this->_tmp['verify_value']) && ($answer != $this->_tmp['verify_value'])) {
-			
+
 			$this->failed_rules[] = $core_form_password_entered_differently;
 		}
 		if (strlen($answer) < $this->attr('min')) {
@@ -275,8 +281,8 @@ class Form_Question_Type_Password extends Form_Question
 	{
 		return TRUE;
 	}//end useFieldset()
-	
-	
+
+
 	/**
 	* Get the HTML label for this form question
 	*
@@ -295,7 +301,7 @@ class Form_Question_Type_Password extends Form_Question
 		}
 
 	}//end getHtmlLabel()
-	
+
 
 }//end class
 ?>

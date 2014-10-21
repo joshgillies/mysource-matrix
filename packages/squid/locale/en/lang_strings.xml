@@ -22,7 +22,6 @@
 	<string source="squid_hipo_clearing_squid_cache">Clearing Squid Cache</string>
 	<string source="squid_clearing_squid_cache">Clearing %s</string>
 
-	<string source="squid_cron_name">Purge Squid Cache Cron Job #%s</string>
 	<string source="squid_cron_done_msg">Squid Cache cleared for all URLs applied to "%1$s" (Id: #%2$s).</string>
 
 	<string source="squid_tool_pref_note">Enter the Host Names separated by newlines, to be used in the command "squidclient -h hostname -m PURGE $url".</string>
@@ -41,11 +40,10 @@
 	<string source="squid_tool_one_off_field">Schedule a One Off Job</string>
 	<string source="squid_tool_repeating_field">Schedule a Repeating Job</string>
 	<string source="squid_tool_clear_now_field">Clear Now</string>
-	<string source="squid_tool_populate_question">Repopulate ?</string>
+	<string source="squid_tool_populate_question">Repopulate?</string>
 	<string source="squid_tool_populate_note">Request each URL after the purge action so that Squid can recache it.</string>
 	<string source="squid_tool_cascade_note">Clear the cache of the selected asset and its children.</string>
-	<string source="squid_tool_note">Note: Repopulate and Cascade option will also be applied to the cron job if you schedule one.</string>
-	
+
 	<string source="squid_tool_url_port_field">Add Port to URL</string>
 	<string source="squid_tool_url_port_note">You can specify a port to add to each URL when submitted to Squid. If you are running Squiz Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.</string>
 

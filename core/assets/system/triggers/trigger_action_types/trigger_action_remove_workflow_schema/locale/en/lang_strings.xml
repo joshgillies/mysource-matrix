@@ -21,5 +21,4 @@
 	<string source="workflow_schema_to_remove">Remove workflow schema</string>
 	<string source="cascade_schema_removal_to_children">Cascade the removal of workflow schema to all children</string>
 	<string source="select_target_asset">Select target asset</string>
-	<string source="trigger_schema_no_schema_specified">No workflow schema specified</string>
 </strings>

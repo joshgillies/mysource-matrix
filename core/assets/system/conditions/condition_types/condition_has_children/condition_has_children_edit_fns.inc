@@ -74,7 +74,8 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		if ($write_access) {
 			?>
 			<tr>
-				<th style="width: 100px;"><?php echo translate('asset_type'); ?></th>
+				<th style="width: 100px;"><?php echo translate('Asset Type'); ?></th>
+
 				<td><?php
 					asset_type_chooser($prefix.'[type_list]', TRUE, $type_list, NULL, FALSE, FALSE, Array('asset'));
 				?></td>
@@ -83,11 +84,13 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		} else {
 			?>
 			<tr>
-				<th style="width: 100px;"><?php echo translate('asset_type'); ?></th>
+				<th style="width: 100px;"><?php echo translate('Asset Type'); ?></th>
+
 				<td>
 				<?php
 				if (empty($type_list)) {
-					echo '<em>'.translate('condition_no_asset_types_selected').'</em>';
+					echo '<em>'.translate('No asset types selected.').'</em>';
+
 				} else {
 					$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_list, 'name');
 					echo '<ul class="sq-asset-id-list">';
@@ -120,11 +123,12 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		    $link_type_list = Array('1', '2');
 		}
 
-		
+
 		if ($write_access) {
 			?>
 			<tr>
-				<th><?php echo translate('link_type'); ?></th>
+				<th><?php echo translate('Link Type'); ?></th>
+
 				<td><?php
 					combo_box($prefix.'[link_types]', $link_types_names, TRUE, $link_type_list);
 				?></td>
@@ -133,11 +137,13 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		} else {
 			?>
 			<tr>
-				<th><?php echo translate('link_type') ?></th>
+				<th><?php echo translate('Link Type') ?></th>
+
 				<td>
 				<?php
 				if (empty($link_type_list)) {
-					echo '<em>'.translate('condition_no_link_types_selected').'</em>';
+					echo '<em>'.translate('No link types selected.').'</em>';
+
 				} else {
 					echo '<ul class="sq-no-vertical-margin">';
 					foreach ($link_type_list as $link_type) {
@@ -151,8 +157,8 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 			<?php
 		}
 		?></table><?php
-		
-		
+
+
 	}//end paintEditInterface()
 
 
@@ -170,7 +176,7 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		if (!isset($_POST[$prefix]['type_list']) || empty($_POST[$prefix]['type_list'])) {
 			return Array();
 		}
-		
+
 		$link_types = Array('1', '2');
 		if (isset($_POST[$prefix]['link_types']) && !empty($_POST[$prefix]['link_types'])) {
 			$link_types = $_POST[$prefix]['link_types'];

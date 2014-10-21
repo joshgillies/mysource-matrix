@@ -76,9 +76,12 @@ class Page_Password_Reset extends Page
 	{
 		// Set default value for email format attr
 		$val = Array();
-		$val['subject'] = translate('cms_password_reset_email_subject');
-		$val['text_format'] = translate('cms_password_reset_email_msg', '%asset_attribute_username%', '%password_reset_url%');
-		$val['html_format'] = '<p>'.translate('cms_password_reset_email_msg', '%asset_attribute_username%', '<a href="%password_reset_url%">%password_reset_url%</a>').'</p>';
+		$val['subject'] = translate('Password Reset Request');
+
+		$val['text_format'] = sprintf(translate('A password reset request has been received for the account with username "%1$s".  To set a new password for this account please visit %2$s'), '%asset_attribute_username%', '%password_reset_url%');
+
+		$val['html_format'] = '<p>'.sprintf(translate('A password reset request has been received for the account with username "%1$s".  To set a new password for this account please visit %2$s'), '%asset_attribute_username%', '<a href="%password_reset_url%">%password_reset_url%</a>').'</p>';
+
 		$val['from'] = SQ_CONF_SYSTEM_NAME.' <'.SQ_CONF_DEFAULT_EMAIL.'>';
 		$this->setAttrVAlue('request_email_format', $val);
 
@@ -105,7 +108,8 @@ class Page_Password_Reset extends Page
 
 		$group = new User_Group();
 
-		$group->setAttrValue('name', translate('cms_password_reset_pending_group'));
+		$group->setAttrValue('name', translate('Accounts Pending Reset'));
+
 		if (!$group->create($group_link)) return FALSE;
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($group);
 
@@ -273,13 +277,14 @@ class Page_Password_Reset extends Page
 	{
 		$replacements = Array();
 		if (!isset($_POST['username']) || empty($_POST['username'])) {
-			$replacements['password_reset_error'] = translate('cms_password_reset_message_empty_username');
+			$replacements['password_reset_error'] = translate('You must specify a username.');
+
 			return $this->_buildContents('request', $replacements);
 		} else {
 			$username = $_POST['username'];
 			$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 			if (is_null($auth_folder)) {
-				trigger_localised_error('SYS0249', E_USER_ERROR);
+				trigger_localised_error('SYS0249', translate('Unable to locate authentication system'), E_USER_ERROR);
 				return Array();
 			}
 			$auth_systems = $auth_folder->getAuthSystems();
@@ -302,7 +307,8 @@ class Page_Password_Reset extends Page
 				$failure = TRUE;
 				// Shall we tell that the given user doesn't exits?
 				if ($this->attr('invalid_user_error')) {
-					$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_username');
+					$replacements['password_reset_error'] = translate('Specified username does not exist.');
+
 					return $this->_buildContents('request', $replacements);
 				}
 
@@ -315,8 +321,8 @@ class Page_Password_Reset extends Page
 			}
 
 			// make sure user opens reset link in the same session in which he requested reset
-			$_SESSION['SQ_PASSWORD_RESET_HASH'] = $user_hash;	
-			
+			$_SESSION['SQ_PASSWORD_RESET_HASH'] = $user_hash;
+
 			// Do not attempt to send mail to anyone if we're not going to go ahead with this, especially
 			// if we did't create any link!
 			if (!$failure) {
@@ -356,20 +362,24 @@ class Page_Password_Reset extends Page
 		$action = 'request';
 
 		if (!isset($_REQUEST['prid']) || empty($_REQUEST['prid'])) {
-				$replacements['password_reset_error'] = translate('cms_password_reset_message_no_prid');
+				$replacements['password_reset_error'] = translate('No password reset request specified. Please submit another password reset request.');
+
 		} else {
 			$prid = $_REQUEST['prid'];
 			$user_link = $this->_getResetLink($prid);
 			if($this->attr('reset_in_same_session') && (!isset($_SESSION['SQ_PASSWORD_RESET_HASH']) || $_SESSION['SQ_PASSWORD_RESET_HASH'] !== $prid)) {
-				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_session');
+				$replacements['password_reset_error'] = translate('Please open the reset link in the same browser session in which the password reset was requested.');
+
 			}
 			else if (empty($user_link)) {
-				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_prid');
+				$replacements['password_reset_error'] = translate('Password reset link is invalid. Please submit another password reset request.');
+
 			} else {
 				$userid = $user_link['minorid'];
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_null($user)) {
-					$replacements['password_reset_error'] = translate('cms_password_reset_message_no_user');
+					$replacements['password_reset_error'] = translate('The user associated with this password reset could not be found.');
+
 				} else {
 					foreach ($user->getAvailableKeywords() as $keyword => $description) {
 						$replacements[$keyword] = $user->getKeywordReplacement($keyword);
@@ -401,24 +411,29 @@ class Page_Password_Reset extends Page
 		$action = 'request';
 
 		if (!isset($_POST['password']) || empty($_POST['password'])) {
-			$replacements['password_reset_error'] = translate('cms_password_reset_message_empty_password');
+			$replacements['password_reset_error'] = translate('You must specify a new password.');
+
 		} else if (!isset($_REQUEST['prid']) || empty($_REQUEST['prid'])) {
-			$replacements['password_reset_error'] = translate('cms_password_reset_message_no_prid');
+			$replacements['password_reset_error'] = translate('No password reset request specified. Please submit another password reset request.');
+
 		} else {
 			$password_parts = array_unique($_POST['password']);
 
 			$prid = $_REQUEST['prid'];
 			$user_link = $this->_getResetLink($prid);
 			if($this->attr('reset_in_same_session') && (!isset($_SESSION['SQ_PASSWORD_RESET_HASH']) || $_SESSION['SQ_PASSWORD_RESET_HASH'] !== $prid)) {
-				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_session');
+				$replacements['password_reset_error'] = translate('Please open the reset link in the same browser session in which the password reset was requested.');
+
 			}
 			else if (empty($user_link)) {
-				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_prid');
+				$replacements['password_reset_error'] = translate('Password reset link is invalid. Please submit another password reset request.');
+
 			} else {
 				$userid = $user_link['minorid'];
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_null($user)) {
-					$replacements['password_reset_error'] = translate('cms_password_reset_message_no_user');
+					$replacements['password_reset_error'] = translate('The user associated with this password reset could not be found.');
+
 				} else {
 					foreach ($user->getAvailableKeywords() as $keyword => $description) {
 						$replacements[$keyword] = $user->getKeywordReplacement($keyword);
@@ -431,10 +446,12 @@ class Page_Password_Reset extends Page
 					// The password was reset sucessfully!
 					$action = 'reset_receipt';
 				} else {
-					$replacements['password_reset_error'] = translate('cms_password_reset_message_generic_password_error');
+					$replacements['password_reset_error'] = translate('You specified an invalid password. Please try again.');
+
 				}
 			} else {
-				$replacements['password_reset_error'] = translate('cms_password_reset_message_different_passwords');
+				$replacements['password_reset_error'] = translate('The passwords entered do not match.');
+
 			}
 		}
 
@@ -804,7 +821,8 @@ class Page_Password_Reset extends Page
 	function getSubmitButtonKeywordReplacement()
 	{
 		ob_start();
-			submit_button('', translate('submit'));
+			submit_button('', translate('Submit'));
+
 		return ob_get_clean();
 
 	}//end getSubmitButtonKeywordReplacement()
@@ -858,17 +876,25 @@ class Page_Password_Reset extends Page
 	function _getBodycopies()
 	{
 		$res = Array();
-		$res['request']['name'] = translate('cms_password_reset_request');
-		$res['request']['content'] = '<p>%password_reset_error%</p><p>'.translate('cms_password_reset_request_msg').'</p><p>%username_input% %submit_button% </p>';
+		$res['request']['name'] = translate('Request');
 
-		$res['request_receipt']['name'] = translate('cms_password_reset_request_receipt');
-		$res['request_receipt']['content'] = '<p>'.translate('cms_password_reset_request_receipt_msg').'</p>';
+		$res['request']['content'] = '<p>%password_reset_error%</p><p>'.translate('To reset your password, enter your username below. An email containing further instructions will be sent to the email address with which you registered.').'</p><p>%username_input% %submit_button% </p>';
 
-		$res['reset']['name'] = translate('cms_password_reset_reset');
-		$res['reset']['content'] = '<p>%password_reset_error%</p><p>'.translate('cms_password_reset_reset_msg').'</p><p>%password_input%&nbsp;%submit_button%</p>';
 
-		$res['reset_receipt']['name'] = translate('cms_password_reset_reset_receipt');
-		$res['reset_receipt']['content'] = '<p>'.translate('cms_password_reset_reset_receipt_msg').'</p>';
+		$res['request_receipt']['name'] = translate('Request Receipt');
+
+		$res['request_receipt']['content'] = '<p>'.translate('Please check your email for instructions on how to complete the password reset procedure.').'</p>';
+
+
+		$res['reset']['name'] = translate('Reset');
+
+		$res['reset']['content'] = '<p>%password_reset_error%</p><p>'.translate('Please enter a new password for your account').'</p><p>%password_input%&nbsp;%submit_button%</p>';
+
+
+		$res['reset_receipt']['name'] = translate('Reset Receipt');
+
+		$res['reset_receipt']['content'] = '<p>'.translate('Your password has been reset and you are now logged in.').'</p>';
+
 
 		return $res;
 

@@ -35,17 +35,17 @@ include(dirname(__FILE__).'/header.php');
 	function popup_init() {
 		var data = owner.bodycopy_current_edit["data"]["attributes"]["conditions"];
 		if(data === undefined || data === null) return;
-		
+
 		var f = document.main_form;
 		f.condition_rules_status.value = (data['condition_rules_status'] == null) ? "enable" : data['condition_rules_status'];
 		f.logical_op_groups.value  	   = (data['logical_op_groups']       == null) ? "all_match" : data['logical_op_groups'];
-		
+
 		if(data['conditions'] !== null) {
 		    for(var i = 0; i < data['conditions'].length;  i++) {
 			var group = data['conditions'][i];
 			add_group(group);
 		    }
-		}	
+		}
 	}// end popup_init()
 
 	function popup_save(f) {
@@ -73,14 +73,14 @@ include(dirname(__FILE__).'/header.php');
 
 		owner.bodycopy_save_div_properties(data);
 	}
-	
+
 	function set_class(value) {
 		document.main_form.css_class.value = value;
 	}
-	
+
 	// add a condition group to the table
 	function add_group(data) {
-	    
+
 	    // add group row
 	    var table = document.getElementById('condition_groups_table');
 	    var tr = table.insertRow(-1);
@@ -94,7 +94,7 @@ include(dirname(__FILE__).'/header.php');
 	    h2.appendChild(b);
 	    td.appendChild(h2);
 	    td.appendChild(fieldset);
-	    
+
 	    // add table for conditions
 	    var condition_table = document.createElement('table');
 	    condition_table.setAttribute('class', 'condition_group');
@@ -102,7 +102,7 @@ include(dirname(__FILE__).'/header.php');
 	    condition_table.style.width='100%';
 	    condition_table.appendChild(tbdy);
 	    fieldset.appendChild(condition_table);
-	    	    
+
 	    // add "add condition" link
 	    var div =  document.createElement('div');
 	    div.style.textAlign = 'center';
@@ -115,7 +115,7 @@ include(dirname(__FILE__).'/header.php');
 	    };
 	    div.appendChild(add_link);
 	    fieldset.appendChild(div);
-	    
+
 	    // add the logical grouping option
 	    var tr =document.createElement('tr');
 	    var td_label = document.createElement('td');
@@ -124,7 +124,7 @@ include(dirname(__FILE__).'/header.php');
 	    td_label.appendChild(document.createTextNode('Logical grouping:'));
 	    tr.appendChild(td_label);
 	    tr.appendChild(td_input);
-	    
+
 
 	    var select = document.createElement("select");
 	    select.setAttribute("class", "logical_op_conditions");
@@ -169,7 +169,7 @@ include(dirname(__FILE__).'/header.php');
 		add_condition(tbdy, null);
 	    }
 
-	    
+
 	    // print delete group icon
 	    var deleteIcon=document.createElement('img');
 	    deleteIcon.src = "<?php echo(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png'); ?>";
@@ -184,8 +184,8 @@ include(dirname(__FILE__).'/header.php');
 
 	    return false;
 	}
-	
-	
+
+
 	function add_condition(parent, content) {
 	    var tr =document.createElement('tr');
 	    var td_label = document.createElement('td');
@@ -196,12 +196,12 @@ include(dirname(__FILE__).'/header.php');
 	    tr.appendChild(td_label);
 	    tr.appendChild(td_input);
 	    parent.appendChild(tr);
-	    
+
 	    // add condition dropdown
 	    var conditions =owner.bodycopy_current_edit["available_conditions"];
 	    var select = document.createElement("select");
 	    select.setAttribute("class", "selected_condition");
-	    
+
 	    for (var i = 0; i < conditions.length; i++) {
 		var option = document.createElement("option");
 		option.setAttribute('value', conditions[i]);
@@ -209,7 +209,7 @@ include(dirname(__FILE__).'/header.php');
 		    option.setAttribute('selected', 'selected');
 		}
 		var condition_title_array = conditions[i].split(':');
-		var parentid = condition_title_array.pop(); 
+		var parentid = condition_title_array.pop();
 		var condition_title_part = condition_title_array.pop();
 		var condition_title_string = condition_title_part.split('_').join(' ');
 		option.innerHTML = condition_title_string + ' (#' + parentid +  ')';
@@ -274,7 +274,7 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
-		    <table style="width:100%" id="condition_groups_table" class="sq-conditions-group-table">				
+		    <table style="width:100%" id="condition_groups_table" class="sq-conditions-group-table">
 		    </table>
 		</td>
 	</tr>

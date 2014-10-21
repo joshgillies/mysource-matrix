@@ -20,9 +20,13 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="email">
+			<display_name>Email</display_name>
+			<note>This field is required, and should be unique</note>
 			<email width="30" />
 		</field>
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>

@@ -98,14 +98,16 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					}
 
 					check_box($prefix.'_default', '1', $is_default, $checkbox_extra);
-					label(translate('use_default'), $prefix.'_default');
+					label(translate('Use default'), $prefix.'_default');
+
 					echo '</span>';
 				}
 
 				if ($print_cascade_values_option) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
-						label(translate('cascade_value'), $prefix.'_cascade_value');
+						label(translate('Cascade value'), $prefix.'_cascade_value');
+
 					echo '</span>';
 				}
 			echo '</span>';
@@ -125,21 +127,22 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			// the following text can be used to display the character limit
 			// we suppose that char limit is only a positive attribute
 			if ($asset->attr('char_limit')) {
-				?> 
+				?>
 					<span class="sq-char-limit sq-metadata-char-limit">
-						<span class="sq-char-limit-text">Character Limit: <strong><?php echo $asset->attr('char_limit'); ?></strong> </span> 
+						<span class="sq-char-limit-text">Character Limit: <strong><?php echo $asset->attr('char_limit'); ?></strong> </span>
 						<span class="sq-char-limit-error" id="<?php echo $prefix.'_value'; ?>_note"></span>
-					</span> 
+					</span>
 				<?php
 			}
 
 		} else {
 			echo '<span class="sq-metadata-settings-wrapper">';
 				if ($is_default) {
-					echo ' <em>('.translate('using_default_value').')</em>';
+					echo ' <em>('.translate('Using default value').')</em>';
+
 				} else{
 
-				}	
+				}
 			echo '</span>';
 			// ensure JS is not executed in read only mode
 			echo htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
@@ -232,7 +235,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($filter_enabled && !empty($new_value_str)) {
 					$new_value_str = filter_content($new_value_str);
 					if ($new_value_str === FALSE){
-						trigger_localised_error('SYS0347', E_USER_WARNING, $asset->name, $asset->type());
+						trigger_localised_error('SYS0347', sprintf(translate('Unable to filter content of Metadata Field "%1$s" of Type "%2$s"'), $asset->name, $asset->type()), E_USER_WARNING);
 						return FALSE;
 					}
 				}
@@ -317,7 +320,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		if (strpos($new_value, '%asset_metadata_') !== FALSE) {
-			trigger_localised_error('SYS0344', E_USER_WARNING);
+			trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
 			$new_value = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_value);
 		}
 

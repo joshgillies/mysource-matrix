@@ -58,7 +58,7 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 		$is_strict	= array_get_index($settings, 'is_strict', FALSE);
 
 		if (empty($tagids)) {
-			trigger_localised_error('TRIG0004', E_USER_WARNING);
+			trigger_localised_error('TRIG0004', translate('No tag is specified in trigger condition: \'Asset is tagged\''), E_USER_WARNING);
 			return FALSE;
 		}
 		return $tag_manager->isAssetTaggedWith($assetid, $tagids, $is_strict);
@@ -84,8 +84,10 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 
 
 		ob_start();
-			$strict_options[TRUE] = translate('all');
-			$strict_options[FALSE] = translate('some');
+			$strict_options[TRUE] = translate('All');
+
+			$strict_options[FALSE] = translate('Some');
+
 
 			if ($write_access) {
 				combo_box($prefix.'[is_strict]', $strict_options, FALSE, $is_strict);
@@ -93,7 +95,8 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 				echo '<strong>'.$strict_options[$is_strict].'</strong>';
 			}
 
-			echo ' '.translate('tags_must_be_assigned');
+			echo ' '.translate('tags must be assigned');
+
 			echo '<br />';
 			echo '<br />';
 

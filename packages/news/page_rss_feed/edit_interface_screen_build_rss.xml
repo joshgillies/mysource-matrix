@@ -18,6 +18,8 @@
 <contents>
 	<section name="Keywords As Items" write_access="write:attributes" limbo_access="1" show_if="ItemsNotEmpty">
 		<field>
+			<display_name>Keywords Selected</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintSelectedKeywords"     />
 				<process_function name="processSelectedKeywords" />
@@ -26,6 +28,8 @@
 	</section>
 	<section name="Add A Keyword" write_access="write:attributes" limbo_access="1" show_if="ifWriteAccess">
 		<field>
+			<display_name>Add Keyword</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintKeywords"     />
 				<process_function name="processKeywords" />
@@ -34,6 +38,8 @@
 	</section>
 	<section name="Add Channel And Image Info" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name />
+			<note>You have to add information to the channel or the image tags like the links, descriptions, urls etc. Please note that every RSS Feed should have a channel info. So its a must to enter the values for all of the required tags of the channel info to build the RSS. But its optional for the Image Info.</note>
 			<function_call>
 				<paint_function name="paintChannelImage"     />
 				<process_function name="processChannelImage" />

@@ -18,6 +18,8 @@
 <contents>
 	<section name="Validate Account" write_access="write:attributes">
 		<field>
+			<display_name>Manually Validate</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintValidateAccounts"   />
 				<process_function name="processValidateAccounts" />

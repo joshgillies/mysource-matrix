@@ -70,7 +70,8 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('bm_hipo_name_delete_bmail_user');
+		return translate('Delete Bulkmail User');
+
 
 	}//end getHipoName()
 
@@ -86,7 +87,8 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('bm_hipo_deleting_bmail_users'),
+					'name'			=> translate('Deleting Bulkmail Users'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processDelete',
 									   ),
@@ -283,7 +285,8 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 				}//end else
 			}//end if
 
-			$step_data['message'] = translate('bm_deleting_bmail_user', $email);
+			$step_data['message'] = sprintf(translate('Deleting %s'), $email);
+
 
 			// add this user to the done array
 			$this->_running_vars['done_asset_users'][] = $email;

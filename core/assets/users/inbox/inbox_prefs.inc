@@ -33,8 +33,6 @@ class Inbox_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_INBOX_MAIL_PER_PAGE'	=> Array(
-														'name'			=> 'inbox_pref_backend_mail_per_page',
-														'description'	=> 'You can specify the number of emails per page',
 														'default'		=> 20,
 														'protected'		=> FALSE,
 														),
@@ -45,9 +43,11 @@ class Inbox_Prefs extends Prefs
 	* Constructor
 	*
 	*/
-	function inboxPrefs($pref_file='')
+	function Inbox_Prefs($pref_file='')
 	{
 		$this->Prefs($pref_file);
+
+		$this->pref_vars['SQ_INBOX_MAIL_PER_PAGE']['name'] = translate('Messages per page');
 
 	}//end inboxPrefs()
 
@@ -64,22 +64,11 @@ class Inbox_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $is_admin  = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $have_lock = $have_lock && $is_admin;
 
-		if (is_null($pref) || $pref == 'SQ_INBOX_MAIL_PER_PAGE') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_INBOX_MAIL_PER_PAGE']['name']));
-			}
-
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_INBOX_MAIL_PER_PAGE]', $this->pref_vars['SQ_INBOX_MAIL_PER_PAGE']['default'], 5);
-			} else {
-				echo array_get_index($this->pref_vars['SQ_INBOX_MAIL_PER_PAGE'], 'default', 5);
-			}
-
-			if (is_null($pref)) $o->closeField();
-		}//end if
+	    // Messages per page.
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_INBOX_MAIL_PER_PAGE', 5, translate('%s message(s)'), 0);
 
 		return TRUE;
 
@@ -110,14 +99,14 @@ class Inbox_Prefs extends Prefs
 
 			// Not an integer = user mistake, or possible script injection?
 			if (!is_numeric($_POST['prefs']['SQ_INBOX_MAIL_PER_PAGE'])) {
-				trigger_localised_error('IBOX0001', E_USER_WARNING);
+				trigger_localised_error('IBOX0001', translate('The Number of emails per page must be an integer and at least 1'), E_USER_WARNING);
 				return FALSE;
 			}
 			$mail_number = (int)$_POST['prefs']['SQ_INBOX_MAIL_PER_PAGE'];
 
 			// Page size needs to be at least 1
 			if ($mail_number <= 0) {
-				trigger_localised_error('IBOX0001', E_USER_WARNING);
+				trigger_localised_error('IBOX0001', translate('The Number of emails per page must be an integer and at least 1'), E_USER_WARNING);
 				return FALSE;
 			}
 

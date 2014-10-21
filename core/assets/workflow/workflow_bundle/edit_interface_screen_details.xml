@@ -18,11 +18,15 @@
 <contents>
 	<section name="Status" limbo_access="1">
 		<field>
+			<display_name>Current</display_name>
+			<note/>
 			<function_call>
 				<paint_function   name="paintCurrentStatus" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Change ?</display_name>
+			<note/>
 			<function_call>
 				<paint_function   name="paintCustomStatusChange" />
 			</function_call>
@@ -30,6 +34,8 @@
 	</section>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Bundle Name</display_name>
+			<note />
 			<text width="20" height="1" />
 		</field>
 	</section>

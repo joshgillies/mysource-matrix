@@ -126,7 +126,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', sprintf(translate('Unable to morph %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 		return FALSE;
 
 	}//end morph()
@@ -146,7 +146,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 
 	}//end canDelete()
 
-	
+
 	/**
 	* Run this cron job
 	*
@@ -194,12 +194,12 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 					$user_assetids = MatrixDAL::executePdoAll($query);
 
 					foreach($user_assetids as $user_row) {
-						
+
 						$user_assetid = $user_row['assetid'];
-						
+
 						$resent_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_group->id, $user_assetid, SQ_LINK_NOTICE, 'validation_email_resent');
 						if (!empty($resent_link)) continue;
-						
+
 						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
 						if(empty($user)) {
 							trigger_error("User #".$user_assetid." doesn't exist", E_USER_WARNING);
@@ -209,7 +209,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 						if ($asset->resendValidation($user->attr('username'))) $GLOBALS['SQ_SYSTEM']->am->createAssetLink($pending_group, $user, SQ_LINK_NOTICE, 'validation_email_resent');
 
 						unset($user);
-						
+
 					}
 				}
 
@@ -225,9 +225,9 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 								ON a.assetid = l.minorid
 							WHERE
 								l.majorid = :majorid AND
-								a.created < '.$date_sql.' AND 
+								a.created < '.$date_sql.' AND
 								l.link_type < '.SQ_SC_LINK_SIGNIFICANT;
- 
+
 
 					$query = MatrixDAL::preparePdoQuery($sql);
 					MatrixDAL::bindValueToPdo($query, 'majorid', $pending_group->id);

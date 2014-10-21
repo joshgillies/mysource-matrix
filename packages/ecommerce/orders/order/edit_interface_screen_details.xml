@@ -16,31 +16,43 @@
 -->
 
 <contents>
-	<section name="Answers to Global Questions" write_access="write:attributes">
-		<field format="new_line">
-			<function_call>
-				<paint_function name="paintSubmissionAnswers" />
-				<process_function name="processSubmissionAnswers" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Order Details" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function name="paintTransactionID" />
-			</function_call>
-		</field>
-		<field attribute="billing_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="billing_addr">
-			<text width="30" height="8" />
-		</field>
-		<field attribute="delivery_name">
-			<text width="30" height="1" />
-		</field>
-		<field attribute="delivery_addr">
-			<text width="30" height="8" />
-		</field>
-	</section>
+    <section name="Answers to Global Questions" write_access="write:attributes">
+        <field format="new_line">
+            <display_name></display_name>
+            <note></note>
+            <function_call>
+                <paint_function name="paintSubmissionAnswers" />
+                <process_function name="processSubmissionAnswers" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Order Details" write_access="write:attributes">
+        <field>
+            <display_name>Transaction ID</display_name>
+            <note>The ID of the trasaction returned by the Payment Gateway.</note>
+            <function_call>
+                <paint_function name="paintTransactionID" />
+            </function_call>
+        </field>
+        <field attribute="billing_name">
+            <display_name>Billing Name</display_name>
+            <note />
+            <text width="30" height="1" />
+        </field>
+        <field attribute="billing_addr">
+            <display_name>Billing Address</display_name>
+            <note />
+            <text width="30" height="8" />
+        </field>
+        <field attribute="delivery_name">
+            <display_name>Delivery Name</display_name>
+            <note />
+            <text width="30" height="1" />
+        </field>
+        <field attribute="delivery_addr">
+            <display_name>Delivery Address</display_name>
+            <note />
+            <text width="30" height="8" />
+        </field>
+    </section>
 </contents>

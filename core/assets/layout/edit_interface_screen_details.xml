@@ -18,7 +18,9 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<text width="12" height="1" />
+			<display_name>Layout Name</display_name>
+			<note />
+			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="Simple Edit Configuration Options" write_access="write:attributes">

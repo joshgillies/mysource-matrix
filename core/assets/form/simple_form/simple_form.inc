@@ -627,7 +627,8 @@ class Simple_Form extends Asset implements Bridge
 		// make sure we can actually do something this
 		if ($sectionid != $this->id) {
 			// TRANSLATE: Get an error number for this
-			trigger_error('Cannot delete question '.$assetid.' from '.translate('asset_format', $this->_getName(), $this->id).' as it does not belong to this section', E_USER_WARNING);
+			trigger_error('Cannot delete question '.$assetid.' from '.sprintf(translate('"%1$s" [#%2$s]'), $this->_getName(), $this->id).' as it does not belong to this section', E_USER_WARNING);
+
 			return FALSE;
 		}
 
@@ -635,7 +636,8 @@ class Simple_Form extends Asset implements Bridge
 
 		if (!isset($questions[$shadowid])) {
 			// TRANSLATE: Get an error number for this
-			trigger_error('Cannot delete question '.$assetid.' from '.translate('asset_format', $this->_getName(), $this->id).' as it does not exist', E_USER_WARNING);
+			trigger_error('Cannot delete question '.$assetid.' from '.sprintf(translate('"%1$s" [#%2$s]'), $this->_getName(), $this->id).' as it does not exist', E_USER_WARNING);
+
 			return FALSE;
 		} else {
 			unset($questions[$shadowid]);
@@ -954,7 +956,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	<?php echo $code; ?>
 
 	if (submission_errors.length > 0) {
-		var errors_list = "<?php echo translate('core_form_submission_errors'); ?>\n";
+		var errors_list = "<?php echo translate('The following errors must be corrected before the form can be submitted:'); ?>\n";
+
 		for(x in submission_errors) {
 			errors_list += submission_errors[x] + "\n";
 		}
@@ -1350,7 +1353,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 		if (empty($form_action)) {
 			$form_action = current_url(TRUE, TRUE, FALSE);
 		}
-		
+
 		// We need to print js function even if we are not printing the form here, as another form in higher level (if any) might wanna use it
 		if ($print_js && $this->attr('client_side')) {
 			$client_side = $this->getClientSideFunction('beforeSubmit_'.$this->getPrefix());
@@ -1360,7 +1363,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 			$onsubmit = '';
 		}
 		echo $client_side;
-		
+
 		if ($print_form_tags) {
 			?><form id="<?php echo $this->getPrefix() ?>" enctype="multipart/form-data" action="<?php echo $form_action; ?>" method="post"<?php echo $onsubmit;  ?>><?php
 		}
@@ -1640,11 +1643,11 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 
 	}//end getAssetMapAssetInfo()
 
-	
-	
+
+
 	/**
 	* Check if  form's using accessible format
-	*								
+	*
 	*
 	* @return boolean
 	* @access public
@@ -1653,7 +1656,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	{
 		return TRUE;
 	}//end useAccessibleFormat()
-	
+
 
 }//end class
 

@@ -18,10 +18,14 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Job Progress" show_if="showProgressSection">
+		<display_name>Job Progress and History</display_name>
+		<note />
 		<function_call>
 			<paint_function name="paintJobQueue" />
 			<process_function name="processJobQueue" />
@@ -35,6 +39,8 @@
 	</section>
 	<section name="Warning" show_if="showWarningSection">
 		<field>
+            <display_name>Warning</display_name>
+            <note />
 			<function_call>
 				<paint_function name="paintWarning" />
 				<process_function name="processWarning" />
@@ -43,6 +49,8 @@
 	</section>
 	<section name="Recipients" write_access="write:attributes">
 		<field>
+			<display_name>To</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintRecipients"   />
 				<process_function name="processRecipients" />
@@ -51,24 +59,38 @@
 	</section>
 	<section name="Content and Content Generation" write_access="write:attributes">
 		<field attribute="content_id">
+			<display_name>Asset to Send</display_name>
+			<note>The content you would like sent in the emails</note>
 			<assetid type_codes="page:D" />
 		</field>
 		<field attribute="content_gen">
+			<display_name>Generation Method</display_name>
+			<note>Unique content per user, or generic content for all users (with keyword replacements). Generating unique content for thousands of users will be quite slow.&lt;br /&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option needs to be set to 'Generate as recipient' if 'User Subscription' Filter is enabled.</note>
 			<selection />
 		</field>
 		<field attribute="content_text_only">
+			<display_name>Email Type</display_name>
+			<note>If this option is set to "Text Only", the design and paint layout specified below will be ignored. The asset contents will be sent in a text-only email, with tags stripped.</note>
 			<boolean true_text="bulkmail_job_context_text_only_true" false_text="bulkmail_job_context_text_only_false" />
 		</field>
 		<field attribute="content_gen_as">
+			<display_name>Generate As</display_name>
+			<note>This user is used to generate the content for all Bulkmail Users, and also all other users if "Generate as recipient" generation method is selected above</note>
 			<assetid type_codes="user:D" />
 		</field>
 		<field attribute="content_design">
+			<display_name>Design</display_name>
+			<note>Design to apply to the content</note>
 			<assetid type_codes="design:D" />
 		</field>
 		<field attribute="content_layout">
+			<display_name>Paint Layout</display_name>
+			<note>Paint layout to apply to the content</note>
 			<assetid type_codes="paint_layout_page:D" />
 		</field>
 		<field>
+			<display_name>Body Text Filter</display_name>
+			<note>If this filter is enabled, only those bulkmails where the body meets the criteria below will be sent. The version of the bulkmail used (text-only or HTML) will depend on the email type set above - HTML emails will enable matching on a tag. This is typically most useful when the <![CDATA[<strong>Generation Method</strong>]]> setting is set to <![CDATA[<em>Generate as Recipient</em>]]>, where each user's content may differ depending on the type of page being used.</note>
 			<function_call>
 				<paint_function		name="paintContentBodyFilter" />
 				<process_function	name="processContentBodyFilter" />
@@ -79,24 +101,34 @@
 
 	<section name="Header Details" write_access="write:attributes">
 		<field>
+			<display_name>Use Post Office Header Details</display_name>
+			<note>If you use Post Office header details, you must commit before the changes will take effect</note>
 			<function_call>
 				<paint_function name="paintHeaderDetailsCheckBox" />
 				<process_function name="processHeaderDetailsCheckBox" />
 			</function_call>
 		</field>
 		<field attribute="from" show_if="showJobHeader">
+			<display_name>From</display_name>
+			<note>From field is required.</note>
 			<email width="30" />
 		</field>
 		<field attribute="subject" show_if="showJobHeader">
+			<display_name>Subject</display_name>
+			<note>Subject field is required.</note>
 			<text width="30" height="1" />
 		</field>
 		<field show_if="showJobHeader">
+			<display_name>Headers</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintCurrentHeaders" />
 				<process_function name="processCurrentHeaders" />
 			</function_call>
 		</field>
 		<field show_if="showJobHeader">
+			<display_name>Add New Header</display_name>
+			<note>Eg. Key = "Content-Type", Value = "text/html"</note>
 			<function_call>
 				<paint_function name="paintNewHeader" />
 				<process_function name="processNewHeader" />

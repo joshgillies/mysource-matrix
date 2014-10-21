@@ -71,7 +71,8 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('cms_hipo_name_export_files');
+		return translate('Export Files');
+
 
 	}//end getHipoName()
 
@@ -87,7 +88,8 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('cms_hipo_exporting_files'),
+					'name'			=> translate('Exporting Files'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processExport',
 									   ),
@@ -242,58 +244,58 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 
 		$tmpdir = mkdir(SQ_TEMP_PATH.'/export-'.$export_date, 0777);
 		if (!$tmpdir) {
-			trigger_localised_error('CMS0105', E_USER_NOTICE);
+			trigger_localised_error('CMS0105', translate('Cannot complete the export. An error occured making the archive.'), E_USER_NOTICE);
 			return FALSE;
 		}
 
 		// Process the list
 		$filelist = Array();
-		
+
 		// Replace '/' characters in filenames by '_'
-		foreach($files as $key => $value) {					
+		foreach($files as $key => $value) {
 			$filename = $value['name'];
 			$file_path = $value['path'];
 
 			if (strpos($filename, '/') !== FALSE) {
 				$value['name'] = str_replace('/' ,'_', $filename);
 				$value['path'] = substr($file_path, 0, strlen($file_path) - strlen($filename)).$value['name'];
-				
+
 				$files[$key] = $value;
 			}
 		}
 
 		$files_count = count($files);
-		
+
 		// Fix asset's name that are in same tree level with same name to prevent duplicate filename error
 		for($file_index = 1; $file_index <= $files_count; $file_index++) {
 			$file_val = $files[$file_index];
-			
+
 			$recheck_dups = FALSE;
 			for($file_index_check = 1; $file_index_check <= $files_count; $file_index_check++) {
 				if ($file_index == $file_index_check) {
 					continue;
 				}
 				$file_val_check = $files[$file_index_check];
-				
+
 				if ($file_val['root'] == $file_val_check['root'] && $file_val['name'] == $file_val_check['name']) {
 					// Append asset's webpath to the asset's name make the file name unique
 					$file_val_check['name'] .= '_'.$file_val_check['webpath'];
 					$file_val_check['path'] .= '_'.$file_val_check['webpath'];
-					
+
 					$files[$file_index_check] = $file_val_check;
-					
+
 					// Need to check for duplicates all again to see if this new name is conflicting with others previously checked
 					$recheck_dups = TRUE;
 				}
 			}
-			
+
 			if ($recheck_dups) {
 				$file_index = 1;
 			}
 		}
-		
+
 		foreach ($files as $key => $value) {
-			
+
 			// Build file list
 			$path_to = '';
 			if ($structure) {
@@ -303,7 +305,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 				$path_to = '/';
 			}
 			$filetmp = SQ_TEMP_PATH.'/export-'.$export_date.$path_to.$value['name'];
-			
+
 			if ($structure && $value['root'] == 0) {
 				// We only need the root files and folders here, because Archive Tar handles the structure
 				$filelist[] = '.'.$path_to.$value['name'];
@@ -315,14 +317,14 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 			if (isset($value['path']) && !empty($value['path']) && !$value['dir']) {
 				$to_tmp = copy($value['path'], $filetmp);
 				if (!$to_tmp) {
-					trigger_localised_error('CMS0105', E_USER_NOTICE);
+					trigger_localised_error('CMS0105', translate('Cannot complete the export. An error occured making the archive.'), E_USER_NOTICE);
 					trigger_error($filetmp);
 					return FALSE;
 				}//end if
 			} else {
 				$mkdir = mkdir($filetmp, 0777);
 				if (!$mkdir) {
-					trigger_localised_error('CMS0105', E_USER_NOTICE);
+					trigger_localised_error('CMS0105', translate('Cannot complete the export. An error occured making the archive.'), E_USER_NOTICE);
 					trigger_error($filetmp);
 					return FALSE;
 				}//end if
@@ -340,7 +342,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 		$tar_ball = new Archive_Tar($save_location.'/'.$save_name, 'gz');
 		$result = $tar_ball->add($filelist);
 		if (PEAR::isError($result)) {
-			trigger_localised_error('CMS0105', E_USER_NOTICE);
+			trigger_localised_error('CMS0105', translate('Cannot complete the export. An error occured making the archive.'), E_USER_NOTICE);
 			return FALSE;
 		}
 
@@ -351,7 +353,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 		$cleanup = TRUE;
 		$cleanup = $this->_cleanup(SQ_TEMP_PATH.'/export-'.$export_date);
 		if (!$cleanup) {
-			trigger_localised_error('CMS0106', E_USER_NOTICE);
+			trigger_localised_error('CMS0106', translate('Cannot cleanup. An error occured cleaning up.'), E_USER_NOTICE);
 		}
 		return TRUE;
 
@@ -517,13 +519,13 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 				if (is_dir($current_file)) {
 					$next = $this->_cleanup($current_file);
 					if (!$next) {
-						trigger_localised_error('CMS0106', E_USER_NOTICE);
+						trigger_localised_error('CMS0106', translate('Cannot cleanup. An error occured cleaning up.'), E_USER_NOTICE);
 						return FALSE;
 					}
 				} else {
 					$delete_file = unlink($current_file);
 					if (!$delete_file) {
-						trigger_localised_error('CMS0106', E_USER_NOTICE);
+						trigger_localised_error('CMS0106', translate('Cannot cleanup. An error occured cleaning up.'), E_USER_NOTICE);
 						return FALSE;
 					}
 				}

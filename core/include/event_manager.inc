@@ -312,7 +312,7 @@ class Event_Manager extends MySource_Object
 		for (reset($listeners); null !== ($key = key($listeners)); next($listeners)) {
 			$listener = $listeners[$key];
 			if (!method_exists($listener, $function)) {
-				trigger_localised_error('SYS0127', E_USER_WARNING, $function, $listener->type(), $asset->id);
+				trigger_localised_error('SYS0127', sprintf(translate('Unable to find event callback function "%1$s" in Asset "%2$s" (#%3$s)'), $function, $listener->type(), $asset->id), E_USER_WARNING);
 				return false;
 			}
 			$listener->$function($broadcaster, $vars);
@@ -525,7 +525,7 @@ class Event_Manager extends MySource_Object
 			}
 
 			if (!is_array($info['options'])) {
-				trigger_localised_error('SYS0143', E_USER_WARNING, $listener_type_code, gettype($info['options']));
+				trigger_localised_error('SYS0143', sprintf(translate('Expecting Array for event options for "%1$s", got %2$s'), $listener_type_code, gettype($info['options'])), E_USER_WARNING);
 				return false;
 			}
 

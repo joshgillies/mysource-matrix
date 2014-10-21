@@ -610,30 +610,50 @@ class Google_Map extends Page_Asset_Listing
 	{
 
 		$keywords							= parent::_getContentsKeywords();
-		$keywords['location_name']			= translate('google_map_name_keyword');
-		$keywords['location_latitude']		= translate('google_map_latitude_keyword');
-		$keywords['location_longitude']		= translate('google_map_longitude_keyword');
-		$keywords['location_description']	= translate('google_map_description_keyword');
-		$keywords['location_icon_url']		= translate('google_map_icon_url_keyword');
-		$keywords['google_map']				= translate('google_map_initialisation');
+		$keywords['location_name']			= translate('Asset Location Name');
 
-		$keywords['street_view']			= translate('google_map_street_view');
-		$keywords['toggle_street_view_window']	= translate('google_map_toggle_street_view_window');
-		$keywords['toggle_new_address_list']= translate('google_map_toggle_new_address_list');
-		$keywords['toggle_tool_bar']		= translate('google_map_toggle_tool_bar');
-		$keywords['tool_bar']				= translate('google_map_tool_bar');
-		$keywords['toggle_address_finder']	= translate('google_map_toggle_address_finder');
+		$keywords['location_latitude']		= translate('Asset Location Latitude');
 
-		$keywords['toggle_asset_types']		= translate('google_map_toggle_asset_types');
-		$keywords['toggle_root_nodes']		= translate('google_map_toggle_root_nodes');
+		$keywords['location_longitude']		= translate('Asset Location Longitude');
 
-		$keywords['address_finder']			= translate('google_map_address_finder');
-		$keywords['new_address_list']		= translate('google_map_new_address_list');
-		$keywords['asset_builder']			= translate('google_map_asset_builder');
+		$keywords['location_description']	= translate('Asset Location Description');
 
-		$keywords['get_closest_location']	= translate('google_map_get_closest_location');
-		$keywords['clear_new_markers']		= translate('google_map_clear_new_markers');
-		$keywords['map_type_menu']			= translate('google_map_map_type_menu');
+		$keywords['location_icon_url']		= translate('Asset Location Icon URL');
+
+		$keywords['google_map']				= translate('Google Map Initialisation');
+
+
+		$keywords['street_view']			= translate('Google Map Street View Window');
+
+		$keywords['toggle_street_view_window']	= translate('Google Map Toggle Street View Window');
+
+		$keywords['toggle_new_address_list']= translate('Google Map Toggle New Address List');
+
+		$keywords['toggle_tool_bar']		= translate('Google Map Toggle Tool Bar');
+
+		$keywords['tool_bar']				= translate('Google Map Tool Bar');
+
+		$keywords['toggle_address_finder']	= translate('Google Map Toggle Address Finder');
+
+
+		$keywords['toggle_asset_types']		= translate('Google Map Toggle Asset Types');
+
+		$keywords['toggle_root_nodes']		= translate('Google Map Toggle Root Nodes');
+
+
+		$keywords['address_finder']			= translate('Google Map Address Finder');
+
+		$keywords['new_address_list']		= translate('Google Map New Address List');
+
+		$keywords['asset_builder']			= translate('Google Map Asset Builder');
+
+
+		$keywords['get_closest_location']	= translate('Google Map Get Closest Location');
+
+		$keywords['clear_new_markers']		= translate('Google Map Clear New Markers');
+
+		$keywords['map_type_menu']			= translate('Google Map Map Type Menu');
+
 
 		return $keywords;
 
@@ -850,7 +870,7 @@ class Google_Map extends Page_Asset_Listing
 		foreach ($assetids as $index => $id) {
 		    $assetids[$index] = MatrixDAL::quote($id);
 		}
-		
+
 		$assetids = implode(', ', $assetids);
 		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = '.MatrixDAL::quote($root_id).' AND minorid IN ('.$assetids.')';
 

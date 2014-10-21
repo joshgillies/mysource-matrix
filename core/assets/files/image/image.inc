@@ -106,7 +106,7 @@ class Image extends File implements Bridge
 
 					if (!copy($old_variety_path, $new_variety_path)) {
 						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
-						trigger_localised_error('CORE0036', E_USER_WARNING, $old_variety_path, $new_variety_path);
+						trigger_localised_error('CORE0036', sprintf(translate('Failed copying non-uploaded file (%1$s) to destination directory (%2$s)'), $old_variety_path, $new_variety_path), E_USER_WARNING);
 						return FALSE;
 					}
 
@@ -117,13 +117,13 @@ class Image extends File implements Bridge
 
 					if (!$fv->checkOut($clone->data_path_suffix.'/varieties/'.$variety['filename'], $clone->data_path.'/varieties')) {
 						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
-						trigger_localised_error('CORE0103', E_USER_WARNING);
+						trigger_localised_error('CORE0103', translate('Update failed checking-out latest version of file'), E_USER_WARNING);
 						return FALSE;
 					}
 				}
 			}
 		}//end if attributes|all
-		
+
 		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		return parent::cloneComponents($clone, $components, $override);
@@ -146,13 +146,13 @@ class Image extends File implements Bridge
 		if (!empty($varieties['lookups'])) {
 			// make sure our varieties system directory exists
 			if (!create_directory($this->data_path.'/.sq_system/varieties')) {
-				trigger_localised_error('CORE0050', E_USER_WARNING, $this->name);
+				trigger_localised_error('CORE0050', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted system directory'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 
 			// make sure there is nothing in the varieties system directory
 			if (!clear_directory($this->data_path.'/.sq_system/varieties')) {
-				trigger_localised_error('CORE0046', E_USER_WARNING, $this->name);
+				trigger_localised_error('CORE0046', sprintf(translate('Failed saving asset "%s" to cache, could not clear restricted system directory'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -169,7 +169,7 @@ class Image extends File implements Bridge
 			}//end foreach
 
 			if (!array_to_file($versions, 'versions', $this->data_path.'/.sq_system/varieties/sq_system_version_no')) {
-				trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
+				trigger_localised_error('CORE0051', sprintf(translate('Failed saving asset "%s" to cache, could not write object data file'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 		}// end if
@@ -198,13 +198,13 @@ class Image extends File implements Bridge
 		if (!empty($varieties['lookups'])) {
 			// make sure our varieties directory exists
 			if (!create_directory($this->data_path.'/varieties')) {
-				trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
+				trigger_localised_error('CORE0049', sprintf(translate('Failed saving asset "%s" to cache, could not create restricted data directory'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 
 			// make sure our varieties directory is clear
 			if (!clear_directory($this->data_path.'/varieties')) {
-				trigger_localised_error('CORE0045', E_USER_WARNING, $this->name);
+				trigger_localised_error('CORE0045', sprintf(translate('Failed reverting file "%s" to system version, could not clear restricted data directory'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -218,7 +218,7 @@ class Image extends File implements Bridge
 				// check out the old version of the file into the private data directory
 				$rep_path = $variety->data_path_suffix.'/'.$variety->attr('filename');
 				if (!$fv->checkOut($rep_path, $variety->data_path, $file_version)) {
-					trigger_localised_error('CORE0044', E_USER_WARNING, $variety->attr('filename'));
+					trigger_localised_error('CORE0044', sprintf(translate('Failed reverting file "%s" to system version, could not check-out latest version of file'), $variety->attr('filename')), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -228,7 +228,7 @@ class Image extends File implements Bridge
 
 				// check out the new version
 				if (!$fv->checkOut($rep_path, $variety->data_path)) {
-					trigger_localised_error('CORE0044', E_USER_WARNING, $variety->attr('filename'));
+					trigger_localised_error('CORE0044', sprintf(translate('Failed reverting file "%s" to system version, could not check-out latest version of file'), $variety->attr('filename')), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -345,7 +345,7 @@ class Image extends File implements Bridge
 	function saveVariety($variety, $recreate_image=TRUE, $save_attrs=TRUE, $file_versioning=TRUE, $check_write_access=TRUE)
 	{
 		if ($check_write_access && !$this->writeAccess('attributes')) {
-			trigger_localised_error('CORE0069', E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CORE0069', sprintf(translate('Permission denied to add an Image Variety to "%1$s" (#%2$s)'), $this->name, $this->id), E_USER_WARNING);
 			return FALSE;
 
 		}
@@ -353,7 +353,7 @@ class Image extends File implements Bridge
 		// use attr() instead of just ->name because if the variety hasn't been created yet it won't have a name
 		$name = $variety->attr('name');
 		if (trim($name) == '') {
-			trigger_localised_error('CORE0100', E_USER_WARNING);
+			trigger_localised_error('CORE0100', translate('Unable to save variety. It must have a name'), E_USER_WARNING);
 			return FALSE;
 
 		}
@@ -364,19 +364,19 @@ class Image extends File implements Bridge
 		if ($variety->id) {
 			list($assetid, $varietyid) = explode(':', $variety->id, 2);
 			if ($assetid != $this->id) {
-				trigger_localised_error('CORE0099', E_USER_WARNING);
+				trigger_localised_error('CORE0099', translate('Unable to save variety. It belongs to another asset'), E_USER_WARNING);
 				return FALSE;
 
 			}
 
 			if (isset($varieties['data'][$varietyid])) {
 				if ($varieties['data'][$varietyid]['name'] != $name) {
-					trigger_localised_error('CORE0097', E_USER_WARNING, $varietyid);
+					trigger_localised_error('CORE0097', sprintf(translate('Unable to save variety. A variety with the id "%s" already exists, but it has a different name'), $varietyid), E_USER_WARNING);
 					return FALSE;
 
 				}
 			} else {
-				trigger_localised_error('CORE0098', E_USER_WARNING, $varietyid, $this->name, $this->id);
+				trigger_localised_error('CORE0098', sprintf(translate('Unable to save variety. A variety with the id "%1$s" does not exist already exist in "%2$s" #%3$s'), $varietyid, $this->name, $this->id), E_USER_WARNING);
 				return FALSE;
 
 			}
@@ -460,14 +460,14 @@ class Image extends File implements Bridge
 	function deleteVariety($varietyid)
 	{
 		if (!$this->writeAccess('attributes')) {
-			trigger_localised_error('CORE0070', E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CORE0070', sprintf(translate('Permission denied to delete an Image Variety to "%1$s" (#%2$s)'), $this->name, $this->id), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (strpos($varietyid, ':') !== FALSE) {
 			list($assetid, $varietyid) = explode(':', $varietyid, 2);
 			if ($assetid != $this->id) {
-				trigger_localised_error('CORE088', E_USER_WARNING);
+				trigger_localised_error('CORE0088', translate('Unable to delete variety. It belongs to another asset'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -625,7 +625,7 @@ class Image extends File implements Bridge
 
 			if (!isset($varieties['data'][$shadowid])) {
 				if(!$mute_errors) {
-					trigger_localised_error('CORE0073', E_USER_WARNING, $this->id, $shadowid);
+					trigger_localised_error('CORE0073', sprintf(translate('Shadow Asset #%1$s:%2$s not known'), $this->id, $shadowid), E_USER_WARNING);
 				}
 				return $asset;
 			}
@@ -700,7 +700,7 @@ class Image extends File implements Bridge
 				if ($this->id == $assetid) {
 					if ($side_of_link == 'minor') {
 						// should never happen...but anyway
-						trigger_localised_error('CORE0089', E_USER_ERROR);
+						trigger_localised_error('CORE0089', translate('Unable to get the links from the minor side to the major side when the assetid is not a shadow assets id'), E_USER_ERROR);
 
 					} else {
 						$i = 0;
@@ -732,7 +732,7 @@ class Image extends File implements Bridge
 						list(,$shadowid) = explode(':', $assetid);
 
 						if (!isset($varieties['data'][$shadowid])) {
-							trigger_localised_error('CORE0074', E_USER_WARNING, $assetid, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->id);
+							trigger_localised_error('CORE0074', sprintf(translate('Shadow asset #%1$s is not known to %2$s Asset #%3$s'), $assetid, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->id), E_USER_WARNING);
 							return Array();
 
 						} else {
@@ -855,7 +855,7 @@ class Image extends File implements Bridge
 	{
 		if ($assetid == $this->id || strpos($assetid, ':v') === FALSE) {
 			// should never happen...but anyway
-			trigger_localised_error('CORE0090', E_USER_ERROR);
+			trigger_localised_error('CORE0090', translate('Unable to get the parents when the assetid is not a shadow assets id'), E_USER_ERROR);
 		}
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
@@ -1104,7 +1104,7 @@ class Image extends File implements Bridge
 				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				$rep_path = $variety->data_path_suffix.'/'.$filename;
 				if (!$fv->checkOut($rep_path, $variety->data_path, $file_version)) {
-					trigger_localised_error('CORE0044', E_USER_WARNING, $variety->attr('filename'));
+					trigger_localised_error('CORE0044', sprintf(translate('Failed reverting file "%s" to system version, could not check-out latest version of file'), $variety->attr('filename')), E_USER_WARNING);
 					return FALSE;
 				}
 

@@ -129,8 +129,10 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 		$cascade_to_new = array_get_index($settings, 'cascade_to_new', TRUE);
 
 		$options = Array(
-					TRUE	=> translate('apply'),
-					FALSE	=> translate('deny'),
+					TRUE	=> translate('Apply'),
+
+					FALSE	=> translate('Deny'),
+
 				   );
 
 		ob_start();
@@ -139,30 +141,42 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 				ob_start();
 					combo_box($prefix.'[granted]', $options, FALSE, $granted);
 				$combo_box = ob_get_clean();
-				echo translate('trigger_schema_apply-deny_the_following_schema', $combo_box).' ';
+				echo sprintf(translate('%s the following schema:'), $combo_box).' ';
+
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('metadata_schema' => 'I'));
 				echo '<br />';
 				check_box($prefix.'[cascade]', '1', $cascade);
-				label(translate('cascade_schema_changes'), $prefix.'[cascade]');
+				label(translate('Cascade schema changes'), $prefix.'[cascade]');
+
 				echo '<br />';
 				check_box($prefix.'[cascade_to_new]', '1', $cascade_to_new);
-				label(translate('cascade_schema_changes_to_new_children'), $prefix.'[cascade_to_new]');
+				label(translate('Cascade this new schema to newly-created children'), $prefix.'[cascade_to_new]');
+
 
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
-					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
+					echo sprintf(translate('%s the following schema:'), $options[$granted]).' ';
+
 					echo get_asset_tag_line($current_schemaid);
 				} else {
-					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
-					echo '<em>'.translate('trigger_schema_no_schema_specified').'</em>';
+					echo sprintf(translate('%s the following schema:'), $options[$granted]).' ';
+
+					echo '<em>'.translate('No schema specified').'</em>';
+
 				}
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
-				echo translate('cascade_schema_changes');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Cascade schema changes');
+
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
-				echo translate('cascade_schema_changes_to_new_children');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Cascade this new schema to newly-created children');
+
 			}
 			echo '</div>';
 

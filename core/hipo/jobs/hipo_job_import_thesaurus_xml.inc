@@ -66,7 +66,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('thesaurus_hipo_name_import_thesaurus_xml');
+		return translate('Import Thesaurus XML');
+
 
 	}//end getHipoName()
 
@@ -82,7 +83,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('thesaurus_hipo_starting_process'),
+					'name'			=> translate('Starting up process'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processStart',
 									   ),
@@ -91,10 +93,12 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
 					'complete'		=> FALSE,
-					'message'		=> translate('thesaurus_hipo_setting_up_env'),
+					'message'		=> translate('Setting up the environment'),
+
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_acquiring_locks'),
+					'name'			=> translate('Acquiring Permission Locks'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
@@ -106,7 +110,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_erasing_thesaurus'),
+					'name'			=> translate('Erasing Thesaurus Contents'),
+
 					'function_call'	=> Array(
 										'paint_function'	=> 'paintEraseContents',
 										'process_function'	=> 'processEraseContents',
@@ -119,7 +124,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('thesaurus_hipo_parsing_xml'),
+					'name'			=> translate('Parsing XML file'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processParseXML',
 									   ),
@@ -170,14 +176,14 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	{
 		// to start regenerating metadata, we need to have a root assetid - default to root folder if none is supplied
 		if (is_null($this->_running_vars['thesaurus_id'])) {
-			trigger_localised_error('HIPO0061', E_USER_WARNING);
+			trigger_localised_error('HIPO0061', translate('Unable to initialise "Import Thesaurus XML" HIPO, thesaurus asset ID not specified'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = $this->getThesaurusRef();
 		if (is_null($asset)) {
-			trigger_localised_error('HIPO0062', E_USER_WARNING, $this->_running_vars['thesaurus_id']);
+			trigger_localised_error('HIPO0062', sprintf(translate('Unable to initialise "Import Thesaurus XML" HIPO, invalid thesaurus asset ID specified (%s)'), $this->_running_vars['thesaurus_id']), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -217,9 +223,11 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function paintEraseContents(&$step_data, &$o, $prefix)
 	{
-		$o->openSection(translate('thesaurus_hipo_erasing_thesaurus'));
+		$o->openSection(translate('Erasing Thesaurus Contents'));
+
 		$o->openField('');
-			echo translate('thesaurus_hipo_confirm_erase');
+			echo translate('Please confirm that you want to erase the existing thesaurus. Your XML file is ready to be imported. Its contents will replace the existing thesaurus data.');
+
 			$o->addHiddenField('form_submitted', 1);
 		$o->closeField();
 		$o->closeSection();
@@ -244,7 +252,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			$th_asset = $this->getThesaurusRef();
 
 			if (!$th_asset->erase()) {
-				trigger_localised_error('HIPO0063', E_USER_WARNING);
+				trigger_localised_error('HIPO0063', translate('Unable to Erase Contents of the Thesaurus'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -277,7 +285,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$thesaurus = $this->getThesaurusRef();
 
 		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation' && $tag != 'note') {
-			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
+			trigger_localised_error('HIPO0064', sprintf(translate('Invalid tag type "%1$s"'), $tag), E_USER_WARNING);
 		}
 
 		if (empty($stack) && $tag != 'thesaurus') {
@@ -289,7 +297,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		switch ($tag) {
 			case 'thesaurus':
 				if (!empty($stack)) {
-					trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
+					trigger_localised_error('HIPO0067', sprintf(translate('could not handle tag of type "%1$s"'), $tag), E_USER_WARNING);
 					return FALSE;
 				}
 				array_unshift($stack, Array('term' => NULL));
@@ -298,7 +306,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 			case 'relation':
 				if (isset($stack[0]['relation'])) {
-					trigger_localised_error('HIPO0065', E_USER_WARNING, $tag);
+					trigger_localised_error('HIPO0065', sprintf(translate('Relations may not have relations as child nodes. Offending child: %1$s'), $tag), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -316,7 +324,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 			case 'term':
 				if (empty($attrs['name'])) {
-					trigger_localised_error('HIPO0066', E_USER_WARNING);
+					trigger_localised_error('HIPO0066', translate('Terms must have a name attribute'), E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -368,7 +376,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			break;
 
 			default:
-				trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
+				trigger_localised_error('HIPO0067', sprintf(translate('could not handle tag of type "%1$s"'), $tag), E_USER_WARNING);
 				return FALSE;
 
 		}//end switch $tag
@@ -424,7 +432,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$relations =& $this->_running_vars['relations'];
 
 		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation' && $tag != 'note') {
-			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
+			trigger_localised_error('HIPO0064', sprintf(translate('Invalid tag type "%1$s"'), $tag), E_USER_WARNING);
 		}
 
 		if (empty($stack)) {
@@ -475,7 +483,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			break;
 
 			default:
-				trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
+				trigger_localised_error('HIPO0067', sprintf(translate('could not handle tag of type "%1$s"'), $tag), E_USER_WARNING);
 				return FALSE;
 		}//end switch
 
@@ -538,7 +546,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$import_path = $th_asset->getXmlFilePath();
 
 		if (!($fp = fopen($import_path, 'r'))) {
-			trigger_localised_error('CORE0257', E_USER_WARNING, $import_path);
+			trigger_localised_error('CORE0257', sprintf(translate('Could not open XML input file "%1$s"'), $import_path), E_USER_WARNING);
 			return FALSE;
 			die();
 		}
@@ -550,7 +558,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			// we have to parse the seen portion of the file with the tag handlers unset to recreate the parser state. Sad but true.
 			$data = fread($fp, $step_data['total_read']);
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				trigger_localised_error('CORE0258', sprintf(translate('XML error: "%1$s" for chunk "%2$s"'), xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -564,7 +572,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			// parse blocks from the file
 			$data = fread($fp, $block_size);
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				trigger_localised_error('CORE0258', sprintf(translate('XML error: "%1$s" for chunk "%2$s"'), xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 				return FALSE;
 			}
 

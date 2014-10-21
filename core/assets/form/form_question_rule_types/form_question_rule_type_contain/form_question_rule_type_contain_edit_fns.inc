@@ -48,7 +48,8 @@ class Form_Question_Rule_Type_Contain_Edit_Fns extends Form_Question_Rule_Edit_F
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('core_form_rule_details'));
+			$o->openField(translate('Rule Details'));
+
 			if (($cq_id = array_get_index($rule_data, 'comparison_question_id', 0)) != 0) {
 				$value = get_asset_tag_line($cq_id);
 			} else {
@@ -60,27 +61,32 @@ class Form_Question_Rule_Type_Contain_Edit_Fns extends Form_Question_Rule_Edit_F
 
 		} else {
 
-			$o->openField(translate('operator'));
+			$o->openField(translate('Operator'));
+
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
 			$o->closeField();
 
-			$o->openField(translate('core_form_rule_static_value'));
+			$o->openField(translate('Static Value'));
+
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 30);
 			$o->closeField();
 
-			$o->openField(translate('core_form_rule_or_value_of_question'));
+			$o->openField(translate('OR Value of Question'));
+
 			// give a text box to write the comparison value in
 			asset_finder($prefix.'[asset]', array_get_index($rule_data, 'comparison_question_id', '0'), Array('form_question' => 'D'));
 			$o->closeField();
 
-			$o->openField(translate('core_form_case_sensitive_question'));
+			$o->openField(translate('Case Sensitive?'));
+
 			// give a text box to write the comparison value in
 			check_box($prefix.'[case]', 1, array_get_index($rule_data, 'case_sensitive', 1));
 			$o->closeField();
 
-			$o->sectionNote(translate('core_form_rule_static_or_question_note'));
+			$o->sectionNote(translate('Enter either a static value to compare responses against, or select another question from this form to compare with that question\'s response. The selection of a question takes precedence over a static value.'));
+
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;

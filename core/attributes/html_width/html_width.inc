@@ -80,7 +80,9 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 		$is_pct = (strpos($this->value, '%') !== false);
 
 		if ($read_only) {
-			echo (int) $this->value.($is_pct ? ' '.translate('percent') : ' '.translate('pixels'));
+			echo (int) $this->value.($is_pct ? ' '.translate('percent') : ' '.translate('Pixels'));
+
+
 			return;
 		}
 
@@ -104,7 +106,7 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 		if (!isset($_REQUEST[$prefix])) return false;
 
 		if ($_REQUEST[$prefix.'_pct'] == 1) {
-			
+
 			$value = (int) $_REQUEST[$prefix].'%';
 		} else {
 			$value = (int) $_REQUEST[$prefix];

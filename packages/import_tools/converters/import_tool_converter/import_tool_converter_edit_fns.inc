@@ -61,11 +61,13 @@ class Import_Tool_Converter_Edit_Fns extends Asset_Edit_Fns
 			asset_finder($prefix.'_existing_asset', 0, Array('file' => 'D'));
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: bold">OR</span>';
 		$o->closeField();
-		$o->openField(translate('import_tool_new_doc_select'));
+		$o->openField(translate('Select a document to upload'));
+
 			file_upload($prefix.'_file_import_upload', $extras='');
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
 			check_box($prefix.'_file_import_upload_overwrite');
-			label(translate('import_tools_overwrite_existing'), $prefix.'_file_import_upload_overwrite');
+			label(translate('Overwrite existing document'), $prefix.'_file_import_upload_overwrite');
+
 		$o->closeField();
 
 		return TRUE;

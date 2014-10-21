@@ -116,7 +116,7 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 	        	} else {
 	                if ($GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'design', FALSE, $user_defined_design_name)) {
 	                	throw new SoapFault('Server', 'Design Name '.$user_defined_design_name.' is already in use');
-	                    trigger_localised_error('SYS0134', E_USER_WARNING, $user_defined_design_name);
+	                    trigger_localised_error('SYS0134', sprintf(translate('Design Name "%s" already in use'), $user_defined_design_name), E_USER_WARNING);
 	                }// end if
 	        	}//end else
 	        } else {

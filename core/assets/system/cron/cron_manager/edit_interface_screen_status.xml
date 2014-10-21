@@ -18,14 +18,20 @@
 <contents>
 	<section name="Running Status">
 		<field attribute="running" write_access="none">
+			<display_name>Running</display_name>
+			<note/>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field write_access="none">
+			<display_name>Last Run</display_name>
+			<note/>
 			<function_call>
 				<paint_function name="paintLastRun" />
 			</function_call>
 		</field>
 		<field attribute="run_check" write_access="none">
+			<display_name>Run Check</display_name>
+			<note>The number of consecutive times the Scheduled Jobs Manager's run has been cancelled due to another instance already running.</note>
 			<int width="5" />
 		</field>
 	</section>

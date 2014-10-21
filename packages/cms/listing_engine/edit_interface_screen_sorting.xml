@@ -24,34 +24,46 @@
 	</section>
 	<section name="Sorting Selection Interface" write_access="write:attributes"  limbo_access="1">
 		<field>
+			<display_name>Sort-by Options Order</display_name>
+			<note>The sorting options will appear in this order in the sort-by selector</note>
 			<function_call>
 				<paint_function name="paintSortOptionOrder" />
 				<process_function name="processSortOptionOrder" />
 			</function_call>
 		</field>
 		<field attribute="sort_direction_asc_text">
+			<display_name>Ascending Sort Text</display_name>
+			<note>This text will be used in the sort-direction selector</note>
 			<text width="15" />
 		</field>
 		<field attribute="sort_direction_desc_text">
+			<display_name>Descending Sort Text</display_name>
+			<note>This text will be used in the sort-direction selector</note>
 			<text width="15" />
 		</field>
 	</section>
 	<section name="Default Sorting" write_access="write:attributes"  limbo_access="1">
 		<field>
+			<display_name>Default Sort-by Option</display_name>
+			<note>This sorting option will be used by default, and will be the default value of the sort-by selector.</note>
 			<function_call>
 				<paint_function name="paintDefaultSortByOption" />
 				<process_function name="processDefaultSortByOption" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Default Metadata Sort Type</display_name>
+			<note>To sort by the raw metadata value entered on the metadata screen, select Raw Value. To sort by the value displayed on the frontend, select Presentation Value. Sorting by Raw Value will perform the sort before keywords are replaced and presentation formats are applied.</note>
 			<function_call>
 				<paint_function name="paintMetadataSortType" />
 				<process_function name="processMetadataSortType" />
 			</function_call>
 		</field>
 		<field>
-			<function_call>
-				<paint_function name="paintDefaultSortDirection" />
+            <display_name>Default Sort Direction</display_name>
+            <note>This sort direction will be used by default, and will be the default value of the sort-direction selector.</note>
+            <function_call>
+            	<paint_function name="paintDefaultSortDirection" />
 				<process_function name="processDefaultSortDirection" />
 			</function_call>
 		</field>

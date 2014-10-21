@@ -16,6 +16,7 @@
 
 <contents>
 	<section name="Bodycopy Info">
+		<note>On this screen you are editing the contents of the 'Display Format' bodycopy attached to this Payment Gateway. If you prefer to work with the bodycopy asset directly, click on its name above to be redirected there.</note>
 		<function_call>
 			<paint_function   name="paintBodycopyInfo"   />
 		</function_call>

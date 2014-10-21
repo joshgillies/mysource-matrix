@@ -65,7 +65,23 @@ class Payment_Gateway_Dps extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('default_bodycopy_content')));
+		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
+<div style="background-color: #CCC; padding: 5px"><strong>&pound;%%transaction_amount%%</strong> Pounds Sterling (GBP) are about to be debited from your card</div>
+<table cellpadding="5">
+	<tr>
+		<td align="right">Card Number</td>
+		<td>%%card_number%%</td>
+	</tr>
+	<tr>
+		<td align="right">Expiry Date (MM/YY)</td>
+		<td>%%card_expiry_month%% / %%card_expiry_year%%</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>')));
+
 
 	}//end _createAdditional()
 
@@ -138,13 +154,13 @@ class Payment_Gateway_Dps extends Payment_Gateway
 		$keywords['card_expiry_year'] = 'Card Expiry Year';
 		$keywords['card_issue_number'] = 'Card Issue Number';
 		$keywords['card_cv2'] = 'Card CV2';
-		
+
 		$keywords['street_address1'] = 'Address Line 1';
 		$keywords['street_address2'] = 'Address Line 2';
 		$keywords['street_address3'] = 'Address Line 3';
 		$keywords['street_address4'] = 'Address Line 4';
 		$keywords['postcode'] = 'Postcode';
-		
+
 		$keywords['transaction_amount'] = 'Transaction Amount';
 		$keywords['transaction_currency'] = 'Transaction Currency';
 		$keywords['processing_error'] = 'Processing Error (empty if no error)';
@@ -152,7 +168,7 @@ class Payment_Gateway_Dps extends Payment_Gateway
 		$keywords['cancel_button'] = 'Cancel Button';
 		$keywords['reset_button'] = 'Reset Button';
 
-		
+
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -189,12 +205,12 @@ class Payment_Gateway_Dps extends Payment_Gateway
 			trigger_error('Unknown caller reference');
 			exit;
 		}
-		
+
 		//this page is redirected to by the child iframe with an error message
 		if (array_get_index($_GET, 'error_message', FALSE)) {
 			$this->_setError($_GET['error_message']);
 		}
-		
+
 		$success = FALSE;
 
 
@@ -213,13 +229,15 @@ class Payment_Gateway_Dps extends Payment_Gateway
 			if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
 				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 			}
-			
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
-			
+
+			$this->appendPendingOrderAuditLog(translate('Payment has no amount'));
+
+
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($card_info) {
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+			$this->appendPendingOrderAuditLog(translate('Payment Attempted (gateway contacted)'));
+
 
 			$success = $this->processPayment($card_info);
 		}
@@ -249,19 +267,21 @@ class Payment_Gateway_Dps extends Payment_Gateway
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_payment_completed', $broadcaster);
 				}
 			}
-			
-			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
-			
+
+			$this->appendPendingOrderAuditLog(translate('Payment is successful'));
+
+
 			$this->returnToCaller('SUCCESS');
 		} else {
 			if ($card_info) {
-				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+				$this->appendPendingOrderAuditLog(translate('Payment Declined'));
+
 			}
 		}
 
 		//print default bodycopy
 		$this->printBodycopy('display_format');
-		
+
 	}//end printBody()
 
 
@@ -288,11 +308,11 @@ class Payment_Gateway_Dps extends Payment_Gateway
 			//the default body copy with card input
 			$datapath = sq_web_path('data').'/asset_types/payment_gateway_datacash/files';
 			$card = $this->getPrefix().'_card';
-	
+
 			if ($this->attr('test_mode')) {
 				echo '<h2 class="gateway-test-mode" style="color: white; background-color: #C00; padding: 5px">TEST MODE</h2>';
 			}
-	
+
 			?>
 			<script src="<?php echo $datapath; ?>/loader.js"></script>
 			<script>
@@ -338,12 +358,12 @@ class Payment_Gateway_Dps extends Payment_Gateway
 	function processPayment($card_info)
 	{
 		if (!$card_info) return FALSE;
-		
+
 		//clean input
 		foreach($card_info as $key => $value){
 			$card_info[$key] = htmlentities($value);
 		}
-		
+
 		$amount = $_SESSION['SQ_ECOM_AMOUNT'];
 
 		$processor = new Dps_Processor($this->attr('client'), $this->attr('password'), $this->attr('test_mode'));
@@ -355,8 +375,8 @@ class Payment_Gateway_Dps extends Payment_Gateway
 			$processor->setAmount($amount);
 			$processor->setCurrency($this->_getCurrency());
 		}
-		
-		
+
+
 		//SET CARD NUMBER
 		if (empty($card_info['number'])) {
 			$this->_setError($this->attr('card_number_not_specified_error'));
@@ -369,14 +389,14 @@ class Payment_Gateway_Dps extends Payment_Gateway
 		if (!empty($card_info['name'])) {
 			$processor->setCardName($card_info['name']);
 		}
-		
+
 		//SET CARD EXPIRY DATE
 		if ($this->_isValidDate(array_get_index($card_info, 'expiry_month', ''), array_get_index($card_info, 'expiry_year', ''))) {
 			$processor->setCardExpiryDate($card_info['expiry_month'], $card_info['expiry_year']);
 		} else {
 			$this->_setError($this->attr('expiry_date_invalid_error'));
 		}
-		
+
 		//SET CARD START DATE IF SPECIFIED BECAUSE START DATE IS ONLY REQUIRED FOR SOME CARD TYPES, E.G. SOLO
 		if (!empty($card_info['start_month']) || !empty($card_info['start_year'])) {
 			if ($this->_isValidDate(array_get_index($card_info, 'start_month', ''), array_get_index($card_info, 'start_year', ''))) {
@@ -385,7 +405,7 @@ class Payment_Gateway_Dps extends Payment_Gateway
 				$this->_setError($this->attr('start_date_invalid_error'));
 			}
 		}
-		
+
 		//SET CARD ISSUE NUMBER, IF SPECIFIED
 		if (!empty($card_info['issue_number'])) {
 			if ($this->_isValidIssueNumber($card_info['issue_number'])) {
@@ -394,7 +414,7 @@ class Payment_Gateway_Dps extends Payment_Gateway
 				$this->_setError($this->attr('issue_number_invalid_error'));
 			}
 		}
-		
+
 		//SET CARD CV2, IF SPECIFIED
 		if($this->attr('cv2_standard_policy') != 0){
 			if (!empty($card_info['cv2']) && $this->_isValidCV2($card_info['cv2'])) {
@@ -403,25 +423,25 @@ class Payment_Gateway_Dps extends Payment_Gateway
 				$this->_setError($this->attr('card_cv2_invalid_error'));
 			}
 		}
-		
+
 		$addr = '';
 		//SET STREET ADDRESS (1 - 4)
 		for ($i = 1; $i < 5; $i++) {
 			if (!empty($card_info['street_address'.$i])) {
-				$addr .= $card_info['street_address'.$i]."\n";		
+				$addr .= $card_info['street_address'.$i]."\n";
 			}
 		}
 		if(!empty($addr))
 			$processor->setStreetAddress($addr);
 
-		
+
 		//SET POSTCODE
 		if (!empty($card_info['postcode'])) {
 			$addr .= $card_info['postcode']." ";
 			$processor->setPostcode($card_info['postcode']);
 		}
-		
-		
+
+
 		//SET AVS
 		$policy = $this->attr('avs_standard_policy');
 		$processor->setStandardPolicy($policy);
@@ -429,7 +449,7 @@ class Payment_Gateway_Dps extends Payment_Gateway
 			if (empty($card_info['street_address1']) && empty($card_info['street_address2']) && empty($card_info['street_address3']) && empty($card_info['street_address4'])) {
 				$this->_setError($this->attr('street_address_not_specified_error'));
 			}
-			
+
 			if (empty($card_info['postcode'])) {
 				$this->_setError($this->attr('postcode_not_specified_error'));
 			}
@@ -439,7 +459,7 @@ class Payment_Gateway_Dps extends Payment_Gateway
 		if ($this->isError()) {
 			return FALSE;
 		}
-		
+
 		$success = $processor->process();
 
 		//GET RESPONSE
@@ -459,14 +479,14 @@ class Payment_Gateway_Dps extends Payment_Gateway
 		return $success;
 
 	}//end processPayment()
-	
-	
+
+
 	/**
 	 * Set the result of the transaction. If transaction fails, set its error message. If transaction success, set the Session variable SQ_ECOM_RESPONSE
-	 * 
-	 * @param boolean	$success		the reason of the transaction. It is either 1 or FALSE		
+	 *
+	 * @param boolean	$success		the reason of the transaction. It is either 1 or FALSE
 	 * @param array		$response		the response array from the Datacash Processor
-	 * 
+	 *
 	 * @return void
 	 * @access private
 	 */
@@ -484,29 +504,29 @@ class Payment_Gateway_Dps extends Payment_Gateway
 				$card_no = $_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER'];
 				unset($_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER']);
 			}
-			
+
 			$response['CARDNO'] = $card_no;
 			$response['AMOUNT'] = $_SESSION['SQ_ECOM_AMOUNT'];
 			$response['CURRENCY'] = $this->_getCurrency();
-			
+
 			$billing_addr = '';
 			if (isset($_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'])) {
 				$billing_addr = $_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'];
 				unset($_SESSION['SQ_ECOM_ORDER_BILLING_ADDR']);
 			}
 			$response['BILLING_ADDR'] = $billing_addr;
-			
+
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
-		
+
 	}//end _setTransactionResult()
-	
+
 
 	/**
 	 * Get the formatted last 4 digits of the card, e.g. ****-****-****-1234
-	 * 
+	 *
 	 * @param string $card_number		the card number to get last 4 digits
-	 * 
+	 *
 	 * @return string
 	 * @access private
 	 */
@@ -519,12 +539,12 @@ class Payment_Gateway_Dps extends Payment_Gateway
 		} else {
 			$card_no = str_pad(substr($card_no, -4), $card_len, '*', STR_PAD_LEFT);
 		}
-		
+
 		return $card_no;
-		
+
 	}//end _getFormattedCardNumber()
 
-	
+
 	/**
 	* Returns back to e-commerce form, which called gateway
 	*
@@ -545,22 +565,22 @@ class Payment_Gateway_Dps extends Payment_Gateway
 
 		unset($_SESSION['SQ_ECOM_SUCCESS_URL']);
 		unset($_SESSION['SQ_ECOM_CANCEL_URL']);
-			
+
 		if (is_null($back_url)) {
-			trigger_error('Unknown caller reference');	
-		} else {		
+			trigger_error('Unknown caller reference');
+		} else {
 			header('Location: '.$back_url);
 			exit;
 		}
-		
+
 	}//end returnToCaller()
-	
-	
+
+
 	/**
 	 * Redirect the parent of the iframe that this page is loaded in
-	 * 
+	 *
 	 * @param string $url	the URL to redirect the parent to using Javascript
-	 * 
+	 *
 	 * @return void
 	 * @access private
 	 */
@@ -573,10 +593,10 @@ class Payment_Gateway_Dps extends Payment_Gateway
 	}
 </script>
 HEREDOC;
-				
+
 		echo $string;
 		exit;
-		
+
 	}//end _redirectParent()
 
 
@@ -607,7 +627,7 @@ HEREDOC;
 
 	}//end getCardNumberKeywordReplacement()
 
-	
+
 	/**
 	* Card Name keyword replacement
 	*
@@ -622,8 +642,8 @@ HEREDOC;
 		return $string;
 
 	}//end getCardNameKeywordReplacement()
-	
-	
+
+
 	/**
 	* Card Start Month keyword replacement
 	*
@@ -635,7 +655,7 @@ HEREDOC;
 		$card = $this->getPrefix().'_card';
 
 		$string = '<input name="'.$card.'[start_month]" size="2" autocomplete="off" />';
-		
+
 		return $string;
 
 	}//end getCardStartMonthKeywordReplacement()
@@ -652,7 +672,7 @@ HEREDOC;
 		$card = $this->getPrefix().'_card';
 
 		$string = '<input name="'.$card.'[start_year]" size="2" autocomplete="off" />';
-		
+
 		return $string;
 
 	}//end getCardStartYearKeywordReplacement()
@@ -669,7 +689,7 @@ HEREDOC;
 		$card = $this->getPrefix().'_card';
 
 		$string = '<input name="'.$card.'[expiry_month]" size="2" autocomplete="off" />';
-		
+
 		return $string;
 
 	}//end getCardExpiryMonthKeywordReplacement()
@@ -686,7 +706,7 @@ HEREDOC;
 		$card = $this->getPrefix().'_card';
 
 		$string = '<input name="'.$card.'[expiry_year]" size="2" autocomplete="off" />';
-		
+
 		return $string;
 
 	}//end getCardExpiryYearKeywordReplacement()
@@ -703,7 +723,7 @@ HEREDOC;
 		$card = $this->getPrefix().'_card';
 
 		$string = '<input name="'.$card.'[issue_number]" size="4" autocomplete="off" />';
-		
+
 		return $string;
 
 	}//end getCardIssueNumberKeywordReplacement()
@@ -720,12 +740,12 @@ HEREDOC;
 		$card = $this->getPrefix().'_card';
 
 		$string = '<input name="'.$card.'[cv2]" size="4" autocomplete="off" />';
-		
+
 		return $string;
 
 	}//end getCardCv2KeywordReplacement()
-	
-	
+
+
 	/**
 	* Street Address 1 keyword replacement
 	*
@@ -737,12 +757,12 @@ HEREDOC;
 		ob_start();
 		$card = $this->getPrefix().'_card';
 		text_box($card.'[street_address1]', $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name'));
-		
+
 		return ob_get_clean();
 
 	}//end getStreetAddress1KeywordReplacement()
 
-	
+
 	/**
 	* Street Address 2 keyword replacement
 	*
@@ -754,11 +774,11 @@ HEREDOC;
 		ob_start();
 		$card = $this->getPrefix().'_card';
 		text_box($card.'[street_address2]', $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name'));
-		
+
 		return ob_get_clean();
 
 	}//end getStreetAddress2KeywordReplacement()
-	
+
 
 	/**
 	* Street Address 3 keyword replacement
@@ -771,11 +791,11 @@ HEREDOC;
 		ob_start();
 		$card = $this->getPrefix().'_card';
 		text_box($card.'[street_address3]', $this->_getDefaultInputFromPassThroughAttribute('addr3_var_name'));
-		
+
 		return ob_get_clean();
 
 	}//end getStreetAddress3KeywordReplacement()
-	
+
 
 	/**
 	* Street Address 4 keyword replacement
@@ -788,12 +808,12 @@ HEREDOC;
 		ob_start();
 		$card = $this->getPrefix().'_card';
 		text_box($card.'[street_address4]', $this->_getDefaultInputFromPassThroughAttribute('addr4_var_name'));
-		
+
 		return ob_get_clean();
 
 	}//end getStreetAddress4KeywordReplacement()
-	
-	
+
+
 	/**
 	* Postcode keyword replacement
 	*
@@ -805,12 +825,12 @@ HEREDOC;
 		ob_start();
 		$card = $this->getPrefix().'_card';
 		text_box($card.'[postcode]', $this->_getDefaultInputFromPassThroughAttribute('postcode_var_name'));
-		
+
 		return ob_get_clean();
 
 	}//end getPostcodeKeywordReplacement()
-	
-	
+
+
 	/**
 	* Transaction Amount keyword replacement
 	*
@@ -837,8 +857,8 @@ HEREDOC;
 		return $this->_getCurrency();
 
 	}//end getTransactionAmountKeywordReplacement()
-	
-	
+
+
 	/**
 	* Processing Error keyword replacement
 	*
@@ -866,7 +886,7 @@ HEREDOC;
 	{
 		$button_text = $this->attr('submit_text');
 		if (empty($button_text)) $button_text = 'Submit';
-		
+
 		return '<input type="submit" value="'.$button_text.'" />';
 
 	}//end getSubmitButtonKeywordReplacement()
@@ -882,7 +902,7 @@ HEREDOC;
 	{
 		$button_text = $this->attr('reset_text');
 		if (empty($button_text)) $button_text = 'Reset';
-		
+
 		return '<input type="reset" value="'.$button_text.'" />';
 
 	}//end getResetButtonKeywordReplacement()
@@ -898,16 +918,16 @@ HEREDOC;
 	{
 		$button_text = $this->attr('cancel_text');
 		if (empty($button_text)) $button_text = 'Cancel';
-		
+
 		return '<input type="submit" name="'.$this->getPrefix().'_action" value="'.$button_text.'" />';
 
 	}//end getCancelButtonKeywordReplacement()
-	
 
-		
+
+
 	/**
 	 * Set error for the transaction so that the getProcessingErrorKeywordReplacement() method will return the error message
-	 * 
+	 *
 	 * @param string $err_message	the error message to set
 	 * @return void
 	 * @access private
@@ -916,13 +936,13 @@ HEREDOC;
 	{
 		$this->_tmp['is_error'] = TRUE;
 		$this->_tmp['error_message'][] = $err_message;
-		
+
 	}//end _setError()
-	
-	
+
+
 	/**
 	 * Check if the input date is valid
-	 * 
+	 *
 	 * @param string $month		the month of the input date
 	 * @param string $year		the year of the input date
 	 * @return boolean			return TRUE if the date is valid; otherwise, return FALSE
@@ -931,7 +951,7 @@ HEREDOC;
 	private function _isValidDate($month, $year)
 	{
 		$valid = FALSE;
-		
+
 		$two_digits_pattern = '/^\d{2}$/';
 		//month and year must have 2 digit pattern mm/yy
 		if (preg_match($two_digits_pattern, $month) && preg_match($two_digits_pattern, $year)) {
@@ -940,69 +960,69 @@ HEREDOC;
 				$valid = TRUE;
 			}
 		}
-		
+
 		return $valid;
-		
+
 	}//end _isValidDate()
-	
-	
+
+
 	/**
 	 * Check if the issue number is valid
-	 * 
+	 *
 	 * @param string $issue_no		the input issue number to test
-	 * 
+	 *
 	 * @return boolean				return TRUE if the date is valid; otherwise, return FALSE
 	 * @access private
 	 */
 	private function _isValidIssueNumber($issue_no)
 	{
 		$valid = FALSE;
-		
+
 		$pattern = '/^\d{1,4}$/';
 		//issue number must be one to four digits long
 		if (preg_match($pattern, $issue_no)) {
 			$valid = TRUE;
 		}
-		
+
 		return $valid;
-		
+
 	}//end _isValidIssueNumber()
-	
+
 
 	/**
 	 * Check if the CV2 is valid
-	 * 
+	 *
 	 * @param string $cv2		the input CV2 to test
-	 * 
+	 *
 	 * @return boolean				return TRUE if the CV2 is valid; otherwise, return FALSE
 	 * @access private
 	 */
 	private function _isValidCV2($cv2)
 	{
 		$valid = FALSE;
-		
+
 		$pattern = '/^\d{3,4}$/';
 		//cv2 must be three or four (AMEX card only) digits long
 		if (preg_match($pattern, $cv2)) {
 			$valid = TRUE;
 		}
-		
+
 		return $valid;
-		
+
 	}//end _isValidCV2()
-	
-	
+
+
 	private function _getPassThroughVariable($var_name, $default)
 	{
 		if (is_null($this->_pass_through_vars)) {
 			$this->_pass_through_vars = array_get_index($_SESSION, 'SQ_ECOM_PASS_THROUGH_VARS', Array());
 		}
-		
+
 		return array_get_index($this->_pass_through_vars, $var_name, $default);
-		
+
 	}//end _getPassThroughVariable()
-	
-	
+
+
 	private function _getDefaultInputFromPassThroughAttribute($attr_name)
 	{
 		$result = '';
@@ -1010,28 +1030,28 @@ HEREDOC;
 		if (!empty($var_name)) {
 			$result = $this->_getPassThroughVariable($var_name, '');
 		}
-		
+
 		return $result;
-		
+
 	}//end _getDefaultInputFromPassThroughAttribute()
-	
-	
+
+
 	/**
 	 * Get the currency of this transaction
-	 * 
+	 *
 	 * @return string
 	 * @access private
 	 */
 	private function _getCurrency()
 	{
 		return isset($_SESSION['SQ_ECOM_CURRENCY'])? $_SESSION['SQ_ECOM_CURRENCY'] : $this->attr('currency');
-		
+
 	}//end _getCurrency()
-	
-	
+
+
 	/**
 	 * Unset the currency in the Session variable if it exists
-	 * 
+	 *
 	 * @return void
 	 * @access private
 	 */
@@ -1040,26 +1060,26 @@ HEREDOC;
 		if (isset($_SESSION['SQ_ECOM_CURRENCY'])) {
 			unset($_SESSION['SQ_ECOM_CURRENCY']);
 		}
-		
+
 	}//end _unsetCurrency()
-	
-	
+
+
 	/**
 	 * Check if the transaction has error
-	 * 
+	 *
 	 * @return boolean
 	 * @access public
 	 */
 	public function isError()
 	{
 		return array_get_index($this->_tmp, 'is_error', FALSE);
-		
+
 	}//end isError()
-	
-	
+
+
 	/**
 	 * Get the error message under HTML format
-	 * 
+	 *
 	 * @return string		the HTML error message
 	 * @access public
 	 */
@@ -1070,11 +1090,11 @@ HEREDOC;
 		foreach ($errors as $error) {
 			$err_message .= "<li>".htmlspecialchars($error, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET)." </li>";
 		}
-		
+
 		return '<ul>'.$err_message.'</ul>';
-		
+
 	}//end getErrorMessage()
-	
+
 
 }//end class
 

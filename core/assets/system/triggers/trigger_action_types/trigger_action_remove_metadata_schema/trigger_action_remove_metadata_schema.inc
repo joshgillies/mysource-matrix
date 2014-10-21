@@ -98,7 +98,7 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 				}
 			} else {
 				$result = $mm->deleteSchema($state['asset']->id, $schema->id);
-			
+
 			}//end if
 		} else {
 			if ($remove_all) {
@@ -186,35 +186,48 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 		$current_schemaid = array_get_index($settings, 'schemaid', 0);
 		$remove_all = array_get_index($settings, 'removeall', 0);
 		$cascade = array_get_index($settings, 'cascade', 0);
-	
+
 		ob_start();
 			if ($write_access) {
 				echo '<div class="sq-break-line-inputs">';
-				echo translate('trigger_schema_remove_schema_message').': ';
+				echo translate('Remove metadata schema').': ';
+
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('metadata_schema' => 'I'));
 				echo '<br />';
-				check_box($prefix.'[removeall]', '1', $remove_all, 'if (this.checked == true) { if (!confirm("'.translate('trigger_schema_remove_all_schema_confirm_message').'")) { this.checked = false; } }');
-				label(translate('trigger_schema_remove_all_schema_message'), $prefix.'[removeall]');
+				check_box($prefix.'[removeall]', '1', $remove_all, 'if (this.checked == true) { if (!confirm("'.translate('Are you sure you want to remove all metadata schemas?').'")) { this.checked = false; } }');
+
+				label(translate('Remove all metadata schemas'), $prefix.'[removeall]');
+
 				echo '<br />';
 				check_box($prefix.'[cascade]', '1', $cascade);
-				label(translate('cascade_schema_changes'), $prefix.'[cascade]');
+				label(translate('Cascade schema changes'), $prefix.'[cascade]');
+
 				echo '</div>';
 
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
-					echo translate('trigger_schema_remove_schema_message').': ';
+					echo translate('Remove metadata schema').': ';
+
 					echo get_asset_tag_line($current_schemaid);
 				} else {
-					echo translate('trigger_schema_remove_schema_message').': ';
-					echo '<em>'.translate('trigger_schema_no_schema_message').'</em>';
+					echo translate('Remove metadata schema').': ';
+
+					echo '<em>'.translate('No metadata schema specified').'</em>';
+
 				}
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_all ? 'tick' : 'cross').'.gif" alt="'.($remove_all ? translate('yes') : translate('no')).'" /> ';
-				echo translate('trigger_schema_remove_all_schema_message');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_all ? 'tick' : 'cross').'.gif" alt="'.($remove_all ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Remove all metadata schemas');
+
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
-				echo translate('trigger_schema_removal_to_children');
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
+
+
+				echo translate('Cascade the removal of metadata schema to all children');
+
 			}
 
 			$output = ob_get_contents();

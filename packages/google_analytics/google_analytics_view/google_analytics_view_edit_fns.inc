@@ -138,7 +138,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        <tr>
 	            <th><?php echo translate('Total sessions') ?></th>
 	            <td><strong><?php echo number_format($report['ga:sessions'], 0); ?></strong></td>
-	            <td><?php echo translate('%s / day', number_format($report['ga:sessions'] / $day_count, 0)); ?></td>
+	            <td><?php echo sprintf(translate('%s / day'), number_format($report['ga:sessions'] / $day_count, 0)); ?></td>
 	            <td><?php
 	            if (empty($previous_report) === FALSE) {
                     if ($report['ga:sessions'] === $previous_report['ga:sessions']) {
@@ -156,7 +156,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        <tr>
 	            <th><?php echo translate('Total page views') ?></th>
 	            <td><strong><?php echo number_format($report['ga:pageviews'], 0); ?></strong></td>
-	            <td><?php echo translate('%s / day', number_format($report['ga:pageviews'] / $day_count, 0)); ?></td>
+	            <td><?php echo sprintf(translate('%s / day'), number_format($report['ga:pageviews'] / $day_count, 0)); ?></td>
 	            <td><?php
 	            if (empty($previous_report) === FALSE) {
                     if ($report['ga:pageviews'] === $previous_report['ga:pageviews']) {
@@ -753,7 +753,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                                 if (strtotime('+2 days', $end_time) > time()) {
                                     echo translate('Just ended');
                                 } else {
-                                    echo translate('Ended %s', date('jS M Y', $end_time));
+                                    echo sprintf(translate('Ended %s'), date('jS M Y', $end_time));
                                 }
 
                                 echo '<br/>';
@@ -761,7 +761,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                                     case 'WINNER_FOUND':
                                         foreach (array_get_index($experiment, 'variations', Array()) as $variation) {
                                             if ($variation['won']) {
-                                                echo translate('<strong>%s</strong> won', $variation['name']);
+                                                echo sprintf(translate('<strong>%s</strong> won'), $variation['name']);
                                                 break;
                                             }
                                         }
@@ -799,15 +799,15 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     }
                     echo '<ol><li>'.implode('</li><li>', $variation_list).'</li></ol>';
                     ?></td>
-                    <td><?php echo translate('%s%%', $experiment['trafficCoverage'] * 100.0) ?></td>
+                    <td><?php echo sprintf(translate('%s%%'), $experiment['trafficCoverage'] * 100.0) ?></td>
                     <td><?php
                     if ($experiment['equalWeighting'] === TRUE) {
                         echo translate('Equal');
                     } else {
                         echo translate('Dynamic');
                     } ?></td>
-                    <td><?php echo translate('%s days', $experiment['minimumExperimentLengthInDays']) ?></td>
-                    <td><?php echo translate('%s%%', number_format($experiment['winnerConfidenceLevel'] * 100.0, 1)) ?></td>
+                    <td><?php echo sprintf(translate('%s days'), $experiment['minimumExperimentLengthInDays']) ?></td>
+                    <td><?php echo sprintf(translate('%s%%'), number_format($experiment['winnerConfidenceLevel'] * 100.0, 1)) ?></td>
                 </tr><?php
                 }//end foreach
             }//end if
@@ -918,7 +918,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 Array()
             );
 
-            $other_report['ga:country'] = translate('Other countries (%s)', count($report) - $max_results);
+            $other_report['ga:country'] = sprintf(translate('Other countries (%s)'), count($report) - $max_results);
             $other_report['sq:other']   = TRUE;
             $report = array_slice($report, 0, $max_results);
             $report[] = $other_report;
@@ -3050,7 +3050,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 		if ($wa === FALSE) {
 		    if (array_key_exists($current_viewid, $views) === TRUE) {
-		        echo sprintf(translate('%1$s [ga:%2$s]', '%1$s', '%2$s'), $views[$current_viewid]['name'], $current_viewid);
+		        echo sprintf(sprintf(translate('%1$s [ga:%2$s]'), '%1$s', '%2$s'), $views[$current_viewid]['name'], $current_viewid);
 		    } else {
 		        echo sprintf(translate('Unknown or inaccessible view [ga:%s]'), $current_viewid);
 		    }

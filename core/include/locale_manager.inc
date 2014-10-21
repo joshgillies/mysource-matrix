@@ -239,7 +239,7 @@ class Locale_Manager extends MySource_Object
 			break;
 
 			default:
-				trigger_localised_error('SYS0193', E_USER_WARNING, $locale);
+				trigger_localised_error('SYS0193', sprintf(translate('Locale code "%s" does not seem to be valid'), $locale), E_USER_WARNING);
 				return FALSE;
 			break;
 		}//end switch
@@ -315,16 +315,6 @@ class Locale_Manager extends MySource_Object
 	{
         $locale = $this->getCurrentLocale();
 
-        // if second parameter is an array, use that as our list of params
-        if (func_num_args() > 1) {
-            if (!is_array($func_args = func_get_arg(1))) {
-                $func_args = func_get_args();
-                $func_args = array_slice($func_args,1);
-            }
-        } else {
-            $func_args = Array();
-        }
-
 	    $return_array = TRUE;
 	    if (is_array($strings) === FALSE) {
 	        $return_array = FALSE;
@@ -338,10 +328,6 @@ class Locale_Manager extends MySource_Object
                 $retval[$index] = $string;
             } else {
                 $retval[$index] = array_get_index($this->_strings[$locale], $string, $string);
-            }
-
-            if (count($func_args) > 0) {
-                $retval[$index] = vsprintf($retval[$index], $func_args);
             }
         }
 
@@ -546,113 +532,6 @@ class Locale_Manager extends MySource_Object
 		}//end if
 
 	}//end includeCoreStrings()
-
-
-	/**
-	* fetches an error translation for the current locale and triggers the error
-	*
-	* This differs from the getErrorMessage() method in that this actually calls
-	* trigger_error() as well. Use the raw getErrorMessage() where error handling
-	* needs to differ ()
-	* Shortcut defined in general.inc: trigger_localised_error()
-	*
-	* @param string	$code			the error code
-	* @param int	$error_level	the PHP error level (must be one of:
-	*								E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE)
-	*
-	* @return void
-	* @access public
-	*/
-	public function raiseError($code, $error_level)
-	{
-		$locale = $this->getCurrentLocale();
-
-		if (($error_level != E_USER_ERROR) && ($error_level != E_USER_WARNING) && ($error_level != E_USER_NOTICE)) {
-			trigger_error('Invalid error level passed when raising error ['.$code.']: '.$error_level, E_USER_WARNING);
-			$error_level = E_USER_ERROR;
-		}
-
-		// if third parameter is an array, use that as our list of params
-		// otherwise, everything after 2nd param is our list of params that we
-		// will pump into the error, sprintf() style
-		if (func_num_args() == 2) {
-			$func_args = Array();
-		} else if (!is_array($func_args = func_get_arg(2))) {
-			$func_args = func_get_args();
-			$func_args = array_slice($func_args,2);
-		}
-
-		$additional_info_array = Array();
-		if (SQ_CONF_DEBUG & 8) {
-			if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && !is_null($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
-				$additional_info_array['frontend_assetid'] = $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
-			}
-			$additional_info_array['frontend_url']= current_url(TRUE);
-		}//end if
-
-		$error_msg = $this->getErrorMessage($code, $func_args);
-		trigger_error($error_msg, $error_level);
-
-		// We are doing this only for frontend
-		if (!empty($additional_info_array)) {
-			$error_log_line   = 'Additional info for \''.$code.'\' error:'."\n";
-			$additional_info  = isset($additional_info_array['frontend_assetid']) ? 'Frontend assetid: #'.$additional_info_array['frontend_assetid'] : '';
-			if (!empty($additional_info) || strpos(current_url(), SQ_CONF_BACKEND_SUFFIX) === FALSE) {
-				$additional_info .= empty($additional_info) ? '' : "\n";
-				$additional_info .= isset($additional_info_array['frontend_url']) ? 'Current URL: '.$additional_info_array['frontend_url'] : '';
-			}
-			if (!empty($additional_info)) error_log($error_log_line.$additional_info);
-		}
-
-	}//end raiseError()
-
-
-	/**
-	* fetches an error translation for the current locale
-	*
-	* @param string	$code	the error code
-	*
-	* @return void
-	* @access public
-	*/
-	public function getErrorMessage($code)
-	{
-		$locale = $this->getCurrentLocale();
-
-		// if second parameter is an array, use that as our list of params
-		// otherwise, everything after 1st param is our list of params that we
-		// will pump into the error, sprintf() style
-		if (func_num_args() == 1) {
-			$func_args = Array();
-		} else if (!is_array($func_args = func_get_arg(1))) {
-			$func_args = func_get_args();
-			$func_args = array_slice($func_args,1);
-		}
-
-		$valid_code = TRUE;
-		if (!isset($this->_errors[$locale])) {
-			$valid_code = FALSE;
-		}
-
-		if (!isset($this->_errors[$locale][$code])) {
-			$valid_code = FALSE;
-		}
-
-		// do not dump array data here
-		foreach ($func_args as $index => $arg) {
-		    if(!is_scalar($arg)) {
-			$func_args[$index] = '';
-		    }
-		}
-		if ($valid_code) {
-			$error_msg = vsprintf($this->_errors[$locale][$code], $func_args).' ['.$code.']';
-		} else {
-			$error_msg = 'Error text not found for this code and locale ['.$code.']';
-		}
-
-		return $error_msg;
-
-	}//end getErrorMessage()
 
 
 	/**

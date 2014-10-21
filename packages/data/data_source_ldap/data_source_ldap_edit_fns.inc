@@ -54,15 +54,17 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 	* @access public
 	*/
 	function paintConnectionTest(&$asset, &$o, $prefix)
-	{	
+	{
 		$conn = null;
 		$conn = @$asset->connectToLdap();
-		
+
 		if (is_null($conn) || is_null($conn->ptr)) {
 			// the conncection failed
-			echo '<span style="color: red"><b>'.translate('ldap_unable_to_connect').'</b></span>';
+			echo '<span style="color: red"><b>'.translate('Unable to connect').'</b></span>';
+
 		} else {
-			echo '<span style="color: green"><b>'.translate('ldap_connected').'</b></span>';
+			echo '<span style="color: green"><b>'.translate('Connected').'</b></span>';
+
 		}
 
 		return FALSE;
@@ -82,7 +84,7 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function processConnectionTest(&$asset, &$o, $prefix)
 	{
-		
+
 		return FALSE;
 
 	}//end processConnectionTest()
@@ -204,10 +206,10 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 	* @access public
 	*/
 	function processLdapBridgeAsset(&$asset, &$o, $prefix)
-	{	
+	{
 		$new_ldap_bridge_id = @$_REQUEST[$prefix.'_ldap_bridge']['assetid'];
 
-		if (!$asset->writeAccess('links')) {			
+		if (!$asset->writeAccess('links')) {
 			return FALSE;
 		}
 
@@ -234,7 +236,7 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 			$new_ldap_bridge_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_ldap_bridge_id);
 			$result_id = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_ldap_bridge_asset, SQ_LINK_NOTICE, 'ldap_bridge');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_ldap_bridge_asset);
-			
+
 			if (empty($result_id)) {
 				trigger_error('Could not link the ldap_bridge to this asset', E_USER_WARNING);
 				return FALSE;
@@ -244,7 +246,7 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 		return TRUE;
 
 	}//end processLdapBridgeAsset()
-	
+
 
 	/**
 	* Paints the message for LDAP not being available
@@ -259,8 +261,10 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 	function paintLDAPNotAvailable(&$asset, &$o, $prefix)
 	{
 		?>
-		<p class="sq-backend-warning"><strong><?php echo translate('ldap_not_available_line_1'); ?></strong></p>
-		<p><?php echo translate('ldap_not_available_line_2'); ?></p>
+		<p class="sq-backend-warning"><strong><?php echo translate('The LDAP extension has not been enabled on this PHP installation.'); ?></strong></p>
+
+		<p><?php echo translate('LDAP support needs to be compiled into/enabled in PHP, before the LDAP Bridge can work. For further information, please contact your system administrator.'); ?></p>
+
 		<?php
 		return FALSE;
 
@@ -291,7 +295,7 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 	* @access public
 	*/
 	function ldapAvailable()
-	{	
+	{
 		return extension_loaded('ldap');
 
 	}//end ldapAvailable()
@@ -308,8 +312,8 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 		return !$this->ldapAvailable();
 
 	}//end ldapNotAvailable()
-	
-	
+
+
 //-- LDAP SEARCH FILTER QUERY --//
 
 	/**

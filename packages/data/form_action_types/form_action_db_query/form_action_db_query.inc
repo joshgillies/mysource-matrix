@@ -110,7 +110,8 @@ class Form_Action_DB_Query extends Form_Action
 		?>
 		<table class="sq-backend-table" style="width:auto">
 			<tr>
-				<td><?php echo translate('database_type');?></td>
+				<td><?php echo translate('Database Type');?></td>
+
 				<td>
 					<?php
 					$options = Array('pgsql' => 'PostgreSQL', 'oci' => 'Oracle', 'mysql' => 'MySQL');
@@ -119,7 +120,8 @@ class Form_Action_DB_Query extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('database_name');?></td>
+				<td><?php echo translate('Database Name');?></td>
+
 				<td>
 					<?php
 						text_box($prefix.'_dsn[database]', $database, 35);
@@ -127,7 +129,8 @@ class Form_Action_DB_Query extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('host_name');?></td>
+				<td><?php echo translate('Host Name');?></td>
+
 				<td>
 					<?php
 						text_box($prefix.'_dsn[host]', $host, 35);
@@ -177,7 +180,8 @@ class Form_Action_DB_Query extends Form_Action
 		<div id="<?php echo $prefix ?>_login_section" style="padding: 0.5em 0px 2em 30px;">
 		<table style="width:auto">
 			<tr>
-				<td><strong><?php echo translate('user_name');?></strong></td>
+				<td><strong><?php echo translate('User Name');?></strong></td>
+
 				<td>
 					<?php
 						text_box($prefix.'_username', $settings['username'], 35);
@@ -185,7 +189,8 @@ class Form_Action_DB_Query extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><strong><?php echo translate('password');?></strong></td>
+				<td><strong><?php echo translate('Password');?></strong></td>
+
 				<td>
 					<?php
 						password_box($prefix.'_password', $settings['password'], 35);
@@ -364,7 +369,7 @@ class Form_Action_DB_Query extends Form_Action
 			MatrixDAL::execPdoQuery($query);
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
-			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
+			trigger_localised_error('DATA0001', sprintf(translate('SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s'), $e->getMessage(), $sql), E_USER_WARNING);
 			return $result;
 		}
 

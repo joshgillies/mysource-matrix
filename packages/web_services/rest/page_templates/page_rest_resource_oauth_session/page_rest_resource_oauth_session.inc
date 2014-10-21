@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
@@ -85,7 +85,7 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 							$resp['body'] = preg_replace($pattern, $replacement, $resp['body']);
 						}
 
-						// the response is likely to be authorization/login display provided by the service provider 
+						// the response is likely to be authorization/login display provided by the service provider
 						echo $resp['body'];
 					}
 				}
@@ -133,14 +133,14 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		// this function is called when we start the oauth process from requesting a request token
 		// and also when the request token has been authorized by the user and the service provider calls back.
 		// when it's a call back, the request parameter will have 'oauth_token' and 'oauth_verifier'.
-		// if we don't have oauth_token or oauth_verifier, that means we haven't started the oauth process or 
+		// if we don't have oauth_token or oauth_verifier, that means we haven't started the oauth process or
 		// something went wrong somewhere -  either way, we should start from scratch
 		if (!isset($_GET['oauth_token']) && !isset($_GET['oauth_verifier'])) {
 			// request a Request Token from the service provider
 			if (!isset($_SESSION['oauth'][$this->id]['oauth_token'])) {
 				$this->_res = $oauth->getRequestToken();
 				$this->_errors = $oauth->getErrors();
-		
+
 				// if a requst token is returned, have it authorized by the user
 				if (isset($this->_res['request_token']['oauth_token']) && isset($this->_res['request_token']['oauth_token_secret'])) {
 					// set the token and token secret in the session for later use
@@ -169,7 +169,7 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 				if (isset($this->_res['access_token']['oauth_token']) && isset($this->_res['access_token']['oauth_token_secret'])) {
 					$_SESSION['oauth'][$this->id]['access_token'] = $this->_res['access_token']['oauth_token'];
 					$_SESSION['oauth'][$this->id]['access_token_secret'] = $this->_res['access_token']['oauth_token_secret'];
-				} 
+				}
 			}
 		}
 
@@ -201,9 +201,9 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	 *							3 legged does not require these values to be passed but 2 legged OAuth does.
 	 *							Since this asset is designed to use 3 legged OAuth, the parameter exists
 	 *							but it is not used by this function
-	 *							
 	 *
-	 * @return	Array	key: urls passed  value: an Authorization Header for OAuth	
+	 *
+	 * @return	Array	key: urls passed  value: an Authorization Header for OAuth
 	 * @access	public
 	 */
 	public function getUserDataRequestAuthHeaders($urls=Array(), $args=Array())
@@ -215,7 +215,7 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		foreach ($args as $config_name => $config_value) {
 			$oauth->setConfig($config_name, $config_value);
 		}
-		
+
 		// if an access token is not available, there is no way user data can be accessed
 		// process each url only when we have an access token
 		if ($this->isAccessTokenAvailable()) {
@@ -243,14 +243,14 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	    $access_token = $this->attr('access_token');
 	    $access_token_secret = $this->attr('access_token_secret');
 	    if(!empty($access_token) && !empty($access_token_secret)) return TRUE;
-	    
+
 	    if (isset($_SESSION['oauth'][$this->id]['access_token']) && isset($_SESSION['oauth'][$this->id]['access_token_secret'])) {
 		    return TRUE;
 	    } else {
 		    return FALSE;
 	    }
 	}//end isAccessTokenAvailable()
-	
+
 	/**
 	 * Get access token, either stored or session
 	 *
@@ -284,9 +284,12 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	public function getAvailableKeywords()
 	{
 		$res = parent::getAvailableKeywords();
-		$res['oauth_reset_session_vars'] = translate('oauth_reset_session_vars_keyword');
-		$res['oauth_access_token_available'] = translate('oauth_access_token_available');
-		$res['oauth_errors'] = translate('oauth_errors');
+		$res['oauth_reset_session_vars'] = translate('Submit Button to reset OAuth related session variables');
+
+		$res['OAuth Access Token is available to access user data or not'] = translate('OAuth Access Token is available to access user data or not');
+
+		$res['Error(s) encountered during OAuth authorisation'] = translate('Error(s) encountered during OAuth authorisation');
+
 		return $res;
 
 	}//end getAvailableKeywords()
@@ -306,7 +309,8 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		ob_start();
 			?>
 			<form id="<?php echo $this->getPrefix() ?>_oauth_reset_session_vars_form" method="POST" action="<?php echo current_url(TRUE, TRUE); ?>">
-				<?php echo submit_button($this->getPrefix().'_oauth_reset_session_vars', translate('oauth_reset_session_vars')); ?>
+				<?php echo submit_button($this->getPrefix().'_oauth_reset_session_vars', translate('Reset Existing Authorisation Data')); ?>
+
 			</form>
 			<?php
 			$replacement = ob_get_contents();
@@ -342,7 +346,7 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	 */
 	public function getOauthErrorsKeywordReplacement()
 	{
-		return implode('<br />', $this->_errors); 
+		return implode('<br />', $this->_errors);
 
 	}//end getOauthErrorsKeywordReplacement()
 

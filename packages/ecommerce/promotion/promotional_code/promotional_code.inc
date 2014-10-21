@@ -30,8 +30,8 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Promotional_Code extends Asset
 {
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -44,8 +44,8 @@ class Promotional_Code extends Asset
 		parent::__construct($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Perform any pre-validation required during the creation of this asset
 	*
@@ -62,15 +62,15 @@ class Promotional_Code extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
-		
+
 		return TRUE;
-		
+
 	}//end _preCreateCheck()
-	
-	
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -86,8 +86,8 @@ class Promotional_Code extends Asset
 		return $allowed;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Returns name of the asset
 	*
@@ -100,13 +100,13 @@ class Promotional_Code extends Asset
 	protected function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
-		
+
 	}//end _getName()
-	
-	
+
+
 	/**
 	* Save attributes set with setAttrValue to the database
-	* 
+	*
 	* This method is overrided here because we want to update the link values of the links between this promotional code asset
 	* and the applied assets when the promotional code is being changed. We use the link value to match the promotional code
 	* in ecommerce form and cart quickly.
@@ -126,45 +126,45 @@ class Promotional_Code extends Asset
 			$new_link_value = $this->attr('code');
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 			$links = $am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', $old_link_value);
-			
+
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			
+
 			try {
 				foreach ($links as $link) {
 					if (!$am->updateLink($link['linkid'], $link['link_type'], $new_link_value)) {
 						throw new Exception("The value of the notice link #{$link['linkid']} could not be updated to $new_link_value");
 					}
 				}
-				
+
 				if (!parent::saveAttributes($dont_run_updated)) {
 					throw new Exception('The attributes could not be saved');
 				}
-				
+
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				
+
 				return TRUE;
-				
+
 			} catch (Exception $e) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				throw $e;
 			}
-			
+
 		} else {
 			return parent::saveAttributes($dont_run_updated);
 		}
-		
+
 	}//end saveAttributes()
-	
-	
+
+
 	/**
 	 * Return the old value of the $name attribute before the setAttrValue() method is invoked.
 	 * If no new value is set, the current value is returned.
-	 * 
+	 *
 	 * @param string $name	The name of the attribute to get its old value
-	 * 
+	 *
 	 * @return mixed
 	 * @access public
 	 * @see Asset::setAttrValue()
@@ -176,37 +176,37 @@ class Promotional_Code extends Asset
 		} else {
 			$value = $this->attr('code');
 		}
-		
+
 		return $value;
-		
+
 	}//end getOldAttrValue()
-	
-	
+
+
 	/**
 	 * Return the rules that are applied to this promotional code
-	 * 
+	 *
 	 * @return array
 	 * @access public
 	 */
 	public function getRules()
 	{
 		return $this->attr('rules');
-		
+
 	}//end getRules()
-	
-	
+
+
 	/**
 	 * Process the promotional code rules with the input asset data
-	 * 
+	 *
 	 * @param array &$asset_data	The input asset data
-	 * 
+	 *
 	 * @return void
 	 * @access public
 	 */
 	public function process(&$asset_data)
-	{		
+	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		
+
 		// Evaluate the promotional conditions first
 		$conditions = $this->attr('conditions');
 		$success = TRUE;
@@ -225,9 +225,9 @@ class Promotional_Code extends Asset
 				}// end if
 			}//end foreach
 		}//end if
-		
+
 		// Carry out the promtional action only if we satisfy all the promotional conditions
-		if ($success) {			
+		if ($success) {
 			$rules = $this->attr('rules');
 			foreach ($rules as $rule) {
 				$rule_type_code = $rule['rule_type_code'];
@@ -238,8 +238,8 @@ class Promotional_Code extends Asset
 		}//end if
 
 	}//end process()
-	
-	
+
+
 }//end class
 
 ?>

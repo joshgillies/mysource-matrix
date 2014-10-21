@@ -38,7 +38,7 @@ class Trigger_Action_Leave_User_Group_For_Session extends Trigger_Action
 		parent::__construct($assetid);
 	}//end constructor
 
-	
+
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
@@ -55,7 +55,7 @@ class Trigger_Action_Leave_User_Group_For_Session extends Trigger_Action
 		$type_codes = Array(
 								'user_group' => 'D',
 							);
-		
+
 		// buffer the user group asset chooser
 		ob_start();
 		$user_group_to_leave = isset($settings['user_group_to_leave']) ? $settings['user_group_to_leave'] : Array();
@@ -73,12 +73,13 @@ class Trigger_Action_Leave_User_Group_For_Session extends Trigger_Action
 		$user_group_input = ob_get_clean();
 
 		// display both the asset chooser and the text box
-		$output = translate('trigger_leave_user_for_session', $user_group_input);
+		$output = sprintf(translate('<p>Temporarily remove current user from specified user groups for current session.</p>Select user groups %1$s'), $user_group_input);
+
 
 		return $output;
 
 	}//end getInterface()
-	
+
 
 	/**
 	* Function that handles the conversion of interface to settings
@@ -119,7 +120,7 @@ class Trigger_Action_Leave_User_Group_For_Session extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
-		
+
 
 		// get the current user id and double check it's a User asset
 		$current_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
@@ -129,10 +130,10 @@ class Trigger_Action_Leave_User_Group_For_Session extends Trigger_Action
 
 		// get user groups the current user is in
 		$current_groups = $current_user->getUserGroups();
-		
+
 		// groups to remove from
 		$groups = isset($settings['user_group_to_leave']) ? $settings['user_group_to_leave'] : Array();
-		
+
 		 if(!empty($groups)) {
 		     // exclude  groups from current session
 		     $_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id] = array_diff($_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id], $groups);

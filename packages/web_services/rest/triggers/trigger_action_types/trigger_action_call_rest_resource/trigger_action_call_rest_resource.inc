@@ -146,7 +146,7 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 				if (!empty($ret['output'])) {
 					$_SESSION[SQ_SESSION_SANDBOX_INDEX][$settings['js_session_var']] =  $ret['output'];
 				} else {
-					trigger_localised_error('REST0001', E_USER_WARNING, $state['asset']->id, $ret['error_message']);
+					trigger_localised_error('REST0001', sprintf(translate('%1$s: Keyword %2$s not found in REST response.'), $state['asset']->id, $ret['error_message']), E_USER_WARNING);
 				}
 			} else {
 				// Store the response in the session as an array
@@ -192,39 +192,48 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 
 		?>
 		<div style="padding: 5px">
-			 <p class="sq-backend-section-subheading"><?php echo translate('trigger_action_rest_resource_http_request') ?></p>
+			 <p class="sq-backend-section-subheading"><?php echo translate('HTTP Request') ?></p>
+
 			 <?php $http_request_attr->paint($new_prefix.'_http_request', !$write_access); ?>
 		</div>
 		<div style="padding: 5px">
-			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_rest_resource_js_processing') ?></p>
+			<p class="sq-backend-section-subheading"><?php echo translate('JavaScript Processing') ?></p>
+
 			<table border="0" class="sq-backend-table">
 				<tr>
-					<th width="20%"><?php echo translate('trigger_action_rest_resource_js_processing_session_var'); ?></th>
+					<th width="20%"><?php echo translate('Session Var Name'); ?></th>
+
 					<td><?php
 						if ($write_access) {
 							text_box($new_prefix.'_js_session_var', array_get_index($settings, 'js_session_var', ''), 20);
 						} else {
 							echo array_get_index($settings, 'js_session_var', '');
 						}
-						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_session_var_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('The response of HTTP Request will be stored as an array in the specified var in the Matrix session sandbox. NOTE: If you add any JavaScript code below to be executed, it will overwrite the HTTP response array that gets stored into this session variable by default.').'</div>';
+
 						?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_rest_resource_js_processing_replace_keywords'); ?></th>
+					<th><?php echo translate('Pre-Process Matrix Global Keywords'); ?></th>
+
 					<td><?php
-						$options = Array(translate('no'), translate('yes'));
+						$options = Array(translate('No'), translate('Yes'));
+
+
 						if ($write_access) {
 							combo_box($new_prefix.'_js_replace_keywords', $options, FALSE, array_get_index($settings, 'js_replace_keywords', 0));
 						} else {
 							echo array_get_index($options, array_get_index($settings, 'js_replace_keywords', 0), '');
 						}
-						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_replace_keywords_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('Enabling this option will replace the global keywords in the JS code prior running the JS engine.').'</div>';
+
 						?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_rest_resource_js_processing_engine'); ?></th>
+					<th><?php echo translate('JS Engine'); ?></th>
+
 					<td><?php
 						$supported_js_engines = Rest_Common::$supported_js_engines;
 						$default_js_engine = Rest_Common::$default_js_engine;
@@ -233,12 +242,14 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 						} else {
 							echo array_get_index($supported_js_engines, array_get_index($settings, 'js_engine', $default_js_engine), '');
 						}
-						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_engine_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('JavaScript enigne to process the JavaScript code.').'</div>';
+
 						?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_rest_resource_js_processing_include_files'); ?></th>
+					<th><?php echo translate('Include Files'); ?></th>
+
 					<td><?php
 						$include_files = array_get_index($settings, 'js_include_files', Array());
 						if ($write_access) {
@@ -250,12 +261,14 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 								}
 							echo '</ul>';
 						}
-						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_include_files_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('Selected JS files will be run sequentially before the JS code entered below.').'</div>';
+
 						?>
 					</td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_rest_resource_js_processing_javascript'); ?></th>
+					<th><?php echo translate('JavaScript Code'); ?></th>
+
 					<td><?php
 						$js_code = array_get_index($settings, 'js_code', '');
 						if ($write_access) {
@@ -263,7 +276,8 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 						} else {
 							echo "<pre>".htmlspecialchars($js_code)."</pre>";
 						}
-						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_javascript_note').'</div>';
+						echo '<div class="sq-backend-smallprint">'.translate('The HTTP Request data is available as JSON data in the pre-defined variable "_REST". Use the "Run Test" feature to view this structure. For example "print(_REST.response.body);" will print the body of the first response. If you are using E4X to process an XML document, you will likely need to use "_REST.response.bodyx" to avoid the XML declaration choking the parser.<br/>NOTE: Any data printed via the JS "print();" function. will be stored into the Session Var configured above.').'</div>';
+
 						?>
 					</td>
 				</tr>

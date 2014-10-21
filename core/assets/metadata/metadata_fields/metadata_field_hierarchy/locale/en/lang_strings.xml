@@ -20,7 +20,7 @@
 <strings>
 	<string source="no_hierarchy_box_options">No Hierarchy found</string>
 	<string source="hierarchy_no_default">No Default Value set</string>
-	<string source="preview">Preview the Hierarchy</string>
+	<string source="preview_hierarchy">Preview the Hierarchy</string>
 	<string source="add">Add</string>
 	<string source="remove_all">Remove All</string>
 </strings>

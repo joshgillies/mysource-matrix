@@ -18,9 +18,13 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field>
+			<display_name>Primary URL</display_name>
+			<note>Select a Site within the Site Network to use as the primary site. The Root URL assigned to the first Site will be used as the primary URL.</note>
 			<function_call>
 				<paint_function   name="paintPrimaryURL"  />
 				<process_function name="processPrimaryURL" />

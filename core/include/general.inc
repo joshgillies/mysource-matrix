@@ -130,7 +130,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			if (SQ_CONF_DEBUG & 1) {
 			    $msg .= "\nFile: $err_file\nLine:$err_line";
 			}
-			    
+
 			$root = simplexml_load_string('<xml></xml>');
 			$output = $root->addChild('error', $msg);
 			header('Content-Type: text/xml');
@@ -142,7 +142,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 			exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
 		break;
-		
+
 	    case 'json':
 	        // Used by asset map to return an error. This format returns an
 	        // equivalent format to that used by the asset map's JSON serialisation
@@ -155,7 +155,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			);
 			header('Content-Type: application/json');
 			echo json_encode_array($root);
-			
+
 	        exit();
         break;
 
@@ -372,24 +372,22 @@ function get_true_error_location($bt, $start_from=0)
 {
 	$real_bt_index = min($start_from, count($bt) - 1);
 
+	$found = Array();
 	while ($real_bt_index < count($bt) - 1) {
 		$this_bt = $bt[$real_bt_index];
-		$found   = TRUE;
 
-		if (strtolower(array_get_index($this_bt, 'class', '')) === 'locale_manager') {
-			$found = FALSE;
-		} else if (strpos(strtolower(array_get_index($this_bt, 'file', '')), 'locale_manager') !== FALSE) {
-			$found = FALSE;
+		if (in_array(strtolower(array_get_index($this_bt, 'function', '')), Array('trigger_localised_error', 'trigger_error'))) {
+			$found[] = $real_bt_index;
 		}
 
-		if ($found === TRUE) {
-			break;
-		} else {
-			$real_bt_index++;
-		}
+		$real_bt_index++;
 	}//end while
 
-	return $real_bt_index;
+	if (empty($found) === FALSE) {
+	    return max($found);
+	} else {
+	    return $start_from;
+	}
 }
 
 
@@ -861,7 +859,7 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE, $strip_ext
 			// if previous test failed, this one will probably not help, but before dying we try anyway
 			$host = array_get_index($_SERVER, 'SERVER_NAME', FALSE);
 			if (!$host) {
-				trigger_localised_error('SYS0107', E_USER_ERROR);
+				trigger_localised_error('SYS0107', translate('Unable to determine host for current URL'), E_USER_ERROR);
 			}
 		}
 		$uri = array_shift(explode('?',$_SERVER['REQUEST_URI']));
@@ -919,7 +917,7 @@ function clean_url($url)
 				SQ_CONF_LIMBO_SUFFIX,
 				SQ_CONF_BACKEND_SUFFIX,
 				SQ_CONF_NOCACHE_SUFFIX,
-				SQ_CONF_NOPROXYCACHE_SUFFIX,				
+				SQ_CONF_NOPROXYCACHE_SUFFIX,
 				SQ_CONF_RECACHE_SUFFIX,
 				SQ_CONF_PERFORMANCE_SUFFIX,
 			);
@@ -1326,7 +1324,7 @@ function implements_interface($class, $interface)
 	if (is_object($class)) {
 		return ($class instanceof $interface);
 	} else if (!class_exists($class)) {
-		trigger_localised_error('SYS0237', E_USER_ERROR, $class);
+		trigger_localised_error('SYS0237', sprintf(translate('Unable to check if "%s" implements an interface when it hasn\'t been declared'), $class), E_USER_ERROR);
 	}
 
 	// Must have been passed a string
@@ -1355,7 +1353,7 @@ function implements_interface($class, $interface)
 function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE, $encode=TRUE)
 {
 	if (empty($logname) || empty($level)) {
-		trigger_localised_error('SYS0099', E_USER_ERROR);
+		trigger_localised_error('SYS0099', translate('Unable to Log. An error has occurred'), E_USER_ERROR);
 		return FALSE;
 	}
 
@@ -1414,7 +1412,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 
 	$handle = fopen($logfile, 'a');
 	if (!fwrite($handle, $log_entry)) {
-		trigger_localised_error('SYS0051', E_USER_WARNING, $logfile);
+		trigger_localised_error('SYS0051', sprintf(translate('Unable to Write to log file %s'), $logfile), E_USER_WARNING);
 		return FALSE;
 	}
 	fclose($handle);
@@ -1444,7 +1442,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_ERROR)
 {
 	if (!is_string($message)) {
-		trigger_localised_error('SYS0191', E_USER_WARNING);
+		trigger_localised_error('SYS0191', translate('Invalid message format for error log'), E_USER_WARNING);
 		return FALSE;
 	}
 
@@ -1499,24 +1497,6 @@ function translate($string)
 
 
 /**
-* Provides a 'shorthand' interface to the Locale Manager's getErrorMessage() method
-* for the current locale
-*
-* @param string	$code	the error code (eg. SYS0013)
-*
-* @return string
-* @access public
-*/
-function translate_error($code)
-{
-	$args = array_slice(func_get_args(),1);
-	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
-	return $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $args);
-
-}//end translate_error()
-
-
-/**
 * Provides a 'shorthand' interface to the Locale Manager's raiseError() method
 * (for the current locale)
 *
@@ -1526,16 +1506,34 @@ function translate_error($code)
 * @return string
 * @access public
 */
-function trigger_localised_error($code, $error_level)
+function trigger_localised_error($code, $message, $error_level)
 {
-	$args = array_slice(func_get_args(),2);
-	if (!isset($GLOBALS['SQ_SYSTEM']) || !is_object($GLOBALS['SQ_SYSTEM']->lm)) {
-		trigger_error('Error occurred ['.$code.']'."\n".print_r($args, TRUE), $error_level);
-		return FALSE;
-	}
-	return $GLOBALS['SQ_SYSTEM']->lm->raiseError($code, $error_level, $args);
+	if (($error_level != E_USER_ERROR) && ($error_level != E_USER_WARNING) && ($error_level != E_USER_NOTICE)) {
+        $error_level = E_USER_ERROR;
+    }
 
-}//end trigger_localised_error()
+    $additional_info_array = Array();
+    if (SQ_CONF_DEBUG & 8) {
+        if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && !is_null($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
+            $additional_info_array['frontend_assetid'] = $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
+        }
+        $additional_info_array['frontend_url'] = current_url(TRUE);
+    }//end if
+
+    trigger_error($message.' ['.$code.']', $error_level);
+
+    // We are doing this only for frontend
+    if (!empty($additional_info_array)) {
+        $error_log_line   = 'Additional info for \''.$code.'\' error:'."\n";
+        $additional_info  = isset($additional_info_array['frontend_assetid']) ? 'Frontend assetid: #'.$additional_info_array['frontend_assetid'] : '';
+        if (!empty($additional_info) || strpos(current_url(), SQ_CONF_BACKEND_SUFFIX) === FALSE) {
+            $additional_info .= empty($additional_info) ? '' : "\n";
+            $additional_info .= isset($additional_info_array['frontend_url']) ? 'Current URL: '.$additional_info_array['frontend_url'] : '';
+        }
+        if (!empty($additional_info)) error_log($error_log_line.$additional_info);
+    }
+
+}//end trigger_localised_error();
 
 
 /**
@@ -1664,7 +1662,8 @@ function get_asset_tag_line($assetid, $screen='')
 			<td colspan="2" class="sq-backend-table-cell"><span class="sq-status-square status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset_info['status']))) ?>"></span><?php echo get_status_description($asset_info['status']) ?></td>
 		</tr>
 		<tr>
-			<td class="sq-backend-table-cell"><strong><?php echo translate('asset_type') ?>:</strong></td>
+			<td class="sq-backend-table-cell"><strong><?php echo translate('Asset Type') ?>:</strong></td>
+
 			<td colspan="2" class="sq-backend-table-cell"><?php
 			    echo ' <span class="sq-info-type-icon">'.get_asset_type_icon($asset_info['type_code']).'</span>';
 			    echo ' <span class="sq-info-type-name" data-type-code="'.$asset_info['type_code'].'">'.$type_name.'</span>';
@@ -1688,7 +1687,8 @@ function get_asset_tag_line($assetid, $screen='')
 				} else {
 					$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), FALSE, 'name');
 					if (empty($user_name) || !isset($user_name[$asset_info[$time_type.'_userid']]) || empty($user_name[$asset_info[$time_type.'_userid']])) {
-						$user_name = '<span style="color: red">'.translate('unknown_or_deleted_user').'</span>';
+						$user_name = '<span style="color: red">'.translate('Unknown or deleted user').'</span>';
+
 					} else {
 						$user_name = htmlspecialchars($user_name[$asset_info[$time_type.'_userid']], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					}
@@ -1696,7 +1696,8 @@ function get_asset_tag_line($assetid, $screen='')
 
 				$user_name = 'by '.$user_name;
 			} else {
-				$time_str = translate('never');
+				$time_str = translate('Never');
+
 				$user_name = '&nbsp;';
 			}
 			?><tr>
@@ -1758,7 +1759,8 @@ function get_asset_tag_line($assetid, $screen='')
 function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 {
 	if ($popupTitle === NULL) {
-		$popupTitle = translate('lineages');
+		$popupTitle = translate('Lineages');
+
 	}
 
 	ob_start();
@@ -1841,10 +1843,12 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	if (count($lineages) > 1) {
 		echo $lineages_div;
 		?><div id="asset-tag-line-<?php echo $assetid ?>-cancel-icon" style="display:none"><?php
-			sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
+			sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', 16, 16, translate('Cancel'), translate('Cancel'), ' style="border:none"');
+
 		?></div><?php
 		$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-lineages\').innerHTML, \''.addslashes($popupTitle).'\', document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-cancel-icon\').innerHTML)';
-		$lineages_name = translate('show_lineages');
+		$lineages_name = translate('Show Lineages');
+
 	} else if (count($lineages) == 1) {
 		sort($lineages);
 		$lineage_names = $lineages[0]['lineage'];
@@ -1854,7 +1858,8 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 		$lineage_names[$assetid] = $asset_info['name'];
 
 		$lineages_onclick = asset_locator_onclick($lineage_assetids, FALSE);
-		$lineages_name = translate('show_in_asset_map');
+		$lineages_name = translate('Show in Asset Map');
+
 	}
 
 	if (count($lineages) > 0) {
@@ -2726,7 +2731,8 @@ function do_redirect($url, $message=NULL, $timeout=0)
 	if ($timeout || $message || headers_sent()) {
 		// Javascript Redirect
 		if (is_null($message)) {
-			$message = translate('redirecting_you_to', htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$message = sprintf(translate('Redirecting you to %s'), htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 		}
 		?>
 		<html>
@@ -3381,7 +3387,7 @@ function authorised_file_path($filename)
 
 	require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 	$authorised_paths = explode("\n", SQ_TOOL_AUTHORISED_PATHS);
-	
+
 	// Public data dir and temp asset import dir are always authorised by default
 	$authorised_paths[] = SQ_DATA_PATH.'/public/';
 	$authorised_paths[] = SQ_TEMP_PATH.'/import_assets/';
@@ -3398,7 +3404,7 @@ function authorised_file_path($filename)
 		} else {
 			$authorised = $filename == $authorised_path;
 		}
-		
+
 		if ($authorised) {
 			break;
 		}

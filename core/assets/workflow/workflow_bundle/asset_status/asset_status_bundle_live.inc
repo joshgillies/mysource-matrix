@@ -59,7 +59,8 @@ class Asset_Status_Bundle_Live extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_live');
+		return translate('Live');
+
 
 	}//end getDescription()
 
@@ -76,7 +77,8 @@ class Asset_Status_Bundle_Live extends Asset_Status
 		$available_statuses = Array();
 
 		if ($this->owner->writeAccess() === TRUE) {
-			$available_statuses[SQ_STATUS_UNDER_CONSTRUCTION] = translate('core_workflow_bundle_start_editing');
+			$available_statuses[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Start Editing');
+
 		}
 
 		return $available_statuses;

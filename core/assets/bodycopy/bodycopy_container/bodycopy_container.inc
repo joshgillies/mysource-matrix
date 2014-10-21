@@ -58,7 +58,7 @@ class Bodycopy_Container extends Asset
 	* @access public
 	*/
 	public function create(Array &$link, Array $bc_data=Array())
-	{	
+	{
 		// store this data for later use during the create process in _createAdditional()
 		$this->_tmp['bodycopy_create_data'] = $bc_data;
 
@@ -83,7 +83,7 @@ class Bodycopy_Container extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -125,15 +125,15 @@ class Bodycopy_Container extends Asset
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				// Find out where the popups are located. (under bodycopy)
-				$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');				
-				
+				$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
+
 				$include_file = trim($_REQUEST['popup_file']);
 				$bodycopy_popup_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/popups/';
 				$dir_listing = scandir($bodycopy_popup_dir);
-				
+
 				if (in_array($include_file, $dir_listing)) {
 					require_once($bodycopy_popup_dir.$include_file);
-				} 
+				}
 
 				exit(0);
 			default :
@@ -164,22 +164,22 @@ class Bodycopy_Container extends Asset
 			// save a version of the container as it appears now
 			$edit = $this->getEditFns();
 			if (!$edit->generateContentFile($this)) {
-				trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
+				trigger_localised_error('CORE0047', sprintf(translate('Failed saving asset "%s" to cache, could not create content file'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
-	
+
 			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			foreach ($contexts as $contextid => $context_data) {
 				$filename_suffix = ((int)$contextid === 0) ? '' : '.'.$contextid;
 				if (file_exists($this->data_path.'/content_file'.$filename_suffix.'.php') === TRUE) {
 					$copy_usv = copy_file($this->data_path.'/content_file'.$filename_suffix.'.php', $this->data_path.'/.sq_system/.content_file'.$filename_suffix.'.php');
-	
+
 				}
 			}
 		} else {
 			unset($this->_tmp['skip_save_system_version_content_file']);
 		}
-		
+
 		// save the current notice links
 		$replace_assetids = Array();
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
@@ -190,7 +190,7 @@ class Bodycopy_Container extends Asset
 
 		// save the links we currently use (./?a=xx)
 		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
-			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0048', sprintf(translate('Failed saving asset "%s" to cache, could not create notice links file'), $this->name), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -323,7 +323,7 @@ class Bodycopy_Container extends Asset
 	* Called by the design to print the body of this asset
 	*
 	* @param mixed(array|null)	$keyword_replacements	some replacements for keywords in the content,
-	* 													pass an array of replacements or 
+	* 													pass an array of replacements or
 	* 													null for the container to attempt the replacements itself
 	* @param boolean $generating    					Whether the PHP content generated for content file needs to executed at the run time
 	*													Applicable to Nested Content Type asset only
@@ -337,7 +337,7 @@ class Bodycopy_Container extends Asset
 
 		// if we don't have any keyword replacements passed as an argument,
 		// check if we really don't have any keywords in the contents because in some rare cases,
-		// such as an asset listing that lists bodycopies and use %asset_contents% in the type format, 
+		// such as an asset listing that lists bodycopies and use %asset_contents% in the type format,
 		// this function is called without an array that contains keyword replacements which makes all the
 		// keywords disappear from the contents printed on the frontend
 		if (is_null($keyword_replacements)) {
@@ -363,7 +363,7 @@ class Bodycopy_Container extends Asset
 					}
 				} else if (count($dependant_parent_assetids) > 1) {
 					// if we found multiple dependant parents (by new linking Content DIV, etc) then
-					// we can have global keywords later on by passing the keywords as they are but 
+					// we can have global keywords later on by passing the keywords as they are but
 					// not asset keyword as we don't know which asset to invoke getKeywordReplacement on.
 					foreach ($keywords as $keyword) {
 						if (0 === strpos($keyword, 'globals_')) {
@@ -373,7 +373,7 @@ class Bodycopy_Container extends Asset
 				}
 			}
 		}
-		
+
 		// Escape the quotes in the keyword
 		foreach($keyword_replacements as $keyword => $val) {
 			$safe_keyword = str_replace('$', '\\$', htmlentities($keyword, ENT_QUOTES));
@@ -382,7 +382,7 @@ class Bodycopy_Container extends Asset
 				unset($keyword_replacements[$keyword]);
 			}
 		}
-		
+
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$context_suffix = ($contextid === 0) ? '' : ('.'.$contextid);
 		$content_file_name = 'content_file'.$context_suffix.'.php';
@@ -489,7 +489,7 @@ class Bodycopy_Container extends Asset
 			}
 
 			if (!is_file($this->data_path.'/'.$content_file_name)) {
-				trigger_localised_error('CORE0009', E_USER_WARNING, $this->name);
+				trigger_localised_error('CORE0009', sprintf(translate('Content file failed to generate for bodycopy container %s'), $this->name), E_USER_WARNING);
 			} else {
 
 				// because we won't wait until mysource.inc to kick in to replace our global
@@ -497,7 +497,7 @@ class Bodycopy_Container extends Asset
 				// what we currently have on our keyword_replacements array, we will need to
 				// make sure the globals  keyword if   any in the conditions  are  evaluated
 				// before we try to include the content file further down Fixes bug RM #5774
-				// Conditional  keywords  within  asset  listing    type  formats  evaluates 
+				// Conditional  keywords  within  asset  listing    type  formats  evaluates
 				// globals_asset_metadata_X when empty as true
 				$pattern = '(begin_|end_|else_)';
 				foreach ($keyword_replacements as $keyword => $replacement) {
@@ -508,7 +508,7 @@ class Bodycopy_Container extends Asset
 					}
 				}
 
-				// Include the nested content file dynamically if the content is getting included in the upper level content file 
+				// Include the nested content file dynamically if the content is getting included in the upper level content file
 				if ($generating) {
 					$content_type = $this->getContentType();
 					$generating = !is_null($content_type) && $content_type->type() == 'content_type_nest_content';

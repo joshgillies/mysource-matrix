@@ -77,7 +77,8 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 			hidden_field($prefix.'_link_types_submitted', '1');
 		} else {
 			if (($current == 0) && ($asset->attr('subs_only'))){
-				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_link_types_selected').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('No link types have been selected - <b>no assets will be displayed</b>').'</p>';
+
 			} else {
 				echo '<ul>';
 				foreach ($link_types as $link_type => $link_type_name) {

@@ -42,7 +42,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens = Array ('details' => Array ('name' => translate('inbox'), 'use_tab' => TRUE, 'force_unlock' => FALSE, 'lock_type' => 'mail',),);
+		$this->static_screens = Array ('details' => Array ('name' => translate('Inbox'), 'use_tab' => TRUE, 'force_unlock' => FALSE, 'lock_type' => 'mail',),);
+
 
 	}//end constructor
 
@@ -72,26 +73,34 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 			<table class="sq-new-message-table" width="100%">
 				<tr>
-					<td valign="top"><?php echo translate('to'); ?>:</td>
+					<td valign="top"><?php echo translate('To'); ?>:</td>
+
 					<td>
 						<?php multiple_asset_finder($prefix.'_To', Array(), Array('user' => 'D')); ?>
 					</td>
 				</tr>
 				<tr>
-					<td valign="top"><?php echo translate('subject'); ?>:</td>
+					<td valign="top"><?php echo translate('Subject'); ?>:</td>
+
 					<td>
 						<input type="text" id="<?php echo $prefix; ?>_Subject" name="<?php echo $prefix; ?>_Subject" style="width:300px" />
 					</td>
 				</tr>
 				<tr>
-					<td valign="top"><?php echo translate('priority'); ?>:</td>
+					<td valign="top"><?php echo translate('Priority'); ?>:</td>
+
 					<td>
 						<select id="<?php echo $prefix; ?>_Priority" name="<?php echo $prefix; ?>_Priority" style="float:left; width: 100px;">
-							<option value="1"><?php echo translate('highest'); ?></option>
-							<option value="2"><?php echo translate('high'); ?></option>
-							<option value="3" selected="selected"><?php echo translate('standard'); ?></option>
-							<option value="4"><?php echo translate('low'); ?></option>
-							<option value="5"><?php echo translate('lowest'); ?></option>
+							<option value="1"><?php echo translate('Highest'); ?></option>
+
+							<option value="2"><?php echo translate('High'); ?></option>
+
+							<option value="3" selected="selected"><?php echo translate('Standard'); ?></option>
+
+							<option value="4"><?php echo translate('Low'); ?></option>
+
+							<option value="5"><?php echo translate('Lowest'); ?></option>
+
 						</select>
 					</td>
 				</tr>
@@ -105,7 +114,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		} else {
 ?>
-			<div style="text-align: center"><?php echo translate('inbox_lock'); ?></div>
+			<div style="text-align: center"><?php echo translate('Please lock the Inbox to send messages'); ?></div>
+
 			<?php
 
 		}
@@ -145,6 +155,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 			$message = $ms->newMessage($recepients, 'inbox.message', $msg_reps);
 			$message->priority = $_POST[$prefix.'_Priority'];
+			$message->subject  = $msg_reps['subject'];
+			$message->body     = $msg_reps['body'];
 			$message->send();
 
 			foreach ($recepients as $key => $sender) {
@@ -154,6 +166,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				$message->from = $sender;
 				$message->status = 'R';
 				$message->priority = $_POST[$prefix.'_Priority'];
+                $message->subject  = $msg_reps['subject'];
+                $message->body     = $msg_reps['body'];
 				$message->send();
 			}
 
@@ -198,9 +212,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<div id="inbox_container" class="sq-inbox-list-container">
 			<table id="inbox_table" class="sq-backend-table">
 			<tr>
-				<th class="sq-backend-table-header"><?php echo translate('to'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('sent'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('To'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Subject'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Sent'); ?></th>
+
 				<?php
 
 		if ($write_access) {
@@ -208,7 +225,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<th class="sq-backend-table-header">
 						<?php check_box($prefix.'_delete_all', '1', FALSE, 'changeAllDelStatuses(this.checked)'); ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon" class="trash" onclick="changeAllStatuses()" />
-						<?php echo translate('delete'); ?>
+						<?php echo translate('Delete'); ?>
+
 					</th>
 					<?php
 
@@ -300,7 +318,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			// delete message
 			$message = $ms->getMessageById($messageid);
 			if (!$message->updateStatus(SQ_MSG_DELETED)) {
-				trigger_localised_error('CORE0063', E_USER_WARNING, $messageid);
+				trigger_localised_error('CORE0063', sprintf(translate('Message %s was not deleted'), $messageid), E_USER_WARNING);
 			}
 		}
 
@@ -381,10 +399,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					hidden_field($prefix.'_link_offset', $link_offset);
 					if ($link_offset > 0) {
 					?>
-						<a title="<?php echo translate('pagination_go_to_first') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
+						<a title="<?php echo translate('Go to the first page') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
+
 					<?php
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" ><?php
+						?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" ><?php
+
 					}
 					?>
 					&lt;&lt;
@@ -396,9 +416,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_previous') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the previous page') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" ><?php
+						?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" ><?php
+
 					}
 					?>
 					&lt;
@@ -409,12 +431,15 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						?></span><?php
 					}
 					?>
-					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					&nbsp; &nbsp; <?php echo sprintf(translate('Page %1$s of %2$s'), round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+
 					<?php
 					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_next') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the next page') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" ><?php
+						?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" ><?php
+
 					}
 					?>
 					&gt;
@@ -426,9 +451,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_last') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the last page') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" ><?php
+						?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" ><?php
+
 					}
 					?>
 					&gt;&gt;
@@ -442,9 +469,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				</th><tr>
 				<!-- end print pagination bar -->
 			<tr>
-				<th class="sq-backend-table-header"><?php echo translate('from'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('sent'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('From'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Subject'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Sent'); ?></th>
+
 				<th class="sq-backend-table-header">
 					<?php
 
@@ -455,7 +485,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 			}
 ?>
-					&nbsp;<?php echo translate('read'); ?>
+					&nbsp;<?php echo translate('Read'); ?>
+
 				</th>
 				<?php
 
@@ -464,7 +495,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<th class="sq-backend-table-header">
 						<?php check_box($prefix.'_delete_all', '1', FALSE, 'changeAllDelStatuses(this.checked)'); ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon" class="trash" />
-						<?php echo translate('delete'); ?>
+						<?php echo translate('Delete'); ?>
+
 					</th>
 					<?php
 
@@ -576,13 +608,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			$message = $ms->getMessageById($msgid);
 			if (in_array($msgid, $read) && $message->status == SQ_MSG_UNREAD) {
 				if (!$message->updateStatus(SQ_MSG_READ)) {
-					trigger_localised_error('CORE0076', E_USER_WARNING, $msgid);
+					trigger_localised_error('CORE0076', sprintf(translate('Status of message %s was not updated'), $msgid), E_USER_WARNING);
 				}
 				continue;
 			}
 			if (!in_array($msgid, $read) && $message->status == SQ_MSG_READ) {
 				if (!$message->updateStatus(SQ_MSG_UNREAD)) {
-					trigger_localised_error('CORE0076', E_USER_WARNING, $msgid);
+					trigger_localised_error('CORE0076', sprintf(translate('Status of message %s was not updated'), $msgid), E_USER_WARNING);
 				}
 			}
 		}
@@ -615,7 +647,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			$message = $ms->getMessageById($msgid);
 			if (in_array($msgid, $delete) && $message->status != SQ_MSG_DELETED) {
 				if (!$message->updateStatus(SQ_MSG_DELETED)) {
-					trigger_localised_error('CORE0063', E_USER_WARNING, $data['msgid']);
+					trigger_localised_error('CORE0063', sprintf(translate('Message %s was not deleted'), $data['msgid']), E_USER_WARNING);
 				}
 			}
 		}
@@ -660,7 +692,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		<?php
 
 		if (empty($messages)) {
-			?><div style="text-align: center"><?php echo translate('inbox_trash_empty'); ?></div><?php
+			?><div style="text-align: center"><?php echo translate('Your trash is empty.'); ?></div><?php
+
 			return FALSE;
 		} else {
 ?>
@@ -668,20 +701,25 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 			<table id="inbox_table" class="sq-backend-table">
 			<tr>
-				<th class="sq-backend-table-header"><?php echo translate('from'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('sent'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('From'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Subject'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Sent'); ?></th>
+
 				<?php
 
 			if ($write_access) {
 ?>
 					<th class="sq-backend-table-header">
 						<?php check_box($prefix.'_select_all_recover', '1', FALSE, 'check_all(document.main_form, "'.$prefix.'_recover", this.checked);'); ?>
-						<?php echo translate('recover'); ?>
+						<?php echo translate('Recover'); ?>
+
 					</th>
 					<th class="sq-backend-table-header">
 						<?php check_box($prefix.'_select_all_purge', '1', FALSE, 'check_all(document.main_form, "'.$prefix.'_purge", this.checked);'); ?>
-						<?php echo translate('purge'); ?>
+						<?php echo translate('Purge'); ?>
+
 					</th>
 					<?php
 
@@ -788,7 +826,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// recover messages to inbox
 				$message = $ms->getMessageById($messageid);
 				if (!$message->updateStatus(SQ_MSG_READ)) {
-					trigger_localised_error('CORE0064', E_USER_WARNING, $messageid);
+					trigger_localised_error('CORE0064', sprintf(translate('Message %s was not recovered'), $messageid), E_USER_WARNING);
 				}
 			}
 		}
@@ -798,7 +836,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// delete messsage FOREVER
 				$message = $ms->getMessageById($messageid);
 				if (!$message->delete()) {
-					trigger_localised_error('CORE0063', E_USER_WARNING, $data['msgid']);
+					trigger_localised_error('CORE0063', sprintf(translate('Message %s was not deleted'), $data['msgid']), E_USER_WARNING);
 				}
 			}
 		}

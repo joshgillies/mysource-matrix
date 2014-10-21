@@ -117,7 +117,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					$default_values_expr = '['.implode(', ', $default_values).']';
 					$non_default_keys_expr = '['.implode(', ', $non_default_keys).']';
 					check_box($prefix.'_default', '1', $is_default, "handleDefaultClickHierarchy(this, '$prefix', $default_keys_expr, $default_values_expr, $non_default_keys_expr, $display_type); ");
-					label(translate('use_default'), $prefix.'_default');
+					label(translate('Use default'), $prefix.'_default');
+
 					$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_hierarchy/js/metadata_field_hierarchy.js');
 					echo '</span>';
 				}
@@ -125,7 +126,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($print_cascade_values_option) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
-						label(translate('cascade_value'), $prefix.'_cascade_value');
+						label(translate('Cascade value'), $prefix.'_cascade_value');
+
 					echo '</span>';
 				}
 			echo '</span>';
@@ -178,12 +180,13 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			echo '<span class="sq-metadata-settings-wrapper">';
 				if ($is_default) {
-					echo ' <em>('.translate('using_default_value').')</em>';
+					echo ' <em>('.translate('Using default value').')</em>';
+
 				} else{
 
-				}	
+				}
 			echo '</span>';
-			
+
 			if (!((is_array($value) && empty($value)) || (is_string($value) && $value == ''))) {
 				if (!is_array($value)) $value = Array($value);
 				$value_output = '';
@@ -217,7 +220,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$processed = FALSE;
-		
+
 		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
@@ -288,11 +291,14 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('option_key'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('option_value'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Option Key'); ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('Option Value'); ?></td>
+
 					<?php
 					if (($write_access  === TRUE) && ($is_default_context === TRUE)) {
-						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td><?php
+
 					}
 					?>
 				</tr>
@@ -342,15 +348,19 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			<?php
 
 		} else {
-			echo translate('no_hierarchy_box_options');
+			echo translate('No Hierarchy found');
+
 		}//end if empty
 
 		// now adding two fields for new entry (key => value)
 		if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
-			$o->openField(translate('new_option'));
-				echo '<b>'.translate('key').'</b> ';
+			$o->openField(translate('New Option'));
+
+				echo '<b>'.translate('Key').'</b> ';
+
 				text_box($prefix.'_new_key','');
-				echo ' <b>'.translate('value').'</b> ';
+				echo ' <b>'.translate('Value').'</b> ';
+
 				text_box($prefix.'_new_val','');
 			$o->closeField();
 		}
@@ -361,14 +371,16 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if (!empty($hierarchy_options)) {
 			// displaying default value if any values were actually saved in the array
-			$o->openField(translate('default_value'));
+			$o->openField(translate('Default Value'));
+
 				$default_hier = $asset->getHierarchyAttribute();
 				$default_hier->paint($prefix.'_default', !$write_access);
 			$o->closeField();
 		}
 
 		// Being user friendly show a quick preview of what it looks like
-		$o->openField(translate('preview'));
+		$o->openField(translate('Preview the Hierarchy'));
+
 			if (!empty($hierarchy_options)) {
 
 				$display_type = $asset->attr('display_type');
@@ -404,7 +416,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					$this->paintDrillDownView($preview_options, Array(), $level_titles, FALSE, Array(), $prefix);
 				}
 			} else {
-				echo translate('no_hierarchy_box_options');
+				echo translate('No Hierarchy found');
+
 			}//end if
 		$o->closeField();
 
@@ -509,7 +522,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			$add_on_click = 'addToReceptacle_for_'.$prefix.'(\''.$field_name.'\')';
 			// new column for 'add' buttons
 			echo '</td><td valign="top">';
-			echo normal_button($prefix.'_drill_down_button', translate('add'), $add_on_click);
+			echo normal_button($prefix.'_drill_down_button', translate('Add'), $add_on_click);
+
 
 			echo '</td></tr>';
 		}
@@ -522,9 +536,11 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		// print the remove buttons
 		echo '<br />';
 		$remove_on_click = 'removeFromReceptacle_for_'.$prefix.'()';
-		echo normal_button($prefix.'_drill_down_button', translate('remove'), $remove_on_click);
+		echo normal_button($prefix.'_drill_down_button', translate('Remove'), $remove_on_click);
+
 		$remove_all_on_click = 'removeAllFromReceptacle_for_'.$prefix.'()';
-		echo normal_button($prefix.'_drill_down_button', translate('remove_all'), $remove_all_on_click);
+		echo normal_button($prefix.'_drill_down_button', translate('Remove All'), $remove_all_on_click);
+
 
 		// close the receptacle row
 		echo '</td></tr>';
@@ -775,11 +791,11 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$new_hierarchy_val  = trim($_POST[$prefix.'_new_val']);
 
 				if (strpos($new_hierarchy_key, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', E_USER_WARNING);
+					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
 					$new_hierarchy_key = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_hierarchy_key);
 				}
 				if (strpos($new_hierarchy_val, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', E_USER_WARNING);
+					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
 					$new_hierarchy_val = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_hierarchy_val);
 				}
 
@@ -1118,7 +1134,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		$i = 1;
 		foreach ($levels as $id) {
 			echo '<tr>';
-			echo '<td>'.translate('level').' '.$i.':</td><td>';
+			echo '<td>'.translate('Level').' '.$i.':</td><td>';
+
 			if ($wa) {
 				echo text_box($prefix.'_level_titles['.$id.']', isset($level_titles[$id]) ? htmlspecialchars_decode($level_titles[$id]) : '').'</td>';
 			} else {
@@ -1159,8 +1176,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		return $wa;
 
 	}//end processLevelTitles()
-	
-	
+
+
 	/**
 	* Paint the interface for setting Display Type
 	*
@@ -1214,8 +1231,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		return $wa;
 
 	}//end processDisplayType()
-	
-	
+
+
 }//end class
 
 ?>

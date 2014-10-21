@@ -68,9 +68,12 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('id') ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('ID:') ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('Name') ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('Type') ?></td>
+
 				</tr>
 			<?php
 			foreach ($infos as $assetid => $info) {
@@ -113,7 +116,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$thesaurus = $asset->getThesaurusRef();
 
 		if ($thesaurus == FALSE) {
-			echo '<em>'.translate('source_thesaurus_not_set').'</em>';
+			echo '<em>'.translate('The source thesaurus asset has not been set for this field.').'</em>';
+
 			return;
 		}//end if
 
@@ -188,14 +192,16 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 						// use-default-or-not chooser
 						check_box($prefix.'_default', '1', $is_default, 'toggleManualInterface(\''.$prefix.'_interface\',\''.$prefix.'_defaults\')');
-						label(translate('use_default'), $prefix.'_default');
+						label(translate('Use default'), $prefix.'_default');
+
 					echo '</span>';
 				}
 
 				if ($print_cascade_values_option) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
-						label(translate('cascade_value'), $prefix.'_cascade_value');
+						label(translate('Cascade value'), $prefix.'_cascade_value');
+
 					echo '</span>';
 				}
 			echo '</span>';
@@ -207,7 +213,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 						multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
 						hidden_field($prefix.'_terms_submitted', 1);
 						echo '<div style="margin-top: 3px">';
-							echo translate('thesaurus_meta_thesaurus_note', get_asset_tag_line($thesaurus->id, 'details'));
+							echo sprintf(translate('<strong>Note:</strong> You can only select terms from %s'), get_asset_tag_line($thesaurus->id, 'details'));
+
 						echo '</div>';
 					echo '</div>';
 
@@ -224,20 +231,24 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			echo '<span class="sq-metadata-settings-wrapper">';
 				if ($is_default) {
-					echo ' <em>('.translate('using_default_value').')</em>';
+					echo ' <em>('.translate('Using default value').')</em>';
+
 				} else{
 
-				}	
+				}
 			echo '</span>';
 			if (empty($values)) {
-				echo '<em>'.translate('thesaurus_no_values').'.</em>';
+				echo '<em>'.translate('No values selected').'.</em>';
+
 			} else {
-				echo translate($is_default ? 'thesaurus_using_default_values' : 'thesaurus_using_non_default_values');
+				echo ($is_default ? translate('Using default value') : translate('Using non-default values'));
 				?>
 				<table class="sq-backend-table" border="1" style="margin-left: 0px">
 					<tr>
-						<th style="width: 30%; white-space: none;"><?php echo translate('thesaurus_term'); ?></th>
-						<th><?php echo translate('thesaurus_lineages'); ?></th>
+						<th style="width: 30%; white-space: none;"><?php echo translate('Term'); ?></th>
+
+						<th><?php echo translate('Lineages'); ?></th>
+
 					</tr>
 				<?php
 				foreach ($term_info as $term_id => $term_name) {
@@ -313,7 +324,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 					$term_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
 					$term_name = $term_asset->attr('name');
 					if ($term_asset->_thesaurus->id != $thesaurus->id) {
-						$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+						$asset->_tmp['error'][] = sprintf(translate('Cannot use term "%1$s" - it belongs to the wrong thesaurus (%2$s #%3$s)'), $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
 						continue;
 					}
@@ -325,7 +337,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				$old_count = count($value);
 				$value = array_unique($value);
 				if ($old_count != count($value)) {
-					$asset->_tmp['error'][] = translate('thesaurus_term_duplicate_removed');
+					$asset->_tmp['error'][] = translate('Duplicate terms were removed');
+
 				}
 
 				$value = implode(',', $value);
@@ -423,7 +436,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			$term_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
 			$term_name = $term_asset->attr('name');
 			if ($term_asset->_thesaurus->id != $thesaurus->id) {
-				$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+				$asset->_tmp['error'][] = sprintf(translate('Cannot use term "%1$s" - it belongs to the wrong thesaurus (%2$s #%3$s)'), $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
 				continue;
 			}
@@ -434,7 +448,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$old_count = count($value);
 		$value = array_unique($value);
 		if ($old_count != count($value)) {
-			$asset->_tmp['error'][] = translate('thesaurus_term_duplicate_removed');
+			$asset->_tmp['error'][] = translate('Duplicate terms were removed');
+
 		}
 		$value = implode(',', $value);
 

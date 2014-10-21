@@ -58,16 +58,22 @@ class Page_Link_Manager_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('edit_format') ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('note') ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('Edit Format') ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Note') ?></td>
+
 			</tr>
 			<?php
-			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('cms_listing_page_contents_desc'));
-			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('cms_listing_no_results_bodycopy_desc'));
-			$this->_paintDefaultFormatLink($asset->id, 'not_logged_in', translate('cms_link_manager_not_logged_in_bodycopy_desc'));
+			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %%asset_listing%% keyword to include the list of assets on the page.'));
+
+			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('This format defines the layout of the page when the <b>Customise No Results Bodycopy</b> option is turned on, and there are no assets to list.'));
+
+			$this->_paintDefaultFormatLink($asset->id, 'not_logged_in', translate('This format defines the layout of the page when the user viewing the page is not logged in.'));
+
 
 			$folder = $asset->getFolder('type_formats');
-			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('cms_listing_default_asset_desc'));
+			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('This is the default format for all assets in the list if they do not have a customised format for their asset type or position.'));
+
 			?>
 		</table>
 		<?php

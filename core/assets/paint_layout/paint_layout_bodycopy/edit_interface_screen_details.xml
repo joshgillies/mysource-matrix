@@ -16,14 +16,18 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="12" height="1" />
-		</field>
-	</section>
-	<section name="Display Options" write_access="write:attributes" limbo_access="1">
-		<field attribute="lineage_separator">
-			<text />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
+    <section name="Display Options" write_access="write:attributes" limbo_access="1">
+        <field attribute="lineage_separator">
+            <display_name>Lineage Separator</display_name>
+            <note>Separator to use when painting the lineage of an asset.</note>
+            <text />
+        </field>
+    </section>
 </contents>

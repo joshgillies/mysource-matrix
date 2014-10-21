@@ -61,7 +61,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('hipo_rename_thesaurus_term'));
+		$o->openField(translate('Update Thesaurus Term'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -70,6 +71,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 			echo SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD;
 		}
 		echo ' '.translate('terms');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -119,7 +121,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_rename_thesaurus_term');
+		return translate('Update Thesaurus Term');
+
 
 	}//end getHipoName()
 
@@ -135,7 +138,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_rename_thesaurus_term'),
+					'name'			=> translate('Update Thesaurus Term'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processRenameTerm',
 									   ),
@@ -147,7 +151,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_generating_metadata_files'),
+					'name'			=> translate('Generating Metadata Files'),
+
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'regenerateMetadata',
 									   ),
@@ -232,7 +237,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 	{
 		// No thesaurus specified
 		if (empty($this->_running_vars['thesaurusid'])) {
-			trigger_localised_error('HIPO0085', E_USER_WARNING);
+			trigger_localised_error('HIPO0085', translate('Unable to initialise "Rename Thesaurus Term" HIPO, thesaurus asset ID not specified'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -244,7 +249,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 		// No thesaurus found
 		$thesaurus = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['thesaurusid'], '', TRUE);
 		if (is_null($thesaurus) || $thesaurus->type() != 'thesaurus') {
-			trigger_localised_error('HIPO0086', E_USER_WARNING);
+			trigger_localised_error('HIPO0086', translate('Unable to initialise "Rename Thesaurus Term" HIPO, invalid thesaurus asset specified'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -401,7 +406,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 						}
 					}
 				}
-				
+
 				// Run the Query against the current assetid
 				if (MatrixDAL::getDbType() === 'oci') {
 					$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_term WHERE TO_CHAR(value)=:old_term AND fieldid IN ('.implode(',', $field_chunk).')';
@@ -486,7 +491,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 
 				// No fields, so don't worry about this schema
 				if (count($this->_running_vars['schemas'][$schemaid]) == 0) {
-					unset($this->_running_vars['schemas'][$schemaid]);	
+					unset($this->_running_vars['schemas'][$schemaid]);
 				}//end if
 			}//end if
 		}//end foreach

@@ -59,11 +59,14 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$major = $asset->getAssetInLink('major');
 		$minor = $asset->getAssetInLink('minor');
 
-		$o->openSection(($asset->id) ? $asset->name : translate('cron_new_future_linking'));
+		$o->openSection(($asset->id) ? $asset->name : translate('New Future Linking'));
 
-		$o->openField(translate('delete_link'));
+
+		$o->openField(translate('Delete Link'));
+
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor');
-			$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('cron_fl_delete_all_existing_links'));
+			$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('All'));
+
 			foreach ($links as $link) {
 				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 
@@ -73,7 +76,9 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				if (empty($link['linkid'])) continue;
 
 				if (is_null($parent)) continue;
-				$link_options[$link['linkid']] = translate('link').' #'.$link['linkid'].' - '.translate('parent').' : '.$parent->name.' (#'.$parent->id.')';
+				$link_options[$link['linkid']] = translate('Link').' #'.$link['linkid'].' - '.translate('Parent').' : '.$parent->name.' (#'.$parent->id.')';
+
+
 			}
 
 			$default_delete_linkid = $asset->attr('delete_linkid');
@@ -83,7 +88,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			combo_box($prefix.'_delete_linkid', $link_options, FALSE, $default_delete_linkid);
 		$o->closeField();
 
-		$o->openField(translate('new_link_type'));
+		$o->openField(translate('New Link Type'));
+
 			$link_info = $asset->attr('link_info');
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$editable_link_types = Array(
@@ -95,22 +101,27 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			combo_box($prefix.'_link_type', $editable_link_types, FALSE, $link_type);
 		$o->closeField();
 
-		$o->openField(translate('new_link_parent'));
+		$o->openField(translate('New Link Parent'));
+
 			if ($asset->writeAccess('links')) {
 				asset_finder($prefix.'_major_assetid', ((is_null($major)) ? 0 : $major->id), Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
 			} else {
 				if (is_null($major)) {
-					echo '<a href="'.$major->getBackendHref().'">'.translate('asset_format', $major->name, $major->id).'</a>';
+					echo '<a href="'.$major->getBackendHref().'">'.sprintf(translate('"%1$s" [#%2$s]'), $major->name, $major->id).'</a>';
+
 				} else {
-					echo translate('not_set');
+					echo translate('Not Set');
+
 				}
 			}
 		$o->closeField();
 
-		$o->openField(translate('at'));
+		$o->openField(translate('At'));
+
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+
 		$o->closeField();
 
 		$o->closeSection();
@@ -195,15 +206,18 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	public function paintInLineBackendCreate(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		// section to create a new link
-		$o->openSection(translate('create_linking'));
+		$o->openSection(translate('Create Link'));
+
 
 		// add the asset finder
-		$o->openField(translate('new_link_parent'));
+		$o->openField(translate('New Link Parent'));
+
 		asset_finder($prefix.'_major_assetid');
 		$o->closeField();
 
 		// type of the link
-		$o->openField(translate('new_link_type'));
+		$o->openField(translate('New Link Type'));
+
 		$editable_link_types = Array(
 								SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 								SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
@@ -213,7 +227,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$o->closeField();
 
 		// value of the link
-		$o->openField(translate('use_link_value'));
+		$o->openField(translate('Use the link value'));
+
 		text_box($prefix.'_link_value', '', 20, 20);
 		$o->closeField();
 
@@ -225,18 +240,23 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 		// if it is a shadow asset the user cannot create a new link at a future time using the cron manager
 		if (isset($id_parts[1])) {
-			$o->openField(translate('at'));
-			$o->note(translate('cron_manager_future_not_available_create'));
+			$o->openField(translate('At'));
+
+			$o->note(translate('a future date and time. This feature is not availabe for the current asset'));
+
 			$this->_paintWhenBox($asset, $o, $prefix,  '', 'disabled');
 			$o->closeField();
 		} else {
 			// if the minor asset is not a shadow asset
 			// allow the user to set the create link as a future link
-			$o->openField(translate('at'));
-			$o->note(translate('cron_manager_create_now_or_later'));
+			$o->openField(translate('At'));
+
+			$o->note(translate('a future date and time. If no time is set, the new link will be created immediately else the Scheduled Jobs Manager will create the link at a future time'));
+
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+
 			$o->closeField();
 		}
 
@@ -422,11 +442,14 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$major = $asset->getAssetInLink('major');
 		$minor = $asset->getAssetInLink('minor');
 
-		$o->openSection(translate('delete_link'));
+		$o->openSection(translate('Delete Link'));
 
-		$o->openField(translate('delete_link'));
+
+		$o->openField(translate('Delete Link'));
+
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT|SQ_LINK_NOTICE, '', TRUE, 'minor');
-		$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('cron_fl_delete_all_existing_links'));
+		$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('All'));
+
 		foreach ($links as $link) {
 			$print_link_type = $this->_printLinkType($link);
 			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
@@ -443,7 +466,9 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 					$id_parts = explode(':', $minor->id);
 					if (isset($id_parts[1])) {
 						// it is a shadow asset the link id is the bridge id following with the minor id
-						$link_options[$id_parts[0].':'.$minor->id] = translate('link').' #'.$id_parts[0].':'.$minor->id.' ('.$print_link_type.') - '.translate('parent').' : '.$parent->name.' (#'.$id_parts[0].')';
+						$link_options[$id_parts[0].':'.$minor->id] = translate('Link').' #'.$id_parts[0].':'.$minor->id.' ('.$print_link_type.') - '.translate('Parent').' : '.$parent->name.' (#'.$id_parts[0].')';
+
+
 						continue;
 					} else {
 						// the minor asset is not a shadow asset but the link is equal to zero
@@ -457,7 +482,9 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			}
 
 
-			$link_options[$link['linkid']] = translate('link').' #'.$link['linkid'].' ('.$print_link_type.') - '.translate('parent').' : '.$parent->name.' (#'.$parent->id.')';
+			$link_options[$link['linkid']] = translate('Link').' #'.$link['linkid'].' ('.$print_link_type.') - '.translate('Parent').' : '.$parent->name.' (#'.$parent->id.')';
+
+
 		}//end foreach
 
 		$default_delete_linkid = $asset->attr('delete_linkid');
@@ -475,18 +502,23 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 		// if the minor asset is a shadow asset the user cannot create a new link at a future time using the cron manager
 		if (isset($id_parts[1])) {
-			$o->openField(translate('at'));
-			$o->note(translate('cron_manager_future_not_available_delete'));
+			$o->openField(translate('At'));
+
+			$o->note(translate('a future date and time. This feature is not availabe for the current asset'));
+
 			$this->_paintWhenBox($asset, $o, $prefix, '', 'disabled');
 			$o->closeField();
 		} else {
 			// if the minor asset is not a shadow asset
 			// allow the user to set the delete link at a future time
-			$o->openField(translate('at'));
-			$o->note(translate('cron_manager_delete_now_or_later'));
+			$o->openField(translate('At'));
+
+			$o->note(translate('a future date and time. If no time is set, the selected link will be deleted immediately else the Scheduled Jobs Manager will delete the link at a future time'));
+
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+
 			$o->closeField();
 		}
 		$o->closeSection();
@@ -699,15 +731,18 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	public function paintInLineBackendCreateReverse(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		// section to create a new link
-		$o->openSection(translate('create_linking'));
+		$o->openSection(translate('Create Link'));
+
 
 		// add the asset finder
-		$o->openField(translate('new_link_child'));
+		$o->openField(translate('New Link Child'));
+
 		asset_finder($prefix.'_minor_assetid');
 		$o->closeField();
 
 		// type of the link
-		$o->openField(translate('new_link_type'));
+		$o->openField(translate('New Link Type'));
+
 		$editable_link_types = Array(
 								SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 								SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
@@ -717,7 +752,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$o->closeField();
 
 		// value of the link
-		$o->openField(translate('use_link_value'));
+		$o->openField(translate('Use the link value'));
+
 		text_box($prefix.'_link_value', '', 20, 20);
 		$o->closeField();
 
@@ -729,18 +765,23 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 		// if it is a shadow asset the user cannot create a new link at a future time using the cron manager
 		if (isset($id_parts[1])) {
-			$o->openField(translate('at'));
-			$o->note(translate('cron_manager_future_not_available_create'));
+			$o->openField(translate('At'));
+
+			$o->note(translate('a future date and time. This feature is not availabe for the current asset'));
+
 			$this->_paintWhenBox($asset, $o, $prefix,  '', 'disabled');
 			$o->closeField();
 		} else {
 			// if the minor asset is not a shadow asset
 			// allow the user to set the create link as a future link
-			$o->openField(translate('at'));
-			$o->note(translate('cron_manager_create_now_or_later'));
+			$o->openField(translate('At'));
+
+			$o->note(translate('a future date and time. If no time is set, the new link will be created immediately else the Scheduled Jobs Manager will create the link at a future time'));
+
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+
 			$o->closeField();
 		}
 
@@ -927,11 +968,14 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	{
 		$major = $asset->getAssetInLink('major');
 
-		$o->openSection(translate('delete_link'));
+		$o->openSection(translate('Delete Link'));
 
-		$o->openField(translate('delete_link'));
+
+		$o->openField(translate('Delete Link'));
+
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($major->id, SQ_SC_LINK_SIGNIFICANT|SQ_LINK_NOTICE, '', TRUE, 'major');
-		$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('cron_fl_delete_all_existing_links'));
+		$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('All'));
+
 		foreach ($links as $link) {
 			$print_link_type = $this->_printLinkType($link);
 			$child = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
@@ -943,7 +987,9 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			if (empty($link['linkid'])) continue;
 
 
-			$link_options[$link['linkid']] = translate('link').' #'.$link['linkid'].' ('.$print_link_type.') - '.translate('child').' : '.$child->name.' (#'.$child->id.')';
+			$link_options[$link['linkid']] = translate('Link').' #'.$link['linkid'].' ('.$print_link_type.') - '.translate('Child').' : '.$child->name.' (#'.$child->id.')';
+
+
 		}//end foreach
 
 		$default_delete_linkid = $asset->attr('delete_linkid');
@@ -961,18 +1007,23 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 		// if the minor asset is a shadow asset the user cannot create a new link at a future time using the cron manager
 		if (isset($id_parts[1])) {
-			$o->openField(translate('at'));
-			$o->note(translate('cron_manager_future_not_available_delete'));
+			$o->openField(translate('At'));
+
+			$o->note(translate('a future date and time. This feature is not availabe for the current asset'));
+
 			$this->_paintWhenBox($asset, $o, $prefix, '', 'disabled');
 			$o->closeField();
 		} else {
 			// if the minor asset is not a shadow asset
 			// allow the user to set the delete link at a future time
-			$o->openField(translate('at'));
-			$o->note(translate('cron_manager_delete_now_or_later'));
+			$o->openField(translate('At'));
+
+			$o->note(translate('a future date and time. If no time is set, the selected link will be deleted immediately else the Scheduled Jobs Manager will delete the link at a future time'));
+
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+			$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
+
 			$o->closeField();
 		}
 		$o->closeSection();

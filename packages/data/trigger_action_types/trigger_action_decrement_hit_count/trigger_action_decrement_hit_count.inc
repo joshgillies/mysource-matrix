@@ -134,7 +134,8 @@ class Trigger_Action_Decrement_Hit_Count extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// This trigger does not require any customisation from the details screen.
-		return translate('trigger_action_no_configuration');
+		return translate('This trigger action does not require any configuration.');
+
 
 	}//end getInterface()
 

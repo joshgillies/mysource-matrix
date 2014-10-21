@@ -18,12 +18,16 @@
 <contents>
 	<section name="Preview" write_access="write:attributes">
 		<field>
+			<display_name>Recipient</display_name>
+			<note></note>
 			<function_call>
 				<paint_function name="paintPreviewAddress" />
 				<process_function name="processPreviewAddress" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Log</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintPreviewLog" />
 				<process_function name="processPreviewLog" />

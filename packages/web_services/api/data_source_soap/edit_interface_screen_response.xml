@@ -18,11 +18,15 @@
 <contents>
 	<section name="Last SOAP Request/Response">
 		<field>
+			<display_name>Request</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintLastSoapRequest"   />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Response</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintLastSoapResponse"   />
 			</function_call>

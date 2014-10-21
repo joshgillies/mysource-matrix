@@ -1113,7 +1113,7 @@
 	<string source="core_use_simple_upload_button">Use Simple Upload</string>
 	<string source="core_dimensions">&lt;b&gt;Dimensions:&lt;/b&gt; %1$s x %2$s pixels</string>
 	<string source="core_click_to_open_in_new_window">Click to open in a new window</string>
-	<string source="report_not_generated">This report has not yet been generated</string>
+	<string source="report_not_generated">This report has not been generated</string>
 	<string source="core_generate_report">Generate the latest version of this report</string>
 	<string source="core_report_last_generated">&lt;b&gt;This report has been generated&lt;/b&gt; &lt;br /&gt;Date: %1$s&lt;br /&gt;User: %2$s</string>
 	<string source="core_no_visual_report">This report does not contain a visual component</string>
@@ -1421,8 +1421,9 @@
 	<string source="or_decendant_types">or descendant types</string>
 	<string source="trigger_input_data_error">There was an error with input data</string>
 	<string source="trigger_type_code_not_supplied">Asset type code has not been supplied</string>
+	<string source="trigger_asset_not_supplied">Asset ID has not been supplied</string>
 
-	<string source="trigger_new_asset_basic">Create a new asset of type %1$s %2$s using a %3$s link and populate it with the file located on the server at %4$s.</string>
+	<string source="trigger_new_file_asset_basic">Create a new asset of type %1$s %2$s using a %3$s link and populate it with the file located on the server at %4$s.</string>
 	<string source="no_parent_selected">no parent selected</string>
 	<string source="trigger_new_asset_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the parent.</string>
 	<string source="no_value_entered">no value entered</string>
@@ -1489,7 +1490,6 @@
 	<string source="trigger_set_permission_dependant_parents_note">&lt;strong&gt;Note:&lt;/strong&gt; eg. set the permission of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the permission set normally.</string>
 
 	<string source="trigger_asset_id">Asset ID is %s</string>
-	<string source="trigger_asset_type">Asset is of type %s</string>
 	<string source="trigger_asset_sysadmin">Current user %s effectively a system administrator</string>
 	<string source="trigger_asset_public_user">Current user %s a public user</string>
 	<string source="trigger_asset_ldap_user">Current user %s a LDAP user</string>
@@ -1552,6 +1552,7 @@
 	<string source="trigger_create_design_customisation_usage">This trigger will create a design customisation of the design asset in which the trigger condition is matched.</string>
 	<string source="trigger_create_design_customisation_specify_name">Specify a name for the customisation: </string>
 	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming: </string>
+	<string source="trigger_create_design_customisation_name_missing">Design customisation name is missing</string>
 
 	<string source="trigger_avg_comment_rating_metadata_field">Metadata text field to store ratings average: </string>
 	<string source="trigger_total_comment_rating_metadata_field">Metadata text field to store total comments: </string>
@@ -1627,6 +1628,7 @@
 	<string source="dimension">Dimension</string>
 	<string source="both">Both</string>
 	<string source="neither">Neither</string>
+	<string source="square_centre_weighted">Centre-Weighted Square</string>
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>
@@ -2091,6 +2093,7 @@
 	<string source="add_new_action_type">Add new Action type</string>
 	<string source="general">General</string>
 	<string source="protocol">Protocol</string>
+	<string source="protocols">Protocols</string>
 	<string source="select_asset">Select Asset</string>
 	<string source="anchor_name">Anchor Name</string>
 	<string source="status_bar_text">Status Bar Text</string>
@@ -3047,7 +3050,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<!-- http_request and oauth attribute strings -->
 	<string source="http_request_urls">URL(s)</string>
 	<string source="http_request_method">Method</string>
-	<string source="hble_compressionttp_request_enable_http_10">Use HTTP 1.0</string>
+	<string source="http_request_enable_http_10">Use HTTP 1.0</string>
 	<string source="http_request_timeout">Timeout (seconds)</string>
 	<string source="http_request_follow_redirect">Follow Redirects</string>
 	<string source="http_request_disable_ssl_verify">Disable SSL Verification</string>
@@ -3087,10 +3090,11 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="oauth_callback_url">Call Back URL</string>
 	<string source="oauth_request_token_failed">A request for a request token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_request_token_not_found">A user authorisation has been request without a request token. URL: %1$s</string>
-	<string source="oauth_authorisation_request_failed">A user authorisation has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_authorization_request_failed">A user authorisation has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_access_token_missing_params">Missing paramters (authorised request token, token secret and/or verifier) required for an access token request. URL: %1$s</string>
 	<string source="oauth_access_token_failed">A request for an access token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_user_data_missing_params">Missing parameters (request url, access token and/or access token secret) required to access user data. URL: %1$s</string>
+	<string source="oauth2_token">OAuth 2 Token</string>
 
 	<!-- Workflow stream -->
 	<string source="workflow_stream_add">Add new workflow stream</string>
@@ -3283,4 +3287,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="allow_virus_scan">Allow Virus Scan</string>
 	<string source="allow_virus_scan_note">If global Virus Checker is enabled, perform immediate virus scan on each imported file. This will slow down import process.</string>
 
+    <string source="trigger_schema_no_schema_specified">No schema specified</string>
+    <string source="hipo_creating_safe_trash_job">Creating Safe Trash Scheduled Job</string>
+    <string source="no_asset_types_selected">No asset types selected</string>
 </strings>

@@ -18,6 +18,8 @@
 <contents>
 	<section name="Keyword Replacements" limbo_access="1">
 		<field>
+			<display_name>Note</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintKeywordReplacementText"   />
 				<process_function name="processKeywordReplacementText" />
@@ -26,28 +28,59 @@
 	</section>
 	<section name="Recipient Email Options" limbo_access="1">
 		<field attribute="recipient_emails_format">
+			<display_name>Recipient Email Format</display_name>
+			<note>If the 'To' field is empty then no Recipient e-mails will be sent. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
 			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
 	</section>
 	<section name="Receipt Email Options" limbo_access="1">
 		<field>
+			<display_name>Receipt Recipient Question</display_name>
+			<note>The address entered in response to this question will always receive Receipt e-mails. You may select from questions of Email Address type only. If this attribute is not filled no Receipt e-mails will be sent.</note>
 			<function_call>
 				<paint_function   name="paintReceiptField"   />
 				<process_function name="processReceiptField" />
 			</function_call>
 		</field>
 		<field attribute="receipt_emails_format">
+			<display_name>Receipt Email Format</display_name>
+			<note>Note that the receipt will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, submission time, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
 			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
 	</section>
 	<section name="Send To A Friend Email Options" limbo_access="1">
 		<field>
+			<display_name>STAF Recipient Question</display_name>
+			<note>The email address(es) entered in response to the question selected will always receive Send to a Friend emails. This question can either be of Email Address type or a standard Text field - multi-line Text fields are acceptable and can be used to specify multiple e-mail addresses on each line. If this attribute is not filled no Send to a Friend emails will be sent.</note>
+			<function_call>
+				<paint_function   name="paintSTAFField"   />
+				<process_function name="processSTAFField" />
+			</function_call>
 			<function_call>
 				<paint_function   name="paintSTAFField"   />
 				<process_function name="processSTAFField" />
 			</function_call>
 		</field>
 		<field attribute="staf_format">
+			<display_name>STAF Email Format</display_name>
+			<note>You can use the 'To' address to specify additional email addresses that the email should be sent to, in addition to what is entered in the question specified above. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;li&gt;%referral_url% - the URL (if any) that the user was viewing before coming to this form&lt;/li&gt;
+			&lt;li&gt;%referring_asset_attribute% - you can use keywords from the referring asset by prepending the normal asset keyword with the 'referring_asset' tag (e.g. %referring_asset_assetid% will print the asset id of the referring asset)&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
 			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
 	</section>

@@ -57,14 +57,17 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	{
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			$o->note(translate('report_not_generated'));
+			$o->note(translate('This report has not been generated'));
+
 		} else {
-			$o->note(translate('core_report_last_generated', $asset->attr('generated_date'), $asset->attr('generated_user')));
+			$o->note(sprintf(translate('<b>This report has been generated</b> <br />Date: %1$s<br />User: %2$s'), $asset->attr('generated_date'), $asset->attr('generated_user')));
+
 		}
 
 		if ($asset->writeAccess('attributes')) {
 			check_box($prefix.'_regenerate');
-			label(translate('core_generate_report'), $prefix.'_regenerate');
+			label(translate('Generate the latest version of this report'), $prefix.'_regenerate');
+
 			return TRUE;
 		}
 		return FALSE;
@@ -126,7 +129,8 @@ class Report_Edit_Fns extends Page_Edit_Fns
 			if (!empty($root_link)) {
 				echo get_asset_tag_line($root_link['minorid']);
 			} else {
-				echo translate('core_no_selected_root_node');
+				echo translate('No root node has been selected');
+
 			}
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
@@ -177,7 +181,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;
-					trigger_localised_error('CORE0029', E_USER_WARNING, $root->name);
+					trigger_localised_error('CORE0029', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $root->name), E_USER_WARNING);
 				}
 			}
 		}
@@ -225,7 +229,8 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	*/
 	public function paintReport(Report $asset, Backend_Outputter $o, $prefix)
 	{
-		echo translate('core_no_visual_report');
+		echo translate('This report does not contain a visual component');
+
 		return FALSE;
 
 	}//end paintReport()
@@ -261,7 +266,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	*/
 	public function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
 	{
-		trigger_localised_error('CORE0079', E_USER_WARNING);
+		trigger_localised_error('CORE0079', translate('This report can not be generated'), E_USER_WARNING);
 		$step_data['percent_done'] = 100;
 		$step_data['complete'] = TRUE;
 		return TRUE;

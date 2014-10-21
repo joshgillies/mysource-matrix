@@ -593,7 +593,8 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 			// put it all together
 			if ($id == 'total') {
-				$output_heading = '<b>'.translate('sch_log_report_all_search_pages').'</b>';
+				$output_heading = '<b>'.translate('All Search Pages').'</b>';
+
 			} else {
 				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($id), Array(), FALSE, 'name');
@@ -608,21 +609,30 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" style="width: 200px">'.translate('sch_log_report_popular_search_terms').'</td>
-					<td class="sq-backend-table-header">'.translate('sch_log_report_total_searches').'</td>
-					<td class="sq-backend-table-header">'.translate('sch_log_report_average_results').'</td>
-					<td class="sq-backend-table-header">'.translate('lowest').'</td>
-					<td class="sq-backend-table-header">'.translate('highest').'</td>
+					<td class="sq-backend-table-header" style="width: 200px">'.translate('Popular Search Terms').'</td>
+
+					<td class="sq-backend-table-header">'.translate('Total Searches').'</td>
+
+					<td class="sq-backend-table-header">'.translate('Average Results').'</td>
+
+					<td class="sq-backend-table-header">'.translate('Lowest').'</td>
+
+					<td class="sq-backend-table-header">'.translate('Highest').'</td>
+
 				</tr>
-				'.(!empty($output_index_popular) ? $output_index_popular : '<td class="sq-backend-table-cell" colspan="5">'.translate('sch_log_report_no_successful_searches').'</td>').'
+				'.(!empty($output_index_popular) ? $output_index_popular : '<td class="sq-backend-table-cell" colspan="5">'.translate('No Successful Searches').'</td>').'
+
 			</table>
 
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" style="width: 200px">'.translate('sch_log_report_failed_search_terms').'</td>
-					<td class="sq-backend-table-header">'.translate('sch_log_report_total_failed_searches').'</td>
+					<td class="sq-backend-table-header" style="width: 200px">'.translate('Failed Search Terms').'</td>
+
+					<td class="sq-backend-table-header">'.translate('Total Failed Searches').'</td>
+
 				</tr>
-				'.(!empty($output_index_failed) ? $output_index_failed : '<td class="sq-backend-table-cell" colspan="2">'.translate('sch_log_report_no_failed_searches').'</td>').'
+				'.(!empty($output_index_failed) ? $output_index_failed : '<td class="sq-backend-table-cell" colspan="2">'.translate('No Failed Searches').'</td>').'
+
 			</table>
 			<br />
 			';
@@ -681,7 +691,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 		// remove term cache
 		if (!delete_directory($term_dir_path)) {
-			trigger_localised_error('SCH0025', E_USER_WARNING);
+			trigger_localised_error('SCH0025', translate('Rollover aborted, raw stats could not be cleared'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -689,7 +699,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		$from = $generated_dir_path.'/'.$logname.'.html';
 		$to   = $generated_dir_path.'/'.$logname.'.'.$formatted_date.'.html';
 		if (!rename($from, $to)) {
-			trigger_localised_error('SCH0024', E_USER_WARNING);
+			trigger_localised_error('SCH0024', translate('Rollover failed, generated report could not be moved'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -800,16 +810,19 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		}
 
 		if (!is_file($report_path)) {
-			echo translate('sch_log_report_generate_at_next_rotation');
+			echo translate('This report has not been generated - it will be generated at the next log rotation');
+
 			return;
 		}
 
-		echo '<h3>'.translate('sch_log_report_search_report').'</h3>';
+		echo '<h3>'.translate('Search Report').'</h3>';
+
 
 		// print the report selector
 		combo_box($prefix.'[generated_reports]', $generated_reports, FALSE, $selected);
 		echo '&nbsp;';
-		submit_button($prefix.'[select_report]', translate('select_report'));
+		submit_button($prefix.'[select_report]', translate('Select Report'));
+
 		echo '<br /><br />';
 
 		include_once($report_path);
@@ -831,13 +844,17 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	{
 		$generated_user = $asset->attr('generated_user');
 		if (empty($generated_user)) {
-			echo translate('report_not_generated').'<br />';
+			echo translate('This report has not been generated').'<br />';
+
 		} else {
 			echo '<p>';
-			echo '    <b>'.translate('report_generated').'</b><br />';
-			echo '    '.translate('date').': '.$asset->attr('generated_date');
+			echo '    <b>'.translate('This report has been generated').'</b><br />';
+
+			echo '    '.translate('Date').': '.$asset->attr('generated_date');
+
 			echo '    <br />';
-			echo '    '.translate('user').': '.$asset->attr('generated_user');
+			echo '    '.translate('User').': '.$asset->attr('generated_user');
+
 			echo '</p>';
 		}
 

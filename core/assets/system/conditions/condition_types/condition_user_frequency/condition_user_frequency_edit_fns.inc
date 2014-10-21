@@ -78,7 +78,8 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 						if (strlen($value)){
 							echo $value;
 						} else {
-							echo '<em>'.translate('condition_no_value_entered').'</em>';
+							echo '<em>'.translate('No value entered.').'</em>';
+
 						}
 					}
 					?>
@@ -98,7 +99,10 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 			</tr>
 		</table>
 		<?php
-		$o->note(translate('condition_user_frequency_note'));
+		$o->note(translate('A "hit" is an occasion when the condition is evaluated for a user.  <br />
+	A "session" is a calendar day on which there was at least one hit.<br />
+	Whenever this condition returns true the counter is reset.'));
+
 
 	}//end paintEditInterface()
 

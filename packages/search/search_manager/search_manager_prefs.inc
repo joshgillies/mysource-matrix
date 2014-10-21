@@ -33,14 +33,10 @@ class Search_Manager_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_SEARCH_BACKEND_PAGE_SIZE'		=> Array(
-																'name'			=> 'sch_pref_backend_page_size',
-																'description'	=> 'Set how many results are displayed to a page when a keyword search is performed from the Quick Search box',
 																'default'		=> 5,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_SEARCH_BACKEND_RESULT_LIMIT'	=> Array(
-																'name'			=> 'sch_pref_backend_result_limit',
-																'description'	=> 'The maximum number of results displayed in backend search (0 = no limit)',
 																'default'		=> 100,
 																'protected'		=> FALSE,
 															   ),
@@ -51,9 +47,15 @@ class Search_Manager_Prefs extends Prefs
 	* Constructor
 	*
 	*/
-	function Content_Type_Raw_HTML_Prefs($pref_file='')
+	function __construct($pref_file='')
 	{
-		$this->Prefs($pref_file);
+		parent::__construct($pref_file);
+
+		$this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE']['name'] = translate('Backend Search Page Size');
+		$this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE']['desc'] = translate('Sets how many assets will be shown per page when a keyword search is peformed through the Quick Search box.');
+
+		$this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT']['name'] = translate('Backend Search Result Limit');
+		$this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT']['desc'] = translate('The maximum number of results displayed in backend search (0 = no limit).');
 
 	}//end constructor
 
@@ -70,44 +72,18 @@ class Search_Manager_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (is_null($pref) || $pref == 'SQ_SEARCH_BACKEND_PAGE_SIZE') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE']['name']));
-			}
+	    $is_admin  = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	    $have_lock = $have_lock && $is_admin;
 
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_SEARCH_BACKEND_PAGE_SIZE]', $this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE']['default'], 10);
-			} else {
-				echo array_get_index($this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE'], 'default', 5);
-			}
-			echo ' '.translate('asset(s)');
-
-			echo $o->note(translate('sch_pref_backend_page_size_note'));
-			if (is_null($pref)) $o->closeField();
-		}//end if
-
-		if (is_null($pref) || $pref == 'SQ_SEARCH_BACKEND_RESULT_LIMIT') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT']['name']));
-			}
-
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_SEARCH_BACKEND_RESULT_LIMIT]', $this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT']['default'], 10);
-			} else {
-				$result_limit = array_get_index($this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT'], 'default', 0);
-				if ($result_limit == '0') {
-					echo translate('unlimited');
-				} else {
-					echo $result_limit.' '.translate('asset(s)');
-				}
-			}
-
-
-			echo $o->note(translate('sch_pref_backend_result_limit_note'));
-			if (is_null($pref)) $o->closeField();
-		}//end if
+	    // Assets per page.
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_SEARCH_BACKEND_PAGE_SIZE', 5, translate('%s asset(s)'), 0);
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_SEARCH_BACKEND_RESULT_LIMIT', 5, function($value) {
+		     if ((int) $value === 0) {
+		         return translate('Unlimited');
+		     } else {
+		         return sprintf(translate('%s asset(s)', $value));
+		     }
+		}, 0);
 
 		return TRUE;
 
@@ -137,7 +113,7 @@ class Search_Manager_Prefs extends Prefs
 
 			// Not an integer = user mistake, or possible script injection?
 			if (!is_numeric($_POST['prefs']['SQ_SEARCH_BACKEND_PAGE_SIZE'])) {
-				trigger_localised_error('SCH0029', E_USER_WARNING);
+				trigger_localised_error('SCH0029', translate('The Backend Search Page Size must be an integer and at least 1'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -145,7 +121,7 @@ class Search_Manager_Prefs extends Prefs
 
 			// Page size needs to be at least 1
 			if ($page_size <= 0) {
-				trigger_localised_error('SCH0029', E_USER_WARNING);
+				trigger_localised_error('SCH0029', translate('The Backend Search Page Size must be an integer and at least 1'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -158,7 +134,7 @@ class Search_Manager_Prefs extends Prefs
 
 			// Not an integer = user mistake, or possible script injection?
 			if (!is_numeric($_POST['prefs']['SQ_SEARCH_BACKEND_RESULT_LIMIT'])) {
-				trigger_localised_error('SCH0030', E_USER_WARNING);
+				trigger_localised_error('SCH0030', translate('The Backend Search Result Limit must be an integer and at least 0'), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -166,7 +142,7 @@ class Search_Manager_Prefs extends Prefs
 
 			// Page size needs to be at least 1
 			if ($result_limit < 0) {
-				trigger_localised_error('SCH0030', E_USER_WARNING);
+				trigger_localised_error('SCH0030', translate('The Backend Search Result Limit must be an integer and at least 0'), E_USER_WARNING);
 				return FALSE;
 			}
 

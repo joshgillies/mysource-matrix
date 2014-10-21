@@ -65,7 +65,7 @@ class Calendar_Event extends Asset
 
 		$name = $this->attr('name');
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY) && ($name == '')) {
-			trigger_localised_error('CAL0008', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CAL0008', sprintf(translate('Unable to create a %s with a blank name'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -183,33 +183,48 @@ class Calendar_Event extends Asset
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$our_keywords = Array();
-		$our_keywords[] = 'asset_attribute_start_date'; // = translate('start_date_iso'); //'Start date (iso8601)';
-		$our_keywords[] = 'asset_attribute_end_date'; // = translate('end_date_iso'); //'End date (iso8601)';
-		$our_keywords[] = 'event_start_date'; // = translate('start_date_only_readable'); //'Event Start Date';
-		$our_keywords[] = 'event_end_date'; // = tralsate('end_date_only_readable'); //'Event End Date';
-		$our_keywords[] = 'event_start_datetime'; // = translate('Event start date/time';
-		$our_keywords[] = 'event_end_datetime'; // = 'Event end date/time';
-		$our_keywords[] = 'event_start_time_12h'; // = 'Start time (12 hour)';
-		$our_keywords[] = 'event_end_time_12h'; // = 'End time (12 hour)';
-		$our_keywords[] = 'event_start_time_24h'; // = 'Start time (24 hour)';
-		$our_keywords[] = 'event_end_time_24h'; // = 'End time (24 hour)';
-		$our_keywords[] = 'event_short_start_time'; // = 'Short start time (12 hour)';
-		$our_keywords[] = 'event_short_end_time'; // = 'Short end time (12 hour)';
-		$our_keywords[] = 'event_start_time_ical'; // = 'Start time (iCalendar)';
-		$our_keywords[] = 'event_end_time_ical'; // = 'End time (iCalendar)';
-		$our_keywords[] = 'event_datetime_summary'; // = 'Friendly description of event dates and times';
-		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
-		$our_keywords[] = 'edit_link'; // = 'Link to edit this event in Limbo (if user has permission)';
-		$our_keywords[] = 'delete_link'; // = 'Link to delete this event altogether (if user has permission)';
-		$our_keywords[] = 'event_start_datetime_'; // = dynamic keyword to print start date and time
-		$our_keywords[] = 'event_end_datetime_'; // = dynamic keyword to print end date and time
-		$our_keywords[] = 'event_calendar_date_'; // = dynamic keyword to print calendar date
+		$keywords['asset_attribute_start_date'] = translate('Event Start (ISO8601 Format)');
 
+		$keywords['asset_attribute_end_date']   = translate('Event End (ISO8601 Format)'); // = 'End date (iso8601)';
 
-		foreach ($our_keywords as $keyword) {
-			$keywords[$keyword] = translate('cal_evt_keyword_'.$keyword);
-		}
+		$keywords['event_start_date']           = translate('Event Start (readable date)'); // = 'Event Start Date';
+
+		$keywords['event_end_date']             = translate('Event End (readable date)'); // = 'Event End Date';
+
+		$keywords['event_start_datetime']       = translate('Event Start (Readable date/time)'); // = 'Event start date/time';
+
+		$keywords['event_end_datetime']         = translate('Event End (Readable date/time'); // = 'Event end date/time';
+
+		$keywords['event_start_time_12h']       = translate('Event Start (12 hour time)'); // = 'Start time (12 hour)';
+
+		$keywords['event_end_time_12h']         = translate('Event End (12 hour time)'); // = 'End time (12 hour)';
+
+		$keywords['event_start_time_24h']       = translate('Event Start (24 hour time)'); // = 'Start time (24 hour)';
+
+		$keywords['event_end_time_24h']         = translate('Event End (24 hour time)'); // = 'End time (24 hour)';
+
+		$keywords['event_short_start_time']     = translate('Short start time (12 hour time, without minutes if on the hour)'); // = 'Short start time (12 hour)';
+
+		$keywords['event_short_end_time']       = translate('Short end time (12 hour time, without minutes if on the hour)'); // = 'Short end time (12 hour)';
+
+		$keywords['event_start_time_ical']      = translate('Event Start (iCalendar)'); // = 'Start time (iCalendar)';
+
+		$keywords['event_end_time_ical']        = translate('Event End (iCalendar)'); // = 'End time (iCalendar)';
+
+		$keywords['event_datetime_summary']     = translate('Event start/end summary'); // = 'Friendly description of event dates and times';
+
+		$keywords['event_duration']             = translate('Event Duration'); // = 'Duration of the Event';
+
+		$keywords['edit_link']                  = translate('Link to edit this event in Limbo (if user has permission)'); // = 'Link to edit this event in Limbo (if user has permission)';
+
+		$keywords['delete_link']                = translate('Link to delete this event altogether (if user has permission)'); // = 'Link to delete this event altogether (if user has permission)';
+
+		$keywords['event_start_datetime_']      = translate('Event Start expressed with PHP date format which follow the last underscore character of the keyword.'); // = dynamic keyword to print start date and time
+
+		$keywords['event_end_datetime_']        = translate('Event End expressed with PHP date format which follow the last underscore character of the keyword.'); // = dynamic keyword to print end date and time
+
+		$keywords['event_calendar_date_']       = translate('Event Calendar Date with PHP date format after the last underscore character.'); // = dynamic keyword to print calendar date
+
 
 		return $keywords;
 
@@ -264,7 +279,8 @@ class Calendar_Event extends Asset
 			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 				$res .= '&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'];
 			}
-			$res .= '" onclick="return confirm(js_translate(\'confirm_delete_event\'));">'.translate('delete').'</a>';
+			$res .= '" onclick="return confirm(js_translate(\'confirm_delete_event\'));">'.translate('Delete').'</a>';
+
 			return $res;
 		} else {
 			return '';
@@ -298,25 +314,25 @@ class Calendar_Event extends Asset
 
 			// All events must have a starting date at least!
 			if (!$start_has_date) {
-				trigger_localised_error('CAL0009', E_USER_WARNING);
+				trigger_localised_error('CAL0009', translate('Calendar Events must at least have a start date'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			// cannot have End Date being like '---------- 11:00:00'
 			if (!$end_has_date && $end_has_time) {
-				trigger_localised_error('CAL0010', E_USER_WARNING);
+				trigger_localised_error('CAL0010', translate('If the \'End Date\' includes a time component it must also include a date'), E_USER_WARNING);
 				return FALSE;
 			}
 
 			// Cannot have an end time if you have no start time
 			if ($end_has_time && (!$start_has_time)) {
-				trigger_localised_error('CAL0011', E_USER_WARNING);
+				trigger_localised_error('CAL0011', translate('If the \'End Time\' is specified you must also specify a \'Start Time\''), E_USER_WARNING);
 				return FALSE;
 			}
 
 			// Cannot have an end date and start time if you have no end time
 			if ($end_has_date && $start_has_time && (!$end_has_time)) {
-				trigger_localised_error('CAL0012', E_USER_WARNING);
+				trigger_localised_error('CAL0012', translate('If the \'End Date\' and \'Start Time\' are specified you must also specify an \'End Time\''), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -324,7 +340,7 @@ class Calendar_Event extends Asset
 			// the End Date must be no earlier than the start Date
 			if ($end_has_date) {
 				if (iso8601_ts($end_date) < iso8601_ts($start_date)) {
-					trigger_localised_error('CAL0013', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+					trigger_localised_error('CAL0013', sprintf(translate('The \'End Date\' of this %s cannot be prior to the \'Start Date\''), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -345,19 +361,19 @@ class Calendar_Event extends Asset
 
 		// For dates, this means all three parts of the date have a value
 		if ($end_has_date && (($end_components['d'] == -1) || ($end_components['m'] == -1) || ($end_components['y'] == -1))) {
-			trigger_localised_error('CAL0014', E_USER_WARNING);
+			trigger_localised_error('CAL0014', translate('If the date component of \'End Date\' is specified it must specify all of day, month and year'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		// For times, at least hour and minute must be specified. You can get away with not specifying
 		// seconds, it's optional.
 		if ($start_has_time && (($start_components['h'] == -1) || ($start_components['i'] == -1))) {
-			trigger_localised_error('CAL0015', E_USER_WARNING);
+			trigger_localised_error('CAL0015', translate('If the time component of \'Start Date\' is specified it must specify at least hour and minute'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if ($end_has_time && (($end_components['h'] == -1) || ($end_components['i'] == -1))) {
-			trigger_localised_error('CAL0016', E_USER_WARNING);
+			trigger_localised_error('CAL0016', translate('If the time component of \'End Date\' is specified it must specify at least hour and minute'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -707,16 +723,16 @@ class Calendar_Event extends Asset
 				if (isset($_REQUEST['SQ_CALENDAR_OLD_LOC']) && !empty($_REQUEST['SQ_CALENDAR_OLD_LOC'])) {
 					$old_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 					if (empty($old_link)) {
-						trigger_localised_error('CAL0017', E_USER_WARNING, $_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
+						trigger_localised_error('CAL0017', sprintf(translate('Cannot move event, cannot find old link from asset #%1$s to asset #%2$s'), $_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id), E_USER_WARNING);
 						return '';
 					}
 					if (!$GLOBALS['SQ_SYSTEM']->am->moveLink($old_link['linkid'], $_REQUEST['SQ_CALENDAR_NEW_LOC'], $old_link['link_type'], -1)) {
-						trigger_localised_error('CAL0018', E_USER_WARNING, $_REQUEST['SQ_CALENDAR_OLD_LOC'], $_REQUEST['SQ_CALENDAR_NEW_LOC']);
+						trigger_localised_error('CAL0018', sprintf(translate('Cannot move event, unable to move link from under asset #%1$s to under asset #%2$s'), $_REQUEST['SQ_CALENDAR_OLD_LOC'], $_REQUEST['SQ_CALENDAR_NEW_LOC']), E_USER_WARNING);
 						return '';
 					}
 				}
 				if (!isset($_REQUEST['SQ_CALENDAR_NEW_DATE'])) {
-					trigger_localised_error('CAL0019', E_USER_WARNING);
+					trigger_localised_error('CAL0019', translate('Cannot move event, new date not specified'), E_USER_WARNING);
 					return '';
 				}
 				$duration = $this->getDuration();
@@ -732,7 +748,7 @@ class Calendar_Event extends Asset
 					$this->setAttrValue('end_date', $new_end_date.' '.$new_end_time);
 				}
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
-					trigger_localised_error('CAL0020', E_USER_WARNING, $this->name, $this->id);
+					trigger_localised_error('CAL0020', sprintf(translate('Could not acquire lock on asset "%1$s" (#%2$s) to move it'), $this->name, $this->id), E_USER_WARNING);
 					return '';
 				}
 				$this->saveAttributes();
@@ -745,7 +761,7 @@ class Calendar_Event extends Asset
 			break;
 
 			default:
-				trigger_localised_error('CAL0021', E_USER_WARNING, $action_name);
+				trigger_localised_error('CAL0021', sprintf(translate('%s is an unknown action for this type of event'), $action_name), E_USER_WARNING);
 				return '';
 			break;
 		}//end switch
@@ -984,7 +1000,8 @@ class Calendar_Event extends Asset
 				break;
 
 			case 'edit_link':
-				$replacement = $this->writeAccess('') ? '<a href="'.htmlentities(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('cal_event_edit_link_text').'</a>' : '';
+				$replacement = $this->writeAccess('') ? '<a href="'.htmlentities(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('Edit').'</a>' : '';
+
 				break;
 
 			case 'delete_link':
@@ -1085,7 +1102,7 @@ class Calendar_Event extends Asset
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event_asset);
 					}
 				}
-				
+
 				if (empty($replacement)) $replacement = parent::getKeywordReplacement($keyword);
 
 				break;
@@ -1142,7 +1159,7 @@ class Calendar_Event extends Asset
 				$event_asset->vars[$attr]['is_contextable'] = 0;
 			}
 		}
-		
+
 		return $event_asset;
 
 	}//end getAsset()
@@ -1216,11 +1233,11 @@ class Calendar_Event extends Asset
 
 	}//end getAssetInfo()
 
-	
+
 	/**
 	* Get the values of the attribute with the given name for the given assetids
 	*
-	* If the assetid is an event instance (shadow assetid), 
+	* If the assetid is an event instance (shadow assetid),
 	* get the attribute of the corresponding event asset instead
 	*
 	* @param string	$attr_name	The name of the attribute to get the values of
@@ -1235,7 +1252,7 @@ class Calendar_Event extends Asset
 	public function getAttributeValuesByName($attr_name, $asset_type, $assetids, $contextid=NULL)
 	{
 		if (empty($assetids)) return Array();
-		
+
 		$real_assetids = Array();
 		foreach($assetids as $full_assetid) {
 			if (strpos($full_assetid, ':') !== FALSE) {
@@ -1244,22 +1261,22 @@ class Calendar_Event extends Asset
 				$real_assetids[] = $full_assetid;
 			}
 		}//end foreach
-		
+
 		$real_res = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr_name, $asset_type, $real_assetids, $contextid);
-		
+
 		$res = Array();
 		foreach($assetids as $full_assetid) {
 			list($real_assetid) = explode(':', $full_assetid);
 			$res[$full_assetid] = isset($real_res[$real_assetid]) ? $real_res[$real_assetid] : '';
 		}//end foreach
-		
+
 		return $res;
-		
+
 	}//end getAttributeValuesByName()
 
-	
-	
-	
+
+
+
 	/**
 	* Get asset info for use by asset map
 	*
@@ -1274,7 +1291,7 @@ class Calendar_Event extends Asset
 
 	}//end getAssetMapAssetInfo()
 
-	
+
 	/**
 	* Return the number of links in the system that involve the specified asset
 	*
@@ -1300,8 +1317,8 @@ class Calendar_Event extends Asset
 		return 0;
 
 	}//end countLinks()
-	
-	
+
+
 	/**
 	* Return all links that this asset has to other assets
 	*
@@ -1331,8 +1348,8 @@ class Calendar_Event extends Asset
 	    if (isset($id_parts[0])) $assetid = $id_parts[0];
 	    return $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by, $dependant, $exclusive);
 	}
-	
-	
+
+
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
@@ -1354,8 +1371,8 @@ class Calendar_Event extends Asset
 	    if (isset($id_parts[0])) $assetid = $id_parts[0];
 	    return $GLOBALS['SQ_SYSTEM']->am->getParents($assetid, $type_code, $strict_type_code);
 	}
-	
-	
+
+
 		/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
@@ -1382,8 +1399,8 @@ class Calendar_Event extends Asset
 	    if (isset($id_parts[0])) $assetid = $id_parts[0];
 	    return $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 	}
-	
-	
+
+
 	/**
 	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
@@ -1398,7 +1415,7 @@ class Calendar_Event extends Asset
 	{
 	    return Array();
 	}
-	
+
 	/**
 	* Remove a link by id
 	*

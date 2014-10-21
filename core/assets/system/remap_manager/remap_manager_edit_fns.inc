@@ -168,17 +168,18 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	public function paintEditRemapURLs(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('all');
-		
+
 		// check if we need to filter the url or remap url
 		$url_filter = array_get_index($_POST, $prefix.'_URL_FILTER', '');
 		$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
 
 		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
-			$remap_entries_tag = 'remap_entries_filtered';
-			$no_entries_tag = 'no_url_remappings_filtered';
+			$remap_entries_tag = translate('Remap entries').' ('.translate('filtered').')';
+			$no_entries_tag = translate('There are no URL remappings matching your filter.').' '.
+			    translate('Please remove or try different filter criteria.');
 		} else {
-			$remap_entries_tag = 'remap_entries';
-			$no_entries_tag = 'no_url_remappings';
+			$remap_entries_tag = translate('Remap entries');
+			$no_entries_tag = translate('There are no URL remappings in the system.');
 		}
 
 		$page_num = array_get_index($_POST, $prefix.'_remap_urls_page', 1);
@@ -188,36 +189,46 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$total_assets = $remap_info['total_remaps'];
 		$remap_urls = $remap_info['remap_rows'];
 
-		$o->openField(translate('purge_all_remaps'));
-		combo_box($prefix.'_purge_all_remaps', Array(0 => translate('no'), 1 => translate('yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('confirm_purge_all_remaps'))) { this.value = 0; } } \"". ($write_access ? '' : "disabled"));
-		$o->note(translate('purge_all_remaps_note'));
+		$o->openField(translate('Purge All Remaps'));
+
+		combo_box($prefix.'_purge_all_remaps', Array(0 => translate('No'), 1 => translate('Yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('This will delete ALL the remaps having \"Never Delete\" option set to \"No\". Any URL filters applied will be ignored when purging these remaps. Are you sure?'))) { this.value = 0; } } \"". ($write_access ? '' : "disabled"));
+
+
+
+		$o->note(translate('This will delete ALL the remaps having "Never Delete" option set to "No". The URL filters below will be ignored when purging these remaps.'));
+
 		$o->closeField();
 
-		
+
 		$o->openField('Original URL Filter');
 		text_box($prefix.'_URL_FILTER', $url_filter, 30);
-		$o->note(translate('remap_manager_url_filter_note'));
+		$o->note(translate('If not empty, the value of this textbox will be used by the remap manager to filter the table below. Only original URLs containing the value will be returned.'));
+
 		$o->closeField();
 		$o->openField('Remapped URL Filter');
 		text_box($prefix.'_REMAP_URL_FILTER', $remap_url_filter, 30);
-		$o->note(translate('remap_manager_remap_url_filter_note'));
+		$o->note(translate('If not empty, the value of this textbox will be used by the remap manager to filter the table below. Only remapped URLs containing the value will be returned.'));
+
 		$o->closeField();
 
 		$o->openField('&nbsp;', 'wide_col');
 
 		if (empty($remap_urls)) {
-			echo translate($no_entries_tag);
+			echo $no_entries_tag;
 			return FALSE;
 		}
 
 		$num_pages = ceil($total_assets / $this->num_per_page);
 
 		if ($num_pages == 1) {
-			$page_tag = translate('page_number', $page_num, $num_pages);
+			$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
+
 		} else {
-			$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_remap_urls_page');
+			$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_remap_urls_page');
+
 		}
-		$asset_count_tag = translate('item_range', ($page_num - 1) * $this->num_per_page + 1, $total_assets, $total_assets, strtolower(translate($remap_entries_tag)));
+		$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $this->num_per_page + 1, $total_assets, $total_assets, strtolower($remap_entries_tag));
+
 
 		$links = Array(
 					'first'		=> '&lt;&lt;',
@@ -228,19 +239,27 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				);
 
 		if ($page_num > 1) {
-			$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', 1)">'.$links['first'].'</a>';
-			$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+			$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', 1)">'.$links['first'].'</a>';
+
+			$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+
 		} else {
-			$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
-			$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+			$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
+
+			$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
+
 		}
 
 		if ($page_num < $num_pages) {
-			$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.$num_pages.')">'.$links['last'].'</a>';
-			$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+			$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.$num_pages.')">'.$links['last'].'</a>';
+
+			$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+
 		} else {
-			$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
-			$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+			$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
+
+			$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
+
 		}
 
 		hidden_field($prefix.'_remap_urls_page', $page_num); ?>
@@ -251,16 +270,23 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				<th colspan="<?php echo ($write_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
 			<tr>
-				<th><?php echo translate('original_url').' ('.translate('from').')'; ?></th>
-				<th><?php echo translate('remap_url').' ('.translate('to').')'; ?></th>
-				<th><?php echo translate('expires'); ?></th>
-				<th><?php echo translate('type'); ?></th>
+				<th><?php echo translate('Original URL').' ('.translate('From').')'; ?></th>
+
+
+				<th><?php echo translate('Remap URL').' ('.translate('To').')'; ?></th>
+
+
+				<th><?php echo translate('Expires'); ?></th>
+
+				<th><?php echo translate('Type'); ?></th>
+
 				<?php
 					if ($write_access) {
 						?>
 						<td class="sq-backend-table-header" style="text-align: center;">
 							<?php
-							label(translate('delete_question'), $prefix.'_select_all');
+							label(translate('Delete?'), $prefix.'_select_all');
+
 							echo '<br/>';
 							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
 							?>
@@ -270,24 +296,26 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 				?>
 				<td class="sq-backend-table-header" style="text-align: center;">
-					<?php echo label(translate('never_delete').'?', $prefix.'never_delete_select_all');
+					<?php echo label(translate('Never&nbsp;Delete').'?', $prefix.'never_delete_select_all');
+
 					if ($write_access) {
-						echo '<br/>';				
-						check_box($prefix.'never_delete_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_never_delete_remap', this.checked);");						
+						echo '<br/>';
+						check_box($prefix.'never_delete_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_never_delete_remap', this.checked);");
 					}
-				?>					
+				?>
 				</td>
-				
+
 			</tr>
 			<?php
 				foreach ($remap_urls as $url_info) {
 					if (empty($url_info['expires'])) {
-						$expires = translate('never');
+						$expires = translate('Never');
+
 					} else {
 						$expires = $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($url_info['expires']));
 					}
 
-					
+
 
 					// To let the process function know the remaps on the current page
 					hidden_field($prefix.'_current_page_remaps['.$url_info['url'].']', $page_num);
@@ -302,7 +330,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					    if(isset($matches[1])) {
 						$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);
 						if(!empty($url))
-						    $url_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);						    
+						    $url_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
 					    }
 					}
 					else {
@@ -315,9 +343,11 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					    }
 					}
 					 if(!empty($url_asset))
-						$warning .= translate('url_currently_in_use', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($url_asset->type(), 'name'), translate('asset_format', $url_asset->name, $url_asset->id));
-					 
-					
+						$warning .= sprintf(translate('This URL is currently in use by %1$s %2$s. This remap is not currently being used.'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($url_asset->type(), 'name'), sprintf(translate('"%1$s" [#%2$s]'), $url_asset->name, $url_asset->id));
+
+
+
+
 					// check to see if the new URL is a valid asset URL
 					$warning_remap = '';
 					$new_url_parts = parse_url($url_info['remap_url']);
@@ -340,27 +370,30 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						    $count_result = MatrixDAL::preparePdoQuery($count_query);
 						    MatrixDAL::bindValueToPdo($count_result, 'url', $url_info['remap_url']);
 						    $remap_url = MatrixDAL::executePdoOne($count_result);
-						    
+
 						    // if the new url is not an valid asset url, neither another redirect url, show warning
 						    if(empty($url_asset) && empty($remap_url))
 							$warning_remap = 'Invalid remap URL';
 						    }
 					    }
 					}
-					
+
 					// check if the remap has expired
 					$warning_expire = '';
 					if(isset($url_info['expires']) && !empty($url_info['expires'])) {
 					    if(strtotime($url_info['expires']) < time())
-						$warning_expire = 'Remap expired';	
+						$warning_expire = 'Remap expired';
 					}
-					
+
 				?>
 				<tr>
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?><br/><span style="color: #FF0000;"><b><?php echo $warning; ?></b></span></td>
 					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?><br/><span style="color: #FF0000;"><b><?php echo $warning_remap; ?></b></span></td>
 					<td class="sq-backend-table-cell"><?php echo $expires; ?><br/><span style="color: #FF0000;"><b><?php echo $warning_expire; ?></b></span></td>
-					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto_remap'] === 1) ? translate('automatic') : (($url_info['auto_remap'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
+					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto_remap'] === 1) ? translate('Automatic') : (($url_info['auto_remap'] === NULL) ? translate('Unknown') : translate('Manual')); ?></td>
+
+
+
 					<?php
 						if ($write_access) {
 						$never_delete_remap = (isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete'];
@@ -417,10 +450,10 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	public function processEditRemapURLs(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('all')) return FALSE;
-		
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		// Only update the remaps in current page
 		$urls_to_check = (isset($_POST[$prefix.'_never_delete_remap'])) ? array_keys($_POST[$prefix.'_never_delete_remap']) : array();
 		$current_page_remaps  = array_get_index($_POST, $prefix.'_current_page_remaps', Array());
@@ -455,8 +488,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			} catch (DALException $e) {
 				throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
 			}
-		}		
-		
+		}
+
 		if (isset($_POST[$prefix.'_delete_remap'])) {
 			$urls = array_keys($_POST[$prefix.'_delete_remap']);
 			if (isset($_POST[$prefix.'_never_delete_remap'])) {
@@ -497,39 +530,52 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function paintAddRemapURLs(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
-		$o->note(translate('url_remap_explanation'));
+		$o->note(translate('The "Old URL" is the URL that you want remapped. The "New URL" is the URL that a user will be redirected to when they visit the "Old URL".'));
+
 		$o->closeField();
 
-		$o->openField(translate('old_url'));
+		$o->openField(translate('Old URL'));
+
 			text_box($prefix.'_add_remap_old_url', '', 100);
 		$o->closeField();
 
-		$o->openField(translate('new_url'));
+		$o->openField(translate('New URL'));
+
 			text_box($prefix.'_add_remap_new_url', '', 100);
 		$o->closeField();
 
-		$o->openField(translate('never_delete'));
+		$o->openField(translate('Never&nbsp;Delete'));
+
 			check_box($prefix.'_add_never_delete_option');
 		$o->closeField();
 
-		$o->openField(translate('expires'));
+		$o->openField(translate('Expires'));
+
 			text_box($prefix.'_add_remap_expires_days', '', 5);
 			label(translate('days'), $prefix.'_add_remap_expires_days');
+
 		$o->closeField();
 
-		$o->openField(translate('csv_upload'));
+		$o->openField(translate('CSV Upload'));
+
 			file_upload($prefix.'_add_remap_csv');
 
 			// csv upload instructions
-			$o->note(translate('csv_upload_instructions'));
-			$o->note(translate('csv_upload_instructions_example_1').'<br />'.translate('csv_upload_instructions_example_2').'<br />'.translate('csv_upload_instructions_example_3'));
+			$o->note(translate('You can also upload a CSV file of remap URLs to add to the system. The format for each line must be:<br /> "oldURL, newURL, expiry date (yyyy-mm-dd hh:mm:ss),never delete option (0 or 1)"'));
+
+			$o->note(translate('<b>Example 1 (never delete(OFF)):</b> http://www.mysite.com/page_1, http://www.mysite.com/home, 2003-12-17 10:27:00, 0').'<br />'.translate('<b>Example 2 (no expiry date and never delete(OFF))):</b> http://www.mysite.com/page_1, http://www.mysite.com/home, , 0').'<br />'.translate('<b>Example 3 (no expiry date and never delete(ON)):</b> http://www.mysite.com/page_1, http://www.mysite.com/home, , 1'));
+
+
+
 		$o->closeField();
 
-		$o->openField(translate('csv_upload_header'));
+		$o->openField(translate('Column Headings in CSV File?'));
+
 			check_box($prefix.'_csv_header');
-			$o->note(translate('csv_upload_header_example'));
+			$o->note(translate('If the first row of your CSV file contains column headings, select this field to ensure Matrix correctly imports the CSV file.'));
+
 		$o->closeField();
-		
+
 	}//end paintAddRemapURLs()
 
 
@@ -636,7 +682,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($link_to_404)) {
 				echo get_asset_tag_line($link_to_404['minorid']);
 			} else {
-				echo '<em>'.translate('none').'</em>';
+				echo '<em>'.translate('None').'</em>';
+
 			}
 		} else {
 			asset_finder($prefix.'_404asset', (!empty($link_to_404)) ? $link_to_404['minorid'] : '');
@@ -685,7 +732,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, '404')) {
 					$ok = FALSE;
-					trigger_localised_error('CORE0027', E_USER_WARNING, $root->name, $root->id);
+					trigger_localised_error('CORE0027', sprintf(translate('Failed adding new 404 node "%1$s" [#%2$s]'), $root->name, $root->id), E_USER_WARNING);
 				}
 			}
 		}
@@ -718,7 +765,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			$remap_upon_webpath_change = $asset->attr('remap_upon_webpath_change');
 
 	$o->closeField();
-	$o->openField(translate('remap_manager_automatically_add_remaps_question'));
+	$o->openField(translate('Automatically add remaps when webpath changed?'));
+
 
 			// paint checkbox
 			if ($write_access) {
@@ -729,7 +777,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					<?php
 			}
 
-	$o->note(translate('remap_manager_auto_add_remaps_note'));
+	$o->note(translate('This option defines the default behaviour when altering the Web Paths of an asset. This can be overridden on an asset-by-asset basis when changing Web Paths.'));
+
 
 	$o->closeField();
 
@@ -758,8 +807,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			return TRUE;
 
 	}//end processAutomaticRemappingCheckbox()
-	
-	
+
+
 	/**
 	* Paints the Never Delete Remap checkbox
 	*
@@ -776,7 +825,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			$never_delete_remap_default = $asset->attr('never_delete_remap_default');
 
 	$o->closeField();
-	$o->openField(translate('remap_manager_never_delete_remap_default_question'));
+	$o->openField(translate('Never Delete added remaps?'));
+
 
 			// paint checkbox
 			if ($write_access) {
@@ -787,7 +837,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					<?php
 			}
 
-	$o->note(translate('remap_manager_never_delete_remap_default_note'));
+	$o->note(translate('This option defines the default setting for the "Never Delete" field of each added remap.'));
+
 
 	$o->closeField();
 
@@ -834,7 +885,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		if ($write_access === TRUE) {
 			$this->processExportEntriesToCSV($asset, $o, $prefix);
 
-			normal_button($prefix.'_export_to_csv', translate('download_file'), 'this.form.'.$prefix.'_download_file.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_download_file.value = 0; return true;');
+			normal_button($prefix.'_export_to_csv', translate('Download File'), 'this.form.'.$prefix.'_download_file.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_download_file.value = 0; return true;');
+
 			hidden_field($prefix.'_download_file', 0);
 		}
 
@@ -876,7 +928,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			if (empty($remap_urls)) {
 				// Cannot export remap entries to CSV, there are no entries to export
-				trigger_localised_error('CORE0287', E_USER_WARNING);
+				trigger_localised_error('CORE0287', translate('Cannot export remap entries to CSV, there are no entries to export'), E_USER_WARNING);
 			} else {
 
 				require_once SQ_FUDGE_PATH.'/csv/csv.inc';
@@ -961,7 +1013,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					<?php
 			}
 
-	
+
 			return $write_access;
 
 	}//end paintPreserveUrlParametersCheckbox()
@@ -988,7 +1040,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processPreserveUrlParametersCheckbox()
 
-	
+
 }//end class
 
 ?>

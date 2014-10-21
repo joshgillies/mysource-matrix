@@ -56,7 +56,8 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 	*/
 	public static function getDescription()
 	{
-		return translate('status_editing_approved');
+		return translate('Safe Edit Approved To Go Live');
+
 
 	}//end getDescription()
 

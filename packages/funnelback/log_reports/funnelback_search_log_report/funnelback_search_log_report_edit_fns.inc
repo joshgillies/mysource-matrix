@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/funnelback/log_reports/funnelback_search_log_rep
 * Purpose
 *	A report that lists searches by month, week, or day
 *
-* @author  Benjamin Pearson <bpearson@squiz.com.au>	
+* @author  Benjamin Pearson <bpearson@squiz.com.au>
 * @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
@@ -225,7 +225,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 		}//end foreach
 
 		return TRUE;
-	
+
 	}//end _generateTotals()
 
 
@@ -246,7 +246,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 		}//end if
 		foreach ($total_entries as $total_date_entry) {
 			$period = basename($total_date_entry);
-			$report_date = $this->_generateReportDate($period);	
+			$report_date = $this->_generateReportDate($period);
 			$report_content = $this->_generateReportContents($job_vars, $total_date_entry);
 			file_put_contents($path.'report-'.date('d-m-Y', $report_date).'.html', $report_content);
 		}//end foreach
@@ -255,7 +255,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Generate Cache Entry 
+	* Generate Cache Entry
 	*
 	* @param string	$path	path to create the cache entry
 	* @param array	$cache	the data to cache
@@ -310,7 +310,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Process Totals 
+	* Process Totals
 	*
 	* Process the totals of a given query per collection
 	*
@@ -370,7 +370,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Combine Totals 
+	* Combine Totals
 	*
 	* Combine the totals of a each query in a collection
 	*
@@ -667,7 +667,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	 * Combine the overall results 
+	 * Combine the overall results
 	 *
 	 * @param array	$query_totals	The totals of the current query
 	 * @param array &$overall		The overall results
@@ -715,7 +715,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	 * Print the Collection Header 
+	 * Print the Collection Header
 	 *
 	 * @param string|boolean	$collection_id	The id of the collection to print
 	 *
@@ -807,22 +807,32 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 		<br />
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px"><?php echo translate('fnb_log_popular_queries'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fnb_log_total_queries'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fnb_log_total_results'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fnb_log_avg_results'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('lowest'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('highest'); ?></td>
+				<td class="sq-backend-table-header" style="width: 200px"><?php echo translate('Popular Search Queries'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Total Queries'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Total Results'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Average Results'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Lowest'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Highest'); ?></td>
+
 			</tr>
-			<?php echo (!empty($good) ? implode("\n", $good) : '<td class="sq-backend-table-cell" colspan="6">'.translate('fnb_log_no_successful_queries').'</td>'); ?>
+			<?php echo (!empty($good) ? implode("\n", $good) : '<td class="sq-backend-table-cell" colspan="6">'.translate('No successful queries found').'</td>'); ?>
+
 		</table>
 
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px"><?php echo translate('fnb_log_failed_queries'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('fnb_log_total_failed_queries'); ?></td>
+				<td class="sq-backend-table-header" style="width: 200px"><?php echo translate('Failed Queries'); ?></td>
+
+				<td class="sq-backend-table-header"><?php echo translate('Total Failed Queries'); ?></td>
+
 			</tr>
-			<?php echo (!empty($fail) ? implode("\n", $fail) : '<td class="sq-backend-table-cell" colspan="2">'.translate('fnb_log_no_failed_queries').'</td>'); ?>
+			<?php echo (!empty($fail) ? implode("\n", $fail) : '<td class="sq-backend-table-cell" colspan="2">'.translate('No failed queries found').'</td>'); ?>
+
 		</table>
 		<br />
 		<?php
@@ -858,7 +868,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Get Period returns the period of the current line 
+	* Get Period returns the period of the current line
 	*
 	* @param string	$date	The date of the current line (timestamp)
 	* @param array	$type	The rollover period type (daily, weekly, monthly)
@@ -890,7 +900,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Get Query Hash - Find a 2 level deep hash based on the current query 
+	* Get Query Hash - Find a 2 level deep hash based on the current query
 	*
 	* @param string	$query	The query
 	*
@@ -930,7 +940,7 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
-	* Maintain Report - runs any maintenance duties for the report, like cleaning up old entries, creating base directories etc 
+	* Maintain Report - runs any maintenance duties for the report, like cleaning up old entries, creating base directories etc
 	*
 	* @param array 	&$job_vars	The jobs vars of the hipo
 	*
@@ -1074,17 +1084,20 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 	{
 		$printed = FALSE;
 		$latest = $this->_getLatest($asset);
-		$all_reports_raw = glob($asset->data_path.'/report/report-*.html');	
+		$all_reports_raw = glob($asset->data_path.'/report/report-*.html');
 		$all_reports = Array();
 		foreach ($all_reports_raw as $report_path) {
 			$report_name = basename($report_path);
 			$report_date = strtotime(str_replace('.html', '', str_replace('report-', '', str_replace('_', '-', $report_name))));
 			if ($report_date !== FALSE) {
 				if ($report_date == $latest) {
-					$all_reports[$report_date] = translate('current');
-					$all_reports[$report_date] = translate('fb_sch_log_report_report_item', date('d-m-Y', $report_date));
+					$all_reports[$report_date] = translate('Current');
+
+					$all_reports[$report_date] = sprintf(translate('Report Generated %1s'), date('d-m-Y', $report_date));
+
 				} else {
-					$all_reports[$report_date] = translate('fb_sch_log_report_report_item', date('d-m-Y', $report_date));
+					$all_reports[$report_date] = sprintf(translate('Report Generated %1s'), date('d-m-Y', $report_date));
+
 				}//end if
 			}//end if
 		}//end foreach
@@ -1094,7 +1107,8 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 		if (!empty($all_reports)) {
 			krsort($all_reports);
 			combo_box($prefix.'_select_report', $all_reports, FALSE, $selected);
-			submit_button($prefix.'submit_report', translate('select_report'));
+			submit_button($prefix.'submit_report', translate('Select Report'));
+
 			echo '<br />';
 		}//end if
 
@@ -1114,7 +1128,8 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 
 		// No reports printed... show something
 		if ($printed === FALSE) {
-			echo translate('fb_sch_log_report_generate_at_next_rotation');
+			echo translate('This report has not been generated - it will be generated at the next log rotation');
+
 		}//end if
 
 	}//end paintReport()
@@ -1134,13 +1149,17 @@ class Funnelback_Search_Log_Report_Edit_Fns extends Report_Edit_Fns
 	{
 		$generated_user = $asset->attr('generated_user');
 		if (empty($generated_user)) {
-			echo translate('report_not_generated').'<br />';
+			echo translate('This report has not been generated').'<br />';
+
 		} else {
 			echo '<p>';
-			echo '    <b>'.translate('report_generated').'</b><br />';
-			echo '    '.translate('date').': '.$asset->attr('generated_date');
+			echo '    <b>'.translate('This report has been generated').'</b><br />';
+
+			echo '    '.translate('Date').': '.$asset->attr('generated_date');
+
 			echo '    <br />';
-			echo '    '.translate('user').': '.$asset->attr('generated_user');
+			echo '    '.translate('User').': '.$asset->attr('generated_user');
+
 			echo '</p>';
 		}
 

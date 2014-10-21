@@ -58,8 +58,10 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		file_upload($prefix);
-		$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions)));
-		$o->note(translate('core_image_size_restricted', $asset->attr('max_width'), $asset->attr('max_height')));
+		$o->note(sprintf(translate('<b>NOTE:</b> You may only upload files of type %s.'), make_readable_list($asset->allowed_extensions)));
+
+		$o->note(sprintf(translate('<b>NOTE:</b> Image size is restricted to a maximum of %1$s x %2$s pixels.'), $asset->attr('max_width'), $asset->attr('max_height')));
+
 
 		return TRUE;
 
@@ -88,7 +90,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (!in_array(get_file_type($info['name']) , $asset->allowed_extensions)) {
-			trigger_localised_error('CORE0190', E_USER_WARNING, make_readable_list($asset->allowed_extensions));
+			trigger_localised_error('CORE0190', sprintf(translate('Uploaded file not an image. You may only upload files of type %s'), make_readable_list($asset->allowed_extensions)), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -98,7 +100,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		$max_width  = (int) $asset->attr('max_width');
 		$max_height = (int) $asset->attr('max_height');
 		if (($max_width && $size[0] > $max_width) || ($max_height && $size[1] > $max_height)) {
-			trigger_localised_error('CORE0191', E_USER_WARNING, $asset->attr('max_width'), $asset->attr('max_height'));
+			trigger_localised_error('CORE0191', sprintf(translate('Uploaded file was too large. File cannot exceed %1$s x %2$s pixels'), $asset->attr('max_width'), $asset->attr('max_height')), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -110,14 +112,14 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		// delete existing uploaded file if it exists
 		if ($old_image && $old_image != $new_image && file_exists($asset->data_path_public.'/'.$old_image)) {
 			if (!unlink($asset->data_path_public.'/'.$old_image)) {
-				trigger_localised_error('CORE0163', E_USER_WARNING);
+				trigger_localised_error('CORE0163', translate('Failed deleting existing file'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
 
 		// copy over the new uploaded file
 		if (!move_uploaded_file($info['tmp_name'], $asset->data_path_public.'/'.$info['name'])) {
-			trigger_localised_error('CORE0166', E_USER_WARNING);
+			trigger_localised_error('CORE0166', translate('Failed moving uploaded file to destination directory'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -144,7 +146,8 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$image = $asset->attr('image');
 		if (empty($image) || !file_exists($asset->data_path_public.'/'.$image)) {
-			echo translate('core_design_area_custom_image_no_upload');
+			echo translate('No Image Uploaded');
+
 		} else {
 		?>
 			<a href="<?php echo sq_web_path('data').'/assets/'.$asset->type().'/'.get_asset_hash($asset->id).'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>

@@ -57,7 +57,8 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('report_regeneration_threshold'));
+		$o->openField(translate('Report Regeneration Threshold'));
+
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -66,6 +67,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 			echo SQ_HIPO_REGENERATE_REPORT_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+
 		echo '</span>';
 
 		$o->closeField();
@@ -132,7 +134,8 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_generate_report');
+		return translate('Generate Report');
+
 
 	}//end getHipoName()
 
@@ -148,7 +151,8 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_generating_report'),
+					'name'			=> translate('Generating Report'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processReport',
 									   ),
@@ -191,7 +195,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assetid'])) {
-			trigger_localised_error('HIPO0008', E_USER_WARNING);
+			trigger_localised_error('HIPO0008', translate('Unable to initialise Generate Report HIPO, no report asset ID specified'), E_USER_WARNING);
 			return FALSE;
 		}
 

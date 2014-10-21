@@ -71,8 +71,10 @@ class Soap_Server_Edit_Fns extends Page_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header" width="66%"><?php echo translate('api_name'); ?></td>
-						<td class="sq-backend-table-header" width="33%"><?php echo translate('enable'); ?></td>
+						<td class="sq-backend-table-header" width="66%"><?php echo translate('API'); ?></td>
+
+						<td class="sq-backend-table-header" width="33%"><?php echo translate('Enable'); ?></td>
+
 					</tr>
 			<?php
 			foreach ($list_api as $api_id => $api_value) {

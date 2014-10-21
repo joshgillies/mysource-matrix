@@ -55,8 +55,10 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	public static function getOperators()
 	{
 		return Array(
-				1	=> translate('core_form_rule_found_in_true'),
-				0	=> translate('core_form_rule_found_in_false'),
+				1	=> translate('Must be found in'),
+
+				0	=> translate('Must NOT be found in'),
+
 			   );
 
 	}//end getOperators()
@@ -88,7 +90,7 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 		if (strlen(trim($condition_js))) {
 			$additional_condition = 'if (!'.$condition_js.') return true;';
 		}
-		
+
 		ob_start();			// buffer this please
 
 			if (!$printed_fn) {
@@ -193,12 +195,28 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
+	    $errors = Array(
+                    'true_q'             => translate('The response to "%1$s" must be found in the response to question "%2$s"'),
+                    'false_q'            => translate('The response to "%1$s" must NOT be found in the response to question "%2$s"'),
+                    'true'               => translate('The response to "%1$s" must be found in "%2$s"'),
+                    'false'              => translate('The response to "%1$s" must NOT be found in "%2$s"'),
+                    'true_q_accessible'  => translate('The response must be found in the response to question "%1$s".'),
+                    'false_q_accessible' => translate('The response must NOT be found in the response to question "%1$s".'),
+                    'true_accessible'    => translate('The response to must be found in "%1$s".'),
+                    'false_accessible'   => translate('The response to must NOT be found in "%1$s".'),
+        );
+
+        $case_options = Array(
+                            0 => translate('not case-sensitive'),
+                            1 => translate('case sensitive'),
+        );
+
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
-		$string_code = 'core_form_rule_found_in_desc_'.($operator ? 'true' : 'false');
+		$string_code = ($operator ? 'true' : 'false');
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 
 		if ($cq_id != 0) {
@@ -210,12 +228,18 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 		}
 
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
-	    	$use_accessible_string = $form->useAccessibleFormat();
-		if($use_accessible_string)
-		    $error_str = translate($string_code.'_accessible', $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
-		else 
-		    $error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
+        $use_accessible_string = $form->useAccessibleFormat();
 
+		if ($use_accessible_string) {
+		    $string_code .= '_accessible';
+		}
+
+	    $error_str = sprintf(
+	        $errors[$string_code],
+	        $q_asset->name,
+	        $value,
+	        $case_options[(int) $case_sensitive]
+	    );
 		return $error_str;
 
 	}//end ruleDescription()

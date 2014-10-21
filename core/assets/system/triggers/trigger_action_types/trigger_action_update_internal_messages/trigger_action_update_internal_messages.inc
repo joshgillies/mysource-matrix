@@ -94,13 +94,13 @@ class Trigger_Action_Update_Internal_Messages extends Trigger_Action
 	{
 		$message_action = array_get_index($settings, 'status', SQ_MSG_READ);
 		if (!in_array($message_action, array_keys(self::$_statii))) {
-			trigger_localised_error('CORE0322', E_USER_WARNING, $message_action);
+			trigger_localised_error('CORE0322', sprintf(translate('Invalid message action "%1$s".'), $message_action), E_USER_WARNING);
 			return FALSE;
 		}
 
 		$message_source = array_get_index($settings, 'source', SQ_MSG_READ);
 		if (!in_array($message_source, array_keys(self::$_msg_source))) {
-			trigger_localised_error('CORE0323', E_USER_WARNING, $message_source);
+			trigger_localised_error('CORE0323', sprintf(translate('Invalid message source "%1$s".'), $message_source), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -266,7 +266,8 @@ class Trigger_Action_Update_Internal_Messages extends Trigger_Action
 			$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
 			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
-			$atr_parameter_map->setParameter('message_ids', translate('trigger_action_update_internal_messages_message_ids_list'));
+			$atr_parameter_map->setParameter('message_ids', translate('Comma separated list of message id(s)'));
+
 			echo $atr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
 		$parameter_map_input = ob_get_clean();
 
@@ -275,11 +276,13 @@ class Trigger_Action_Update_Internal_Messages extends Trigger_Action
 			<div>
 				<table class="sq-backend-table" border="0">
 					<tr>
-						<th width="20%"><?php echo translate('trigger_action_update_internal_messages_status'); ?></th>
+						<th width="20%"><?php echo translate('Message action'); ?></th>
+
 						<td><?php echo $source_input; ?></td>
 					</tr>
 					<tr>
-						<th width="20%"><?php echo translate('trigger_action_update_internal_messages_source'); ?></th>
+						<th width="20%"><?php echo translate('Message source'); ?></th>
+
 						<td><?php echo $status_input; ?>
 							<div id="<?php echo $new_prefix ?>_dynamic_source">
 								<br/>

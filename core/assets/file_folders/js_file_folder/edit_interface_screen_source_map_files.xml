@@ -16,15 +16,19 @@
 <contents>
 	<section name="Source Map File" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
-				<paint_function   name="paintSourceMapFile"   />				
+				<paint_function   name="paintSourceMapFile"   />
 			</function_call>
 		</field>
 	</section>
 	<section name="Source JS Files" write_access="write:attributes">
 		<field>
+			<display_name />
+			<note />
 			<function_call>
-				<paint_function   name="paintSourceJsFiles"   />				
+				<paint_function   name="paintSourceJsFiles"   />
 			</function_call>
 		</field>
 	</section>

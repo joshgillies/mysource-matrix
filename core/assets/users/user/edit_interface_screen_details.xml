@@ -18,9 +18,12 @@
 <contents>
 	<section name="User Details" read_access="write:" write_access="write:attributes" limbo_access="1">
 		<field attribute="username">
+			<display_name>Username</display_name>
+			<note>Unique system wide login name</note>
 			<text width="20" height="1" />
 		</field>
 		<field attribute="password">
+			<display_name>Password</display_name>
 			<password width="20" />
 		</field>
 		<field keyword="password_note">
@@ -29,12 +32,15 @@
 			</function_call>
 		</field>
 		<field attribute="first_name">
+			<display_name>First Name</display_name>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="last_name">
+			<display_name>Last Name</display_name>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="email">
+			<display_name>Email</display_name>
 			<email width="40" />
 		</field>
 	</section>

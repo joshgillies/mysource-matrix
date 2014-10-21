@@ -15,7 +15,7 @@
 */
 
 /**
-* Fixes the EES Design parse file. 
+* Fixes the EES Design parse file.
 * Bug #5038: HTML Doctype header should at first line in the HTML document
 *
 * Usage:  php install/update_ees_login_parse_file.php [PATH_TO_ROOT]
@@ -65,7 +65,7 @@ require_once $SYSTEM_ROOT.'/core/include/general_occasional.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 echo 'Updating parse files of login designs for #5038'."\n";
-echo "\n";	
+echo "\n";
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
@@ -103,7 +103,7 @@ foreach ($children as $id => $content) {
 	$design_edit_fns = $design->getEditFns();
 	$type_code = ucwords(str_replace('_', ' ', $design->type()));
 
-	
+
 	// Update design parse file for ees_login_design, there is some css changes
 	$parse_file = $design->data_path.'/parse.txt';
 	$ext_file = file_get_contents($parse_file);
@@ -114,8 +114,8 @@ foreach ($children as $id => $content) {
 	else if (!is_file($parse_file) || !is_file($new_parse_file)) {
 		trigger_error ('parse file is not available');
 	}
-	else {		
-		
+	else {
+
 		// update the parse file
 		if(!_updateFile($new_parse_file, 'parse.txt', $design->data_path, $design->data_path_suffix)) {
 			trigger_error('failed to update parse file '.$new_parse_file);
@@ -124,9 +124,9 @@ foreach ($children as $id => $content) {
 
 		$design_edit_fns->parseAndProcessFile($design);
 		$design->generateDesignFile();
-			
+
 		echo 'Parse file in '.$type_code.' Successfully updated...'."\n";
-	}	
+	}
 }
 
 echo "\n".'All desings updated successfully'."\n";
@@ -145,20 +145,20 @@ $GLOBALS['SQ_SYSTEM']->am->forgetAsset($design_folder->id, TRUE);
 function _updateFile ($new_file, $file_name, $data_path, $data_path_suffix) {
 	require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 	$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
-	
+
 	$file_path = $data_path.'/'.$file_name;
-	
+
 	if (!unlink($file_path)) {
 		trigger_error('failed to remove old file '.$file_name);
 		return FALSE;
 	}
-	
+
 	if (string_to_file(file_get_contents($new_file), $file_path)) {
 		// add a new version to the repository
 		$file_status = $fv->upToDate($file_path);
 		if (FUDGE_FV_MODIFIED & $file_status) {
 			if (!$fv->commit($file_path, '')) {
-				trigger_localised_error('CORE0160', E_USER_WARNING);
+				trigger_localised_error('CORE0160', translate('Failed committing file version'), E_USER_WARNING);
 			}
 		}
 	} else {
@@ -167,10 +167,10 @@ function _updateFile ($new_file, $file_name, $data_path, $data_path_suffix) {
 
 	// make sure we have the latest version of our file
 	if (!$fv->checkOut($data_path_suffix.'/'.$file_name, $data_path)) {
-		trigger_localised_error('CORE0032', E_USER_WARNING);
+		trigger_localised_error('CORE0032', translate('Failed checking out latest version of file'), E_USER_WARNING);
 		return FALSE;
 	}//end if
-	
+
 
 	return TRUE;
 }//end _updateFile

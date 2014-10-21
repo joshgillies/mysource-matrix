@@ -156,7 +156,7 @@ class Session_Handler_Memcache extends Session_Handler
 		$memcache->addServer($host_str);
 
 		if (!is_array($session_contents)) {
-			trigger_localised_error('CORE0004', E_USER_WARNING, gettype($session_contents));
+			trigger_localised_error('CORE0004', sprintf(translate('Array expected for second argument, got %s'), gettype($session_contents)), E_USER_WARNING);
 			return FALSE;
 		}
 

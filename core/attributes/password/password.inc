@@ -86,7 +86,8 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	function paint($prefix, $read_only=false)
 	{
 		if ($read_only) {
-			echo translate('password_not_shown');
+			echo translate('Password not shown');
+
 			return;
 		}
 
@@ -140,7 +141,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 				$this->processed = false;
 			}
 		} else {
-			trigger_localised_error('SYS0017', E_USER_WARNING);
+			trigger_localised_error('SYS0017', translate('Password and confirmation don\'t match'), E_USER_WARNING);
 			$this->processed = false;
 		}
 

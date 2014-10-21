@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 {
 
-	
+
 	/**
 	* Execute this action
 	* Returns an array of data about what it did, or false on error
@@ -38,7 +38,7 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 	* The settings used by this action are in the form:
 	* <PRE>
 	* Array(
-	*       'special_page_type'			=> string, // the type of the special page of a site that this trigger action will turn the broadcasting asset to. It can be "index", "not_found" or "archive" from the _getSpecialPages() method 
+	*       'special_page_type'			=> string, // the type of the special page of a site that this trigger action will turn the broadcasting asset to. It can be "index", "not_found" or "archive" from the _getSpecialPages() method
 	*       'site_assetid'				=> int, // the asset ID of the site
 	*       'override_special_page'		=> boolean (0|1), // the flag to indicate if this trigger action will override the current special page with the broadcasting asset
 	*       'use_direct_parent_sites'	=> boelean (0|1), // the flag to indicate if the direct parent site assets of the broadcasting asset are used
@@ -61,36 +61,36 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
-		
+
 		$use_direct_parent_sites = array_get_index($settings, 'use_direct_parent_sites', 0);
-		
+
 		if (($use_direct_parent_sites == 0) && (empty($settings['site_assetid']) || !$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['site_assetid']))) {
 			return FALSE;
 		}
-		
+
 		//get the asset to be set as special page
 		$special_page = $state['asset'];
-		
+
 		//get site assets
 		$sites = Array();
 		if ($use_direct_parent_sites == 1) {
 			//get the links of the direct (type 1 or 2) parent assets that are of type site
 			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($special_page->id, SQ_LINK_TYPE_1|SQ_LINK_TYPE_2, 'site', TRUE, 'minor');
-			
-			//if there is no direct parent assets of type site, return FALSE 
+
+			//if there is no direct parent assets of type site, return FALSE
 			if (empty($parent_links)) {
 				return FALSE;
 			}
-			
+
 			//put the direct parent sites in the array
 			foreach ($parent_links as $parent_link) {
 				$sites[] = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
 			}
-			
+
 		} else {
 			$sites[] = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['site_assetid']);
 		}
-		
+
 		$special_page_type = array_get_index($settings, 'special_page_type', 'index');
 		$override = array_get_index($settings, 'override_special_page', 0);
 
@@ -98,10 +98,10 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$success = TRUE;
 		$return_array = Array();
-		
+
 		foreach ($sites as $site) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($site->id, SQ_LINK_NOTICE, '', FALSE, $special_page_type);
-	
+
 			//if there is a current link
 			if (!empty($link)) {
 				//if the overriding flag is not set or the current special page of the site is already the one to be set, do nothing except adding values to the return array
@@ -113,15 +113,15 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 											);
 					continue;
 				}
-				
+
 				//if the overriding flag is set, delete the current link
 				$success = (bool)$site->deleteLink($link['linkid']);
 			}
-	
+
 			if ($success) {
 				$success = (bool)$site->createLink($special_page, SQ_LINK_NOTICE, $special_page_type);
 			}
-			
+
 			//if there is error, break out of the loop and rollback the transaction
 			if ($success) {
 				$return_array[] =  Array(
@@ -136,12 +136,12 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		return ($success? $return_array : FALSE);
-		
+
 	}//end execute()
-	
-	
+
+
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
@@ -159,17 +159,17 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 		if ($site_assetid) {
 			$site_exists = $GLOBALS['SQ_SYSTEM']->am->assetExists($site_assetid);
 		}
-		
+
 		$form_element_extras = '';
 		if (!$write_access) {
 			$form_element_extras = 'disabled="disabled"';
 		}
-		
+
 		//get the HTML string of the special page dropdown box
 		ob_start();
 			combo_box($prefix.'[special_page_type]', self::_getSpecialPages(), FALSE, array_get_index($settings, 'special_page_type', 'index'), NULL, $form_element_extras);
 		$special_page_selection = ob_get_clean();
-		
+
 		//get the HTML string of the site asset finder
 		ob_start();
 			if ($write_access) {
@@ -186,32 +186,35 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 				}
 			}
 		$site_asset_selection = ob_get_clean();
-		
+
 		//get the HTML string of the Override checkbox
 		ob_start();
 			check_box($prefix.'[override_special_page]', '1', array_get_index($settings, 'override_special_page', 0), NULL, $form_element_extras);
-			label(translate('trigger_action_set_site_special_page_override_special_page'), $prefix.'[override_special_page]');
+			label(translate('Override the existing special page'), $prefix.'[override_special_page]');
+
 		$override_special_page_checkbox = ob_get_clean();
 
 		//get the HTML string of the Use the direct parent site checkbox
 		ob_start();
 			check_box($prefix.'[use_direct_parent_sites]', '1', array_get_index($settings, 'use_direct_parent_sites', 0), NULL, $form_element_extras);
-			label(translate('trigger_action_set_site_special_page_use_direct_parent_sites'), $prefix.'[use_direct_parent_sites]');
+			label(translate('Use the direct parent sites of the broadcasting asset'), $prefix.'[use_direct_parent_sites]');
+
 		$use_direct_parent_sites_checkbox = ob_get_clean();
-		
+
 		$contents = '<div class="sq-break-line-inputs">'
-					.translate('trigger_action_set_site_special_page_basic', $special_page_selection, $site_asset_selection)
+					.sprintf(translate('Set the broadcasting asset as the %1$s page of the site: %2$s'), $special_page_selection, $site_asset_selection)
+
 					.'<br />'
 					.$override_special_page_checkbox
 					.'<br />'
 					.$use_direct_parent_sites_checkbox
 					.'</div>';
-		
+
 		return $contents;
-		
+
 	}//end getInterface()
-	
-	
+
+
 	/**
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
@@ -228,38 +231,40 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 		//the special page type must be in the special page type list
 		$special_page_type = array_get_index($request_data, 'special_page_type', 'index');
 		if (!key_exists($special_page_type, self::_getSpecialPages())) {
-			return translate('trigger_action_set_site_special_page_special_page_type_invalid');
+			return translate('The special page type is invalid');
+
 		}
-		
+
 		$use_direct_parent_sites = array_get_index($request_data, 'use_direct_parent_sites', 0);
 		//make sure the site assetid isn't blank if "something" is not selected
 		if (($use_direct_parent_sites == 0) && empty($request_data['site_assetid']['assetid'])) {
-			return translate('trigger_action_set_site_special_page_site_missing');
+			return translate('The site is not specified or using the direct parent sites of the broadcasting asset is not selected');
+
 		}
-		
+
 		$settings['special_page_type'] 		= $special_page_type;
 		$settings['site_assetid']			= $request_data['site_assetid']['assetid'];
 		$settings['override_special_page']	= array_get_index($request_data, 'override_special_page', 0);
 		$settings['use_direct_parent_sites']	= $use_direct_parent_sites;
-		
+
 		return FALSE;
-		
+
 	}//end processInterface()
-	
+
 
 	/**
 	 * Return an array that has the link values of the special pages as keys and special page names as values
-	 * 
+	 *
 	 * @return array
 	 * @access public
 	 */
 	public static function _getSpecialPages()
 	{
 		return Array('index' => 'Index', 'not_found' => 'Not Found', 'archive' => 'Archived Asset');
-		
+
 	}//end _getSpecialPages()
-	
-	
+
+
 }//end class
 
 ?>

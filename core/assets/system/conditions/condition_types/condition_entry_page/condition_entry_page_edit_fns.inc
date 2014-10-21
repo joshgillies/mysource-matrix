@@ -72,7 +72,8 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('url_patterns'); ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('URL Patterns'); ?></th>
+
 				<td>
 				<?php
 				if (!$write_access && empty($condition_data['url_patterns'])) {
@@ -86,10 +87,12 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 							echo '<th></th>';
 						}
 						?>
-						<th><?php echo translate('pattern'); ?></th>
+						<th><?php echo translate('Pattern'); ?></th>
+
 						<?php if ($write_access) {
 						?>
-							<th style="text-align: center;"><?php echo translate('delete_question'); ?></th>
+							<th style="text-align: center;"><?php echo translate('Delete?'); ?></th>
+
 						<?php
 						}
 						?>
@@ -102,7 +105,8 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 								<td>
 									<?php
 									if ($index === 'new') {
-										echo '<strong>'.translate('new_question').'</strong>';
+										echo '<strong>'.translate('New?').'</strong>';
+
 									}
 									?>
 								</td>
@@ -137,14 +141,16 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 				?>
 				</td>
 			<tr>
-				<th><?php echo translate('asset_ids'); ?></th>
+				<th><?php echo translate('Asset IDs'); ?></th>
+
 				<td>
 				<?php
 				if ( $write_access) {
 					multiple_asset_finder($prefix.'[assetids]', $condition_data['assetids']);
 				} else {
 					if (empty($condition_data['assetids'])) {
-						echo '<em>'.translate('condition_no_assetids_selected').'</em>';
+						echo '<em>'.translate('No asset ids selected.').'</em>';
+
 					} else {
 						echo '<ul class="sq-asset-id-list">';
 						foreach ($condition_data['assetids'] as $assetid) {
@@ -158,7 +164,8 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 			</tr>
 		</table>
 		<?php
-		$o->note(translate('condition_entry_page_note'));
+		$o->note(translate('Entry page refers to the first asset the frontend user sees as part of their session.'));
+
 
 	}//end paintEditInterface()
 

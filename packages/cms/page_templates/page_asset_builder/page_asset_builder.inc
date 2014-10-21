@@ -157,7 +157,8 @@ class Page_Asset_Builder extends Page
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
 				foreach ($types_needing_layouts as $type_code) {
 					$layout = new Layout();
-					$layout->setAttrValue('name', translate('cms_asset_builder_create_form_layout_for_type', $type_names[$type_code]));
+					$layout->setAttrValue('name', sprintf(translate('%s Create Form Layout'), $type_names[$type_code]));
+
 					$link = Array(
 								'asset'			=> &$this,
 								'link_type'		=> SQ_LINK_TYPE_2,
@@ -228,9 +229,11 @@ class Page_Asset_Builder extends Page
 		$value = array_get_index($link, 'value', '');
 
 		if ($minor_type_code == 'bodycopy' && $is_exclusive) {
-			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('unknown_asset_type');
-			
-			return translate('core_cannot_delete_exclusive_link', $major_type_code, ucwords(str_replace('_', ' ', $value)).' Bodycopy');
+			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('Unknown Asset Type');
+
+
+			return sprintf(translate('Cannot delete exclusive link between %1$s and %2$s'), $major_type_code, ucwords(str_replace('_', ' ', $value)).' Bodycopy');
+
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -321,7 +324,7 @@ class Page_Asset_Builder extends Page
 
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		}		
+		}
 
 	}//end printBody()
 
@@ -562,7 +565,7 @@ class Page_Asset_Builder extends Page
 						trigger_error($this->attr('time_requirement_error_message'), E_USER_NOTICE);
 						$required_error = TRUE;
 					}//end if
-				
+
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
 					$create_type = $_POST['AB_'.$this->id.'_ASSET_BUILDER_CREATE_TYPE'];
@@ -638,13 +641,15 @@ class Page_Asset_Builder extends Page
 
 									if (!$valid_value) {
 										if (empty($error_text)) {
-											$error_text = translate('cms_asset_builder_invalid_attr_value', $mf_asset->name);
+											$error_text = sprintf(translate('The value of %s is not valid'), $mf_asset->name);
+
 										}
 										trigger_error($error_text, E_USER_NOTICE);
 										$required_error = TRUE;
 									} else if (!$empty_value) {
 										if (empty($error_text)) {
-											$error_text = translate('cms_asset_builder_missing_attr', $mf_asset->name);
+											$error_text = sprintf(translate('Please enter a value for %s'), $mf_asset->name);
+
 										}
 										trigger_error($error_text, E_USER_NOTICE);
 										$required_error = TRUE;
@@ -685,13 +690,15 @@ class Page_Asset_Builder extends Page
 
 								if (!$attribute->processed) {
 									if (empty($error_text)) {
-										$error_text = translate('cms_asset_builder_invalid_attr_value', $attribute->name);
+										$error_text = sprintf(translate('The value of %s is not valid'), $attribute->name);
+
 									}
 									trigger_error($error_text, E_USER_NOTICE);
 									$required_error = TRUE;
 								} else if (empty($attribute->value)) {
 									if (empty($error_text)) {
-										$error_text = translate('cms_asset_builder_missing_attr', $attribute->name);
+										$error_text = sprintf(translate('Please enter a value for %s'), $attribute->name);
+
 									}
 									trigger_error($error_text, E_USER_NOTICE);
 									$required_error = TRUE;
@@ -725,7 +732,7 @@ class Page_Asset_Builder extends Page
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
 					// know what they want - let them get back to us with something we can use
 					if (empty($create_locations)) {
-						trigger_localised_error('CMS0033', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_asset->type(), 'name'));
+						trigger_localised_error('CMS0033', sprintf(translate('Unable to determine where to create this %s'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_asset->type(), 'name')), E_USER_WARNING);
 						break;
 					}
 
@@ -908,7 +915,8 @@ class Page_Asset_Builder extends Page
 									if ($error_text) {
 										$this->_errors[] = $error_text;
 									} else {
-										$this->_errors[] = translate('cms_asset_builder_mollom_spam_submission_message');
+										$this->_errors[] = translate('This submission does not seem legitimate. This submission has not been accepted.');
+
 									}
 								break;
 
@@ -918,7 +926,8 @@ class Page_Asset_Builder extends Page
 									if ($error_text) {
 										$this->_errors[] = $error_text;
 									} else {
-										$this->_errors[] = translate('cms_asset_builder_mollom_unsure_spam_submission_message');
+										$this->_errors[] = translate('Please enter the characters in the image to verify your submission');
+
 									}
 								break;
 
@@ -935,7 +944,8 @@ class Page_Asset_Builder extends Page
 									if($error_text) {
 										$this->_errors[] = $error_text;
 									} else {
-										$this->_errors[] = translate('cms_asset_builder_mollom_invalid_captcha_message');
+										$this->_errors[] = translate('Incorrect security key. Please try again');
+
 									}
 								break;
 							}//end switch
@@ -965,11 +975,11 @@ class Page_Asset_Builder extends Page
 
 								$link_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
 								if (is_null($link_parent)) {
-									trigger_localised_error('CMS0034', E_USER_WARNING, $link_parentid);
+									trigger_localised_error('CMS0034', sprintf(translate('Asset %s was null'), $link_parentid), E_USER_WARNING);
 									continue;
 								}
 								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $new_asset, $link_type, $link_value)) {
-									trigger_localised_error('CMS0035', E_USER_WARNING, $link_parent->id);
+									trigger_localised_error('CMS0035', sprintf(translate('Failed to create link to asset %s'), $link_parent->id), E_USER_WARNING);
 									continue;
 								}
 
@@ -981,7 +991,8 @@ class Page_Asset_Builder extends Page
 								$valid_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link_parent, $valid_paths, $new_asset->id, TRUE);
 
 								if (!$new_asset->saveWebPaths($valid_paths, FALSE)) {
-									$this->_errors[] = translate('cms_asset_builder_cannot_save_web_path', $new_asset->name, $link_parent->name);
+									$this->_errors[] = sprintf(translate('Unable to save web path of asset: "%1$s" under parent: "%2$s"'), $new_asset->name, $link_parent->name);
+
 								}
 								// if there is no difference in the arrays
 								// we have to update lookups mannualy, otherwise it would have be done in saveWebPath already
@@ -1074,9 +1085,9 @@ class Page_Asset_Builder extends Page
 
 			if (!empty($treeid)) {
 				$sql = '
-					SELECT t.linkid 
+					SELECT t.linkid
 					FROM sq_ast_lnk_tree t
-					WHERE 
+					WHERE
 						t.treeid LIKE :treeid';
 
 				try {
@@ -1161,7 +1172,7 @@ class Page_Asset_Builder extends Page
 					}
 				}
 			} else if (!$details['allow_empty']) {
-				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
+				trigger_localised_error('CMS0036', sprintf(translate('You must select an option from the %s'), $set_name), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -1420,7 +1431,7 @@ class Page_Asset_Builder extends Page
 					if (!$details['allow_multiple']) break;
 				}
 			} else if (!$details['allow_empty']) {
-				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
+				trigger_localised_error('CMS0036', sprintf(translate('You must select an option from the %s'), $set_name), E_USER_WARNING);
 				return Array();
 			}
 		}
@@ -1535,7 +1546,8 @@ class Page_Asset_Builder extends Page
 		////////////////////////////////
 		$regen_link_text = $this->attr('mollom_captcha_regen_link_text');
 		if (empty($regen_link_text)) {
-			$regen_link_text = translate('cms_asset_builder_mollom_regen_link_text');
+			$regen_link_text = translate('Regenerate security key');
+
 		}
 		$this->_replacements['asset_builder_mollom_captcha'] = Mollom::getMollomCaptchaKeywordReplacement($this->id);
 		$this->_replacements['asset_builder_mollom_captcha_image'] = Mollom::getMollomCaptchaImageKeywordReplacement($this->id);
@@ -1561,7 +1573,7 @@ class Page_Asset_Builder extends Page
 		  /////////////////////////
 		 // CREATE FORM KEYWORD //
 		////////////////////////
-		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');		
+		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');
 
 		  //////////////////////////////////////////
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
@@ -1624,7 +1636,8 @@ class Page_Asset_Builder extends Page
 					break;
 
 					default:
-						echo '('.translate('cms_asset_builder_undefined_input_style', $data['input_style']).')';
+						echo '('.sprintf(translate('UNDEFINED INPUT STYLE %s'), $data['input_style']).')';
+
 					break;
 				}//end switch
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
@@ -1800,20 +1813,24 @@ class Page_Asset_Builder extends Page
 	{
 		$res = Array();
 		$res['not_logged_in']= Array(
-								'name'		=> translate('not_logged_in'),
+								'name'		=> translate('Not Logged In'),
+
 								'content'	=> '%login_error%
 												%login_invite%
 												%login_form%',
 							   );
 		$res['logged_in']= Array(
-							'name'		=> translate('logged_in'),
+							'name'		=> translate('Logged in'),
+
 							'content'	=> '%create_error%
 											%create_invite%
 											%create_form%',
 						   );
 		$res['created']= Array(
-							'name'		=> translate('created'),
-							'content'	=> translate('cms_asset_builder_default_created_message'),
+							'name'		=> translate('Created'),
+
+							'content'	=> translate('Asset created<br />See it <a href="%%created_asset_url%%">here</a>'),
+
 						 );
 		return $res;
 
@@ -1875,35 +1892,55 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 
-		$keywords['login_invite'] 	= translate('cms_asset_builder_keyword_login_invite');
-		$keywords['login_form'] 	= translate('cms_asset_builder_keyword_login_form');
-		$keywords['login_error'] 	= translate('cms_asset_builder_keyword_login_error');
-		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
-		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
-		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
-		$keywords['login_form_username'] 	= translate('cms_asset_builder_keyword_login_form_username');
-		$keywords['login_form_password'] 	= translate('cms_asset_builder_keyword_login_form_password');
-		$keywords['login_form_submit_button'] 	= translate('cms_asset_builder_keyword_login_form_submit_button');
+		$keywords['login_invite'] 	= translate('Login Invite');
+
+		$keywords['login_form'] 	= translate('Login Form');
+
+		$keywords['login_error'] 	= translate('Login Error Message');
+
+		$keywords['create_invite']	= translate('Create Asset Invite');
+
+		$keywords['create_form'] 	= translate('Create Asset Form');
+
+		$keywords['create_error'] 	= translate('Create Asset Error Message');
+
+		$keywords['login_form_username'] 	= translate('Login Form Username Field');
+
+		$keywords['login_form_password'] 	= translate('Login Form Password Field');
+
+		$keywords['login_form_submit_button'] 	= translate('Login Form Submit Button');
+
 
 		if ($this->attr('require_captcha')) {
-			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
-			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
-			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
-			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
+			$keywords['form_captcha'] = translate('Display Captcha Form');
+
+			$keywords['form_captcha_image'] = translate('Display Captcha Image');
+
+			$keywords['form_captcha_field'] = translate('Display Captcha Field');
+
+			$keywords['form_captcha_link'] = translate('Display Captcha Link');
+
 		}
 
 		if ($this->attr('use_mollom')) {
-			$keywords['asset_builder_mollom_captcha']       = translate('cms_asset_builder_mollom_captcha');
-			$keywords['asset_builder_mollom_captcha_image'] = translate('cms_asset_builder_mollom_captcha_image');
-			$keywords['asset_builder_mollom_captcha_audio'] = translate('cms_asset_builder_mollom_captcha_audio');
-			$keywords['asset_builder_mollom_captcha_field'] = translate('cms_asset_builder_mollom_captcha_field');
-			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('cms_asset_builder_mollom_captcha_link');
+			$keywords['asset_builder_mollom_captcha']       = translate('Mollom CAPTCHA');
+
+			$keywords['asset_builder_mollom_captcha_image'] = translate('Mollom CAPTCHA Image');
+
+			$keywords['asset_builder_mollom_captcha_audio'] = translate('Mollom CAPTCHA Audio');
+
+			$keywords['asset_builder_mollom_captcha_field'] = translate('Mollom CAPTCHA Input Field');
+
+			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('Mollom CAPTCHA Regeneration Link');
+
 		}
 
 		if ($this->attr('use_recaptcha')) {
-			$keywords['form_recaptcha'] = translate('cms_asset_builder_form_recaptcha');
+			$keywords['form_recaptcha'] = translate('Display reCAPTCHA Form');
+
 		}
-		$keywords['form_honeypot_field'] = translate('cms_asset_builder_form_honeypot_field');
+		$keywords['form_honeypot_field'] = translate('Display Honeypot question');
+
 
 		return $keywords;
 
@@ -1919,29 +1956,43 @@ class Page_Asset_Builder extends Page
 	function _getLoggedInKeywords()
 	{
 		$keywords = Array();
-		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
-		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
-		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
+		$keywords['create_invite']	= translate('Create Asset Invite');
+
+		$keywords['create_form'] 	= translate('Create Asset Form');
+
+		$keywords['create_error'] 	= translate('Create Asset Error Message');
+
 
 		if ($this->attr('require_captcha')) {
-			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
-			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
-			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
-			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
+			$keywords['form_captcha'] = translate('Display Captcha Form');
+
+			$keywords['form_captcha_image'] = translate('Display Captcha Image');
+
+			$keywords['form_captcha_field'] = translate('Display Captcha Field');
+
+			$keywords['form_captcha_link'] = translate('Display Captcha Link');
+
 		}
 
 		if ($this->attr('use_mollom')) {
-			$keywords['asset_builder_mollom_captcha']       = translate('cms_asset_builder_mollom_captcha');
-			$keywords['asset_builder_mollom_captcha_image'] = translate('cms_asset_builder_mollom_captcha_image');
-			$keywords['asset_builder_mollom_captcha_audio'] = translate('cms_asset_builder_mollom_captcha_audio');
-			$keywords['asset_builder_mollom_captcha_field'] = translate('cms_asset_builder_mollom_captcha_field');
-			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('cms_asset_builder_mollom_captcha_link');
+			$keywords['asset_builder_mollom_captcha']       = translate('Mollom CAPTCHA');
+
+			$keywords['asset_builder_mollom_captcha_image'] = translate('Mollom CAPTCHA Image');
+
+			$keywords['asset_builder_mollom_captcha_audio'] = translate('Mollom CAPTCHA Audio');
+
+			$keywords['asset_builder_mollom_captcha_field'] = translate('Mollom CAPTCHA Input Field');
+
+			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('Mollom CAPTCHA Regeneration Link');
+
 		}
 
 		if ($this->attr('use_recaptcha')) {
-			$keywords['form_recaptcha'] = translate('cms_asset_builder_form_recaptcha');
+			$keywords['form_recaptcha'] = translate('Display reCAPTCHA Form');
+
 		}
-		$keywords['form_honeypot_field'] = translate('cms_asset_builder_form_honeypot_field');
+		$keywords['form_honeypot_field'] = translate('Display Honeypot question');
+
 
 		return $keywords;
 
@@ -1958,12 +2009,18 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 
-		$keywords['created_assetid']			= translate('cms_asset_builder_created_assetid');
-		$keywords['created_asset_name']			= translate('cms_asset_builder_created_asset_name');
-		$keywords['created_asset_short_name']	= translate('cms_asset_builder_created_asset_short_name');
-		$keywords['created_asset_url']			= translate('cms_asset_builder_created_asset_url');
-		$keywords['created_asset_edit']			= translate('cms_asset_builder_created_asset_edit');
-		$keywords['created_asset_backend']		= translate('cms_asset_builder_created_asset_backend');
+		$keywords['created_assetid']			= translate('Created Asset ID');
+
+		$keywords['created_asset_name']			= translate('Created Asset Name');
+
+		$keywords['created_asset_short_name']	= translate('Created Asset Short Name');
+
+		$keywords['created_asset_url']			= translate('Created Asset URL');
+
+		$keywords['created_asset_edit']			= translate('Created Asset Simple Edit URL');
+
+		$keywords['created_asset_backend']		= translate('Created Asset Admin Interface URL');
+
 
 		return $keywords;
 
@@ -1981,7 +2038,8 @@ class Page_Asset_Builder extends Page
 		$keywords = Array();
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$keyword_name = $this->_sanitiseLocationSetName($name).'_field';
-			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
+			$keywords[$keyword_name] = sprintf(translate('%s Field'), $name);
+
 		}
 		return $keywords;
 
@@ -1999,7 +2057,8 @@ class Page_Asset_Builder extends Page
 		$keywords = Array();
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
 			$keyword_name = $this->_sanitiseLocationSetName($name).'_field';
-			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
+			$keywords[$keyword_name] = sprintf(translate('%s Field'), $name);
+
 		}
 		return $keywords;
 
@@ -2047,11 +2106,13 @@ class Page_Asset_Builder extends Page
 			?>
 			<table border="0">
 				<tr>
-					<td valign="top"><?php echo translate('username'); ?></td>
+					<td valign="top"><?php echo translate('Username'); ?></td>
+
 					<td valign="top"><?php echo $this->getLoginFormUsernameKeywordReplacement() ?></td>
 				</tr>
 				<tr>
-					<td valign="top"><?php echo translate('password'); ?></td>
+					<td valign="top"><?php echo translate('Password'); ?></td>
+
 					<td valign="top"><?php echo $this->getLoginFormPasswordKeywordReplacement(); ?></td>
 				</tr>
 				<tr>

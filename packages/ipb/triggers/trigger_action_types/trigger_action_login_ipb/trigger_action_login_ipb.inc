@@ -96,7 +96,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 
 		// Load and Start IPB SDK
 		if (!file_exists($settings['ipbsdk_path'].'/ipbsdk_class.inc.php')) {
-			trigger_localised_error('IPB0001', E_USER_WARNING);
+			trigger_localised_error('IPB0001', translate('The required IPB Kernel directory cannot be found in "%1$s".'), E_USER_WARNING);
 			return FALSE;
 		}
 		require_once $settings['ipbsdk_path'].'/ipbsdk_class.inc.php';
@@ -132,7 +132,8 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('ipb_path_to_ipbsdk'); ?></th>
+				<th><?php echo translate('Path to the IPB SDK Installation'); ?></th>
+
 				<td><?php
 					// level
 					if ($write_access) {
@@ -169,7 +170,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 		$ipbsdk_path = array_get_index($request_data, 'ipbsdk_path', '');
 		$ipbsdk_path = trim($ipbsdk_path);
 		if ($ipbsdk_path == '') {
-			trigger_localised_error('IPB0002', E_USER_WARNING);
+			trigger_localised_error('IPB0002', translate('The required IPB file "%1$s" cannot be found.'), E_USER_WARNING);
 			return FALSE;
 		}
 		$settings['ipbsdk_path'] = $ipbsdk_path;

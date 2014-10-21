@@ -19,5 +19,5 @@
 <strings>
 	<string source="trigger_schema_apply-deny_the_following_schema">%s the following schema:</string>
 	<string source="cascade_schema_changes_to_dependents">Only Cascade schema changes to dependent assets</string>
-	<string source="cascade_schema_changes_to_new_children">Automatically cascade this schema to newly-linked children</string>
+	<string source="cascade_schema_changes_to_newly_linked_children">Automatically cascade this schema to newly-linked children</string>
 </strings>

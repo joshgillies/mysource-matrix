@@ -68,8 +68,10 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	public static function getOperators()
 	{
 		$operators = Array(
-						1	=> translate('core_form_rule_selection_true'),
-						0	=> translate('core_form_rule_selection_false'),
+						1	=> translate('Option must be selected'),
+
+						0	=> translate('Option must NOT be selected'),
+
 					 );
 
 		return $operators;

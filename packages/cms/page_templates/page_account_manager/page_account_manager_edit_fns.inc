@@ -194,9 +194,11 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				<td class="sq-backend-table-header-header" <?php echo ($write_access ? 'colspan="4"' : ''); ?>>
 				<?php
 					if ($asset_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the first page') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 					}
 					?>
 					&lt;&lt;
@@ -208,9 +210,11 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if ($asset_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo $asset_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the previous page') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo $asset_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
+
 					}
 					?>
 					&lt;
@@ -221,12 +225,15 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 						?></span><?php
 					}
 					?>
-					&nbsp; &nbsp; <?php echo translate('page_number', round(($asset_offset + $num_per_page) / $num_per_page), ($total_assets > 0 ? ceil($total_assets / $num_per_page) : 1)); ?> &nbsp; &nbsp;
+					&nbsp; &nbsp; <?php echo sprintf(translate('Page %1$s of %2$s'), round(($asset_offset + $num_per_page) / $num_per_page), ($total_assets > 0 ? ceil($total_assets / $num_per_page) : 1)); ?> &nbsp; &nbsp;
+
 					<?php
 					if (($asset_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo $asset_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the next page') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo $asset_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 					}
 					?>
 					&gt;
@@ -238,9 +245,11 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if (($asset_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('Go to the last page') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
+
 					}
 					?>
 					&gt;&gt;
@@ -254,11 +263,14 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('user'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('User'); ?></td>
+
 				<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header"><?php echo translate('cms_account_manager_validate'); ?></td><?php
-						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('Validate ?'); ?></td><?php
+
+						?><td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td><?php
+
 					}
 				?>
 			</tr>
@@ -350,11 +362,13 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		if ($wa) {
 			hidden_field($prefix.'_customise_form_submitted', 1);
 			echo check_box($prefix.'_customise_form', 1, !empty($customised_types));
-			label(translate('cms_account_manager_customise_create_form'), $prefix.'_customise_form');
+			label(translate('Customise Account Manager Form'), $prefix.'_customise_form');
+
 		} else {
 			$fn = !empty($customised_types) ? 'tick' : 'cross';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
-			echo translate('cms_account_manager_customise_create_form');
+			echo translate('Customise Account Manager Form');
+
 		}
 
 	}//end paintCreateFormCustomisation()
@@ -457,11 +471,13 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		if ($wa) {
 			hidden_field($prefix.'_customise_logged_in_submitted', 1);
 			echo check_box($prefix.'_customise_logged_in', 1, !empty($customised_types));
-			label(translate('cms_account_manager_customise_logged_in'), $prefix.'_customise_logged_in');
+			label(translate('Customise Account Manager Logged In Form'), $prefix.'_customise_logged_in');
+
 		} else {
 			$fn = !empty($customised_types) ? 'tick' : 'cross';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
-			echo translate('cms_account_manager_customise_logged_in');
+			echo translate('Customise Account Manager Logged In Form');
+
 		}
 
 	}//end paintCreateFormCustomisation()

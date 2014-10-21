@@ -34,11 +34,13 @@
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_ACTION=login&FORCE_BACKUP_LOGIN=1" name="login_prompt" method="post">
 			<input type="hidden" name="SQ_LOGIN_KEY" value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>" />
 			<p>
-				<?php echo translate('username'); ?>:
+				<?php echo translate('Username'); ?>:
+
 				<input type="text" name="SQ_LOGIN_USERNAME" value="" size="10" maxlength="64" onfocus="javascript: this.select();" />
 			</p>
 			<p>
-				<?php echo translate('password'); ?>:
+				<?php echo translate('Password'); ?>:
+
 				<input type="password" name="SQ_LOGIN_PASSWORD" value="" size="10" maxlength="64" onfocus="javascript: this.select();" />
 			</p>
 			<p>

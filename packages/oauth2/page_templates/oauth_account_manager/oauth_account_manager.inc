@@ -31,12 +31,12 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 class Oauth_Account_Manager extends Page_Asset_Builder
 {
 
-	
+
 	var $oauth_token;
 	var $oauth_user_id;
 	var $oauth_user_profile;
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -50,7 +50,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		$this->oauth_token = $this->_getSpecialAsset('oauth_token_source');
 	}//end constructor
 
-	
+
 	/**
 	* Wakeup.
 	*
@@ -59,16 +59,16 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	*
 	* @access public
 	*/
-	function __wakeup() 
+	function __wakeup()
 	{
 		// don't cache any config
 		$this->oauth_user_id = null;
 		$this->oauth_user_profile = null;
 		$this->oauth_token = $this->_getSpecialAsset('oauth_token_source');
-		
+
 	}//end __wakeup()
-	
-	
+
+
 	/**
 	* Determine whether this asset should send cacheable header
 	*
@@ -80,9 +80,9 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	{
 		return FALSE;
 	}//end canSendCacheableHeader()
-	
-	
-	
+
+
+
 	/**
 	* Prints out the Frontend for this asset
 	*
@@ -95,33 +95,36 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		// set global redirect URL
 		if(!isset($_SESSION['sq_oauth_account_manager_current_state_redirect_url'])) {
 		    $redirect_url = $this->_getRedirectURL();
-		    if(!empty($redirect_url)) 
+		    if(!empty($redirect_url))
 			$_SESSION['sq_oauth_account_manager_current_state_redirect_url'] = $redirect_url;
 		}
-	
+
 		// check MUST have configs
 		if(empty($this->oauth_token)) {
-		    trigger_error(translate('oauth_account_manager_no_token'));
+		    trigger_error(translate('Oauth Token is not specified.'));
+
 		    return;
 		}
 		$storage_type = $this->oauth_token->attr('token_storage');
 		if($storage_type !== 'session') {
-		    trigger_error(translate('oauth_account_manager_token_storage_incorrect'));
+		    trigger_error(translate('Oauth Token must use session storage.'));
+
 		    return;
 		}
 		$api_url = $this->attr('userid_api_url');
 		if(empty($api_url)) {
-		    trigger_error(translate('oauth_account_manager_no_profile_api'));
+		    trigger_error(translate('Profile API is not specified.'));
+
 		    return;
 		}
-		    
-		
-		
+
+
+
 		/*
 		 *  special actions
 		 */
-			
-		
+
+
 		// link current matrix user to the authenticated oauth acount
 		if(isset($_GET['linkAccounts'])) {
 		    $allow_create_link = $this->attr('allow_link');
@@ -131,10 +134,10 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 			$this->_loginOauthUser();
 			if($this->oauth_user_id) {
 			    $current_user = $GLOBALS['SQ_SYSTEM']->user;
-			    
+
 			    //  prefill attributes
 			    $this->_prefillUserAttributes($current_user);
-		    
+
 			    //  if current user is logged in matrix
 			    if($current_user && !($current_user instanceof Public_User)) {
 				// link those 2 accounts
@@ -151,7 +154,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 					}
 				    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}
-				
+
 				// redirect after linking
 				if($this->attr('redirect_after_link')) {
 				    if(isset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']) && $_SESSION['sq_oauth_account_manager_current_state_redirect_url'])  {
@@ -163,34 +166,34 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 				// stop further redirects
 				unset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']);
 			    }
-			}  
+			}
 		    }
 		}
-		
-	
-		
+
+
+
 		//  logout  user
 		if(isset($_GET['logout'])) {
 		    // log out of matrix first
 		    $this->_logoutUser();
-		    
+
 		    // forget oauth token
 		    $this->oauth_token->removeStoredToken();
-		    
+
 		    // redirect after logout
 		    $redirect_url = $this->_getRedirectURL();
 		    do_redirect($redirect_url);
 
 		}
-		
-	
+
+
 		//  move on....
 		parent::printFrontend();
 
 	}//end printFrontend()
-	
-	
-	
+
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -198,8 +201,8 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	* @access public
 	*/
 	function printBody()
-	{	
-	    
+	{
+
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
@@ -224,7 +227,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
-		
+
 		// if a new asset is created, it will be stored in the tmp vars for use by other asset types
 		// that extend this one, but we wont need it any more - so chuck it out, but first, load up
 		// some replacements for the newly created asset
@@ -240,22 +243,23 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		    if(!is_null($current_user) && !($current_user instanceof Public_User))
 			$this->_current_state = 'logged_in';
 		}
-		
+
 		if (empty($this->_current_state)) {
-			/* 
+			/*
 			 * Oauth authentication starts here
 			 */
 			 if(!$this->oauth_user_id)
 			    $this->_loginOauthUser(TRUE);
-			
-			 
+
+
 			// Oauth user should have been already authenticated at this point
 			 // check if we have enough info about the user
 			 if(empty($this->oauth_user_id) || empty($this->oauth_user_profile)) {
-			    $this->_replacements['login_error'] = translate('oauth_account_manager_no_userid');
+			    $this->_replacements['login_error'] = translate('Can not locate the userid in the response of profile API.');
+
 			    $this->_current_state = 'login_fail';
 			 }
-			 else {	
+			 else {
 			    // try find linked Matrix user
 			    $matrixUserid = $this->_searchLinkedMatrixUser($this->oauth_user_id);
 
@@ -270,7 +274,8 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 			    $this->_prefillUserAttributes($GLOBALS['SQ_SYSTEM']->am->getAsset($matrixUserid), FALSE);
 				if(!$this->_loginUser($matrixUserid)){
 				    // login failed
-				    $this->_replacements['login_error'] = translate('oauth_account_manager_login_failed');
+				    $this->_replacements['login_error'] = translate('Can not login as the linked Matrix user.');
+
 				    $this->_current_state = 'login_fail';
 				}
 				else {
@@ -304,18 +309,18 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 				    else {
 					// the oauth user is not linked to current logged in matrix user, create a link?
 					 $this->_current_state = 'create_link';
-				    }	
+				    }
 			    }
 			}
 		}
-		
+
 		// instead of displaying logged in body, do redirect
 		if( $this->_current_state == 'logged_in' && $this->attr('redirect_after_login') && isset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']) && $_SESSION['sq_oauth_account_manager_current_state_redirect_url'])  {
 		    $redirect_url = $_SESSION['sq_oauth_account_manager_current_state_redirect_url'];
 		    unset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']);
 		    do_redirect($redirect_url);
 		}
-				    
+
 
 		$fn = '_load'.$this->_default_state.'Replacements';
 		$this->_loadcreateReplacements();
@@ -326,15 +331,15 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printBody');
-		
+
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end printBody()
 
-	
-	
-	
-	
+
+
+
+
 	/**
 	* Process any global Account Manager actions
 	*
@@ -347,10 +352,10 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	*/
 	function _processGlobalActions()
 	{
-	    
+
 		// set to live status once created
 		$this->vars['create_status']['value'] = SQ_STATUS_LIVE;
-		
+
 		$success = parent::_processGlobalActions();
 		if (!$success) return FALSE;
 
@@ -369,25 +374,25 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		    // link the created user with this oauth account
 		    if(!empty($this->oauth_user_id))
 			$this->_linkMatrixUser($this->_tmp['created_asset']->id, $this->oauth_user_id);
-		    
+
 		    // login user
 		    $this->_loginUser($this->_tmp['created_asset']->id);
 		    $this->_current_state = 'logged_in';
-		    
+
 		}
-		
+
 		return TRUE;
 
 	}//end _processGlobalActions()
-	
-	
-	
+
+
+
 	/**
 	* Prefill user attributes from user profile data
 	*
 	* @param object	$user	the user asset to prefill
 	* @param boolean $prefill  whether we are prefilling attributes or syncing attributes
-	* 
+	*
 	* @return bool
 	* @access protected
 	*/
@@ -427,13 +432,13 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		    }//end if
 		    return TRUE;
 	}//end _prefillUserAttributes()
-	
-	
+
+
 	/**
 	* Search linked Matrix user by Oauth user id
 	*
 	* @param varchar	$oauth_userid	Oauth userid string
-	* 
+	*
 	* @return int | null
 	* @access protected
 	*/
@@ -441,7 +446,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	{
 		if (empty($oauth_userid))
 		    return NULL;
-		
+
 		// DAL query
 		$bind_vars = Array(
 						'oauth_userid'      => $oauth_userid,
@@ -449,17 +454,17 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 					    );
 		$result = MatrixDAL::executeAll('oauth2_package', 'getUserid', $bind_vars);
 		if(empty($result)) return NULL;
-		
+
 		return ($result[0]['matrix_userid']);
 	}//end _searchLinkedMatrixUser()
-	
-	
+
+
 	/**
 	* Link Matrix user with specified Oauth account
 	*
 	* @param varchar	$matrix_userid	Matrix userid  string
 	* @param varchar	$oauth_userid	Oauth userid string
-	* 
+	*
 	* @return int | null
 	* @access protected
 	*/
@@ -467,16 +472,16 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	{
 		if (empty($matrix_userid) || empty($oauth_userid) )
 		    return NULL;
-		
+
 		// already linked?
 		 $existingMatrixUserid = $this->_searchLinkedMatrixUser($oauth_userid);
 		 if($existingMatrixUserid) {
 		     $this->_unlinkMatrixUser($existingMatrixUserid, $oauth_userid);
 		 }
-		
+
 		// insert new entry
 		$bind_vars = Array(
-						'matrix_userid'	=>  $matrix_userid,		    
+						'matrix_userid'	=>  $matrix_userid,
 						'oauth_userid'	=>  $oauth_userid,
 						'assetid'	=> $this->id,
 						'created'	=>  ts_iso8601(time()),
@@ -484,15 +489,15 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		$result = MatrixDAL::executeQuery('oauth2_package', 'addLink', $bind_vars);
 		 return $result;
 	}//end _linkMatrixUser()
-	
-	
-	
+
+
+
 	/**
 	* Delete a link
 	*
 	* @param varchar	$matrix_userid	Matrix userid  string
 	* @param varchar	$oauth_userid	Oauth userid string
-	* 
+	*
 	* @return int | null
 	* @access protected
 	*/
@@ -508,15 +513,15 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		$result = MatrixDAL::executeQuery('oauth2_package', 'deleteLink', $bind_vars);
 		 return $result;
 	}//end _unlinkMatrixUser()
-	
-	
 
-	
+
+
+
 	/**
 	* Return the currently logged in Oauth user id.
 	*
 	* @param bool	$force	If we should force getting a new access token
-	* 
+	*
 	* @return int | null
 	* @access protected
 	*/
@@ -529,7 +534,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		$this->oauth_user_profile = $response['result'];
 		$userid_loc = $this->attr('userid_location');
 		$this->oauth_user_id = $this->_getValueFromLocation( empty($userid_loc) ? 'id' : $userid_loc, $this->oauth_user_profile);
-		
+
 		// store profile data in session sandbox
 		if(!empty($this->oauth_user_profile)) {
 		    $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth_profile'] = json_encode_array($this->oauth_user_profile);
@@ -537,9 +542,9 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		}
 		return $this->oauth_user_id;
 	}//end _loginOauthUser()
-	
-	
-	
+
+
+
 	/**
 	* This function recursively checks an object properties and store them in session
 	* The stored data can be printed via keywords %globals_session_oauth_profile_xx%
@@ -564,14 +569,14 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		}
 
 	}//end _store_results()
-	
-	
+
+
 	/**
 	* Return the value for the specified location in user profile array
 	*
 	* @param string	$location	the location string of element value, e.g id or hometown.id
 	* @param array	$data	user profile data array
-	* 
+	*
 	* @return null
 	* @access private
 	*/
@@ -589,11 +594,11 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		    	}
 			}
 	    }
-		
+
 	    return NULL;
 	}//end _getValueFromLocation()
-	
-	
+
+
 	/**
 	* Returns the asset (if any) which is noticed linked. e.g oauth_token_source, redirect_asset
 	* @param varchar	$name	the link value of the special asset
@@ -614,7 +619,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		} else {
 			if (!empty($this->id)) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, $name);
-				
+
 			}
 		}
 		if (!empty($link)) {
@@ -626,8 +631,8 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	}//end _getSpecialAsset()
 
 
-	
-	
+
+
 	/**
 	* get the URL that we will be redirecting to
 	*
@@ -672,10 +677,10 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		return $url;
 
 	}//end _getRedirectURL()
-	
-	
-	
-	
+
+
+
+
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
@@ -706,19 +711,21 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 				$vars['keywords'] = array_merge($vars['keywords'], $this->_getNotLoggedInKeywords());
 			break;
 		    	case 'login_fail' :
-				$vars['keywords'] = array_merge($vars['keywords'], Array('login_error' => translate('oauth_account_manager_login_error')));
+				$vars['keywords'] = array_merge($vars['keywords'], Array('login_error' => translate('Login Error')));
+
 			break;
 		}
-		
-		$vars['keywords'] = array_merge($vars['keywords'], Array('user_id' => translate('oauth_account_manager_user_id')));
+
+		$vars['keywords'] = array_merge($vars['keywords'], Array('user_id' => translate('User ID')));
+
 
 	}//end onRequestKeywords()
-	
-	
-		
-	
 
-	
+
+
+
+
+
 	/**
 	* Return an array of bodycopies that need to be created
 	*
@@ -729,30 +736,34 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	{
 		$res = Array();
 		$res['create_user']= Array(
-							'name'	=> translate('oauth_account_manager_create_user'),
+							'name'	=> translate('Create User'),
+
 							'content'	=> '%create_error% %login_error% %login_invite% %login_form% %create_form%',
 						    );
 		$res['create_link']= Array(
-							'name'	=> translate('oauth_account_manager_create_link'),
+							'name'	=> translate('Create Link'),
+
 							'content'	=> 'This account is not linked to current Matrix user. <a href="?linkAccounts">Link them now</a>.',
 						 );
 		$res['logged_in']= Array(
-							'name'	=> translate('oauth_account_manager_logged_in'),
+							'name'	=> translate('Logged In'),
+
 							'content'	=> 'logged in as %globals_user_name%',
 						   );
 		$res['login_fail']= Array(
-							'name'	=> translate('oauth_account_manager_login_fail'),
+							'name'	=> translate('Login Fail'),
+
 							'content'	=> '%login_error%',
 						   );
 		return $res;
 
 	}//end _getBodycopies()
-	
+
 	/**
 	* Log in the Matrix user (and do redirects if required)
-	* 
+	*
 	* @param string	$userid	matrix user id
-	* 
+	*
 	* @return bool
 	* @access protected
 	*/
@@ -776,8 +787,8 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	    }
 	    return FALSE;
 	}// end _loginUser
-	
-	
+
+
 	/**
 	* Log out of the Matrix user
 	*
@@ -785,7 +796,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	* @access protected
 	*/
 	protected function _logoutUser()
-	{			    
+	{
 	    $for_real = ( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User));
 	    $old_user = &$GLOBALS['SQ_SYSTEM']->user;
 	    if ($for_real) {
@@ -793,7 +804,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	    }
 	    foreach (array_keys($_SESSION) as $key) {
 		if ($key == 'SQ_RETURN_TO_HTTP') continue;
-		// do not reset the unsuccessful attempt, 
+		// do not reset the unsuccessful attempt,
 		if ($key == 'user_login_attempts') continue;
 
 		unset($_SESSION[$key]);
@@ -803,15 +814,15 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	    }
 	    $GLOBALS['SQ_SYSTEM']->loginPublicUser();
 	    $GLOBALS['SQ_SYSTEM']->generateLoginKey(TRUE);
-	    
-	}//end _logoutUser	    
-	
-	
+
+	}//end _logoutUser
+
+
 	/**
 	* Automatically create the local Matrix user
-	* 
+	*
 	* @param string	$create_type	matrix user type
-	* 
+	*
 	* @return null
 	* @access protected
 	*/
@@ -819,7 +830,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	{
 	    $_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'] = 'create';
 	    $_POST['AB_'.$this->id.'_ASSET_BUILDER_CREATE_TYPE'] = $create_type;
-	    
+
 	    $GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 	    $new_user = new $create_type();
 	    $prefix = $new_user->getPrefix();
@@ -831,19 +842,19 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	    $user_username_attr = $user->getAttribute('username', TRUE);
 	    $_POST['asset_action'] = 'create';
 	    $_REQUEST['asset_action'] = 'create';
-	    
+
 	    // generate username from oauth userid, and make up a random password
 	    $oauth_userid = $this->oauth_user_id;
 	    $valid_username = $new_user->getValidUsername($user_username_attr->id, 'oauth_'.$this->id.'_'.$oauth_userid);
 	    $valid_password = random_user_password(Array($valid_username));
-	    
+
 	    $_REQUEST[$prefix.'_'.$username_attr->id] = $valid_username;
 	    $_REQUEST[$prefix.'_'.$password_attr->id.'_one'] = $valid_password;
 	    $_REQUEST[$prefix.'_'.$password_attr->id.'_two'] = $valid_password;
-	    
+
 	    $this->_processGlobalActions();
 
-   	    // if we force random password, we mean blocking the user from using password to login. 
+   	    // if we force random password, we mean blocking the user from using password to login.
 	    // have to enable this attribute of user to completely block password login, so he can't change password to bypass it
 	    if(!empty($this->_tmp['created_asset']) && $this->attr('randomize_password')) {
 	    		    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -853,9 +864,9 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 					}
 				    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 	    }
-	    
-	} // end _createUser	
-	
+
+	} // end _createUser
+
 
 
 }//end class

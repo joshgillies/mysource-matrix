@@ -16,9 +16,11 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="enabled">
-			<boolean true_text="enabled" false_text="disabled" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="enabled">
+            <display_name>Trigger Manager Status</display_name>
+            <note>If disabled, no triggers will be executed</note>
+            <boolean true_text="enabled" false_text="disabled" />
+        </field>
+    </section>
 </contents>

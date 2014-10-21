@@ -48,24 +48,29 @@ class Form_Question_Rule_Type_Word_Count_Edit_Fns extends Form_Question_Rule_Edi
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('core_form_rule_details'));
+			$o->openField(translate('Rule Details'));
+
 			echo translate('core_form_rule_count_edit_'.array_get_index($rule_data, 'operator', '=='), $rule_data['value']);
 			$o->closeField();
 
 		} else {
 
-			$o->openField(translate('operator'));
+			$o->openField(translate('Operator'));
+
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '=='));
 			$o->closeField();
 
-			$o->openField(translate('core_form_num_of_words'));
+			$o->openField(translate('Number of Words'));
+
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
-			echo ' '.translate('word(s)');
+			echo ' '.translate('Word(s).');
+
 			$o->closeField();
 
-			$o->sectionNote(translate('core_form_rule_count_section_note'));
+			$o->sectionNote(translate('Enter the number of words to compare the length of the response against in the text box above.'));
+
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;

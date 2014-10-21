@@ -95,9 +95,15 @@ class Trigger_Condition_Access_Permission extends Trigger_Condition
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$perm = Array(
-					SQ_PERMISSION_READ	=> translate('read').' '.translate('permission'),
-					SQ_PERMISSION_WRITE	=> translate('write').' '.translate('permission'),
-					SQ_PERMISSION_ADMIN	=> translate('admin').' '.translate('permission'),
+					SQ_PERMISSION_READ	=> translate('Read').' '.translate('Permission'),
+
+
+					SQ_PERMISSION_WRITE	=> translate('Write').' '.translate('Permission'),
+
+
+					SQ_PERMISSION_ADMIN	=> translate('Admin').' '.translate('Permission'),
+
+
 				);
 		$grant = Array(
 					1	=> 'has',

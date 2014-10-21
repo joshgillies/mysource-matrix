@@ -48,28 +48,34 @@ class Form_Question_Rule_Type_Regexp_Edit_Fns extends Form_Question_Rule_Edit_Fn
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('core_form_rule_details'));
-			echo translate('core_form_rule_regexp_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), array_get_index($rule_data, 'value', translate('none')));
+			$o->openField(translate('Rule Details'));
+
+			echo translate('core_form_rule_regexp_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), array_get_index($rule_data, 'value', translate('None')));
+
 			$o->closeField();
 
 		} else {
 
-			$o->openField(translate('operator'));
+			$o->openField(translate('Operator'));
+
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
 			$o->closeField();
 
-			$o->openField(translate('regular_expression'));
+			$o->openField(translate('Regular Expression'));
+
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 30);
 			$o->closeField();
 
-			$o->openField(translate('core_form_case_sensitive_question'));
+			$o->openField(translate('Case Sensitive?'));
+
 			// give a text box to write the comparison value in
 			check_box($prefix.'[case]', 1, array_get_index($rule_data, 'case_sensitive', 1));
 			$o->closeField();
 
-			$o->sectionNote(translate('core_form_rule_regexp_note'));
+			$o->sectionNote(translate('Enter a <a href="http://www.php.net/pcre"  target = "_blank">Perl-compatible regular expression</a> into the text box, without any delimiters.'));
+
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;

@@ -18,11 +18,15 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Schema Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Sections Defined For This Metadata Schema" write_access="write:links">
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintSections"   />
 				<process_function name="processSections" />
@@ -31,6 +35,8 @@
 	</section>
 	<section name="Create New Section" read_access="write:links" write_access="write:links">
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintNewSection"   />
 				<process_function name="processNewSection" />
@@ -39,6 +45,8 @@
 	</section>
 	<section name="Regenerate Metadata Files" read_access="write:" write_access="write:">
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
@@ -47,6 +55,8 @@
 	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="frontend">
+			<display_name>Show On Frontend</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

@@ -18,12 +18,11 @@
 -->
 
 <strings>
-<string source="select">--Select--</string>
 <string source="select_table">Select Table</string>
 <string source="select_aggregate_func">Select Aggregate Function</string>
 <string source="aggregate_function">Aggregate Function</string>
 <string source="aggregate_field">Aggregate Field</string>
-<string source="delete">Delete?</string>
+<string source="delete_question">Delete?</string>
 <string source="keyword">Keyword</string>
 <string source="description">Description</string>
 <string source="select_clause_table">Select Clause Table</string>
@@ -35,10 +34,10 @@
 <string source="group_by">GROUP BY</string>
 <string source="field">Field</string>
 <string source="priority">Priority</string>
-<string source="order">Sort Order</string>
+<string source="data_source_sort_order">Sort Order</string>
 <string source="none">None</string>
-<string source="and">AND</string>
-<string source="or">OR</string>
+<string source="sql_and">AND</string>
+<string source="sql_or">OR</string>
 <string source="where">WHERE</string>
 <string source="having">HAVING</string>
 <string source="condition">Condition</string>

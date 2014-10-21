@@ -42,7 +42,7 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 		parent::__construct($pm);
 
 		if (!strlen(SQ_CONF_DEFAULT_EMAIL)) {
-			trigger_localised_error('SYS0315', E_USER_WARNING);
+			trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
 		}
 
 		$this->vars = Array(
@@ -167,7 +167,7 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 	}//end constructor
 
 
-	
+
 	/**
 	* Upgrade
 	*
@@ -188,17 +188,17 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 			$count = 0;
 
 			pre_echo('Updating Bulkmail Post Offices...');
-			
+
 			// Get all Search Page assets
 			$bulkmail_post_offices = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('bulkmail_post_office', FALSE, TRUE);
 
 			$sendmail_path = '';
 			$sendmail_args = '';
-			
+
 			// Update assets
 			foreach ($bulkmail_post_offices as $id => $type) {
-				$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);				
-				
+				$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+
 				$server_details = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('server_details', 'bulkmail_post_office', Array($post_office->id));
 				$server_details = unserialize($server_details[$post_office->id]);
 				if(isset($server_details['sendmail_path']) && !empty($server_details['sendmail_path']))
@@ -208,22 +208,22 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($post_office, TRUE);
 				unset($post_office);
-				
+
 				$count++;
 			}//end foreach search pages
 
-			
+
 			$vars['SQ_TOOL_SENDMAIL_PATH'] = $sendmail_path;
 			$vars['SQ_TOOL_SENDMAIL_ARGS'] = $sendmail_args;
-	    
+
 			require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
 			$cfg = new External_Tools_Config();
 			if (!$cfg->save($vars, FALSE, TRUE)) {
 			    echo "Sendmail path and arguments for bulkmail can not be saved\n";
 			    return FALSE;
 			}
-		
-		
+
+
 			pre_echo('Updated - '.$count.' bulkmail post office(s)...');
 
 			pre_echo('BULKMAIL POST OFFICE SUCCESSFULLY UPGRADED TO VERSION 0.2');
@@ -231,6 +231,6 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 		return TRUE;
 
 	}//end _upgrade()
-	
+
 }//end class
 ?>

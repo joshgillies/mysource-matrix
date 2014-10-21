@@ -71,6 +71,8 @@ class Apache_Config extends Config
 			$this->request_notes = $request_notes;
 		}
 
+		$this->name = translate('Apache Configuration');
+
 	}//end constructor
 
 
@@ -93,12 +95,12 @@ class Apache_Config extends Config
 
 			// if we dont have access, go away
 			if (!$is_admin) {
-				trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
+				trigger_localised_error('SYS0267', sprintf(translate('You need to be either the Root User or a System Administrator to save the %s'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 		}
 		if (!$this->writeAccess()) {
-				trigger_localised_error('SYS0026', E_USER_WARNING, $this->name);
+				trigger_localised_error('SYS0026', sprintf(translate('Unable to save "%s", permission denied'), $this->name), E_USER_WARNING);
 				return FALSE;
 			}
 			// attempt to load the config file to make sure we get any current settings
@@ -160,14 +162,15 @@ class Apache_Config extends Config
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$ms->openQueue();
 				foreach ($changed_vars as $var_name => $values) {
-					$message_body = $var_name.' changed from '.var_export($values['old'], TRUE).' to '.var_export($values['new'], TRUE)."\n";
-					$config_name = ucwords(str_replace('_', ' ', get_class($this)));
 					$msg_reps = Array(
-									'setting'	=> $var_name,
-									'old_value'	=> var_export($values['old'], TRUE),
-									'new_value'	=> var_export($values['new'], TRUE),
+					                'screen_name' => $this->name,
+									'setting'	  => $var_name,
+									'old_value'	  => var_export($values['old'], TRUE),
+									'new_value'	  => var_export($values['new'], TRUE),
 								);
 					$message = $ms->newMessage(Array(), 'config.'.get_class($this), $msg_reps);
+                    $message->subject = translate('%screen_name% Updated');
+                    $message->body    = translate('%setting% changed from %old_value% to %new_value%');
 					$ms->enqueueMessage($message);
 				}
 				$ms->closeQueue();
@@ -236,20 +239,26 @@ class Apache_Config extends Config
 
 		$class = get_class($this);
 
-		$o->openSection(translate('apache_request_notes'));
+		$o->openSection(translate('Request Notes'));
+
 
 			if (!empty($this->request_notes)) {
 				$o->openField('');
 
 					?><table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('apache_note_name'); ?></th>
-							<th><?php echo translate('source'); ?></th>
-							<th><?php echo translate('value'); ?></th>
-							<th><?php echo translate('apache_example_usage'); ?></th>
+							<th><?php echo translate('Request Note'); ?></th>
+
+							<th><?php echo translate('Source'); ?></th>
+
+							<th><?php echo translate('Value'); ?></th>
+
+							<th><?php echo translate('Example Usage'); ?></th>
+
 							<?php
 								if ($write_access) {
-									?><th style="text-align: center;"><?php echo translate('remove_question'); ?></th><?php
+									?><th style="text-align: center;"><?php echo translate('Remove?'); ?></th><?php
+
 								}
 							?>
 						</tr>
@@ -277,15 +286,18 @@ class Apache_Config extends Config
 			}//end if no request notes
 
 			if ($write_access) {
-				$o->openField(translate('new_question'));
+				$o->openField(translate('New?'));
+
 
 					$elements = Array();
 
 					ob_start();
 						$keyword_option = Array(
 											'sq_keyword_select_none'	=> '--',
-											'sq_keyword_select_user'	=> translate('apache_asset_type_user'),
-											'sq_keyword_select_asset'	=> translate('apache_asset_type_asset'),
+											'sq_keyword_select_user'	=> translate('Logged in User'),
+
+											'sq_keyword_select_asset'	=> translate('Current Asset'),
+
 										  );
 						// select what asset to list keywords for
 						combo_box('sq_keyword_type_option', $keyword_option, FALSE, 'none', 0, 'id="sq_asset_type_select" onchange="sqKeywordSelectUpdate(this)"');
@@ -332,7 +344,8 @@ class Apache_Config extends Config
 						ob_start();
 							$asset = new $asset_type();
 							$options = $asset->getAvailableKeywords();
-							$options[SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY] = translate('custom_keyword');
+							$options[SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY] = translate('Custom Keyword');
+
 							combo_box('sq_keyword_select_'.$asset_type, $options, FALSE, '', 0, 'id="sq_keyword_select_'.$asset_type.'"  onchange="sqKeywordValueSelectUpdate(this)"');
 						$elements[] = ob_get_clean();
 					}
@@ -354,19 +367,23 @@ class Apache_Config extends Config
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('source'); ?></th>
+							<th><?php echo translate('Source'); ?></th>
+
 							<td><?php echo $asset_type_selector; ?></td>
 						</tr>
 						<tr>
-							<th><?php echo translate('value'); ?></th>
+							<th><?php echo translate('Value'); ?></th>
+
 							<td><?php echo implode(' ', $elements); ?></td>
 						</tr>
 						<tr>
-							<th><?php echo translate('keyword_name'); ?></th>
+							<th><?php echo translate('Keyword Name'); ?></th>
+
 							<td><?php echo $custom_keyword_input; ?></td>
 						</tr>
 						<tr>
-							<th><?php echo translate('apache_note_name'); ?></th>
+							<th><?php echo translate('Request Note'); ?></th>
+
 							<td><?php echo $note_name_input; ?></td>
 						</tr>
 					</table>
@@ -377,7 +394,8 @@ class Apache_Config extends Config
 
 				$o->closeField();
 			}//end if write access
-			$o->sectionNote(translate('apache_note_example'));
+			$o->sectionNote(translate('Request notes can be configured to make certain values in Squiz Matrix (i.e. the name of the currently logged in user) available to Apache and/or its modules.<br /><br /><b>Example:</b> Using the LogFormat directive, details of the currently logged in Squiz Matrix user could be recorded in Apache the log.<br /><br /><em>LogFormat "&#37;h &#37;l &#37;u &#37;{sq-user-id}n - &#37;{sq-user-name}n"</em>'));
+
 
 		$o->closeSection();
 		if ($write_access) $o->commitButton('', TRUE);
@@ -481,7 +499,7 @@ class Apache_Config extends Config
 
 		// double check name
 		if (in_array($req_note_name, array_keys($this->request_notes))) {
-			trigger_localised_error('SYS0314', E_USER_NOTICE);
+			trigger_localised_error('SYS0314', translate('Cannot set request note name for "%s". A request note with this name already exists.'), E_USER_NOTICE);
 			return Array();
 		}
 

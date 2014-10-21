@@ -69,6 +69,8 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 					require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 					$cart = new Ecommerce_Cart_Processor(<?php echo $this->attr('ecom_form'); ?>);
 					echo (($cart->getCount() == 1) ? translate('item') : translate('items'));
+
+
 				<?php
 				echo '?','>';
 				break;

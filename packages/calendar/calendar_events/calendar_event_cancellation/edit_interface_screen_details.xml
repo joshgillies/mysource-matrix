@@ -18,18 +18,24 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name>Recurring Event to Cancel</display_name>
+			<note />
 			<function_call>
 				<paint_function	  name="paintRecurringEventChooser" />
 				<process_function name="processRecurringEventChooser" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Occurrence to Cancel</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintDateTimeChooser"  />
 				<process_function name="processDateTimeChooser" />
 			</function_call>
 		</field>
 		<field attribute="description">
+			<display_name>Reason for cancellation</display_name>
+			<note />
 			<wysiwyg />
 		</field>
 		<field attribute="name">

@@ -123,7 +123,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 // Install all DAL core and package queries upfront
-$result = install_dal_core_queries();
+$result = install_dal_queries('__core__');
 if (!$result) {
 	trigger_error('Unable to install core dal queries.', E_USER_ERROR);
 	exit(1);
@@ -131,7 +131,7 @@ if (!$result) {
 
 $packages = get_package_list();
 foreach ($packages as $package) {
-	$result = install_dal_package_queries($package);
+	$result = install_dal_queries($package);
 	if (!$result) {
 		trigger_error('Unable to install queries for package '.$package, E_USER_ERROR);
 		exit(1);
@@ -176,6 +176,7 @@ cache_asset_types();
 generate_performance_config();
 generate_file_bridge_config();
 minify_css_files();
+build_js_string_files();
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 

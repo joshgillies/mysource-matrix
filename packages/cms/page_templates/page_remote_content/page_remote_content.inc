@@ -81,7 +81,9 @@ class Page_Remote_Content extends Page
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printFrontend');
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You do not have permission to access the asset'), $this->name));
+
+
 			return;
 		}
 
@@ -214,12 +216,12 @@ class Page_Remote_Content extends Page
 		}
 
 		if (!$url) {
-			trigger_localised_error('CMS0062', E_USER_WARNING);
+			trigger_localised_error('CMS0062', translate('Could not decode URL'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (!$this->isUrlAllowed($url)) {
-			trigger_localised_error('CMS0057', E_USER_WARNING, $url);
+			trigger_localised_error('CMS0057', sprintf(translate('URL not allowed: "%s"'), $url), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -454,7 +456,7 @@ class Page_Remote_Content extends Page
 				}
 				$fullUrl = $schema.'://'.$urlInfo['url'];
 				if ($fullUrl == $url) {
-					trigger_localised_error('CMS0111', E_USER_WARNING);
+					trigger_localised_error('CMS0111', translate('You cannot include or redirect to one of your own urls.'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -483,12 +485,12 @@ class Page_Remote_Content extends Page
 		}
 
 		if ($result['errornumber'] != 0) {
-			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result['errorstring']);
+			trigger_localised_error('CMS0063', sprintf(translate('Cannot connect to server while attempting to access "%1$s" - %2$s'), $url, $result['errorstring']), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if (preg_match('/^[45].*?/', $result['curlinfo']['http_code'])) {
-			trigger_localised_error('CMS0064', E_USER_WARNING, $result['curlinfo']['http_code'], $url);
+			trigger_localised_error('CMS0064', sprintf(translate('Error response %1$s from server while attempting to access "%2$s"'), $result['curlinfo']['http_code'], $url), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -499,7 +501,7 @@ class Page_Remote_Content extends Page
 		// check if we were redirected to the bad destination
 		if ($this->_tmp['url'] != $url) {
 			if (!$this->isUrlAllowed($this->_tmp['url'])) {
-				trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $url);
+				trigger_localised_error('CMS0058', sprintf(translate('Redirected to a disallowed url: "%1$s" from "%2$s"'), $this->_tmp['url'], $url), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -1221,7 +1223,7 @@ class Page_Remote_Content extends Page
 	function _encodeHash($url, $transformations=Array())
 	{
 		if (empty($url)) {
-			trigger_localised_error('CMS0065', E_USER_WARNING);
+			trigger_localised_error('CMS0065', translate('Cannot encode URL hash - no URL supplied'), E_USER_WARNING);
 			return '';
 		}
 
@@ -1257,7 +1259,7 @@ class Page_Remote_Content extends Page
 		$components = Array();
 		parse_str(html_entity_decode($hash), $components);
 		if (empty($components['url'])) {
-			trigger_localised_error('CMS0065', E_USER_WARNING);
+			trigger_localised_error('CMS0065', translate('Cannot encode URL hash - no URL supplied'), E_USER_WARNING);
 		}
 
 		// if there were any white spaces in the url, parse_str will preserve it

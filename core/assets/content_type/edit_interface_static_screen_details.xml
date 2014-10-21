@@ -17,6 +17,9 @@
 
 <contents>
 	<section name="Status">
-		<field code="current" />
+		<field code="current">
+			<display_name>Current</display_name>
+			<note />
+		</field>
 	</section>
 </contents>

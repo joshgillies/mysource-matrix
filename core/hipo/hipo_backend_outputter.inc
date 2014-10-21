@@ -96,7 +96,8 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 			<head>
 				<meta charset="utf-8"/>
 				<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-				<title><?php echo translate('hipo_processing'); ?></title>
+				<title><?php echo translate('HIPO Processing'); ?></title>
+
 				<?php
 
 				$this->addCssInclude($this->filesPath('css/edit.css'));
@@ -291,10 +292,10 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 									<tr <?php echo $style; ?> <?php echo $id; ?>>
 										<td class="sq-backend-data">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
-											<?php if($field['name'] != '&nbsp;'){ 
+											<?php if($field['name'] != '&nbsp;'){
 												?>
 												<span class="sq-backend-field-label"><?php echo $field['name']; ?> </span>
-												<?php 
+												<?php
 											}
 												echo $field['contents'];
 												if ($field['note']) $this->note($field['note']);
@@ -306,7 +307,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 						break;
 
 						default :
-							trigger_localised_error('HIPO0059', E_USER_ERROR, $section['areas'][$j]['area_type']);
+							trigger_localised_error('HIPO0059', sprintf(translate('Unknown Area Type : "%s"'), $section['areas'][$j]['area_type']), E_USER_ERROR);
 
 					}//end switch area type
 

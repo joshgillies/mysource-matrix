@@ -56,8 +56,11 @@ class Cron_Job_Squid_Cache_Purge_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	public function paintInLineBackend(Asset $asset, Backend_Outputter $o, $prefix, $when='', $form_extra_elements='')
 	{
-		$preposition = ($asset->attr('type') == 'one_off') ? translate('squid_clear_at') : translate('squid_clear_every');
-		echo translate('squid_clear_this', $preposition);
+		$preposition = ($asset->attr('type') == 'one_off') ? translate('at') : translate('every');
+
+
+		echo sprintf(translate('Clear this cache %s'), $preposition);
+
 		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 
 		return TRUE;

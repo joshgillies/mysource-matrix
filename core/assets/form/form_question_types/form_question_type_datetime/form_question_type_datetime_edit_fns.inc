@@ -60,7 +60,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		$show_params = $asset->attr('show');
 		$text_params = $asset->attr('text');
 		$null_params = $asset->attr('null');
-		
+
 		$default_params = $asset->getDefaultParameters();
 
 		$edit = FALSE;				// editing flag
@@ -71,33 +71,42 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 			<tr>
 				<td width="12%" style="text-align:center;" class="sq-backend-table-header">&nbsp;</td>
 				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('circa');
+					echo translate('Circa');
+
 				?></td>
 				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('day');
+
 				?></td>
 				<td width="11%" style="text-align:center;"class="sq-backend-table-header"><?php
 					echo translate('month'); ?>
+
 				</td>
 				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('year');
+
 				?></td>
 				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('hour');
+
 				?></td>
 				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('minute');
+
 				?></td>
 				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('second');
+
 				?></td>
 				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('core_form_datetime_12_hour_format');
+					echo translate('12 hour');
+
 				?></td>
 				</tr>
 				<tr>
 				<td class="sq-backend-table-cell"><?php
-					echo translate('show_question')
+					echo translate('Show?')
+
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -155,11 +164,12 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 					} else {
 						echo $show_params['a'] ? 'X' : '';
 					}
-				?></td>				
+				?></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="sq-backend-table-cell"><?php
-					echo translate('allow_blank_question');
+					echo translate('Allow Blank?');
+
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -207,7 +217,8 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 			</tr>
 			<tr>
 				<td colspan="2" class="sq-backend-table-cell"><?php
-					echo translate('core_form_datetime_text_box_question');
+					echo translate('Display as Text Box?');
+
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -302,7 +313,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		} else {
 			$show_params['c'] = '';
 		}
-		
+
 		if (isset($_POST[$prefix.'_a'])) {
 			$show_params['a'] = $_POST[$prefix.'_a'];
 		} else {
@@ -345,6 +356,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				<tr>
 				<td style="width: 50px;" class="sq-backend-table-header"><?php
 					echo translate('day');
+
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -358,6 +370,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				<tr>
 				<td class="sq-backend-table-header"><?php
 					echo translate('month'); ?>
+
 				</td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -370,6 +383,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				<tr>
 				<td class="sq-backend-table-header"><?php
 					echo translate('year');
+
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -382,6 +396,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				<tr>
 				<td class="sq-backend-table-header"><?php
 					echo translate('hour');
+
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -394,6 +409,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				<tr>
 				<td class="sq-backend-table-header"><?php
 					echo translate('minute');
+
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -406,6 +422,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				<tr>
 				<td class="sq-backend-table-header"><?php
 					echo translate('second');
+
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
@@ -417,7 +434,8 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				</tr>
 				<tr>
 				<td class="sq-backend-table-header"><?php
-					echo translate('core_form_datetime_12_hour_format');
+					echo translate('12 hour');
+
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					$extra_params['a'] = (isset($extra_params['a'])) ?  $extra_params['a'] : '';

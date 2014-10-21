@@ -18,9 +18,9 @@
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
-* Funnelback_Manager 
+* Funnelback_Manager
 *
-* Controls the OEM version of Funnelback. Also maintains a database of sitemap XML cache used so far exclusively for Funnelback. 
+* Controls the OEM version of Funnelback. Also maintains a database of sitemap XML cache used so far exclusively for Funnelback.
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
@@ -334,7 +334,7 @@ class Funnelback_Manager extends Asset
 
 
 	/**
-	* Asset has been changed in some way, update the funnelback table to suit 
+	* Asset has been changed in some way, update the funnelback table to suit
 	*
 	* @param object	&$asset	the asset to update
 	* @param array	$vars	the components to update
@@ -381,7 +381,7 @@ class Funnelback_Manager extends Asset
 		if (in_array($asset_type, $excluded_types)) {
 			return $this->_cleanupEntriesByAssetid($asset->id);
 		}//end if
-		
+
 		// Exclude By Root Node
 		if (!empty($excluded_nodes)) {
 			if ($GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($asset->id, $excluded_nodes)) {
@@ -799,7 +799,7 @@ class Funnelback_Manager extends Asset
 				$root_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($suburl);
 				$root_url = array_get_index($root_url_info, 'url', '');
 				$assetid = array_get_index($root_url_info, 'assetid', $assetid);
-				
+
 				// If the collection is not site, include the collection asset as well
 				$bind_vars['asset_url'.$index] = $single_url;
 				$include_collection_sql = ' OR f.url LIKE :asset_url'.$index;
@@ -835,16 +835,16 @@ class Funnelback_Manager extends Asset
 
 		$db = MatrixDAL::getDb();
 		try {
-			if (MatrixDAL::getDbType() == 'pgsql') { 
-				$sql = 'SELECT DISTINCT f.url, f.xml 
-						 FROM sq_fnb_idx f 
-						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
+			if (MatrixDAL::getDbType() == 'pgsql') {
+				$sql = 'SELECT DISTINCT f.url, f.xml
+						 FROM sq_fnb_idx f
+						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid
 							WHERE l.is_dependant=:dependant';
 			} else {
 				// Oracle fun n games
 				$sql = 'SELECT f.url, f.assetid, f.root_url, f.xml
-						 FROM sq_fnb_idx f 
-						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
+						 FROM sq_fnb_idx f
+						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid
 							WHERE l.is_dependant=:dependant';
 			}//end if
 
@@ -1049,7 +1049,7 @@ class Funnelback_Manager extends Asset
 			$status = create_directory($path);
 			if ($status === FALSE) {
 				// Error error error
-				trigger_localised_error('FNB0013', E_USER_WARNING);
+				trigger_localised_error('FNB0013', translate('Unable to create the collection path'), E_USER_WARNING);
 				$path = '';
 			}//end if
 		}//end if
@@ -1116,7 +1116,7 @@ class Funnelback_Manager extends Asset
 			case 'fluster':
 			case 'fluster.cfg':
 			case 'contextual_navigation.cfg':
-				$default_file = $this->getFunnelbackPath().'/conf/contextual_navigation.cfg'; 
+				$default_file = $this->getFunnelbackPath().'/conf/contextual_navigation.cfg';
 				if (file_exists($default_file) && !file_exists($file)) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					copy_file($default_file, $file);
@@ -1162,8 +1162,10 @@ class Funnelback_Manager extends Asset
 	function _getCollectionTypes()
 	{
 		return Array(
-					'web'	=> translate('funnelback_collection_type_web'),
-					'meta'	=> translate('funnelback_collection_type_meta'),
+					'web'	=> translate('Web Collection'),
+
+					'meta'	=> translate('Meta Collection'),
+
 			   );
 
 	}//end _getCollectionTypes()
@@ -1173,7 +1175,7 @@ class Funnelback_Manager extends Asset
 
 
 	/**
-	* Get the indexing options 
+	* Get the indexing options
 	*
 	* @return array
 	* @access public
@@ -1645,68 +1647,130 @@ class Funnelback_Manager extends Asset
 	{
 		return Array(
 					// ''=> 'Anywhere',						// DISABLED until tested properly
-					'a'	=> translate('fb_mclass', 'a'),		// Author
-					'b'	=> translate('fb_mclass', 'b'),		// Rights
-					'c'	=> translate('fb_mclass', 'c'),		// Description
-					'd'	=> translate('fb_mclass', 'd'),		// Date
-					'e'	=> translate('fb_mclass', 'e'),		// Type
-					'f'	=> translate('fb_mclass', 'f'),		// Format
-					'g'	=> translate('fb_mclass', 'g'),		// Relation
-					'h'	=> translate('fb_mclass', 'h'),		// Outgoing Links
-					'i'	=> translate('fb_mclass', 'i'),		// Images
-					'j'	=> translate('fb_mclass', 'j'),		// Availability
-					'k'	=> translate('fb_mclass', 'k'),		// Anchor Text
-					'l'	=> translate('fb_mclass', 'l'),		// Language
-					'm'	=> translate('fb_mclass', 'm'),		// Mailto references
-					'n'	=> translate('fb_mclass', 'n'),		// Source
-					'o'	=> translate('fb_mclass', 'o'),		// Coverage
-					'p'	=> translate('fb_mclass', 'p'),		// Publisher
-					'q'	=> translate('fb_mclass', 'q'),		// Function
-					'r'	=> translate('fb_mclass', 'r'),		// Recipients
-					's'	=> translate('fb_mclass', 's'),		// Subject/Keywords
-					't'	=> translate('fb_mclass', 't'),		// Title
-					'u'	=> translate('fb_mclass', 'u'),		// Hostname part of URL
-					'v'	=> translate('fb_mclass', 'v'),		// Filename part of URL
-					'w'	=> translate('fb_mclass', 'w'),
-					'x'	=> translate('fb_mclass', 'x'),
-					'y'	=> translate('fb_mclass', 'y'),
-					'z'	=> translate('fb_mclass', 'z'),
-					'A'	=> translate('fb_mclass', 'A'),
-					'B'	=> translate('fb_mclass', 'B'),
-					'C'	=> translate('fb_mclass', 'C'),
-					'D'	=> translate('fb_mclass', 'D'),
-					'E'	=> translate('fb_mclass', 'E'),
-					'F'	=> translate('fb_mclass', 'F'),
-					'G'	=> translate('fb_mclass', 'G'),
-					'H'	=> translate('fb_mclass', 'H'),
-					'I'	=> translate('fb_mclass', 'I'),
-					'J'	=> translate('fb_mclass', 'J'),
-					'K'	=> translate('fb_mclass', 'K'),		// Click Data
-					'L'	=> translate('fb_mclass', 'L'),
-					'M'	=> translate('fb_mclass', 'M'),
-					'N'	=> translate('fb_mclass', 'N'),
-					'O'	=> translate('fb_mclass', 'O'),
-					'P'	=> translate('fb_mclass', 'P'),
-					'Q'	=> translate('fb_mclass', 'Q'),
-					'R'	=> translate('fb_mclass', 'R'),
-					'S'	=> translate('fb_mclass', 'S'),		// Squiz Access keys
-					'T'	=> translate('fb_mclass', 'T'),
-					'U'	=> translate('fb_mclass', 'U'),
-					'V'	=> translate('fb_mclass', 'V'),
-					'W'	=> translate('fb_mclass', 'W'),
-					'X'	=> translate('fb_mclass', 'X'),
-					'Y'	=> translate('fb_mclass', 'Y'),
-					'Z'	=> translate('fb_mclass', 'Z'),
-					'0'	=> translate('fb_mclass', '0'),
-					'1'	=> translate('fb_mclass', '1'),
-					'2'	=> translate('fb_mclass', '2'),
-					'3'	=> translate('fb_mclass', '3'),
-					'4'	=> translate('fb_mclass', '4'),
-					'5'	=> translate('fb_mclass', '5'),
-					'6'	=> translate('fb_mclass', '6'),
-					'7'	=> translate('fb_mclass', '7'),
-					'8'	=> translate('fb_mclass', '8'),
-					'9'	=> translate('fb_mclass', '9'),
+					'a'	=> sprintf(translate('Metadata Class %s'), 'a'),		// Author
+
+					'b'	=> sprintf(translate('Metadata Class %s'), 'b'),		// Rights
+
+					'c'	=> sprintf(translate('Metadata Class %s'), 'c'),		// Description
+
+					'd'	=> sprintf(translate('Metadata Class %s'), 'd'),		// Date
+
+					'e'	=> sprintf(translate('Metadata Class %s'), 'e'),		// Type
+
+					'f'	=> sprintf(translate('Metadata Class %s'), 'f'),		// Format
+
+					'g'	=> sprintf(translate('Metadata Class %s'), 'g'),		// Relation
+
+					'h'	=> sprintf(translate('Metadata Class %s'), 'h'),		// Outgoing Links
+
+					'i'	=> sprintf(translate('Metadata Class %s'), 'i'),		// Images
+
+					'j'	=> sprintf(translate('Metadata Class %s'), 'j'),		// Availability
+
+					'k'	=> sprintf(translate('Metadata Class %s'), 'k'),		// Anchor Text
+
+					'l'	=> sprintf(translate('Metadata Class %s'), 'l'),		// Language
+
+					'm'	=> sprintf(translate('Metadata Class %s'), 'm'),		// Mailto references
+
+					'n'	=> sprintf(translate('Metadata Class %s'), 'n'),		// Source
+
+					'o'	=> sprintf(translate('Metadata Class %s'), 'o'),		// Coverage
+
+					'p'	=> sprintf(translate('Metadata Class %s'), 'p'),		// Publisher
+
+					'q'	=> sprintf(translate('Metadata Class %s'), 'q'),		// Function
+
+					'r'	=> sprintf(translate('Metadata Class %s'), 'r'),		// Recipients
+
+					's'	=> sprintf(translate('Metadata Class %s'), 's'),		// Subject/Keywords
+
+					't'	=> sprintf(translate('Metadata Class %s'), 't'),		// Title
+
+					'u'	=> sprintf(translate('Metadata Class %s'), 'u'),		// Hostname part of URL
+
+					'v'	=> sprintf(translate('Metadata Class %s'), 'v'),		// Filename part of URL
+
+					'w'	=> sprintf(translate('Metadata Class %s'), 'w'),
+
+					'x'	=> sprintf(translate('Metadata Class %s'), 'x'),
+
+					'y'	=> sprintf(translate('Metadata Class %s'), 'y'),
+
+					'z'	=> sprintf(translate('Metadata Class %s'), 'z'),
+
+					'A'	=> sprintf(translate('Metadata Class %s'), 'A'),
+
+					'B'	=> sprintf(translate('Metadata Class %s'), 'B'),
+
+					'C'	=> sprintf(translate('Metadata Class %s'), 'C'),
+
+					'D'	=> sprintf(translate('Metadata Class %s'), 'D'),
+
+					'E'	=> sprintf(translate('Metadata Class %s'), 'E'),
+
+					'F'	=> sprintf(translate('Metadata Class %s'), 'F'),
+
+					'G'	=> sprintf(translate('Metadata Class %s'), 'G'),
+
+					'H'	=> sprintf(translate('Metadata Class %s'), 'H'),
+
+					'I'	=> sprintf(translate('Metadata Class %s'), 'I'),
+
+					'J'	=> sprintf(translate('Metadata Class %s'), 'J'),
+
+					'K'	=> sprintf(translate('Metadata Class %s'), 'K'),		// Click Data
+
+					'L'	=> sprintf(translate('Metadata Class %s'), 'L'),
+
+					'M'	=> sprintf(translate('Metadata Class %s'), 'M'),
+
+					'N'	=> sprintf(translate('Metadata Class %s'), 'N'),
+
+					'O'	=> sprintf(translate('Metadata Class %s'), 'O'),
+
+					'P'	=> sprintf(translate('Metadata Class %s'), 'P'),
+
+					'Q'	=> sprintf(translate('Metadata Class %s'), 'Q'),
+
+					'R'	=> sprintf(translate('Metadata Class %s'), 'R'),
+
+					'S'	=> sprintf(translate('Metadata Class %s'), 'S'),		// Squiz Access keys
+
+					'T'	=> sprintf(translate('Metadata Class %s'), 'T'),
+
+					'U'	=> sprintf(translate('Metadata Class %s'), 'U'),
+
+					'V'	=> sprintf(translate('Metadata Class %s'), 'V'),
+
+					'W'	=> sprintf(translate('Metadata Class %s'), 'W'),
+
+					'X'	=> sprintf(translate('Metadata Class %s'), 'X'),
+
+					'Y'	=> sprintf(translate('Metadata Class %s'), 'Y'),
+
+					'Z'	=> sprintf(translate('Metadata Class %s'), 'Z'),
+
+					'0'	=> sprintf(translate('Metadata Class %s'), '0'),
+
+					'1'	=> sprintf(translate('Metadata Class %s'), '1'),
+
+					'2'	=> sprintf(translate('Metadata Class %s'), '2'),
+
+					'3'	=> sprintf(translate('Metadata Class %s'), '3'),
+
+					'4'	=> sprintf(translate('Metadata Class %s'), '4'),
+
+					'5'	=> sprintf(translate('Metadata Class %s'), '5'),
+
+					'6'	=> sprintf(translate('Metadata Class %s'), '6'),
+
+					'7'	=> sprintf(translate('Metadata Class %s'), '7'),
+
+					'8'	=> sprintf(translate('Metadata Class %s'), '8'),
+
+					'9'	=> sprintf(translate('Metadata Class %s'), '9'),
+
 			   );
 
 	}//end getMetadataAliases()

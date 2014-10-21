@@ -18,12 +18,18 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="id_name">
+			<display_name>Design Name</display_name>
+			<note />
 			<text width="60" height="1" />
 		</field>
 		<field attribute="limbo_no_frames">
+			<display_name>No frames in Simple Edit Interface</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="static_url_versioning">
+			<display_name>Include file version in static URL</display_name>
+			<note>This will help bust external caching of statically served content.</note>
 			<boolean true_text="yes" false_text="no"/>
 		</field>
 		<field>
@@ -43,12 +49,16 @@
 	</section>
 	<section name="Parse File" write_access="write:parsing" read_access="write:">
 		<field>
+			<display_name>Manual</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintReparseFile"   />
 				<process_function name="processReparseFile" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Upload</display_name>
+			<note>All your images, stylesheets and javascript files &lt;b&gt;MUST&lt;/b&gt; be in the relative directory './mysource_files'</note>
 			<function_call>
 				<paint_function   name="paintParseFile"   />
 				<process_function name="processParseFile" />

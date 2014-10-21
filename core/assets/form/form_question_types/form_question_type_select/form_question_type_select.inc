@@ -149,7 +149,7 @@ class Form_Question_Type_Select extends Form_Question
 			// if allow empty is true, add the '-- Leave Empty --' as the first option
 			if ($this->attr('allow_empty')) {
 				if(array_key_exists(html_entity_decode($this->attr('empty_key'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $options)) {
-					trigger_localised_error('CORE0302', E_USER_NOTICE);
+					trigger_localised_error('CORE0302', translate('Cannot use \'Empty Text Key\' provided. It is duplicate to one of the keys in provided Options'), E_USER_NOTICE);
 				} else {
 					$empty = Array(html_entity_decode($this->attr('empty_key'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET) => html_entity_decode($this->attr('empty_text'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					$options = $empty + $options;
@@ -331,7 +331,7 @@ class Form_Question_Type_Select extends Form_Question
 			if ($num_columns === 3) {
 				if (!$this->attr('multiple')) {
 					if (count($defaults) > 1) {
-						trigger_localised_error('CORE0286', E_USER_NOTICE);
+						trigger_localised_error('CORE0286', translate('More than one default option was set in the CSV file, but the question is not set for multiple selection. Only the first default option found will be used.'), E_USER_NOTICE);
 					}
 					if (count($defaults) > 0) {
 						$defaults = Array($defaults[0]);
@@ -362,7 +362,7 @@ class Form_Question_Type_Select extends Form_Question
 	}//end importOptionsFromCSV()
 
 
-	
+
 	/**
 	* Look at user-specified and internal rules to see if this question
 	* currently has a valid value
@@ -387,7 +387,7 @@ class Form_Question_Type_Select extends Form_Question
 		}
 		return parent::hasValidValue($answer, $mute_errors);
 	}//end hasValidValue()
-	
-	
+
+
 }//end class
 ?>

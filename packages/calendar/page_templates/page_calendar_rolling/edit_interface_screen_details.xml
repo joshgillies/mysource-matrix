@@ -18,12 +18,18 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 		<field>
+			<display_name>Event Sources</display_name>
+			<note />
 			<function_call>
 				<paint_function name="paintEventSources" />
 				<process_function name="processEventSources" />
@@ -36,11 +42,15 @@
 			</function_call>
 		</field>
 		<field attribute="day_filter">
+			<display_name>Day Filter</display_name>
+			<note>Select the days that will be included in the list.</note>
 			<selection />
 		</field>
 	</section>
 	<section name="Customise Bodycopies" write_access="write:links"  limbo_access="1">
 		<field>
+			<display_name>Customise No Results Bodycopy?</display_name>
+			<note>If this is set to Yes, an additional &quot;Page Contents (No Results)&quot; bodycopy will appear, allowing you to specify different contents when there are no events to list. Note that this is turned off by default.</note>
 			<function_call>
 				<paint_function   name="paintUseNoResultsBodycopy"   />
 				<process_function name="processUseNoResultsBodycopy" />

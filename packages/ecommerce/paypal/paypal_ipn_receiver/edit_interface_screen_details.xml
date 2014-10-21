@@ -18,20 +18,28 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="IPN Receiver details" write_access="write:attributes" limbo_access="1">
 		<field>
+			<display_name>Target asset</display_name>
+			<note>This asset will receive an IPN Completed event if the purchase is successful. If this field is specified, the Target asset ID parameter name below will not be used. It is more secure to use this field than the following parameter name field.</note>
 			<function_call>
 				<paint_function   name="paintTargetAsset"   />
 				<process_function name="processTargetAsset" />
 			</function_call>
 		</field>
 		<field attribute="assetid_param_name">
+			<display_name>Target asset ID parameter name</display_name>
+			<note>This is the ID parameter name of the asset that the customer wants to buy. This asset ID name-value pair is usually passed to Paypal by the custom variable or notify url. For example, custom variable contains aid=123 where 123 is an asset ID and "aid" is the ID parameter name. The specified asset will receive an IPN Completed event if the purchase is successful.</note>
 			<text width="30" height="1" />
 		</field>
 	</section>

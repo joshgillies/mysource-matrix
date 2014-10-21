@@ -145,7 +145,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		echo '<div id="'.$prefix.'_file_pre_upload" style="display:none;">';
 		combo_box($prefix.'_server_file', Array(''=>'')+$options, FALSE, Array());
 		echo '&nbsp;&nbsp;';
-		normal_button($prefix.'_simple_upload_button', translate('core_upload_new_file_button'),		 'document.getElementById(\''.$prefix.'_file_pre_upload\').style.display=\'none\';
+		normal_button($prefix.'_simple_upload_button', translate('Upload a new file'),		 'document.getElementById(\''.$prefix.'_file_pre_upload\').style.display=\'none\';
+
 		document.getElementById(\''.$prefix.'_choose_server_file_button\').parentNode.style.display=\'\'; document.getElementById(\''.$prefix.'_server_file\').value = \'\'');
 		echo '</div>';
 
@@ -154,7 +155,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			file_upload($prefix);
 			if ($this->havePreUploadedFiles($asset, $prefix)) {
 				echo '&nbsp;&nbsp;';
-				normal_button($prefix.'_choose_server_file_button', translate('core_upload_server_file_button'),
+				normal_button($prefix.'_choose_server_file_button', translate('Choose a pre-uploaded file'),
+
 				'document.getElementById(\''.$prefix.'_file_upload\').style.display=\'none\';
 				document.getElementById(\''.$prefix.'_simple_upload_button\').parentNode.style.display=\'\'');
 			}
@@ -194,9 +196,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				}
 				$max_size = min($ini_size, $post_size, $mem_limit_size);
 			}
-			?><br/><span style="font-size: 10px;"><?php echo translate('core_cannot_upload_file_larger_than', strtoupper(easy_filesize($max_size))); ?></span><?php
+			?><br/><span style="font-size: 10px;"><?php echo sprintf(translate('You may only upload files no larger than %s'), strtoupper(easy_filesize($max_size))); ?></span><?php
+
 			if (!empty($asset->allowed_extensions)) {
-				$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions, strtolower(translate('and')))));
+				$o->note(sprintf(translate('<b>NOTE:</b> You may only upload files of type %s.'), make_readable_list($asset->allowed_extensions, strtolower(translate('And')))));
+
+
 			}
 			echo '</div>';
 		}//end if
@@ -295,7 +300,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$status = $asset->scanFile($info['path']);
 			// If infected, remove and warn the user
 			if (!$status) {
-				trigger_localised_error('CORE0300', E_USER_WARNING, $info['filename']);
+				trigger_localised_error('CORE0300', sprintf(translate('Cannot use File. File (%1$s) was infected'), $info['filename']), E_USER_WARNING);
 				return FALSE;
 			}//end if
 		}//end if
@@ -311,7 +316,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $asset->id);
 				if (!empty($bad_paths)) {
-					trigger_localised_error('CORE0055', E_USER_WARNING, $name);
+					trigger_localised_error('CORE0055', sprintf(translate('File upload failed, web path "%s" is already in use by another asset'), $name), E_USER_WARNING);
 					return FALSE;
 				}//end if
 			}//end if
@@ -342,21 +347,21 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$file_status = $fv->upToDate($asset->data_path.'/'.$name);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($asset->data_path.'/'.$name, '')) {
-					trigger_localised_error('CORE0034', E_USER_WARNING);
+					trigger_localised_error('CORE0034', translate('Failed committing file version'), E_USER_WARNING);
 					return FALSE;
 				}//end if
 			}//end if
 		} else {
 			// attempt to add the file to the repository
 			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '')) {
-				trigger_localised_error('CORE0026', E_USER_WARNING);
+				trigger_localised_error('CORE0026', translate('Failed adding file version'), E_USER_WARNING);
 				return FALSE;
 			}//end if
 		}//end else
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/'.$name, $asset->data_path)) {
-			trigger_localised_error('CORE0032', E_USER_WARNING);
+			trigger_localised_error('CORE0032', translate('Failed checking out latest version of file'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -364,7 +369,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$asset->_tmp['uploading_file'] = TRUE;
 		$name_changed = $asset->setAttrValue('name', $name);
 		if (!$asset->saveAttributes()) {
-			trigger_localised_error('CORE0052', E_USER_WARNING);
+			trigger_localised_error('CORE0052', translate('Failed saving attributes for file'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 		$asset->_tmp['uploading_file'] = FALSE;
@@ -374,7 +379,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
 		if (!defined('SQ_IN_IMPORT') && !($asset_cloned) && !($asset->saveWebPaths(Array($name),$auto_add_remaps))) {
-			trigger_localised_error('CORE0054', E_USER_WARNING);
+			trigger_localised_error('CORE0054', translate('Failed saving web paths'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -490,7 +495,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// If we are setting filename then don't remove the file yet
 		$result = $fv->remove($existing['path'], '');
 		if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-			trigger_localised_error('CORE0042', E_USER_WARNING);
+			trigger_localised_error('CORE0042', translate('Failed removing file from repository'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -521,24 +526,24 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (is_uploaded_file($info['tmp_name'])) {
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
-				trigger_localised_error('CORE0037', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
+				trigger_localised_error('CORE0037', sprintf(translate('Failed copying uploaded file (%1$s) to destination directory (%2$s/%3$s)'), $info['tmp_name'], $asset->data_path.'/'.$name), E_USER_WARNING);
 				return FALSE;
 			}//end if
 		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === TRUE) {
 			// we have special permission to move a non-uploaded file
 			if (!copy($info['tmp_name'], $asset->data_path.'/'.$name)) {
-				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
-				return FALSE;
-			}//end if			
-		} else if (isset($info['created_file']) && $info['created_file'] === TRUE) {
-			// when empty file is created by matrix when no file is uploaded 
-			if (!rename($info['tmp_name'].'/'.$name, $asset->data_path.'/'.$name)) {
-				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
+				trigger_localised_error('CORE0036', sprintf(translate('Failed copying non-uploaded file (%1$s) to destination directory (%2$s)'), $info['tmp_name'], $asset->data_path.'/'.$name), E_USER_WARNING);
 				return FALSE;
 			}//end if
-		
+		} else if (isset($info['created_file']) && $info['created_file'] === TRUE) {
+			// when empty file is created by matrix when no file is uploaded
+			if (!rename($info['tmp_name'].'/'.$name, $asset->data_path.'/'.$name)) {
+				trigger_localised_error('CORE0036', sprintf(translate('Failed copying non-uploaded file (%1$s) to destination directory (%2$s)'), $info['tmp_name'], $asset->data_path.'/'.$name), E_USER_WARNING);
+				return FALSE;
+			}//end if
+
 		} else {
-			trigger_localised_error('CORE0067', E_USER_ERROR);
+			trigger_localised_error('CORE0067', translate('No file uploaded or non-uploaded, unable to process file upload'), E_USER_ERROR);
 			return FALSE;
 		}
 
@@ -584,10 +589,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?>
 			<div>
-				<b><a href="<?php echo current_url(TRUE, TRUE).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('core_current_file'); ?></a></b><br/>
-				<b><?php echo translate('info'); ?>:</b> <?php echo get_asset_tag_line($asset->id); ?><br/>
-				<b><?php echo translate('size'); ?>:</b> <?php echo easy_filesize($existing['size'])?><br/>
-				<b><?php echo translate('updated'); ?>:</b> <?php echo readable_datetime($existing['modified'])?>
+				<b><a href="<?php echo current_url(TRUE, TRUE).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('Current File'); ?></a></b><br/>
+
+				<b><?php echo translate('Info'); ?>:</b> <?php echo get_asset_tag_line($asset->id); ?><br/>
+
+				<b><?php echo translate('Size'); ?>:</b> <?php echo easy_filesize($existing['size'])?><br/>
+
+				<b><?php echo translate('Updated'); ?>:</b> <?php echo readable_datetime($existing['modified'])?>
+
 			</div>
 			<?php
 		}

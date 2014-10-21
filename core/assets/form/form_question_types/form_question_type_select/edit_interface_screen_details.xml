@@ -25,57 +25,96 @@
 	</section>
 	<section name="Question Options" write_access="write:attributes">
 		<field attribute="name">
+			<display_name>Title</display_name>
+			<note></note>
 			<text width="20" height="1" />
 		</field>
 		<field attribute="note">
+			<display_name>Note</display_name>
+			<note></note>
 			<text width="40" height="2" />
 		</field>
 		<field>
+			<display_name>Options</display_name>
+			<note><![CDATA[Enter possible options (the list will expand as necessary).<br/>The <strong>Value</strong> is what is submitted as part of the form and the <strong>Text</strong> is what is displayed to the front end user.<br/>For example, the HTML output for each option will be: <pre class="sq-code-example inline"><span>&lt;</span>option value="<strong>Value</strong>"<span>&gt;</span><strong>Text</strong><span>&lt;</span>/option<span>&gt;</span></pre>]]></note>
 			<function_call>
 				<paint_function   name="paintOptions"   />
 				<process_function name="processOptions" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Default</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintDefault"   />
 				<process_function name="processDefault" />
 			</function_call>
 		</field>
 		<field read_access="write:attributes">
+			<display_name>Upload from CSV file</display_name>
+			<note><![CDATA[<p>Use this option to upload a mass list of options from a file of comma-separated values (CSV). Note that your existing options <strong>will be erased</strong> and completely replaced with the options listed in the file. The CSV file can contain one, two or three fields, which are interpreted as follows:</p>
+
+			<ul>
+				<li><strong>One field:</strong> the field will determine the value of each option. The assigned key will be numeric and sequentially assigned, starting from zero (0).</li>
+				<li><strong>Two fields:</strong> first field will denote the key of each option, the second field the value.</li>
+				<li><strong>Three fields:</strong> first field will denote the key, second field the value. The third field should be either numeric '1' or '0', with '1' indicating that this option should be the default value (or a default value, in the case of multiple selections being possible).</li>
+			</ul>
+
+			<p>The number of fields in each row should be consistent: the number of fields in the first row determines how all rows are processed. If less than three fields are specified, the default will not change, except that any default(s) that do not exist in the new set of options (compared by their key) will be removed.</p>
+			]]></note>
 			<function_call>
 				<paint_function   name="paintOptionUpload"   />
 				<process_function name="processOptionUpload" />
 			</function_call>
 		</field>
 		<field attribute="height">
-			<text width="5" height="1" />
+			<display_name>Height</display_name>
+			<note></note>
+		<text width="5" height="1" />
 		</field>
 		<field attribute="multiple">
-			<boolean true_text="yes" false_text="no" />
+			<display_name>Multiple?</display_name>
+			<note></note>
+		<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_empty">
-			<boolean true_text="yes" false_text="no" />
+			<display_name>Use Empty Option?</display_name>
+			<note></note>
+		<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="empty_key">
-			<text width="20" height="1" />
+			<display_name>Empty Option Value</display_name>
+			<note>If 'Allow Empty Option' is enabled, this text will be used as the empty option's value.</note>
+		<text width="20" height="1" />
 		</field>
 		<field attribute="empty_text">
-			<text width="20" height="1" />
+			<display_name>Empty Option Text</display_name>
+			<note>If 'Allow Empty Option' is enabled, this text will be used as the empty option's text.</note>
+		<text width="20" height="1" />
 		</field>
 		<field attribute="allow_empty_selected">
-			<boolean true_text="yes" false_text="no" />
+			<display_name>Allow Empty Option To Be Selected?</display_name>
+			<note></note>
+		<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="empty_selected_error">
-			<text width="40" height="1" />
+			<display_name>Empty Option Selected Error</display_name>
+			<note></note>
+		<text width="40" height="1" />
 		</field>
 		<field attribute="tabindex">
-			<int width="5" />
+			<display_name>Tab Index</display_name>
+			<note>If a tab index is supplied it will be added to the input tag.</note>
+		<int width="5" />
 		</field>
 		<field attribute="extra">
+			<display_name>Extras</display_name>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass".</note>
 			<text width="80" height="4" />
 		</field>
 		<field attribute="sticky">
+			<display_name>Sticky?</display_name>
+			<note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
@@ -87,6 +126,8 @@
 	</section>
 	<section name="Add New Rule" write_access="write:attributes" read_access="write:attributes">
 		<field>
+			<display_name>Add Rule</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintAddRule"   />
 				<process_function name="processAddRule" />

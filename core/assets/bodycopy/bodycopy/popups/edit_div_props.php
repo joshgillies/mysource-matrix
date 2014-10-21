@@ -108,7 +108,7 @@ include(dirname(__FILE__).'/header.php');
 		}
 		owner.bodycopy_save_div_properties(data);
 	}
-	
+
 	function set_class(value) {
 		document.main_form.css_class.value = value;
 	}
@@ -164,7 +164,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 							<option value=""><?php echo translate('content_type_no_change'); ?></option>
 						</select>
 					</td>
-				</tr>				
+				</tr>
 			</table>
 		</fieldset>
 		</td>
@@ -182,8 +182,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 							<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
 							<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
 						</select>
-					</td> 
-				</tr>				
+					</td>
+				</tr>
 			</table>
 		</fieldset>
 		</td>
@@ -234,9 +234,9 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 			}
 			// if delete div is disabled by user preference, do not print the icon
 			else if ($GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_DELETE') === 'yes'){
-				echo translate('bodycopy_pref_cannot_insert_new'); 
-			}	
-			// else print the icon and let user do as he please 
+				echo translate('bodycopy_pref_cannot_insert_new');
+			}
+			// else print the icon and let user do as he please
 			else {
 			?>
 

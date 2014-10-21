@@ -109,7 +109,7 @@ class Asset_Status extends MySource_Object
 	{
 		// we need write access to do any changes
 		if (!$this->owner->readAccess()) {
-			trigger_localised_error('SYS0309', E_USER_WARNING, $this->owner->name, $this->owner->id);
+			trigger_localised_error('SYS0309', sprintf(translate('You do not have permission to change the status of "%1$s" (#%2$s)'), $this->owner->name, $this->owner->id), E_USER_WARNING);
 			return false;
 		}
 
@@ -129,7 +129,7 @@ class Asset_Status extends MySource_Object
 				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
 				eval('$desc = '.$status_code.'::getDescription();');
 
-				trigger_localised_error('SYS0250', E_USER_WARNING, $desc, $this->owner->name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'), $this->owner->id, $this->getDescription(), $GLOBALS['SQ_SYSTEM']->user->name, $GLOBALS['SQ_SYSTEM']->user->id);
+				trigger_localised_error('SYS0250', sprintf(translate('Unable to process the status change. "%1$s" is not a valid option for the "%2$s" %3$s asset (#%4$s) in its current "%5$s" state.  This may be due to required metadata fields being empty, or permissions for the current user "%6$s" (#%7$s)'), $desc, $this->owner->name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'), $this->owner->id, $this->getDescription(), $GLOBALS['SQ_SYSTEM']->user->name, $GLOBALS['SQ_SYSTEM']->user->id), E_USER_WARNING);
 
 				return false;
 			}

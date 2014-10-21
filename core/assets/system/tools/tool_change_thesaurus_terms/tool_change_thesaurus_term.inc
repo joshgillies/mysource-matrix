@@ -57,31 +57,39 @@ class Tool_Change_Thesaurus_Term extends Tool
 	*/
 	public static function paintTool(&$o, $type_code)
 	{
-		$o->openSection(translate('tool_rename_thesaurus_term'));
-			$o->openField(translate('tool_thesaurus_term'));
+		$o->openSection(translate('Change Thesaurus Term Tool'));
+
+			$o->openField(translate('Thesaurus Term'));
+
 				asset_finder('thesaurus_term', 0, Array('thesaurus_term'=>'I'));
-				$err_msg = str_replace("'", "\'", translate('tool_thesaurus_term_empty'));
+				$err_msg = str_replace("'", "\'", translate('No Thesaurus Term set'));
+
 				$o->addOnSubmit("if (document.getElementById('thesaurus_term[assetid]').value == 0) {
 					alert('$err_msg');
 					return false;
 				}");
 			$o->closeField();
-			$o->openField(translate('tool_thesaurus_term_old'));
+			$o->openField(translate('Original Thesaurus Term Value'));
+
 				text_box('thesaurus_term_old');
-				$err_msg = str_replace("'", "\'", translate('tool_thesaurus_term_old_empty'));
+				$err_msg = str_replace("'", "\'", translate('No Original Thesaurus Term value set'));
+
 				$o->addOnSubmit("if (document.getElementById('thesaurus_term_old').value == '') {
 					alert('$err_msg');
 					return false;
 				}");
 			$o->closeField();
 			// No need for asking for the thesaurus, they pick the term, we know the thesaurus it comes from
-			$o->openField(translate('tool_thesaurus_term_root_node'));
+			$o->openField(translate('Root Node'));
+
 				asset_finder('root_node', 0);
 				echo '<br />';
 				check_box('cascade', '1', FALSE);
-				label(translate('tool_thesaurus_term_cascade'), 'cascade');
+				label(translate('Cascade'), 'cascade');
+
 			$o->closeField();
-			$o->sectionNote(translate('tool_rename_thesaurus_term_note'));
+			$o->sectionNote(translate('This tool will update the metadata value on multiple assets with the new thesaurus term. You can specify a root node to restrict the running of this tool, or if no root node is set, the operation will run system wide.'));
+
 		$o->closeSection();
 
 	}//end paintTool()

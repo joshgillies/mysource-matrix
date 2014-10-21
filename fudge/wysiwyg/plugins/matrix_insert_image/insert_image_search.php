@@ -178,7 +178,7 @@ if ($search_for != '') {
 	// build the results box
 	if (empty($results) && empty($found_asset_line)) {
 		$box_title = translate('search_failed');
-		$html = translate('failed_searching_for', addslashes($search_for));
+		$html = sprintf(translate('failed_searching_for'), addslashes($search_for));
 		$style_base = 'search-failed';
 	} else {
 		$box_title = translate('search_results');
@@ -379,7 +379,7 @@ if ($search_for != '') {
 		?>
 		<div><form action="" method="get" id="quick-search" onsubmit="return quick_search_onsubmit(this);">
 			<label id="quick-search-for-label" for="quick-search-for">Quick Search for Images</label>
-			<span class="sq-text-field-wrapper">	
+			<span class="sq-text-field-wrapper">
 			  <input class="sq-backend-header-text-box" type="text" size="30" value="<?php echo htmlspecialchars(empty($search_for) ? $quick_search_for_text : $search_for); ?>" name="quick-search-for" id="quick-search-for" onfocus="return quick_search_for_onfocus(this);" onblur="return quick_search_for_onblur(this);" onkeypress="if (event.keyCode == 13) return quick_search_onsubmit(this.form);">
 			<input type="image" class="sq-backend-header-search-button" alt="Go" title="Submit" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/header/search.png" onclick="form.submit();">
 			</span>

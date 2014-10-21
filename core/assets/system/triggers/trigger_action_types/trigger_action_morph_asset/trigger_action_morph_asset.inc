@@ -53,8 +53,8 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 		// check required settings
 		if (!isset($settings['from_type_code']) || empty($settings['from_type_code'])) return FALSE;
 		if (!isset($settings['to_type_code']) ||empty($settings['to_type_code'])) return FALSE;
-		
-		
+
+
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
@@ -66,19 +66,19 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 
 		if (is_null($state['asset'])) return FALSE;
 		$asset = $state['asset'];
-		
+
 
 		// check the optional settings, assign defaults
 		$from_type_code = array_get_index($settings, 'from_type_code');
 		$to_type_code = array_get_index($settings, 'to_type_code');
-		
-		
+
+
 		if ($asset->status == SQ_STATUS_UNDER_CONSTRUCTION) {
 			if($asset->type() === $from_type_code) {
 			    $asset->morph($to_type_code);
 			}
 		}
-		
+
 		return TRUE;
 
 	}//end execute()
@@ -99,7 +99,7 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 		// check settings, set defaults if necessary
 		$from_type_code    = array_get_index($settings, 'from_type_code', NULL);
 		$to_type_code    = array_get_index($settings, 'to_type_code', NULL);
-		
+
 		// only user and file type assets support morphing
 		$asset_types = Array('user', 'file');
 		$asset_types += $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user');
@@ -115,19 +115,21 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 		ob_start();
 
 		echo '<p>';
-		
+
 		// morph from type options
-		echo (translate('trigger_morph_asset_from'));
+		echo (translate('Morph from type'));
+
 		if ($write_access) {
 			combo_box($prefix.'[from_type_code]', $from_options, FALSE, $from_type_code);
 		} else {
 			echo '<b>'.get_asset_type_icon($from_type_code).$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($from_type_code, 'name').'</b>';
 		}
-		
+
 
 		// morph to type options
 		if(isset($settings['from_type_code']) && !empty($settings['from_type_code'])) {
-		    echo (translate('trigger_morph_asset_to'));
+		    echo (translate('to type'));
+
 		    if ($write_access) {
 				$am = $GLOBALS['SQ_SYSTEM']->am;
 				$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
@@ -158,7 +160,8 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 				}
 
 				if (empty($result)) {
-					echo translate('no_types_to_morph');
+					echo translate('<i>No types are available to morph this asset into</i>');
+
 				} else {
 					$to_options = Array('' => '');
 					foreach ($result as $type_code) {
@@ -174,9 +177,10 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 		}
 
 		echo '</p>';
-		
-		echo '<p><span>'.translate('trigger_morph_asset_warning').'</span></p>';
-		
+
+		echo '<p><span>'.translate('<strong>Note:</strong> The target asset must be in Under Construction status and match the "morph from" type code.').'</span></p>';
+
+
 		$content = ob_get_clean();
 
 		return $content;
@@ -200,7 +204,7 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 		// optional fields
 		$settings['from_type_code']        = array_get_index($request_data, 'from_type_code', '');
 		$settings['to_type_code']        = array_get_index($request_data, 'to_type_code', '');
-		
+
 		return FALSE;
 
 	}//end processInterface()

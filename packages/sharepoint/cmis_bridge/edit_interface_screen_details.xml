@@ -16,43 +16,60 @@
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-	</section>
+    <section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+    </section>
     <section name="Connection Setup" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function		name="paintWsdlUrl" />
-				<process_function	name="processWsdlUrl" />
-			</function_call>
-		</field>
+        <field>
+            <display_name>WSDL URLs</display_name>
+            <note>Example: http://webURL/_vti_bin/cmis/soap/ObjectService.svc?wsdl </note>
+            <function_call>
+                <paint_function name="paintWsdlUrl" />
+                <process_function name="processWsdlUrl" />
+            </function_call>
+        </field>
         <field attribute="username">
+            <display_name>Username</display_name>
+            <note />
             <text width="35" height="1" />
         </field>
         <field attribute="password">
+            <display_name>Password</display_name>
+            <note />
             <password width="35" height="1" />
         </field>
         <field attribute="ws_security">
-			<boolean true_text="yes" false_text="no" />
-		</field>
+            <display_name>WS-Security Header</display_name>
+            <note>If set to 'Yes', a Web Services Security Header will be sent on each SOAP Request. This is needed when Basic HTTP Authentication is not sufficient.</note>
+            <boolean true_text="yes" false_text="no" />
+        </field>
     </section>
     <section name="Synchronise Options" write_access="write:attributes">
-    	<field>
-    		<function_call>
-    			<paint_function   name="paintSynchCheck"	/>
-    			<process_function name="processSynchCheck"	/>
-    		</function_call>
-    	</field>
-    	<field attribute="repository_name">
-			<text width="35" height="1" />
-		</field>
-    	<field show_if="isConnected">
-			<function_call>
-				<paint_function   name="paintMetadataOptions"   />
-				<process_function name="processMetadataOptions" />
-			</function_call>
-		</field>
+        <note> Metadata Fields setup will only appear here if the bridge is connected and a valid Repository Name is supplied.</note>
+        <field>
+            <display_name>Synchronise Now?</display_name>
+            <note> This will trash old files (including their links elsewhere), update modified files and create new files.</note>
+            <function_call>
+                <paint_function name="paintSynchCheck"/>
+                <process_function name="processSynchCheck"/>
+            </function_call>
+        </field>
+        <field attribute="repository_name">
+            <display_name>Repository Name</display_name>
+            <note>The root folder name. E.g. the Document Library name (case sensitive). All files must be located under this root folder and not under any sub-folders.</note>
+            <text width="35" height="1" />
+        </field>
+        <field show_if="isConnected">
+            <display_name>Metadata Fields</display_name>
+            <note>'Modified' and 'cmis:objectId' fields are required for synchronisation. 'Modified' field must use a Metadata Date Field with the default 'Display Format' (d/m/Y H:i:s). 'cmis:objectId' must use a Metadata Text Field. Selected metadata fields must belong to a schema applied to this bridge with cascades turned on.</note>
+            <function_call>
+                <paint_function name="paintMetadataOptions" />
+                <process_function name="processMetadataOptions" />
+            </function_call>
+        </field>
     </section>
 </contents>

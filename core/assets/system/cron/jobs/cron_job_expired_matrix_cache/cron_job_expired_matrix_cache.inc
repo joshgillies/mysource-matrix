@@ -95,7 +95,8 @@ class Cron_Job_Expired_Matrix_Cache extends Cron_Job
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		return translate('cron_job_expired_matrix_cache');
+		return translate('Expired Matrix Cache Scheduled Job');
+
 
 	}//end _getName()
 
@@ -126,8 +127,8 @@ class Cron_Job_Expired_Matrix_Cache extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
+
+
 	/**
 	* Run this cron job
 	*

@@ -43,8 +43,10 @@ class Tools extends MySource_Object
 	function paintBackend(&$backend)
 	{
 		$o =& $backend->out;
-		$o->setHeading(translate('system_tools'), sq_get_icon($o->filesPath('/images/icons/header/whereami.png'), '', '', 'System Tools'));
-        $o->setPageTitle(translate('system_tools'));
+		$o->setHeading(translate('System Tools'), sq_get_icon($o->filesPath('/images/icons/header/whereami.png'), '', '', 'System Tools'));
+
+        $o->setPageTitle(translate('System Tools'));
+
 
 		if (isset($_REQUEST['committed_tool_type_code'])) {
 			// the user has pressed commit for a specific tool
@@ -61,7 +63,8 @@ class Tools extends MySource_Object
 		}
 
 		// At this point, the user just wants to view a list of the available tools
-		$o->openSection(translate('system_tools'));
+		$o->openSection(translate('System Tools'));
+
 		$o->openField('');
 			$tools = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('tool');
 
@@ -69,8 +72,10 @@ class Tools extends MySource_Object
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th><?php echo translate('name'); ?></th>
-						<th><?php echo translate('description'); ?></th>
+						<th><?php echo translate('Name'); ?></th>
+
+						<th><?php echo translate('Description'); ?></th>
+
 					</tr>
 				<?php
 
@@ -96,7 +101,8 @@ class Tools extends MySource_Object
 				</table>
 				<?php
 			} else {
-				echo translate('tools_none_installed');
+				echo translate('There are no tools installed in your system.');
+
 			}
 		$o->closeField();
 		$o->closeSection();

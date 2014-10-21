@@ -60,31 +60,43 @@ class Tool_Delete_Bmail_Users extends Tool
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
-		$o->openField(translate('bm_tool_delete_bmail_users_file_upload'));
+		$o->openField(translate('Text File of Email Addresses to remove'));
+
 			file_upload($type_code.'_file_upload');
-			$o->note(translate('bm_tool_delete_bmail_users_file_upload_note'));
+			$o->note(translate('Each line must contain one email address only'));
+
 		$o->closeField();
 
-		$o->openField(translate('bm_tool_delete_bmail_users_root_node'));
+		$o->openField(translate('Root Node'));
+
 			multiple_asset_finder($type_code.'_root_node');
-			$o->note(translate('bm_tool_delete_bmail_users_root_node_note'));
+			$o->note(translate('Select a root node(s) to delete the bulkmail users from only the specified root node(s). Leave blank to delete bulkmail users from the whole system'));
+
 		$o->closeField();
 
-		$o->openField(translate('bm_tool_delete_bmail_users_confirm'));
-			combo_box($type_code.'_confirm', Array(0=>translate('no'), 1=>translate('yes')));
-			$o->note(translate('bm_tool_delete_bmail_users_confirm_note'));
+		$o->openField(translate('Confirm deletion of bulkmail users'));
+
+			combo_box($type_code.'_confirm', Array(0=>translate('No'), 1=>translate('Yes')));
+
+
+			$o->note(translate('All matching bulkmail users will be deleted, when Yes is selected'));
+
 		$o->closeField();
 
-		$o->openField(translate('bm_tool_delete_bmail_users_link_node'));
+		$o->openField(translate('Move Under Asset'));
+
 			asset_finder($type_code.'_link_node');
-		  	$o->note(translate('bm_tool_delete_bmail_users_link_node_note'));
+		  	$o->note(translate('Select the asset where you want bulkmail users to move'));
+
 		$o->closeField();
 
 		$link_type_list = get_link_type_names();
 
-		$o->openField(translate('bm_tool_delete_bmail_users_link_type'));
+		$o->openField(translate('Using the Link Type'));
+
 			combo_box($type_code.'_link_type', $link_type_list, FALSE);
-		  	$o->note(translate('bm_tool_delete_bmail_users_link_type_note'));
+		  	$o->note(translate('Select the type of link to use for linking bulkmail users to the asset where they are moved'));
+
 		$o->closeField();
 
 		$o->closeSection();
@@ -106,7 +118,7 @@ class Tool_Delete_Bmail_Users extends Tool
 		// error: csv file not specified
 		$file_info = get_file_upload_info($type_code.'_file_upload');
 		if (empty($file_info)) {
-			trigger_localised_error('BML0011', E_USER_NOTICE);
+			trigger_localised_error('BML0011', translate('Import file not selected.'), E_USER_NOTICE);
 			return FALSE;
 		}
 

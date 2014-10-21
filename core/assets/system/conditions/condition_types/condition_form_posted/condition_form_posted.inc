@@ -54,10 +54,31 @@ class Condition_Form_Posted extends Condition
 	* @access public
 	*/
 	public static function evaluate(Asset $asset, Array $condition_data)
-	{	
+	{
 		return isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'POST');
 
 	}//end evaluate()
+
+
+	/**
+	* Get a list of match keywords
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	public static function getMatchKeywords()
+	{
+		$match_options = Array(
+							'1'	=> translate('The form has been posted'),
+							'0' => translate('The form has NOT been posted'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
 
 
 }//end class

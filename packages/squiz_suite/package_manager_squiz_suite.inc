@@ -17,10 +17,10 @@
 require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 
 /**
-* Squiz Suite Package 
+* Squiz Suite Package
 *
 * Purpose
-*    Package containing assets to talk to Squiz Suite products 
+*    Package containing assets to talk to Squiz Suite products
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
@@ -86,7 +86,7 @@ class Package_Manager_Squiz_Suite extends Package_Manager
         $suite_manager->setAttrValue('name', 'Squiz Suite Manager');
 		$suite_manager_link = Array('asset' => &$web_services_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$suite_manager->create($suite_manager_link)) {
-			trigger_localised_error('SQS0001', E_USER_ERROR);
+			trigger_localised_error('SQS0001', translate('Unable to install Squiz Suite Manager'), E_USER_ERROR);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('suite_manager', $suite_manager->id);
@@ -97,7 +97,7 @@ class Package_Manager_Squiz_Suite extends Package_Manager
 
 
 	/**
-	* Create the sync suite products cron job 
+	* Create the sync suite products cron job
 	*
 	* @return object
 	* @access public

@@ -64,10 +64,12 @@ class SOAP_Api_Edit_Fns extends Asset_Edit_Fns
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('operations'); ?>
+					<?php echo translate('Operations'); ?>
+
 				</td>
 				<td class="sq-backend-table-header">
-					<?php echo translate('enabled'); ?>
+					<?php echo translate('Enabled'); ?>
+
 				</td>
 			</tr>
 		<?php

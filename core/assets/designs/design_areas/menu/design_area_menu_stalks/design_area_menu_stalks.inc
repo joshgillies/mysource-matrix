@@ -63,7 +63,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			case 'min_height' :
 				$value = (int) $value;
 				if ($value <= 0) {
-					trigger_localised_error('CORE0177', E_USER_WARNING, $name);
+					trigger_localised_error('CORE0177', sprintf(translate('The "%s" attribute must be set to a number greater than zero'), $name), E_USER_WARNING);
 					return FALSE;
 				}
 			break;

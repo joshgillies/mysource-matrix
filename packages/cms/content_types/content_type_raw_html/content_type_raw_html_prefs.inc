@@ -34,8 +34,6 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_RAW_HTML_SIZE'	=> Array(
-												'name'			=> 'cms_ct_raw_html_pref_editor_size',
-												'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
 												'default'		=> Array('width' => '70em', 'height' => '20em'),
 												'protected'		=> FALSE,
 											   ),
@@ -54,6 +52,8 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 		$this->css_dimension_width = new Asset_Attribute_CSS_Dimension();
 		$this->css_dimension_height = new Asset_Attribute_CSS_Dimension();
 
+		$this->pref_vars['SQ_RAW_HTML_SIZE']['name'] = translate('Raw HTML Editor Size');
+
 	}//end constructor
 
 
@@ -69,43 +69,42 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (is_null($pref) || $pref == 'SQ_RAW_HTML_SIZE') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_RAW_HTML_SIZE']['name']));
-			}
-				$html_size = $this->pref_vars['SQ_RAW_HTML_SIZE']['default'];
-				?>
-				<table class="sq-backend-table" style="width: 350px;">
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width') ?></td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							$this->css_dimension_width->paint('width', $have_lock, $html_size['width']);
-						} else {
-							echo $html_size['width'];
-						}
-						?>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height') ?></td>
-						<td class="sq-backend-table-cell" style="width: 100%;">
-						<?php
-						if ($have_lock && $is_admin) {
-							$this->css_dimension_height->paint('height', $have_lock, $html_size['height']);
-						} else {
-							echo $html_size['height'];
-						}
-						?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if
+	    $is_root   = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin  = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+        $have_lock = ($have_lock && $is_admin);
+
+		$this->paintField($o, $have_lock, $pref, 'SQ_RAW_HTML_SIZE', function($html_size) use ($have_lock) {
+            ?>
+            <table class="sq-backend-table" style="width: 350px;">
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
+
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if ($have_lock) {
+                        $this->css_dimension_width->paint('width', $have_lock, $html_size['width']);
+                    } else {
+                        echo $html_size['width'];
+                    }
+                    ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Height') ?></td>
+
+                    <td class="sq-backend-table-cell" style="width: 100%;">
+                    <?php
+                    if ($have_lock) {
+                        $this->css_dimension_height->paint('height', $have_lock, $html_size['height']);
+                    } else {
+                        echo $html_size['height'];
+                    }
+                    ?>
+                    </td>
+                </tr>
+            </table>
+            <?php
+		});
 
 		return TRUE;
 

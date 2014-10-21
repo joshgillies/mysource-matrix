@@ -180,6 +180,9 @@ class Authentication_IPB extends Authentication
 								'num_attempts'	=> (int)SQ_CONF_MAX_LOGIN_ATTEMPTS,
 							);
 				$log = $ms->newMessage(Array(), 'system.security.login.ipb', $msg_reps);
+				$log->subject = translate('User Account Access Warning');
+				$log->body    = translate('IPB User "%asset_name%" (username: %user_name%) has had their account accessed unsuccessfully %num_attempts% times in a session');
+
 				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 				$log->parameters['sessionid'] = session_id();
 				$log->send();

@@ -97,7 +97,8 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('hipo_name_edit_metadata_field_values');
+		return translate('Edit Metadata Field Values');
+
 
 	}//end getHipoName()
 
@@ -113,7 +114,8 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_updating_metadata_field_values'),
+					'name'			=> translate('Updating Metadata Field Values'),
+
 					'function_call'	=> Array(
 										'process_function'	=> 'processFieldValues',
 									   ),
@@ -177,7 +179,7 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 	{
 		// To start editing Metadata Field values, we need to have an asset id as a starting point
 		if (empty($this->_running_vars['assets'])) {
-			trigger_localised_error('HIPO0017', E_USER_WARNING);
+			trigger_localised_error('HIPO0017', translate('Unable to initialise Edit Metadata Schemas HIPO, no asset IDs specified'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -200,7 +202,7 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 			for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) {
-					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
+					trigger_localised_error('HIPO0016', sprintf(translate('Unable to initialise Edit Metadata Schemas HIPO, invalid asset ID specified (%s)'), $assetid), E_USER_WARNING);
 					return '';
 				}
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
@@ -279,18 +281,21 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 
 					}//end foreach
 
-					$step_data['message'] = translate('hipo_editing_metadata_field_values', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = sprintf(translate('Editing Metadata Field Values for "%s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
 					// we do not acquire lock
-					trigger_localised_error('SYS0100', E_USER_WARNING, 'metadata', $asset->name, ' skipping asset.');
+					trigger_localised_error('SYS0100', sprintf(translate('Unable to acquire "%1$s" lock on "%2$s", %3$s', 'metadata'), $asset->name, ' skipping asset.'), E_USER_WARNING);
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_cannot_edit_schema', $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$this->_addError(sprintf(translate('Could not edit schemas for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -366,7 +371,9 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+		$step_data['message'] = sprintf(translate('Releasing locks on %s'), $asset_info[$assetid]['name']).translate('and its dependent assets');
+
+
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

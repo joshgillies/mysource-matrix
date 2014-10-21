@@ -219,7 +219,8 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			if (!empty($value)) {
 				echo '<ul><li>'.implode('</li><li>', $value).'</li></ul>';
 			} else {
-				echo translate('not_set');
+				echo translate('Not Set');
+
 			}//end if
 		}//end if
 

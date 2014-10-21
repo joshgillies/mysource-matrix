@@ -127,7 +127,8 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$layouts = $asset->attr('layouts');
 		if (empty($layouts)) {
-			$o->note(translate('no_layouts_defined'));
+			$o->note(translate('There are no Layouts Defined'));
+
 			return FALSE;
 		}
 
@@ -141,7 +142,8 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 					$o->openField('');
 
 					check_box($prefix.'_remove_type_code['.$type_code.']');
-					label(translate('remove_customisations_for', $uc_type_code), $prefix.'_remove_type_code['.$type_code.']');
+					label(sprintf(translate('Remove Customisations for %s'), $uc_type_code), $prefix.'_remove_type_code['.$type_code.']');
+
 
 					$o->closeField();
 				}
@@ -149,16 +151,20 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 				$o->openField('');
 
 				if (empty($screens)) {
-					$o->note(translate('no_layouts_for_screens', $uc_type_code));
+					$o->note(sprintf(translate('No Layouts defined for any of %s\'s Screens'), $uc_type_code));
+
 				} else {
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header" width="33%"><?php echo translate('screen_name'); ?></td>
-							<td class="sq-backend-table-header" width="33%"><?php echo translate('layout'); ?></td>
+							<td class="sq-backend-table-header" width="33%"><?php echo translate('Screen Name'); ?></td>
+
+							<td class="sq-backend-table-header" width="33%"><?php echo translate('Layout'); ?></td>
+
 							<?php if ($write_access) {
 								?>
-								<td align="center" class="sq-backend-table-header" width="33%"><?php echo translate('remove'); ?></td>
+								<td align="center" class="sq-backend-table-header" width="33%"><?php echo translate('Remove'); ?></td>
+
 							<?php }
 							?>
 						</tr>
@@ -178,7 +184,8 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 											asset_finder($prefix.'_find['.$type_code.'@'.$screen.']', $assetid, Array('layout' => 'I'));
 										} else {
 											if (empty($assetid)) {
-												echo '<em>'.translate('none').'</em>';
+												echo '<em>'.translate('None').'</em>';
+
 											} else {
 												echo get_asset_tag_line($assetid);
 											}
@@ -203,7 +210,8 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 
 				if ($write_access) {
 					?>
-					<br /><?php echo translate('add_layout'); ?>:
+					<br /><?php echo translate('Add a layout for screen'); ?>:
+
 					<?php
 					$ei = new Asset_Edit_Interface($type_code);
 

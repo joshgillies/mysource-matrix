@@ -20,7 +20,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * Trigger Condition
 *
 * Checks whether an asset status set to change to is what we are looking for
-* This can nly be used in lines with 
+* This can nly be used in lines with
 * Trigger Event Status Change and Trigger Event Before Status Change
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
@@ -115,7 +115,8 @@ class Trigger_Condition_Status_Change_To extends Trigger_Condition
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_status_change_to_basic', $basic_part_1);
+		return sprintf(translate('Status of the <i>(firing)</i> Asset is changed to: %s'), $basic_part_1);
+
 
 	}//end getInterface()
 
@@ -141,7 +142,8 @@ class Trigger_Condition_Status_Change_To extends Trigger_Condition
 			if (isset($status_list[$status])) {
 				$settings['statii'][] = $status;
 			} else {
-				return translate('trigger_selected_status_invalid');
+				return translate('Selected status is invalid');
+
 			}
 		}
 

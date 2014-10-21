@@ -324,20 +324,25 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('no_asset_types_selected').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('No asset types selected').'</p>';
+
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<th><?php echo translate('type') ?></th>
-							<th><?php echo translate('inherit_question') ?></th>
+							<th><?php echo translate('Type') ?></th>
+
+							<th><?php echo translate('Inherit?') ?></th>
+
 						</tr>
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
 					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
-					$inherit_alt = $inherit ? translate('yes') : translate('no');
+					$inherit_alt = $inherit ? translate('Yes') : translate('No');
+
+
 					?>
 						<tr>
 							<td><?php

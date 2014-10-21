@@ -69,13 +69,13 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($owner->data_path)) {
 				if (!create_directory($owner->data_path)) {
-					trigger_localised_error('CORE0198', E_USER_WARNING);
+					trigger_localised_error('CORE0198', translate('Unable to create data directory, report generation aborted'), E_USER_WARNING);
 					return FALSE;
 				}
 			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('CORE0201', E_USER_WARNING);
+				trigger_localised_error('CORE0201', translate('Unable to open temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
@@ -83,7 +83,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('CORE0201', E_USER_WARNING);
+				trigger_localised_error('CORE0201', translate('Unable to open temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -103,7 +103,8 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 					if ($job_link) {
 
 						$cron_job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_link['majorid']);
-						$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
+						$step_data['message'] = sprintf(translate('Checking metadata for %s ...'), $asset->name);
+
 
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$field_values = $mm->getMetadataFieldValues($asset->id);
@@ -134,17 +135,21 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						// write out the XML if there were any trash errors
 						if (!empty($trash_errors)) fwrite($temp_file, $content);
 					} else {
-						$step_data['message'] = translate('hipo_skipping_asset', $assetid).' - NO JOB';
+						$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid).' - NO JOB';
+
 					}
 
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
-					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+					$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
 				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$job->_addError(translate('core_cannot_generate_incomplete_metadata_report', $assetid));
+				$step_data['message'] = sprintf(translate('Skipping asset #%s'), $assetid);
+
+				$job->_addError(sprintf(translate('Could not generate incomplete metadata report for asset #%s, asset does not exist'), $assetid));
+
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -159,11 +164,11 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, "</assets>\n");
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
-				trigger_localised_error('CORE0200', E_USER_WARNING);
+				trigger_localised_error('CORE0200', translate('Unable to move temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
-				trigger_localised_error('CORE0199', E_USER_WARNING);
+				trigger_localised_error('CORE0199', translate('Unable to delete temporary file, report generation continues'), E_USER_WARNING);
 			}
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);
@@ -191,7 +196,8 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			echo translate('report_not_generated');
+			echo translate('This report has not been generated');
+
 			return;
 		}
 
@@ -207,7 +213,6 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 			}
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
-			// trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
@@ -234,7 +239,8 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 		}
 		$o->closeSection();
 
-		$o->openSection(translate('report_safe_trash_section_status'));
+		$o->openSection(translate('Safe Trash Status'));
+
 			$o->openField('');
 				if (empty($missing_fields)) {
 					echo 'NO ASSET FOUND';
@@ -244,11 +250,16 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
-						<td class="sq-backend-table-header" style="width: 180px"><?php echo translate('report_safe_trash_marked_since'); ?></td>
-						<td class="sq-backend-table-header" style="width: 150px"><?php echo translate('status'); ?></td>
-						<td class="sq-backend-table-header" style="width: 150px"><?php echo translate('report_safe_trash_unsafe_links'); ?></td>
-						<td class="sq-backend-table-header" style="width: 150px"><?php echo translate('report_safe_trash_unsafe_children'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('Asset'); ?></td>
+
+						<td class="sq-backend-table-header" style="width: 180px"><?php echo translate('Marked Since'); ?></td>
+
+						<td class="sq-backend-table-header" style="width: 150px"><?php echo translate('Status'); ?></td>
+
+						<td class="sq-backend-table-header" style="width: 150px"><?php echo translate('Unsafe Links'); ?></td>
+
+						<td class="sq-backend-table-header" style="width: 150px"><?php echo translate('Unsafe Children'); ?></td>
+
 					</tr>
 				<?php
 				foreach ($missing_fields as $assetid => $fields) {
@@ -301,7 +312,8 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						<td class="sq-backend-table-cell">
 							<?php
 							if (empty($missing_fields[$asset_tmp->id]['links'])) {
-								echo translate('none');
+								echo translate('None');
+
 							} else {
 								?>
 								<ul style="list-style-type: none; padding-left: 0; margin-left: 0;">
@@ -320,7 +332,8 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						<td class="sq-backend-table-cell">
 							<?php
 							if (empty($missing_fields[$asset_tmp->id]['children'])) {
-								echo translate('none');
+								echo translate('None');
+
 							} else {
 								?>
 								<ul style="list-style-type: none; padding-left: 0; margin-left: 0;">
@@ -362,19 +375,23 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 
 		$types = $asset->attr('types');
 		if (empty($types)) {
-			echo translate('core_no_types_defined');
+			echo translate('There are no Types Defined');
+
 			return FALSE;
 		}
 
 		?>
 		<table class="sq-backend-table">
 		<tr>
-			<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-			<td class="sq-backend-table-header"><?php echo translate('inherit_types'); ?></td>
+			<td class="sq-backend-table-header"><?php echo translate('Asset Type'); ?></td>
+
+			<td class="sq-backend-table-header"><?php echo translate('Inherit Types'); ?></td>
+
 			<?php
 			if ($write_access) {
 				?>
-				<td class="sq-backend-table-header"><?php echo translate('remove_question'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('Remove?'); ?></td>
+
 				<?php
 			}
 			?>
@@ -393,7 +410,9 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						if ($write_access) {
 							check_box($prefix."_inherit_types[$type]", $type, $inherit);
 						} else {
-							echo ($inherit) ? translate('yes') : translate('no');
+							echo ($inherit) ? translate('Yes') : translate('No');
+
+
 						}
 						?>
 					</td>

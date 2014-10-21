@@ -61,7 +61,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return translate('status_live_approval');
+		return translate('Up For Review');
+
 
 	}//end getDescription()
 
@@ -81,7 +82,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 		if (!$this->owner->readAccess()) return $statii;
 
 		if ($this->owner->adminAccess('')) {
-			$statii[SQ_STATUS_EDITING] = translate('status_change_safe_edit');
+			$statii[SQ_STATUS_EDITING] = translate('Safe Edit');
+
 		}
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -103,30 +105,37 @@ class Asset_Status_Live_Approval extends Asset_Status
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$is_dependant = $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
-				
+
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 					if ($wf_complete && ((!$is_dependant && $m_complete) || $is_dependant)) {
-						$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+						$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
+
 					} else if (in_array($userid, $publishers)) {
-						$statii[SQ_STATUS_LIVE_APPROVAL] = translate('status_change_approve_review');
+						$statii[SQ_STATUS_LIVE_APPROVAL] = translate('Approve Review');
+
 					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
-					$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
-					$statii[SQ_STATUS_LIVE_APPROVAL] = translate('status_change_approve_review');
+					$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
+
+					$statii[SQ_STATUS_LIVE_APPROVAL] = translate('Approve Review');
+
 				}
 
-				$statii[SQ_STATUS_EDITING] = translate('status_change_safe_edit');
+				$statii[SQ_STATUS_EDITING] = translate('Safe Edit');
+
 			}
 		} else {
 			// no running workflow means that anyone with admin access can
 			// make this live (up for review is just a flag in this case)
-			$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+			$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
+
 			if ($this->owner->adminAccess('')) {
-				$statii[SQ_STATUS_ARCHIVED] = translate('status_change_archive');
-			}		
+				$statii[SQ_STATUS_ARCHIVED] = translate('Archive');
+
+			}
 
 		}//end if workflow running
 
@@ -173,7 +182,12 @@ class Asset_Status_Live_Approval extends Asset_Status
 								);
 				$msg->replacements = $msg_reps;
 				$msg->type = 'asset.workflow.review.cancel';
-				$asset_edt_fns = $this->owner->getEditFns();
+				$msg->subject = translate('Asset Review Cancelled');
+                $msg->body    = translate('User "%workflow_user%" has started a safe edit of %type_code% "%asset_name%" during a review. The review has been cancelled and the status of "%asset_name%" is now %status%.')."\n\n".
+                                    translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                    translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+
+                $asset_edt_fns = $this->owner->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
 					$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 				} else {
@@ -181,14 +195,14 @@ class Asset_Status_Live_Approval extends Asset_Status
 				}
 
 				if (!$wfm->cancelWorkflow($this->owner->id, $msg)) {
-					trigger_localised_error('SYS0260', E_USER_WARNING);
+					trigger_localised_error('SYS0260', translate('Workflow cancel failed'), E_USER_WARNING);
 					return false;
 				}
 			}
 
 			// we are safe editing
 			if (!$this->owner->saveSystemVersion()) {
-				trigger_localised_error('SYS0208', E_USER_WARNING);
+				trigger_localised_error('SYS0208', translate('Status change failed, could not save to cache'), E_USER_WARNING);
 				return false;
 			}
 
@@ -215,7 +229,11 @@ class Asset_Status_Live_Approval extends Asset_Status
 					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 				}
 
-				$log->type = 'asset.workflow.log.review.cancel';
+				$log->subject = translate('Asset Review Cancelled');
+                $log->body    = translate('User "%workflow_user%" has started a safe edit of %type_code% "%asset_name%" during a review. The review has been cancelled and the status of "%asset_name%" is now %status%.')."\n\n".
+                                    translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                    translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                $log->type = 'asset.workflow.log.review.cancel';
 				$log->parameters['assetid'] = $this->owner->id;
 				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 				$log->send();
@@ -235,13 +253,13 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
-						trigger_localised_error('SYS0261', E_USER_WARNING);
+						trigger_localised_error('SYS0261', translate('Workflow completion failed'), E_USER_WARNING);
 						return false;
 					}
 				} else {
 					// we are doing a workflow and someone has just approved the asset, so record this
 					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-						trigger_localised_error('SYS0077', E_USER_WARNING, $current_userid, $this->owner->name);
+						trigger_localised_error('SYS0077', sprintf(translate('Approval by user %1$s not set in processStatusChange for "%2$s"'), $current_userid, $this->owner->name), E_USER_WARNING);
 						return false;
 					}
 
@@ -249,7 +267,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 					// as long as all our metadata is also complete
 					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 						if (!$wfm->completeWorkflow($this->owner->id)) {
-							trigger_localised_error('SYS0261', E_USER_WARNING);
+							trigger_localised_error('SYS0261', translate('Workflow completion failed'), E_USER_WARNING);
 							return false;
 						}
 					}
@@ -284,7 +302,11 @@ class Asset_Status_Live_Approval extends Asset_Status
 						$log->replacements = $msg_reps;
 						//$log->to = Array(0);
 						$log->type = 'asset.workflow.log.review.complete';
-						$asset_edt_fns = $this->owner->getEditFns();
+						$log->subject = translate('Review Complete');
+                        $log->body    = translate('The review process for %type_code% "%asset_name%" has been completed. "%asset_name%" is now live.')."\n\n".
+                                            translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                            translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                        $asset_edt_fns = $this->owner->getEditFns();
 						if (isset($asset_edt_fns->static_screens['preview'])) {
 							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 						} else {

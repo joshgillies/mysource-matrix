@@ -67,7 +67,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($assetids);
 
 			// Section description
-			$o->openField(translate('section_description'));
+			$o->openField(translate('Section Description'));
+
 				$description = $asset->attr('description');
 				if ($write_access) {
 					text_area($prefix.'_description', $description, 60, 5);
@@ -77,18 +78,22 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$o->closeField();
 			// Current Restrictions
 			// Show the dialog for restricting a section by asset type
-			$o->openField(translate('current_restrict'));
+			$o->openField(translate('Current Restrictions'));
+
 				$restrictions = $asset->attr('restrict');
 				if (!empty($restrictions)) {
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-							<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('inherit').'?'; ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('Asset Type'); ?></td>
+
+							<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('Inherit').'?'; ?></td>
+
 							<?php
 							if ($write_access) {
 							?>
-							<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('remove').'?'; ?></td>
+							<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('Remove').'?'; ?></td>
+
 							<?php
 							}
 							?>
@@ -98,7 +103,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell">
-									<?php 
+									<?php
 										get_asset_type_icon($asset_type);
 										echo ucfirst(str_replace('_', ' ', $asset_type));
 									?>
@@ -129,26 +134,32 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 					<?php
 				} else {
-					echo '<em>'.translate('no_restriction').'</em>';
+					echo '<em>'.translate('No Restrictions').'</em>';
+
 				}
 			$o->closeField();
 
 			if ($write_access) {
 				// New Restrictions
-				$o->openField(translate('new_restriction'));
+				$o->openField(translate('New Restriction'));
+
 					asset_type_chooser($prefix.'_add_restriction', TRUE, Array(), NULL, FALSE, TRUE);
 				$o->closeField();
 			}
 
-			$o->openField(translate('fields'));
+			$o->openField(translate('Fields'));
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header"><b><?php echo translate('field_name'); ?></b></td>
-						<td width="150" class="sq-backend-table-header"><b><?php echo translate('edit_fields'); ?></b></td>
+						<td class="sq-backend-table-header"><b><?php echo translate('Field Name'); ?></b></td>
+
+						<td width="150" class="sq-backend-table-header"><b><?php echo translate('Edit Field'); ?></b></td>
+
 						<?php
 						if ($write_access) {
-							?><td style="text-align: center;" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
+							?><td style="text-align: center;" width="70" class="sq-backend-table-header"><b><?php echo translate('Delete?'); ?></b></td><?php
+
 						}
 						?>
 					</tr>
@@ -160,7 +171,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					?>
 					<tr>
 						<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($field->id);?></td>
-						<td class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('metadata_edit_fields'); ?></a> ]</td>
+						<td class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('Edit Metadata Field'); ?></a> ]</td>
+
 					<?php
 					if ($write_access) {
 						?><td align="center" class="sq-backend-table-cell"><?php
@@ -174,14 +186,16 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		}//end if
 
 		if ($write_access) {
-			$o->openField(translate('new_field_name'));
+			$o->openField(translate('New Field Name'));
+
 
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				text_box($prefix.'_new_field', '', 30);
 
 			$o->closeField();
 
-			$o->openField(translate('new_field_type'));
+			$o->openField(translate('New Field Type'));
+
 
 				// now getting available types list
 				$descendant_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('metadata_field');
@@ -369,8 +383,10 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			if ($write_access) {
 				if (isset($GLOBALS['painted_inline_value_interface'][$asset->id])) {
 					// this is the second time we have painted this interface
-					$o->openField(translate('please_note'));
-						echo '<span class="sq-backend-warning"><b>'.translate('metadata_use_editing_interface').'</b></span>';
+					$o->openField(translate('Please Note'));
+
+						echo '<span class="sq-backend-warning"><b>'.translate('The editing interface for this metadata section has already been shown above. The current metadata values are displayed below but cannot be edited. To edit these metadata values, please use the editing interface displayed above.').'</b></span>';
+
 					$o->closeField();
 					$write_access = FALSE;
 				} else {
@@ -381,7 +397,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 			$section_description = $asset->attr('description');
 			if (!empty($section_description)) {
-				$o->openField('<i>'.translate('section_description').'</i>');
+				$o->openField('<i>'.translate('Section Description').'</i>');
+
 					echo '<i>'.$section_description.'</i>';
 				$o->closeField();
 			}
@@ -436,7 +453,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				// $new_value may be NULL, however, which signifies that we are reverting to default
 				// Evaluating %asset_metadata_% keywords in metadata field will create loop
 				if (strpos($new_value, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', E_USER_WARNING);
+					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
 					$new_value = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_value);
 				}
 
@@ -447,11 +464,11 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 												   ),
 										  );
 				if ($field_cascade_value) $section_cascade_value_asset_ids[$field->id] = 1;
-				
+
 				$res = TRUE;
 			}
 		}
-		
+
 		return $res;
 
 	}//end processInlineValueInterface()

@@ -18,21 +18,33 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Location Name</display_name>
+			<note>The name of the location</note>
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note>The short name of the location</note>
 			<text width="25" height="1" />
 		</field>
 		<field attribute="latitude">
+			<display_name>Latitude</display_name>
+			<note>The latitude of the location</note>
 			<text width="35" height="1" />
 		</field>
 		<field attribute="longitude">
+			<display_name>Longitude</display_name>
+			<note>The longitude of the location</note>
 			<text width="35" height="1" />
 		</field>
 		<field attribute="description">
+			<display_name>Description</display_name>
+			<note>The description of the location</note>
 			<text width="100" height="5" />
 		</field>
 		<field attribute="icon_url">
+			<display_name>Icon URL</display_name>
+			<note>The URL for this location icon</note>
 			<text width="35" height="1" />
 		</field>
 	</section>

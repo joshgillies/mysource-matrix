@@ -135,7 +135,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		$root_node_asset_id = $assetid;
 
 		// Compile a list of candidate links which reside DIRECTLY under our Root Node (default operation)
-		$assets = 'SELECT DISTINCT 
+		$assets = 'SELECT DISTINCT
 						a.assetid
 					FROM
 						sq_ast a, sq_ast_lnk l
@@ -164,7 +164,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 
 			// Ok, any matching assets should be linked under the Broadcasting Asset back to underneath our Root Node (ie; share a common Tree ID)
 			// Let's climb the tree...
-			$assets = 'SELECT DISTINCT 
+			$assets = 'SELECT DISTINCT
 							a.assetid
 						FROM
 							sq_ast a, sq_ast_lnk l, sq_ast_lnk_tree t
@@ -226,7 +226,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		$vars = Array('assetids' => Array($minor->id));
 		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		$major->updateLookups();
-		
+
 		return Array();
 
 	}//end execute()
@@ -278,7 +278,8 @@ class Trigger_Action_Remove_Links extends Trigger_Action
         }
         asort($asset_types_options);
         $asset_types_options = array_reverse($asset_types_options, TRUE);
-        $asset_types_options[''] = '-- '.translate('all_asset_types').' --';
+        $asset_types_options[''] = '-- '.translate('All Asset Types').' --';
+
         $asset_types_options = array_reverse($asset_types_options, TRUE);
 
         // initialise settings var
@@ -292,12 +293,14 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 
 					if ($write_access) {
 						?>
-						<th style="width:110px;"><?php echo translate('trigger_remove_link_matching_asset_types'); ?></th>
+						<th style="width:110px;"><?php echo translate('Linked Asset Type'); ?></th>
+
 						<td style="padding-bottom: 10px;"><?php echo combo_box($prefix.'[asset_types]', $asset_types_options, TRUE, $settings['asset_types'], 8); ?></td>
 						<?php
 					} else {
 						?>
-						<th style="width:110px;"><?php echo translate('trigger_remove_link_matching_asset_types'); ?></th>
+						<th style="width:110px;"><?php echo translate('Linked Asset Type'); ?></th>
+
 						<td><?php
 							if (!empty($settings['asset_types'][0])) {
 								?><ul class="sq-root-node-selections-wrapper"><?php
@@ -309,7 +312,8 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 								}
 								?></ul><?php
 							} else {
-								echo '&nbsp; &nbsp;'.translate('all_asset_types');
+								echo '&nbsp; &nbsp;'.translate('All Asset Types');
+
 							}
 						?></td><?php
 					}
@@ -367,17 +371,21 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 
 			text_box($prefix.'[link_value]', $link_value, '', '', FALSE, $form_element_extras.' '.$link_value_onkeypress.' id="link_value"');
 			check_box($prefix.'[any_link_value]', '1', $any_link_value, '', $form_element_extras.' '.$any_link_value_onclick.' id="any_link_value"');
-			echo translate('trigger_remove_link_any_link_value');
+			echo translate('Any Link Value');
+
 
 			echo '<br/>';
 			check_box($prefix.'[direct_links_only]', '1', $direct_links_only, '', $form_element_extras);
-			label(translate('trigger_remove_link_direct_links_only'), $prefix.'[direct_links_only]');
+			label(translate('Only where Candidate Assets are Directly Linked to the Root Node'), $prefix.'[direct_links_only]');
+
 
 			$advanced_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		$contents = '<div class="sq-break-line-inputs">'.translate('trigger_remove_link_basic', $basic_part_2).'<br />'.
-					translate('trigger_remove_link_advanced', $basic_part_3, $advanced_part_1).'</div><br />'.
+		$contents = '<div class="sq-break-line-inputs">'.sprintf(translate('As linked to the Broadcasting Asset, which also resides under the Root Node: %1$s'), $basic_part_2).'<br />'.
+
+					sprintf(translate('With Link Type %1$s and Link Value %2$s'), $basic_part_3, $advanced_part_1).'</div><br />'.
+
 					$asset_types_combo_box.
 					$basic_part_4;
 

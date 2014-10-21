@@ -175,7 +175,8 @@ class Asset_Edit_Fns extends MySource_Object
 		$remap_urls = $remap_manager->getRemapURLs($asset);
 
 		if (empty($remap_urls)) {
-			echo translate('no_associated_remaps');
+			echo translate('There are no remaps associated with this Asset');
+
 			return FALSE;
 		}
 
@@ -188,11 +189,15 @@ class Asset_Edit_Fns extends MySource_Object
 		$page_num = min($page_num, $num_pages);
 
 		if ($num_pages == 1) {
-			$page_tag = translate('page_number', $page_num, $num_pages);
+			$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
+
 		} else {
-			$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_remap_urls_page');
+			$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_remap_urls_page');
+
 		}
-		$asset_count_tag = translate('item_range', ($page_num - 1) * $num_per_page + 1, min($total_assets, $page_num * $num_per_page), $total_assets, strtolower(translate('remap_entries')));
+		$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $num_per_page + 1, min($total_assets, $page_num * $num_per_page), $total_assets, strtolower(translate('Remap entries')));
+
+
 
 		$remap_urls = array_slice($remap_urls, ($page_num - 1) * $num_per_page, $num_per_page);
 
@@ -205,19 +210,27 @@ class Asset_Edit_Fns extends MySource_Object
 				);
 
 		if ($page_num > 1) {
-			$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', 1)">'.$links['first'].'</a>';
-			$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+			$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', 1)">'.$links['first'].'</a>';
+
+			$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+
 		} else {
-			$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
-			$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+			$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
+
+			$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
+
 		}
 
 		if ($page_num < $num_pages) {
-			$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.$num_pages.')">'.$links['last'].'</a>';
-			$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+			$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.$num_pages.')">'.$links['last'].'</a>';
+
+			$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+
 		} else {
-			$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
-			$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+			$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
+
+			$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
+
 		}
 
 		hidden_field($prefix.'_remap_urls_page', $page_num); ?>
@@ -228,28 +241,35 @@ class Asset_Edit_Fns extends MySource_Object
 				<th class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
 			<tr>
-				<th class="sq-backend-table-header"><?php echo translate('url'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('remap_url'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('expires'); ?></th>
-				<th class="sq-backend-table-header"><?php echo translate('type'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('URL'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Remap URL'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Expires'); ?></th>
+
+				<th class="sq-backend-table-header"><?php echo translate('Type'); ?></th>
+
 				<?php
 					if ($admin_access) {
 						?>
 						<th class="sq-backend-table-header">
 							<?php
 							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
-							label(translate('delete_question'), $prefix.'_select_all');
+							label(translate('Delete?'), $prefix.'_select_all');
+
 							?>
 						</th>
 						<?php
 					}
 				?>
-				<th class="sq-backend-table-header"><?php echo translate('never_delete'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('Never&nbsp;Delete'); ?></th>
+
 			</tr>
 			<?php
 				foreach ($remap_urls as $url_info) {
 					if (empty($url_info['expires'])) {
-						$expires = translate('never');
+						$expires = translate('Never');
+
 					} else {
 						$expires = $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($url_info['expires']));
 					}
@@ -258,7 +278,10 @@ class Asset_Edit_Fns extends MySource_Object
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
-					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto_remap'] === 1) ? translate('automatic') : (($url_info['auto_remap'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
+					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto_remap'] === 1) ? translate('Automatic') : (($url_info['auto_remap'] === NULL) ? translate('Unknown') : translate('Manual')); ?></td>
+
+
+
 					<?php
 						if ($admin_access) {
 							?>
@@ -270,7 +293,7 @@ class Asset_Edit_Fns extends MySource_Object
 							<?php
 						}
 					?>
-					
+
 					<td class="sq-backend-table-cell" align="center"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.gif" : "cross.gif"); ?>" width="15" height="15" /></td>
 				</tr>
 				<?php
@@ -379,7 +402,8 @@ class Asset_Edit_Fns extends MySource_Object
 	{
 		$urls = $asset->getLookups();
 		if (empty($urls)) {
-			echo translate('no_associated_urls');
+			echo translate('There are no URLs associated with this Asset');
+
 		} else {
 			usort($urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
 			echo '<ul class="sq-remove-brs" style="margin-top: 0;">';
@@ -395,7 +419,8 @@ class Asset_Edit_Fns extends MySource_Object
 		}
 
 		if ($asset->force_secure === '1') {
-			$o->note(translate('force_secure_set_on_asset'));
+			$o->note(translate('Force Secure (see Settings screen) is set on this asset, so if you think that there should other URLs registered you may need to check that the site(s) that this asset is has allowed the https protocol'));
+
 		}
 
 	}//end paintURLs()
@@ -414,11 +439,13 @@ class Asset_Edit_Fns extends MySource_Object
 	function paintAddRemapURLs(&$asset, &$o, $prefix)
 	{
 		if (!$asset->adminAccess('lookups')) return FALSE;
-		
+
 		$urls = $asset->getURLs();
 		if (empty($urls)) {
-			$o->openField(translate('url_remappings'));
-				label(translate('url_remap_no_associated_asset_urls'));
+			$o->openField(translate('URL Remappings'));
+
+				label(translate('URL Remappings could not be displayed as there are no URLs associated with this asset.'));
+
 			$o->closeField();
 
 			return FALSE;
@@ -436,21 +463,27 @@ class Asset_Edit_Fns extends MySource_Object
 		$remap_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 		$never_delete = ($remap_manager->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
 
-		$o->openField(translate('old_url'));
+		$o->openField(translate('Old URL'));
+
 			text_box($prefix.'_add_remap_old_url', '', 50);
 		$o->closeField();
 
-		$o->openField(translate('new_url'));
+		$o->openField(translate('New URL'));
+
 			combo_box($prefix.'_add_remap_new_url', $contents);
-			$o->note(translate('url_remap_explanation'));
+			$o->note(translate('The "Old URL" is the URL that you want remapped. The "New URL" is the URL that a user will be redirected to when they visit the "Old URL".'));
+
 		$o->closeField();
 
-		$o->openField(translate('expires'));
+		$o->openField(translate('Expires'));
+
 			text_box($prefix.'_add_remap_expires_days', '', 5);
 			label(translate('days'), $prefix.'_add_remap_expires_days');
+
 		$o->closeField();
 
-		$o->openField(translate('never_delete'));
+		$o->openField(translate('Never&nbsp;Delete'));
+
 			check_box($prefix.'_add_remap_never_delete', TRUE, $never_delete);
 		$o->closeField();
 
@@ -541,7 +574,8 @@ class Asset_Edit_Fns extends MySource_Object
 
 		if (!$asset->writeAccess('links')) {
 			if (empty($links)) {
-				echo '<i>'.translate('none').'</i>';
+				echo '<i>'.translate('None').'</i>';
+
 			} else {
 				foreach ($links as $link) {
 					echo get_asset_tag_line($link['minorid']);
@@ -731,14 +765,15 @@ class Asset_Edit_Fns extends MySource_Object
 
             // paint checkbox
             check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
-            label(translate('web_paths_auto_add_remaps_label'), $prefix.'_remap_upon_webpath_change');
+            label(translate('Automatically add remaps'), $prefix.'_remap_upon_webpath_change');
+
         }
-		
+
 		return $write_access;
 
 	}//end paintAutomaticRemapSetting()
 
-		
+
 	/**
 	* Paint the interface for the choosing link type when creating assets
 	*
@@ -755,7 +790,7 @@ class Asset_Edit_Fns extends MySource_Object
 							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
 						   );
-						   
+
 		if (isset($_REQUEST['parent_assetid'])){
 			$restricted_sites = $GLOBALS['SQ_SYSTEM']->getUserPrefs('site', 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT');
 			$parent_sites = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($_REQUEST['parent_assetid'], 'site'));
@@ -767,17 +802,18 @@ class Asset_Edit_Fns extends MySource_Object
 				$_REQUEST['link_type'] = SQ_LINK_TYPE_2;
 			}
 		}
-		
+
 		$o->closeField();
-		$o->openField(translate('link_type'));
+		$o->openField(translate('Link Type'));
+
 		combo_box('link_type', $editable_link_types, FALSE, isset($_REQUEST['link_type']) ? $_REQUEST['link_type'] : SQ_LINK_TYPE_1);
 		$o->closeField();
 		return TRUE;
 
 	}//end paintCreateLink()
 
-	
-	
+
+
 	/**
 	* Paints adding a new user condition
 	*
@@ -791,7 +827,7 @@ class Asset_Edit_Fns extends MySource_Object
 	public function paintConditions(&$asset, &$o, $prefix)
 	{
 		$keywords = Array();
-		
+
 		// 1. asset content
 		$keywords[] = 'asset_contents';
 
@@ -806,7 +842,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		// 3. asset metadata
 		$keywords[] = 'asset_metadata_';
-			
+
 		$write_access = $asset->writeAccess('attributes');
 		$condition_list = new Conditions_List($asset, 'available_conditions');
 		return $condition_list->paintConditionsList($asset, $o, $prefix, $write_access, $keywords);
@@ -833,6 +869,6 @@ class Asset_Edit_Fns extends MySource_Object
 
 	}//end processConditions()
 
-	
+
 }//end class
 ?>

@@ -74,22 +74,28 @@ class Tool_Clear_Matrix_Cache extends Tool
 		$o->openSection($tool_info['name']);
 
 		// interface to get to asset using asset finder
-		$o->openField(translate('choose_asset'));
+		$o->openField(translate('Choose Asset'));
+
 			asset_finder($type_code.'_assetid');
 		$o->closeField();
 
 		// level option
-		$o->openField(translate('level'));
+		$o->openField(translate('Level'));
+
 			$options = Array(
-						'single'		=> translate('this_asset'),
-						'dependants'	=> translate('this_asset_and_dependants'),
-						'children'		=> translate('this_asset_and_children'),
+						'single'		=> translate('This asset'),
+
+						'dependants'	=> translate('This asset and its dependants'),
+
+						'children'		=> translate('This asset and its children'),
+
 					   );
 			combo_box($type_code.'_level', $options, '', FALSE);
 		$o->closeField();
 
 		// asset types dropdown
-		$o->openField(translate('asset_types'));
+		$o->openField(translate('Asset Types'));
+
 			$type_options = Array();
 			$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 			foreach ($asset_types as $code) {
@@ -100,26 +106,31 @@ class Tool_Clear_Matrix_Cache extends Tool
 			}
 			asort($type_options);
 			$type_options = array_reverse($type_options, TRUE);
-			$type_options[''] = '-- '.translate('all_asset_types').' --';
+			$type_options[''] = '-- '.translate('All Asset Types').' --';
+
 			$type_options = array_reverse($type_options, TRUE);
 			combo_box($type_code.'_type_codes', $type_options, TRUE, '', 8);
 		$o->closeField();
 
 		// if repopulate box is checked, will request page using CURL
-		$o->openField(translate('tool_matrix_cache_populate_question'));
+		$o->openField(translate('Repopulate?'));
+
 			$disabled = (function_exists('curl_init')) ? '' : 'disabled';
 			check_box($type_code.'_repopulate', TRUE, FALSE, '', $disabled);
-			echo translate('tool_matrix_cache_populate_note');
+			echo translate('Request the asset after clearing the cache so that Matrix can recache it.');
+
 			if ($disabled) {
 				// we cannot repopulate if libcurl is not installed
 				$o->note('<span class="sq-backend-warning">Note: PHP libcurl package is not installed</span>');
 			}
 			echo '<br /><br />';
-			$o->note(translate('tool_matrix_cache_note'));
+			$o->note(translate('Note: Level, Asset Types and Repopulate option will also be applied to the Scheduled Job if you schedule one.'));
+
 		$o->closeField();
 
 		// if clear now box is checked, cache is cleared at commit
-		$o->openField(translate('tool_matrix_cache_clear_now_field'));
+		$o->openField(translate('Clear Now'));
+
 			check_box($type_code.'_clear_now', TRUE);
 		$o->closeField();
 
@@ -127,7 +138,8 @@ class Tool_Clear_Matrix_Cache extends Tool
 
 
 		// scheduled jobs section
-		$o->openSection(translate('matrix_cache_schedule_section'));
+		$o->openSection(translate('Schedule Clear Cache Scheduled Job (Matrix)'));
+
 
 		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('Cron_Job_Clear_Matrix_Cache');
@@ -135,13 +147,17 @@ class Tool_Clear_Matrix_Cache extends Tool
 
 		// print scheduled jobs, one_off or repeating
 		if (!empty($purge_jobs)) {
-			$o->openField(translate('matrix_cache_scheduled_job_field'), 'new_line');
+			$o->openField(translate('Scheduled Jobs'), 'new_line');
+
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
-					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('Asset'); ?></td>
+
+					<td class="sq-backend-table-header"><?php echo translate('When'); ?></td>
+
+					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('Delete?'); ?></td>
+
 				</tr>
 				<?php
 					for ($i = 0; $i < count($purge_jobs); $i++) {
@@ -173,7 +189,8 @@ class Tool_Clear_Matrix_Cache extends Tool
 		if ($cron_epoc > 0 && $cron_refresh > 0) {
 
 			// prints the interface for adding a new one-off job
-			$o->openField(translate('matrix_cache_one_off_field'), 'new_line');
+			$o->openField(translate('Schedule a One Off Job'), 'new_line');
+
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				$new_job = new Cron_Job_Clear_Matrix_Cache();
 				$edit_fns = $new_job->getEditFns();
@@ -182,19 +199,22 @@ class Tool_Clear_Matrix_Cache extends Tool
 			$o->closeField();
 
 			// prints the interface for adding a new repeating job
-			$o->openField(translate('matrix_cache_repeating_field'), 'new_line');
+			$o->openField(translate('Schedule a Repeating Job'), 'new_line');
+
 				$new_job = new Cron_Job_Clear_Matrix_Cache();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$new_job->setAttrValue('type', 'repeating');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$edit_fns = $new_job->getEditFns();
 				$edit_fns->paintInLineBackend($new_job, $o, $type_code.'_repeating');
-				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+				$o->note(sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+
 			$o->closeField();
 
 		} else {
 			$o->openField('Note');
-				$o->note(translate('cron_manager_not_configured'));
+				$o->note(translate('The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset.'));
+
 			$o->closeField();
 		}
 
@@ -237,7 +257,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 				} else {
-					trigger_localised_error('SYS0232', E_USER_NOTICE);
+					trigger_localised_error('SYS0232', translate('Unable to acquire the lock on the Cron Manager, unable to remove jobs'), E_USER_NOTICE);
 				}
 			}
 			// remove job only, do not print error msg

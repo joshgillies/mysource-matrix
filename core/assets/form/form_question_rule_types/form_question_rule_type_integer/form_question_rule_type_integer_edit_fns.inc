@@ -48,18 +48,21 @@ class Form_Question_Rule_Type_Integer_Edit_Fns extends Form_Question_Rule_Edit_F
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('core_form_rule_details'));
+			$o->openField(translate('Rule Details'));
+
 			echo translate('core_form_rule_integer_edit_'.array_get_index($rule_data, 'operator', 1) ? 'true' : 'false');
 			$o->closeField();
 
 		} else {
 
-			$o->openField(translate('condition'));
+			$o->openField(translate('Condition'));
+
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '1'));
 			$o->closeField();
 
-			$o->sectionNote(translate('core_form_rule_boolean_desc'));
+			$o->sectionNote(translate('This rule requires only the condition to be satisfied to be set.'));
+
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;

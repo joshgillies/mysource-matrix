@@ -78,7 +78,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					if (!is_null($group_asset)) {
 						?><li><?php echo get_asset_tag_line($group_asset->id); ?></li><?php
 					} else {
-						echo translate('bulkmail_recipient_group_asset_not_found');
+						echo translate('Error retrieving group asset.');
+
 					}
 				}
 			?></ul><?php
@@ -133,7 +134,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$server_details = $asset->attr('server_details');
 
-		$field_name = translate('bulkmail_server_detail_mail_method_field_name');
+		$field_name = translate('Mail Method');
+
 		$o->openField($field_name);
 			$options = Array(
 						'smtp'		=> 'SMTP',
@@ -151,7 +153,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		$smtp = !($value == 'smtp');
 
-		$field_name = translate('bulkmail_server_detail_host_field_name');
+		$field_name = translate('Host');
+
 		$name = $prefix.'_server_detail_smtp_host';
 		$o->openField($field_name, '', '', $smtp, $name.'_field');
 			$value = array_get_index($server_details, 'host', '');
@@ -162,7 +165,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			}
 		$o->closeField();
 
-		$field_name = translate('bulkmail_server_detail_port_field_name');
+		$field_name = translate('Port');
+
 		$name = $prefix.'_server_detail_smtp_port';
 		$o->openField($field_name, '', '', $smtp, $name.'_field');
 			$value = array_get_index($server_details, 'port', '');
@@ -173,7 +177,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			}
 		$o->closeField();
 
-		$field_name = translate('bulkmail_server_detail_auth_field_name');
+		$field_name = translate('Auth');
+
 		$name = $prefix.'_server_detail_smtp_auth';
 		$o->openField($field_name, '', 'Server requires authentication?', $smtp, $name.'_field');
 			$auth = array_get_index($server_details, 'auth', FALSE);
@@ -190,7 +195,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$disabled = ($auth) ? '' : 'disabled=TRUE';
 
 		$name = $prefix.'_server_detail_smtp_auth_username';
-		$o->openField(translate('username'), '', '', $smtp, $name.'_field');
+		$o->openField(translate('Username'), '', '', $smtp, $name.'_field');
+
 			$value = array_get_index($server_details, 'username', '');
 			if ($write_access) {
 				text_box($name, $value, '', '', FALSE, $disabled);
@@ -200,7 +206,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$o->closeField();
 
 		$name = $prefix.'_server_detail_smtp_auth_password';
-		$o->openField(translate('password'), '', '', $smtp, $name.'_field');
+		$o->openField(translate('Password'), '', '', $smtp, $name.'_field');
+
 			$value = array_get_index($server_details, 'password', '');
 			if ($write_access) {
 				password_box($name, $value, '', '', $disabled);
@@ -209,13 +216,15 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			}
 		$o->closeField();
 
-		$field_name = translate('bulkmail_server_detail_path_field_name');
+		$field_name = translate('Path');
+
 		$name = $prefix.'_server_detail_sendmail_sendmail_path';
 		$o->openField($field_name, '', 'The path to your sendmail binary. Use config file data/private/conf/tools.inc.', !$smtp, $name.'_field');
 			echo SQ_TOOL_SENDMAIL_PATH;
 		$o->closeField();
 
-		$field_name = translate('bulkmail_server_detail_arg_field_name');
+		$field_name = translate('Arguments');
+
 		$name = $prefix.'_server_detail_sendmail_sendmail_args';
 		$o->openField($field_name, '', 'Use config file data/private/conf/tools.inc.', !$smtp, $name.'_field');
 			echo SQ_TOOL_SENDMAIL_ARGS;
@@ -318,11 +327,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_name'); ?></b></th>
-					<th class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_body'); ?></b></th>
+					<th class="sq-backend-table-header"><b><?php echo translate('Field Name'); ?></b></th>
+
+					<th class="sq-backend-table-header"><b><?php echo translate('Field Body'); ?></b></th>
+
 					<?php
 					if ($write_access) {
-						?><th class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></th><?php
+						?><th class="sq-backend-table-header"><b><?php echo translate('Delete?'); ?></b></th><?php
+
 					}
 					?>
 				</tr>
@@ -348,7 +360,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			<?php
 
 		} else {
-			echo translate('bulkmail_header_none');
+			echo translate('There are no additional headers set.');
+
 		}
 
 		return $write_access;
@@ -408,9 +421,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		// text box for new field entry
 		if ($write_access) {
-			echo translate('key'), ': ';
+			echo translate('Key'), ': ';
+
 			text_box($prefix.'_header_new_key', '', 30);
-			echo '&nbsp;', translate('value'), ': ';
+			echo '&nbsp;', translate('Value'), ': ';
+
 			text_box($prefix.'_header_new_value', '', 30);
 		}
 
@@ -475,28 +490,37 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		// paint existing rules
 		if (!empty($threshold)) {
-			$o->openField(translate('bulkmail_threshold_current_rules'));
+			$o->openField(translate('Current Rules'));
+
 			?><table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><?php echo translate('type') ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('bulkmail_threshold_allow_multiple') ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('rule') ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('Type') ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Allow Multiple ?') ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Rule') ?></th>
+
 					<?php
 						if ($write_access) {
-							?><th class="sq-backend-table-header"><?php echo translate('delete_rule') ?></th><?php
+							?><th class="sq-backend-table-header"><?php echo translate('Delete Rule') ?></th><?php
+
 						}
 					?>
 				</tr><?php
 				foreach ($threshold as $key => $rule) {
 					?><tr>
 						<td class="sq-backend-table-cell"><?php echo $rule['type']; ?></td>
-						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('yes') : translate('no'); ?></td>
+						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('Yes') : translate('No'); ?></td>
+
+
 					<?php
 						switch ($rule['type']) {
-							case translate('bulkmail_threshold_rule_excluded_time') :
+							case translate('Excluded Time') :
+
 								$this->_paintExcludedTimeRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule, $write_access);
 							break;
-							case translate('bulkmail_threshold_rule_send_rate') :
+							case translate('Send Rate') :
+
 								$this->_paintSendRateRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule, $write_access);
 							break;
 							default:
@@ -506,7 +530,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				}
 			?></table><?php
 				if ($use_bm_threshold && !($asset instanceof Bulkmail_Manager)) {
-					$o->note(translate('bulkmail_threshold_override_note', get_asset_tag_line($bm->id)));
+					$o->note(sprintf(translate('Using Default Post Office\'s threshold settings in %s'), get_asset_tag_line($bm->id)));
+
 				}
 			$o->closeField();
 		}//end if
@@ -546,10 +571,12 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($threshold)) {
 			foreach ($threshold as $key => $rule) {
 				switch ($rule['type']) {
-					case translate('bulkmail_threshold_rule_excluded_time') :
+					case translate('Excluded Time') :
+
 						$threshold = $this->_processExcludedTimeRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
 					break;
-					case translate('bulkmail_threshold_rule_send_rate') :
+					case translate('Send Rate') :
+
 						$threshold = $this->_processSendRateRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
 					break;
 					default:
@@ -577,12 +604,17 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddRule(&$asset, &$o, $prefix, $write_access)
 	{
-		$o->openField(translate('bulkmail_threshold_add_rule'), '', translate('bulkmail_threshold_add_rule_note'));
+		$o->openField(translate('Add Rule'), '', translate('Please select one of the available threshold rules, and fill in appropriate value(s)'));
+
+
 		if ($write_access) {
-			$rules = Array('' => '-- '.translate('bulkmail_threshold_choose_type').' --');
+			$rules = Array('' => '-- '.translate('Choose Type').' --');
+
 			$rules += Array(
-						translate('bulkmail_threshold_rule_excluded_time'),
-						translate('bulkmail_threshold_rule_send_rate'),
+						translate('Excluded Time'),
+
+						translate('Send Rate'),
+
 					  );
 			combo_box($prefix.'_rule_type', $rules, FALSE, '');
 		}
@@ -607,8 +639,10 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($write_access) {
 			$rules = Array(
-						translate('bulkmail_threshold_rule_excluded_time'),
-						translate('bulkmail_threshold_rule_send_rate'),
+						translate('Excluded Time'),
+
+						translate('Send Rate'),
+
 					 );
 			if (isset($_POST[$prefix.'_rule_type'])) {
 				$type = (isset($rules[$_POST[$prefix.'_rule_type']])) ? $rules[$_POST[$prefix.'_rule_type']] : '';
@@ -621,11 +655,13 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			}
 			$threshold_types = $asset->attr('threshold_types');
 			switch ($type) {
-					case translate('bulkmail_threshold_rule_excluded_time') :
+					case translate('Excluded Time') :
+
 						$threshold_types[0]['type'] = $type;
 						$threshold[] = $threshold_types[0];
 					break;
-					case translate('bulkmail_threshold_rule_send_rate') :
+					case translate('Send Rate') :
+
 						$threshold_types[1]['type'] = $type;
 						$threshold[] = $threshold_types[1];
 					break;
@@ -680,13 +716,20 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 						23	=> '23',
 					   );
 		$days_array = Array(
-						0	=> translate('sunday'),
-						1	=> translate('monday'),
-						2	=> translate('tuesday'),
-						3	=> translate('wednesday'),
-						4	=> translate('thursday'),
-						5	=> translate('friday'),
-						6	=> translate('saturday'),
+						0	=> translate('Sunday'),
+
+						1	=> translate('Monday'),
+
+						2	=> translate('Tuesday'),
+
+						3	=> translate('Wednesday'),
+
+						4	=> translate('Thursday'),
+
+						5	=> translate('Friday'),
+
+						6	=> translate('Saturday'),
+
 					  );
 
 		if ($write_access) {
@@ -703,8 +746,10 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				$days = ob_get_contents();
 			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
-				echo translate('bulkmail_threshold_rule_excluded_time_hour', $from, $to);
-				echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
+				echo sprintf(translate('Do not process jobs between %1$s:00 and %2$s:00'), $from, $to);
+
+				echo sprintf(translate('on %s'), $days);
+
 			?></td><td class="sq-backend-table-cell"><?php
 				check_box($prefix.'_delete', TRUE, FALSE);?></td><?php
 		} else {
@@ -718,12 +763,15 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				$days = implode(', ', $selected_days);
 			}
 			?><td class="sq-backend-table-cell" colspan="2"><?php
-				echo translate('bulkmail_threshold_rule_excluded_time_hour', $from, $to);
+				echo sprintf(translate('Do not process jobs between %1$s:00 and %2$s:00'), $from, $to);
+
 				if (!empty($days)) {
 					if (count($selected_days) == 7) {
-						echo translate('bulkmail_threshold_rule_excluded_time_every_day');
+						echo translate('on every day');
+
 					} else {
-						echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
+						echo sprintf(translate('on %s'), $days);
+
 					}
 				}
 			?></td><?php
@@ -751,7 +799,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$params['to']   = $_POST[$prefix.'_to'];
 			// check for valid range
 			if ($_POST[$prefix.'_to'] == $params['from']) {
-				trigger_localised_error('BML0014', E_USER_NOTICE);
+				trigger_localised_error('BML0014', translate('Exclude FROM and TO times cannot be equal.'), E_USER_NOTICE);
 
 				if ($threshold[$key]['params']['to'] == $_POST[$prefix.'_to'] && $threshold[$key]['params']['from'] == $_POST[$prefix.'_from']) {
 					$remove = TRUE;
@@ -762,10 +810,10 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			if (!isset($_POST[$prefix.'_days']) && !isset($threshold[$key]['params']['days'])) {
-				trigger_localised_error('BML0015', E_USER_NOTICE);
+				trigger_localised_error('BML0015', translate('No days were selected.'), E_USER_NOTICE);
 				$remove = TRUE;
 			} else if (!isset($_POST[$prefix.'_days']) && isset($threshold[$key]['params']['days'])) {
-				trigger_localised_error('BML0015', E_USER_NOTICE);
+				trigger_localised_error('BML0015', translate('No days were selected.'), E_USER_NOTICE);
 				$params['days'] = $threshold[$key]['params']['days'];
 			} else {
 				$params['days'] = (isset($_POST[$prefix.'_days'])) ? $_POST[$prefix.'_days'] : Array();
@@ -798,8 +846,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	{
 		$time_unit = Array(
 						60		=> translate('minute'),
+
 						3600	=> translate('hour'),
+
 						86400	=> translate('day'),
+
 					 );
 		// make sure the send rate is within this range
 		$min_send_rate = 1;
@@ -815,11 +866,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				$unit = ob_get_contents();
 			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
-				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
+				echo sprintf(translate('Send %1$s emails every %2$s'), $value, $unit);
+
 				if ($send_rate < $min_send_rate) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_min', $min_send_rate); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('Warning: Minimum send rate is %1$s emails every minute'), $min_send_rate); ?></span><?php
+
 				} else if ($send_rate > $max_send_rate) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_max', $max_send_rate); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('Warning: Maximum send rate is %1$s emails every minute'), $max_send_rate); ?></span><?php
+
 				}
 			?></td><td class="sq-backend-table-cell"><?php
 				check_box($prefix.'_delete', TRUE, FALSE);?></td><?php
@@ -827,11 +881,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$value = $rule['params']['value'];
 			$unit = $time_unit[$rule['params']['unit']];
 			?><td class="sq-backend-table-cell" colspan="2"><?php
-				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
+				echo sprintf(translate('Send %1$s emails every %2$s'), $value, $unit);
+
 				if ($send_rate < $min_send_rate) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_min', $min_send_rate); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('Warning: Minimum send rate is %1$s emails every minute'), $min_send_rate); ?></span><?php
+
 				} else if ($send_rate > $max_send_rate) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_max', $max_send_rate); ?></span><?php
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('Warning: Maximum send rate is %1$s emails every minute'), $max_send_rate); ?></span><?php
+
 				}
 			?></td><?php
 		}

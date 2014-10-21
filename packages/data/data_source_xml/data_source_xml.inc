@@ -260,12 +260,12 @@ class Data_Source_Xml extends Data_Source
 
 
 		if ($responseDetails['errornumber'] != 0) {
-			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $responseDetails['errorstring']);
+			trigger_localised_error('CMS0063', sprintf(translate('Cannot connect to server while attempting to access "%1$s" - %2$s'), $url, $responseDetails['errorstring']), E_USER_WARNING);
 			return FALSE;
 		}
 		/**
 		if (preg_match('/^[45].*?/', $result)) {
-			trigger_localised_error('CMS0064', E_USER_WARNING, $result, $url);
+			trigger_localised_error('CMS0064', sprintf(translate('Error response %1$s from server while attempting to access "%2$s"'), $result, $url), E_USER_WARNING);
 			unset($HTTP_Client);
 			return FALSE;
 		}
@@ -356,7 +356,7 @@ class Data_Source_Xml extends Data_Source
 				xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 
 				if (!xml_parse($xml_parser, $content, TRUE)) {
-					trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)).', line '.xml_get_current_line_number($xml_parser).', column '.xml_get_current_column_number($xml_parser).' (byte '.xml_get_current_byte_index($xml_parser).')', htmlentities($content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					trigger_localised_error('CORE0258', sprintf(translate('XML error: "%1$s" for chunk "%2$s"', xml_error_string(xml_get_error_code($xml_parser)).', line '.xml_get_current_line_number($xml_parser).', column '.xml_get_current_column_number($xml_parser).' (byte '.xml_get_current_byte_index($xml_parser).')'), htmlentities($content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 					return FALSE;
 				}
 				xml_parser_free($xml_parser);

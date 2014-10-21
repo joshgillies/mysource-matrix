@@ -103,7 +103,8 @@ function paintLayouts(&$owner, &$o, &$ei, $keywords=NULL)
 							if ($write_access) {
 								$o->openField('');
 								check_box($prefix.'_remove['.$type_code.']');
-								label(translate('remove_customisations_for', $uc_type_code), $prefix.'_remove['.$type_code.']');
+								label(sprintf(translate('Remove Customisations for %s'), $uc_type_code), $prefix.'_remove['.$type_code.']');
+
 								$o->closeField();
 							}
 
@@ -115,11 +116,14 @@ function paintLayouts(&$owner, &$o, &$ei, $keywords=NULL)
 										?>
 										<table class="sq-backend-table">
 											<tr>
-												<td class="sq-backend-table-header" width="33%"><?php echo translate('screen_name'); ?></td>
-												<td class="sq-backend-table-header" width="33%"><?php echo translate('layout'); ?></td>
+												<td class="sq-backend-table-header" width="33%"><?php echo translate('Screen Name'); ?></td>
+
+												<td class="sq-backend-table-header" width="33%"><?php echo translate('Layout'); ?></td>
+
 												<?php if ($write_access) {
 													?>
-													<td align="center" class="sq-backend-table-header" width="33%"><?php echo translate('remove'); ?></td>
+													<td align="center" class="sq-backend-table-header" width="33%"><?php echo translate('Remove'); ?></td>
+
 												<?php }
 												?>
 											</tr>
@@ -133,7 +137,8 @@ function paintLayouts(&$owner, &$o, &$ei, $keywords=NULL)
 															asset_finder($prefix.'_find['.$type_code.'@'.$screen_key.']', $assetid, Array('layout' => 'I'));
 														} else {
 															if (empty($assetid)) {
-																echo '<em>'.translate('none').'</em>';
+																echo '<em>'.translate('None').'</em>';
+
 															} else {
 																echo get_asset_tag_line($assetid);
 															}
@@ -169,7 +174,8 @@ function paintLayouts(&$owner, &$o, &$ei, $keywords=NULL)
 										?>
 										<br />
 										<?php
-										echo translate('add_layout');
+										echo translate('Add a layout for screen');
+
 										echo ': ';
 
 										$ei = new Asset_Edit_Interface($type_code);
@@ -259,7 +265,7 @@ function processLayouts(&$owner, &$o, &$ei)
 
 	// If url is not warn user and stop
 	if (empty($urls)) {
-		trigger_localised_error('SYS0330', E_USER_WARNING);
+		trigger_localised_error('SYS0330', translate('Unable to set a layout, no URL has been assigned to the asset'), E_USER_WARNING);
 	}
 
 	// Process Adding a new layout of type code xx
@@ -449,7 +455,7 @@ function processLayouts(&$owner, &$o, &$ei)
 /**
 * Returns the lookup array into something we can work with
 *
-* @param string	$lookup_values	the lookup array we need to format 
+* @param string	$lookup_values	the lookup array we need to format
 *
 * @return array
 * @access public

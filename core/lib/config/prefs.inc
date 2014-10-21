@@ -36,6 +36,7 @@ class Prefs extends MySource_Object
 	*/
 	var $pref_vars = Array();
 
+
 	/**
 	* The file to save the config file to
 	* @var string
@@ -103,6 +104,208 @@ class Prefs extends MySource_Object
 		return false;
 
 	}//end processBackend()
+
+
+	/**
+	 * Default paint for a field.
+	 *
+	 * @param object Backend_Outputter    &$o           Reference to the backend outputter.
+	 * @param boolean                     $have_lock    FALSE means paint as read-only.
+	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
+	 * @param string                      $pref         Preference to paint.
+	 * @param callback                    $paintFn      Paint function
+	 *
+	 * @return boolean
+	 */
+	function paintField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $paintFn)
+	{
+	    $commit = FALSE;
+
+	    if (is_null($all_prefs) || $all_prefs === $pref) {
+            if (array_key_exists($pref, $this->pref_vars) === TRUE) {
+                $pref_value = $this->pref_vars[$pref]['default'];
+            }
+
+            if (is_null($all_prefs)) {
+                $o->openField($this->pref_vars[$pref]['name']);
+            }
+
+            // Paint the field.
+            $commit = $paintFn($pref_value);
+
+            if (array_key_exists('desc', $this->pref_vars[$pref]) === TRUE) {
+                $o->note($this->pref_vars[$pref]['desc']);
+            }
+
+            if (is_null($all_prefs)) {
+                $o->closeField();
+            }
+
+            $commit = $commit && $have_lock;
+        }
+
+	    return $commit;
+
+	}//end paintField()
+
+
+	/**
+	 * Paint a simple text field.
+	 *
+	 * If $format is a callback, then that function should return what is to
+	 * be echoed.
+	 *
+	 * @param object Backend_Outputter    &$o           Reference to the backend outputter.
+	 * @param boolean                     $have_lock    FALSE means paint as read-only.
+	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
+	 * @param string                      $pref         Preference to paint.
+	 * @param array                       $width        Width of the text box.
+	 * @param string|callback             $format       Formatting string (sprintf) or callback.
+	 *
+	 * @return boolean
+	 */
+	function paintTextField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $width, $height=1, $format='%s')
+	{
+		return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $width, $height, $format) {
+		   if ($have_lock) {
+                if ($height === 1) {
+                    text_box('prefs['.$pref.']', $pref_value, $width);
+				} else {
+				    text_area('prefs['.$pref.']', $pref_value, $width, $height);
+				}
+            } else {
+                if (is_callable($format)) {
+                    echo $format($pref_value);
+                } else {
+                    echo sprintf($format, $pref_value);
+                }
+            }
+
+			return $have_lock;
+		});
+
+	}//end paintTextField()
+
+
+	/**
+	 * Paint a Integer text field.
+	 *
+	 * If $format is a callback, then that function should return what is to
+	 * be echoed.
+	 *
+	 * @param object Backend_Outputter    &$o           Reference to the backend outputter.
+	 * @param boolean                     $have_lock    FALSE means paint as read-only.
+	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
+	 * @param string                      $pref         Preference to paint.
+	 * @param array                       $width        Width of the text box.
+	 * @param string|callback             $format       Formatting string (sprintf) or callback.
+	 *
+	 * @return boolean
+	 */
+	function paintIntTextField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $width, $format='%s', $range_min=NULL, $range_max=NULL)
+	{
+		return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $width, $range_min, $range_max, $format) {
+		    if ($have_lock) {
+                int_text_box('prefs['.$pref.']', $pref_value, TRUE, $width, $range_min, $range_max, '', FALSE, FALSE, '', FALSE, TRUE);
+            } else {
+                if (is_callable($format)) {
+                    echo $format($pref_value);
+                } else {
+                    echo sprintf($format, $pref_value);
+                }
+            }
+
+			return $have_lock;
+		});
+
+	}//end paintIntTextField()
+
+
+	/**
+	 * Paint a simple combo field.
+	 *
+	 * @param object Backend_Outputter    &$o           Reference to the backend outputter.
+	 * @param boolean                     $have_lock    FALSE means paint as read-only.
+	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
+	 * @param string                      $pref         Preference to paint.
+	 * @param array                       $options      Array of options for the combo box.
+	 *
+	 * @return boolean
+	 */
+	function paintComboField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $options)
+	{
+        return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $options) {
+		    if ($have_lock) {
+                combo_box('prefs['.$pref.']', $options, FALSE, $pref_value);
+            } else {
+                echo $options[$pref_value];
+            }
+
+			return $have_lock;
+		});
+
+	}//end paintComboField()
+
+
+	/**
+	 * Paint a simple combo field.
+	 *
+	 * @param object Backend_Outputter    &$o           Reference to the backend outputter.
+	 * @param boolean                     $have_lock    FALSE means paint as read-only.
+	 * @param string|NULL                 $all_prefs    List of all preferences to paint.
+	 * @param string                      $pref         Preference to paint.
+	 * @param array                       $options      Array of options for the combo box.
+	 *
+	 * @return boolean
+	 */
+	function paintAssetMapField(Backend_Outputter $o, $have_lock, $all_prefs, $pref, $multiple=FALSE, $types=Array(), $callback=NULL)
+	{
+        return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $multiple, $types, $callback) {
+		    if ($have_lock) {
+                if ($multiple === TRUE) {
+                    if (is_array($pref_value) === FALSE) {
+                        $pref_value = Array();
+                    }
+                    multiple_asset_finder('prefs['.$pref.']', $pref_value, $types);
+                } else {
+                    asset_finder('prefs['.$pref.']', $pref_value, $types);
+                }
+            } else {
+                if (is_callable($callback) === TRUE) {
+                    echo $callback($pref_value);
+                } else {
+                    if ($multiple === TRUE) {
+                        if (empty($pref_value) === TRUE) {
+                            if (is_string($callback) === TRUE) {
+                                echo $callback;
+                            } else {
+                                echo translate('No assets selected');
+                            }
+                        } else {
+                            echo '<ul>';
+                            foreach ($pref_value as $asset) {
+                                echo '<li>'.get_asset_tag_line($asset).'</li>';
+                            }
+                            echo '</ul>';
+                        }
+                    } else {
+                        if (empty($pref_value) === TRUE) {
+                            if (is_string($callback) === TRUE) {
+                                echo $callback;
+                            } else {
+                                echo translate('No asset selected');
+                            }
+                        } else {
+                            echo get_asset_tag_line($pref_value);
+                        }
+                    }
+                }
+            }
+
+			return $have_lock;
+		});
+
+	}//end paintAssetField()
 
 
 	/**

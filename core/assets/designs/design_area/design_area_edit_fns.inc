@@ -186,7 +186,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 							$die_str .= ' '.$name.'="'.$value.'"';
 						}
 
-						trigger_localised_error('CORE0213', E_USER_WARNING, $this->tag_name, $die_str);
+						trigger_localised_error('CORE0213', sprintf(translate('There is a missing &lt;/%1$s&gt; tag for this tag:<br/>&lt;%2$s&gt;'), $this->tag_name, $die_str), E_USER_WARNING);
 						return NULL;
 
 					}// end if
@@ -486,14 +486,14 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				if (!$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value'])) {
-					trigger_localised_error('CORE0189', E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
+					trigger_localised_error('CORE0189', sprintf(translate('Unable to set the value of "%1$s" in "%2$s"'), $element['attributes']['name'], $asset->attr('id_name')), E_USER_WARNING);
 					return FALSE;
 				}
 				$set_attrs[] = $element['attributes']['name'];
 
 			// else something is amiss and we don't know what we can do
 			} else {
-				trigger_localised_error('CORE0188', E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
+				trigger_localised_error('CORE0188', sprintf(translate('Unable to set "%s". Either a value must be set or both the id_name and name attributes must be set'), $element['attributes']['name'], $asset->attr('id_name')), E_USER_WARNING);
 
 
 			}// endif

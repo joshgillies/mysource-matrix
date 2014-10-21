@@ -67,7 +67,8 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
-				  alert(js_translate('brower_does_not_support_getelementbyid'));
+				  alert(js_translate('Browser cannot support script - Get Element By ID is not defined'));
+
 				  return;
 			  }
 
@@ -102,7 +103,8 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 
 			function sortOrderMoveUp(currentOrder) {
 			  if (!document.getElementById) {
-				  alert(js_translate('brower_does_not_support_getelementbyid'));
+				  alert(js_translate('Browser cannot support script - Get Element By ID is not defined'));
+
 				  return;
 			  }
 
@@ -344,7 +346,8 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 
 		if ($admin_access) {
 			if (empty($voters)) {
-				?><em><?php echo translate('cms_poll_question_no_voting_records_exist'); ?></em><?php
+				?><em><?php echo translate('No voting records exist for this question'); ?></em><?php
+
 			} else {
 				foreach ($voters as $voter) {
 					$voter_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($voter['minorid']));
@@ -354,7 +357,8 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 				combo_box($prefix.'options', $users_array, FALSE, '');
 			}
 		} else {
-			?><em><?php echo translate('cms_poll_question_admin_access_to_delete_user'); ?></em><?php
+			?><em><?php echo translate('You require Admin Permission for this question to be able to delete users\' voting records'); ?></em><?php
+
 		}
 
 	}//end paintDeleteUsers()

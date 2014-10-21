@@ -1613,9 +1613,12 @@ class Form_Section extends Asset implements Bridge
 		$keywords = Array();
 
 		foreach ($questions as $shadowid => $question) {
-			$keywords['response_'.$this->id.'_q'.$shadowid]       = translate('cms_form_section_response', $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
-			$keywords['question_name_'.$this->id.'_q'.$shadowid]  = translate('cms_form_section_q_name', $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
-			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = translate('cms_form_section_q_note', $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['response_'.$this->id.'_q'.$shadowid]       = sprintf(translate('Response to %1$s: %2$s'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+
+			$keywords['question_name_'.$this->id.'_q'.$shadowid]  = sprintf(translate('Question Name: %1$s: %2$s'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+
+			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = sprintf(translate('Question Note: %1$s: %2$s'), $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+
 		}
 
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE) as $link) {
@@ -1665,7 +1668,7 @@ class Form_Section extends Asset implements Bridge
 				$keywords['question_name_'.$this->id.'_q'.$shadowid]  = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->attr(\'name\'); ?'.'>';
 				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
 				$keywords['question_label_'.$this->id.'_q'.$shadowid] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->getHtmlLabel(); ?'.'>';
-				$keywords['question_error_'.$this->id.'_q'.$shadowid]    = '<'.'?php 
+				$keywords['question_error_'.$this->id.'_q'.$shadowid]    = '<'.'?php
 					$question = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\');
 					if(isset($form_asset->question_errors[$question->id])) {
 						$errors = $form_asset->question_errors[$question->id];
@@ -1824,9 +1827,9 @@ class Form_Section extends Asset implements Bridge
 
 		if($generating) {
 			$output .= '<'.'?php $question = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'"); ?'.'>'."\n";
-			
+
 			// add error class
-			$output .= '<'.'?php 
+			$output .= '<'.'?php
 			$error_class = isset($form_asset->question_errors[$question->id]) ? "sq-form-question-error" : "";
 			?'.'>'."\n";
 			// question wrapper
@@ -1845,7 +1848,7 @@ class Form_Section extends Asset implements Bridge
 			// question content
 			$output .= '<div class="sq-form-question-answer" ><'.'?php echo $question->getHtmlField(); ?'.'></div>'."\n";
 			// question error
-			$output .= '<'.'?php 
+			$output .= '<'.'?php
 			if(isset($form_asset->question_errors[$question->id])) {
 				$errors = $form_asset->question_errors[$question->id];
 				$error = array_pop($errors);

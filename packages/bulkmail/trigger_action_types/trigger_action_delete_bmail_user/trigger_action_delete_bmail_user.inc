@@ -148,7 +148,8 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 				if ($selected_assetid) {
 					echo get_asset_tag_line($selected_assetid);
 				} else {
-					echo '<b>['.translate('core_no_selected_root_node').']</b>';
+					echo '<b>['.translate('No root node has been selected').']</b>';
+
 				}
 			}
 			$basic_part_1 = ob_get_contents();
@@ -166,7 +167,8 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 				if ($selected_link_assetid) {
 					echo get_asset_tag_line($selected_assetid);
 				} else {
-					echo '<b>['.translate('no_asset_selected').']</b>';
+					echo '<b>['.translate('No asset selected').']</b>';
+
 				}
 			}
 			$basic_part_3 = ob_get_contents();
@@ -194,8 +196,11 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 			$basic_part_5 = ob_get_contents();
 		ob_end_clean();
 
-		$contents = '<div class="sq-break-line-inputs">'.translate('trigger_delete_bmail_user_asset', $basic_part_1).'<br />'.translate('trigger_delete_bmail_user_email', $basic_part_2).
-					'<br />'.translate('trigger_delete_bmail_user_link', $basic_part_3, $basic_part_4).'</div><br />'.$basic_part_5;
+		$contents = '<div class="sq-break-line-inputs">'.sprintf(translate('Delete bulkmail users under the root node %1$s'), $basic_part_1).'<br />'.sprintf(translate('that match the following emails %1$s'), $basic_part_2).
+
+
+					'<br />'.sprintf(translate('Move them under the specified asset %1$s using a %2$s link'), $basic_part_3, $basic_part_4).'</div><br />'.$basic_part_5;
+
 
 		return $contents;
 

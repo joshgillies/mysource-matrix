@@ -116,7 +116,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 						$metadata = NULL;
 
 						if (empty($schemas)) {
-							echo translate('no_metadata_schemas_applied');
+							echo translate('There are no metadata schemas applied to this asset.');
+
 						} else if (file_exists($owner->data_path.'/'.$metadata_basename)) {
 							ob_start();
 								require($owner->data_path.'/'.$metadata_basename);
@@ -157,26 +158,33 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 						}
 
 						// construct example keywords link
-						$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keywords.php?assetid='.$owner->id.'&amp;all=0" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('metadata_keywords_list_link_text').'</a>';
-						echo '<p>'.translate('metadata_keyword_replacements_usage', $replacements_link).'.</p>';
+						$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keywords.php?assetid='.$owner->id.'&amp;all=0" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('View all available keyword replacements').'</a>';
+
+						echo '<p>'.sprintf(translate('You can use keyword replacements in place of values for metadata fields on this page. %s'), $replacements_link).'.</p>';
+
 
 						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
 						if (!empty($sm) && $sm->attr('indexing')) {
 						?>
 							<?php
-							$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keyword_extraction.php?assetid='.$owner->id.'" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>.';
-							echo '<p>'.translate('metadata_indexed_keywords', $replacements_link).'</p>';
+							$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keyword_extraction.php?assetid='.$owner->id.'" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword extraction').'</a>.';
+
+							echo '<p>'.sprintf(translate('Since search indexing is enabled, you can generate a list of keywords from the index using %s'), $replacements_link).'</p>';
+
 
 						}
 
 						// paint the instructions for 'Use Default'
-						echo '<p>'.translate('metadata_explain_use_default').'</p>';
+						echo '<p>'.translate('Deselect the <b>Use Default</b> checkbox to enter a value for a field.  To revert the field to the default value, select the <b>Use Default</b> checkbox.').'</p>';
+
 
 						// paint the instructions for 'Cascade value'
-						echo '<p>'.translate('metadata_explain_cascade_value').'</p>';
+						echo '<p>'.translate('Select the <b>Cascade value</b> checkbox to cascade the value for a field to this asset\'s children for which this Metadata Schema is applied.').'</p>';
+
 
 						// paint required field
-						echo '<p> '.translate('denotes_required_field', '<span class="sq-backend-warning">*</span>').'</p>';
+						echo '<p> '.sprintf(translate('Required fields are marked with %s'), '<span class="sq-backend-warning">*</span>').'</p>';
+
 
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) {
@@ -196,7 +204,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 								ob_start();
 							}
 
-							echo '<em>'.translate('must_apply_one_or_more_schemas').'</em>';
+							echo '<em>'.translate('You must apply one or more schemas before entering metadata values.').'</em>';
+
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
@@ -273,7 +282,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 	}
 
 	if (!empty($duplicate_field_names)) {
-		$o->openSection(translate('warning'));
+		$o->openSection(translate('Warning'));
+
 			$o->openField('&nbsp;');
 			// paint required field
 			ob_start();
@@ -281,7 +291,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 			foreach ($duplicate_field_names as $name) {
 				?><li><?php echo $name ?></li><?php
 			}
-			?></ul><span class="sq-backend-warning"><?php echo translate('duplicate_metadata_fields'); ?></span>
+			?></ul><span class="sq-backend-warning"><?php echo translate('Duplicate Metadata Field(s) found'); ?></span>
+
 			<?php
 			ob_end_flush();
 			$o->closeField();
@@ -290,7 +301,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 
 	// $metadata_warnings is provided by the metadata cache file
 	if (!empty($metadata_warnings['keyword_circular_references'])) {
-		$o->openSection(translate('warning'));
+		$o->openSection(translate('Warning'));
+
 			$o->openField('&nbsp;');
 			// paint required field
 			ob_start();
@@ -298,7 +310,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 			foreach ($metadata_warnings['keyword_circular_references'] as $name) {
 				?><li><?php echo $name ?></li><?php
 			}
-			?></ul><span class="sq-backend-warning"><?php echo translate('circular_reference_metadata_field_keywords'); ?></span>
+			?></ul><span class="sq-backend-warning"><?php echo translate('Circular Keyword Reference(s) found'); ?></span>
+
 			<?php
 			ob_end_flush();
 			$o->closeField();
@@ -412,19 +425,19 @@ function processMetadata(&$owner, &$o, $ei)
  		// broadcast update event for all fields to refresh search index
  		// we are updating most fields here anyway (except non-editable fields), but those non-editable fields might contain keywords, so reindex them all together
  		$mm->setMetadata($owner->id, $new_values, NULL, TRUE, TRUE);
-		
+
 		// All context metadata files need to be regenerated if there is a non-contextable field changed
 		$regen_all_contexts = FALSE;
 		foreach ($new_values as $fieldid => $field_data) {
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
 			if (!$field) continue;
-			
+
 			if ((boolean)$field->attr('is_contextable') === FALSE || $field instanceof Metadata_Field_Select) {
 				$regen_all_contexts = TRUE;
 				break;
 			}
 		}
-		
+
 		if ($regen_all_contexts) {
 			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			foreach ($all_contexts as $contextid => $context_data) {

@@ -65,11 +65,12 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-conditions-options-th"><?php echo translate('keyword'); ?></th>
+				<th class="sq-conditions-options-th"><?php echo translate('Keyword'); ?></th>
+
 				<td>
 					<?php
 					$selected_keyword = '';
-					if (isset($condition_data['keyword'])) {					
+					if (isset($condition_data['keyword'])) {
 					   $selected_keyword = $condition_data['keyword'];
 					}
 
@@ -105,30 +106,35 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 							echo '%'.($keyword_info['constant_part']).array_get_index($keyword_info, 'variable_part', '').'%';
 						}
 					} else {
-						echo(translate('core_keyword_list_empty'));
+						echo(translate('The keyword list is empty.'));
+
 					}
 					?>
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('pattern'); ?></th>
+				<th><?php echo translate('Pattern'); ?></th>
+
 				<td>
 					<?php
 					if ($write_access) {
 						text_box($prefix.'[keyword_match]', array_get_index($condition_data, 'keyword_match'), 80, '', '', 'style="margin-bottom: 5px;"');
 						echo '</br>';
 						check_box($prefix.'[replace_keyword_in_match]', '1', array_get_index($condition_data, 'replace_keyword_in_match', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-						label(translate('replace_keywords_in_pattern'), $prefix.'[replace_keyword_in_match]');
+						label(translate('Replace keywords in pattern'), $prefix.'[replace_keyword_in_match]');
+
 					} else {
 						$current_pattern = array_get_index($condition_data, 'keyword_match', '');
 						if (strlen($current_pattern)){
 							echo $current_pattern;
 						} else {
-							echo '<em>'.translate('condition_no_pattern_entered').'</em>';
+							echo '<em>'.translate('No pattern entered.').'</em>';
+
 						}
 						echo '</br>';
 						check_box($prefix.'[replace_keyword_in_match]', '1', array_get_index($condition_data, 'replace_keyword_in_match', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-						label(translate('replace_keywords_in_pattern'), $prefix.'[replace_keyword_in_match]');
+						label(translate('Replace keywords in pattern'), $prefix.'[replace_keyword_in_match]');
+
 					}
 					?>
 				</td>
@@ -162,7 +168,7 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 				$results['keyword'] .= $name_extension;
 			}
 		}
-		
+
 		return $results;
 
 	}//end processEditInterface()

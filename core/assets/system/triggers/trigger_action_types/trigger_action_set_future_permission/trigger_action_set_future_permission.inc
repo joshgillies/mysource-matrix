@@ -263,21 +263,26 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			$datetime->value = substr($settings['when'], 3).':00';
 		}
 
-		echo translate('trigger_action_future_permission_add_cron_job_to').' ';
+		echo translate('Add a Scheduled Job to').' ';
+
 
 		// print the add/remove selection
 		if ($write_access) {
 			$action_options = Array(
-									'1'	=> strtolower(translate('add')),
-									'0'	=> strtolower(translate('remove')),
+									'1'	=> strtolower(translate('Add')),
+
+									'0'	=> strtolower(translate('Remove')),
+
 								   );
 			combo_box($prefix.'_add', $action_options, FALSE, ($settings['add'] ? '1' : '0'));
 		} else {
 			echo '<b>';
-			echo ($settings['add']) ? strtolower(translate('add')) : strtolower(translate('remove'));
+			echo ($settings['Add']) ? strtolower(translate('Add')) : strtolower(translate('Remove'));
+
+
 			echo '</b> ';
 		}
-		
+
 		// print the permission level selection
 		$permissions = self::_getPermissionList();
 		if ($write_access) {
@@ -286,21 +291,26 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			echo '<b>'.$permissions[$settings['permission']].'</b>';
 		}
 		echo ' permission to ';
-		
+
 		// print the grant/deny selection
 		if ($write_access) {
 			$permission_options = Array(
-										'1'	=> strtolower(translate('grant')),
-										'0'	=> strtolower(translate('deny')),
+										'1'	=> strtolower(translate('Grant')),
+
+										'0'	=> strtolower(translate('Deny')),
+
 									   );
 			combo_box($prefix.'_granted', $permission_options, FALSE, $settings['granted']);
 		} else {
 			echo '<b>';
-			echo ($settings['granted']) ? strtolower(translate('grant')) : strtolower(translate('deny'));
+			echo ($settings['granted']) ? strtolower(translate('Grant')) : strtolower(translate('Deny'));
+
+
 			echo '</b> ';
 		}
 
-		echo ' '.translate('access_for').' ';
+		echo ' '.translate('access for').' ';
+
 
 		// print the asset finder
 		if ($write_access) {
@@ -318,7 +328,8 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['userid']);
 			}
 			if (is_null($user)) {
-				echo '<b>['.translate('trigger_no_user_selected').']</b>';
+				echo '<b>['.translate('No User Selected').']</b>';
+
 			} else {
 				echo '<b>'.$user->name.'</b> ';
 			}
@@ -328,21 +339,25 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		$formats = Array();
 
 		ob_start();
-			label(translate('immediately_when_trigger_fired'), $prefix.'_when_type_on_trigger_fire');
+			label(translate('immediately when this trigger is fired'), $prefix.'_when_type_on_trigger_fire');
+
 		$formats['on_trigger_fire'] = ob_get_clean();
 
 		ob_start();
-			label(translate('trigger_action_future_permission_explicit_exact').' ', $prefix.'_when_type_explicit_exact');
+			label(translate('at exactly').' ', $prefix.'_when_type_explicit_exact');
+
 			$datetime->paint($prefix.'_explicit_exact', !$write_access);
 		$formats['explicit_exact'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_asset_attribute').'&nbsp;', $prefix.'_as_determined_from_attr');
+			label(translate('as determined from Asset Attribute').'&nbsp;', $prefix.'_as_determined_from_attr');
+
 			echo self::getAttributeChooser($prefix.'_exact_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
 		$formats['by_attr_value'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_metadata_field').'&nbsp;&nbsp;&nbsp;', $prefix.'_as_determined_from_meta');
+			label(translate('as determined from Metadata Field').'&nbsp;&nbsp;&nbsp;', $prefix.'_as_determined_from_meta');
+
 			$metadata_field_id = $settings['when_meta_field_id'];
 			if ($write_access) {
 				asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
@@ -385,34 +400,46 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		}
 
 		echo '<p>';
-		label(translate('offset_for_above_fields').': ', $prefix.'_offset');
+		label(translate('Offset for the above fields').': ', $prefix.'_offset');
+
 		$duration->paint($prefix.'_offset_value', !$write_access);
 		echo ' ';
 		if ($write_access) {
 			combo_box($prefix.'_offset_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($mins < 0) ? '-' : '+');
+
+
 		} else {
 			echo translate(($mins < 0) ? 'before' : 'after');
 		}
-		echo ' '.translate('specified_value').'</p>';
+		echo ' '.translate('the specified value').'</p>';
+
 
 		// Update to dependants only
 		if ($write_access) {
 			check_box($prefix.'_dependants_only', '1', $settings['dependants_only']);
-			label(translate('trigger_set_permission_dependants_only'), $prefix.'_dependants_only');
+			label(translate('Update the Asset\'s dependant children only'), $prefix.'_dependants_only');
+
 		} else {
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['dependants_only'] ? 'tick' : 'cross').'.gif" alt="'.($settings['dependants_only'] ? translate('yes') : translate('no')).'" /> ';
-			echo translate('trigger_set_permission_dependants_only');
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['dependants_only'] ? 'tick' : 'cross').'.gif" alt="'.($settings['dependants_only'] ? translate('Yes') : translate('No')).'" /> ';
+
+
+			echo translate('Update the Asset\'s dependant children only');
+
 		}
 
 		// Cascade to new children
 		if ($write_access) {
 			echo '<br />';
 			check_box($prefix.'_cascade_to_new', '1', $settings['cascade_to_new']);
-			label(translate('cascade_permission_to_new_children'), $prefix.'_cascade_to_new');
+			label(translate('Automatically cascade this permission to newly-created children'), $prefix.'_cascade_to_new');
+
 		} else {
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['cascade_to_new'] ? 'tick' : 'cross').'.gif" alt="'.($settings['cascade_to_new'] ? translate('yes') : translate('no')).'" /> ';
-			echo translate('cascade_permission_to_new_children');
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['cascade_to_new'] ? 'tick' : 'cross').'.gif" alt="'.($settings['cascade_to_new'] ? translate('Yes') : translate('No')).'" /> ';
+
+
+			echo translate('Automatically cascade this permission to newly-created children');
+
 		}
 
 		echo '<br /><br />';
@@ -456,7 +483,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			return 'Add/Remove parameter is invalid';
 		}
 		$settings['add'] = ($add == '1') ? TRUE : FALSE;
-		
+
 		// process permission
 		$permission = array_get_index($_POST, $prefix.'_permission', '');
 		if ($permission === '') {
@@ -588,11 +615,13 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 
 		ob_start();
 			if ($type == '') {
-				echo '<em>['.translate('asset_type_not_selected').']</em>';
+				echo '<em>['.translate('asset type not selected').']</em>';
+
 			} else {
 				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type, Array('name', 'type'));
 				if (empty($attrs)) {
-					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+					echo '<b>['.translate('no attributes found for asset type').']</b>';
+
 				} else {
 					if ($write_access) {
 						$attr_options = Array('' => '');

@@ -62,7 +62,8 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($assetid)) {
 			echo get_asset_tag_line($assetid, 'details');
 		} else {
-			echo translate('none');
+			echo translate('None');
+
 		}
 
 	}
@@ -157,7 +158,7 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 
 	}//end paintOrderStatus()
 
-	
+
 	/**
 	* Paints the transaction ID generated during payment processing
 	*
@@ -175,8 +176,8 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end paintTransactionID()
-	
-	
+
+
 	/**
 	* Paints the XML representation of ecommerce order
 	*
@@ -190,17 +191,17 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 	function paintOrderXML(&$asset, &$o, $prefix)
 	{
 		$order_xml = $asset->attr('order_xml');
-		
+
 		if ($asset->writeAccess('attributes')) {
 			text_area($prefix.'_order_xml', $order_xml, 80, 30);
 		} else {
 			echo '<pre>'.htmlspecialchars($order_xml).'</pre>';
 		}
-		
+
 		return FALSE;
 
 	}//end paintOrderXML()
-	
+
 
 }//end class
 

@@ -43,13 +43,13 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 
 	}//end constructor
 
-	
+
 	/**
 	* paintScheduleInterface.
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements	
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -60,33 +60,36 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 		if (!is_null($asset)) {
 			echo $asset->readableWhen();
 		}
-		
+
 		if (is_null($asset) || $asset->writeAccess('attributes')) {
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			
+
 			// paint the start time using a one off job's edit fns
 			$cron_job = new Cron_Job();
 			$edit_fns = $cron_job->getEditFns();
 			echo '<br />';
-			echo '<br />'.translate('cron_job_send_submission_log_at').' ';			
+			echo '<br />'.translate('Send the submission logs at').' ';
+
 			$edit_fns->_paintWhenBox($cron_job, $o, $prefix, is_null($asset) ? '' : $asset->attr('first_run'));
 
 			// paint the repeat frequency using repeating time interval job's edit fns
 			$cron_job_repeat = new Cron_Job();
 			$cron_job_repeat->setAttrValue('type', 'repeating');
-			echo '<br />'.translate('cron_job_regenerate_report_repeat');
+			echo '<br />'.translate('and repeat this process every');
+
 			$this->_paintWhenBox($cron_job_repeat, $o, $prefix, is_null($asset) ? '' : $asset->attr('when'));
-			
+
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			echo '<br/>';
-			echo translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun()));
-		}		
+			echo sprintf(translate('The Scheduled Jobs Manager runs every <b>%1$s</b>. It will next run on the <b>%2$s</b>.'), $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun()));
+
+		}
 
 		return TRUE;
-		
+
 	}// paintScheduleInterface()
-	
-	
+
+
 	/**
 	* processScheduleInterface.
 	*
@@ -103,23 +106,23 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 		$edit_fns = $cron_job->getEditFns();
 
 		$when_oo = $edit_fns->_processWhenBox($cron_job, $o, $prefix);
-		
-		if (!$when_oo) {			
-			trigger_localised_error('CMS0122', E_USER_WARNING);
+
+		if (!$when_oo) {
+			trigger_localised_error('CMS0122', translate('To schedule a job you must specify the date at which the logs should be sent'), E_USER_WARNING);
 			return FALSE;
 		}
 
 		if ($_REQUEST[$prefix.'_when_interval_mins'] == '--'
 			&& $_REQUEST[$prefix.'_when_interval_hours'] == '--'
 			&& $_REQUEST[$prefix.'_when_interval_days'] == '-') {
-			
-			trigger_localised_error('CMS0119', E_USER_WARNING);
-			
+
+			trigger_localised_error('CMS0119', translate('You will need to specify the repetation parameter for the repeating cron job'), E_USER_WARNING);
+
 			return FALSE;
-		} else {			
+		} else {
 			// repeat frequency is set, but start time not specified, error
 			if (!$when_oo) {
-				trigger_localised_error('CRON0050', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'));
+				trigger_localised_error('CRON0050', sprintf(translate('Start time for %s is not defined.'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')), E_USER_WARNING);
 				return FALSE;
 			}
 
@@ -127,17 +130,17 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 			// mute warning as we are only using this bit to working out the start time
 			if (!@$cron_job->setAttrValue('when', $when_oo)) {
 				$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-				trigger_localised_error('CRON0048', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun()));
+				trigger_localised_error('CRON0048', sprintf(translate('Unable to schedule a repeating %1$s to be run before the next job run is scheduled (which is at %2$s)'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun())), E_USER_WARNING);
 				return FALSE;
 			}
-			$when_oo_str = $cron_job->attr('when');			
+			$when_oo_str = $cron_job->attr('when');
 			// Save job's first run time set by the user
-			// NOTE: First run time is not necessarily the time for job's very first run			
+			// NOTE: First run time is not necessarily the time for job's very first run
 			$asset->setAttrValue('first_run', $when_oo_str);
-			
+
 			// This is actual first run time
 			$start_time = $cron_job->getNextRun($when_oo_str);
-			
+
 			// Ass
 
 			// update the start time of this repeating time interval job
@@ -153,11 +156,11 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 				return TRUE;
 			}
 		}
-		
+
 		return FALSE;
-	
+
 	}// processScheduleInterface()
-	
+
 
 }//end Cron_Job_Send_Submission_Log_Edit_Fns()
 

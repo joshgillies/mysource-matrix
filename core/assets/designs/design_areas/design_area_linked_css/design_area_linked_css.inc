@@ -63,7 +63,7 @@ class Design_Area_Linked_Css extends Design_Area
 			}
 			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
-					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
+					trigger_localised_error('CORE0145', sprintf(translate('Asset Type "%s" is not installed in this system, unable to set "type_codes"'), $type_code), E_USER_WARNING);
 					return FALSE;
 				}
 			}
@@ -158,7 +158,7 @@ class Design_Area_Linked_Css extends Design_Area
 
 		$css_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
 		if(empty($css_asset) || !method_exists($css_asset, 'getCacheFileId')) {
-			trigger_localised_error('CORE0329', E_USER_NOTICE, $css_assetid);
+			trigger_localised_error('CORE0329', sprintf(translate('Linked Design CSS #%s does not exist in the system.'), $css_assetid), E_USER_NOTICE);
 			return;
 		}
 		$cache_file_assetid = $css_asset->getCacheFileId();

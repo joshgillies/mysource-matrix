@@ -17,18 +17,26 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
+			<display_name>Description</display_name>
+			<note />
 			<wysiwyg />
 		</field>
 		<field keyword="start_end">
+			<display_name>First Instance</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintRecurringStartEndChooser"  />
 				<process_function name="processRecurringStartEndChooser" />
 			</function_call>
 		</field>
 		<field keyword="frequency">
+			<display_name>Recurs</display_name>
+			<note />
 			<function_call>
 				<paint_function	name="paintFrequencyField" />
 				<process_function name="processFrequencyField" />

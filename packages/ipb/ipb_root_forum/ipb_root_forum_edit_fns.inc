@@ -60,17 +60,23 @@ class Ipb_Root_Forum_Edit_Fns extends Ipb_Forum_Edit_Fns
 		$forums = $ipb->getListOfForums($tmp[1]);
 
 		if (empty($forums)) {
-			$o->openField(translate('list_of_root_forums'));
-				echo translate('no_forums_in_ipb');
+			$o->openField(translate('List of Root Forums'));
+
+				echo translate('Currently there is no forums in IPB');
+
 			$o->closeField();
 		} else {
-			$o->openField(translate('list_of_forums'));
+			$o->openField(translate('List of Forums'));
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th style="width: 20%"><?php echo translate('name'); ?></th>
-						<th style="width: 50%"><?php echo translate('description'); ?></th>
-						<th style="width: 30%"><?php echo translate('asset'); ?></th>
+						<th style="width: 20%"><?php echo translate('Name'); ?></th>
+
+						<th style="width: 50%"><?php echo translate('Description'); ?></th>
+
+						<th style="width: 30%"><?php echo translate('Asset'); ?></th>
+
 					</tr>
 				<?php
 				foreach ($forums as $forum) {

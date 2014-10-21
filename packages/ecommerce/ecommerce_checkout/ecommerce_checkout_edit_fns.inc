@@ -58,8 +58,10 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><?php echo translate('asset') ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('type') ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('Asset') ?></th>
+
+					<th class="sq-backend-table-header"><?php echo translate('Type') ?></th>
+
 				</tr>
 			<?php
 			foreach ($infos as $assetid => $info) {
@@ -128,7 +130,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				$new_node = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_node, SQ_LINK_NOTICE, 'delivery_method')) {
 					$ok = FALSE;
-					trigger_localised_error('CMS0016', E_USER_WARNING, $new_node->name, $new_node->id);
+					trigger_localised_error('CMS0016', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $new_node->name, $new_node->id), E_USER_WARNING);
 					break;
 				}
 			}
@@ -161,8 +163,10 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('edit_format') ?></th>
-				<th><?php echo translate('note') ?></th>
+				<th><?php echo translate('Edit Format') ?></th>
+
+				<th><?php echo translate('Note') ?></th>
+
 			</tr>
 		<?php
 		// get the link to folders
@@ -184,16 +188,20 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 					<?php
 					switch ($link['value']) {
 						case 'checkout':
-							echo translate('ecom_checkout_checkout_context_desc');
+							echo translate('The main checkout page where users enter the data required for processing');
+
 						break;
 						case 'confirmation':
-							echo translate('ecom_checkout_confirmation_context_desc');
+							echo translate('Confirmation screen');
+
 						break;
 						case 'failure':
-							echo translate('ecom_checkout_failure_context_desc');
+							echo translate('Displayed if processing cannot completed even though all the data is valid');
+
 						break;
 						case 'receipt':
-							echo translate('ecom_checkout_receipt_context_desc');
+							echo translate('Successfully completed order displays a receipt on this screen');
+
 						break;
 					}
 					?>
@@ -416,7 +424,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return $this->_paintFieldSelector($asset, 'item_weight');
 
 	}//end paintProductWeightSource()
-	
+
 
 	/**
 	* Processes selector for a metadata field or an asset attribute
@@ -655,7 +663,8 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				<td style="vertical-align: middle; width: 50px;">
 					<?php
 						$name = $prefix.'_country_delivery_weight_price['.$key.']';
-						echo translate('price').':';
+						echo translate('Price').':';
+
 					?>
 				</td>
 				<td>
@@ -672,10 +681,12 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				if ($wa) {
 					$clear_button_name = $prefix.'_country_delivery_weight_clear_button['.$key.']';
 					$more_button_name = $prefix.'_country_delivery_weight_more_button['.$key.']';
-					echo normal_button($clear_button_name, translate('clear'), 'resetLastTableFields(this, true)');
+					echo normal_button($clear_button_name, translate('Clear'), 'resetLastTableFields(this, true)');
+
 					// only print this button for last table
 					if ($key === count($delivery_weight_fees)-1) {
-						echo normal_button($more_button_name, translate('more').'...', 'var table = prependLastTable(this); resetLastTableFields(table, false)');
+						echo normal_button($more_button_name, translate('More').'...', 'var table = prependLastTable(this); resetLastTableFields(table, false)');
+
 					}
 				}
 				?>
@@ -688,7 +699,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end paintCountryDeliveryWeightFees()
-	
+
 
 	/**
 	* Processes interface for specifying country delivery weight fees
@@ -743,7 +754,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end paintInternationalDeliveryFeeExempt()
-	
+
 
 	/**
 	* Processes country select box for international delivery fees
@@ -797,7 +808,8 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 					$name = $prefix.'_conditional_fee_comparison_price['.$key.']';
 				?>
 				<td style="vertical-align: middle; width: 120px;">
-					<?php echo translate('ecom_checkout_comparison_price').':'; ?>
+					<?php echo translate('Comparison Price').':'; ?>
+
 				</td>
 				<td style="vertical-align: middle;">
 					<?php
@@ -820,7 +832,8 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 								 );
 				?>
 				<td style="vertical-align: middle;">
-					<?php echo translate('ecom_checkout_operator').':'; ?>
+					<?php echo translate('Operator').':'; ?>
+
 				</td>
 				<td>
 					<?php
@@ -837,7 +850,8 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 					$name = $prefix.'_conditional_fee_additional_cost['.$key.']';
 				?>
 				<td style="vertical-align: middle;">
-					<?php echo translate('ecom_checkout_additional_cost').':'; ?>
+					<?php echo translate('Additional Cost').':'; ?>
+
 				</td>
 				<td style="vertical-align: middle;">
 					<?php
@@ -854,7 +868,8 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 					$name = $prefix.'_conditional_fee_remove_fees['.$key.']';
 				?>
 				<td style="vertical-align: middle;">
-					<?php echo translate('ecom_checkout_remove_fees').':'; ?>
+					<?php echo translate('Remove All Fees').':'; ?>
+
 				</td>
 				<td style="vertical-align: middle;">
 					<?php
@@ -862,9 +877,11 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 							echo check_box($name, '1', $data['remove_fees']);
 						} else {
 							if ($data['remove_fees']) {
-								echo translate('yes');
+								echo translate('Yes');
+
 							} else {
-								echo translate('no');
+								echo translate('No');
+
 							}
 						}
 					?>
@@ -878,10 +895,12 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				<?php
 					$clear_button_name = $prefix.'_conditional_fee_clear_button['.$key.']';
 					$more_button_name = $prefix.'_conditional_fee_more_button['.$key.']';
-					echo normal_button($clear_button_name, translate('clear'), 'resetLastTableFields(this, true)');
+					echo normal_button($clear_button_name, translate('Clear'), 'resetLastTableFields(this, true)');
+
 					// only print this button for last table
 					if ($key === count($conditions)-1) {
-						echo normal_button($more_button_name, translate('more').'...', 'var table = prependLastTable(this); resetLastTableFields(table, false)');
+						echo normal_button($more_button_name, translate('More').'...', 'var table = prependLastTable(this); resetLastTableFields(table, false)');
+
 					}
 				?>
 				</td>
@@ -896,7 +915,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end paintConditionalDeliveryFee()
-	
+
 
 	/**
 	* Processes interface to add additional, conditional delivery fees
@@ -960,12 +979,16 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		$customise_receipt = $asset->attr('customise_receipt');
 		if ($wa) {
 			$contents = Array(
-							'1'	=> translate('yes'),
-							'0'	=> translate('no'),
+							'1'	=> translate('Yes'),
+
+							'0'	=> translate('No'),
+
 						);
 			echo combo_box($prefix.'_customise_receipt', $contents, FALSE, $customise_receipt);
 		} else {
-			echo $customise_receipt ? translate('yes') : translate('no');
+			echo $customise_receipt ? translate('Yes') : translate('No');
+
+
 		}
 
 		return $wa;
@@ -995,7 +1018,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return $wa;
 
 	}//end processCustomiseReceipt()
-	
+
 
 	//--  CHECKOUT COMPLETION ACTIONS        --//
 
@@ -1261,7 +1284,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	*/
 	public function paintSelectedAction($asset, Backend_Outputter $o, $prefix)
-	{	
+	{
 		$write_access = $asset->writeAccess('attributes');
 		$selected_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
 		if (!is_numeric($selected_action)) {
@@ -1315,7 +1338,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 
 	}//end paintSelectedAction()
 
-	
+
 	/**
 	* Paints the interface for choosing an asset type.
 	*
@@ -1346,13 +1369,15 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		}
 		$all_types = array_unique($all_types);
 		arsort($all_types);
-		$all_types['asset'] = '-- '.translate('sch_all_asset_types').' --';
+		$all_types['asset'] = '-- '.translate('All Asset Types').' --';
+
 		$all_types[''] = '';
 		$all_types = array_reverse($all_types);
 
 		combo_box($field_name, $all_types, FALSE, $selected_type_code);
 		echo '&nbsp;';
-		submit_button($field_name.'_go', translate('go'), 'main_form.submit()');
+		submit_button($field_name.'_go', translate('Go'), 'main_form.submit()');
+
 
 	}//end _paintAssetTypeChooser()
 
@@ -1366,7 +1391,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	*/
 	public function processSelectedAction($asset, Backend_Outputter $o, $prefix)
-	{	
+	{
 		$write_access = $asset->writeAccess('attributes');
 		$actions = $asset->attr('actions');
 		$result = FALSE;
@@ -1456,7 +1481,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 
 		return $name;
 
-	}//end _makeValidActionName()	
+	}//end _makeValidActionName()
 
 
 }//end class

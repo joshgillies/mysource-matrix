@@ -29,7 +29,8 @@
 function Layer_Handler(div_id, top, right, bottom, left) {
 
 	if (is_major < 4) {
-		alert(js_translate('unable_to_use_layers'));
+		alert(js_translate('Unable to use layers on your page, sorry'));
+
 		return;
 	}
 

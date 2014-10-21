@@ -30,8 +30,8 @@ require_once dirname(__FILE__).'/../../promotional_rule/promotional_rule_edit_fn
 */
 class Promotional_Rule_Type_Free_Shipping_Edit_Fns extends Promotional_Rule_Edit_Fns
 {
-	
-	
+
+
 	/**
 	 * Constructor
 	 */
@@ -40,8 +40,8 @@ class Promotional_Rule_Type_Free_Shipping_Edit_Fns extends Promotional_Rule_Edit
 		parent::__construct();
 
 	}//end constructor
-	
-	
+
+
 	/**
 	 * Paints the promotional rule's interface
 	 *
@@ -57,43 +57,46 @@ class Promotional_Rule_Type_Free_Shipping_Edit_Fns extends Promotional_Rule_Edit
 	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
 	{
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
-		
+
 		// Setup default values if there is no rule data
 		if (is_null($rule_data)) {
 			$rule_data = $asset->getDefaultRuleData();
 		}
 
 		// Paint the discount type selection
-		$o->openField(translate('ecom_promotional_rule_type_free_shipping_discount_type'));
+		$o->openField(translate('Discount Type'));
+
 			$discount_types = $asset->getDiscountTypes();
 			if ($write_access) {
 				combo_box($prefix.'[threshold_type]', $discount_types, FALSE, $rule_data['threshold_type']);
 			} else {
 				echo $discount_types[$rule_data['threshold_type']];
-				
-			}			
+
+			}
 		$o->closeField();
-		
-		// Paint the new discount option if we have write access		
-		$o->openField(translate('ecom_promotional_rule_type_free_shipping_threshold'));
+
+		// Paint the new discount option if we have write access
+		$o->openField(translate('Quantity/Cost Threshold'));
+
 			if ($write_access) {
 				text_box($prefix.'[threshold_value]', $rule_data['threshold_value']);
 			} else {
 				echo $rule_data['threshold_value'];
 			}
-				
-		$o->closeField();
-		
 
-		
+		$o->closeField();
+
+
+
 		// Add section note
-		$o->sectionNote(translate('ecom_promotional_rule_type_free_shipping_section_note'));
-		
+		$o->sectionNote(translate('This rule defines the free shipping promotional discount based on number of items or total purchase cost'));
+
+
 		return $write_access;
-		
+
 	}//end paintRule()
-	
-	
+
+
 	/**
 	 * Process the promotional rule's interface
 	 *
@@ -108,34 +111,34 @@ class Promotional_Rule_Type_Free_Shipping_Edit_Fns extends Promotional_Rule_Edit
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
 		parent::processRule($asset, $o, $prefix, $rule_data);
-		
+
 		if (!isset($_POST[$prefix])) return FALSE;
-		
+
 		// Setup default values if there is no rule data
 		if (is_null($rule_data)) {
 			$rule_data = $asset->getDefaultRuleData();
 		}
-		
+
 		// Save threshold type
 		$threshold_type = array_get_index($_POST[$prefix], 'threshold_type', '');
 		if (array_key_exists($threshold_type, $asset->getDiscountTypes())) {
 			$rule_data['threshold_type'] = $threshold_type;
-		}		
-		
+		}
+
 		// Add threshold value
-		$threshold_value = array_get_index($_POST[$prefix], 'threshold_value');		
+		$threshold_value = array_get_index($_POST[$prefix], 'threshold_value');
 		if (is_numeric($threshold_value)) {
 			$threshold_value = (int) $threshold_value;
 			if ($threshold_value >= 0) {
 				$rule_data['threshold_value'] = $threshold_value;
 			}
 		}
-		
+
 		return TRUE;
-		
+
 	}//end processRule()
-	
-	
+
+
 }//end class
 
 ?>

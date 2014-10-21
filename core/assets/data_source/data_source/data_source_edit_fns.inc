@@ -111,7 +111,8 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	{
 		$shadow_asset = $asset->getAsset($asset->id.':0');
 		if (is_null($shadow_asset)) {
-			echo '<strong>'.translate('data_source_no_keywords').'</strong>';
+			echo '<strong>'.translate('No keywords available - this data source, as currently configured, does not have any record sets.').'</strong>';
+
 			return;
 		}
 		$keywords = $shadow_asset->getAvailableKeywords();
@@ -119,8 +120,10 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('keyword');?></th>
-				<th><?php echo translate('description');?></th>
+				<th><?php echo translate('Keyword');?></th>
+
+				<th><?php echo translate('Description');?></th>
+
 			</tr>
 			<?php
 			foreach ($keywords as $key => $desc) {
@@ -149,9 +152,9 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		return $write_access;
 
 	}//end paintKeywords()
-	
-	
-	
+
+
+
 
 
 	/**
@@ -189,21 +192,27 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
 				<tr>
-					<th><?php echo translate('data_source_filter_name'); ?></th>
-					<th><?php echo translate('data_source_value_to_match'); ?></th>
-					<th><?php echo translate('data_source_match_type'); ?></th>
-					<th><?php echo translate('data_source_match_case'); ?></th>
-					<th><?php echo translate('data_source_allow_empty'); ?></th>
+					<th><?php echo translate('Record Set Field Name'); ?></th>
+
+					<th><?php echo translate('Value to Match'); ?></th>
+
+					<th><?php echo translate('Match Type'); ?></th>
+
+					<th><?php echo translate('Match Case'); ?></th>
+
+					<th><?php echo translate('Allow Empty'); ?></th>
+
 					<?php
 					if ($wa) {
 						?>
-						<th style="text-align:center;"><?php echo translate('delete'); ?>?</th>
+						<th style="text-align:center;"><?php echo translate('Delete'); ?>?</th>
+
 						<?php
 					}
 					?>
 				</tr>
 				<?php
-				
+
 				$match_options = Array(
 									'exact' => 'String match - Exact',
 									'contains' => 'String match - Contains',
@@ -217,8 +226,8 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 									0 => 'No',
 									1 => 'Yes',
 								);
-				
-				
+
+
 				foreach ($filters as $index => $field_data) {
 					$field_name = $field_data['name'];
 					$field_value = $field_data['value'];
@@ -227,7 +236,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 					$allow_empty = array_get_index($field_data, 'allow_empty', 0);
 
 					?>
-					<tr>				
+					<tr>
 						<td>
 							<?php
 								if ($wa) {
@@ -274,7 +283,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 							?>
 						</td>
 						<?php
-							if ($wa) {						
+							if ($wa) {
 								echo '<td style="text-align:center;">';
 								check_box($prefix.'_filter['.$index.'][delete]');
 								echo '</td>';
@@ -288,18 +297,22 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 				?>
 			</table>
 			<div class="sq-backend-field-note">
-				<strong><?php echo translate('note'); ?>:</strong> <?php echo translate('data_source_dynamic_keywords_node'); ?>
+				<strong><?php echo translate('Note'); ?>:</strong> <?php echo translate('Dynamic variables added in "Dynamic Inputs" screen can be used here in the "Value to Match" field in the form <strong>%%%%VARIABLENAME%%%%.</strong>'); ?>
+
+
 			</div>
 			<?php
 		$o->closeField();
 		if ($wa) {
-			$o->openField(translate('data_source_new_filter'));
-				label(translate('data_source_filter_name'), $prefix.'_new_filter_name');
+			$o->openField(translate('Add New Condition'));
+
+				label(translate('Record Set Field Name'), $prefix.'_new_filter_name');
+
 				echo '&nbsp;';
 				text_box($prefix.'_new_filter_name', '', 25);
 			$o->closeField();
 		}
-		
+
 
 		return $wa;
 
@@ -317,13 +330,13 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	*/
 	public function processRecordFilter(&$asset, &$o, $prefix)
-	{	
-		if (!$asset->writeAccess('attributes')) return FALSE;		
-		
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+
 		$updated_filters = Array();
 		if (isset($_POST[$prefix.'_filter'])) {
 			foreach($_POST[$prefix.'_filter'] as $index => $filter_data) {
-				if (isset($filter_data['delete'])) {					
+				if (isset($filter_data['delete'])) {
 					continue;
 				}
 				$filter_name = trim($filter_data['name']);
@@ -331,16 +344,16 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 				$match_type = $filter_data['match_type'];
 				$match_case = $filter_data['match_case'];
 				$allow_empty = $filter_data['allow_empty'];
-				
+
 				// Validate the regex string
 				if ($match_type == 'regex' && !empty($filter_value)) {
 					$valid_regex = @preg_match('/'.str_replace('/', '\/',$filter_value).'/', 'test');
 					if ($valid_regex === FALSE) {
-						trigger_localised_error('DATA0007', E_USER_WARNING, $filter_value);						
+						trigger_localised_error('DATA0007', sprintf(translate('Specified string "%1$s" is not a valid regular expression'), $filter_value), E_USER_WARNING);
 						$filter_value = '';
 					}
 				}
-				
+
 				$updated_filters[] = Array(
 									'name' => $filter_name,
 									'value' => $filter_value,
@@ -350,7 +363,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 								);
 			}//end foreach
 		}//end if
-		
+
 		if (!empty($_POST[$prefix.'_new_filter_name'])) {
 			$updated_filters[] = Array(
 								'name' => trim($_POST[$prefix.'_new_filter_name']),
@@ -359,13 +372,13 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 								'match_case' => 'ignore_case',
 								'allow_empty' => 0,
 							);
-		}		
-		
+		}
+
 		return $asset->setAttrValue('record_filters', $updated_filters);
 
 	}//end processRecordFilter()
 
-	
+
 	/**
 	* Find out if there are any tables selected or not
 	*
@@ -381,8 +394,8 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		return !empty($result);
 
 	}//end resultSetExists()
-	
-	
+
+
 	/**
 	* Paint the dynamic data interface
 	*
@@ -458,7 +471,8 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 
 		$o->closeRaw();
 
-		$o->sectionNote(translate('data_source_variable_section_note'));
+		$o->sectionNote(translate('Variables added in this section can be used in Record Filters and in other applicable fields in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)'));
+
 
 		$o->closeSection();
 
@@ -475,8 +489,9 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		$map->paint($prefix.'_parameter_map', !$write_access);
 		$o->closeRaw();
 
-		$o->sectionNote(translate('data_source_mappings_section_note'));
-		
+		$o->sectionNote(translate('Use this section to setup dynamic assignment of values to variables.'));
+
+
 		return $write_access;
 
 	}//end paintDynamicData()
@@ -513,7 +528,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$map->process($prefix.'_parameter_map');
-		
+
 		foreach ($var_value as $hash => $value) {
 			$name = base64_decode($hash);
 			if (isset($to_delete[$hash])) {
@@ -611,7 +626,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 
 		return TRUE;
 
-	}//end processDynamicData()	
+	}//end processDynamicData()
 
 
 }//end class

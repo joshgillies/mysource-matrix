@@ -69,7 +69,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	protected function _processSubMenu(Design_Area_Menu_Type $asset, Array $contents)
 	{
 		// we just want to ignore any sub menu's in our asset contents
-		trigger_localised_error('CORE0215', E_USER_WARNING);
+		trigger_localised_error('CORE0215', translate('You are unable to set sub menu\'s on the recursive menu type'), E_USER_WARNING);
 		return FALSE;
 
 	}//end _processSubMenu()

@@ -18,41 +18,61 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field>
+			<display_name></display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintKeywordInstructions"   />
 				<process_function name="processKeywordInstructions" />
 			</function_call>
 		</field>
 		<field attribute="name">
+			<display_name>Field Name</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="friendly_name">
+			<display_name>Friendly Name</display_name>
+			<note>Friendly Name will be used as the caption for metadata fields in the edit interface. If it is left empty, Field Name will be used instead.</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
+			<display_name>Description</display_name>
+			<note>Use of HTML tags in description will be picked up by browser on the Metadata screen of the Asset it is applied to. This can conflict with other HTML on the page and may stop the screen from loading. Care needs to be taken here and use of entity name or entity number format is encouraged.</note>
 			<text width="30" height="5" />
 		</field>
 		<field>
+			<display_name>Default</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintDefault"   />
 				<process_function name="processDefault" />
 			</function_call>
 		</field>
 		<field attribute="scheme">
+			<display_name>Scheme</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="language">
+			<display_name>Language</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="field_name_text">
+			<display_name>Text for Name Attribute</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="value_name_text">
+			<display_name>Text for Value Attribute</display_name>
+			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Value Components" write_access="write:attributes">
 		<field>
+			<display_name>New?</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintValueComponents"   />
 				<process_function name="processValueComponents" />
@@ -61,27 +81,41 @@
 	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="editable">
+			<display_name>Editable</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="multi_line">
+			<display_name>Multi Line</display_name>
+			<note />
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="required">
+			<display_name>Required</display_name>
+			<note>%description%</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="is_contextable">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="frontend">
+			<display_name>Show On Frontend</display_name>
+			<note>&lt;b&gt;Always:&lt;/b&gt; this metadata field will always be printed on the frontend.&lt;br&gt;&lt;b&gt;Only If Filled:&lt;/b&gt; this metadata field will only be printed on the frontend if data is entered in that field for that asset.&lt;br&gt;&lt;b&gt;Never:&lt;/b&gt; this metadata field will not be printed on the frontend.</note>
 			<selection style="list" />
 		</field>
 		<field attribute="char_limit">
+			<display_name>Character Limit</display_name>
+			<note>Character Limit for the text field. No character limit if the value is equal to zero</note>
 			<int width="5" allow_negative="FALSE"/>
 		</field>
 		<field attribute="box_width">
+			<display_name>Width</display_name>
+			<note>Customize the width of the box displaying the metadata field.</note>
 			<int width="5" allow_negative="FALSE"/>
 		</field>
 		<field attribute="box_height">
+			<display_name>Height</display_name>
+			<note>Customize the height of the box displaying the metadata field. Note: this option is only used when multi line is enabled.</note>
 			<int width="5" allow_negative="FALSE"/>
 		</field>
 	</section>

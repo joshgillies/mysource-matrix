@@ -103,7 +103,7 @@ class Condition_User_IPv6 extends Condition
 	public static function getMatchKeywords($type_code)
 	{
 		$match_options = Array(
-							'1'	=> translate($type_code.'_true'),
+							'1'	=> translate('The user\'s IPv6 address matches the following pattern'),
 						 );
 
 		return $match_options;
