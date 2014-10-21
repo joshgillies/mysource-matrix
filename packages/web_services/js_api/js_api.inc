@@ -496,6 +496,9 @@ class JS_Api extends Page
 						break;
 					}
 					$asset = $this->setAsset($id);
+					if ($asset === FALSE) {
+						return FALSE;
+					}
 
 					if (!$this->checkRoot($asset)) {
 						// If we are not the root node(s) or underneath them,
