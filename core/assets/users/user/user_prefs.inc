@@ -585,13 +585,13 @@ class User_Prefs extends Prefs
 			echo '<th>'.translate('default').'</th>';
 
 			if ($have_lock) {
-				echo '<th>'.translate('delete_question').'</ht>';
+				echo '<th>'.translate('Delete?').'</ht>';
 			}
 			echo '</tr>';
 
 			// Default size 'auto'
 			echo '<tr>';
-			echo '<td><em>'.ucfirst(translate('auto')).'</em></td>';
+			echo '<td><em>'.translate('auto').'</em></td>';
 			echo '<td>100%</td>';
 			echo '<td>100%</td>';
 			echo '<td align="center">';

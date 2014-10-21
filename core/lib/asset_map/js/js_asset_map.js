@@ -2580,7 +2580,7 @@ var JS_Asset_Map = new function() {
 	this.createLink = function(assetid, newParentAssetid, sortOrder) {
 		if (assetid === newParentAssetid) {
 			// Shouldn't get here, but assets cannot be linked to itself.
-			this.raiseError(js_translate('asset_map_error_cannot_link_to_itself'));
+			this.raiseError(js_translate('An asset cannot be linked to itself'));
 		}
 	};
 
@@ -4338,10 +4338,10 @@ var JS_Asset_Map = new function() {
 		    // so the logic here is a little odd.
 			if (!(assetTypeCache[assetType]['allowed_links'].length === 0)) {
                 if (lastCreatedType === null) {
-                    var menuItem = this.drawMenuItem(js_translate('asset_map_menu_no_previous_child'), null);
+                    var menuItem = this.drawMenuItem(js_translate('No Previous Child'), null);
                     dfx.addClass(menuItem, 'disabled');
                 } else {
-                    var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_previous', assetTypeCache[lastCreatedType].name), lastCreatedType);
+                    var menuItem = this.drawMenuItem(js_translate('New %s', assetTypeCache[lastCreatedType].name), lastCreatedType);
                     dfx.addEvent(menuItem, 'click', function(e) {
                         self.clearMenus();
                         self.addAsset(lastCreatedType, assetid, -1);
@@ -4349,7 +4349,7 @@ var JS_Asset_Map = new function() {
                 }
                 container.appendChild(menuItem);
 
-			    var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_child'), null, true);
+			    var menuItem = this.drawMenuItem(js_translate('New Child'), null, true);
                 container.appendChild(menuItem);
 
                 dfx.addEvent(menuItem, 'mouseover', function(e) {

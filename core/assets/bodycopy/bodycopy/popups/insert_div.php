@@ -54,16 +54,16 @@ include(dirname(__FILE__).'/header.php');
 	$default_content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
 	$default_pres_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_PRESENTATION_TYPE');
 	$possible_types = Array(
-					'div'	=> translate('block-level'),
-					'span'	=> translate('inline'),
-					'none'	=> translate('raw_html'),
+					'div'	=> translate('Block (div)'),
+					'span'	=> translate('Inline (span)'),
+					'none'	=> translate('Raw (no formatting)'),
 				  );
 ?>
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
-		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('Cancel');?>" class="sq-icon">
 	</a>
-	<?php echo translate('insert_div'); ?>
+	<?php echo translate('Insert Content Container'); ?>
 </h1>
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">
@@ -71,35 +71,35 @@ include(dirname(__FILE__).'/header.php');
 <table>
 	<tr>
 		<td colspan="2">
-		<h2><?php echo translate('identification'); ?></h2>
+		<h2><?php echo translate('Identification'); ?></h2>
 		<fieldset>
 			<table>
 				<tr>
-					<td class="label"><?php echo translate('name'); ?>:</td>
+					<td class="label"><?php echo translate('Name'); ?>:</td>
 					<td><input type="text" name="identifier" value="" size="15"></td>
 				</tr>
 			</table>
 		</fieldset>
-		<h2><?php echo translate('style_information'); ?></h2>
+		<h2><?php echo translate('Style Information'); ?></h2>
 		<fieldset>
 			<table>
 				<tr>
-					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
+					<td class="bodycopy-popup-heading"><?php echo translate('Presentation'); ?>:</td>
 					<td>
 						<?php combo_box('layout_type', $possible_types, FALSE, $default_pres_type); ?>
 					</td>
 				</tr>
 				<tr>
-					<td class="label"><?php echo translate('class'); ?>:</td>
+					<td class="label"><?php echo translate('Class'); ?>:</td>
 					<td><input type="text" name="css_class" value="" size="15"></td>
 				</tr>
 			</table>
 		</fieldset>
-		<h2><?php echo translate('content_type'); ?></h2>
+		<h2><?php echo translate('Content Type'); ?></h2>
 		<fieldset class="last">
 			<table>
 				<tr>
-					<td class="bodycopy-popup-heading"><?php echo translate('content_type'); ?>:</td>
+					<td class="bodycopy-popup-heading"><?php echo translate('Content Type'); ?>:</td>
 					<td>
 						<select name="content_type" id="content_type">
 							<?php
@@ -121,10 +121,10 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('Cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('insert'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('Insert'); ?>"/>
 		</td>
 	</tr>
 </table>

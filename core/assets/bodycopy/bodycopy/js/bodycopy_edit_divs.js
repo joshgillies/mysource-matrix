@@ -47,7 +47,7 @@ function bodycopy_edit_div_properties(bodycopy_name, divid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_div_props.php", 325, 557, divid, 'div');
+	bodycopy_show_popup("edit_div_props.php", 325, 605, divid, 'div');
 }// end bodycopy_edit_div_properties()
 
 function bodycopy_save_div_properties(attributes) {

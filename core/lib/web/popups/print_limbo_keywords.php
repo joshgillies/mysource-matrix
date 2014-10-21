@@ -22,7 +22,7 @@
 
 		$o = new Backend_Outputter();
 
-		$o->openSection('Keyword List for Simple Edit Keywords');
+		$o->openSection(translate('Keyword List for Simple Edit Keywords'));
 			$type_list = Array();
 			$asset_type_list = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
 			foreach ($asset_type_list as $key => $value) {
@@ -40,7 +40,7 @@
 			asort($asset_types);
 
 			$o->openField('', 'wide_col');
-				echo '<p style="margin: 0;">Select your asset type: ';
+				echo '<p style="margin: 0;">'.translate('Select your asset type').': ';
 				if (isset($_REQUEST['asset_type']))
 				{
 					combo_box('asset_type', $asset_types, FALSE, $_REQUEST['asset_type']);
@@ -48,7 +48,7 @@
 					combo_box('asset_type', $asset_types);
 				}
 				echo '&nbsp;';
-				submit_button('limbo_keywords_submit', 'Get Keywords');
+				submit_button('limbo_keywords_submit', translate('Get Keywords'));
 				echo '</p>';
 			$o->closeField();
 		$o->closeSection();
@@ -60,7 +60,7 @@
 			$ei->getSimpleEditKeywords($asset_type, $o);
 		}
 			$o->openField('', 'commit');
-				normal_button('cancel', translate('close_window'), 'window.close()', '');
+				normal_button('cancel', translate('Close Window'), 'window.close()', '');
 			$o->closeField();
 		$o->closeSection();
 		$o->paint();

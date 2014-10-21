@@ -55,23 +55,23 @@ include(dirname(__FILE__).'/header.php');
 
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
-		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('Cancel');?>" class="sq-icon">
 	</a>
-	<?php echo translate('table_row_properties'); ?>
+	<?php echo translate('Edit Table Row Properties'); ?>
 </h1>
 <form name="main_form">
 <table class="bodycopy-popup-table">
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('properties'); ?></h2>
+			<h2><?php echo translate('Properties'); ?></h2>
 			<fieldset>
 				<table border="0" cellpadding="0" cellspacing="4">
 					<tr>
-						<td class="label"><?php echo translate('height'); ?>:</td>
+						<td class="label"><?php echo translate('Height'); ?>:</td>
 						<td><input type="text" name="height" value="" size="5"></td>
 					</tr>
 					<tr>
-						<td class="label"><?php echo translate('background_colour'); ?>:</td>
+						<td class="label"><?php echo translate('Background colour'); ?>:</td>
 						<td><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE);?></td>
 					</tr>
 				</table>
@@ -80,16 +80,16 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('text_direction'); ?></h2>
+			<h2><?php echo translate('Text Direction'); ?></h2>
 			<fieldset class="last">
 				<table border="0" cellpadding="0" cellspacing="4">
 					<tr>
-						<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
+						<td class="label"><?php echo translate('Direction:'); ?></td>
 						<td>
 							<select name="dir">
-								<option value=""><?php echo translate('content_type_no_change'); ?></option>
-								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
-								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+								<option value=""><?php echo translate('-- Leave Unchanged --'); ?></option>
+								<option value="ltr"><?php echo translate('Left to right'); ?></option>
+								<option value="rtl"><?php echo translate('Right to left'); ?></option>
 							</select>
 						</td>
 					</tr>
@@ -99,10 +99,10 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('Cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('Save'); ?>"/>
 		</td>
 	</tr>
 </table>

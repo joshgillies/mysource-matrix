@@ -545,7 +545,7 @@ class Asset_Edit_Interface extends MySource_Object
 															require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 															$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 															if (!$expires_in) {
-																$expires_in = '1 '.translate('second');
+																$expires_in = sprintf(translate('%s second'), 1);
 
 															}
 															$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
@@ -1206,7 +1206,7 @@ class Asset_Edit_Interface extends MySource_Object
 						var key = event.keyCode || event.which;
 						if (key == 13) {
 							if (FORM_ALREADY_SUBMITTED) {
-								alert(js_translate('form_already_submitted'));
+								alert(js_translate('The form has already been submitted, please wait ...'));
 								document.onkeypress = function(event) {if (event.keyCode || event.which == 13) event.preventDefault();}
 								return;
 							}

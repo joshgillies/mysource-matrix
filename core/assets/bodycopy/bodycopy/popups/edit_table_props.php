@@ -82,7 +82,7 @@ include(dirname(__FILE__).'/header.php');
 	<a href="#" onclick="javascript: popup_close(); return false;">
 		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
 	</a>
-	Table Properties
+	<?php echo translate('Edit Table Properties'); ?>
 </h1>
 <script language="JavaScript">
 if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
@@ -94,15 +94,15 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 <table>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('identification'); ?></h2>
+			<h2><?php echo translate('Identification'); ?></h2>
 			<fieldset>
 				<table>
 					<tr>
-						<td class="label"><?php echo translate('name'); ?>:</td>
+						<td class="label"><?php echo translate('Name'); ?>:</td>
 						<td><input type="text" name="identifier" value="" size="20"></td>
 					</tr>
 					<tr>
-						<td class="label"><?php echo translate('description'); ?>:</td>
+						<td class="label"><?php echo translate('Description'); ?>:</td>
 						<td><textarea name="desc" rows="3" size="20" value=""></textarea></td>
 					</tr>
 				</table>
@@ -111,35 +111,35 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('layout'); ?></h2>
+			<h2><?php echo translate('Layout'); ?></h2>
 			<fieldset>
 				<table>
 					<tr>
-						<td class="label"><?php echo translate('width'); ?>:</td>
+						<td class="label"><?php echo translate('Width'); ?>:</td>
 						<td><input type="text" name="width" value="" size="5"></td>
 					</tr>
 					<tr>
-						<td class="label"><?php echo translate('height'); ?>:</td>
+						<td class="label"><?php echo translate('Height'); ?>:</td>
 						<td><input type="text" name="height" value="" size="5"></td>
 					</tr>
 					<tr>
-						<td class="label"><?php echo translate('alignment'); ?>:</td>
+						<td class="label"><?php echo translate('Alignment'); ?>:</td>
 						<td>
 						<select name="align">
 							<option value="">
-							<option value="left"  ><?php echo translate('left'); ?>
-							<option value="center"><?php echo translate('centre'); ?>
-							<option value="right" ><?php echo translate('right'); ?>
+							<option value="left"  ><?php echo translate('Left'); ?>
+							<option value="center"><?php echo translate('Centre'); ?>
+							<option value="right" ><?php echo translate('Right'); ?>
 						</select>
 						</td>
 					</tr>
 				</table>
 			</fieldset>
-			<h2><?php echo translate('spacing_and_padding'); ?></h2>
+			<h2><?php echo translate('Spacing and Padding'); ?></h2>
 			<fieldset>
 				<table>
 					<tr>
-						<td class="label"><?php echo translate('spacing'); ?>:</td>
+						<td class="label"><?php echo translate('Spacing'); ?>:</td>
 						<td>
 						<select name="cellspacing">
 							<option value="" >
@@ -158,7 +158,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 						</td>
 					</tr>
 					<tr>
-						<td class="label"><?php echo translate('padding'); ?>:</td>
+						<td class="label"><?php echo translate('Padding'); ?>:</td>
 						<td>
 						<select name="cellpadding">
 							<option value="" >
@@ -182,16 +182,16 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('text_direction'); ?></h2>
+			<h2><?php echo translate('Text Direction'); ?></h2>
 			<fieldset>
 				<table style="width:100%">
 					<tr>
-						<td class="bodycopy-popup-heading"><?php echo translate('bodycopy_direction'); ?></td>
+						<td class="bodycopy-popup-heading"><?php echo translate('Direction:'); ?></td>
 						<td>
 							<select name="dir">
-								<option value=""><?php echo translate('content_type_no_change'); ?></option>
-								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
-								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+								<option value=""><?php echo translate('-- Leave Unchanged --'); ?></option>
+								<option value="ltr"><?php echo translate('Left to right'); ?></option>
+								<option value="rtl"><?php echo translate('Right to left'); ?></option>
 							</select>
 						</td>
 					</tr>
@@ -201,11 +201,11 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('table_styles-colours'); ?></h2>
+			<h2><?php echo translate('Table Styles / Colours'); ?></h2>
 			<fieldset>
 				<table>
 					<tr>
-						<td class="label"><?php echo translate('background_colour'); ?>:</td>
+						<td class="label"><?php echo translate('Background Colour'); ?>:</td>
 						<td><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE);?></td>
 					</tr>
 					<!-- <tr>
@@ -213,7 +213,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 						<td><input type="text" name="background" value="" size="5"></td>
 					</tr> -->
 					<tr>
-						<td class="label" valign="top"><?php echo translate('border'); ?>:</td>
+						<td class="label" valign="top"><?php echo translate('Border'); ?>:</td>
 						<td valign="top">
 						<select name="border">
 							<option value="" >
@@ -237,14 +237,14 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('keywords'); ?></h2>
+			<h2><?php echo translate('Keywords'); ?></h2>
 			<fieldset>
 				<table>
 					<tr>
-						<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
+						<td class="label"><?php echo translate('Disable keywords'); ?>:</td>
 						<td>
 							<input type="checkbox" id="disable_keywords" name="disable_keywords" value="1">
-							<label for="disable_keywords">Yes</label>
+							<label for="disable_keywords"><?php echo translate('Yes') ?></label>
 						</td>
 					</tr>
 				</table>
@@ -253,11 +253,11 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('delete_this_table'); ?></h2>
+			<h2><?php echo translate('Delete This Table'); ?></h2>
 			<fieldset class="last">
 			<table>
 				<tr>
-					<td class="label"><?php echo translate('click_to_delete'); ?>:</td>
+					<td class="label"><?php echo translate('Click Icon to Delete'); ?>:</td>
 					<td>
 						<a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this table");</script></a>
 					</td>
@@ -269,10 +269,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('Cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('Save'); ?>"/>
 		</td>
 	</tr>
 </table>

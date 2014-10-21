@@ -115,7 +115,7 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 
 		$content = isset($rule_data['indicator_content']) && !empty ($rule_data['indicator_content']) ? $rule_data['indicator_content'] : translate('Virus scanning is underway, please wait...');
 
-		$class = isset($rule_data['indicator_class']) && !empty ($rule_data['indicator_class']) ? $rule_data['indicator_class'] : translate('virus_scan_indicator');
+		$class = isset($rule_data['indicator_class']) && !empty ($rule_data['indicator_class']) ? $rule_data['indicator_class'] : 'virus_scan_indicator';
 
 
 		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well

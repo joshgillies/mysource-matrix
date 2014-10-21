@@ -77,7 +77,7 @@ include(dirname(__FILE__).'/header.php');
 		var i = 0;
 
 		// add default "Leave Unchanged" value to the top
-		f.content_type.options[i] = new Option('<?php echo translate('content_type_no_change'); ?>', "");
+		f.content_type.options[i] = new Option('<?php echo translate('-- Leave Unchanged --'); ?>', "");
 		i++;
 		for(var key in available_types) {
 			if (available_types[key] == null) continue;
@@ -121,9 +121,9 @@ include(dirname(__FILE__).'/header.php');
 
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
-		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('Cancel');?>" class="sq-icon">
 	</a>
-	<?php echo translate('container_properties'); ?>
+	<?php echo translate('Edit Container Properties'); ?>
 </h1>
 <script type="text/javascript">
 if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
@@ -134,38 +134,38 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 <table>
 	<tr>
 		<td colspan="2">
-		<h2><?php echo translate('identification'); ?></h2>
+		<h2><?php echo translate('Identification'); ?></h2>
 		<fieldset>
 			<table>
 				<tr>
-					<td class="label"><?php echo translate('name'); ?>:</td>
+					<td class="label"><?php echo translate('Name'); ?>:</td>
 					<td><input type="text" name="identifier" value="" size="25"></td>
 				</tr>
 				<tr>
-					<td class="label"><?php echo translate('description'); ?>:</td>
+					<td class="label"><?php echo translate('Description'); ?>:</td>
 					<td><textarea name="desc" rows="3" size="25" value=""></textarea></td>
 				</tr>
 			</table>
 		</fieldset>
-		<h2><?php echo translate('style_information'); ?></h2>
+		<h2><?php echo translate('Style Information'); ?></h2>
 		<fieldset>
 			<table>
 				<tr>
-					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
+					<td class="bodycopy-popup-heading"><?php echo translate('Presentation'); ?>:</td>
 					<td>
 						<select name="layout_type">
-							<option value="div" ><?php echo translate('block-level'); ?></option>
-							<option value="span"><?php echo translate('inline'); ?></option>
-							<option value="none"><?php echo translate('raw_html'); ?></option>
+							<option value="div" ><?php echo translate('Block (div)'); ?></option>
+							<option value="span"><?php echo translate('Inline (span)'); ?></option>
+							<option value="none"><?php echo translate('Raw (no formatting)'); ?></option>
 						</select>
 					</td>
 				</tr>
 				<tr>
-					<td class="label"><?php echo translate('class'); ?>:</td>
+					<td class="label"><?php echo translate('Class'); ?>:</td>
 					<td>
 						<input type="text" name="css_class" value="" size="15"><br />
 						<select name="css_class_list" onchange="set_class(this.value);">
-							<option value=""><?php echo translate('content_type_no_change'); ?></option>
+							<option value=""><?php echo translate('-- Leave Unchanged --'); ?></option>
 						</select>
 					</td>
 				</tr>
@@ -175,16 +175,16 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-		<h2><?php echo translate('text_direction'); ?></h2>
+		<h2><?php echo translate('Text Direction'); ?></h2>
 		<fieldset>
 			<table>
 				<tr>
-					<td class="bodycopy-popup-heading"><?php echo translate('bodycopy_direction'); ?></td>
+					<td class="bodycopy-popup-heading"><?php echo translate('Direction'); ?>:</td>
 					<td>
 						<select name="dir">
-							<option value=""><?php echo translate('content_type_no_change'); ?></option>
-							<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
-							<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+							<option value=""><?php echo translate('-- Leave Unchanged --'); ?></option>
+							<option value="ltr"><?php echo translate('Left to right'); ?></option>
+							<option value="rtl"><?php echo translate('Right to left'); ?></option>
 						</select>
 					</td>
 				</tr>
@@ -194,17 +194,19 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('content_type'); ?></h2>
+			<h2><?php echo translate('Content Type'); ?></h2>
 			<fieldset>
 				<table>
 					<tr>
 					<?php
 					if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
-						echo translate('changing_div_not_allowed_in_safe_edit');
+						echo '<td colspan="2"><p class="sq-warning-message">';
+						echo translate('You are not able to change a container whilst in Safe Edit mode.');
+						echo '</p></td>';
 					}
 					else {
 					?>
-						<td class="label"><?php echo translate('content_type'); ?>:</td>
+						<td class="label"><?php echo translate('Content Type'); ?>:</td>
 						<td>
 						<select name="content_type">
 							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
@@ -217,10 +219,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					}
 					?>
 					<tr>
-						<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
+						<td class="label"><?php echo translate('Disable Keywords'); ?>:</td>
 						<td>
 							<input type="checkbox" id="disable_keywords" name="disable_keywords" value="1">
-							<label for="disable_keywords">Yes</label>
+							<label for="disable_keywords"><?php echo translate('Yes'); ?></label>
 						</td>
 					</tr>
 				</table>
@@ -229,16 +231,20 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('delete_this_dcontainer'); ?></h2>
+			<h2><?php echo translate('Delete This Container'); ?></h2>
 			<fieldset class="last">
 			<?php
 			// if asset is in safe edit we dont want user to delete it
 			if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
-				echo translate('delete_this_div_not_allowed_safe_edit');
+				echo '<p class="sq-warning-message">';
+				echo translate('You cannot delete a container whilst in Safe Edit mode.');
+				echo '</p>';
 			}
 			// if delete div is disabled by user preference, do not print the icon
 			else if ($GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_DELETE') === 'yes'){
-				echo translate('bodycopy_pref_cannot_insert_new');
+				echo '<p class="sq-warning-message">';
+				echo translate('You cannot delete a Div or Table while it is disabled in user preference.');
+				echo '</p>';
 			}
 			// else print the icon and let user do as he please
 			else {
@@ -246,7 +252,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 
 			<table>
 				<tr>
-					<td class="label"><?php echo translate('click_to_delete'); ?>:</td>
+					<td class="label"><?php echo translate('Click Icon to Delete'); ?>:</td>
 					<td>
 						<?php	sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, 'Delete This Container', 'Delete This Container', 'onclick="owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;"'); ?>
 					</td>
@@ -260,10 +266,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('Cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('set_properties'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('Set Properties'); ?>"/>
 		</td>
 	</tr>
 </table>

@@ -86,25 +86,25 @@ include(dirname(__FILE__).'/header.php');
 	<a href="#" onclick="javascript: popup_close(); return false;">
 		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
 	</a>
-	Table Cell Properties
+	<?php echo translate('Edit Table Cell Properties'); ?>
 </h1>
 <form name="main_form">
 <table>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('layout'); ?></h2>
+			<h2><?php echo translate('Layout'); ?></h2>
 			<fieldset>
 				<table>
 					<tr>
-						<td class="label"><?php echo translate('width'); ?>:</td>
+						<td class="label"><?php echo translate('Width'); ?>:</td>
 						<td><input type="text" name="width" value="" size="5"></td>
 					</tr>
 					<tr>
-						<td class="label"><?php echo translate('height'); ?>:</td>
+						<td class="label"><?php echo translate('Height'); ?>:</td>
 						<td><input type="text" name="height" value="" size="5"></td>
 					</tr>
 					<tr>
-						<td class="label"><?php echo translate('colspan'); ?>:</td>
+						<td class="label"><?php echo translate('Colspan'); ?>:</td>
 						<td><input type="text" name="colspan" value="" size="5"></td>
 					</tr>
 				</table>
@@ -113,28 +113,28 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('alignment'); ?></h2>
+			<h2><?php echo translate('Alignment'); ?></h2>
 			<fieldset>
 				<table>
 					<tr>
-						<td class="label"><?php echo translate('horizontal'); ?>:</td>
+						<td class="label"><?php echo translate('Horizontal'); ?>:</td>
 						<td>
 						<select name="align">
 							<option value="">
-							<option value="left"  ><?php echo translate('left'); ?>
-							<option value="center"><?php echo translate('centre'); ?>
-							<option value="right" ><?php echo translate('right');?>
+							<option value="left"  ><?php echo translate('Left'); ?>
+							<option value="center"><?php echo translate('Centre'); ?>
+							<option value="right" ><?php echo translate('Right');?>
 						</select>
 						</td>
 					</tr>
 					<tr>
-						<td class="label"><?php echo translate('vertical'); ?>:</td>
+						<td class="label"><?php echo translate('Vertical'); ?>:</td>
 						<td>
 						<select name="valign">
 							<option value="">
-							<option value="middle"  ><?php echo translate('middle'); ?>
-							<option value="top"     ><?php echo translate('top'); ?>
-							<option value="bottom"  ><?php echo translate('bottom'); ?>
+							<option value="middle"  ><?php echo translate('Middle'); ?>
+							<option value="top"     ><?php echo translate('Top'); ?>
+							<option value="bottom"  ><?php echo translate('Bottom'); ?>
 						</select>
 						</td>
 					</tr>
@@ -144,16 +144,16 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('text_direction'); ?></h2>
+			<h2><?php echo translate('Text Direction'); ?></h2>
 			<fieldset>
 				<table style="width:100%">
 					<tr>
-						<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
+						<td class="label"><?php echo translate('Direction'); ?></td>
 						<td>
 							<select name="dir">
-								<option value=""><?php echo translate('content_type_no_change'); ?></option>
-								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
-								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+								<option value=""><?php echo translate('-- Leave Unchanged --'); ?></option>
+								<option value="ltr"><?php echo translate('Left to right'); ?></option>
+								<option value="rtl"><?php echo translate('Right to left'); ?></option>
 							</select>
 						</td>
 					</tr>
@@ -163,19 +163,19 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('cell_styles-colours'); ?></h2>
+			<h2><?php echo translate('Cell Styles / Colours'); ?></h2>
 			<fieldset>
 			<table style="width:100%">
 				<tr>
-					<td class="label"><?php echo translate('background_colour'); ?>:</td>
+					<td class="label"><?php echo translate('Background Colour'); ?>:</td>
 					<td><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE);?></td>
 				</tr>
 				<tr>
-					<td class="label"><?php echo translate('no_text_wrap'); ?>:</td>
+					<td class="label"><?php echo translate('No Text Wrap'); ?>:</td>
 					<td>
 					<select name="nowrap">
-						<option value=""><?php echo translate('off'); ?>
-						<option value="on"><?php echo translate('on'); ?>
+						<option value=""><?php echo translate('Off'); ?>
+						<option value="on"><?php echo translate('On'); ?>
 					</select>
 					</td>
 				</tr>
@@ -185,11 +185,11 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('cell_type'); ?></h2>
+			<h2><?php echo translate('Cell Type'); ?></h2>
 			<fieldset class="last">
 			<table style="width:100%">
 				<tr>
-					<td class="label"><?php echo translate('cell_type'); ?>:</td>
+					<td class="label"><?php echo translate('Cell Type'); ?>:</td>
 					<td>
 					<select name="type">
 						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
@@ -204,10 +204,10 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('Cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('Save'); ?>"/>
 		</td>
 	</tr>
 </table>

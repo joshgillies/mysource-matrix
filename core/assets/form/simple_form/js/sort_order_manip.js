@@ -31,7 +31,7 @@
 function moveQuestion(form, prefix, currentOrder, nextOrder) {
 
 	if (!document.getElementById) {
-		alert(js_translate('cms_simple_form_cannot_reorder'));
+		alert(js_translate('This form\'s questions cannot be ordered'));
 		return;
 	}
 
@@ -52,7 +52,7 @@ function moveQuestion(form, prefix, currentOrder, nextOrder) {
 
 		// can we do this
 		if (!currentElement.innerHTML) {
-			alert(js_translate('cms_simple_form_cannot_reorder'));
+			alert(js_translate('This form\'s questions cannot be ordered'));
 			return;
 		}
 

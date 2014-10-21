@@ -23,6 +23,7 @@
 * @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
+* @deprecated since 5.0
 */
 header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 header('Pragma: no-cache');
@@ -48,7 +49,7 @@ include(dirname(__FILE__).'/header.php');
 
 		var num = parseInt(owner.form_element_value(field));
 		if (isNaN(num) || num < 0) {
-			alert(js_translate('enter_positive_number'));
+			alert(js_translate('Please enter a positive number.'));
 			field.value = input_default;
 			field.focus();
 		} else {
@@ -60,9 +61,9 @@ include(dirname(__FILE__).'/header.php');
 
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
-		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('Cancel');?>" class="sq-icon">
 	</a>
-	<?php echo translate('bodycopy_insert_table'); ?>
+	<?php echo translate('Insert Table'); ?>
 </h1>
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">
@@ -73,19 +74,19 @@ include(dirname(__FILE__).'/header.php');
 			<table>
 				<tr>
 					<td>
-						<h2><?php echo translate('layout'); ?></h2>
+						<h2><?php echo translate('Layout'); ?></h2>
 						<fieldset>
 						<table>
 							<tr>
-								<td class="label"><?php echo translate('columns'); ?>:</td>
+								<td class="label"><?php echo translate('Columns'); ?>:</td>
 								<td><input type="text" name="cols" value="1" size="3" onChange="javascript: set_pos_int(this, 1);"></td>
 							</tr>
 							<tr>
-								<td class="label"><?php echo translate('rows'); ?>:</td>
+								<td class="label"><?php echo translate('Rows'); ?>:</td>
 								<td><input type="text" name="rows" value="1" size="3" onChange="javascript: set_pos_int(this, 1);"></td>
 							</tr>
 							<tr>
-								<td class="label"><?php echo translate('width'); ?>:</td>
+								<td class="label"><?php echo translate('Width'); ?>:</td>
 								<td><input type="text" name="width" value="" size="5"></td>
 							</tr>
 						</table>
@@ -97,11 +98,11 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('table_styles-colours'); ?></h2>
+			<h2><?php echo translate('Table Styles / Colours'); ?></h2>
 			<fieldset class="last">
 				<table>
 					<tr>
-						<td class="label"><?php echo translate('background_colour'); ?>:</td>
+						<td class="label"><?php echo translate('Background Colour'); ?>:</td>
 						<td><span title="Use colour picker"><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE, 'class="sq-btn-small"');?><span></td>
 					</tr>
 				</table>
@@ -110,10 +111,10 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('Cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('insert'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('Insert'); ?>"/>
 		</td>
 	</tr>
 </table>

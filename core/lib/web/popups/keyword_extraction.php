@@ -34,11 +34,11 @@
 
 		<p>
 		<fieldset>
-			<legend><b><?php echo translate('extracted_keywords'); ?></b></legend>
+			<legend><b><?php echo translate('Extracted keywords'); ?></b></legend>
 			<?php
 $sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 if (empty($sm)) {
-	echo translate('keyword_list_not_available');
+	echo translate('Keyword list not available');
 } else {
 
 $keywords = $sm->extractKeywords($asset);
@@ -49,7 +49,7 @@ print implode(', ', $keywords);
 		</p>
 <?php
 $o->openField('', 'commit');
-normal_button('cancel', translate('close_window'), 'window.close()', 'style="margin-bottom: 20px;"');
+normal_button('cancel', translate('Close Window'), 'window.close()', 'style="margin-bottom: 20px;"');
 $o->closeSection();
 $o->paint();
 ?>

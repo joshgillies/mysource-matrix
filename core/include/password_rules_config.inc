@@ -218,23 +218,23 @@ class Password_Rules_Config extends Config
 							<?php
 							switch ($password_rule) {
 								case 'SQ_PASSWD_RULE_NUM_CAPS':
-									echo ucfirst(translate('capital letters'));
+									echo translate('Capital letters');
 
 								break;
 								case 'SQ_PASSWD_RULE_NUM_LOWER':
-									echo ucfirst(translate('lower case letters'));
+									echo translate('Lower case letters');
 
 								break;
 								case 'SQ_PASSWD_RULE_NUM_INT':
-									echo ucfirst(translate('numeric digits'));
+									echo translate('Numeric digits');
 
 								break;
 								case 'SQ_PASSWD_RULE_NUM_PUNC':
-									echo ucfirst(translate('punctuation characters'));
+									echo translate('Punctuation characters');
 
 								break;
 								case 'SQ_PASSWD_RULE_NUM_SPC':
-									echo ucfirst(translate('spaces'));
+									echo translate('Spaces');
 
 								break;
 

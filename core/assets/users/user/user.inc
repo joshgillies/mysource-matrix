@@ -590,64 +590,36 @@ class User extends Asset
 		if (SQ_PASSWD_RULE_DISALLOW_USER_INFO == 0) {
 			// yes this was built the wrong way around
 			$res[] = translate('Passwords must not contain any user information');
-
 		}
 
 		if (SQ_PASSWD_RULE_NUM_CAPS > 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_CAPS, translate('capital letters'));
-
-
+			$res[] = sprintf(translate('Passwords must contain at least %1$s capital letters'), SQ_PASSWD_RULE_NUM_CAPS, translate('capital letters'));
+		} else if (SQ_PASSWD_RULE_NUM_CAPS == 1) {
+			$res[] = translate('Passwords must contain at least one capital letter');
 		}
+
 		if (SQ_PASSWD_RULE_NUM_LOWER > 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_LOWER, translate('lower case letters'));
-
-
+			$res[] = sprintf(translate('Passwords must contain at least %1$s lower case letters'), SQ_PASSWD_RULE_NUM_LOWER, translate('lower case letters'));
+		} else if (SQ_PASSWD_RULE_NUM_LOWER == 1) {
+			$res[] = translate('Passwords must contain at least one lower case letter');
 		}
+
 		if (SQ_PASSWD_RULE_NUM_INT > 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_INT, translate('numeric digits'));
-
-
+			$res[] = sprintf(translate('Passwords must contain at least %1$s numeric digits'), SQ_PASSWD_RULE_NUM_INT, translate('numeric digits'));
+		} else if (SQ_PASSWD_RULE_NUM_INT == 1) {
+			$res[] = translate('Passwords must contain at least one numeric digit');
 		}
+
 		if (SQ_PASSWD_RULE_NUM_PUNC > 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_PUNC, translate('punctuation characters'));
-
-
+			$res[] = sprintf(translate('Passwords must contain at least %1$s punctuation characters'), SQ_PASSWD_RULE_NUM_PUNC, translate('punctuation characters'));
+		} else if (SQ_PASSWD_RULE_NUM_PUNC == 1) {
+			$res[] = translate('Passwords must contain at least one punctuation character');
 		}
+
 		if (SQ_PASSWD_RULE_NUM_SPC > 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), SQ_PASSWD_RULE_NUM_SPC, translate('spaces'));
-
-
-		}
-
-		if (SQ_PASSWD_RULE_NUM_CAPS == 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('capital letter'));
-
-
-
-		}
-		if (SQ_PASSWD_RULE_NUM_LOWER == 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('lower case letter'));
-
-
-
-		}
-		if (SQ_PASSWD_RULE_NUM_INT == 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('numeric digit'));
-
-
-
-		}
-		if (SQ_PASSWD_RULE_NUM_PUNC == 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('punctuation character'));
-
-
-
-		}
-		if (SQ_PASSWD_RULE_NUM_SPC == 1) {
-			$res[] = sprintf(translate('Passwords must contain at least %1$s %2$s'), translate('one'), translate('space'));
-
-
-
+			$res[] = sprintf(translate('Passwords must contain at least %1$s spaces'), SQ_PASSWD_RULE_NUM_SPC, translate('spaces'));
+		} else if (SQ_PASSWD_RULE_NUM_SPC == 1) {
+			$res[] = translate('Passwords must contain at least one space');
 		}
 
 		$disallowed_chars = Array();

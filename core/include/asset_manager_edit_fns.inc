@@ -367,7 +367,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 						if (!$expires_in) {
-							$expires_in = '1 '.translate('second');
+							$expires_in = sprintf(translate('%s second'), 1);
 
 						}
 						$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
@@ -383,7 +383,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				<td class="sq-backend-table-cell">
 				<?php
 					if (empty($lock['chained_assets'])) {
-						echo '<i>No other assets are in this lock chain.</i>';
+						echo '<i>'.translate('No other assets are in this lock chain.').'</i>';
 					} else {
 						echo '<ul>';
 						foreach ($lock['chained_assets'] as $chained_info) {

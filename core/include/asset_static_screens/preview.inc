@@ -447,7 +447,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					} else {
 						$selected_size = array_get_index($screen_size_options, 'selected', 'auto');
 					}
-					$options = Array('auto' => ucfirst(translate('auto')).' (100% x 100%)');
+					$options = Array('auto' => translate('Auto').' (100% x 100%)');
 					foreach($screen_size_options['options'] as $key => $row) {
 						if (empty($row['width']) || empty($row['height']) || empty($row['name'])) {
 							continue;

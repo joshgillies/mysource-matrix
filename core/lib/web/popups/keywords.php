@@ -214,7 +214,7 @@
 		$o->closeSection();
 
 		$o->openField('', 'commit');
-		normal_button('cancel', translate('close_window'), 'window.close()', 'style="margin-bottom: 20px;"');
+		normal_button('cancel', translate('Close Window'), 'window.close()', 'style="margin-bottom: 20px;"');
 		$o->closeSection();
 		$o->paint();
 		?>

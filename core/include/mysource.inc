@@ -592,11 +592,11 @@ class MySource extends MySource_Object
 			} else {
 
 				$error_message = SQ_IN_LIMBO ? translate('You need to login before you can access Edit Mode') : translate('You need to login before you can access Admin Mode');
-				$this->paintLogin(translate('login'), $error_message);
+				$this->paintLogin(translate('Login'), $error_message);
 			}
 
 		} else if (SQ_IN_LOGIN) {
-			$this->paintLogin(translate('login'), translate('You need to login before you can access Admin Mode'));
+			$this->paintLogin(translate('Login'), translate('You need to login before you can access Admin Mode'));
 
 		} else {
 			// we are on the frontend

@@ -33,7 +33,7 @@
 	}
 	// Make sure the current user has read access on this asset
 	if (!$asset->writeAccess()) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), sprintf(translate('cannot_access_asset'), $asset->name));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('Login'), sprintf(translate('You must login to access the backend'), $asset->name));
 		exit;
 	}
 
@@ -46,7 +46,7 @@
 		<?php
 $sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 if (empty($sm)) {
-	echo translate('tag_list_not_available');
+	echo translate('Tag list not available');
 } else {
 
 	$keyword_ids = Array();
@@ -73,7 +73,7 @@ if (empty($sm)) {
 
 <html>
 	<head>
-		<title><?php echo "'".$asset->attr('name')."' ".translate('tag_suggestion'); ?></title>
+		<title><?php echo sprintf(translate("'%s' Tag Suggestion"), $asset->attr('name')); ?></title>
 		<style>
 			body {
 				background-color:	#FFFFFF;
@@ -147,15 +147,15 @@ if (empty($sm)) {
 		require_once dirname(__FILE__).'/../../include/backend_outputter.inc';
 		$o = new Backend_Outputter();
 		$o->addOnLoad('checkTagsLeft()');
-		$o->openSection(translate('suggested_tags_for').' '.get_asset_tag_line($asset->id));
+		$o->openSection(sprintf(translate('Suggested tags for %s'), get_asset_tag_line($asset->id)));
 		$o->openField('');
 	?>
-				<p><?php echo translate('suggested_tags_for').' '.get_asset_tag_line($asset->id); ?></p>
-				<p><?php echo translate('click_to_tag'); ?></p>
+				<p><?php echo sprintf(translate('Suggested tags for %s'), get_asset_tag_line($asset->id)); ?></p>
+				<p><?php echo translate('Click \'Add Tag\' to tag this asset with the term'); ?></p>
 
 		<p>
 		<fieldset>
-			<legend><b><?php echo 'Suggested Tags'; ?></b></legend>
+			<legend><b><?php echo translate('Suggested Tags'); ?></b></legend>
 
 
 	<?php
@@ -175,7 +175,7 @@ if (empty($sm)) {
 
 }//end else
 ?><div id="noMoreTags" style="visibility:hidden;">
-			<?php echo translate('no_tags_to_add'); ?>
+			<?php echo translate('No tags to add'); ?>
 			</div>
 	<div id="addAll" onLoad="javascript: checkTagsLeft();" >
 			<input type="button" name="Tag" id="add_all" value="Add all"
@@ -193,7 +193,7 @@ if (empty($sm)) {
 		</p>
 <?php
 $o->openField('', 'commit');
-normal_button('cancel', translate('close_window'), 'window.close()');
+normal_button('cancel', translate('Close Window'), 'window.close()');
 $o->closeSection();
 $o->paint();
 ?>
