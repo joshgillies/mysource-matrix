@@ -294,15 +294,29 @@ class Internal_Message extends MySource_Object
 			// log a message for the system so it is not deleted
 			$messageid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_internal_msg_seq'));
 
-			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
+			$subject = $this->subject;
+			if (empty($subject)) {
+				$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+			} else {
+				$subject = replace_keywords($subject, $this->replacements);
+			}
+			
+			$log_body = $this->body;
+			if (empty($log_body)) {
+				$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+			} else {
+				$log_body = replace_keywords($log_body, $this->replacements);
+			}
 
+			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
+			
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'msgid',      $messageid,      PDO::PARAM_INT);
 				MatrixDAL::bindValueToPdo($query, 'userto',     0,               PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'userfrom',   $this->from,     PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'subject',    (empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->subject), PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'body',       (empty($this->body) ? $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->body), PDO::PARAM_LOB);
+				MatrixDAL::bindValueToPdo($query, 'subject',    $subject,        PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'body',       $body,			 PDO::PARAM_LOB);
 				MatrixDAL::bindValueToPdo($query, 'type',       $this->type,     PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'priority',   $this->priority, PDO::PARAM_INT);
 				MatrixDAL::bindValueToPdo($query, 'status',     $this->status,   PDO::PARAM_STR);
