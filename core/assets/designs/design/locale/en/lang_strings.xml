@@ -35,7 +35,7 @@
 	<string source="core_design_import_upload_error">Error uploading Design Archive</string>
 	<string source="core_design_class_name">Class Name</string>
 	<string source="core_design_class_short_name">Short Name</string>
-	<string source="core_design_class_div_note">Classes specified in this list will be available in DIV properties drop-down list for class. If the list is empty only text field will be used.</string>
+	<string source="core_design_class_div_note">Classes specified in this list will be available in the content container properties drop-down list for class. If the list is empty, only a text field will be used.</string>
 	<string source="core_design_class_wysiwyg_note">Classes specified in this list will be available in WYSIWYG drop-down list for styles. If the list is empty, css file wil be parsed and all class definitions available.</string>
 
 	<string source="core_design_customisation_no_design_areas_customised">No design areas are customised yet.</string>

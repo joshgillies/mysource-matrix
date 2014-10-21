@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_styles.xml,v 1.2 2009/07/29 00:35:10 wszymanski Exp $
+* $Id: lang_screen_styles.xml,v 1.2 2009/07/29 00:35:11 wszymanski Exp $
 *
 */
 -->
 
 <contents>
-	<section name="WYSIWYG classes definitions" write_access="write:all" read_access="write:">
+	<section name="WYSIWYG classes definitions" write_access="none">
 		<field>
 			<function_call>
 				<paint_function   name="paintWysiwygClasses"   />
@@ -24,7 +24,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Content container classes definitions" write_access="write:all" read_access="write:">
+	<section name="Content container classes definitions" write_access="none">
 		<field>
 			<function_call>
 				<paint_function   name="paintDivClasses"   />
