@@ -197,9 +197,7 @@ function _var_unserialise(lines, indent)
 		var indent_len = indent.length;
 		VAR_UNSERIALISE_I++;
 		var val = new Array();
-		// just incase someone has set up some prototype vars, nullify them
-		// then at least we can test for them
-		for(var key in val) val[key] = null;
+
 		// while the indent is still the same unserialise our contents
 		while(lines[VAR_UNSERIALISE_I] != null && indent + ' ' == lines[VAR_UNSERIALISE_I].substr(0, indent_len + 1)) {
 			var results = _var_unserialise(lines, indent + ' ');
