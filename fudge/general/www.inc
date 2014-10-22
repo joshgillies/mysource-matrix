@@ -424,7 +424,7 @@ function check_non_live_link($html, $owner_id)
 	}
 
 	if ($error_found) {		
-		$live_link_only_error = translate('live_link_only_error');
+		$live_link_only_error = translate('Creating hyperlink from live asset to non-live asset is forbidden by Preference. The anchor tags for the following link have been removed.');
 		foreach ($error_link as $one_link) {
 			$error_message = $live_link_only_error.' \''.$one_link.'\'';					
 			trigger_error($error_message, E_USER_WARNING);

@@ -115,6 +115,45 @@ function js_translate()
 	}
 
 	// no string code to be found anywhere
-	return arguments[0];
+	return vsprintf(arguments[0], replacements);
 
 }//end js_translate();
+
+/**
+* Translates a localisable string found in JavaScript code
+*
+* @param string	string_code	the string code to translate
+*
+* @return string
+*/
+function js_translate_plural()
+{
+	var locale_parts = get_cumulative_locale_parts(SQ_CURRENT_LOCALE);
+	var found_string = null;
+
+	var replacements = [];
+	
+	// TODO: Replace this with handling of plural forms as built in step 3.
+	var str_form = 0;
+	if (arguments[2] !== 1) {
+		str_form = 1;
+	}
+
+	for(i = 3; i < arguments.length; i++) {
+		replacements.push(arguments[i]);
+	}
+
+	while(locale_parts.length > 0) {
+		locale = locale_parts.pop();
+		if(!translated_strings[locale][arguments[0]]) continue;
+		return vsprintf(translated_strings[locale][arguments[0]][str_form], replacements);
+	}
+
+	// no string code to be found anywhere
+	if (arguments[2] === 1) {
+		return vsprintf(arguments[0], replacements);
+	} else {
+		return vsprintf(arguments[1], replacements);
+	}
+
+}//end js_translate_plural()

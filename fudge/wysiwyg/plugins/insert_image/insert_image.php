@@ -157,15 +157,15 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 	</head>
 
 	<body onload="Init()">
-		<div class="title"><?php echo translate('insert_image'); ?></div>
+		<div class="title"><?php echo translate('Insert Image'); ?></div>
 		<form action="" method="get">
 			<table border="0" width="100%" style="padding: 0px; margin: 0px">
 				<tbody>
 					<tr>
-						<td style="width: 7em; text-align: right"><?php echo translate('image_url'); ?>:</td>
+						<td style="width: 7em; text-align: right"><?php echo translate('Image URL'); ?>:</td>
 						<td>
 							<input type="text" name="url" id="f_url" style="width:75%" title="Enter the image URL here" value="<?php echo htmlspecialchars($_REQUEST['f_url']) ?>" />
-							<button name="preview" onclick="return onPreview();" title="Preview the image in a new window"><?php echo translate('preview'); ?></button>
+							<button name="preview" onclick="return onPreview();" title="Preview the image in a new window"><?php echo translate('Preview'); ?></button>
 						</td>
 					</tr>
 					<tr>
@@ -178,11 +178,11 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 			<p />
 
 			<fieldset style="float: left; margin-left: 5px;">
-				<legend><?php echo translate('layout'); ?></legend>
+				<legend><?php echo translate('Layout'); ?></legend>
 
 				<div class="space"></div>
 
-				<div class="fl"><?php echo translate('alignment'); ?>:</div>
+				<div class="fl"><?php echo translate('Alignment'); ?>:</div>
 				<select size="1" name="align" id="f_align" title="Positioning of this image">
 					<?php
 					if (!isset($_REQUEST['f_align'])) $_REQUEST['f_align'] = 'baseline';
@@ -205,7 +205,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 
 				<p />
 
-				<div class="fl"><?php echo translate('border_thickness'); ?>:</div>
+				<div class="fl"><?php echo translate('Border thickness'); ?>:</div>
 				<input type="text" name="border" id="f_border" size="5"
 				title="Leave empty for no border" value="<?php echo htmlspecialchars($_REQUEST['f_border']) ?>" />
 
@@ -213,16 +213,16 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 			</fieldset>
 
 			<fieldset style="float:right; margin-right: 5px;">
-				<legend><?php echo translate('spacing'); ?></legend>
+				<legend><?php echo translate('Spacing'); ?></legend>
 
 				<div class="space"></div>
 
-				<div class="fr"><?php echo translate('horizontal'); ?>:</div>
+				<div class="fr"><?php echo translate('Horizontal'); ?>:</div>
 				<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo htmlspecialchars($_REQUEST['f_horiz']) ?>" />
 
 				<p />
 
-				<div class="fr"><?php echo translate('vertical'); ?>:</div>
+				<div class="fr"><?php echo translate('Vertical'); ?>:</div>
 				<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo htmlspecialchars($_REQUEST['f_vert']) ?>" />
 
 				<div class="space"></div>
@@ -230,8 +230,8 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 
 			<div style="margin-top: 85px; text-align: right;">
 			<hr />
-			<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
-			<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
+			<button type="button" name="ok" onclick="return onOK();"><?php echo translate('OK'); ?></button>
+			<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('Cancel'); ?></button>
 			</div>
 		</form>
 	</body>

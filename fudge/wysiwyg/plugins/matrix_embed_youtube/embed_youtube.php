@@ -116,7 +116,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" colspan="2">
 									<fieldset>
-										<legend><b><?php echo translate('general'); ?></b></legend>
+										<legend><b><?php echo translate('General'); ?></b></legend>
 										<table width="100%" cellspacing="0" cellpadding="0">
 											<tr>
 												<td valign="top" width="100%">
@@ -126,7 +126,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 															<td><?php text_box('video_id', (!empty($_REQUEST['f_vid']))?$_REQUEST['f_vid']:'', 20, 0)?></td>
 														</tr>
 														<tr>								
-															<td class="label">Or <?php echo translate('url'); ?>:</td>
+															<td class="label">Or <?php echo translate('URL'); ?>:</td>
 															<td><?php text_box('video_url', (!empty($_REQUEST['f_video_url']))?$_REQUEST['f_video_url']:'', 75, 0)?></td>
 														</tr>
 													</table>
@@ -140,18 +140,18 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" width="50%" rowspan="2">
 									<fieldset>
-										<legend><b><?php echo translate('controls'); ?></b></legend>
+										<legend><b><?php echo translate('Controls'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
 												<!-- autoplay -->
-												<td class="label"><?php echo translate('auto_start'); ?>:</td>
+												<td class="label"><?php echo translate('Auto Start'); ?>:</td>
 												<td width="50%">
 													<input type="checkbox" name="auto_start" id="f_auto_start" value="1" <?php echo ($_REQUEST['f_auto_start'] == '1') ? 'checked' : ''?> />
 												</td>
 											</tr>
 											<tr>
 												<!-- loop -->
-												<td class="label"><?php echo translate('loop'); ?>:</td>
+												<td class="label"><?php echo translate('Loop'); ?>:</td>
 												<td>
 													<input type="checkbox" name="loop" id="f_loop" value="1" <?php echo ($_REQUEST['f_loop'] == '1') ? 'checked' : ''?> />
 												</td>
@@ -189,16 +189,16 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 								</td>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend><b><?php echo translate('size'); ?></b></legend>
+										<legend><b><?php echo translate('Size'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label" width="50%"><?php echo translate('width'); ?>:</td>
+												<td class="label" width="50%"><?php echo translate('Width'); ?>:</td>
 												<td>
 												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo empty($_REQUEST['f_width']) ? '480' : htmlspecialchars($_REQUEST['f_width']) ?>" />
 												</td>
 											</tr>
 											<tr>
-												<td class="label"><?php echo translate('height'); ?>:</td>
+												<td class="label"><?php echo translate('Height'); ?>:</td>
 												<td>
 												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo empty($_REQUEST['f_height']) ? '385' : htmlspecialchars($_REQUEST['f_height']) ?>" />
 												</td>
@@ -210,22 +210,22 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend><b><?php echo translate('style'); ?></b></legend>
+										<legend><b><?php echo translate('Style'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label" width="50%"><?php echo translate('border'); ?>:</td>
+												<td class="label" width="50%"><?php echo translate('Border'); ?>:</td>
 												<td>
 												<input type="checkbox" name="show_border" id="f_show_border" size="5" title="Border" value="1" <?php echo ($_REQUEST['f_show_border'] == '1') ? 'checked' : ''?> />
 												</td>
 											</tr>
 											<tr>
-												<td class="label">Primary Border <?php echo translate('colour'); ?>:</td>
+												<td class="label"><?php echo translate('Primary Border Colour'); ?>:</td>
 												<td>
 												<input type="text" name="colour1" id="f_colour1" size="8" title="Colour 1" value="<?php echo empty($_REQUEST['f_colour1']) ? '' : htmlspecialchars($_REQUEST['f_colour1']) ?>" />
 												</td>
 											</tr>
 											<tr>
-												<td class="label">Secondary Border <?php echo translate('colour'); ?>:</td>
+												<td class="label"><?php echo translate('Secondary Border Colour'); ?>:</td>
 												<td>
 												<input type="text" name="colour2" id="f_colour2" size="8" title="Colour 2" value="<?php echo empty($_REQUEST['f_colour2']) ? '' : htmlspecialchars($_REQUEST['f_colour2']) ?>" />
 												</td>
@@ -236,11 +236,11 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							</tr>
 							<tr>
 								<td>
-									<button type="button" name="cancel" onclick="return onCancel();" class="sq-popup-btn-cancel"><?php echo translate('cancel'); ?></button>	
+									<button type="button" name="cancel" onclick="return onCancel();" class="sq-popup-btn-cancel"><?php echo translate('Cancel'); ?></button>	
 								</td>
 								<td>										
 									<div class="sq-popup-button-wrapper">																		    								
-										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('ok'); ?></button>	
+										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('OK'); ?></button>	
 									</div>								
 								</td>
 							</tr>

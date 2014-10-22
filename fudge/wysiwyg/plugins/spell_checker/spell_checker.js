@@ -35,7 +35,7 @@ function makeCleanDoc(leaveFixed) {
 * changes the current dictionary to another one
 */
 function recheckClicked() {
-	document.getElementById("status").innerHTML = js_translate('changing_dictionary', document.getElementById("f_dictionary").value);
+	document.getElementById("status").innerHTML = js_translate('Please wait: changing dictionary to: "%s".', document.getElementById("f_dictionary").value);
 	var field = document.getElementById("f_content");
 	field.value = makeCleanDoc(true);
 	field.form.submit();
@@ -75,7 +75,7 @@ function replaceClicked() {
 	} while ((index != start) && wrongWords[index].__msh_fixed);
 	if (index == start) {
 		index = 0;
-		alert(js_translate('spellcheck_complete'));
+		alert(js_translate('Spelling checking is complete'));
 	}
 	wrongWords[index].onclick();
 	return false;
@@ -90,7 +90,7 @@ function replaceAllClicked() {
 	var ok = true;
 	var spans = allWords[currentElement.__msh_origWord];
 	if (spans.length == 0) {
-		alert(js_translate('impossible_condition_occured'));
+		alert(js_translate('An impossible condition has occurred.'));
 	} else if (spans.length == 1) {
 		replaceClicked();
 		return false;
@@ -193,14 +193,15 @@ function wordClicked() {
 	}
 	document.getElementById("b_replall").disabled = (a.length <= 1);
 	document.getElementById("b_ignall").disabled = (a.length <= 1);
-	var txt;
-	if (a.length == 1) {
-		txt = a.length + ' ' + js_translate('occurrence');
-	} else {
-		txt = a.length + ' ' + js_translate('occurrences');
-	}
+	var txt = js_translate_plural(
+		'Found %1$s occurrence for word "%2$s"',
+		'Found %1$s occurrences for word "%2$s"',
+		a.length,
+		a.length,
+		'<b>' + currentElement.__msh_origWord + '</b>'
+	);
 
-	document.getElementById("status").innerHTML = '&nbsp;' + js_translate('found_occurrences_of_word', txt, '<b>' + currentElement.__msh_origWord + '</b>');
+	document.getElementById("status").innerHTML = '&nbsp;' + txt;
 	var select = document.getElementById("v_suggestions");
 	for (var i = select.length; --i >= 0;) {
 		select.remove(i);
@@ -256,7 +257,7 @@ function finishedSpellChecking() {
 	wrongWords = null;
 	allWords = {};
 
-	document.getElementById("status").innerHTML = '&nbsp;'+ js_translate('spell_checker') + ' ';
+	document.getElementById("status").innerHTML = '&nbsp;'+ js_translate('Spell Checker') + ' ';
 	var doc = frame.contentWindow.document;
 	var spans = doc.getElementsByTagName("span");
 	var sps = [];
@@ -284,9 +285,9 @@ function finishedSpellChecking() {
 	wrongWords = sps;
 	if (sps.length == 0) {
 		if (!modified) {
-			alert(js_translate('no_spelling_errors'));
+			alert(js_translate('No spelling errors were found'));
 		} else {
-			alert(js_translate('no_errors'));
+			alert(js_translate('No Errors'));
 		}
 		return false;
 	}

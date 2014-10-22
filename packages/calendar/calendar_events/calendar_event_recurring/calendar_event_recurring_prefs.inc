@@ -69,7 +69,12 @@ class Calendar_Event_Recurring_Prefs extends Prefs
 	    $have_lock = $have_lock && $is_admin;
 
 	    // Messages per page.
-		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_CALENDAR_EVENTS_FREQUENCY', 5, '%s day(s)', 0);
+	    $plural_string = translate_plural(
+	    	'%s day',
+	    	'%s days',
+	    	$have_lock ? NULL : $this->pref_vars['SQ_CALENDAR_EVENTS_FREQUENCY']['default']
+	    );
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_CALENDAR_EVENTS_FREQUENCY', 5, $plural_string, 0);
 
 		return TRUE;
 

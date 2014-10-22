@@ -136,14 +136,14 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 						<table width="100%" cellpadding="0" cellspacing="0">
 							<tr>
 								<td class="sq-popup-heading-frame title">						
-										<h1 id="status"><?php echo translate('please_wait'); ?>...</h1>							
+										<h1 id="status"><?php echo translate('Please wait'); ?>...</h1>							
 								</td>
 								<td>
 									<!--hiding the dictionary chooser for now -->
 									<span style="float: right; display: none">
-										<span class="status"><?php echo translate('dictionary'); ?></span>
+										<span class="status"><?php echo translate('Dictionary'); ?></span>
 										<select id="v_dictionaries" style="width: 10em"></select>
-										<button class="button2" id="b_recheck"><?php echo translate('re-check'); ?></button>
+										<button class="button2" id="b_recheck"><?php echo translate('Re-check'); ?></button>
 									</span>
 								</td>
 							</tr>
@@ -153,24 +153,24 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<tr>
 					<td valign="top" class="sq-popup-asset-map">
 						<fieldset>
-							<legend><b><?php echo translate('original_word'); ?></b></legend>
-							<div id="v_currentWord" style="text-align: center"><?php echo translate('please_wait'); ?>...</div>
+							<legend><b><?php echo translate('Original Word'); ?></b></legend>
+							<div id="v_currentWord" style="text-align: center"><?php echo translate('Please wait'); ?>...</div>
 						</fieldset>
 						<fieldset>
-							<legend><b><?php echo translate('replace_with'); ?></b></legend>
+							<legend><b><?php echo translate('Replace With'); ?></b></legend>
 							<div>
 								<input type="text" id="v_replacement" style="width: 192px;" /><br />
 								<div nowrap>
-									<button class="button" id="b_replace"><?php echo translate('replace'); ?></button>
-									<button class="button" id="b_replall"><?php echo translate('replace_all'); ?></button><br />
-									<button class="button" id="b_ignore"><?php echo translate('ignore'); ?></button>
-									<button class="button" id="b_ignall"><?php echo translate('ignore_all'); ?></button>
+									<button class="button" id="b_replace"><?php echo translate('Replace'); ?></button>
+									<button class="button" id="b_replall"><?php echo translate('Replace All'); ?></button><br />
+									<button class="button" id="b_ignore"><?php echo translate('Ignore'); ?></button>
+									<button class="button" id="b_ignall"><?php echo translate('Ignore All'); ?></button>
 								</div>
 							</div>
 						</fieldset>
 
 						<fieldset>
-							<legend><b><?php echo translate('suggestions'); ?></b></legend>
+							<legend><b><?php echo translate('Suggestions'); ?></b></legend>
 							<div >
 								<select size="11" style="width: 200px;" id="v_suggestions"></select>
 							</div>
@@ -190,9 +190,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 							<tr>
 								<td>
 									<div class="sq-popup-button-wrapper">												
-										<button type="button" id="b_cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
+										<button type="button" id="b_cancel" onclick="return onCancel();"><?php echo translate('Cancel'); ?></button>
 										&nbsp;
-										<button type="button" class="sq-btn-green" id="b_ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>							
+										<button type="button" class="sq-btn-green" id="b_ok" onclick="return onOK();"><?php echo translate('OK'); ?></button>							
 								    </div>
 								</td>
 							</tr>

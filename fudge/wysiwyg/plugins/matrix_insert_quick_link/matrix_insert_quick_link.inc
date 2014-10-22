@@ -42,7 +42,7 @@ class Matrix_Insert_Quick_Link extends WYSIWYG_Plugin
 	*/
 	function matrix_insert_quick_link()
 	{
-		$this->_add_button('matrixinsertquicklink','matrixInsertQuickLink','Create a Quick Link','false','68');
+		$this->_add_button('matrixinsertquicklink','matrixInsertQuickLink', translate('Create a Quick Link'),'false','68');
 	}
 
 
@@ -92,7 +92,7 @@ class Matrix_Insert_Quick_Link extends WYSIWYG_Plugin
 					// we don't want more than one paragraph because these can start or end from half-way through
 					// a para, which would break the formatting when we go to re-insert the text with the href
 					if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
-						alert(js_translate('select_one_paragraph_at_a_time'));
+						alert(js_translate('Please select only one paragraph to link at a time.'));
 						return;
 					}
 

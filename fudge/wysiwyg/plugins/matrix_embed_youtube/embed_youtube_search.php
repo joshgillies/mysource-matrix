@@ -31,9 +31,9 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 }
 
 if (Backend_Search::isAvailable()) {
-	$quick_search_for_text = translate('asset_search_default_keyword');
+	$quick_search_for_text = translate('Enter keywords, asset ID or URL');
 } else {
-	$quick_search_for_text = translate('asset_search_default');
+	$quick_search_for_text = translate('Enter asset ID or URL');
 }
 
 $search_for = trim(array_get_index($_GET, 'quick-search-for', ''));
@@ -168,11 +168,11 @@ if ($search_for != '') {
 	// Are there any results? If not, put in a "search failed" box, otherwise
 	// build the results box
 	if (empty($results) && empty($found_asset_line)) {
-		$box_title = translate('search_failed');
-		$html = sprintf(translate('failed_searching_for'), addslashes($search_for));
+		$box_title = translate('Search Failed');
+		$html = sprintf(translate('Search for "%s" found nothing. Try Again'), addslashes($search_for));
 		$style_base = 'search-failed';
 	} else {
-		$box_title = translate('search_results');
+		$box_title = translate('Search Results');
 
 		if (!empty($found_asset_line)) {
 			$html .= '<div class="search-result">'.$found_asset_line.'</div>';

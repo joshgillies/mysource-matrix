@@ -45,7 +45,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 	function matrix_insert_anchor(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixcreateanchor','MatrixCreateAnchor',translate('insert_anchor'),'false','30');
+		$this->_add_button('matrixcreateanchor','MatrixCreateAnchor',translate('Insert Anchor'),'false','30');
 
 	}//end constructor
 
@@ -86,7 +86,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 						text_range = true;
 						editor.selectNodeContents(control_range(0));
 					} else {
-						alert(js_translate('object_requires_selection'));
+						alert(js_translate('You need to select this object as though it was text, rather than just clicking on it.'));
 						sel.empty();
 						return;
 					}
