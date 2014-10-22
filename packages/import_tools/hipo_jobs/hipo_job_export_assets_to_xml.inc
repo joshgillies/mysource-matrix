@@ -986,13 +986,14 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 		// Fix the question assetid in the form content's sort order attribute
-		if ($attribute_name === 'sort_order' && ($asset_type === 'form_email' || $asset_type === 'form_section')) {
-			preg_match_all('!\'(?P<id>\d+)(:q\d+)\'!msi', $value, $matches, PREG_SET_ORDER);
+		$attributes_allowed = Array('sort_order', 'receipt_field', 'staf_field');
+		if (in_array($attribute_name, $attributes_allowed) && ($asset_type === 'form_email' || $asset_type === 'form_section')) {
+			preg_match_all('!(\'?)(?P<id>\d+)(:q\d+)(\'?)!msi', $value, $matches, PREG_SET_ORDER);
 			foreach($matches as $match) {
 				$id = $match['id'];
 				if (isset($this->_running_vars['asset_id_map'][$id])) {
 					$searches[] = $match[0];
-					$replaces[] = "'".'[[output://create_'.$this->_running_vars['asset_id_map'][$id].'.assetid]]'.$match[2]."'";
+					$replaces[] = $match[1].'[[output://create_'.$this->_running_vars['asset_id_map'][$id].'.assetid]]'.$match[3].$match[4];
 					$globals_processed = TRUE;
 				}//end if
 			}//end foreach
