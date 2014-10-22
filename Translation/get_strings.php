@@ -4,6 +4,8 @@
         'core',
         'packages/cms',
         'packages/search',
+        'fudge',
+        'install'
     ];
 
     exec('find '.$DIRNAME.'/packages -mindepth 1 -maxdepth 1 -type d', $pkgs);
