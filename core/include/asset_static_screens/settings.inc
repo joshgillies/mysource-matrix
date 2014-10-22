@@ -233,13 +233,13 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								echo sprintf(
 									translate('Created by %s on %s'),
 									htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
-									date('d M Y H:i:s', strtotime($date_field->value)
+									date('d M Y H:i:s', strtotime($date_field->value))
 								);
 							} else if ($date_type === 'published') {
 								echo sprintf(
 									translate('Published by %s on %s'),
 									htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
-									date('d M Y H:i:s', strtotime($date_field->value)
+									date('d M Y H:i:s', strtotime($date_field->value))
 								);
 							}
 						}
