@@ -161,7 +161,7 @@ class spell_checker extends wysiwyg_plugin
 	public static function check_usable()
 	{
 		if (function_exists('pspell_suggest')) return TRUE;
-		return translate('wysiwyg_pspell_not_installed');
+		return translate('Pspell is not installed');
 
 	}//end check_usable()
 

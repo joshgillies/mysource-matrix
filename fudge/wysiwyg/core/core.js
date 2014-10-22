@@ -116,7 +116,7 @@ HTMLArea.prototype.generate = function () {
 				setTimeout(function () { editor._initIframe(); }, 10);
 				return false;
 			} else {
-				alert(js_translate('unable_to_initialise_iframe'));
+				alert(js_translate('ERROR: IFRAME can\'t be initialized.'));
 			}
 		}
 		if (HTMLArea.is_gecko) {
@@ -312,7 +312,7 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 			}
 		break;
 		default:
-			alert(js_translate('undefined_mode', '<' + mode + '>'));
+			alert(js_translate('Mode %s not defined!', '<' + mode + '>'));
 		return false;
 	}
 	this._editMode = mode;
@@ -445,7 +445,7 @@ HTMLArea.prototype.setHTML = function(html) {
 			}
 		break;
 		default:
-			alert(js_translate('undefined_mode', '<' + mode + '>'));
+			alert(js_translate('Mode %s not defined!', '<' + mode + '>'));
 	}
 	return false;
 };

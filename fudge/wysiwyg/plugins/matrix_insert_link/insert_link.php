@@ -41,12 +41,12 @@ foreach ($pref as $pref_el) {
 }
 
 $new_window_bool_options = Array(
-							'toolbar'		=> 'Show Tool Bar',
-							'menubar'		=> 'Show Menu Bars',
-							'location'		=> 'Show Location Bar',
-							'status'		=> 'Show Status Bar',
-							'scrollbars'	=> 'Show Scroll Bars',
-							'resizable'		=> 'Allow Resizing',
+							'toolbar'		=> translate('Show Tool Bar'),
+							'menubar'		=> translate('Show Menu Bars'),
+							'location'		=> translate('Show Location Bar'),
+							'status'		=> translate('Show Status Bar'),
+							'scrollbars'	=> translate('Show Scroll Bars'),
+							'resizable'		=> translate('Allow Resizing'),
 						   );
 
 if (!isset($_GET['assetid']))  {
@@ -354,23 +354,23 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 
 												<td valign="top" width="100%">
 													<fieldset>
-													<legend><b><?php echo translate('general'); ?></b></legend>
+													<legend><b><?php echo translate('General'); ?></b></legend>
 													<table style="width:100%">
 														<tr>
-															<td class="label"><?php echo translate('protocol'); ?>:</td>
+															<td class="label"><?php echo translate('Protocol'); ?>:</td>
 															<td><?php
 															combo_box('url_protocol', $url_protocol_combo_box, $_GET['protocol'], 'style="font-family: courier new; font-size: 11px;"'); ?></td>
-															<td class="label"><?php echo translate('link'); ?>:</td>
+															<td class="label"><?php echo translate('Link'); ?>:</td>
 															<td><?php text_box('url_link', $_GET['url'], 40, 0)?></td>
 														</tr>
 														<tr>
-															<td class="lable"><?php echo translate('asset_type').':'; ?></td>
+															<td class="lable"><?php echo translate('Asset Type').':'; ?></td>
 															<td colspan="3">
 																<?php
 																	$asset_selector = Array(
-																						'all_assets'	=> 'Any Asset',
-																						'link_manager'	=> 'Link Asset',
-																						'redirect'		=> 'Redirect Page Asset',
+																						'all_assets'	=> translate('Any Asset'),
+																						'link_manager'	=> translate('Link Asset'),
+																						'redirect'		=> translate('Redirect Page Asset'),
 																					  );
 
 																	$object_type  = 'this.form.asset_type_selector.value';
@@ -484,7 +484,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 															</td>
 														</tr>
 														<tr>
-															<td class="label"><?php echo translate('select_asset'); ?>:</td>
+															<td class="label"><?php echo translate('Select Asset'); ?>:</td>
 															<td colspan="3">
 																<span id="asset_finder_all" style="display:block">
 																	<?php asset_finder('assetid', $_GET['assetid'], Array(), 'sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
@@ -515,7 +515,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 															</td>
 														</tr>
 														<tr>
-															<td class="label"><?php echo translate('anchor_name'); ?>:</td>
+															<td class="label"><?php echo translate('Anchor Name'); ?>:</td>
 															<td colspan="3"><?php text_box('anchor', $_GET['anchor'], 40, 0) ?></td>
 														</tr>
 													</table>
@@ -525,23 +525,23 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 								<tr>
 												<td valign="top">
 													<fieldset>
-														<legend><b><?php echo translate('options'); ?></b></legend>
+														<legend><b><?php echo translate('Options'); ?></b></legend>
 														<table>
 															<tr>
-																<td class="label"><?php echo translate('id_name_text'); ?>:</td>
+																<td class="label"><?php echo translate('ID'); ?>:</td>
 
 																<td>																	
 																	<?php text_box('id_name', $_GET['id_name'], 15); ?>		
 
-																    <span class="label"><?php echo translate('class_name_text'); ?>:</span>
+																    <span class="label"><?php echo translate('Class'); ?>:</span>
 																    <?php text_box('class_name', $_GET['class_name'], 15); ?>
 															
-																	<span class="label"><?php echo translate('include_summary'); ?>:</span>
+																	<span class="label"><?php echo translate('Include Summary'); ?>:</span>
 																	<?php check_box('show_summary', 1, $_GET['show_summary']); ?>
 																</td>	
 															</tr>
 															<tr>	
-																<td class="label"><?php echo translate('title'); ?>:</td>															
+																<td class="label"><?php echo translate('Title'); ?>:</td>															
 																<td colspan="2">																														
 																	<?php text_box('link_title', $_GET['link_title'], 50); ?>
 																</td>															
@@ -553,15 +553,15 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 								<tr>
 												<td valign="top" width="100%">
 													<fieldset>
-														<legend><b><?php echo translate('new_window_options'); ?></b></legend>
+														<legend><b><?php echo translate('New Window Options'); ?></b></legend>
 														<table style="width:100%">
 															<tr>
-																<td class="label" valign="top"><?php echo translate('target'); ?>:</td>
+																<td class="label" valign="top"><?php echo translate('Target'); ?>:</td>
 																<td><?php text_box('target', $_GET['target']); ?></td>
 															</tr>
 															<tr>
-																<td class="label" rowspan="2" valign="top"><?php echo translate('new_window'); ?>:</td>
-																<td><?php combo_box('new_window', Array('0' => translate('no'), '1' => translate('yes'), '2' => translate('advanced')), FALSE, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
+																<td class="label" rowspan="2" valign="top"><?php echo translate('New Window'); ?>:</td>
+																<td><?php combo_box('new_window', Array('0' => translate('No'), '1' => translate('Yes'), '2' => translate('Advanced')), FALSE, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
 															</tr>
 															<tr>
 																<td>
@@ -583,7 +583,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 																		</tr>
 																		<tr>
 																			<td colspan="3">
-																				<?php echo translate('size'); ?> : <input type="text" value="<?php echo htmlspecialchars($_GET['new_window_options']['width']) ?>" size="3" name="width"> (w) x <input type="text" value="<?php echo htmlspecialchars($_GET['new_window_options']['height']) ?>" size="3" name="height"> (h)
+																				<?php echo translate('Size'); ?> : <input type="text" value="<?php echo htmlspecialchars($_GET['new_window_options']['width']) ?>" size="3" name="width"> (w) x <input type="text" value="<?php echo htmlspecialchars($_GET['new_window_options']['height']) ?>" size="3" name="height"> (h)
 																			</td>
 																		</tr>
 																	</table>
@@ -597,9 +597,9 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 
 								<div class="sq-popup-clean-fieldset">
 									<div class="sq-popup-button-wrapper">
-										<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
+										<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('Cancel'); ?></button>
 															    								
-										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('ok'); ?></button>
+										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('OK'); ?></button>
 						
 									</div>
 								</div>			

@@ -97,11 +97,11 @@ $_GET['dfn'] = preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['dfn']);
 
 			function buildForm() {
 				document.write('<tr>');
-				document.write('<td class="label"><?php echo translate('definition'); ?>:</td>');
+				document.write('<td class="label"><?php echo translate('Definition'); ?>:</td>');
 				document.write('<td colspan="3"><?php text_box('dfn', trim($_GET['dfn']), 40, 0);?></td>');
 				document.write('</tr>');
 				document.write('<tr>');
-				document.write('    <td class="label"><?php echo translate('title'); ?>:</td>');
+				document.write('    <td class="label"><?php echo translate('Title'); ?>:</td>');
 				document.write('    <td colspan="3"><?php text_box('title', trim($_GET['title']), 40, 0);?></td>');
 				document.write('</tr>');
 			};
@@ -113,14 +113,14 @@ $_GET['dfn'] = preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['dfn']);
 	<body onload="Javascript: Init();">
 
 		<div class="sq-popup-heading-frame">
-			<h1><?php echo translate('insert_definition'); ?></h1>
+			<h1><?php echo translate('Insert Definition'); ?></h1>
 		</div>
 		<form action="" method="get" name="main_form" id="main-form">
 			<table width="100%" class="sq-fieldsets-table">
 				<tr>
 					<td valign="top" width="100%">
 						<fieldset>
-						<legend><b><?php echo translate('general'); ?></b></legend>
+						<legend><b><?php echo translate('General'); ?></b></legend>
 						<table style="width:100%">
 							<script type="text/javascript">
 								buildForm();
@@ -132,9 +132,9 @@ $_GET['dfn'] = preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['dfn']);
 			</table>
 
 			<div class="sq-popup-button-wrapper">					
-				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
+				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('Cancel'); ?></button>
 				<script type="text/javascript" language="javascript">
-				document.write('<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('ok'); ?></button>');
+				document.write('<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('OK'); ?></button>');
 				</script>
 			</div>
 		</form>

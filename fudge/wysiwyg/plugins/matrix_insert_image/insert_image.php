@@ -265,22 +265,22 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="top" width="100%" colspan=2>
 								<fieldset>
-									<legend><b><?php echo translate('general'); ?></b></legend>
+									<legend><b><?php echo translate('General'); ?></b></legend>
 										<table>
 											<tr>
-												<td class="label" nowrap="nowrap"><?php echo translate('image_url'); ?>:</td>
+												<td class="label" nowrap="nowrap"><?php echo translate('Image URL'); ?>:</td>
 												<td>
 													<?php asset_finder('f_imageid', (assert_valid_assetid($_GET['f_imageid'], '', TRUE, FALSE) ? $_GET['f_imageid'] : 0), Array('image' => 'D', 'image_variety' => 'D'), 'sq_wysiwyg_popup_sidenav', false, 'setImageInfo'); ?>
 												</td>
 											</tr>
 											<tr>
-												<td class="label" nowrap="nowrap"><?php echo translate('alternate_text'); ?>:</td>
+												<td class="label" nowrap="nowrap"><?php echo translate('Alternate text'); ?>:</td>
 												<td>
 													<input type="text" size="70" name="alt" id="f_alt" title="For browsers that don't support images" value="<?php echo htmlspecialchars($_REQUEST['f_alt']) ?>" />
 												</td>
 											</tr>
 											<tr>
-												<td class="label" nowrap="nowrap"><?php echo translate('title_text'); ?>:</td>
+												<td class="label" nowrap="nowrap"><?php echo translate('Title text'); ?>:</td>
 												<td>
 													<input type="text" size="70" name="title" id="f_title" title="Your Image Title" value="<?php echo htmlspecialchars($_REQUEST['f_title']) ?>" />
 												</td>
@@ -327,17 +327,17 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="top" width="100%" colspan=2>
 								<fieldset>
-									<legend><b><?php echo translate('optional_attributes'); ?></b></legend>
+									<legend><b><?php echo translate('Optional Attributes'); ?></b></legend>
 									<table >
 										<tr>
-											<td valign="top" class="label" nowrap="nowrap"><?php echo translate('longdesc_text'); ?>:</td>
+											<td valign="top" class="label" nowrap="nowrap"><?php echo translate('Long Description URL'); ?>:</td>
 											<td>
 												<?php
 												if (!empty($_GET['f_longdesc'])) {
 													if (preg_match("/^\d+$/", $_GET['f_longdesc']) && $_GET['f_longdesc'] != "0") {?>
 														Enter URL manually<br />
-														<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
-														<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
+														<?php echo translate('Protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
+														<?php echo translate('Link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
 														<br />or choose a Standard Page asset<br />
 														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), 'sq_wysiwyg_popup_sidenav'); ?>
 														<br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
@@ -347,15 +347,15 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 														if (preg_match_all('/^(http:\/\/|https:\/\/){1}(.*)$/', $_GET['f_longdesc'], $matches) === FALSE ||
 															empty($matches[0])) {?>
 															Enter URL manually<br />
-															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
-															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $_GET['f_longdesc'], 40, 0)?>
+															<?php echo translate('Protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
+															<?php echo translate('Link'); ?>&nbsp;<?php text_box('f_longdesc_link', $_GET['f_longdesc'], 40, 0)?>
 															<br />or choose a Standard Page asset<br />
 															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_sidenav'); ?>
 														<?php
 														} else {?>
 															Enter URL manually<br />
-															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, $matches[1][0], 'style="font-family: courier new; font-size: 11px;"'); ?>
-															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $matches[2][0], 40, 0)?>
+															<?php echo translate('Protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, $matches[1][0], 'style="font-family: courier new; font-size: 11px;"'); ?>
+															<?php echo translate('Link'); ?>&nbsp;<?php text_box('f_longdesc_link', $matches[2][0], 40, 0)?>
 															<br />or choose a Standard Page asset<br />
 															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_sidenav'); ?>
 														<?php
@@ -364,8 +364,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 													}
 												} else {?>
 													Enter URL manually<br />
-													<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
-													<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
+													<?php echo translate('Protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
+													<?php echo translate('Link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
 													<br />or choose a Standard Page asset<br />
 													<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_sidenav'); ?>
 												<?php
@@ -379,7 +379,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td width="50%" rowspan="2">
 									<fieldset class="prev">
-									<legend><b><?php echo translate('preview'); ?></b></legend>
+									<legend><b><?php echo translate('Preview'); ?></b></legend>
 										<table class="preview" >
 											<tr>
 												<td id="image_container" align="center" valign="center" height="160px" width="340px">
@@ -391,18 +391,18 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 								</td>
 								<td valign="top" width="50%">
 									<fieldset>
-									<legend><b><?php echo translate('layout'); ?></b></legend>
+									<legend><b><?php echo translate('Layout'); ?></b></legend>
 									<table>
 										<tr>
-											<td class="label" width="30%"><?php echo translate('alignment'); ?>:</td>
+											<td class="label" width="30%"><?php echo translate('Alignment'); ?>:</td>
 											<td>
-												<select size="1" name="align" id="f_align" title="<?php echo translate('positioning_of_this_image'); ?>">
+												<select size="1" name="align" id="f_align" title="<?php echo translate('Positioning of this image'); ?>">
 													<?php
 													if (!isset($_REQUEST['f_align'])) {
 														$_REQUEST['f_align'] = 'baseline';
 													}
 													$options_array = Array(
-																		''			=> 'Not set',
+																		''			=> translate('Not set'),
 																		'left'		=> translate('left'),
 																		'right'		=> translate('right'),
 																		'texttop'	=> translate('texttop'),
@@ -421,31 +421,31 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											</td>
 										</tr>
 										<tr>
-											<td class="label"><?php echo translate('border_thickness'); ?>:</td>
+											<td class="label"><?php echo translate('Border thickness'); ?>:</td>
 											<td>
 												<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" value="<?php echo htmlspecialchars($_REQUEST['f_border']) ?>" />
 											</td>
 										</tr>
 										<tr>
-											<td class="label"><?php echo translate('horizontal'); ?>:</td>
+											<td class="label"><?php echo translate('Horizontal'); ?>:</td>
 											<td>
 												<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo htmlspecialchars($_REQUEST['f_horiz']) ?>" />
 											</td>
 										</tr>
 										<tr>
-											<td class="label"><?php echo translate('vertical'); ?>:</td>
+											<td class="label"><?php echo translate('Vertical'); ?>:</td>
 											<td>
 												<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo htmlspecialchars($_REQUEST['f_vert']) ?>" />
 											</td>
 										</tr>
 										<tr>
-											<td class="label"><?php echo translate('name'); ?>:</td>
+											<td class="label"><?php echo translate('Name'); ?>:</td>
 											<td>
 												<input type="text" name="image_id" id="f_image_id" size="20" title="Name" value="<?php echo htmlspecialchars($_REQUEST['f_image_id']) ?>" />
 											</td>
 										</tr>
 										<tr>
-											<td class="label"><?php echo translate('class'); ?>:</td>
+											<td class="label"><?php echo translate('Class'); ?>:</td>
 											<td>
 												<input type="text" name="image_class" id="f_image_class" size="20" title="Class" value="<?php echo htmlspecialchars($_REQUEST['f_image_class']) ?>" />
 											</td>
@@ -458,13 +458,13 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					
 								<td valign="top" width="50%">
 									<fieldset>
-									<legend><b><?php echo translate('size'); ?></b></legend>
+									<legend><b><?php echo translate('Size'); ?></b></legend>
 									<table>
 										<tr>
 											<?php
 											$disable_resize = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE');
 											?>
-											<td class="label" width="30%"><?php echo translate('width'); ?>:</td>
+											<td class="label" width="30%"><?php echo translate('Width'); ?>:</td>
 											<td>
 												<?php
 												switch ($disable_resize) {
@@ -484,7 +484,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											</td>
 										</tr>
 										<tr>
-											<td class="label"><?php echo translate('height'); ?>:</td>
+											<td class="label"><?php echo translate('Height'); ?>:</td>
 											<td>
 												<?php
 												switch ($disable_resize) {
@@ -509,11 +509,11 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							</tr>
 							<tr>
 								<td>
-									<button type="button" name="cancel" onclick="return onCancel();" class="sq-popup-btn-cancel"><?php echo translate('cancel'); ?></button>
+									<button type="button" name="cancel" onclick="return onCancel();" class="sq-popup-btn-cancel"><?php echo translate('Cancel'); ?></button>
 								</td>
 								<td>
 									<div class="sq-popup-button-wrapper">										
-										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('ok'); ?></button>
+										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('OK'); ?></button>
 									</div>
 								</td>
 							</tr>

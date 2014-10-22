@@ -928,9 +928,22 @@ class Backend extends MySource_Object
 			}
 
 			if ($stalledjobs != 0) {
-				$html = $this->_getDHTMLMessage(translate('Stalled HIPO job(s)'), sprintf(translate('"%1$s" has %2$d stalled HIPO job(s)'), $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs).'</br><a href="'.$this->getBackendUrl('main').'&backend_section=hipo_herder" target="sq_main">'.translate('HIPO Herder').'</a>', 'new-message', 'hipo', 32, 32);
-
-
+				$html = $this->_getDHTMLMessage(
+					translate_plural('Stalled HIPO job', 'Stalled HIPO jobs', $stalledjobs),
+					sprintf(
+						translate_plural(
+							'"%1$s" has one stalled HIPO job',
+							'"%1$s" has %2$d stalled HIPO jobs',
+							$stalledjobs
+						),
+						$GLOBALS['SQ_SYSTEM']->user->name,
+						$stalledjobs
+					).'<br/><a href="'.$this->getBackendUrl('main').'&backend_section=hipo_herder" target="sq_main">'.translate('HIPO Herder').'</a>',
+					'new-message',
+					'hipo',
+					32,
+					32
+				);
 
 				$dhtml_messages['hipo_jobs_stalled'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}

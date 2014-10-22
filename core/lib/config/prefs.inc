@@ -206,7 +206,14 @@ class Prefs extends MySource_Object
 	{
 		return $this->paintField($o, $have_lock, $all_prefs, $pref, function($pref_value) use ($have_lock, $pref, $width, $range_min, $range_max, $format) {
 		    if ($have_lock) {
-                int_text_box('prefs['.$pref.']', $pref_value, TRUE, $width, $range_min, $range_max, '', FALSE, FALSE, '', FALSE, TRUE);
+                ob_start();
+                	int_text_box('prefs['.$pref.']', $pref_value, TRUE, $width, $range_min, $range_max, '', FALSE, FALSE, '', FALSE, TRUE);
+                $text_box = ob_get_clean();
+                if (is_callable($format)) {
+                    echo $format($text_box);
+                } else {
+                    echo sprintf($format, $text_box);
+                }
             } else {
                 if (is_callable($format)) {
                     echo $format($pref_value);

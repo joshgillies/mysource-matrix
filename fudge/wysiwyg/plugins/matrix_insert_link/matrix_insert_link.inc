@@ -45,8 +45,8 @@ class matrix_insert_link extends wysiwyg_plugin
 	function matrix_insert_link(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixcreatelink','MatrixCreateLink', translate('insert_link'),'false','32');
-		$this->_add_button('matrixunlink','Unlink', translate('remove_link'),'false','33');
+		$this->_add_button('matrixcreatelink','MatrixCreateLink', translate('Insert Link'),'false','32');
+		$this->_add_button('matrixunlink','Unlink', translate('Remove Link'),'false','33');
 
 	}//end constructor
 
@@ -186,7 +186,7 @@ class matrix_insert_link extends wysiwyg_plugin
 							inside_html = editor.getSelectedHTML();
 						}
 					} else {
-						alert(js_translate('object_requires_selection'));
+						alert(js_translate('You need to select this object as though it was text, rather than just clicking on it.'));
 						sel.empty();
 						return;
 					}
@@ -327,7 +327,7 @@ class matrix_insert_link extends wysiwyg_plugin
 						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would break the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
-							alert(js_translate('select_one_paragraph_at_a_time'));
+							alert(js_translate('Please select only one paragraph to link at a time.'));
 							return;
 						}
 
@@ -338,7 +338,7 @@ class matrix_insert_link extends wysiwyg_plugin
 
 					if (para_html.indexOf("<li") > -1) {
 						if (para_html.indexOf("<li") != para_html.lastIndexOf("<li")) {
-							alert(js_translate('select_one_list_at_a_time'));
+							alert(js_translate('Please select only one list item to link at a time.'));
 							return;
 						} 
 					}

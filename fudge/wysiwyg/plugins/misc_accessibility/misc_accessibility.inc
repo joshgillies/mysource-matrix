@@ -86,7 +86,7 @@ class misc_accessibility extends wysiwyg_plugin
 						text_range = true;
 						editor.selectNodeContents(control_range(0));
 					} else {
-						alert(js_translate('object_requires_selection'));
+						alert(js_translate('You need to select this object as though it was text, rather than just clicking on it.'));
 						sel.empty();
 						return;
 					}
@@ -153,7 +153,7 @@ class misc_accessibility extends wysiwyg_plugin
 						text_range = true;
 						editor.selectNodeContents(control_range(0));
 					} else {
-						alert(js_translate('object_requires_selection'));
+						alert(js_translate('You need to select this object as though it was text, rather than just clicking on it.'));
 						sel.empty();
 						return;
 					}
@@ -210,7 +210,7 @@ class misc_accessibility extends wysiwyg_plugin
 						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would mess up the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
-							alert(js_translate('select_one_paragraph_at_a_time'));
+							alert(js_translate('Please select only one paragraph to link at a time.'));
 							return;
 						}
 

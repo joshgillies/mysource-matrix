@@ -289,7 +289,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 		if (SQ_TOOL_HTML_TIDY_ENABLED && file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
 			return TRUE;
 		}
-		return translate('wysiwyg_htmltidy_status_disabled');
+		return translate('HTML Tidy is disabled');
 
 	}//end check_usable()
 

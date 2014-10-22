@@ -97,14 +97,14 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 
 	<body onload="Javascript: Init();">
 		<div class="sq-popup-heading-frame">
-			<h1><?php echo translate('insert_acronym'); ?></h1>
+			<h1><?php echo translate('Insert Acronym'); ?></h1>
 		</div>
 		<form action="" method="get" name="main_form" id="main-form">
 			<table class="sq-fieldsets-table">
 				<tr>
 					<td valign="top" >
 						<fieldset>
-						<legend><b><?php echo translate('general'); ?></b></legend>
+						<legend><b><?php echo translate('General'); ?></b></legend>
 						<table>
 							<tr>
 								<td class="label">Acronym:</td>
@@ -123,8 +123,8 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			</table>
 
 			<div class="sq-popup-button-wrapper">
-				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
-				<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('ok'); ?></button>
+				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('Cancel'); ?></button>
+				<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('OK'); ?></button>
 			</div>
 		</form>
 	</body>
