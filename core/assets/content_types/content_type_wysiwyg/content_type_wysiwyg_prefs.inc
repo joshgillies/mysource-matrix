@@ -223,7 +223,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
                    );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_LIVE_LINK_ONLY', $options);
 
-        $o->openSection(translate('Edit+ WYSIWYG Editor Preferences'));
+        // only open section if we are printing global preference (all pref printed in 1 go)
+        // in group pref screen, pref printed individually, can't open a section or interface break
+        if(empty($pref)) {
+            $o->openSection(translate('Edit+ WYSIWYG Editor Preferences'));
+        }
 
         $current_viper_plugins = $this->_viper_plugins;
 
@@ -273,10 +277,13 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
             </table>
             <?php
 		});//end closure (SQ_VIPER_PLUGINS)
+        if(empty($pref)) {
+		  $o->closeSection();
+        }
 
-		$o->closeSection();
-
-        $o->openSection(translate('Matrix Classic WYSIWYG Editor Preferences'));
+        if(empty($pref)) {
+            $o->openSection(translate('Matrix Classic WYSIWYG Editor Preferences'));
+        }
 
 		$this->paintField($o, $have_lock, $pref, 'SQ_WYSIWYG_STYLE', function($wysiwyg_style) use ($have_lock) {
 		    $size_units = Array('%' => '%', 'px' => 'px');
@@ -572,7 +579,9 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		});// end closure (SQ_WYSIWYG_LINK_TYPES)
 
-		$o->closeSection();
+        if(empty($pref)) {
+		  $o->closeSection();
+        }
 
 		return TRUE;
 

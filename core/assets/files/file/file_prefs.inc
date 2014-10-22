@@ -65,6 +65,7 @@ class File_Prefs extends Prefs
 	*/
 	function File_Prefs($pref_file='')
 	{
+        require_once SQ_FUDGE_PATH.'/general/file_system.inc';    
 		$this->Prefs($pref_file);
 
 		// work out the max file size that PHP is allowing
