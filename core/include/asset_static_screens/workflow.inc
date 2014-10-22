@@ -873,7 +873,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 						$o->closeRaw();
 						if (!empty($direct)) {
-							$o->sectionNote(translate('The "Cascade?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.')) ;
+							$o->sectionNote(translate('The "Cascade?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.'));
 						}
 					$o->closeSection();
 

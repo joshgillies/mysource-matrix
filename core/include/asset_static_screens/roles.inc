@@ -138,7 +138,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			ob_start();
 		}
 
-		$o->openSection(array_get_index($section->attributes(), 'display_name', $section->attributes()->name));
+		$o->openSection(translate(array_get_index($section->attributes(), 'display_name', $section->attributes()->name)));
 
 		if (!($num_fields = count($section->children()))) {
 			continue;
@@ -168,7 +168,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 				$field_name = (string) $field->display_name;
 			}
 
-			$o->openField($field_name);
+			$o->openField(translate($field_name));
 			if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes()->code)])) {
 					ob_start();
 			}
@@ -281,7 +281,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 				}//end switch
 
 				if (!empty($field->note)) {
-					$o->note((string) $field->note);
+					$o->note(translate((string) $field->note));
 				}
 
 			if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {

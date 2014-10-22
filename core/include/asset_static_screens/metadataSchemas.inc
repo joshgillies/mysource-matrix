@@ -140,7 +140,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 
 
 
-	$o->openSection('Existing Schemas');
+	$o->openSection(translate('Existing Schemas'));
 		$o->openRaw();
 			if (empty($direct)) {
 				echo '<p><em>'.translate('There are no metadata schemas applied to this asset.').'</em></p>';
@@ -208,7 +208,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 			}//end if
 		$o->closeRaw();
 		if (!empty($direct)) {
-			$o->sectionNote('The "Cascade?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.');
+			$o->sectionNote(translate('The "Cascade?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.'));
 		}
 	$o->closeSection();
 
@@ -216,8 +216,8 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 
 	if ($admin_access) {
 
-		$o->openSection('Add New Schema');
-			$o->openField('Select Schema', '');
+		$o->openSection(translate('Add New Schema'));
+			$o->openField(translate('Select Schema'), '');
 				echo '<span class="sq-inline-fields-wrapper bottom-margin">';
 					combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('Apply'), '0' => translate('Deny')), FALSE, '');
 
@@ -232,7 +232,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 				check_box($prefix.'_metadata[new][cascades]', 1, TRUE);
 				label(translate('Cascade this new schema to newly-created children'), $prefix.'_metadata[new][cascades]');
 
-				$o->note('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the metadata schema to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
+				$o->note(translate('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the metadata schema to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.'));
 			$o->closeField();
 		$o->closeSection();
 	}
