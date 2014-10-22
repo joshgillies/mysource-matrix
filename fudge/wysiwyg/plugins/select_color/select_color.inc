@@ -42,8 +42,8 @@ class Select_Color extends WYSIWYG_Plugin
 	*/
 	function select_color()
 	{
-		$this->_add_button('forecolor','foreColor','Text Color','false','20');
-		$this->_add_button('backcolor','BackColor','Background Color','false','21');
+		$this->_add_button('forecolor','foreColor',translate('Text Colour'),'false','20');
+		$this->_add_button('backcolor','BackColor',translate('Background Colour'),'false','21');
 
 	}//end constructor
 

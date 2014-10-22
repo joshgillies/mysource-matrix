@@ -60,7 +60,7 @@ class Snippet_Keyword_Replace extends WYSIWYG_Plugin
 	function Snippet_Keyword_Replace(&$wysiwyg)
 	{
 		$this->_add_button('addsnippetkeyword','','','','');
-		$this->_add_button('snippethelp','snippethelp','Snippet Keyword Information','true','0');
+		$this->_add_button('snippethelp','snippethelp',translate('Snippet Keyword Information'),'true','0');
 
 	}//end constructor
 

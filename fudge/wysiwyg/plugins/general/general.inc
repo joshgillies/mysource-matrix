@@ -44,8 +44,8 @@ class general extends wysiwyg_plugin
 	function general()
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('selectall','SelectAll','Select All','false','6');
-		$this->_add_button('inserthorizontalrule','InsertHorizontalRule','Horizontal Rule','false','31');
+		$this->_add_button('selectall','SelectAll',translate('Select All'),'false','6');
+		$this->_add_button('inserthorizontalrule','InsertHorizontalRule',translate('Horizontal Rule'),'false','31');
 
 	}//end constructor
 

@@ -79,15 +79,13 @@ class format_font extends wysiwyg_plugin
 		};
 
 		this.config.formatblock = {
-			"Heading 1": "h1",
-			"Heading 2": "h2",
-			"Heading 3": "h3",
-			"Heading 4": "h4",
-			"Heading 5": "h5",
-			"Heading 6": "h6",
-			"Normal": "p",
-			"Address": "address",
-			"Formatted": "pre"
+			<?php for ($i = 1; $i <= 6; $i++) {
+				// Headings
+				echo '"'.sprintf(translate('Heading %s'), $i).'": "h'.$i.'",'."\n";
+			} ?>
+			"<?php echo translate('Normal'); ?>": "p",
+			"<?php echo translate('Address'); ?>": "address",
+			"<?php echo translate('Formatted'); ?>": "pre"
 		};
 		<?php
 	}

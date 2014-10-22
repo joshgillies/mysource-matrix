@@ -43,8 +43,8 @@ class indenting extends wysiwyg_plugin
 	*/
 	function indenting()
 	{
-		$this->_add_button('outdent','Outdent','Decrease Indent','false','28');
-		$this->_add_button('indent','Indent','Increase Indent','false','29');
+		$this->_add_button('outdent','Outdent',translate('Decrease Indent'),'false','28');
+		$this->_add_button('indent','Indent',translate('Increase Indent'),'false','29');
 	}
 
 

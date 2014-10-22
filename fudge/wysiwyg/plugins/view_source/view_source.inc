@@ -42,7 +42,7 @@ class View_Source extends Wysiwyg_Plugin
 	*/
 	function View_Source()
 	{
-		$this->_add_button('htmlmode','HtmlMode','Toggle HTML Source','true','3');
+		$this->_add_button('htmlmode','HtmlMode', translate('Toggle HTML Source'),'true','3');
 
 	}//end constructor
 

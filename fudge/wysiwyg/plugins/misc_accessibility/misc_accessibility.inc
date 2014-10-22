@@ -44,8 +44,8 @@ class misc_accessibility extends wysiwyg_plugin
 	function misc_accessibility(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('misccite','MiscCite','Insert Citation','false','58');
-		$this->_add_button('miscdfn','MiscDfn','Insert Definition','false','59');
+		$this->_add_button('misccite','MiscCite',translate('Insert Citation'),'false','58');
+		$this->_add_button('miscdfn','MiscDfn',translate('Insert Definition'),'false','59');
 
 	}//end constructor
 

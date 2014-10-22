@@ -44,8 +44,8 @@ class history extends wysiwyg_plugin
 	*/
 	function history()
 	{
-		$this->_add_button('undo','Undo','Undo','false','12');
-		$this->_add_button('redo','Redo','Redo','false','13');
+		$this->_add_button('undo','Undo',translate('Undo'),'false','12');
+		$this->_add_button('redo','Redo',translate('Redo'),'false','13');
 	}
 
 }

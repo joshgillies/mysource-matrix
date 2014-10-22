@@ -174,12 +174,15 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						$conditions = $GLOBALS['SQ_SYSTEM']->am->getLinks($step_assetid, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE);
 
 						if (count($conditions) === 0) {
-							echo '<span class="sq-backend-warning">No conditions selected</span>';
+							echo '<span class="sq-backend-warning">'.translate('No conditions selected').'</span>';
 						} else {
 							if (($step_asset->attr('logic') === 'all') || ($step_asset->attr('logic_num') == count($conditions))) {
-								// Nothing
+								// Nothing, just say what conditions there are.
 							} else {
-								echo '<em>At least '.$step_asset->attr('logic_num').' condition(s) of:</em> ';
+								echo '<em>'.sprintf(
+									translate('At least %s condition(s) of:'),
+									$step_asset->attr('logic_num')
+								).'</em> ';
 							}
 						}
 
@@ -209,9 +212,9 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 								$logic = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('logic', 'workflow_step_condition', Array($condition['minorid']));
 								$logic_num = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('logic_num', 'workflow_step_condition', Array($condition['minorid']));
 								if ($logic[$condition['minorid']] === 'all') {
-									$condition_name = 'All of '.$condition_name;
+									$condition_name = sprintf(translate('All of %s'), $condition_name);
 								} else {
-									$condition_name = 'At least '.$logic_num[$condition['minorid']].' of '.$condition_name;
+									$condition_name = sprintf(translate('At least %s of %s'), $logic_num[$condition['minorid']], $condition_name);
 								}
 							}
 
@@ -243,7 +246,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					// Add a drop point after the last main step
 					echo '</tbody></table>';
 				} else {
-					echo '<span class="sq-backend-warning">No workflow defined</span>';
+					echo '<span class="sq-backend-warning">'.translate('No workflow defined').'</span>';
 				}
 
 				$workflow_summary = ob_get_clean();
@@ -285,11 +288,18 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			if (count($streams_info) <= 1) {
 				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('Alternate Streams'); ?></td></tr><?php
 
-				?><tr class="sq-table-row"><td></td><td colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('workflow_stream_no_alternate_'.($write_access ? 'locked' : 'unlocked')); ?></td></tr><?php
+				?><tr class="sq-table-row"><td></td><td colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php
+					echo '<strong>'.translate('There are no alternate streams defined.').'</strong> ';
+					if ($write_access) {
+				 		echo translate('You can create a new alternate stream using the interface below.');
+				 	} else{
+				 		echo translate('Lock the Workflow Schema to create a new alternate stream.');
+					}
+				 ?></td></tr><?php
 			}
 
 			if ($write_access === TRUE) {
-				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="5">Add New Workflow Stream</td></tr><?php
+				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="5">'.<?php echo translate('Add New Workflow Stream'); ?></td></tr><?php
 			?>
 				<tr>
 					<td></td>

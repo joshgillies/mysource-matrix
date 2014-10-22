@@ -105,7 +105,7 @@ class Keyword_Replace extends WYSIWYG_Plugin
 		?>
 		case "addkeyword":
 			options = Array();
-			options["-- select keyword --"] = "";
+			options["-- <?php echo translate('select keyword') ?> --"] = "";
 			for (var i in editor.config.keywords) {
 				var keyword = editor.config.keywords[i];
 				options[keyword[1]] = keyword[0];

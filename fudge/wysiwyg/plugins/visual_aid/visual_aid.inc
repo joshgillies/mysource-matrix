@@ -43,7 +43,7 @@ class visual_aid extends WYSIWYG_Plugin
 	function visual_aid(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('visual_aid','Visual_Aid','Visual Aid','false','61');
+		$this->_add_button('visual_aid','Visual_Aid', translate('Visual Aid'),'false','61');
 
 	}//end constructor
 

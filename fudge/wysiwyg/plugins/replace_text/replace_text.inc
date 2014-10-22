@@ -43,7 +43,7 @@ class Replace_Text extends WYSIWYG_Plugin
 	*/
 	function replace_text()
 	{
-		$this->_add_button('replacetext','ReplaceText','Replace Text','false','11');
+		$this->_add_button('replacetext','ReplaceText',translate('Replace Text'),'false','11');
 
 	}//end replace_text()
 

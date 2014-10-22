@@ -42,8 +42,8 @@ class listing extends wysiwyg_plugin
 	*/
 	function listing()
 	{
-		$this->_add_button('orderedlist','InsertOrderedList','Ordered List','false','26');
-		$this->_add_button('unorderedlist','InsertUnorderedList','Bulleted List','false','27');
+		$this->_add_button('orderedlist','InsertOrderedList',translate('Ordered List'),'false','26');
+		$this->_add_button('unorderedlist','InsertUnorderedList',translate('Bulleted List'),'false','27');
 	}
 
 }

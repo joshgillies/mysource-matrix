@@ -40,7 +40,7 @@ class about extends wysiwyg_plugin
 	*/
 	function about()
 	{
-		$this->_add_button('about','about','About this editor','true','0');
+		$this->_add_button('about','about',translate('About this editor'),'true','0');
 
 	}//end constructor
 
@@ -55,7 +55,7 @@ class about extends wysiwyg_plugin
 	{
 		?>
 		case "about":
-			this._popupDialog("about", "<?php echo $this->get_popup_href('about.html')?>", 380, 185, true, null);
+			this._popupDialog("about", "<?php echo $this->get_popup_href('about.php')?>", 380, 185, true, null);
 		break;
 		<?php
 

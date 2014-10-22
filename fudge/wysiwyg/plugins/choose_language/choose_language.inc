@@ -86,7 +86,7 @@ class Choose_Language extends WYSIWYG_Plugin
 							);
 		?>
 		this.config.chooselang = {
-			"-- choose language --": "",<?php
+			"-- <?php echo translate('choose language') ?> --": "",<?php
 			foreach ($common_languages as $code => $name) {
 				echo '"'.$name.'": "'.$code.'",'."\n";
 			}

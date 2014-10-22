@@ -44,7 +44,7 @@ class Quotation extends WYSIWYG_Plugin
 	function Quotation(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('quotation','Quotation','Quotation','false','60');
+		$this->_add_button('quotation','Quotation',translate('Quotation'),'false','60');
 
 	}//end constructor
 

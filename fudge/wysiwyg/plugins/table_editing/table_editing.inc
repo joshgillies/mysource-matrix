@@ -45,8 +45,8 @@ class Table_Editing extends WYSIWYG_Plugin
 	function Table_Editing(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('inserttable','InsertTable','Insert Table','false','35');
-		$this->_add_button('tableproperties','TableProperties','Table Properties','false','36','table');
+		$this->_add_button('inserttable','InsertTable',translate('Insert Table'),'false','35');
+		$this->_add_button('tableproperties','TableProperties',translate('Table Properties'),'false','36','table');
 
 	}//end constructor
 
@@ -123,7 +123,7 @@ class Table_Editing extends WYSIWYG_Plugin
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 				this._popupDialog
-				("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 400, 460, true, function(param) {
+				("insertTable", "<?php echo $this->get_popup_href('insert_table.php')?>", 400, 460, true, function(param) {
 					if (!param) { // user must have pressed Cancel
 						return false;
 					}

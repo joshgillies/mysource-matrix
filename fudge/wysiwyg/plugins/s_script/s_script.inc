@@ -42,8 +42,8 @@ class s_script extends wysiwyg_plugin
 	*/
 	function s_script()
 	{
-		$this->_add_button('subscript','SubScript','Subscript','false','18');
-		$this->_add_button('superscript','SuperScript','SuperScript','false','19');
+		$this->_add_button('subscript','SubScript',translate('Subscript'),'false','18');
+		$this->_add_button('superscript','SuperScript',translate('Superscript'),'false','19');
 	}
 
 }

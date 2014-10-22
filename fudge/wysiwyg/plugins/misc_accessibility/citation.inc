@@ -46,7 +46,7 @@ class Citation extends WYSIWYG_Plugin
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		//$this->_add_button('citation','Citation','Insert Citation','false','35');
-		$this->_add_button('cite','Cite','Cite','false','35');
+		$this->_add_button('cite','Cite',translate('Cite'),'false','35');
 
 	}//end constructor
 

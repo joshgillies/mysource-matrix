@@ -42,7 +42,7 @@ class insert_image extends wysiwyg_plugin
 	*/
 	function insert_image()
 	{
-		$this->_add_button('insertimage','InsertImage','Insert Image','false','34');
+		$this->_add_button('insertimage','InsertImage',translate('Insert Image'),'false','34');
 	}
 
 

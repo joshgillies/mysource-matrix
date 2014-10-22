@@ -45,7 +45,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 	function matrix_embed_movie(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixembedmovie','MatrixEmbedMovie','Embed Movie','false','53');
+		$this->_add_button('matrixembedmovie','MatrixEmbedMovie',translate('Embed Movie'),'false','53');
 		$this->_img_url = $wysiwyg->web_path.'plugins/'.$this->get_popup_href('embedded_object.gif');
 
 	}//end constructor

@@ -39,7 +39,7 @@ class Search_And_Replace extends WYSIWYG_Plugin
 	*/
 	function Search_And_Replace()
 	{
-		$this->_add_button('searchandreplace','SearchAndReplace','Search And Replace','false','69');
+		$this->_add_button('searchandreplace','SearchAndReplace',translate('Search And Replace'),'false','69');
 
 	}//end Search_And_Replace()
 

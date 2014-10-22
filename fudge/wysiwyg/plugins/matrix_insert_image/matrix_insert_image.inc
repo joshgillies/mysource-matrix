@@ -44,7 +44,7 @@ class matrix_insert_image extends wysiwyg_plugin
 	function matrix_insert_image(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixinsertimage','MatrixInsertImage','Insert Image','false','34');
+		$this->_add_button('matrixinsertimage','MatrixInsertImage',translate('Insert Image'),'false','34');
 
 	}//end constructor
 

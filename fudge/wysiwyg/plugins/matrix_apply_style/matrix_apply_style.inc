@@ -121,10 +121,10 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		<?php
 
 		if (!empty($this->_css_classes)) {
-			?>"-- select css style --": "",<?php
+			?>"-- <?php echo translate('select css style') ?> --": "",<?php
 			$string = '';
 			foreach ($this->_css_classes as $class_name => $cn) echo '"     '.str_replace('"', '\"', $cn).'": "'.str_replace('"', '\"', $class_name).'",';
-			?>"-- remove css style --": "no_style"<?php
+			?>"-- <?php echo translate('remove css style') ?> --": "no_style"<?php
 		}
 
 		?>

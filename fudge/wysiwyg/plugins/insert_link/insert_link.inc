@@ -42,8 +42,8 @@ class insert_link extends wysiwyg_plugin
 	*/
 	function insert_link()
 	{
-		$this->_add_button('createlink','CreateLink','Insert Web Link','false','32');
-		$this->_add_button('unlink','Unlink','Remove Link','false','33');
+		$this->_add_button('createlink','CreateLink',translate('Insert Web Link'),'false','32');
+		$this->_add_button('unlink','Unlink',translate('Remove Link'),'false','33');
 	}
 
 

@@ -43,10 +43,10 @@ class Format_Text extends WYSIWYG_Plugin
 	*/
 	function format_text()
 	{
-		$this->_add_button('bold','Bold','Bold','false','14');
-		$this->_add_button('italic','Italic','Italic','false','15');
-		$this->_add_button('underline','Underline','Underline','false','16');
-		$this->_add_button('strikethrough','StrikeThrough','StrikeThrough','false','17');
+		$this->_add_button('bold','Bold',translate('Bold'),'false','14');
+		$this->_add_button('italic','Italic',translate('Italic'),'false','15');
+		$this->_add_button('underline','Underline',translate('Underline'),'false','16');
+		$this->_add_button('strikethrough','StrikeThrough',translate('Strikethrough'),'false','17');
 	}
 
 

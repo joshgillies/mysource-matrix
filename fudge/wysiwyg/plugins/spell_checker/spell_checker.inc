@@ -43,7 +43,7 @@ class spell_checker extends wysiwyg_plugin
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		if (function_exists('pspell_suggest')) {
-			$this->_add_button('spellchecker','spellchecker','Check Spelling','false','54');
+			$this->_add_button('spellchecker','spellchecker',translate('Check Spelling'),'false','54');
 		}
 
 	}//end constructor
@@ -75,7 +75,14 @@ class spell_checker extends wysiwyg_plugin
 		if (defined('XML_HTMLSAX')) {
 			parent::_add_button($id, $cmd, $tooltip, $textmode, $position, $context='');
 		} else {
-			trigger_localised_error('CORE0252', E_USER_WARNING, '"Spell Checker"', 'Required PEAR Package "XML_HTMLSax" not installed');
+			trigger_localised_error(
+				'CORE0252',
+				sprintf(
+					translate('Unable to load "%s" WYSIWYG Plugin - Required PEAR package "%s" not installed.'),
+					translate('Spell Checker'),
+					'XML_HTMLSax'
+				),
+			E_USER_WARNING);		
 		}
 
 	}//end _add_button()

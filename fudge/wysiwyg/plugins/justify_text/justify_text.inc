@@ -42,10 +42,10 @@ class Justify_Text extends WYSIWYG_Plugin
 	*/
 	function justify_text()
 	{
-		$this->_add_button('justifyleft','JustifyLeft','Justify Left','false','22');
-		$this->_add_button('justifycenter','JustifyCenter','Justify Center','false','23');
-		$this->_add_button('justifyright','JustifyRight','Justify Right','false','24');
-		$this->_add_button('justifyfull','JustifyFull','Justify Full','false','25');
+		$this->_add_button('justifyleft','JustifyLeft',translate('Justify Left'),'false','22');
+		$this->_add_button('justifycenter','JustifyCenter',translate('Justify Center'),'false','23');
+		$this->_add_button('justifyright','JustifyRight',translate('Justify Right'),'false','24');
+		$this->_add_button('justifyfull','JustifyFull',translate('Justify Full'),'false','25');
 
 	}//end consturctor
 

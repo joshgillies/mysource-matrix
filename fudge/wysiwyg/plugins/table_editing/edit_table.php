@@ -35,7 +35,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>Tables</title>
+	<title><?php echo translate('Table Properties') ?></title>
 	<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
 	<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 	<style type="text/css">
@@ -195,7 +195,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 <body onload="Init();">
 
 	<div class="sq-popup-heading-frame">
-		<h1>Table Properties</h1>
+		<h1><?php echo translate('Table Properties') ?></h1>
 	</div>
 <div id="main-form">	
 
@@ -230,7 +230,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<label for="caption"><?php echo translate('Caption'); ?>:</label>
 			<input type="text" id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
 			<hr />
-			<label for="class"><?php echo translate('Class'); ?>:</label>
+			<label for="class"><?php echo translate('Class Name'); ?>:</label>
 			<input type="text" id="class" name="class" onkeyup="table.setClass(this.value)" /><br />
 
 			<!-- table html/css width -->
@@ -306,7 +306,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<!-- Properties for the row selector -->
 		<fieldset id="row_panel" style="display:none">
 			<legend><b><?php echo translate('Row Properties') ?></b></legend>
-			<label for="row_class"><?php echo translate('Class'); ?></label>
+			<label for="row_class"><?php echo translate('Class Name'); ?></label>
 			<input type="text" id="row_class" name="row_class" onkeyup="table.setRowClass(document.getElementById('row_class').value)" disabled="disabled"/><br />
 			<label for="row_width"><?php echo translate('Height') ?></label>
 			<input type="text" id="row_width" name="row_width" onkeyup="table.setRowHeight(parseInt(document.getElementById('row_width').value) + document.getElementById('row_widthtype').value)" style="width:100px" value="100" disabled="disabled"/>
@@ -333,25 +333,25 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			</select>
 			<br />
 			<hr />
-			<label><?php echo 'Modify'; ?></label>
-			<img id="row_add" alt="Add Row" title="Add Row" src="images/addrow.gif" onclick="if (table.lastSelect == 'row') table.addrow();"  />
-			<img id="row_delete" alt="Delete Row" title="Delete Row" src="images/delrow.gif" onclick="if (table.lastSelect == 'row') table.delrow();"  />
+			<label><?php echo translate('Modify'); ?>:</label>
+			<img id="row_add" alt="<?php echo translate('Add Row') ?>" title="<?php echo translate('Add Row') ?>" src="images/addrow.gif" onclick="if (table.lastSelect == 'row') table.addrow();"  />
+			<img id="row_delete" alt="<?php echo translate('Delete Row') ?>" title="<?php echo translate('Delete Row') ?>" src="images/delrow.gif" onclick="if (table.lastSelect == 'row') table.delrow();"  />
 			<img alt="divider" src="images/div.gif" />
-			<img id="row_THead" alt="Head Cells" title="Head Cell" src="images/th.gif" onclick="if (table.lastSelect == 'row') table.th();"/><br />
-			<label><?php echo 'Horizontal'; ?></label>
-			<img id="row_aleft" title="Align Left" alt="Align Left" src="images/al.gif" onclick="if (table.lastSelect == 'row') table.setAlign('left');" />
-			<img id="row_acenter" title="Align Center" alt="Align Center" src="images/ac.gif" onclick="if (table.lastSelect == 'row') table.setAlign('center');" />
-			<img id="row_aright" title="Align Right" alt="Align Right" src="images/ar.gif" onclick="if (table.lastSelect == 'row') table.setAlign('right');" /><br />
-			<label><?php echo 'Vertical'; ?></label>
-			<img id="row_atop" title="Align Top" alt="Align Top" src="images/at.gif" onclick="if (table.lastSelect == 'row') table.setVAlign('top');" />
-			<img id="row_amiddle" title="Align Middle" alt="Align Middle" src="images/am.gif" onclick="if (table.lastSelect == 'row') table.setVAlign('middle');" />
-			<img id="row_abottom" title="Align Bottom" alt="Align Bottom" src="images/ab.gif" onclick="if (table.lastSelect == 'row') table.setVAlign('bottom');" /><br />
+			<img id="row_THead" alt="<?php echo translate('Head Cells') ?>" title="<?php echo translate('Head Cell') ?>" src="images/th.gif" onclick="if (table.lastSelect == 'row') table.th();"/><br />
+			<label><?php echo translate('Horizontal'); ?>:</label>
+			<img id="row_aleft" title="<?php echo translate('Align Left') ?>" alt="<?php echo translate('Align Left') ?>" src="images/al.gif" onclick="if (table.lastSelect == 'row') table.setAlign('left');" />
+			<img id="row_acenter" title="<?php echo translate('Align Center') ?>" alt="<?php echo translate('Align Center') ?>" src="images/ac.gif" onclick="if (table.lastSelect == 'row') table.setAlign('center');" />
+			<img id="row_aright" title="<?php echo translate('Align Right') ?>" alt="<?php echo translate('Align Right') ?>" src="images/ar.gif" onclick="if (table.lastSelect == 'row') table.setAlign('right');" /><br />
+			<label><?php echo translate('Vertical'); ?>:</label>
+			<img id="row_atop" title="<?php echo translate('Align Top') ?>" alt="<?php echo translate('Align Top') ?>" src="images/at.gif" onclick="if (table.lastSelect == 'row') table.setVAlign('top');" />
+			<img id="row_amiddle" title="<?php echo translate('Align Middle') ?>" alt="<?php echo translate('Align Middle') ?>" src="images/am.gif" onclick="if (table.lastSelect == 'row') table.setVAlign('middle');" />
+			<img id="row_abottom" title="<?php echo translate('Align Bottom') ?>" alt="<?php echo translate('Align Bottom') ?>" src="images/ab.gif" onclick="if (table.lastSelect == 'row') table.setVAlign('bottom');" /><br />
 		</fieldset>
 
 		<!-- Properties for the column selector -->
 		<fieldset id="col_panel" style="display:none;">
 			<legend><b>Column Properties</b></legend>
-			<label for="col_class">Class Name:</label>
+			<label for="col_class"><?php echo translate('Class Name') ?>:</label>
 			<input type="text" id="col_class" name="col_class" onkeyup="table.setColClass(document.getElementById('col_class').value)" disabled="disabled"/><br />
 			<label for="col_width"><?php echo translate('Width'); ?></label>
 			<input type="text" id="col_width" name="col_width" onkeyup="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
@@ -378,19 +378,19 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			</select>
 			<br />
 			<hr />
-			<label><?php echo translate('Modify'); ?></label>
-			<img id="col_add" alt="Add Column" title="Add Column" src="images/addcol.gif" onclick="if (table.lastSelect == 'col') table.addcol(); return false;"  />
-			<img id="col_delete" alt="Delete Column" title="Delete Column" src="images/delcol.gif" onclick="if (table.lastSelect == 'col') table.delcol();"  />
+			<label><?php echo translate('Modify'); ?>:</label>
+			<img id="col_add" alt="<?php echo translate('Add Column') ?>" title="<?php echo translate('Add Column') ?>" src="images/addcol.gif" onclick="if (table.lastSelect == 'col') table.addcol(); return false;"  />
+			<img id="col_delete" alt="<?php echo translate('Delete Column') ?>" title="<?php echo translate('Delete Column') ?>" src="images/delcol.gif" onclick="if (table.lastSelect == 'col') table.delcol();"  />
 			<img alt="divider" src="images/div.gif" />
-			<img id="col_THead" alt="Head Cells" title="Head Cell" src="images/th.gif" onclick="if (table.lastSelect == 'col') table.th();"/><br />
-			<label><?php echo translate('horizontal'); ?></label>
-			<img id="col_aleft" title="Align Left" alt="Align Left" src="images/al.gif" onclick="if (table.lastSelect == 'col') table.setAlign('left');" />
-			<img id="col_acenter" title="Align Center" alt="Align Center" src="images/ac.gif" onclick="if (table.lastSelect == 'col') table.setAlign('center');" />
-			<img id="col_aright" title="Align Right" alt="Align Right" src="images/ar.gif" onclick="if (table.lastSelect == 'col') table.setAlign('right');" /><br />
-			<label><?php echo 'Vertical'; ?></label>
-			<img id="col_atop" title="Align Top" alt="Align Top" src="images/at.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('top');" />
-			<img id="col_amiddle" title="Align Middle" alt="Align Middle" src="images/am.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('middle');" />
-			<img id="col_abottom" title="Align Bottom" alt="Align Bottom" src="images/ab.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('bottom');" /><br />
+			<img id="col_THead" alt="<?php echo translate('Head Cells') ?>" title="<?php echo translate('Head Cell') ?>" src="images/th.gif" onclick="if (table.lastSelect == 'col') table.th();"/><br />
+			<label><?php echo translate('Horizontal'); ?>:</label>
+			<img id="col_aleft" title="<?php echo translate('Align Left') ?>" alt="<?php echo translate('Align Left') ?>" src="images/al.gif" onclick="if (table.lastSelect == 'col') table.setAlign('left');" />
+			<img id="col_acenter" title="<?php echo translate('Align Center') ?>" alt="<?php echo translate('Align Center') ?>" src="images/ac.gif" onclick="if (table.lastSelect == 'col') table.setAlign('center');" />
+			<img id="col_aright" title="<?php echo translate('Align Right') ?>" alt="<?php echo translate('Align Right') ?>" src="images/ar.gif" onclick="if (table.lastSelect == 'col') table.setAlign('right');" /><br />
+			<label><?php echo translate('Vertical'); ?>:</label>
+			<img id="col_atop" title="<?php echo translate('Align Top') ?>" alt="<?php echo translate('Align Top') ?>" src="images/at.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('top');" />
+			<img id="col_amiddle" title="<?php echo translate('Align Middle') ?>" alt="<?php echo translate('Align Middle') ?>" src="images/am.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('middle');" />
+			<img id="col_abottom" title="<?php echo translate('Align Bottom') ?>" alt="<?php echo translate('Align Bottom') ?>" src="images/ab.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('bottom');" /><br />
 		</fieldset>
 
 		<!-- Properties for the cell selector -->

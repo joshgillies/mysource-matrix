@@ -45,7 +45,7 @@ class special_chars extends wysiwyg_plugin
 	function special_chars(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('insertspecialchar','InsertSpecialChar', 'Insert Special Character','false','2');
+		$this->_add_button('insertspecialchar','InsertSpecialChar', translate('Insert Special Character'),'false','2');
 
 	}//end constructor
 

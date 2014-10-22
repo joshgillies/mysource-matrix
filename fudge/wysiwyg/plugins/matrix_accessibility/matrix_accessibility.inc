@@ -44,8 +44,8 @@ class matrix_accessibility extends wysiwyg_plugin
 	function matrix_accessibility(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixabbr','MatrixAbbr','Insert Abbreviation','false','64');
-		$this->_add_button('matrixacronym','MatrixAcronym','Insert Acronym','false','66');
+		$this->_add_button('matrixabbr','MatrixAbbr',translate('Insert Abbreviation'),'false','64');
+		$this->_add_button('matrixacronym','MatrixAcronym',translate('Insert Acronym'),'false','66');
 
 	}//end constructor
 

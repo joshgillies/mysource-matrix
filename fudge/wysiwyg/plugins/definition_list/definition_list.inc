@@ -44,8 +44,8 @@ class definition_list extends wysiwyg_plugin
 	function definition_list(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrix_dt','Matrix_DT','Insert Definition Term','false','63');
-		$this->_add_button('matrix_dd','Matrix_DD','Insert Definition Description','false','62');
+		$this->_add_button('matrix_dt','Matrix_DT',translate('Insert Definition Term'),'false','63');
+		$this->_add_button('matrix_dd','Matrix_DD',translate('Insert Definition Description'),'false','62');
 
 	}//end constructor
 

@@ -1490,7 +1490,9 @@ function hide_system_root($message='')
 function translate($string)
 {
 	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
-	return $GLOBALS['SQ_SYSTEM']->lm->getString($string);
+	$str = $GLOBALS['SQ_SYSTEM']->lm->getString($string);
+	$str = ucfirst(str_repeat('x', strlen($str)));
+	return $str;
 
 }//end translate()
 
@@ -1509,7 +1511,9 @@ function translate($string)
 function translate_plural($string, $plural_str, $number)
 {
 	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
-	return $GLOBALS['SQ_SYSTEM']->lm->getPlural($string, $plural_str, $number);
+	$str = $GLOBALS['SQ_SYSTEM']->lm->getPlural($string, $plural_str, $number);
+	$str = ucfirst(str_repeat('x', strlen($str)));
+	return $str;
 
 }//end translate_plural()
 
@@ -1676,7 +1680,7 @@ function get_asset_tag_line($assetid, $screen='')
 	<div id="asset-tag-line-<?php echo $assetid ?>-more-details" style="display:none;">
 		<table>
 		<tr class="sq-asset-highlight">
-			<td class="sq-backend-table-cell"><strong>Current Status:</strong></td>
+			<td class="sq-backend-table-cell"><strong><?php echo translate('Current Status') ?>:</strong></td>
 			<td colspan="2" class="sq-backend-table-cell"><span class="sq-status-square status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset_info['status']))) ?>"></span><?php echo get_status_description($asset_info['status']) ?></td>
 		</tr>
 		<tr>
@@ -1689,10 +1693,10 @@ function get_asset_tag_line($assetid, $screen='')
 		</tr>
 		<?php
 		$headers = Array(
-					'created'			=> 'Asset Created',
-					'updated'			=> 'Last Updated',
-					'published'			=> 'Last Published',
-					'status_changed'	=> 'Status Last Changed',
+					'created'			=> translate('Asset Created'),
+					'updated'			=> translate('Last Updated'),
+					'published'			=> translate('Last Published'),
+					'status_changed'	=> translate('Status Last Changed'),
 				   );
 
 		foreach ($headers as $time_type => $header) {
@@ -1701,18 +1705,18 @@ function get_asset_tag_line($assetid, $screen='')
 				$time_str = date('jS M Y g:ia', strtotime($asset_info[$time_type]));
 
 				if ($asset_info[$time_type.'_userid'] == 0) {
-					$user_name = 'System';
+					$user_name = translate('System');
 				} else {
 					$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), FALSE, 'name');
 					if (empty($user_name) || !isset($user_name[$asset_info[$time_type.'_userid']]) || empty($user_name[$asset_info[$time_type.'_userid']])) {
-						$user_name = '<span style="color: red">'.translate('Unknown or deleted user').'</span>';
+						$user_name = '<span class="sq-backend-warning">'.translate('Unknown or deleted user').'</span>';
 
 					} else {
 						$user_name = htmlspecialchars($user_name[$asset_info[$time_type.'_userid']], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					}
 				}
 
-				$user_name = 'by '.$user_name;
+				$user_name = sprintf(translate('by %s'), $user_name);
 			} else {
 				$time_str = translate('Never');
 
