@@ -849,7 +849,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	text_box($safe_name.'_label', $label, 20, 0, FALSE, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 	// only print the buttons if in the backend (where there's an asset map frame available)
 	if (SQ_IN_BACKEND || SQ_IN_LIMBO || defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
-		?><span class="sq-asset-finder-id-label">Id : #</span><?php
+		?><span class="sq-asset-finder-id-label"><?php echo translate('Id') ?> : #</span><?php
 		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'onchange="this.value=this.value.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, \'$1\');'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
 		?> <?php
 		$new_window_source = '';

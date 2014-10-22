@@ -216,7 +216,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		static $descs = Array();
 
 		if (empty($descs)) {
-			$descs['']  = '[Select Status]';
+			$descs['']  = '['.translate('Select Status').']';
 			$statii = self::_getAllStatii();
 			foreach ($statii as $value => $code) {
 				$code = strtolower($code);

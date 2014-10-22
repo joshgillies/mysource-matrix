@@ -1775,8 +1775,9 @@ class Backend_Outputter
 		if (count($contexts) > 1) {
 			?>
 			<span id="sq_context_switcher_current">
-				Context: <strong><?php echo $contexts[$current_context]['name'] ?></strong> [ <a href="#" onclick="this.parentNode.nextSibling.style.display = 'inline'; this.parentNode.style.display = 'none'; return false;">Change</a> ]
-			</span><span id="sq_context_switcher_change">Change Context: <?php
+				<?php echo sprintf(translate('Context: %s'), '<strong>'.$contexts[$current_context]['name'].'</strong>')
+					?> [ <a href="#" onclick="this.parentNode.nextSibling.style.display = 'inline'; this.parentNode.style.display = 'none'; return false;"><?php echo translate('Change'); ?></a> ]
+			</span><span id="sq_context_switcher_change"><?php echo translate('Change Context') ?>: <?php
 				$this->printSimpleContextSwitcher();
 			?></span> <?php
 		}

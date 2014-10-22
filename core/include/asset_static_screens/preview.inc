@@ -155,8 +155,6 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		foreach ($url_data as $url_info) {
 			$protocol_list = Array();
 
-
-
 			if ($url_info['https']) {
 				$protocol_list['https'] = 'https://';
 			}
@@ -169,7 +167,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				// we can't preview pages in other root domain in frame
 				if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) {
 				    if(strpos($url_info['url'], $current_root_url) !== 0) {
-					$preview_urls[$protocol.$url_info['url']] .= ' (open in new window)';
+					$preview_urls[$protocol.$url_info['url']] .= ' ('.translate('open in new window').')';
 				    }
 				}
 
@@ -350,7 +348,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 							return;
 						}
 					}
-					document.getElementById("size_button").value = "Calculating ....";
+					document.getElementById("size_button").value = js_translate("Calculating") + " ....";
 					document.getElementById("size_button").disabled = true;
 					url_calculate = preview_url.replace('/_nocache', '/_admin');
 					if(url_calculate.indexOf('_admin') == -1) {
@@ -377,8 +375,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					if (xmlHttp.readyState==4)
 					{
 						document.getElementById("size_elements").innerHTML=xmlHttp.responseText;
-						document.getElementById("size_title").innerHTML = "Size";
-						document.getElementById("size_button").value = "Calculate Size";
+						document.getElementById("size_title").innerHTML = js_translate("Size");
+						document.getElementById("size_button").value = js_translate("Calculate Size");
 						document.getElementById("size_button").disabled = false;
 					}
 				}
@@ -387,11 +385,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				{
 					if(link.innerHTML.match(/View /g)) {
 					    document.getElementById('sq-preview-conditions').style.display='block';
-					    link.innerHTML = 'Hide conditions preview options';
+					    link.innerHTML = js_translate('Hide conditions preview options');
 					}
 					else {
 					    document.getElementById('sq-preview-conditions').style.display='none';
-					    link.innerHTML = 'View conditions preview options';
+					    link.innerHTML = js_translate('View conditions preview options');
 					}
 				}
 
@@ -415,7 +413,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 				if (count($preview_urls) > 1) {
 					combo_box('preview_url', $preview_urls, FALSE, $primary_url, 1, 'onchange="update_preview_url()"');
-					echo '<div class="sq-preview-available-urls-show"><a href="#" onclick="document.getElementById(\'sq-preview-available-urls\').style.display=\'block\'; this.style.display=\'none\'" >View a list of available URLs ('.count($preview_urls).' available)</a></div>';
+					echo '<div class="sq-preview-available-urls-show"><a href="#" onclick="document.getElementById(\'sq-preview-available-urls\').style.display=\'block\'; this.style.display=\'none\'" >';
+					echo sprintf(translate('View a list of available URLs (%s available)'), count($preview_urls));
+					echo '</a></div>';
 					echo '<div id="sq-preview-available-urls" class="sq-preview-available-urls" >';
 					echo '<ul style="margin-top: 0;">';
 					foreach ($preview_urls as $index => $url) {

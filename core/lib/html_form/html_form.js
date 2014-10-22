@@ -649,7 +649,7 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	parentElt.insertBefore(createHiddenField(name+'[assetid]', 0), moreButton);
 	parentElt.insertBefore(createHiddenField(name+'[url]', 0), moreButton);
 	parentElt.insertBefore(createTextBox(safeName+'_label', '', 20, 0, 'sq-form-asset-finder', 'this.tmp = this.value;', 'this.value = this.tmp;'), moreButton);
-	var tmp_id_label = createSpan('Id : #');
+	var tmp_id_label = createSpan(js_translate('Id') + ' : #');
 	tmp_id_label.className = 'sq-asset-finder-id-label';
 	parentElt.insertBefore(tmp_id_label, moreButton);
 	var tmp_assetid = createTextBox(safeName+'_assetid', '', 2, 0, '', '');

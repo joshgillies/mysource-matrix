@@ -15,7 +15,7 @@
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-require_once DIRNAME(__FILE__).'/details.inc';
+require_once dirname(__FILE__).'/details.inc';
 
 /**
 * Workflow Static Screen Functions
@@ -215,7 +215,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 			ob_start();
 		}
 
-		$o->openSection(array_get_index($section->attributes(), 'display_name', $section->attributes()->name));
+		$o->openSection(translate(array_get_index($section->attributes(), 'display_name', $section->attributes()->name)));
 
 		if (!($num_fields = count($section->children()))) {
 			continue;
@@ -232,7 +232,11 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					// shouldn't be able to changes status, so don't show anything
 					if ((!$can_publish) && (!$admin_access)) {
 						if ($no_access_to_edit) {
-							trigger_localised_error('CORE0281', sprintf(translate('The workflow has already been %1$s or you do not have access to edit the workflow of the asset'), $_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed')), E_USER_WARNING);
+							if ($_REQUEST['workflow_link_action'] === 'approve') {
+								trigger_localised_error('CORE0281', translate('The workflow has already been approved or you do not have access to edit the workflow of the asset'), E_USER_WARNING);
+							} else {
+								trigger_localised_error('CORE0281', translate('The workflow has already been rejected or you do not have access to edit the workflow of the asset'), E_USER_WARNING);
+							}
 						}//end if
 						continue;
 					}
@@ -240,8 +244,11 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					if ($wf_email_link_updated) {
 						$o->openField('');
 						ob_start();
-						echo '<b class="sq-backend-warning">['.sprintf(translate('You have %s the changes successfully'), ($_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'))).']</b>';
-
+						if ($_REQUEST['workflow_link_action'] === 'approve') {
+							echo '<b class="sq-backend-warning">['.translate('You have approved the changes successfully').']</b>';
+						} else {
+							echo '<b class="sq-backend-warning">['.translate('You have rejected the changes successfully').']</b>';
+						}
 						ob_end_flush();
 						$o->closeField();
 					}//end if
@@ -427,7 +434,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								?>
 								<tr>
 									<td colspan="3" align="left">
-										<a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow"><?php echo translate('View all workflow logs'); ?></a>
+										<a href="<?php echo $owner->getBackendHref('logs'); ?>&amp;sq_backend_log_type=asset.workflow"><?php echo translate('View all workflow logs'); ?></a>
 
 									</td>
 								</tr>
@@ -462,7 +469,9 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 							if (!in_array($schemaid, $running_schemas)) continue;
 
-							if (!isset($workflow['stream_name'])) $workflow['stream_name'] = translate('Default Stream'); //Pre 3-26 systems
+							if (!isset($workflow['stream_name'])) {
+								$workflow['stream_name'] = translate('Default Stream'); //Pre 3-26 systems
+							}
 
 							$schema_title = translate('Running Workflow').' - '.$workflow['schema_name'].' - '.$workflow['stream_name'];
 
@@ -478,9 +487,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 								$o->openSection(translate('Workflow Summary'));
 
-
 								$o->openField(translate('Workflow Started'));
-
 									echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
 								$o->closeField();
 
@@ -492,7 +499,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								$o->closeSection();
 
 								foreach ($workflow['steps'] as $stepid => $step_data) {
-									$section_title = "Step $stepid - ".$step_data['step_name'];
+									$section_title = sprintf(translate('Step %s - %s'), $stepid, $step_data['step_name']);
 
 									if ($step_data['expired']) {
 										$section_title .= ' <span style="color:#FF9900">['.translate('Escalated').']</span>';
@@ -565,8 +572,17 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 											echo '<i>'.$wfm->_valid_step_logic[$step_logic];
 											if ($step_logic_num) {
-												echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '').' must be met</i>';
+												echo ' ';
+												echo sprintf(
+													translate_plural(
+														'%s condition must be met',
+														'%s conditions must be met',
+														$step_logic_num
+													),
+													$step_logic_num
+												);
 											}
+											echo '</i>';
 										$o->closeField();
 
 										$o->openField(translate('Conditions'));
@@ -613,8 +629,17 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 												} else {
 													echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
 													if ($cond_logic_num) {
-														echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '').' must approve</i>';
+														echo ' ';
+														echo sprintf(
+															translate_plural(
+																'%s group member must approve',
+																'%s group members must approve',
+																$cond_logic_num
+															),
+															$cond_logic_num
+														);
 													}
+													echo '</i>';
 												}
 
 												?></td>
@@ -643,7 +668,11 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 																	echo '880000';
 																}
 																echo '"><b>';
-																echo count($cond_data['published_by']).' of '.$user_count;
+																echo sprintf(
+																	translate('%s of %s'),
+																	count($cond_data['published_by']),
+																	$user_count
+																);
 																echo '</b></span>';
 															}
 														}
@@ -730,7 +759,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 									?>
 									<p class="sq-backend-data">
 										<span class="sq-backend-warning">
-											<b><?php echo sprintf(translate('"%1$s" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "%1$s" can become \'Approved\' to go live.'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></b>
+											<b><?php echo sprintf(translate('"%1$s" is currently in an approval process but some required metadata fields are not yet complete. These fields must be completed before "%1$s" can become \'Approved To Go Live\'.'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></b>
 
 										</span>
 										<?php echo sprintf(translate('These metadata fields can be completed by any editor or administrator of "%1$s" by going to the %2$s.'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '<a href="'.$owner->getBackendHref('metadata').'">'.translate('Metadata screen').'</a>'); ?>
@@ -767,7 +796,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					}
 					ksort($direct);
 
-					$o->openSection('Existing Schemas');
+					$o->openSection(translate('Existing Schemas'));
 						$o->openRaw();
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
 								ob_start();
@@ -844,7 +873,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 						$o->closeRaw();
 						if (!empty($direct)) {
-							$o->sectionNote('The "Cascade?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.');
+							$o->sectionNote(translate('The "Cascade?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.')) ;
 						}
 					$o->closeSection();
 
@@ -855,13 +884,13 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 				case 'workflow_add_schemas' :
 
 					if ($admin_access && empty($running_schemas)) {
-						$o->openSection('Add New Schema');
+						$o->openSection(translate('Add New Schema'));
 
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) {
 								ob_start();
 							}
 
-							$o->openField('Select Schema', '');
+							$o->openField(translate('Select Schema'), '');
 								echo '<span class="sq-inline-fields-wrapper bottom-margin">';
 									combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('Apply'), '0' => translate('Deny')), FALSE, '');
 
@@ -887,7 +916,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								check_box($prefix.'_workflow[new][cascades]', 1, TRUE);
 								label(translate('Cascade this new schema to newly-created children'), $prefix.'_workflow[new][cascades]');
 
-								$o->note('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow schema to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
+								$o->note(translate('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow schema to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.'));
 							$o->closeField();
 
 						$o->closeSection();
@@ -1229,8 +1258,17 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 
 			echo '<i>'.$wfm->_valid_step_logic[$step_logic];
 			if ($step_logic_num) {
-				echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '').' must be met</i>';
+				echo ' ';
+				echo sprintf(
+					translate_plural(
+						'%s condition must be met',
+						'%s conditions must be met',
+						$step_logic_num
+					),
+					$step_logic_num
+				);
 			}
+			echo '</i>';
 		$o->closeField();
 
 		$o->openField(translate('Conditions'));
@@ -1274,8 +1312,17 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 				} else {
 					echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
 					if ($cond_logic_num) {
-						echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '').' must approve</i>';
+						echo ' ';
+						echo sprintf(
+							translate_plural(
+								'%s group member must approve',
+								'%s group members must approve',
+								$cond_logic_num
+							),
+							$cond_logic_num
+						);
 					}
+					echo '</i>';
 				}
 
 				?></td>
@@ -1304,7 +1351,7 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 									echo '880000';
 								}
 								echo '"><b>';
-								echo count($cond_data['published_by']).' of '.$user_count;
+								echo sprintf(translate('%s of %s'), count($cond_data['published_by']), $user_count);
 								echo '</b></span>';
 							}
 						}
@@ -1329,7 +1376,7 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 
 		// escalation steps
 		if ($step_data['expired']) {
-			$o->openField('Escalation Steps');
+			$o->openField(translate('Escalation Steps'));
 			foreach ($step_data['escalation_steps'] as $esc_stepid => $esc_step) {
 				$esc_step_address = $step_address;
 				$esc_step_address[] = $esc_stepid;

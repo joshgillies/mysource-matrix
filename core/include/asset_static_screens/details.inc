@@ -84,7 +84,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 		$safe_trash_job_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, NULL, 'minor');
 		$avoiding_safe_trash_section = ($section->attributes()->name == 'Safe Trash Status') && !$safe_trash_job_link;
 		if (!$avoiding_safe_trash_section) {
-			$o->openSection(array_get_index($section->attributes(), 'display_name', $section->attributes()->name));
+			$o->openSection(translate(array_get_index($section->attributes(), 'display_name', $section->attributes()->name)));
 		}
 
 		foreach ($section->field as $field) {

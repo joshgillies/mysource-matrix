@@ -229,10 +229,19 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								$info[$userid] = Array('name' => '&lt;unknown&gt;');
 							}
 
-							echo ucfirst($date_type).' '.strtolower(translate('By')).' '.htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' '.strtolower(translate('On')).' '.date('d M Y H:i:s', strtotime($date_field->value));
-
-
-
+							if ($date_type === 'created') {
+								echo sprintf(
+									translate('Created by %s on %s'),
+									htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
+									date('d M Y H:i:s', strtotime($date_field->value)
+								)
+							} else if ($date_type === 'published') {
+								echo sprintf(
+									translate('Published by %s on %s'),
+									htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
+									date('d M Y H:i:s', strtotime($date_field->value)
+								)
+							}
 						}
 					}
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
@@ -257,9 +266,9 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					$current_langs = $owner->getLanguages();
 					// have to have admin access to set the force secure
 					$options = Array(
-								'0'	=> 'Allow all protocols',
-								'1'	=> 'Force secure protocol (HTTPS)',
-								'-'	=> 'Force insecure protocol (HTTP)',
+								'0'	=> translate('Allow all protocols'),
+								'1'	=> translate('Force secure protocol (HTTPS)'),
+								'-'	=> translate('Force insecure protocol (HTTP)'),
 							   );
 					if ($owner->adminAccess('settings')) {
 						$created = TRUE;

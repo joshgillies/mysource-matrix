@@ -1176,8 +1176,8 @@ class Backend extends MySource_Object
 
 								echo '</span>';
 								?>
-								<input type="button" class="sq-btn-blue" value="Login" onclick="submit_login_as();" />
-								<input type="button" value="Cancel" onclick="hide_login_as_form();" />
+								<input type="button" class="sq-btn-blue" value="<?php echo translate('Login'); ?>" onclick="submit_login_as();" />
+								<input type="button" value="<?php echo translate('Cancel'); ?>" onclick="hide_login_as_form();" />
 							</td>
 						</tr>
 					</table>
@@ -1193,7 +1193,7 @@ class Backend extends MySource_Object
 								echo '<span class="sq-text-field-wrapper">';
 								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) form.submit();"');
 
-								echo '<input type="image" class="sq-backend-header-search-button" alt="Go" title="Submit" src="'.sq_web_path('lib').'/web/images/icons/header/search.png" onClick="form.submit();">';
+								echo '<input type="image" class="sq-backend-header-search-button" alt="'.translate('Go').'" title="'.translate('Submit').'" src="'.sq_web_path('lib').'/web/images/icons/header/search.png" onClick="form.submit();">';
 								echo '</span>';
 							?>
 							</td>

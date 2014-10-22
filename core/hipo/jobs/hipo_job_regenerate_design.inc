@@ -57,7 +57,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// design regeneration threshhold HIPO config entry
-		$o->openField('Hipo Job Regenerate Design');
+		$o->openField(translate('Design Regenerate Threshold'));
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
@@ -116,7 +116,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return 'Hipo Job Regenerate Design';
+		return translate('Hipo Job Regenerate Design');
 
 	}//end getHipoName()
 
@@ -132,7 +132,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'		=> 'Hipo Job Regenerate Design',
+					'name'		=> translate('Hipo Job Regenerate Design'),
 					'function_call'	=> Array(
 							    'process_function'	=> 'processCustomisation',
 							),

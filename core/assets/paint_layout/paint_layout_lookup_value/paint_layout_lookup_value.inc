@@ -40,7 +40,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	*/
 	public static function lookupValueName()
 	{
-		return 'Effective Paint Layouts';
+		return translate('Effective Paint Layouts');
 
 	}//end lookupValueName()
 
@@ -195,8 +195,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header" style="width:50%;"><?php echo 'Layout Type'; ?></th>
-					<th class="sq-backend-table-header" style="width:50%;"><?php echo 'Paint Layout'; ?></th>
+					<th class="sq-backend-table-header" style="width:50%;"><?php echo translate('Layout Type'); ?></th>
+					<th class="sq-backend-table-header" style="width:50%;"><?php echo translate('Paint Layout'); ?></th>
 				</tr>
 			<?php
 

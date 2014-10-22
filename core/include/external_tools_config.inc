@@ -257,7 +257,7 @@ class External_Tools_Config extends Config
 
 			}
 
-			$o->openField('Enable Photoshop Metadata Extraction');
+			$o->openField(translate('Enable Photoshop Metadata Extraction'));
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_TOOL_JPEG_TOOLKIT_ENABLED]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_TOOL_JPEG_TOOLKIT_ENABLED);
 
@@ -400,25 +400,25 @@ class External_Tools_Config extends Config
 
 			}
 
-			$o->openField('Path to Antiword Mappings');
+			$o->openField(translate('Path to Antiword Mappings'));
 			echo SQ_TOOL_ANTIWORD_MAPPING_PATH;
 
 
 			if (!is_dir(SQ_TOOL_ANTIWORD_MAPPING_PATH)) {
-				?><br /><span class="sq-backend-warning">The path to Antiword Mappings is not valid</span><?php
+				?><br /><span class="sq-backend-warning"><?php echo translate('The path to Antiword Mappings is not valid') ?></span><?php
 			}
 
 		$o->closeSection();
 
 
-		$o->openSection('Photoshop Image Metadata Extraction');
+		$o->openSection(translate('Photoshop Image Metadata Extraction'));
 
-			$o->openField('Path to PHP JPEG Metadata Toolkit');
+			$o->openField(translate('Path to PHP JPEG Metadata Toolkit'));
 			echo SQ_TOOL_JPEG_TOOLKIT_PATH;
 
 
 			if (!is_dir(SQ_TOOL_JPEG_TOOLKIT_PATH)) {
-				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
+				?><br /><span class="sq-backend-warning"><?php echo translate('Supplied path is not valid') ?></span><?php
 			}
 
 		$o->closeSection();

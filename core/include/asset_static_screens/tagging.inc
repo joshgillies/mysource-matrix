@@ -64,7 +64,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 
 		$section_name = isset($section->attributes()->display_name) ? $section->attributes()->display_name : $section->attributes()->name;
-		$o->openSection($section_name);
+		$o->openSection(translate($section_name));
 
 		if (!($num_fields = count($section->children()))) {
 			continue;
@@ -94,7 +94,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						if (!empty($sm)) {
 							ob_start();
 								?>
-<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib'); ?>/tag_suggestion/tag_suggestion.php?assetid=<?php echo $owner->id; ?>&prefix=<?php echo $prefix; ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return FALSE;">
+<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib'); ?>/tag_suggestion/tag_suggestion.php?assetid=<?php echo $owner->id; ?>&amp;prefix=<?php echo $prefix; ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return FALSE;">
 	<?php echo translate('Tag Suggestion') ?></a>
 
 <?php
@@ -152,7 +152,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 					if (isset($field->note) && (strlen((string)$field->note) > 0)) {
-						$o->note((string)$field->note);
+						$o->note(translate((string)$field->note));
 					}
 					ob_end_flush();
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
@@ -185,7 +185,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 					if (isset($field->note) && (strlen((string)$field->note) > 0)) {
-						$o->note((string)$field->note);
+						$o->note(translate((string)$field->note));
 					}
 
 					ob_end_flush();
@@ -208,7 +208,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 
 							$o->openSection(translate('Cascade Options'));
 
-								$o->openField('Note');
+								$o->openField(translate('Note'));
 									echo sprintf(translate('These actions will affect <strong>%1$s</strong> other assets below "<strong>%2$s</strong>"'), count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 
 								$o->closeField();

@@ -87,7 +87,7 @@ class Proxy_Authentication_Config extends Config
 		$write_access = $this->writeAccess();
 		$class = get_class_lower($this);
 
-		$o->openSection('Primary Proxy Configuration');
+		$o->openSection(translate('Primary Proxy Configuration'));
 			$o->openField(translate('Proxy Status'));
 
 			if (SQ_PA_ENABLED) {
@@ -183,11 +183,11 @@ class Proxy_Authentication_Config extends Config
 
 		$o->closeSection();
 
-		$o->openSection('Alternative Proxy Configuration');
+		$o->openSection(translate('Alternative Proxy Configuration'));
 		$o->openField('');
 			$this->paintAlternativeProxies($o);
 		$o->closeField();
-		$o->sectionNote('Alternative proxies will be used if they are set to be Active, and their URL pattern matches the URL being requested through the proxy. Proxies are matched from top to bottom; only the first proxy that matches will be used.');
+		$o->sectionNote(translate('Alternative proxies will be used if they are set to be Active, and their URL pattern matches the URL being requested through the proxy. Proxies are matched from top to bottom; only the first proxy that matches will be used.'));
 		$o->closeSection('');
 
 		$o->openSection('SSL Accelerator Configuration');

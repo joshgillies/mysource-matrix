@@ -1029,9 +1029,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// if a translated display name has been specified, use it
 			if (!is_null($section->attributes()->display_name)) {
-				$o->openSection((string)$section->attributes()->display_name);
+				$o->openSection(translate((string)$section->attributes()->display_name));
 			} else {
-				$o->openSection((string)$section->attributes()->name);
+				$o->openSection(translate((string)$section->attributes()->name));
 			}
 
 			if (!($num_fields = count($section->children()))) {
@@ -1082,10 +1082,10 @@ class Asset_Edit_Interface extends MySource_Object
 							foreach ($field->children() as $sub_field) {
 								switch ($sub_field->getName()) {
 									case 'display_name':
-										$display_name = (string)$sub_field;
+										$display_name = translate((string)$sub_field);
 									break;
 									case 'note':
-										$field_note = (string)$sub_field;
+										$field_note = translate((string)$sub_field);
 									break;
 
 									default:

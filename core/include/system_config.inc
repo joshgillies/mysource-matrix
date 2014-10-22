@@ -125,15 +125,12 @@ class System_Config extends Config
 	/**
 	* Holds all the valid debug settings and their descriptions for SQ_CONF_DEBUG
 	* The keys are the bit elements and the values are the descriptions
+	*
+	* Due to being translated text, initialised in constructor.
+	*
 	* @var array
 	*/
-	// TODO: TRANSLATE: these need to be either moved somewhere else, or implement some sort of global code
-	private $debug_options = Array(
-							1	=> 'Show File and Line number in error messages',
-							2	=> 'Show Stack Trace in error messages',
-							4	=> 'Show additional information about memory and performance',
-							8	=> 'Show current frontend assetid and url where the error message is triggered from',
-						 );
+	private $debug_options = Array();
 
 
 	/**
@@ -147,6 +144,12 @@ class System_Config extends Config
 		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/main.inc';
 		$this->name = translate('System Configuration');
+		$this->debug_options = Array(
+			1	=> translate('Show File and Line number in error messages'),
+			2	=> translate('Show Stack Trace in error messages'),
+			4	=> translate('Show additional information about memory and performance'),
+			8	=> translate('Show current frontend assetid and url where the error message is triggered from'),
+		 );
 
 	}//end constructor
 

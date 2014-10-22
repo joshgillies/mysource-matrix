@@ -507,8 +507,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 				?><table class="sq-backend-table" style="width:auto">
 				<tr>
-					<th>Link Type</th>
-					<th>Template</th>
+					<th><?php echo translate('Link Type') ?></th>
+					<th><?php echo translate('Template') ?></th>
 					<th><?php echo translate('Delete?') ?></th>
 
 				</tr><?php
