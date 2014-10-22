@@ -874,10 +874,10 @@ class Messaging_Service extends MySource_Object
 		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
 
 		if (!SQ_MS_EMAIL_FOOTER) {
-			$footer = 'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term
-					.'System Root URLs : '.$term.str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS).$term
+			$footer = sprintf(translate('This is an automated message from %s running %s'), SQ_CONF_SYSTEM_NAME, SQ_SYSTEM_LONG_NAME).$term
+					.translate('System Root URLs').' : '.$term.str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS).$term
 					.$term
-					.'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
+					.sprintf(translate('Contact %s (%s) for support.'), SQ_CONF_SYSTEM_OWNER, SQ_CONF_TECH_EMAIL);
 		} else {
 			if ($type == 'html') {
 				$footer = nl2br(SQ_MS_EMAIL_FOOTER);
