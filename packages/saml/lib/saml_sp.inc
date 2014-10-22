@@ -230,8 +230,7 @@ class SAML_Service_Provider extends sspmod_saml_Auth_Source_SP
 		$ar->setDestination($dst['Location']);
 
 
-
-		if ($this->metadata->getValue('ProtocolBinding') === 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST') {
+		if ($this->metadata->getValue('ProtocolBinding') === 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST' || $ar->getProtocolBinding() === SAML2_Const::BINDING_HTTP_POST) {
 			    $b = new SAML2_HTTPPost();
 		    } else {
 			    $b = new SAML2_HTTPRedirect();
