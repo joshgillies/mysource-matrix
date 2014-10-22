@@ -225,7 +225,9 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
         $o->openSection(translate('Edit+ WYSIWYG Editor Preferences'));
 
-		$this->paintField($o, $have_lock, $pref, 'SQ_VIPER_PLUGINS', function($plugins_setting) use ($have_lock) {
+        $current_viper_plugins = $this->_viper_plugins;
+
+		$this->paintField($o, $have_lock, $pref, 'SQ_VIPER_PLUGINS', function($plugins_setting) use ($have_lock, $current_viper_plugins) {
 			$viper_plugins = Array();
 			if (!empty($plugins_setting)) {
 				$viper_plugins = explode('|', $plugins_setting);
@@ -242,7 +244,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			<col width="27%" />
 			<col width="6%" />
 			<?php
-            foreach ($this->_viper_plugins as $index => $plugin_name) {
+            foreach ($current_viper_plugins as $index => $plugin_name) {
                 if ($i % 3 === 0) {
                     if ($i > 0) {
                         echo '</tr>';

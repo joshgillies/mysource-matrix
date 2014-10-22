@@ -118,7 +118,9 @@ class Content_Type_Code_Prefs extends Prefs
 		$is_admin  = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
         $have_lock = ($have_lock && $is_admin);
 
-		$this->paintField($o, $have_lock, $pref, 'SQ_CODE_EDITOR_SIZE', function($code_editor_size) use ($have_lock) {
+        $css_dimension_width = $this->css_dimension_width;
+        $css_dimension_height = $this->css_dimension_height;
+		$this->paintField($o, $have_lock, $pref, 'SQ_CODE_EDITOR_SIZE', function($code_editor_size) use ($have_lock, $css_dimension_width, $css_dimension_height) {
             ?>
             <table class="sq-backend-table" style="width: 350px;">
                 <tr>
@@ -127,7 +129,7 @@ class Content_Type_Code_Prefs extends Prefs
                     <td class="sq-backend-table-cell" style="width: 100%;">
                     <?php
                     if ($have_lock) {
-                        $this->css_dimension_width->paint('code_width', $have_lock, $code_editor_size['width']);
+                        $css_dimension_width->paint('code_width', $have_lock, $code_editor_size['width']);
                     } else {
                         echo $code_editor_size['width'];
                     }
@@ -140,7 +142,7 @@ class Content_Type_Code_Prefs extends Prefs
                     <td class="sq-backend-table-cell" style="width: 100%;">
                     <?php
                     if ($have_lock) {
-                        $this->css_dimension_height->paint('code_height', $have_lock, $code_editor_size['height']);
+                        $css_dimension_height->paint('code_height', $have_lock, $code_editor_size['height']);
                     } else {
                         echo $code_editor_size['height'];
                     }

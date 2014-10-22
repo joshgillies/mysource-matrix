@@ -73,7 +73,10 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 		$is_admin  = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
         $have_lock = ($have_lock && $is_admin);
 
-		$this->paintField($o, $have_lock, $pref, 'SQ_RAW_HTML_SIZE', function($html_size) use ($have_lock) {
+        $css_dimension_width = $this->css_dimension_width;
+        $css_dimension_height = $this->css_dimension_height;
+
+		$this->paintField($o, $have_lock, $pref, 'SQ_RAW_HTML_SIZE', function($html_size) use ($have_lock, $css_dimension_width, $css_dimension_height) {
             ?>
             <table class="sq-backend-table" style="width: 350px;">
                 <tr>
@@ -82,7 +85,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
                     <td class="sq-backend-table-cell" style="width: 100%;">
                     <?php
                     if ($have_lock) {
-                        $this->css_dimension_width->paint('width', $have_lock, $html_size['width']);
+                        $css_dimension_width->paint('width', $have_lock, $html_size['width']);
                     } else {
                         echo $html_size['width'];
                     }
@@ -95,7 +98,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
                     <td class="sq-backend-table-cell" style="width: 100%;">
                     <?php
                     if ($have_lock) {
-                        $this->css_dimension_height->paint('height', $have_lock, $html_size['height']);
+                        $css_dimension_height->paint('height', $have_lock, $html_size['height']);
                     } else {
                         echo $html_size['height'];
                     }

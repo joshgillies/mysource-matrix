@@ -230,7 +230,9 @@ class Comment_Prefs extends Prefs
 	*/
 	function paintSqCommentInputSizeBackend(&$o, $have_lock, $pref)
 	{
-        $this->paintField($o, $have_lock, $pref, 'SQ_COMMENT_INPUT_SIZE', function($comment_size) use ($have_lock, $pref) {
+		$css_dimension_width = $this->css_dimension_width;
+        $css_dimension_height = $this->css_dimension_height;
+        $this->paintField($o, $have_lock, $pref, 'SQ_COMMENT_INPUT_SIZE', function($comment_size) use ($have_lock, $pref, $css_dimension_width, $css_dimension_height) {
             ?><table class="sq-backend-table" style="width: 350px;">
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('Width') ?></td>
@@ -238,7 +240,7 @@ class Comment_Prefs extends Prefs
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock) {
-						$this->css_dimension_width->paint($pref.'_width', $have_lock, $comment_size['width']);
+						$css_dimension_width->paint($pref.'_width', $have_lock, $comment_size['width']);
 					} else {
 						echo $comment_size['width'];
 					}
@@ -251,7 +253,7 @@ class Comment_Prefs extends Prefs
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock) {
-						$this->css_dimension_height->paint($pref.'_height', $have_lock, $comment_size['height']);
+						$css_dimension_height->paint($pref.'_height', $have_lock, $comment_size['height']);
 					} else {
 						echo $comment_size['height'];
 					}
@@ -521,7 +523,8 @@ class Comment_Prefs extends Prefs
 	*/
 	function paintSqCommentImgRatedBackend(&$o, $have_lock, $pref)
 	{
-		$this->paintField($o, $have_lock, $pref, 'SQ_COMMENT_IMG_RATED', function($current_setting) use ($have_lock, $pref) {
+		$url_processor = $this->url_processor;
+		$this->paintField($o, $have_lock, $pref, 'SQ_COMMENT_IMG_RATED', function($current_setting) use ($have_lock, $pref, $url_processor) {
             $image_location_prefix = sq_web_path('data').'/asset_types/comment/files';
             if (empty($current_setting)) {
                 $current_image = sq_web_path('data').'/asset_types/comment/files/star.png';
@@ -535,7 +538,7 @@ class Comment_Prefs extends Prefs
             );
             echo '<br />';
 
-            $url = $this->url_processor;
+            $url = $url_processor;
             $url->value = $current_setting;
             $url->paint($pref, !$have_lock);
 		});
@@ -579,7 +582,8 @@ class Comment_Prefs extends Prefs
 	*/
 	function paintSqCommentImgBlankBackend(&$o, $have_lock, $pref)
 	{
-		$this->paintField($o, $have_lock, $pref, 'SQ_COMMENT_IMG_BLANK', function($current_setting) use ($have_lock, $pref) {
+		$url_processor = $this->url_processor;
+		$this->paintField($o, $have_lock, $pref, 'SQ_COMMENT_IMG_BLANK', function($current_setting) use ($have_lock, $pref, $url_processor) {
             $image_location_prefix = sq_web_path('data').'/asset_types/comment/files';
             if (empty($current_setting)) {
                 $current_image = sq_web_path('data').'/asset_types/comment/files/star_grey.png';
@@ -593,7 +597,7 @@ class Comment_Prefs extends Prefs
             );
             echo '<br />';
 
-            $url = $this->url_processor;
+            $url = $url_processor;
             $url->value = $current_setting;
             $url->paint($pref, !$have_lock);
 		});
