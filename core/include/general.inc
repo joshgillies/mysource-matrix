@@ -1491,7 +1491,6 @@ function translate($string)
 {
 	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
 	$str = $GLOBALS['SQ_SYSTEM']->lm->getString($string);
-	$str = ucfirst(str_repeat('x', strlen($str)));
 	return $str;
 
 }//end translate()
@@ -1512,7 +1511,6 @@ function translate_plural($string, $plural_str, $number)
 {
 	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
 	$str = $GLOBALS['SQ_SYSTEM']->lm->getPlural($string, $plural_str, $number);
-	$str = ucfirst(str_repeat('x', strlen($str)));
 	return $str;
 
 }//end translate_plural()
