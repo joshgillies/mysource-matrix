@@ -75,6 +75,13 @@ class Backend extends MySource_Object
 	*/
 	function paint()
 	{
+		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'asset_map_request') {
+			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+			$asset_map = new Asset_Map();
+			$asset_map->process($this);
+			return;
+		}
+
 	    header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 		if (SQ_IN_LIMBO) {
 
@@ -137,13 +144,6 @@ class Backend extends MySource_Object
 
 				return;
 			}
-		}
-
-		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'asset_map_request') {
-			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map = new Asset_Map();
-			$asset_map->process($this);
-			return;
 		}
 
 		if (isset($_REQUEST['a'])) {
