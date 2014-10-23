@@ -1961,6 +1961,97 @@ class MySource extends MySource_Object
 				    }
 				}
 			break;
+
+			case 'image_upload' :
+				$this->am->includeAsset('image');
+
+				// this feature is only for backend or simple edit user
+				if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
+					echo json_encode(Array('error' => translate('You do not have permission to upload image')));
+					exit(1);
+				}
+
+
+				// Check if something was submitted
+				if (!isset($_FILES['create_image_upload']['name']) || !isset($_FILES['create_image_upload']['tmp_name']) || empty($_FILES['create_image_upload']['tmp_name']) || !isset($_FILES['create_image_upload']['error']) || !empty($_FILES['create_image_upload']['error'])) {
+				        // No file submitted
+				        echo json_encode(Array('error' => translate('There is no file uploaded')));
+				        exit(1);
+				}
+				if (!isset($_POST['create_root_node']) || empty($_POST['create_root_node'])) {
+				        // No root node specified
+				        echo json_encode(Array('error' => translate('You need to specify a parent node')));
+				        exit(1);
+				}//end if
+
+				// check nonce token
+				$token = get_unique_token();
+				if(!isset($_POST['token']) || $_POST['token'] !== $token) {
+						echo json_encode(Array('error' => translate('Invalid security token')));
+				        exit(1);
+				}
+
+				if(!assert_valid_assetid($_POST['create_root_node'], '', TRUE, FALSE)) {
+						echo json_encode(Array('error' => translate('Invalid create location asset ID')));
+				        exit(1);
+				}
+
+
+
+				// OK, hopefully I have the right information, let's continue and try and create the asset
+				$am = $GLOBALS['SQ_SYSTEM']->am;
+				$root_node = $am->getAsset($_POST['create_root_node']);
+				$successful = FALSE;
+				$success_return = '';
+
+				if(empty($root_node) || !$root_node->writeAccess()) {
+						// No root node specified
+				        echo json_encode(Array('error' => translate('You do not have permission to upload image')));
+				        exit(1);
+				}
+				// if it's dependant asset, we need to use the top level parent asset
+				$parents = $this->am->getDependantParents($root_node->id, '', TRUE, FALSE);
+				$parent = array_pop($parents);
+				$root_node = $this->am->getAsset($parent);
+
+
+				$new_image = new Image();
+
+				// Prepare the image for uploading
+				$new_image->_tmp['uploading_file'] = TRUE;
+				$_FILES['create_image_upload']['filename'] = $_FILES['create_image_upload']['name'];
+				$_FILES['create_image_upload']['path'] = $_FILES['create_image_upload']['tmp_name'];
+
+				// Check for valid file types
+				$invalid_file_type = $new_image->validFile($_FILES['create_image_upload']);
+				if (!$invalid_file_type) {
+					echo json_encode(Array('error' => translate('Incorrect file type')));
+					exit(1);
+				}//end if
+
+				// check if alt is supplied
+				if(isset($_POST['alt'])) {
+					$new_image->setAttrValue('alt', $_POST['alt']);
+				}
+
+				// Create the image
+				$new_image->setAttrValue('name', $_FILES['create_image_upload']['name']);
+				$new_image->saveAttributes();
+				$link = Array(
+					'asset'                 => $root_node,
+					'link_type'             => SQ_LINK_TYPE_1,
+					'value'                 => '',
+					'sort_order'    => -1,
+					);
+				$successful = @$new_image->create($link, $_FILES['create_image_upload']);
+				if ($successful) {
+					echo json_encode(Array('success' => 1, 'assetid' => $new_image->id));
+				}
+				else {
+					echo json_encode(Array('error' => translate('File web path already exists')));
+				}
+				exit(1);
+			break;
 		}//end switch
 
 		// just so it isn't being used anywhere else

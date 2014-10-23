@@ -232,7 +232,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 									<td align="center" width="100" class="sq-backend-table-cell">
 										<?php
 										if ($i != 0) {
-											?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "", "", "Move Up");</script></a><?php
+											?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "15", "15", "Move Up");</script></a>&nbsp;<?php
 										}
 
 										if ($i != count($sort_order) -1) {
