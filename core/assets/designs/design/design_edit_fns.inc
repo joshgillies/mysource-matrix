@@ -1883,7 +1883,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$this->_paintSelection($asset, $o, $prefix.'_div', 'div_classes');
 		$o->openField('');
-		$o->note(translate('Classes specified in this list will be available in DIV properties drop-down list for class. If the list is empty only text field will be used.'));
+		$o->note(translate('Classes specified in this list will be available in the content container properties drop-down list for class. If the list is empty, only a text field will be used.'));
 
 		$o->closeField();
 
