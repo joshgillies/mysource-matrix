@@ -1489,7 +1489,7 @@ function hide_system_root($message='')
 */
 function translate($string)
 {
-	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
+	if (!isset($GLOBALS['SQ_SYSTEM'])) return $string;
 	$str = $GLOBALS['SQ_SYSTEM']->lm->getString($string);
 	return $str;
 
@@ -1509,7 +1509,7 @@ function translate($string)
 */
 function translate_plural($string, $plural_str, $number)
 {
-	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
+	if (!isset($GLOBALS['SQ_SYSTEM'])) return $string;
 	$str = $GLOBALS['SQ_SYSTEM']->lm->getPlural($string, $plural_str, $number);
 	return $str;
 
