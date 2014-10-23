@@ -2023,7 +2023,7 @@ class MySource extends MySource_Object
 				$_FILES['create_image_upload']['path'] = $_FILES['create_image_upload']['tmp_name'];
 
 				// Check for valid file types
-				$invalid_file_type = $new_image->validFile($_FILES['create_image_upload']);
+				$invalid_file_type = @$new_image->validFile($_FILES['create_image_upload']);
 				if (!$invalid_file_type) {
 					echo json_encode(Array('error' => translate('Incorrect file type')));
 					exit(1);
