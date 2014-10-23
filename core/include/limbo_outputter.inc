@@ -176,6 +176,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 		// JS includes, including some defaults
 		$this->addJsInclude(sq_web_path('data').'/matrix.min.js');
+		$this->addJsInclude(sq_web_path('lib').'/web/matrix_viper/jquery.form.min.js');
 
 		list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
 

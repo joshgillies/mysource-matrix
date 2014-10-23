@@ -2002,12 +2002,13 @@ class Backend_Outputter
 		    // if viper is not previously loaded, load them all
 		    // If in EES, viper.js would have been already loaded at this point. Loading below scripts would conflict with EES scripts.
 		    if(strpos($buffer_content, 'viper.js' ) === FALSE) {
-			$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.js');
-			$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.ui.js');
-			$this->addJsInclude(sq_web_path('data').'/ees/Viper/viper.js');
-			$this->addCssInclude(sq_web_path('data').'/ees/Viper/viper.css');
-			$this->addCssInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.css');
-			$this->addJsInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.js');
+				$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.js');
+				$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.ui.js');
+				$this->addJsInclude(sq_web_path('data').'/ees/Viper/viper.js');
+				$this->addCssInclude(sq_web_path('data').'/ees/Viper/viper.css');
+				$this->addCssInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.css');
+				$this->addJsInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.js');
+				$this->addJsInclude(sq_web_path('lib').'/web/matrix_viper/jquery.form.min.js');
 		    }
 		}
 	}//end loadViperEditor()
