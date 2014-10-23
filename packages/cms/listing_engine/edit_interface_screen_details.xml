@@ -71,7 +71,7 @@
 		</field>
 		<field attribute="exclude_current_asset">
 			<display_name>Exclude This Asset</display_name>
-			<note>If set to 'Yes', this asset will not list the Asset thats been currently been accessed.</note>
+			<note>If set to 'Yes', this asset will not list the Asset that is currently being accessed.</note>
 		</field>
 	</section>
 	<section name="List Settings" write_access="write:content"  limbo_access="1">
