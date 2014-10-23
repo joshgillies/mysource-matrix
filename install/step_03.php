@@ -176,6 +176,13 @@ cache_asset_types();
 generate_performance_config();
 generate_file_bridge_config();
 minify_css_files();
+
+// Regenerate again now everything is installed.
+if (!regenerate_configs()) {
+	trigger_error('Config Generation Failed', E_USER_ERROR);
+}
+
+// Compile locales.
 build_js_string_files();
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
