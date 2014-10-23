@@ -5970,7 +5970,7 @@ class Form extends Asset implements Bridge
 		}
 
 		$extras = 'class="'.$class.'"';
-		$extras = $extras.' id="'.$id.'" title="Human Identifier"';
+		$extras = $extras.' id="'.$id.'" title="If you are a human, do not fill in this field."';
 		ob_start();
 			text_box($name, '', 10, 10, FALSE, $extras);
 
