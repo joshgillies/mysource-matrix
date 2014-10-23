@@ -63,7 +63,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 			ob_start();
 		}
 
-		$section_name = isset($section->attributes()->display_name) ? $section->attributes()->display_name : $section->attributes()->name;
+		$section_name = isset($section->attributes()->display_name) ? (string) $section->attributes()->display_name : (string) $section->attributes()->name;
 		$o->openSection(translate($section_name));
 
 		if (!($num_fields = count($section->children()))) {

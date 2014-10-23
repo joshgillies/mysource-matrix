@@ -215,7 +215,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 			ob_start();
 		}
 
-		$o->openSection(translate(array_get_index($section->attributes(), 'display_name', $section->attributes()->name)));
+		$o->openSection(translate(array_get_index($section->attributes(), 'display_name', (string) $section->attributes()->name)));
 
 		if (!($num_fields = count($section->children()))) {
 			continue;
