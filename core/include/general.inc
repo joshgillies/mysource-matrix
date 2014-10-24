@@ -2045,9 +2045,8 @@ function get_available_global_keywords()
 					'globals_entry_asset'	=> 'Global Keywords - Entry Asset ID',
 					'globals_page_referrer'	=> 'Global Keywords - Page Referrer',
 					'globals_site_referrer'	=> 'Global Keywords - Site Referrer',
-					'globals_marketo_lead'	=> 'Global Keywords - Marketo Lead Data',
+					'globals_marketo_lead_'	=> 'Global Keywords - Marketo Lead Data',
 					'globals_system_maintenance_'	=> 'Global Keywords - System Maintenance Mode keywords',
-
 				);
 
 	return $ret;
