@@ -74,8 +74,8 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 					   $selected_keyword = $condition_data['keyword'];
 					}
 
-					// add the Custom Keyword option to the head of array
-					array_unshift($allowed_keywords, 'Custom Keyword');
+					// add the Custom Keyword option
+					array_push($allowed_keywords, 'Custom Keyword');
 
 					if (empty($allowed_keywords)) {
 						// we don't know the type of the asset here so we add the keywords of the generic Asset object
@@ -91,15 +91,20 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 
 					ksort($keyword_options);
 
+					// make sure the Custom Keyword option appears at end of option list
+					unset($keyword_options['Custom Keyword']);
+					$option = array('Custom Keyword' => 'Custom Keyword');
+					$keyword_options = array_merge($keyword_options, $option);
+
 					$i = 0;
 					if (!empty($allowed_keywords)) {
-						if(strpos($selected_keyword, 'Custom Keyword') === 0) {
-							$selected_keyword = '';
-						}
 						$keyword_info = self::_getKeywordInfo($selected_keyword, $allowed_keywords);
 						if ($write_access) {
 							echo '<span class="sq-inline-fields-wrapper">%';
 							if(self::_isCustomKeyword($selected_keyword, $allowed_keywords)) {
+								if(strpos($selected_keyword, 'Custom Keyword') === 0) {
+									$selected_keyword = '';
+								}
 								text_box($prefix.'[keyword]', $selected_keyword, 80);
 							}
 							else {
@@ -239,6 +244,15 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 	*/
 	protected static function _isCustomKeyword($keyword_name, Array &$allowed_keywords)
 	{
+
+		if(empty($keyword_name)) {
+			return FALSE;
+		}
+		if(strpos($keyword_name, 'Custom Keyword') === 0) {
+			return TRUE;
+		}
+
+
 		$ret = TRUE;
 
 		$keyword_parts = Array();
