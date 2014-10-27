@@ -134,6 +134,10 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$configured_options = $asset->attr('ldap_options');
 
 		// display defined connection options
+		$connection_opt_names = Array(
+			'LDAP_OPT_PROTOCOL_VERSION' => translate('Use Protocol Version 3'),
+			'LDAP_OPT_REFERRALS'        => translate('Disallow Referrals'),
+		);
 		foreach ($asset->getConnectionOptions() as $option => $checked_value) {
 			$checked = FALSE;
 			if (isset($configured_options[$option])) {
@@ -145,14 +149,14 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 
 				check_box($element_name, $checked_value, $checked);
 				?>
-				<label for="<?php echo $element_name; ?>"><?php echo translate('option_'.strtolower($option)); ?></label><br />
+				<label for="<?php echo $element_name; ?>"><?php echo $connection_opt_names[$option]; ?></label><br />
 				<?php
 			} else {
 				$display_image = 'cross';
 				if ($checked) $display_image = 'tick';
 
 				$mask = '<img src="'.sq_web_path('lib').'/web/images/'.$display_image.'.gif" />';
-				echo $mask.' '.translate('option_'.strtolower($option)).'<br />';
+				echo $mask.' '.$connection_opt_names[$option].'<br />';
 			}
 		}//end for
 		return $asset->writeAccess('attributes');
@@ -208,32 +212,30 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$required = Array(
 						'user'	=> Array(
 									'uid'	=> translate('User Id'),
-
 									'cn'	=> translate('Common Name'),
-
 									'fn'	=> translate('First Name'),
-
 									'sn'	=> translate('Last Name'),
-
 									'email'	=> translate('Email Address'),
-
 								   ),
 						'group'	=> Array(
 									'mo'	=> translate('Group Membership'),
-
 									'gm'	=> translate('Group Members'),
-
 									'ou'	=> translate('Group Name'),
 
 								   ),
 					);
+
+		$section_names = Array(
+			'user'  => translate('User Attributes'),
+			'group' => translate('Group Attributes'),
+		)
 
 		if ($write_access) {
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		}
 
 		foreach ($required as $section => $section_data) {
-			$o->openSection(translate('ldap_attributes_section_'.$section));
+			$o->openSection($section_names[$section]);
 			foreach ($section_data as $code => $name) {
 				$o->openField($name);
 					$default = (isset($current[$code])) ? $current[$code] : '';

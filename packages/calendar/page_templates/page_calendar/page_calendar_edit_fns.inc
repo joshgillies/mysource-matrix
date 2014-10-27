@@ -157,10 +157,16 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		$current_views = $asset->attr('enabled_views');
 		$listing_entry_options = Array(
 									'title'		=> translate('Show Title Only'),
-
 									'bodycopy'	=> translate('Use Type Format Bodycopy'),
-
 								 );
+
+		$view_names = Array(
+			'year'  => translate('Year View'),
+			'month' => translate('Month View'),
+			'week'  => translate('Week View'),
+			'day'   => translate('Day View'),
+			'event' => translate('Individual Event View'),
+		);
 
 		$current_list_entry_types = $asset->attr('list_entry_types');
 		?>
@@ -171,7 +177,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 				?>
 				<tr>
 					<td>
-						<b><label for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo translate('cal_page_view_'.$category); ?></label></b>
+						<b><label for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo $view_names[$category]; ?></label></b>
 					</td>
 					<td>
 						<?php
@@ -892,14 +898,23 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	*/
 	function _paintNavigationLimit($view, &$asset, &$o, $prefix)
 	{
+		$date_parts = Array(
+			'year'  => 'years',
+			'month' => 'months',
+			'week'  => 'weeks',
+			'day'   => 'days',
+		);
+
 		$navi_limit = $asset->attr($view.'_navi_limit');
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.$view.'_limit_backward', $navi_limit['backward'],2,2);
-			label('&nbsp;'.translate('cal_page_navi_limit_'.$view).' backward&nbsp;',$prefix.$view.'_limit_backward');
+			label('&nbsp;'.sprintf(translate('%s backward'), $date_parts[$view]), $prefix.$view.'_limit_backward');
+			echo '&nbsp;';
 			text_box($prefix.$view.'_limit_forward', $navi_limit['forward'],2,2);
-			label('&nbsp;'.translate('cal_page_navi_limit_'.$view).' forward&nbsp;',$prefix.$view.'_limit_forward');
+			label('&nbsp;'.sprintf(translate('%s forward'), $date_parts[$view]), $prefix.$view.'_limit_forward');
 		} else {
-			echo $navi_limit['forward'].' '.translate('cal_page_navi_limit_'.$view).' forward&nbsp;, '.$navi_limit['backward'].' '.translate('cal_page_navi_limit_'.$view).' backward';
+			echo $navi_limit['forward'].' '.sprintf(translate('%s forward'), $date_parts[$view]).', ';
+			echo $navi_limit['backward'].' '.sprintf(translate('%s backward'), $date_parts[$view]);
 		}
 		return TRUE;
 

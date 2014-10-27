@@ -105,6 +105,10 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 		$configured_options = $asset->attr('ldap_options');
 
 		// display defined connection options
+		$connection_opt_names = Array(
+			'LDAP_OPT_PROTOCOL_VERSION' => translate('Use Protocol Version 3'),
+			'LDAP_OPT_REFERRALS'        => translate('Disallow Referrals'),
+		);
 		foreach ($asset->getConnectionOptions() as $option => $checked_value) {
 			$checked = FALSE;
 			if (isset($configured_options[$option])) {
@@ -116,14 +120,14 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 
 				check_box($element_name, $checked_value, $checked);
 				?>
-				<label for="<?php echo $element_name; ?>"><?php echo translate('option_'.strtolower($option)); ?></label><br />
+				<label for="<?php echo $element_name; ?>"><?php echo $connection_opt_names[$option]; ?></label><br />
 				<?php
 			} else {
 				$display_image = 'cross';
 				if ($checked) $display_image = 'tick';
 
 				$mask = '<img src="'.sq_web_path('lib').'/web/images/'.$display_image.'.gif" />';
-				echo $mask.' '.translate('option_'.strtolower($option)).'<br />';
+				echo $mask.' '.$connection_opt_names[$option].'<br />';
 			}
 		}//end for
 		return $asset->writeAccess('attributes');

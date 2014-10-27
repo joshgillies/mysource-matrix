@@ -384,9 +384,16 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 			}
 		} else {
+			$bodycopy_names = Array(
+				'main'         => translate('Page Contents'),
+				'thank_you'    => translate('Thank You'),
+				'confirmation' => translate('Confirmation Page Contents'),
+				'unattached'   => translate('Unattached Questions Format'),
+				'exit'         => translate('Exit Page Contents'),
+			);
 			foreach ($bodycopies as $bc_code => $bc_name) {
 				check_box('use_bodycopy_'.$bc_code, '1', $asset->attr('use_bodycopy_'.$bc_code));
-				echo label(translate('cms_form_bodycopy_'.$bc_code), 'use_bodycopy_'.$bc_code).'<br />';
+				echo label($bodycopy_names[$bc_code], 'use_bodycopy_'.$bc_code).'<br />';
 			}
 		}
 

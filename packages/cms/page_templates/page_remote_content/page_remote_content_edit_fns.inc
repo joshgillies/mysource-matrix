@@ -69,23 +69,35 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 			}
 		}
 
+		$rewrite_opt_names = Array(
+			'none' => translate('No URLs may be tunneled'),
+			'all'  => translate('Any URL may be tunneled'),
+			'some' => translate('Only the following URLs may be tunneled:'),
+		);
+
+		$rewrite_some_opt_names = Array(
+			'remote_url'    => translate('URLs underneath the Remote URL above'),
+			'remote_domain' => translate('URLs in the same domain as the Remote URL above'),
+			'white_list'    => translate('URLs based the following \'white list\' URLs:'),
+		);
+
 		if ($asset->writeAccess('attributes')) {
 
 			radio_button($prefix.'_rewrite_type', 'none', ($overall == 'none'), '', 'id="'.$prefix.'_rewrite_type_none"');
-			label(translate('No URLs may be tunneled'), $prefix.'_rewrite_type_none');
+			label($rewrite_opt_names['none'], $prefix.'_rewrite_type_none');
 
 			echo '<br />';
 
 			radio_button($prefix.'_rewrite_type', 'all', ($overall == 'all'), '', 'id="'.$prefix.'_rewrite_type_all"');
-			label(translate('Any URL may be tunneled'), $prefix.'_rewrite_type_all');
+			label($rewrite_opt_names['all'], $prefix.'_rewrite_type_all');
 
 			echo '<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-			echo translate('<i><b>NOTE: </b>Enabling this option can result in System being used as a Proxy to access <b>any domain</b><i>.');
+			echo '<i>'.translate('<b>NOTE: </b>Enabling this option can result in System being used as a Proxy to access <b>any domain</b>.').'</i>';
 
 			echo '<br />';
 
 			radio_button($prefix.'_rewrite_type', 'some', ($overall == 'some'), '', 'id="'.$prefix.'_rewrite_type_some"');
-			label(translate('Only the following URLs may be tunneled:'), $prefix.'_rewrite_type_some');
+			label($rewrite_opt_names['some'], $prefix.'_rewrite_type_some');
 
 			echo '<br />';
 
@@ -94,17 +106,17 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 
 			<div style="margin-left: 5ex" id="<?php echo $prefix; ?>_rewrite_type_some_options">
 				<input type="checkbox" name="<?php echo $pf; ?>[]" value="remote_url" id="<?php echo $pf; ?>_remote_url" <?php if ($options['remote_url']) echo 'checked="checked"'; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
-				<label for="<?php echo $pf; ?>_remote_url"><?php echo translate('URLs underneath the Remote URL above'); ?></label>
+				<label for="<?php echo $pf; ?>_remote_url"><?php echo $rewrite_some_opt_names['remote_url']; ?></label>
 
 				<br />
 
 				<input type="checkbox" name="<?php echo $pf; ?>[]" value="remote_domain" id="<?php echo $pf; ?>_remote_domain" <?php echo $options['remote_domain'] ? 'checked="checked"' : ''; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
-				<label for="<?php echo $pf; ?>_remote_domain"><?php echo translate('URLs in the same domain as the Remote URL above'); ?></label>
+				<label for="<?php echo $pf; ?>_remote_domain"><?php echo $rewrite_some_opt_names['remote_domain']; ?></label>
 
 				<br />
 
 				<input type="checkbox" name="<?php echo $pf; ?>[]" value="white_list" id="<?php echo $pf; ?>_white_list" <?php if ($options['white_list']) echo 'checked="checked"'; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
-				<label for="<?php echo $pf; ?>_white_list"><?php echo translate('URLs based the following \'white list\' URLs:'); ?></label>
+				<label for="<?php echo $pf; ?>_white_list"><?php echo $rewrite_some_opt_names['white_list']; ?></label>
 
 				<br />
 				<textarea name="<?php echo $prefix.'_white_list'; ?>" onfocus="document.getElementById('<?php echo $pf; ?>_white_list').checked = true" <?php if ($overall != 'some') echo 'disabled="disabled"'; ?>><?php
@@ -143,12 +155,12 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 		} else {
 
 			// read only
-			echo translate('cms_remote_content_tunneling_rule_'.$overall);
+			echo $rewrite_opt_names[$overall];
 			if ($overall == 'some') {
 				echo '<ul style="margin-top: 3px">';
-				foreach (Array('remote_url', 'remote_domain', 'white_list') as $type) {
+				foreach ($rewrite_some_opt_names as $type => $label) {
 					if ($options[$type]) {
-						echo '<li>'.translate('cms_remote_content_tunneling_option_'.$type);
+						echo '<li>'.$label;
 						if ($type == 'white_list') {
 							echo '<br />'.implode('<br />', $asset->attr('url_white_list'));
 						}

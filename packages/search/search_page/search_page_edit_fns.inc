@@ -291,7 +291,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										}
 
 										if (!empty($selected_attr)) {
-
+											$search_style_options = Array(
+												'exact'  => translate('Provide a single text box for exact numeric searching'),
+												'range'  => translate('Provide two text boxes (upper and lower bound) for range searching'),
+												'custom' => translate('Provide a drop-down list of named ranges'),
+											);
 											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
 											$attr_info = $attr_info[$selected_attr];
 
@@ -300,23 +304,23 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												?><br/><?php
 												if ($write_access) {
 													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'exact', ($current_search == 'exact'));
-													echo translate('Provide a single text box for exact numeric searching');
+													echo $search_style_options['exact'];
 
 													?><br/><?php
 
 													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'range', ($current_search == 'range'));
-													echo translate('Provide two text boxes (upper and lower bound) for range searching');
+													echo $search_style_options['range'];
 
 													?><br/><?php
 
 													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'custom', ($current_search == 'custom'));
-													echo translate('Provide a drop-down list of named ranges');
+													echo $search_style_options['custom'];
 
 													?><br/><?php
 												} else {
 													?><strong><?php echo translate('Search Style:'); ?></strong> <?php
 
-													echo translate('sch_page_numeric_search_'.$current_search);
+													echo $search_style_options[$current_search];
 												}
 
 												if ($current_search == 'custom') {
@@ -685,7 +689,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										}
 
 										if (!empty($selected_attr)) {
-
+											$search_style_options = Array(
+												'exact'  => translate('Provide a single text box for exact numeric searching'),
+												'range'  => translate('Provide two text boxes (upper and lower bound) for range searching'),
+												'custom' => translate('Provide a drop-down list of named ranges'),
+											);
 											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
 											$attr_info = $attr_info[$selected_attr];
 
@@ -694,23 +702,23 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												?><br/><?php
 												if ($write_access) {
 													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'exact', ($current_search == 'exact'));
-													echo translate('Provide a single text box for exact numeric searching');
+													echo $search_style_options['exact'];
 
 													?><br/><?php
 
 													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'range', ($current_search == 'range'));
-													echo translate('Provide two text boxes (upper and lower bound) for range searching');
+													echo $search_style_options['range'];
 
 													?><br/><?php
 
 													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'custom', ($current_search == 'custom'));
-													echo translate('Provide a drop-down list of named ranges');
+													echo $search_style_options['custom'];
 
 													?><br/><?php
 												} else {
 													?><strong><?php echo translate('Search Style:'); ?></strong> <?php
 
-													echo translate('sch_page_numeric_search_'.$current_search);
+													echo $search_style_options[$current_search];
 												}
 
 												if ($current_search == 'custom') {

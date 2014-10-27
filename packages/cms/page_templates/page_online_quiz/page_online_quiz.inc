@@ -3216,10 +3216,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 							// plain-text column formatting:
 							$longest_column_length = 0;
 							$totals_columns = Array(
-												translate('Total Score'),
-
-												translate('Total Maximum Score'),
-
+												'points'           => translate('Total Score'),
+												'available_points' => translate('Total Maximum Score'),
 											  );
 							foreach ($totals_columns as $column_name) {
 								if (strlen($column_name) > $longest_column_length) {
@@ -3229,7 +3227,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 							foreach ($columns as $column => $column_name) {
 								if ($column == 'points' || $column == 'available_points') {
-									echo translate('online_quiz_results_header_total_'.$column);
+									echo $totals_columns[$column];
 									echo $column_name_suffix;
 									for ($ii = 0; $ii < ($longest_column_length - strlen($column_name)); $ii++) {
 										echo ' ';

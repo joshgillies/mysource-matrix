@@ -1576,9 +1576,14 @@ class Page_Calendar extends Page
 
 		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
 		$mouseup_code = $dragging_enabled ? 'onmouseup="stopDragging(); formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)"' : '';
+
+		$table_summary = Array(
+			'week'  => translate('Events this week'),
+			'day'   => translate('Events today'),
+		);
 		?>
 
-		<table id="<?php echo $view; ?>" border="0" cellspacing="0" cellpadding="0" summary="<?php echo translate('cal_page_events_in_this_'.$view); ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
+		<table id="<?php echo $view; ?>" border="0" cellspacing="0" cellpadding="0" summary="<?php echo $table_summary[$view]; ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
 
 		// PRINT HEADER ROW

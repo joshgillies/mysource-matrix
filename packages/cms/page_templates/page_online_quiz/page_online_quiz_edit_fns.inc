@@ -263,9 +263,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		<table class="sq-backend-table">
 			<tr>
 				<th><?php echo translate('Edit Format') ?></th>
-
 				<th><?php echo translate('Note') ?></th>
-
 			</tr>
 			<?php
 			$bodycopies = $asset->_bodycopies;
@@ -274,15 +272,18 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			unset($bodycopies['page_contents']);
 			unset($bodycopies['no_results']);
 			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %%asset_listing%% keyword to include the list of assets on the page.'));
-
 			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('This format defines the layout of the page when the <b>Customise No Results Bodycopy</b> option is turned on, and there are no assets to list.'));
 
-
+			$bodycopy_descs = Array(
+				'thank_you'     => translate('This format defines the layout of the "Thank You" page that (optionally) appears when the quiz is completed.'),
+				'already_taken' => translate('This format defines the layout of the "Already Taken" notification page appears (which displays when the test has already been taken).'),
+				'user_details'  => translate('This format defines the layout of the "User Details" page that appears when a user has to enter their details. Make sure to include the %form_contents% keyword.');
+			)
 			foreach ($bodycopies as $bodycopy_code => $bodycopy_name) {
-				$this->_paintDefaultFormatLink($asset->id, $bodycopy_code, translate('online_quiz_bodycopy_'.$bodycopy_code.'_desc'));
+				$this->_paintDefaultFormatLink($asset->id, $bodycopy_code, $bodycopy_descs[$bodycopy_code]);
 			}
-			$this->_paintDefaultFormatLink($asset->id, 'user_details', translate('This form defines which questions can/must be filled out before the quiz can be taken. Note that this form will be displayed to non-logged-in users regardless of the "User Details Source" setting.'), 'simple_form', 'details');
 
+			$this->_paintDefaultFormatLink($asset->id, 'user_details', translate('This form defines which questions can/must be filled out before the quiz can be taken. Note that this form will be displayed to non-logged-in users regardless of the "User Details Source" setting.'), 'simple_form', 'details');
 
 			$folder = $asset->getFolder('type_formats');
 			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('This is the default format for all assets in the list if they do not have a customised format for their asset type or position.'));

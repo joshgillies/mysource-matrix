@@ -342,13 +342,15 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$res = parent::getAvailableKeywords();
 
-		$our_keywords[] = 'instance_end_datetime';
-		$our_keywords[] = 'instance_start_datetime';
-		$our_keywords[] = 'instance_start_datetime_';
-		$our_keywords[] = 'instance_end_datetime_';
+		$our_keywords = Array(
+			'instance_start_datetime'  => translate('Current Instance Start (ISO8601 Format)'),
+			'instance_start_datetime_' => translate('Current Instance Start (custom PHP date format, add to end of keyword)'),
+			'instance_end_datetime'    => translate('Current Instance End (ISO8601 Format)'),
+			'instance_end_datetime_'   => translate('Current Instance End (custom PHP date format, add to end of keyword)'),
+		);
 
-		foreach ($our_keywords as $keyword) {
-			$res[$keyword] = translate('cal_evt_recur_keyword_'.$keyword);
+		foreach ($our_keywords as $keyword => $name) {
+			$res[$keyword] = $name;
 		}
 		ksort($res);
 		return $res;

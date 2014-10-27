@@ -345,18 +345,20 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				case 'date_period':
 					if ((int)$period_num === 0) {
 						echo sprintf(translate('Current point in time'), $period_num, $period_options[$period_type]);
-
+					} else if ($period_age === '+') {
+						echo sprintf(translate('%1$s %2$s in the future'), $period_num, $period_options[$period_type]);
 					} else {
-						echo translate('attribute_datetime_period_age_'.$period_age, $period_num, $period_options[$period_type]);
+						echo sprintf(translate('%1$s %2$s in the past'), $period_num, $period_options[$period_type]);
 					}
 				break;
 
 				case 'date_period_today':
 					if ((int)$period_num === 0) {
 						echo sprintf(translate('Today, at %3$s'), $period_num, $period_options[$period_type], $base_time);
-
+ 					} else if ($period_age === '+') {
+						echo sprintf(translate('%1$s %2$s after today, at %3$s'), $period_num, $period_options[$period_type], $base_time);
 					} else {
-						echo translate('attribute_datetime_today_age_'.$period_age, $period_num, $period_options[$period_type], $base_time);
+						echo sprintf(translate('%1$s %2$s before today, at %3$s'), $period_num, $period_options[$period_type], $base_time);
 					}
 				break;
 
@@ -365,11 +367,8 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		} else {
 			$options = Array(
 						'single_date'		=> translate('Fixed date and time'),
-
 						'date_period'		=> translate('Period relative to current date and time'),
-
 						'date_period_today'	=> translate('Period relative to a fixed time on current date'),
-
 					   );
 
 			if ((boolean)$this->_edit_params['allow_period'] === FALSE) {

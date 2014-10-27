@@ -512,15 +512,22 @@ class Page_Link_Manager extends Page_Asset_Listing
 	*/
 	function generateMessages($fail_success)
 	{
+		$messages = Array(
+			'add_success'    => translate('Successfully added "%s" to the following: %s'),
+			'delete_success' => translate('Successfully removed "%s" from the following: %s'),
+			'add_error'      => translate('Unable to add "%s" to the following: %s'),
+			'delete_error'   => translate('Unable to remove "%s" from the following: %s'),
+		);
+		cms_link_manager_message_
 		foreach ($fail_success as $message_type => $assetids) {
 			switch ($message_type) {
 				case 'add_success':
 				case 'delete_success':
-					$this->messages[] = translate('cms_link_manager_message_'.$message_type, $this->_getManagedAssetTypeName(), $this->_getCommaSeparatedNamesByAssetid($assetids));
+					$this->messages[] = sprintf($messages[$message_type], $this->_getManagedAssetTypeName(), $this->_getCommaSeparatedNamesByAssetid($assetids));
 				break;
 				case 'add_error':
 				case 'delete_error':
-					$this->errors[] = translate('cms_link_manager_message_'.$message_type, $this->_getManagedAssetTypeName(), $this->_getCommaSeparatedNamesByAssetid($assetids));
+					$this->errors[] = sprintf($messages[$message_type], $this->_getManagedAssetTypeName(), $this->_getCommaSeparatedNamesByAssetid($assetids));
 				break;
 			}
 		}

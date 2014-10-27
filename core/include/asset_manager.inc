@@ -1856,11 +1856,31 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetInfoFields()
 	{
+		$field_names = Array(
+			'assetid'               => translate('Asset ID'),
+			'asset_field_version'   => translate('Version'),
+			'asset_field_name'      => translate('Name'),
+			'short_name'            => translate('Short Name'),
+			'created'               => translate('When the asset was created'),
+			'updated'               => translate('When the asset was last updated'),
+			'published'             => translate('When the asset was last published'),
+			'status'                => translate('Status'),
+			'languages'             => translate('Languages'),
+			'charset'               => translate('Character Set'),
+			'created_userid'        => translate('User who created the asset'),
+			'force_secure'          => translate('Whether secure access is required'),
+			'updated_userid'        => translate('User who last updated the asset'),
+			'status_changed_userid' => translate('User who last changed the status'),
+			'published_userid'      => translate('User who last published the asset'),
+			'status_changed'        => translate('When the asset\'s status was last changed'),
+			'type_code'             => translate('Type Code'),
+		);
+
 		if (!isset($this->_tmp['asset_info_fields'])) {
 			require SQ_DATA_PATH.'/private/db/table_columns.inc';
 			$this->_tmp['asset_info_fields'] = Array();
 			foreach ($tables['ast']['columns'] as $col) {
-				$this->_tmp['asset_info_fields'][$col] = translate('asset_field_'.$col);
+				$this->_tmp['asset_info_fields'][$col] = $field_names[$col];
 			}
 			unset($tables);
 		}

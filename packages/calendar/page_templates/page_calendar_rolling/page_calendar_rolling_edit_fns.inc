@@ -267,18 +267,13 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 
 		$dt_select_contents = 	Array (
 									'days'		=> translate('days'),
-
 									'weeks'		=> translate('weeks'),
-
 									'months'	=> translate('months'),
-
 								);
 
 		$pf_select_contents = Array(
 								'duration_past'		=> translate('in the past'),
-
 								'duration_future'	=> translate('in the future'),
-
 							  );
 
 		// take the single attribute, break it out into a (positive) textbox value,
@@ -292,7 +287,11 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 			text_box($prefix.'_time_unit_select_'.$attr, $asset->attr('time_unit'), '5', '', FALSE, 'disabled');
 			combo_box($prefix.'_pastfuture_select_'.$attr, $pf_select_contents, FALSE, $combo_val);
 		} else {
-			echo translate('cal_rolling_'.$combo_val, $text_val, $asset->attr('time_unit'));
+			if ($combo_val === 'duration_past') {
+				echo sprintf('%s %s in the future', $text_val, $dt_select_contents[$asset->attr('time_unit')]);
+			} else {
+				echo sprintf('%s %s in the past', $text_val, $dt_select_contents[$asset->attr('time_unit')]);
+			}
 		}
 
 		return $write_access;

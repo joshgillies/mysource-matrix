@@ -1254,9 +1254,22 @@ function get_date_formats()
 */
 function get_date_format_names()
 {
+	$date_format_names = Array(
+							'short'				=> 'yyyy-mm-dd',
+							'readable'			=> 'dd m yyyy h:mm[am pm]',
+							'readabledate'		=> translate('date only').' - dd M yyyy',
+							'readabletime'		=> translate('time only').' - h:mm[am pm]',
+							'iso8601'			=> translate('ISO8601 format'),
+							'rfc2822'			=> translate('RFC2822 format'),
+							'rfc2822-dateonly'	=> translate('RFC2822 format, date only'),
+							'ical'				=> translate('iCalendar format'),
+							'relative'			=> translate('relative time - eg. "X days ago"'),
+							'relative-dow'		=> translate('Day/time if within 1 week of now, otherwise relative time'),
+						 );
+
 	$date_formats = get_date_formats();
 	foreach ($date_formats as $date_id => $date_format) {
-		$date_formats[$date_id] = translate('date_format_'.$date_id);
+		$date_formats[$date_id] = $date_format_names[$date_id];
 	}
 
 	return $date_formats;
@@ -2058,7 +2071,6 @@ function get_available_global_keywords()
 					'globals_cookie_'	=> 'Global Keywords - Cookie',
 					'globals_server_'	=> 'Global Keywords - Server',
 					'globals_date'		=> 'Global Keywords - Current Date and Time',
-					'globals_date_'		=> 'Global Keywords - Current Date and Time',
 					'globals_date_relative_'	=> 'Gloabl Keywords - Relative Date and Time',
 					'globals_site_'		=> 'Global Keywords - Current Site',
 					'globals_asset_'	=> 'Global Keywords - Front End Asset',

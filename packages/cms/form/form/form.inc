@@ -4424,42 +4424,28 @@ class Form extends Asset implements Bridge
 		$sections = $this->getSections();
 
 		$keywords['form_summary']               = translate('Submission Summary');
-
-		$keywords['form_summary_html']          = translate('Submission Summary').' (html)';
-
-		$keywords['form_summary_semantic']          = translate('Submission Summary').' (semantic)';
-
+		$keywords['form_summary_html']          = translate('Submission Summary').' (HTML)';
+		$keywords['form_summary_semantic']      = translate('Submission Summary').' ('.translate('semantic').')';
 		$keywords['form_info']                  = translate('Submission Info');
-
-		$keywords['form_info_html']             = translate('Submission Info').' (html)';
-
+		$keywords['form_info_html']             = translate('Submission Info').' (HTML)';
 		$keywords['form_submission_id']         = translate('Submission Id');
-
 		$keywords['form_submission_ip_address'] = translate('Submission IP Address');
-
 		$keywords['form_submission_time']       = sprintf(translate('Time of Submission (%s)'), translate('yyyy-mm-dd hh:mm:ss'));
 
-
-
 		foreach (get_date_format_names() as $date_name => $date_format) {
-			$keywords['form_submission_time_'.$date_name] = sprintf(translate('Time of Submission (%s)'), translate('date_format_'.$date_name));
-
+			$keywords['form_submission_time_'.$date_name] = sprintf(translate('Time of Submission (%s)'), $date_format);
 		}
 
 		foreach ($questions as $q_id => $question) {
 			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
 			$keywords['response_'.$this->id.'_q'.$q_id]      = sprintf(translate('Response to %s'), ellipsisize($q_name,30));
-
 			$keywords['question_name_'.$this->id.'_q'.$q_id] = sprintf(translate('Question Name: %s'), ellipsisize($q_name,30));
-
 			$keywords['question_note_'.$this->id.'_q'.$q_id] = sprintf(translate('Question Note: %s'), ellipsisize($q_name,30));
-
 		}
 
 		foreach ($sections as $section) {
 			$keywords['section_title_'.$section->id] = sprintf(translate('Section Title: %s'), $section->attr('name'));
-
 			$keywords += $section->getResponseKeywords();
 		}
 

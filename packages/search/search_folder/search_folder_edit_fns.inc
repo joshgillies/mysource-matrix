@@ -208,15 +208,17 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
+		$options = Array(
+			'and' => translate('Results include all terms'),
+			'or'  => translate('Results include any terms'),
+		);
 		$settings = $asset->attr('settings');
 		$current = (isset($settings['logic'])) ? $settings['logic'] : 'and';
 
 		if ($write_access) {
-			combo_box($prefix.'_logic', Array('and' => translate('Results include all terms'), 'or' => translate('Results include any terms')), FALSE, $current);
-
-
+			combo_box($prefix.'_logic', $options, FALSE, $current);
 		} else {
-			echo translate('sch_folder_logic_'.$current);
+			echo $options[$current];
 		}
 
 		return $write_access;

@@ -883,7 +883,12 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			return $write_access;
 		}
 
-		$o->openSection(translate('sch_'.$screen.'_management'));
+		$section_names = Array(
+			'asset'      => translate('Asset Weight Management'),
+			'asset_type' => translate('Asset Type Weight Management'),
+			'asset_tree' => translate('Asset Tree Weight Management'),
+		);
+		$o->openSection($section_names[$screen]);
 			$o->openField('');
 				if (!empty($key)) {
 					// obtain the current weightings for this screen

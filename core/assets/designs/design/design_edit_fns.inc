@@ -1611,8 +1611,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					$tag_line = get_asset_tag_line($tree_info['assetid'], 'details');
 
 					$child_count_mult = $tree_info['child_count'];
-					if ($child_count_mult > 1) $child_count_mult = 'm';
-					echo translate('asset_and_child_count_'.$child_count_mult, $tag_line, $tree_info['child_count']);
+					if ($child_count_mult === 0) {
+						echo $tag_line;
+					} else {
+						echo sprintf(
+							translate_plural('%s and one child', '%s and %s children', $tree_info['child_count']),
+							$tag_line,
+							$tree_info['child_count']
+						);
+					}
 					?>
 				</tr>
 				<?php
