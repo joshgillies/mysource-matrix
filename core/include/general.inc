@@ -2033,6 +2033,7 @@ function get_available_global_keywords()
 					'globals_cookie_'	=> 'Global Keywords - Cookie',
 					'globals_server_'	=> 'Global Keywords - Server',
 					'globals_date'		=> 'Global Keywords - Current Date and Time',
+					'globals_date_'		=> 'Global Keywords - Current Date and Time',
 					'globals_date_relative_'	=> 'Gloabl Keywords - Relative Date and Time',
 					'globals_site_'		=> 'Global Keywords - Current Site',
 					'globals_asset_'	=> 'Global Keywords - Front End Asset',
