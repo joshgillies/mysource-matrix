@@ -1858,8 +1858,8 @@ class Asset_Manager extends MySource_Object
 	{
 		$field_names = Array(
 			'assetid'               => translate('Asset ID'),
-			'asset_field_version'   => translate('Version'),
-			'asset_field_name'      => translate('Name'),
+			'version'               => translate('Version'),
+			'name'                  => translate('Name'),
 			'short_name'            => translate('Short Name'),
 			'created'               => translate('When the asset was created'),
 			'updated'               => translate('When the asset was last updated'),
