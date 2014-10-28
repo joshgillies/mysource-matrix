@@ -1638,7 +1638,7 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 * @return string
 * @access public
 */
-function get_asset_tag_line($assetid, $screen='')
+function get_asset_tag_line($assetid, $screen='', $id='')
 {
 	// If it's a shadow asset, there is nothing in the database so we cannot use
 	// the shortcut - we have to get the info from the asset instead
@@ -1758,7 +1758,11 @@ function get_asset_tag_line($assetid, $screen='')
 		} else if (!empty($screen_url)) {
 			echo '<a href="'.$screen_url.'">';
 		}
-		echo '<span class="sq-info-asset-name sq-tag-line">';
+		echo '<span'
+		if (empty($id) === FALSE) {
+			echo ' id="'.$id.'"';
+		}
+		echo ' class="sq-info-asset-name sq-tag-line">';
 		echo $asset_info['name'];
 
 		if (!empty($js) || !empty($screen_url)) {
