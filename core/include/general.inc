@@ -1724,7 +1724,7 @@ function get_asset_tag_line($assetid, $screen='', $id='')
 		} else if (!empty($screen_url)) {
 			echo '<a href="'.$screen_url.'">';
 		}
-		echo '<span'
+		echo '<span';
 		if (empty($id) === FALSE) {
 			echo ' id="'.$id.'"';
 		}
