@@ -228,7 +228,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$section_names = Array(
 			'user'  => translate('User Attributes'),
 			'group' => translate('Group Attributes'),
-		)
+		);
 
 		if ($write_access) {
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';

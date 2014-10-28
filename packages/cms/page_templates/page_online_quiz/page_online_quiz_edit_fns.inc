@@ -277,8 +277,9 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			$bodycopy_descs = Array(
 				'thank_you'     => translate('This format defines the layout of the "Thank You" page that (optionally) appears when the quiz is completed.'),
 				'already_taken' => translate('This format defines the layout of the "Already Taken" notification page appears (which displays when the test has already been taken).'),
-				'user_details'  => translate('This format defines the layout of the "User Details" page that appears when a user has to enter their details. Make sure to include the %form_contents% keyword.');
-			)
+				'user_details'  => translate('This format defines the layout of the "User Details" page that appears when a user has to enter their details. Make sure to include the %form_contents% keyword.'),
+			);
+			
 			foreach ($bodycopies as $bodycopy_code => $bodycopy_name) {
 				$this->_paintDefaultFormatLink($asset->id, $bodycopy_code, $bodycopy_descs[$bodycopy_code]);
 			}

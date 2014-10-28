@@ -518,7 +518,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 			'add_error'      => translate('Unable to add "%s" to the following: %s'),
 			'delete_error'   => translate('Unable to remove "%s" from the following: %s'),
 		);
-		cms_link_manager_message_
+		
 		foreach ($fail_success as $message_type => $assetids) {
 			switch ($message_type) {
 				case 'add_success':
