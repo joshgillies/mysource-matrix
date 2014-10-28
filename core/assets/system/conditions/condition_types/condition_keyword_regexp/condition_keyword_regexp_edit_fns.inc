@@ -73,6 +73,9 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 					   $selected_keyword = $condition_data['keyword'];
 					}
 
+					// add the Custom Keyword option
+					array_push($allowed_keywords, 'Custom Keyword');
+
 					if (empty($allowed_keywords)) {
 						// we don't know the type of the asset here so we add the keywords of the generic Asset object
 						$dummy_asset = new Asset();
@@ -87,18 +90,31 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 
 					ksort($keyword_options);
 
+					// make sure the Custom Keyword option appears at end of option list
+					unset($keyword_options['Custom Keyword']);
+					$option = array('Custom Keyword' => 'Custom Keyword');
+					$keyword_options = array_merge($keyword_options, $option);
+
 					$i = 0;
 					if (!empty($allowed_keywords)) {
-
 						$keyword_info = self::_getKeywordInfo($selected_keyword, $allowed_keywords);
 						if ($write_access) {
 							echo '<span class="sq-inline-fields-wrapper">%';
-							combo_box($prefix.'[keyword]', array_merge($keyword_options), FALSE, $keyword_info['constant_part']);
-							// This is a special case for generic/variable keywords (like asset_metadata_)
-							// which name must be completed.
-							// For those keywords, we show an additional box to type the rest of the name
-							if ($keyword_info['is_variable']) {
-								text_box($prefix.'[keyword_extension]', $keyword_info['variable_part'], 50);
+							if(self::_isCustomKeyword($selected_keyword, $allowed_keywords)) {
+								if(strpos($selected_keyword, 'Custom Keyword') === 0) {
+									$selected_keyword = '';
+								}
+								text_box($prefix.'[keyword]', $selected_keyword, 80);
+							}
+							else {
+								combo_box($prefix.'[keyword]', array_merge($keyword_options), FALSE, $keyword_info['constant_part']);
+
+								// This is a special case for generic/variable keywords (like asset_metadata_)
+								// which name must be completed.
+								// For those keywords, we show an additional box to type the rest of the name
+								if ($keyword_info['is_variable']) {
+									text_box($prefix.'[keyword_extension]', $keyword_info['variable_part'], 50);
+								}
 							}
 							echo '%</span>';
 						} else {
@@ -151,7 +167,7 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
 		$results = Array(
-					'keyword'					=> $_POST[$prefix]['keyword'],
+					'keyword'					=> isset($_POST[$prefix]['keyword']) ? $_POST[$prefix]['keyword'] : '',
 					'keyword_match'				=> $_POST[$prefix]['keyword_match'],
 					'replace_keyword_in_match'	=> array_get_index($_POST[$prefix], 'replace_keyword_in_match', '0'),
 				   );
@@ -207,6 +223,46 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 		return $ret;
 
 	}//end _getKeywordInfo()
+
+
+
+	/**
+	* Check if a keyword name is a custom keyword ( not in allowed list)
+	*
+	* @param string	$keyword_name		the keyword to analyse
+	* @param array	&$allowed_keywords	allowed keywords, this is the list of keywords
+	*									as returned by getAssetKeywords().
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected static function _isCustomKeyword($keyword_name, Array &$allowed_keywords)
+	{
+
+		if(empty($keyword_name)) {
+			return FALSE;
+		}
+		if(strpos($keyword_name, 'Custom Keyword') === 0) {
+			return TRUE;
+		}
+
+
+		$ret = TRUE;
+
+		$keyword_parts = Array();
+		foreach ($allowed_keywords as $allowed_keyword) {
+				if (preg_match('/^'.$allowed_keyword.'(.*)$/', $keyword_name, $keyword_parts)) {
+					if(preg_match('/_$/', $allowed_keyword) || $allowed_keyword === $keyword_name) {
+						// there is a match, so it's not a custom keyword
+						$ret = FALSE;
+						return $ret;
+					}
+				}
+		}
+
+		return $ret;
+
+	}//end _isCustomKeyword()
 
 }//end class
 

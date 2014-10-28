@@ -177,6 +177,12 @@ generate_performance_config();
 generate_file_bridge_config();
 minify_css_files();
 
+// Regenerate again now everything is installed.
+if (!regenerate_configs()) {
+	trigger_error('Config Generation Failed', E_USER_ERROR);
+}
+
+
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
