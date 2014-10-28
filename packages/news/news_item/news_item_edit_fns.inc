@@ -59,7 +59,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 			asset_finder($prefix.'_link_assetid', (is_null($link_asset) ? 0 : $link_asset->id));
 		} else {
 			if (is_null($link_asset)) {
-				echo 'None Set';
+				echo '<em>'.translate('None Set').'</em>';
 			} else {
 				echo get_asset_tag_line($link_asset->id, '', $prefix.'_link_assetid_readonly');
 			}
