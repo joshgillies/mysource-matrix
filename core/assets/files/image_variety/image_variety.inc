@@ -67,10 +67,11 @@ class Image_Variety extends Asset
 		$this->data_path_public = $image->data_path_public.'/varieties';
 
 		// use image's alt attribute
-		if(!isset($data['alt'])) {
+		if(!isset($data['alt']) || (isset($data['alt']) && empty($data['alt']))) {
 		    $data['alt'] = $image->attr('alt');
-			$this->vars['alt']['value'] = $data['alt'];
 		}
+
+		$this->vars['alt']['value'] = $data['alt'];
 
 		// if there is no varietyid then we haven't been created yet, so don't do anymore
 		if (!$this->_varietyid) return;
