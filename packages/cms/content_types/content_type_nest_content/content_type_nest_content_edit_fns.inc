@@ -31,6 +31,28 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 {
 
+	/**
+	* The array of the Form type/based assets
+	* that we need to show warning for with nested container
+	* about caching and it's ill effects
+	* @var int
+	*/
+	private $_warnings_for = Array(
+								'Page_Custom_Form',
+								'Page_Asset_Builder',
+								'Page_User_Group_Manager',
+								'Page_Password_Reset',
+								'Page_Link_Manager',
+								'Page_Online_Quiz',
+								'Page_Poll',
+								'Ecommerce_Checkout',
+								'Ecommerce_Cart',
+								'Page_Custom_Form_Ecommerce',
+								'Payment_Gateway',
+								'Page_Redirect',
+							);
+
+
 
 	/**
 	* Constructor
@@ -68,20 +90,42 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell-alt"><b><?php echo sprintf(translate('Currently nesting the contents of "<i>%s</i>"'), $nested_asset->attr('name')) ?><?php require_once SQ_INCLUDE_PATH.'/general.inc'; echo ' : '.get_asset_tag_line($nested_asset->id);?></b></td>
-
+						<td class="sq-backend-table-cell-alt" style="width:120px">
+							<?php 
+								echo translate('Nested Contents Of');
+							?> 
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php 
+								asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('asset' => 'D'));
+								require_once SQ_INCLUDE_PATH.'/general.inc'; 
+								echo ' '.get_asset_tag_line($nested_asset->id);
+							?>
+							<a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo "&nbsp;".translate('Preview') ?></a>
+							<div id="warning_nesting_form_type_asset" style="display:none" class="sq-warning-message top-margin"><?php echo translate('<strong>Warning:</strong> You are nesting in a form based asset. This can cause issues if caching is enabled. Please ensure caching settings are properly configured.'); ?></div>
+							<?php 
+								$show_warning = FALSE;
+								foreach ($this->_warnings_for as $asset_type) {
+									if ($nested_asset instanceof $asset_type) {
+										$show_warning = TRUE;
+										break;
+									}
+								}
+								if ($show_warning === TRUE) {
+							?>
+							<script type="text/javascript">
+							//<![CDATA[
+								var note_text = document.getElementById('warning_nesting_form_type_asset');
+								note_text.style.display="block";
+							//]]>
+							</script>
+							<?php
+								}
+							?>
+							</td>
 					</tr>
-					<tr>
-						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('asset' => 'D')); ?></td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-cell"><b><a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('Click to preview in a new window') ?></a></b></td>
-
-					</tr>
-					<tr>
-						<td class="sq-backend-table-cell-alt"><b>Dynamic Options:</b></td>
-					</tr>
-					<tr>
+					<tr id = "<?php echo $prefix; ?>_dynamic_options_<?php echo $nested_asset->id; ?>" style="display:none;">
+						<td class="sq-backend-table-cell-alt" style="width:120px;"><b>Dynamic Options</b></td>
 						<td class="sq-backend-table-cell">
 						<table>
 							<colgroup>
@@ -103,10 +147,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							</table>
 						</td>
 					</tr>
-					<tr>
-						<td class="sq-backend-table-cell-alt"><b>Paint this asset:</b></td>
-					</tr>
-					<tr>
+					<tr id = "<?php echo $prefix; ?>_paint_layout_config_<?php echo $nested_asset->id?>" style="display:none;">
+						<td class="sq-backend-table-cell-alt" style="width:120px"><b>Paint Layouts</b></td>
 						<td class="sq-backend-table-cell">
 							<?php
 							radio_button($prefix.'_paint_with', 'raw', ($paint_with == 'raw' ? 1 : 0));
@@ -123,10 +165,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							?>
 						</td>
 					</tr>
-					<tr>
-						<td class="sq-backend-table-cell-alt"><b>Send the following additional GET variables to the asset:</b></td>
-					</tr>
-					<tr>
+					<tr id = "<?php echo $prefix; ?>_additional_get_param_<?php echo $nested_asset->id?>" style="display:none;">
+						<td class="sq-backend-table-cell-alt" style="width:120px"><b>Additional GET Parameters</b></td>
 						<td class="sq-backend-table-cell">
 						<?php
 							// get delete icon, with new lines replaced
@@ -252,12 +292,38 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						</td>
 					</tr>
 				</table>
+				<script type="text/javascript">
+				//<![CDATA[
+					function toggleNestedContents<?php echo $asset->id; ?>()
+					{
+						var prefix = "<?php echo $prefix; ?>";
+						var nested_assetid = "<?php echo $nested_asset->id; ?>";
+						// check if we are display warning for status change or new future status change
+
+						var tr_dynamic = document.getElementById(prefix + '_dynamic_options_' + nested_assetid);
+						var tr_paint_layout = document.getElementById(prefix + '_paint_layout_config_' + nested_assetid);
+						var tr_additional_get = document.getElementById(prefix + '_additional_get_param_' + nested_assetid);
+
+
+						if (tr_dynamic.style.display === 'none') {
+							tr_dynamic.style.display="table-row";
+							tr_paint_layout.style.display="table-row";
+							tr_additional_get.style.display="table-row";
+						} else {
+							tr_dynamic.style.display="none";
+							tr_paint_layout.style.display="none";
+							tr_additional_get.style.display="none";
+						}
+
+					}
+				//]]>
+				</script>
 				<?php
 			} else {
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell-alt"><b><?php echo translate('No page has been selected'); ?></b></td>
+						<td class="sq-backend-table-cell-alt" style="width:120px"><b><?php echo translate('No page has been selected'); ?></b></td>
 
 					</tr>
 					<tr>
@@ -302,9 +368,109 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 			}
-			$asset_contents = '<strong>'.sprintf(translate('Nested Content - %s'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('Click to preview in a new window').'</a>.';
+			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($nested_asset->type(), 'name');
 
+			ob_start();
+			?>
+				<table class="sq-backend-table" style="margin-bottom:0px">
+					<tr>
+						<td class="sq-backend-table-cell-alt" style="vertical-align:middle;width:120px;background-color:#f0f0f0;">
+							<strong><?php echo translate('Nested Contents Of'); ?></strong>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php 
+			  					echo '<span class="sq-info-type-icon">'.get_asset_type_icon($nested_asset->type()).'</span>';
+			    				echo '<span class="sq-info-type-name" data-type-code="'.$nested_asset->type().'">'.$type_name.'</span>&nbsp;&nbsp;&nbsp;';
+							?>
+							<strong><?php echo get_asset_tag_line($nested_asset->id); ?></strong>&nbsp;
+							<a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('Preview'); ?>.</a>
+						</td>
+					</tr>
+				<?php
+				if ($asset->attr('dynamic_nest_get') !== '') {
+				?>
+					<tr>
+						<td class="sq-backend-table-cell-alt" style="width:120px;background-color:#f0f0f0;"><b>Dynamic Options</b></td>
+						<td class="sq-backend-table-cell">
+						<table class="sq-backend-table">
+							<colgroup>
+								<col width="50%" />
+								<col width="50%" />
+							</colgroup>
+							<thead>
+								<tr class="sq-backend-table">
+									<th>Parameter</th>
+									<th>GET Variable Name</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="sq-backend-table-cell">Asset ID to nest the contents of:</td>
+									<td class"sq-backend-table-cell"><?php echo $asset->attr('dynamic_nest_get'); ?></td>
+								</tr>
+							</tbody>
+							</table>
+						</td>
+					</tr>
+				<?php
+				}
 
+				$arbitrary_paint_layout = $this->_getArbitraryPaintLayout($asset);
+				if (!is_null($arbitrary_paint_layout)) {
+				$layout_type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($nested_asset->type(), 'name');
+				?>
+					<tr>
+						<td class="sq-backend-table-cell-alt" style="width:120px;background-color:#f0f0f0;"><b>Paint Layouts</b></td>
+						<td class="sq-backend-table-cell">
+							<?php
+			  					echo '<span class="sq-info-type-icon">'.get_asset_type_icon($arbitrary_paint_layout->type()).'</span>';
+			    				echo '<span class="sq-info-type-name" data-type-code="'.$arbitrary_paint_layout->type().'">'.$layout_type_name.'</span>&nbsp;&nbsp;&nbsp;';
+							?>
+							<strong><?php echo get_asset_tag_line($arbitrary_paint_layout->id); ?></strong>
+						</td>
+					</tr>
+				<?php
+				}
+				
+				$additional_get_vars = $asset->attr('additional_get');
+				if (!empty($additional_get_vars)) {
+				?>
+					<tr>
+						<td class="sq-backend-table-cell-alt" style="width:120px;background-color:#f0f0f0;"><b>Additional GET Parameters</b></td>
+						<td class="sq-backend-table-cell">
+						<table class="sq-backend-table">
+							<colgroup>
+								<col width="40%" />
+								<col width="60%" />
+								<col />
+							</colgroup>
+							<thead>
+								<tr>
+									<th>Variable Name</th>
+									<th>Variable Value</th>
+								</tr>
+							</thead>
+							<tbody id="additional_get_body">
+							<?php
+							foreach ($additional_get_vars as $key => $var_info) {
+								?>
+								<tr id="additional_get_row_<?php echo $key; ?>">
+									<td><?php echo $var_info['name']; ?></td>
+									<td><?php echo $var_info['value']; ?></td>
+								</tr>
+								<?php
+							}
+							?>
+							</tbody>
+							</table>
+						</td>
+					</tr>
+				<?php
+				}
+				?>
+			   </table>
+			<?php
+			$asset_contents = ob_get_clean();
 		} else {
 			$asset_contents = '';
 			// This is the real deal, so we want to actually print the asset

@@ -431,6 +431,11 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 								$content_edit = $content_type->getEditFns();
 								$content_edit->paintBackendStatusIcons($content_type, $content_prefix, $o);
 							}
+							if ($content_type instanceof Content_Type_Nest_Content) {
+								// the toggle link to show/hide the extra bits for a nested container to make the UI look simple and easy to ready
+								// see RM #6067 Improve the layout and UI of the nested content container
+								?><span style="vertical-align:middle"><a href="javascript:void(0);" onclick="toggleNestedContents<?php echo $content_type->id; ?>(); return false">Toggle Additional Options </a></span><?php
+							}
 							?>
 							<span class="sq-status-square status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset->status))) ;?>" title="<?php echo $status_name ;?>"></span>
 						</span>
