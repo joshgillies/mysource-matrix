@@ -2002,6 +2002,10 @@ EDIT BODYCOPY STYLES
 	border-collapse: 			separate;
 }
 
+.sq-edit-bodycopy-section.sq-content_type_nest_content-table td.sq-content-type-wrapper > .sq-edit-content-type-wrapper{
+	  padding: 10px;
+}
+
 .sq-bodycopy-container-edit-table-wrapper td {
 	padding: 					0;
 }
