@@ -2045,7 +2045,7 @@ class MySource extends MySource_Object
 					);
 				$successful = @$new_image->create($link, $_FILES['create_image_upload']);
 				if ($successful) {
-					echo json_encode(Array('success' => 1, 'assetid' => $new_image->id));
+					echo json_encode(Array('success' => 1, 'assetid' => $new_image->id, 'root_node' => $root_node->id));
 				}
 				else {
 					echo json_encode(Array('error' => translate('File web path already exists')));
