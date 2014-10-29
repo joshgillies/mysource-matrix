@@ -250,9 +250,9 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		<?php
 			$javascript = 'onchange="return '.$js_prefix.'_update_visible_fields();"';
 			$options = Array(
-						'Width'						=> translate('Width'),
+						'width'						=> translate('Width'),
 
-						'Height'					=> translate('Height'),
+						'height'					=> translate('Height'),
 
 						'dimension'					=> translate('Both'),
 
