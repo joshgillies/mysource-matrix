@@ -92,7 +92,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					<tr>
 						<td class="sq-backend-table-cell-alt" style="width:120px">
 							<?php 
-								echo translate('Nested Contents Of');
+								echo translate('Nested Content');
 							?> 
 						</td>
 						<td class="sq-backend-table-cell">
@@ -102,7 +102,6 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 								echo ' '.get_asset_tag_line($nested_asset->id);
 							?>
 							<a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo "&nbsp;".translate('Preview') ?></a>
-							<div id="warning_nesting_form_type_asset" style="display:none" class="sq-warning-message top-margin"><?php echo translate('<strong>Warning:</strong> You are nesting in a form based asset. This can cause issues if caching is enabled. Please ensure caching settings are properly configured.'); ?></div>
 							<?php 
 								$show_warning = FALSE;
 								foreach ($this->_warnings_for as $asset_type) {
@@ -113,18 +112,13 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 								}
 								if ($show_warning === TRUE) {
 							?>
-							<script type="text/javascript">
-							//<![CDATA[
-								var note_text = document.getElementById('warning_nesting_form_type_asset');
-								note_text.style.display="block";
-							//]]>
-							</script>
+							<div id="warning_nesting_form_type_asset" class="sq-warning-message top-margin"><?php echo translate('<strong>Warning:</strong> You are nesting in a form based asset. This can cause issues if caching is enabled. Please ensure caching settings are properly configured.'); ?></div>
 							<?php
 								}
 							?>
 							</td>
 					</tr>
-					<tr id = "<?php echo $prefix; ?>_dynamic_options_<?php echo $nested_asset->id; ?>" style="display:none;">
+					<tr id = "<?php echo $prefix; ?>_dynamic_options_<?php echo $nested_asset->id; ?>" style="display:<?php echo $asset->attr('dynamic_nest_get') == '' ? 'none' : 'table-row'; ?>;">
 						<td class="sq-backend-table-cell-alt" style="width:120px;"><b>Dynamic Options</b></td>
 						<td class="sq-backend-table-cell">
 						<table>
@@ -147,7 +141,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							</table>
 						</td>
 					</tr>
-					<tr id = "<?php echo $prefix; ?>_paint_layout_config_<?php echo $nested_asset->id?>" style="display:none;">
+					<tr id = "<?php echo $prefix; ?>_paint_layout_config_<?php echo $nested_asset->id?>" style="display:<?php echo !$paint_layout_id ? 'none' : 'table-row'; ?>;">
 						<td class="sq-backend-table-cell-alt" style="width:120px"><b>Paint Layouts</b></td>
 						<td class="sq-backend-table-cell">
 							<?php
@@ -165,7 +159,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							?>
 						</td>
 					</tr>
-					<tr id = "<?php echo $prefix; ?>_additional_get_param_<?php echo $nested_asset->id?>" style="display:none;">
+					<?php $additional_get_vars = $asset->attr('additional_get'); log_dump($additional_get_vars); ?>
+					<tr id = "<?php echo $prefix; ?>_additional_get_param_<?php echo $nested_asset->id?>" style="display:<?php echo empty($additional_get_vars) ? 'none': 'table-row'; ?>;">
 						<td class="sq-backend-table-cell-alt" style="width:120px"><b>Additional GET Parameters</b></td>
 						<td class="sq-backend-table-cell">
 						<?php
@@ -176,7 +171,6 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							$delete_icon = ob_get_clean();
 							$delete_icon = str_replace("\n", ' ', $delete_icon);
 
-							$additional_get_vars = $asset->attr('additional_get');
 							if (empty($additional_get_vars)) {
 								// max() won't work on an empty array
 								$last_key = -1;
@@ -282,7 +276,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 								<tr id="<?php echo $prefix; ?>_additional_get_row_<?php echo $key; ?>">
 									<td><?php text_box($prefix.'_additional_get['.$key.'][name]', $var_info['name'], 20) ?></td>
 									<td><?php text_box($prefix.'_additional_get['.$key.'][value]', $var_info['value'], 30) ?></td>
-									<td><a href="" onclick="<?php echo $asset->type() ?>.removeGetRow('<?php echo $prefix; ?>','<?php echo $key; ?>'); return false;"><?php echo $delete_icon; ?></a></td>
+									<td align="center"><a href="" onclick="<?php echo $asset->type() ?>.removeGetRow('<?php echo $prefix; ?>','<?php echo $key; ?>'); return false;"><?php echo $delete_icon; ?></a></td>
 								</tr>
 								<?php
 							}
@@ -305,7 +299,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						var tr_additional_get = document.getElementById(prefix + '_additional_get_param_' + nested_assetid);
 
 
-						if (tr_dynamic.style.display === 'none') {
+						if (tr_dynamic.style.display === 'none' || tr_paint_layout.style.display === 'none' || tr_additional_get.style.display === 'none') {
 							tr_dynamic.style.display="table-row";
 							tr_paint_layout.style.display="table-row";
 							tr_additional_get.style.display="table-row";
@@ -374,8 +368,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			?>
 				<table class="sq-backend-table" style="margin-bottom:0px">
 					<tr>
-						<td class="sq-backend-table-cell-alt" style="vertical-align:middle;width:120px;background-color:#f0f0f0;">
-							<strong><?php echo translate('Nested Contents Of'); ?></strong>
+						<td class="sq-backend-table-cell-alt" style="width:120px;background-color:#f0f0f0;">
+							<strong><?php echo translate('Nested Content'); ?></strong>
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php 
@@ -383,7 +377,21 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			    				echo '<span class="sq-info-type-name" data-type-code="'.$nested_asset->type().'">'.$type_name.'</span>&nbsp;&nbsp;&nbsp;';
 							?>
 							<strong><?php echo get_asset_tag_line($nested_asset->id); ?></strong>&nbsp;
-							<a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('Preview'); ?>.</a>
+							<a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('Preview'); ?></a>
+							<?php 
+								$show_warning = FALSE;
+								foreach ($this->_warnings_for as $asset_type) {
+									if ($nested_asset instanceof $asset_type) {
+										$show_warning = TRUE;
+										break;
+									}
+								}
+								if ($show_warning === TRUE) {
+							?>
+							<div id="warning_nesting_form_type_asset" class="sq-warning-message top-margin"><?php echo translate('<strong>Warning:</strong> You are nesting in a form based asset. This can cause issues if caching is enabled. Please ensure caching settings are properly configured.'); ?></div>
+							<?php
+								}
+							?>
 						</td>
 					</tr>
 				<?php
@@ -392,7 +400,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					<tr>
 						<td class="sq-backend-table-cell-alt" style="width:120px;background-color:#f0f0f0;"><b>Dynamic Options</b></td>
 						<td class="sq-backend-table-cell">
-						<table class="sq-backend-table">
+						<table class="sq-backend-table" style="margin-bottom:0px">
 							<colgroup>
 								<col width="50%" />
 								<col width="50%" />
@@ -438,7 +446,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					<tr>
 						<td class="sq-backend-table-cell-alt" style="width:120px;background-color:#f0f0f0;"><b>Additional GET Parameters</b></td>
 						<td class="sq-backend-table-cell">
-						<table class="sq-backend-table">
+						<table class="sq-backend-table" style="margin-bottom:0px">
 							<colgroup>
 								<col width="40%" />
 								<col width="60%" />
