@@ -350,7 +350,7 @@ class JS_Api_Management extends Asset_Management
 						'use_enhanced_js'	=> Array(
 														'added'			=> '0.6',
 														'type'			=> 'boolean',
-														'default'		=> FALSE,
+														'default'		=> TRUE,
 														'parameters'	=> Array(
 																			'allow_empty'=> FALSE,
 																		   ),
