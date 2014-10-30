@@ -3502,7 +3502,7 @@ var JS_Asset_Map = new function() {
 						}
 					}
 
-					if (String(reqInfo.assetid) === String(options.teleportRoot)) {
+					if ((String(reqInfo.assetid) === '1') || (String(reqInfo.assetid) === String(options.teleportRoot))) {
 						request._attributes.limit = 0;
 					}
 
