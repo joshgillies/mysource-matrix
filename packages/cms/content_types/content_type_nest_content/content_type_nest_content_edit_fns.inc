@@ -84,9 +84,18 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$arbitrary_paint_layout = $this->_getArbitraryPaintLayout($asset);
 				$paint_layout_id = (is_null($arbitrary_paint_layout)) ? 0 : $arbitrary_paint_layout->id;
 				$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
+				$additional_get_vars = $asset->attr('additional_get');
+
 				if (empty($asset_link)) {
 					$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 				}
+
+				if ($asset->attr('dynamic_nest_get') !== '' || !empty($additional_get_vars) || ($paint_layout_id !== 0 || $paint_with != 'raw')) {
+					$display_table_rows = 'table-row';
+				} else {
+					$display_table_rows = 'none';
+				}
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -118,7 +127,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							?>
 							</td>
 					</tr>
-					<tr id = "<?php echo $prefix; ?>_dynamic_options_<?php echo $nested_asset->id; ?>" style="display:<?php echo $asset->attr('dynamic_nest_get') == '' ? 'none' : 'table-row'; ?>;">
+					<tr id = "<?php echo $prefix; ?>_dynamic_options_<?php echo $nested_asset->id; ?>" style="display:<?php echo $display_table_rows; ?>;">
 						<td class="sq-backend-table-cell-alt" style="width:120px;"><b>Dynamic Options</b></td>
 						<td class="sq-backend-table-cell">
 						<table>
@@ -141,7 +150,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							</table>
 						</td>
 					</tr>
-					<tr id = "<?php echo $prefix; ?>_paint_layout_config_<?php echo $nested_asset->id?>" style="display:<?php echo !$paint_layout_id ? 'none' : 'table-row'; ?>;">
+					<tr id = "<?php echo $prefix; ?>_paint_layout_config_<?php echo $nested_asset->id?>" style="display:<?php echo $display_table_rows; ?>;">
 						<td class="sq-backend-table-cell-alt" style="width:120px"><b>Paint Layouts</b></td>
 						<td class="sq-backend-table-cell">
 							<?php
@@ -159,8 +168,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							?>
 						</td>
 					</tr>
-					<?php $additional_get_vars = $asset->attr('additional_get'); log_dump($additional_get_vars); ?>
-					<tr id = "<?php echo $prefix; ?>_additional_get_param_<?php echo $nested_asset->id?>" style="display:<?php echo empty($additional_get_vars) ? 'none': 'table-row'; ?>;">
+					<tr id = "<?php echo $prefix; ?>_additional_get_param_<?php echo $nested_asset->id?>" style="display:<?php echo $display_table_rows; ?>;">
 						<td class="sq-backend-table-cell-alt" style="width:120px"><b>Additional GET Parameters</b></td>
 						<td class="sq-backend-table-cell">
 						<?php

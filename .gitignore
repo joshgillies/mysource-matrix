@@ -1,7 +1,6 @@
 cache/
 core/lib/DAL/QueryStore/
 core/lib/DAL/Oven/
-core/lib/js/matrix.min.js
 data/public/asset_types/
 data/public/system/core/
 data/private/

@@ -382,6 +382,11 @@ class Conditions_List
 				} else {
 					echo $condition_name;
 				}
+				if(isset($_REQUEST[$condition_prefix.'_keyword_name_changed'])) {
+					$old_name = $_REQUEST[$condition_prefix.'_keyword_name_changed'];
+					$new_name = $condition_name;
+					echo '<div class="sq-warning-message top-margin">'.sprintf(translate('<strong>Warning:</strong> Condition name has been changed from "%1$s" to "%2$s". Please review any conditional keywords where this condition is used.'), $old_name, $new_name).'</div>';
+				}
 				$o->closeField();
 
 				// let the condition paint itself
@@ -506,7 +511,16 @@ class Conditions_List
 						trigger_error('Incorrect keyword name: keyword names cannot begin with "begin_", "end_" or "else_" ('.$new_name.').', E_USER_WARNING);
 						$new_name = $condition_name;
 					}
+					$original_new_name = $new_name;
 					$new_name = $this->_generateUniqueName($new_name, $conditions_parameters_new);
+
+					// if condition name has been changed, mark it to display the warning
+					if($new_name !== $condition_name) {
+						$_REQUEST[$prefix.$new_name.'_keyword_name_changed'] = $condition_name;
+					}
+					else if ($original_new_name !== $new_name) {
+						$_REQUEST[$prefix.$new_name.'_keyword_name_changed'] = $original_new_name;
+					}
 
 					// let the condition process itself
 					$condition_type = $parameters['type_code'];

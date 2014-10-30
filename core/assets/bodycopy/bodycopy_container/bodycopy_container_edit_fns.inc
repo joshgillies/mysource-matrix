@@ -377,7 +377,11 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			// so that keywords get printed out correctly on the frontend, and replacements at higher level are not affected
 			// content file is generated each time the user commits, so we dont have to bother to convert the special char back
 			foreach ($keywords as $keyword) {
-				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo "&#37;'.$keyword.'&#37;"; ?'.'>\\4', $output);
+				// bug fix RM #6236 Disable keywords option not working with modifiers
+				// the caret in the keyword with modifier is acting as a special character
+				// when doing preg_replace so for this we need to excape it to fix the bug
+				$keyword_escaped = str_replace('^', '\^', $keyword);
+				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword_escaped.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo "&#37;'.$keyword.'&#37;"; ?'.'>\\4', $output);
 			}
 		}
 
