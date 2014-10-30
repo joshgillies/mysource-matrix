@@ -3290,4 +3290,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
     <string source="trigger_schema_no_schema_specified">No schema specified</string>
     <string source="hipo_creating_safe_trash_job">Creating Safe Trash Scheduled Job</string>
     <string source="no_asset_types_selected">No asset types selected</string>
+	<!-- conditions -->
+	<string source="condition_name_change_warning">&lt;strong&gt;Warning:&lt;/strong&gt; Condition name has been changed from "%1$s" to "%2$s". Please review any conditional keywords where this condition is used.</string>
+
 </strings>

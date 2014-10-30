@@ -511,6 +511,8 @@ class Conditions_List
 						trigger_error('Incorrect keyword name: keyword names cannot begin with "begin_", "end_" or "else_" ('.$new_name.').', E_USER_WARNING);
 						$new_name = $condition_name;
 					}
+					$original_new_name = $new_name;
+					$new_name = $this->_generateUniqueName($new_name, $conditions_parameters_new);
 
 					// if condition name has been changed, mark it to display the warning
 					if($new_name !== $condition_name) {
@@ -519,7 +521,6 @@ class Conditions_List
 					else if ($original_new_name !== $new_name) {
 						$_REQUEST[$prefix.$new_name.'_keyword_name_changed'] = $original_new_name;
 					}
-					$new_name = $this->_generateUniqueName($new_name, $conditions_parameters_new);
 
 					// let the condition process itself
 					$condition_type = $parameters['type_code'];
