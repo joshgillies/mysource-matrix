@@ -3519,6 +3519,18 @@ class JS_Api extends Page
 			}
 		}
 
+		$list_urls = Array();
+		$urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($asset->id);
+		foreach ($urls as $url) {
+			if ($url['http']) {
+				$list_urls[] = 'http://'.$url['url'];
+			}
+
+			if ($url['https']) {
+				$list_urls[] = 'https://'.$url['url'];
+			}
+		}
+
 		// Get general info about asset
 		$data = Array(
 					'name'						=>	$asset->name,
@@ -3530,6 +3542,7 @@ class JS_Api extends Page
 					'icon_path'					=>	$am->getAssetIconURL($asset->type()),
 					'data_path'					=>	$asset->data_path,
 					'web_path'					=>	$asset->getURL(),
+					'urls'						=>  $list_urls,
 					'status'					=>	$asset->getStatusDescription(),
 					'created'					=>	$asset->created,
 					'created_userid'			=>	$asset->created_userid,
