@@ -4701,7 +4701,8 @@ var JS_Asset_Map = new function() {
 		}
 
 		// Folder always sits at the bottom.
-		ungroupedAssets.map(function(typeCode) {
+		for (var i = 0; i < ungroupedAssets.length; i++) {
+			typeCode = ungroupedAssets[i];
 		    var type = assetTypeCache[typeCode];
             var menuItem = self.drawMenuItem(type.name, typeCode);
             menuItem.setAttribute('data-typecode', typeCode);
@@ -4727,7 +4728,7 @@ var JS_Asset_Map = new function() {
             });
 
             container.appendChild(menuItem);
-		});
+		}
 
 		return container;
 	};
