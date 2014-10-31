@@ -377,24 +377,36 @@ class Content_Type_Code_Prefs extends Prefs
 			$this->pref_vars['SQ_CODE_EDITOR_SIZE']['default']['height'] = $this->css_dimension_height->getContent();
 		}
 
-		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_HTML_CLASSES') {
-			$this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_HTML_CLASSES'];
+		if(isset($_POST['SQ_CODE_EDITOR_HTML_CLASSES'])) {
+			if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_HTML_CLASSES') {
+				$this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_HTML_CLASSES'];
+			}
 		}
 
-		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_PHP_CLASSES') {
-			$this->pref_vars['SQ_CODE_EDITOR_PHP_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_PHP_CLASSES'];
+		if(isset($_POST['SQ_CODE_EDITOR_PHP_CLASSES'])) {
+			if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_PHP_CLASSES') {
+				$this->pref_vars['SQ_CODE_EDITOR_PHP_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_PHP_CLASSES'];
+			}
 		}
 
-		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_JS_CLASSES') {
-			$this->pref_vars['SQ_CODE_EDITOR_JS_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_JS_CLASSES'];
+		if(isset($_POST['SQ_CODE_EDITOR_JS_CLASSES'])) {
+			if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_JS_CLASSES') {
+				$this->pref_vars['SQ_CODE_EDITOR_JS_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_JS_CLASSES'];
+			}
 		}
 
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_LINE_NUMBERS') {
         	$line_prefs = $this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['default'];
 			$line_prefs['use_line_numbers'] = isset($_POST['SQ_CODE_show_line_numbers']);
-			$line_prefs['line_number_style'] = $_POST['SQ_CODE_line_style'];
-			$line_prefs['line_number_class'] = $_POST['SQ_CODE_line_class'];
-			$line_prefs['line_number_left'] = $_POST['SQ_CODE_line_number_left'];
+			if(isset($_POST['SQ_CODE_line_style'])) {
+				$line_prefs['line_number_style'] = $_POST['SQ_CODE_line_style'];
+			}
+			if(isset($_POST['SQ_CODE_line_class'])) {
+				$line_prefs['line_number_class'] = $_POST['SQ_CODE_line_class'];
+			}
+			if(isset($_POST['SQ_CODE_line_number_left'])) {
+				$line_prefs['line_number_left'] = $_POST['SQ_CODE_line_number_left'];
+			}
 			$this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['default'] = $line_prefs;
 		}
 		return TRUE;
