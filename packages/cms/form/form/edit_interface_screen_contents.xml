@@ -76,10 +76,6 @@
 			<note>If "Yes", a confirmation page will appear after the form (or the last page) is completed, but before the form as a whole is fully submitted. This will allow the form's users to confirm that they have filled all parts of the form correctly, before they submit the form.</note>
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="customise_confirmation_page">
-			<display_name>Customise Confirmation Page?</display_name>
-			<note>If "Yes", a bodycopy will be created in the Bodycopies folder, allowing you to customise what is displayed to the user on the confirmation page. If set to "No", the confirmation page will be printed using a basic default format.</note>
-		</field>
 		<field>
 			<display_name>Use Bodycopy?</display_name>
 			<note>When bodycopy is not used, a default style will be used.</note>
