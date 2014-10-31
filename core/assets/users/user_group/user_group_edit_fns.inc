@@ -622,9 +622,16 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function paintRoles(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->adminAccess('roles');
-		$string_code_suffix = ($asset instanceof User_Group) ? 'group' : 'user';
 
-		$o->openSection(translate('role_directly_assigned_section_'.$string_code_suffix));
+		if ($asset instanceof User_Group) {
+			$section_string  = translate('Assigned directly to this group');
+			$indirect_string = translate('Assigned via other groups of which this group is a member');
+		} else {
+			$section_string  = translate('Assigned directly to this user');
+			$indirect_string = translate('Assigned via groups of which this user is a member');
+		}
+
+		$o->openSection($section_string);
 			$o->openRaw();
 
 			if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') {
@@ -679,7 +686,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		if (!empty($roles)) {
-			$o->openSection(translate('role_indirectly_assigned_section_'.$string_code_suffix));
+			$o->openSection($indirect_string);
 				$o->openRaw();
 					$this->_printRoleTable($prefix, 'indirect', $roles, FALSE, TRUE);
 				$o->closeRaw();

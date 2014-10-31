@@ -66,10 +66,6 @@
 				<paint_function   name="paintSTAFField"   />
 				<process_function name="processSTAFField" />
 			</function_call>
-			<function_call>
-				<paint_function   name="paintSTAFField"   />
-				<process_function name="processSTAFField" />
-			</function_call>
 		</field>
 		<field attribute="staf_format">
 			<display_name>STAF Email Format</display_name>

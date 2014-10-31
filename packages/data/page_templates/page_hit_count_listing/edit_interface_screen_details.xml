@@ -18,14 +18,20 @@
 <contents>
     <section name="Details" write_access="write:attributes" limbo_access="1">
         <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note></note>
             <text width="35" height="1" />
         </field>
         <field attribute="short_name">
+            <display_name>Page Short Name</display_name>
+            <note></note>
             <text width="25" height="1" />
         </field>
     </section>
     <section name="Asset Selection" write_access="write:content" limbo_access="1">
         <field>
+            <display_name>Asset Types to List</display_name>
+            <note></note>
             <function_call>
                 <paint_function name="paintAssetTypes" />
                 <process_function name="processAssetTypes" />

@@ -1814,23 +1814,19 @@ class Page_Asset_Builder extends Page
 		$res = Array();
 		$res['not_logged_in']= Array(
 								'name'		=> translate('Not Logged In'),
-
 								'content'	=> '%login_error%
 												%login_invite%
 												%login_form%',
 							   );
 		$res['logged_in']= Array(
 							'name'		=> translate('Logged in'),
-
 							'content'	=> '%create_error%
 											%create_invite%
 											%create_form%',
 						   );
 		$res['created']= Array(
 							'name'		=> translate('Created'),
-
 							'content'	=> translate('Asset created<br />See it <a href="%%created_asset_url%%">here</a>'),
-
 						 );
 		return $res;
 

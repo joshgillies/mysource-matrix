@@ -453,7 +453,7 @@ class Remap_Manager extends Asset
 	* @param string	$protocol	the protocol that the url is using
 	* @param string	$url		the url to remap from
 	* @param string	$parameters	paramters string to preserve
-	 *
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -658,7 +658,14 @@ class Remap_Manager extends Asset
 		}
 		// give up, and just paint the asset
 		// without a design
-		$asset->printFrontend();
+		ob_start();
+			$asset->printFrontend();
+			$contents =  ob_get_contents();
+		ob_end_clean();
+
+		$GLOBALS['SQ_SYSTEM']->replaceKeyword($contents);
+
+		echo $contents;
 
 		return TRUE;
 

@@ -77,17 +77,25 @@
 	</section>
 	<section name="Asset Locations" write_access="write:content"  limbo_access="1">
 		<field>
-			<display_name>Link Types</display_name>
-			<note>This setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned on.  Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links.</note>
+			<display_name>Root Nodes</display_name>
+			<note>Leave blank to list the children of this asset listing page.</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
+        <field>
+            <display_name>Link Types</display_name>
+            <note>This setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned on.  Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links.</note>
+            <function_call>
+                <paint_function   name="paintLinkTypes"  />
+                <process_function name="processLinkTypes" />
+            </function_call>
+        </field>
 		<field attribute="all_root_nodes">
 			<display_name>Root Node Logic</display_name>
 			<note>Defines how assets are managed when there is more than one root node displayed (either selected above, or through a replacement root node setting). If there is only one root node selected, then this option has no effect.</note>
-			<boolean true_text="cms_listing_all_root_nodes_yes" false_text="cms_listing_all_root_nodes_no" />
+			<boolean true_text="Assets must be a child of ALL selected root nodes" false_text="Assets must be a child of at least ONE root node" />
 		</field>
 		<field attribute="subs_only">
 			<display_name>Direct Links Only</display_name>
@@ -110,6 +118,8 @@
 			<int width="5" />
 		</field>
 		<field>
+            <display_name>Link Types</display_name>
+            <note>This setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned on.  Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links.</note>
 			<function_call>
 				<paint_function   name="paintLinkTypes" />
 				<process_function name="processLinkTypes" />
@@ -123,7 +133,7 @@
 		<field attribute="link_value_filter_logic">
 			<display_name>Link Value Filtering Logic</display_name>
 			<note>This specifies if assets returned should have link value equal or different from the 'Link Value' field. You will need to enable 'Link Value Filtering'.</note>
-			<boolean true_text="match" false_text="does_not_match" />
+			<boolean true_text="Match" false_text="Does not match" />
 		</field>
 		<field attribute="link_value_filter_enabled">
 			<display_name>Enable Link Value Filtering</display_name>

@@ -677,23 +677,19 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		$res = Array();
 
-		$res['Not Logged In']['name'] = translate('Not Logged In');
-
+		$res['not_logged_in']['name'] = translate('Not Logged In');
 		$res['not_logged_in']['content'] = '<p>%create_error%%login_error%</p>'."\n".
 											'%create_invite%%create_form%%login_invite%%login_form%';
 
 		$res['create_no_login']['name'] = translate('Created but not live');
-
 		$res['create_no_login']['content'] = translate('Your account has been created but needs to be activated before you can log in.');
 
 
 		$res['create_login']['name'] = translate('Created, live');
-
 		$res['create_login']['content'] = translate('Your account has been created and activated.  Please log in using the form below.')."\n%login_form%";
 
 
-		$res['Logged in']['name'] = translate('Logged in');
-
+		$res['logged_in']['name'] = translate('Logged in');
 		$res['logged_in']['content'] = '<p>%edit_details_lock_error%%edit_details_success%%form_errors%</p>'."\n".
 										'%edit_details_invite%%edit_details_form%';
 
