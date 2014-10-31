@@ -1091,10 +1091,11 @@ class Asset_Map
 	 */
 	function _dbToRealSortOrder($parent_assetid, $sort_order)
 	{
-	    $sql = 'SELECT sort_order FROM sq_ast_lnk '.
+	    $sql = 'SELECT l.sort_order FROM sq_ast_lnk l '.
+	            'JOIN sq_ast a on l.minorid = a.assetid '.
 	            'WHERE majorid = :parent_assetid '.
-	            'AND link_type IN (1, 2) '.
-	            'ORDER BY sort_order';
+	            'AND l.link_type IN (1, 2) '.
+	            'ORDER BY l.sort_order';
 
         $retval = FALSE;
         
