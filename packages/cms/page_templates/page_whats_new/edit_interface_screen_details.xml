@@ -18,9 +18,13 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
+            <display_name>Page Name</display_name>
+            <note></note>
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
+            <display_name>Page Short Name</display_name>
+            <note></note>
 			<text width="25" height="1" />
 		</field>
 	</section>
@@ -39,24 +43,32 @@
 	</section>
 	<section name="Asset Selection" write_access="write:content">
 		<field>
+			<display_name>Asset Types to List</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
 				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Asset Statuses to List</display_name>
+			<note>If selected, only assets in the statuses chosen will be listed. If no statuses are selected, assets to which the current user has effective read permission will be listed.</note>
 			<function_call>
 				<paint_function   name="paintStatus" />
 				<process_function name="processStatus" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Exclude Assets</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintAssetExclusion"   />
 				<process_function name="processAssetExclusion" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Exclude Root Node</display_name>
+			<note>If specified, all children of selected nodes will be excluded</note>
 			<function_call>
 				<paint_function   name="paintRootNodeExclusion"   />
 				<process_function name="processRootNodeExclusion" />
@@ -70,18 +82,26 @@
 	</section>
 	<section name="Asset Locations" write_access="write:content">
 		<field>
+			<display_name>Root Nodes</display_name>
+			<note>Leave blank to list the children of this What's New listing page.</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
 		<field attribute="subs_only">
-			<boolean true_text="yes" false_text="no" />
+			<display_name>Direct Links Only</display_name>
+			<note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="direction">
+			<display_name>Lookup Direction</display_name>
+			<note>Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below.</note>
 			<selection style="list" />
 		</field>
 		<field>
+			<display_name>Link Types</display_name>
+            <note>This setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned on.  Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links.</note>
 			<function_call>
 				<paint_function   name="paintLinkTypes" />
 				<process_function name="processLinkTypes" />
