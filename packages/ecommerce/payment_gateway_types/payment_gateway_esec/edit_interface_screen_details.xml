@@ -44,7 +44,7 @@
         <field attribute="message">
             <display_name>Message</display_name>
             <note>This message will be displayed on the gateway upon redirect from the e-commerce page.</note>
-            <text />
+            <wysiwyg />
         </field>
         <field attribute="submit_text">
             <display_name>Submit Button Text</display_name>
