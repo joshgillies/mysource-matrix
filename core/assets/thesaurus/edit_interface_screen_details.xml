@@ -62,7 +62,7 @@
 		<field attribute="hierarchy_mode">
 			<display_name>Hierarchy Mode</display_name>
 			<note>If enabled, the children of this thesaurus in the asset map will be the top level terms. If disabled, all the terms will appear on the same level. This doesn't affect the display of terms below the top level (those linked to one another).</note>
-			<boolean true_text="enabled" false_text="disabled" />
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 		<field>
 			<display_name>Hierarchy Relation</display_name>
@@ -75,6 +75,7 @@
 		<field attribute="hierarchy_w_stray">
 			<display_name>Unrelated Term Inclusion</display_name>
 			<note>This determines if a term that is neither a child or parent in the relation selected above should be included in the list of top terms. ...Continuing from the example above... Whether or not C will appear as a top term is determined by this setting. If enabled, both A and C will appear as children of the thesaurus.</note>
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 	</section>
 	<section name="Built-in Relations" write_access="write:attributes">
@@ -133,7 +134,7 @@
 		<field attribute="enforce_reflection">
 			<display_name>Enforce Reflections</display_name>
 			<note>When this is disabled, reflection integrity will not be enforced when linking and unlinking terms.</note>
-			<boolean true_text="enabled" false_text="disabled" />
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 		<field>
 			<display_name>Relation Map</display_name>
