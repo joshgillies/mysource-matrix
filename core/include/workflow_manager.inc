@@ -1845,6 +1845,7 @@ class Workflow_Manager extends MySource_Object
 		if (!$this->silentWorkflowParty($asset->id)) {
 			// send internal messages to everyone who can now publish the asset
 			$generic_msg = NULL;
+			$is_generic = FALSE;
 
 			$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$schema_workflows = $this->getSchemaWorkflows($asset->id);
@@ -1935,7 +1936,6 @@ class Workflow_Manager extends MySource_Object
                                         translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>')."\n\n".
                                         translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
 
-                    $is_generic = FALSE;
                     if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
 						// This message has a custom body. Just send it.
 						$subject = trim(array_get_index($current_step, 'subject_invitation'));
