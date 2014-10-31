@@ -133,7 +133,7 @@
 		<field attribute="link_value_filter_logic">
 			<display_name>Link Value Filtering Logic</display_name>
 			<note>This specifies if assets returned should have link value equal or different from the 'Link Value' field. You will need to enable 'Link Value Filtering'.</note>
-			<boolean true_text="match" false_text="does_not_match" />
+			<boolean true_text="Match" false_text="Does not match" />
 		</field>
 		<field attribute="link_value_filter_enabled">
 			<display_name>Enable Link Value Filtering</display_name>
