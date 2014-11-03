@@ -98,15 +98,15 @@
         </field>
     </section>
     <section name="Search Button Configuration">
-        <field write_access="write:attributes" attribute="submit_button_text">
+        <field write_access="write:attributes" attribute="submit_button">
             <display_name>Submit Button Type</display_name>
+            <note>If image button type is used then image ALT value will be set to this text</note>
+            <boolean true_text="Button" false_text="Image" />
+        </field>
+        <field write_access="write:attributes" attribute="submit_button_text">
+            <display_name>Submit Button Text</display_name>
             <note />
             <text width="25" height="1" />
-        </field>
-        <field write_access="write:attributes" attribute="submit_button">
-            <display_name>Submit Button Text</display_name>
-            <note>If image button type is used then image ALT value will be set to this text</note>
-            <boolean true_text="sch_box_button" false_text="sch_box_image" />
         </field>
         <field write_access="write:attributes" show_if="isSubmitButton">
             <display_name>Submit Image</display_name>

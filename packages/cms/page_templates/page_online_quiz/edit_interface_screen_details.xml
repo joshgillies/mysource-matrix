@@ -146,7 +146,7 @@
 		<field attribute="all_root_nodes">
 			<display_name>Root Node Logic</display_name>
 			<note>Defines how assets are managed when there is more than one root node displayed (either selected above, or through a replacement root node setting). If there is only one root node selected, then this option has no effect.</note>
-			<boolean true_text="cms_listing_all_root_nodes_yes" false_text="cms_listing_all_root_nodes_no" />
+			<boolean true_text="Assets must be a child of ALL selected root nodes" false_text="Assets must be a child of at least ONE root node" />
 		</field>
 		<field attribute="subs_only">
 			<display_name>Direct Links Only</display_name>

@@ -86,7 +86,7 @@
 		<field attribute="structured_style">
 			<display_name>Listing Style</display_name>
 			<note>Style to display for selections</note>
-			<boolean true_text="radio_buttons" false_text="dropdown_list" />
+			<boolean true_text="Radio Buttons" false_text="Drop-down List" />
 		</field>
 	</section>
 	<section name="Email Verification" write_access="write:attributes">

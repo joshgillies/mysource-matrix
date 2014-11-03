@@ -71,7 +71,7 @@
 		<field attribute="content_text_only">
 			<display_name>Email Type</display_name>
 			<note>If this option is set to "Text Only", the design and paint layout specified below will be ignored. The asset contents will be sent in a text-only email, with tags stripped.</note>
-			<boolean true_text="bulkmail_job_context_text_only_true" false_text="bulkmail_job_context_text_only_false" />
+			<boolean true_text="Text Only" false_text="HTML" />
 		</field>
 		<field attribute="content_gen_as">
 			<display_name>Generate As</display_name>

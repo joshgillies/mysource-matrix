@@ -82,7 +82,7 @@
 		<field attribute="no_tag_clear">
 			<display_name>When Tag(s) Not Found</display_name>
 			<note>This option can be used to determine what is displayed when Start and End Tags are configured for content filtering, but are not present in the remote content.</note>
-			<boolean true_text="cms_remote_content_no_tag_clear_display_none" false_text="cms_remote_content_no_tag_clear_display_all" />
+			<boolean true_text="Do not display content" false_text="Display all content" />
 		</field>
 		<field attribute="include_tags">
 			<display_name>Include Start/End Tags?</display_name>
