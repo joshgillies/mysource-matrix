@@ -21,7 +21,7 @@
  */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage_types/cache_storage_redis/cache_storage_redis.inc';
-#require_once SQ_LIB_PATH.'/MatrixRedis/MatrixRedis.inc';
+
 
 /**
  * Cache storage using redis, without atomic operations (ie, the multi and exec commands)

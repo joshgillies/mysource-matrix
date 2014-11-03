@@ -34,11 +34,11 @@
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cache_storage_redis</parent_type>
-   <requirements>
-      <requirement type="asset">
-         <code>cache_storage_redis</code>
-         <version>0.1</version>
-      </requirement>
-   </requirements>
-   <flash_menu_path />
+	<requirements>
+		<requirement type="asset">
+			<code>cache_storage_redis</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path />
 </asset_info>
