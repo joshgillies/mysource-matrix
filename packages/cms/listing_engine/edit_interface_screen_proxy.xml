@@ -20,7 +20,7 @@
 		<field>
 			<display_name>Current Settings</display_name>
 			<function_call>
-				<paint_function   name="printProxyTypes" />
+				<paint_function   name="paintProxyTypes" />
 				<process_function name="processProxyTypes" />
 			</function_call>
 		</field>
