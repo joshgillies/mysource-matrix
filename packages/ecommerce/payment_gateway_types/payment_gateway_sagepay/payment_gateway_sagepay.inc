@@ -76,30 +76,30 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
-<div style="background-color: #CCC; padding: 5px"><strong>&pound;%%transaction_amount%%</strong> Pounds Sterling (GBP) are about to be debited from your card</div>
+		return ($this->_createBodycopy('display_format', translate('%processing_error%
+<div style="background-color: #CCC; padding: 5px"><strong>&pound;%transaction_amount%</strong> Pounds Sterling (GBP) are about to be debited from your card</div>
 <table cellpadding="5">
 	<tr>
 		<td align="right">Name on Card</td>
-		<td>%%card_name%%</td>
+		<td>%card_name%</td>
 	</tr>
 	<tr>
 		<td align="right">Card Number</td>
-		<td>%%card_number%%</td>
+		<td>%card_number%</td>
 	</tr>
 	<tr>
 		<td align="right">Expiry Date (MM/YY)</td>
-		<td>%%card_expiry_month%% / %%card_expiry_year%%</td>
+		<td>%card_expiry_month% / %card_expiry_year%</td>
 	</tr>
 	<tr>
 		<td align="right">Card Type</td>
-		<td>%%card_type%%</td>
+		<td>%card_type%</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
-		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+		<td>%submit_button% %reset_button% %cancel_button%</td>
 	</tr>
-</table>')) && $this->_createBodycopy('card_holder_verification', translate('%%card_holder_verification_form%%')));
+</table>')) && $this->_createBodycopy('card_holder_verification', translate('%card_holder_verification_form%')));
 
 
 

@@ -72,7 +72,7 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 			} else {
 				echo $discount_types[$rule_data['discount_type']];
 			}
-			$o->note(translate('The discount type of this promotional rule. Do not use the percent symbol (%%) for the percentage discount type, e.g. use 50 for 50%% discount amount.'));
+			$o->note(translate('The discount type of this promotional rule. Do not use the percent symbol (%) for the percentage discount type, e.g. use 50 for 50% discount amount.'));
 
 		$o->closeField();
 

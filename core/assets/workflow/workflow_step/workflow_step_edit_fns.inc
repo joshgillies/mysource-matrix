@@ -133,7 +133,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$o->openField(translate('New Dynamic Condition?'));
 
 				text_box($prefix.'_new_dynamic_condition', '', 80);
-				$o->note(translate('Specify a Matrix keyword to be dynamically evaluated as the condition asset ID. This keyword will be only evaluated against the dependant parent asset. Global keywords and keyword modifier are supported. e.g %%asset_metadata_value^empty:12%%'));
+				$o->note(translate('Specify a Matrix keyword to be dynamically evaluated as the condition asset ID. This keyword will be only evaluated against the dependant parent asset. Global keywords and keyword modifier are supported. e.g %asset_metadata_value^empty:12%'));
 
 			$o->closeField();
 		}

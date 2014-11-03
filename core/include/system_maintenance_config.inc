@@ -174,7 +174,7 @@ class System_Maintenance_Config extends Config
 		*/
 		$o->openSection(translate('Maintenance Mode'));
 
-		$o->openField(translate('Maintenance Mode'), '', translate('When this setting is set to "Enabled", Matrix will enter Maintenance Mode and affected assets specified below will print a maintenance message instead of their asset contents on the front end.  If this setting is set to "Notify", Matrix will only print a different maintenance message as well as the asset contents on the front end for the affected assets. The %%globals_system_maintenance_mode%% keyword can be used to print the current maintenance mode status which will either be "disabled", "notify" or "enabled".'));
+		$o->openField(translate('Maintenance Mode'), '', translate('When this setting is set to "Enabled", Matrix will enter Maintenance Mode and affected assets specified below will print a maintenance message instead of their asset contents on the front end.  If this setting is set to "Notify", Matrix will only print a different maintenance message as well as the asset contents on the front end for the affected assets. The %globals_system_maintenance_mode% keyword can be used to print the current maintenance mode status which will either be "disabled", "notify" or "enabled".'));
 
 
 		if ($write_access && $is_admin) {
@@ -200,7 +200,7 @@ class System_Maintenance_Config extends Config
 		}
 		$o->closeField();
 
-		$o->openField(translate('Back End Notify Message'), '', translate('The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Notify" status. The <strong>%%globals_system_maintenance_message_backend%%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
+		$o->openField(translate('Back End Notify Message'), '', translate('The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Notify" status. The <strong>%globals_system_maintenance_message_backend%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
 
 
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE';
@@ -209,7 +209,7 @@ class System_Maintenance_Config extends Config
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
-		$o->openField(translate('Front End Notify Message'), '', translate('The message that will be printed on affected asset on frontend when Maintenance Mode is set "Notify" status. The <strong>%%globals_system_maintenance_message_frontend%%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
+		$o->openField(translate('Front End Notify Message'), '', translate('The message that will be printed on affected asset on frontend when Maintenance Mode is set "Notify" status. The <strong>%globals_system_maintenance_message_frontend%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
 
 
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE';
@@ -218,7 +218,7 @@ class System_Maintenance_Config extends Config
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
-		$o->openField(translate('Back End Enabled Message'), '', translate('The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Enabled" status. The <strong>%%globals_system_maintenance_message_backend%%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
+		$o->openField(translate('Back End Enabled Message'), '', translate('The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Enabled" status. The <strong>%globals_system_maintenance_message_backend%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
 
 
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE';
@@ -227,7 +227,7 @@ class System_Maintenance_Config extends Config
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
-		$o->openField(translate('Front End Enabled Message'), '', translate('The message that will be printed on affected asset on frontend when Maintenance Mode is set to "Enabled" status. The <strong>%%globals_system_maintenance_message_frontend%%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
+		$o->openField(translate('Front End Enabled Message'), '', translate('The message that will be printed on affected asset on frontend when Maintenance Mode is set to "Enabled" status. The <strong>%globals_system_maintenance_message_frontend%</strong> keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.'));
 
 
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE';

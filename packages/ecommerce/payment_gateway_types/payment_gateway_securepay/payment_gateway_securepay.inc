@@ -66,24 +66,24 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
-<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> (%%transaction_gst%% percent GST)  dollars are about to be debited from your card</div>
+		return ($this->_createBodycopy('display_format', translate('%processing_error%
+<div style="background-color: #CCC; padding: 5px"><strong>$%transaction_amount%</strong> (%transaction_gst% percent GST)  dollars are about to be debited from your card</div>
 <table cellpadding="5">
 	<tr>
 		<td align="right">Card Number</td>
-		<td>%%card_number%%  %%card_cv2%%</td>
+		<td>%card_number%  %card_cv2%</td>
 	</tr>
 	<tr>
 		<td align="right">Expiry Date (MM/YY)</td>
-		<td>%%card_expiry_month_select%% / %%card_expiry_year_select%%</td>
+		<td>%card_expiry_month_select% / %card_expiry_year_select%</td>
 	</tr>
 	<tr>
 		<td align="right">Card Type</td>
-		<td>%%card_type%%</td>
+		<td>%card_type%</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
-		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+		<td>%submit_button% %reset_button% %cancel_button%</td>
 	</tr>
 </table>')));
 

@@ -64,12 +64,9 @@ class Page_Link_Manager_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 			</tr>
 			<?php
-			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %%asset_listing%% keyword to include the list of assets on the page.'));
-
+			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %asset_listing% keyword to include the list of assets on the page.'));
 			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('This format defines the layout of the page when the <b>Customise No Results Bodycopy</b> option is turned on, and there are no assets to list.'));
-
 			$this->_paintDefaultFormatLink($asset->id, 'not_logged_in', translate('This format defines the layout of the page when the user viewing the page is not logged in.'));
-
 
 			$folder = $asset->getFolder('type_formats');
 			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('This is the default format for all assets in the list if they do not have a customised format for their asset type or position.'));

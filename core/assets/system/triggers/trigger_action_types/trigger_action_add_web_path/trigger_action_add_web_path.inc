@@ -176,7 +176,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 			echo '"<strong>'.$web_path.'</strong>"';
 		}
 		echo '<br />';
-		echo translate('<strong>Note:</strong> You can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.');
+		echo translate('<strong>Note:</strong> You can use keywords (eg. %asset_assetid%) and global keywords (eg. %globals_user_assetid%) in the web path.');
 
 		echo '<br />';
 		echo '<br />';

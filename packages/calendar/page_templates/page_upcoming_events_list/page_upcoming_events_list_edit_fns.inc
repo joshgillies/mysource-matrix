@@ -117,7 +117,7 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 
 			</tr>
 			<?php
-			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %%event_list%% keyword to include the list of events on the page.'));
+			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %event_list% keyword to include the list of events on the page.'));
 
 			?>
 		</table>

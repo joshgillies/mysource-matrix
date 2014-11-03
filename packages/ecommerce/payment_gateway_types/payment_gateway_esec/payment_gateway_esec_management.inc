@@ -110,32 +110,32 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 		if (version_compare($current_version, '0.3', '<')) {
 			pre_echo('UPGRADING TO v0.3');
 			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('payment_gateway_esec', FALSE);
-			$default_content = translate('%%processing_error%%
-<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> Australian Dollars are about to be debited from your credit card</div>
+			$default_content = translate('%processing_error%
+<div style="background-color: #CCC; padding: 5px"><strong>$%transaction_amount%</strong> Australian Dollars are about to be debited from your credit card</div>
 <table cellpadding="5">
 	<tr>
 		<td align="right">Name on Card</td>
-		<td>%%credit_card_name%%</td>
+		<td>%credit_card_name%</td>
 	</tr>
 	<tr>
 		<td align="right">Number</td>
-		<td>%%credit_card_number%%</td>
+		<td>%credit_card_number%</td>
 	</tr>
 	<tr>
 		<td  align="right">CCV</td>
-		<td>%%credit_card_ccv%% - from the back of your credit card</td>
+		<td>%credit_card_ccv% - from the back of your credit card</td>
 	</tr>
 	<tr>
 		<td align="right">Expiry Date (MM/YY)</td>
-		<td>%%credit_card_expiry_month%% / %%credit_card_expiry_year%%</td>
+		<td>%credit_card_expiry_month% / %credit_card_expiry_year%</td>
 	</tr>
 	<tr>
 		<td align="right">Type</td>
-		<td>%%credit_card_type_selector%%</td>
+		<td>%credit_card_type_selector%</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
-		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+		<td>%submit_button% %reset_button% %cancel_button%</td>
 	</tr>
 </table>');
 

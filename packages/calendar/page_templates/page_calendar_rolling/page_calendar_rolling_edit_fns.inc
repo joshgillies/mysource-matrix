@@ -345,10 +345,8 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 
 			</tr>
 			<?php
-			$this->_paintDefaultFormatLink($asset->id, '', translate('This format defines the layout of the page. Ensure you use the %%event_list%% keyword to include the list of events on the page.'));
-
+			$this->_paintDefaultFormatLink($asset->id, '', translate('This format defines the layout of the page. Ensure you use the %event_list% keyword to include the list of events on the page.'));
 			$this->_paintDefaultFormatLink($asset->id, 'time_unit', translate('This format defines the display of date/time details on this page.'));
-
 			?>
 		</table>
 		<?php

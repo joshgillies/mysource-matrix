@@ -167,7 +167,7 @@ class Trigger_Action_Remove_Web_Path extends Trigger_Action
 			echo '<b>"'.$web_path.'"</b>';
 		}
 		echo '<br />';
-		echo '<div class="sq-backend-section-note bottom-margin">'.translate('Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.').'</div>';
+		echo '<div class="sq-backend-section-note bottom-margin">'.translate('Note that you can use keywords (eg. %asset_assetid%) and global keywords (eg. %globals_user_assetid%) in the web path.').'</div>';
 
 		check_box($prefix.'[remove_all]', '1', array_get_index($settings, 'remove_all', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
 		echo '<label for='.$prefix.'[remove_all]'.'>'.translate('Delete all webpaths').'</label>';

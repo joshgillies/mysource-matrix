@@ -297,7 +297,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 				?>
 			</table>
 			<div class="sq-backend-field-note">
-				<strong><?php echo translate('Note'); ?>:</strong> <?php echo translate('Dynamic variables added in "Dynamic Inputs" screen can be used here in the "Value to Match" field in the form <strong>%%%%VARIABLENAME%%%%.</strong>'); ?>
+				<strong><?php echo translate('Note'); ?>:</strong> <?php echo translate('Dynamic variables added in "Dynamic Inputs" screen can be used here in the "Value to Match" field in the form <strong>%%VARIABLENAME%%.</strong>'); ?>
 
 
 			</div>
@@ -471,7 +471,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 
 		$o->closeRaw();
 
-		$o->sectionNote(translate('Variables added in this section can be used in Record Filters and in other applicable fields in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)'));
+		$o->sectionNote(translate('Variables added in this section can be used in Record Filters and in other applicable fields in the form <strong>%%VARIABLENAME%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)'));
 
 
 		$o->closeSection();

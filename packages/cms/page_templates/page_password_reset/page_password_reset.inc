@@ -877,22 +877,15 @@ class Page_Password_Reset extends Page
 	{
 		$res = Array();
 		$res['request']['name'] = translate('Request');
-
 		$res['request']['content'] = '<p>%password_reset_error%</p><p>'.translate('To reset your password, enter your username below. An email containing further instructions will be sent to the email address with which you registered.').'</p><p>%username_input% %submit_button% </p>';
 
-
 		$res['request_receipt']['name'] = translate('Request Receipt');
-
 		$res['request_receipt']['content'] = '<p>'.translate('Please check your email for instructions on how to complete the password reset procedure.').'</p>';
 
-
 		$res['reset']['name'] = translate('Reset');
-
 		$res['reset']['content'] = '<p>%password_reset_error%</p><p>'.translate('Please enter a new password for your account').'</p><p>%password_input%&nbsp;%submit_button%</p>';
 
-
 		$res['reset_receipt']['name'] = translate('Reset Receipt');
-
 		$res['reset_receipt']['content'] = '<p>'.translate('Your password has been reset and you are now logged in.').'</p>';
 
 

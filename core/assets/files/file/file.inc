@@ -327,7 +327,7 @@ class File extends Asset
 			foreach ($files_to_copy as $filename) {
 				if (file_exists($this->data_path.'/'.$filename) === TRUE) {
 					if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)){
-						trigger_localised_error('SYS0166', sprintf(translate('Failed saving asset "%1$s" to cache, could not copy file "%%2$s" to restricted system directory'), $this->name, $filename), E_USER_WARNING);
+						trigger_localised_error('SYS0166', sprintf(translate('Failed saving asset "%1$s" to cache, could not copy file "%2$s" to restricted system directory'), $this->name, $filename), E_USER_WARNING);
 						return FALSE;
 					}
 				}

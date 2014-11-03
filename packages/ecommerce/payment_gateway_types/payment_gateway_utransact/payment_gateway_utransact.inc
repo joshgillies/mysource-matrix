@@ -116,28 +116,28 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 	function _createBodycopy($default_content=NULL)
 	{
 		if (is_null($default_content)) {
-			$default_content = translate('%%processing_error%%
-<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> (%%transaction_gst%% percent GST)  dollars are about to be debited from your card</div>
+			$default_content = translate('%processing_error%
+<div style="background-color: #CCC; padding: 5px"><strong>$%transaction_amount%</strong> (%transaction_gst% percent GST)  dollars are about to be debited from your card</div>
 <table cellpadding="5">
 	<tr>
 		<td align="right">Name on Card</td>
-		<td>%%credit_card_name%%</td>
+		<td>%credit_card_name%</td>
 	</tr>
 	<tr>
 		<td align="right">Card Number</td>
-		<td>%%credit_card_number%%  %%credit_card_ccv%%</td>
+		<td>%credit_card_number%  %credit_card_ccv%</td>
 	</tr>
 	<tr>
 		<td align="right">Expiry Date (MMM/YYYY)</td>
-		<td>%%credit_card_expiry_month%% / %%credit_card_expiry_year%%</td>
+		<td>%credit_card_expiry_month% / %credit_card_expiry_year%</td>
 	</tr>
 	<tr>
 		<td align="right">Card Type</td>
-		<td>%%credit_card_type_selector%%</td>
+		<td>%credit_card_type_selector%</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
-		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+		<td>%submit_button% %reset_button% %cancel_button%</td>
 	</tr>
 </table>');
 

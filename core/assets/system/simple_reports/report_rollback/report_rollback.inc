@@ -78,14 +78,14 @@ class Report_Rollback extends Simple_Report
 
 		$current_asset_rollback_table = '<br /><table class="sq-backend-table">
 						<tr>
-							<th class="sq-backend-table-header" width="45%%">Rollback asset entries currently in the system</th>
+							<th class="sq-backend-table-header" width="45%">Rollback asset entries currently in the system</th>
 							<td align="right">'.$report['num_asset_rb_entries_today'].'</td>
 						</tr>
 						</table>';
 
 		$current_link_rollback_table = '<br /><table class="sq-backend-table">
 						<tr>
-							<th class="sq-backend-table-header" width="45%%">Rollback link entries currently in the system</th>
+							<th class="sq-backend-table-header" width="45%">Rollback link entries currently in the system</th>
 							<td align="right">'.$report['num_link_rb_entries_today'].'</td>
 						</tr>
 						</table>';
@@ -99,7 +99,7 @@ class Report_Rollback extends Simple_Report
 		$table_format = '<table class="sq-backend-table">
 				<tr>
 					<th class="sq-backend-table-header">Period</th>
-					<th class="sq-backend-table-header" width="35%%" align="right">Rollback %s entries in the system</th>
+					<th class="sq-backend-table-header" width="35%" align="right">Rollback %s entries in the system</th>
 				</tr>
 				%s
 				</table>';

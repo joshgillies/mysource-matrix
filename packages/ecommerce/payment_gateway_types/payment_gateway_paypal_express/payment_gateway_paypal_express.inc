@@ -66,12 +66,12 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		return ($this->_createBodycopy('display_format', translate('%%processing_error%%
-<div style="background-color: #CCC; padding: 5px">Confirm payment <strong>$%%transaction_amount%%</strong>(%%transaction_gst%% percent GST)</div>
+		return ($this->_createBodycopy('display_format', translate('%processing_error%
+<div style="background-color: #CCC; padding: 5px">Confirm payment <strong>$%transaction_amount%</strong>(%transaction_gst% percent GST)</div>
 <table cellpadding="5">
 	<tr>
 		<td>&nbsp;</td>
-		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+		<td>%submit_button% %reset_button% %cancel_button%</td>
 	</tr>
 </table>')));
 

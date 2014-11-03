@@ -421,7 +421,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 								echo $sql;
 								echo "<br />\n";
 							}//end if
-							echo translate('<strong>Note:</strong> You can use keywords of the current asset (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the SQL Query.');
+							echo translate('<strong>Note:</strong> You can use keywords of the current asset (eg. %asset_assetid%) and global keywords (eg. %globals_user_assetid%) in the SQL Query.');
 
 						?>
 					</td>

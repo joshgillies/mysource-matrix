@@ -2530,7 +2530,7 @@ class Form extends Asset implements Bridge
 				$replacements = Array();
 
 				// Get the keyword replacement for "incomplete submissions"
-				$keywords_str = !empty($keyword_list) ? ('%'.implode('%%', $keyword_list).'%') : '';
+				$keywords_str = !empty($keyword_list) ? ('%'.implode('%', $keyword_list).'%') : '';
 				$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($keywords_str);
 
 				foreach ($keyword_list as $keyword) {
@@ -5292,7 +5292,7 @@ class Form extends Asset implements Bridge
 		}
 
 		$message = $this->attr('public_auth_info_format');
-		$message = $message ? $message : translate('Use the link below to resume the form submission:<br/>Link: %%return_to_form_url_latest%%<br/>Password: %%form_submission_password%%');
+		$message = $message ? $message : translate('Use the link below to resume the form submission:<br/>Link: %return_to_form_url_latest%<br/>Password: %form_submission_password%');
 
 
 		if (!empty($message)) {
@@ -6028,7 +6028,7 @@ class Form extends Asset implements Bridge
 
 		$prefix = $this->getPrefix();
 		$form_format = $this->attr('public_auth_form_format');
-		$form_format = trim($form_format) ? $form_format : translate('Please enter the password to retrieve the submission:<br /><br />%%public_form_password_input%% %%public_form_submit_button%%');
+		$form_format = trim($form_format) ? $form_format : translate('Please enter the password to retrieve the submission:<br /><br />%public_form_password_input% %public_form_submit_button%');
 
 		$submit_button_text = $this->attr('public_auth_submit_button_text');
 		$submit_button_text = trim($submit_button_text) ? $submit_button_text : translate('Submit');
@@ -6098,7 +6098,7 @@ class Form extends Asset implements Bridge
 		}
 
 		$keywords = $email_format->getKeywords();
-		$keywords_str = !empty($keywords) ? ('%'.implode('%%', $keywords).'%') : '';
+		$keywords_str = !empty($keywords) ? ('%'.implode('%', $keywords).'%') : '';
 		$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($keywords_str);
 
 		$email_format->setValue(serialize($new_value));

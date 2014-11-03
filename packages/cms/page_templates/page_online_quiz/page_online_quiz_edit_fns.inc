@@ -271,7 +271,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			// manually print page_contents and no_results
 			unset($bodycopies['page_contents']);
 			unset($bodycopies['no_results']);
-			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %%asset_listing%% keyword to include the list of assets on the page.'));
+			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('This format defines the layout of the page. Ensure you use the %asset_listing% keyword to include the list of assets on the page.'));
 			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('This format defines the layout of the page when the <b>Customise No Results Bodycopy</b> option is turned on, and there are no assets to list.'));
 
 			$bodycopy_descs = Array(

@@ -168,8 +168,9 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 		ob_end_clean();
 
 
+		// The double-percent signs around the "%1$s" are necessary to ensure sprintf()
+		// converts them into a single "%" sign.
 		return sprintf(translate('If the replacement value of keyword %%%1$s%% is a %2$s with %3$s'), $keyword_component, $operator_component, $replacement_value_component);
-
 
 	}//end getInterface()
 

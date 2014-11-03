@@ -1826,7 +1826,7 @@ class Page_Asset_Builder extends Page
 						   );
 		$res['created']= Array(
 							'name'		=> translate('Created'),
-							'content'	=> translate('Asset created<br />See it <a href="%%created_asset_url%%">here</a>'),
+							'content'	=> translate('Asset created<br />See it <a href="%created_asset_url%">here</a>'),
 						 );
 		return $res;
 

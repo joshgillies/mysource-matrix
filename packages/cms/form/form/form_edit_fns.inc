@@ -672,8 +672,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function paintSimpleFormatting(&$asset, &$o, $prefix)
 	{
 		?>
-		<p><?php echo translate('These options apply only if you use the \'Form Contents\' (<b>%%form_contents%%</b>) keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.') ?></p>
-
+		<p><?php echo translate('These options apply only if you use the \'Form Contents\' (<b>%form_contents%</b>) keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.') ?></p>
 
 		<?php
 		return TRUE;
