@@ -55,27 +55,27 @@
 		<field attribute="show_headline">
 			<display_name>Show headline?</display_name>
 			<note>Display the headline (asset name) in full view?</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="show_summary">
 			<display_name>Show summary?</display_name>
 			<note>Display the summary content in full view?</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="show_body">
 			<display_name>Show body?</display_name>
 			<note>Display the body content in full view?</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="show_contact_name">
 			<display_name>Show contact name?</display_name>
 			<note>Display the contact name in full view?</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="show_contact_phone">
 			<display_name>Show phone number?</display_name>
 			<note>Display the contact phone number in full view?</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
     </section>
 	<section name="Link" write_access="write:link_url" limbo_access="1">

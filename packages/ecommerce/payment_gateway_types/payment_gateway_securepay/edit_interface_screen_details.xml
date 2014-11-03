@@ -58,7 +58,7 @@
         <field attribute="test_mode">
             <display_name>Enable Test Mode</display_name>
             <note />
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Pass through Variables" write_access="write:attributes">

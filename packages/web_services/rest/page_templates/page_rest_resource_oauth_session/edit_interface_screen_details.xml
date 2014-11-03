@@ -37,17 +37,17 @@
 		<field attribute="allow_global_replace">
 			<display_name>Allow Keyword replacement</display_name>
 			<note>Enabling this option will allow Squiz Matrix to replace keywords found in the REST response body. This can be useful when the response is returned from another instance of Squiz Matrix. Disabling this option will ensure that the system does not replace any keywords (or content using a format similar to a keyword) in the response.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="redirect_authorise">
 			<display_name>Redirect To Authorise</display_name>
 			<note>Redirect user to the service provider's authorisation page to authorise the request token, instead of nesting authorisation form in Matrix page.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="store_token">
 			<display_name>Store Access Token</display_name>
 			<note>Turn this option on while token is available in session to permanently store the token. Turn this option off to forget the stored token.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Access Token</display_name>

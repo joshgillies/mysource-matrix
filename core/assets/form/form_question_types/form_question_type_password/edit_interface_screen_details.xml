@@ -67,7 +67,7 @@
         <field attribute="verify">
             <display_name>Requires Verification</display_name>
             <note>If this is set to Yes, two fields will appear on the form, which have to be entered correctly for the form to be submitted</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="tabindex">
             <display_name>Tab Index</display_name>

@@ -32,12 +32,12 @@
 		<field attribute="frontend">
 			<display_name>Show On Frontend</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="desc_frontend">
 			<display_name>Show Description On Frontend</display_name>
 			<note>You will need to regenerate metadata schema if you want the section description added to the asset current frontend metadata</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

@@ -19,7 +19,7 @@
 	<section name="Filter Options">
 		<field write_access="write:attributes" attribute="filter_enabled">
 			<display_name>Filter Status</display_name>
-			<boolean true_text="on" false_text="off" />
+			<boolean true_text="On" false_text="Off" />
 		</field>
 		<field write_access="write:attributes" attribute="filter_logic">
 			<display_name>Logical Grouping</display_name>

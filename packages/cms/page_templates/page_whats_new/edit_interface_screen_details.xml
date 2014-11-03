@@ -77,7 +77,7 @@
 		<field attribute="exclude_current_asset" write_access="write:attributes">
 			<display_name>Exclude This Asset</display_name>
 			<note>If set to 'Yes', this asset will not list the Asset thats been currently been accessed.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Asset Locations" write_access="write:content">

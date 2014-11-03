@@ -74,7 +74,7 @@
 		<field attribute="first_page_only">
 			<display_name>First page only</display_name>
 			<note>Set this field to Yes to optimise the search in the case where you are not showing multiple pages</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="prev_page_text">
 			<display_name>Previous Link</display_name>

@@ -52,14 +52,14 @@
 		<field attribute="attach_to_mail">
 			<display_name>Attach to Emails</display_name>
 			<note>Select yes if you would like this file to be attached to the submission emails.</note>
-		<boolean true_text="yes" false_text="no" />
+		<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Simple Validation Rules" write_access="write:attributes">
 		<field attribute="is_required">
 			<display_name>Required Entry?</display_name>
 			<note>If required, a file must be uploaded at this question before the form can be submitted</note>
-		<boolean true_text="required" false_text="optional" />
+		<boolean true_text="Required" false_text="Optional" />
 		</field>
 		<field attribute="cust_required_error">
 			<display_name>Custom Required Error</display_name>

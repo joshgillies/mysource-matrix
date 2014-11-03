@@ -20,17 +20,17 @@
 		<field attribute="print">
 			<display_name>Print</display_name>
 			<note>Select whether this design area should be printed or hidden in this design customisation</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="cache">
 			<display_name>Cache?</display_name>
 			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="cache_globally">
 			<display_name>Cache Globally?</display_name>
 			<note>When enabled this design area will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the design area content is not dynamic based on URL. &lt;br/&gt; The URL recache suffix will not work for globally cached design areas. However you can clear global design area cache using the cache manager. </note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Link" write_access="write:links" read_access="write:">

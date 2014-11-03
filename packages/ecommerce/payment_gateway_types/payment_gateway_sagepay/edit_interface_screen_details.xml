@@ -57,12 +57,12 @@
         <field attribute="delivery_addr_is_billing_addr">
             <display_name>Delivery Address is Billing Address?</display_name>
             <note>The flag to indicate if delivery address is billing address. If the answer is yes, the card holder will not need to supply delivery address.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="hide_delivery_addr">
             <display_name>Hide Delivery Address?</display_name>
             <note>The flag to indicate if delivery address is hidden. If the answer is yes, the delivery address will get values from the pass-through variables.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="supported_card_types">
             <display_name>Supported Card Types</display_name>
@@ -74,12 +74,12 @@
         <field attribute="threeds_enabled">
             <display_name>Enable 3-D Secure?</display_name>
             <note>The flag to enable 3-D Secure check for the transactions. If 3-D Secure is ON for the vendor account, this flag must be yes.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="avscv2_enabled">
             <display_name>Enable AVS/CV2?</display_name>
             <note>The flag to enable AVS/CV2 check for the transactions. If AVS/CV2 is ON for the vendor account, this flag must be yes.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Pass through Variables" write_access="write:attributes">

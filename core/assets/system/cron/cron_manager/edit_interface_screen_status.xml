@@ -20,7 +20,7 @@
 		<field attribute="running" write_access="none">
 			<display_name>Running</display_name>
 			<note/>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field write_access="none">
 			<display_name>Last Run</display_name>

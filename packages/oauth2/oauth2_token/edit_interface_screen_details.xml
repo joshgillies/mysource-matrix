@@ -80,7 +80,7 @@
         <field attribute="verify_ssl_peer">
             <display_name>Verify SSL Peer</display_name>
             <note>Verify SSL certificate using the CURL's default CA bundle file.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Access Token" write_access="write:attributes">

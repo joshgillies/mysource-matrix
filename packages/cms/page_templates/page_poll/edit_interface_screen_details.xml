@@ -47,7 +47,7 @@
 		<field attribute="allow_multiple_votes">
 			<display_name>Allow Multiple Voting</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Label Options" write_access="write:attributes">
@@ -71,7 +71,7 @@
 		<field attribute="new_window">
 			<display_name>New Window?</display_name>
 			<note>If this is set to Yes then results will be displayed in a new window.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="new_window_options">
 			<display_name>Options</display_name>

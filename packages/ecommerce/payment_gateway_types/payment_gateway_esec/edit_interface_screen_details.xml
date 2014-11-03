@@ -39,7 +39,7 @@
         <field attribute="display_ccv">
             <display_name>CCV Field</display_name>
             <note>When enabled, this will print the CCV field on the credit card details form.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="message">
             <display_name>Message</display_name>
@@ -63,7 +63,7 @@
         <field attribute="test_mode">
             <display_name>Test Mode</display_name>
             <note>Turn this switch ON for testing purposes. This will set the merchant ID to test among other things. When turned on, the gateway screen will display that it is in testing mode.</note>
-            <boolean true_text="on" false_text="off" />
+            <boolean true_text="On" false_text="Off" />
         </field>
     </section>
 </contents>

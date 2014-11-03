@@ -26,12 +26,12 @@
         <field attribute="print">
             <display_name>Print</display_name>
             <note>Select whether this design area should be printed or hidden in this design customisation</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="cache">
             <display_name>Cache?</display_name>
             <note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Search Page Configuration">
@@ -64,7 +64,7 @@
         <field attribute="category_show_empty" write_access="write:attributes" show_if="hasValidCategorySet">
             <display_name>Display "Unselected" Option?</display_name>
             <note>If "Yes", the "unselected text" option in the category set will be made available.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field write_access="write:attributes" show_if="hasValidCategorySet">
             <display_name>Default Category</display_name>

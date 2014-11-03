@@ -34,7 +34,7 @@
 			<note>HTTP 301 response code will be sent to tell user-agents that the location has permanently moved. This is useful for search engines.
 				If permanent redirect is used, &lt;strong&gt;New Window&lt;/strong&gt; option and &lt;strong&gt;Redirect Timeout&lt;/strong&gt; option will have no effect.
 			</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Location" write_access="write:redirect" limbo_access="1">
@@ -70,7 +70,7 @@
  		<field attribute="append_querystring">
  			<display_name>Pass through query &lt;br /&gt; string parameters?</display_name>
  			<note/>
- 			<boolean true_text="yes" false_text="no"/>
+ 			<boolean true_text="Yes" false_text="No"/>
  		</field>
 		<field attribute="timeout">
 			<display_name>Redirect Timeout</display_name>
@@ -98,7 +98,7 @@
 		<field attribute="new_window">
 			<display_name>New Window?</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="new_window_options">
 			<display_name>Options</display_name>

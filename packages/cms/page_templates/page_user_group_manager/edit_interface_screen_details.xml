@@ -78,12 +78,12 @@
 		<field attribute="include_root_node">
 			<display_name>Show Root Node</display_name>
 			<note>Show the top level asset in the selector</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="allow_multiple">
 			<display_name>Allow Multiple Selections</display_name>
 			<note>Allow the selection of multiple new links at once</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="structured_style">
 			<display_name>Listing Style</display_name>

@@ -37,12 +37,12 @@
 		<field attribute="allow_multiple_runs">
 			<display_name>Allow Multiple Runs</display_name>
 			<note>If this asset is nested more than once in the same page, then the data will be identical for each instance. With this option enabled, the requests will be forced to re-run each time. If unsure, leave this turned off.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="send_headers">
 			<display_name>Send Headers</display_name>
 			<note>Enable this to forward headers found in the response.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

@@ -145,7 +145,7 @@
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="submit_to_page_url">
 			<display_name>Form Submission URL</display_name>
-			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
+			<boolean true_text="This page's own URL" false_text="The current URL" />
 		</field>
 	</section>
 </contents>

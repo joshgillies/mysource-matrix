@@ -19,7 +19,7 @@
         <field attribute="show_fluster_more" write_access="write:attributes">
             <display_name>Show Contextual Navigation Expansion</display_name>
             <note><![CDATA[When this is enabled, navigation shows extra links to enable more searches to be shown]]></note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Category Type Options" limbo_access="0">

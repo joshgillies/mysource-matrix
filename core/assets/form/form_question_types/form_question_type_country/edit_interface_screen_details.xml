@@ -58,7 +58,7 @@
 		<field attribute="multiple">
 			<display_name>Multiple?</display_name>
 			<note></note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="tabindex">
 			<display_name>Tab Index</display_name>
@@ -73,7 +73,7 @@
 		<field attribute="sticky">
 			<display_name>Sticky?</display_name>
 			<note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

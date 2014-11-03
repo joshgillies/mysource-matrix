@@ -19,7 +19,7 @@
         <field attribute="gateway_required">
             <display_name>Gateway Required?</display_name>
             <note>Allow Check Out page to complete order without defining the payment gateway. This will let users submit the order without having to pay.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Quantity Tracking" write_access="write:attributes">
@@ -33,7 +33,7 @@
         <field attribute="send_emails">
             <display_name>Send Emails</display_name>
             <note>Whether the below recipient and receipt emails will be sent after a successful order is placed.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Recipient Email Options" write_access="write:attributes">

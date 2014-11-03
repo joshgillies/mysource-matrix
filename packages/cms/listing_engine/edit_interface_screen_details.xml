@@ -86,7 +86,7 @@
 		<field attribute="subs_only">
 			<display_name>Direct Links Only</display_name>
 			<note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="direction">
 			<display_name>Lookup Direction</display_name>

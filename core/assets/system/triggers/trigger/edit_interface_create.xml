@@ -18,10 +18,10 @@
 <contents screen="details">
 	<section name="Details" write_access="write:attributes">
 		<field attribute="active">
-			<boolean true_text="enabled" false_text="disabled" />
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 		<field attribute="blocking">
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="name">
 			<text width="60" />

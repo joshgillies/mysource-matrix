@@ -26,7 +26,7 @@
 		<field write_access="write:attributes" attribute="allow_empty_search">
 			<display_name>Allow Empty Searches?</display_name>
 			<note>When enabled, an empty search will act as a wildcard and return everything possible.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Search Fields</display_name>
@@ -49,7 +49,7 @@
 		<field write_access="write:attributes" attribute="use_picker">
 			<display_name>Use Date Picker ?</display_name>
 			<note>Use the Javascript date picker for all date fields ?</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field read_access="" write_access="write:attributes">
 <display_name>Field Styles</display_name>

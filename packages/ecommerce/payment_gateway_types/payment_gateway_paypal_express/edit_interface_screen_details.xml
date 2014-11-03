@@ -58,7 +58,7 @@
         <field attribute="test_mode">
             <display_name>Test Mode</display_name>
             <note>Enabling test mode will use the Paypal Sandbox server</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="button_image">
             <display_name>Button Image URL</display_name>

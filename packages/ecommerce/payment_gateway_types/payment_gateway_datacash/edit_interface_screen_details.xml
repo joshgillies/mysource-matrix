@@ -137,7 +137,7 @@
         <field attribute="test_mode">
             <display_name>Test Mode</display_name>
             <note>Turn this switch ON for testing purposes. This will set the merchant ID to test among other things. When turned on, the gateway screen will display that it is in testing mode.</note>
-            <boolean true_text="on" false_text="off" />
+            <boolean true_text="On" false_text="Off" />
         </field>
     </section>
 </contents>

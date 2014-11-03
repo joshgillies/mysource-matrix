@@ -80,7 +80,7 @@
 		<field attribute="editable">
 			<display_name>Editable</display_name>
 			<note>If this field is not editable, the user will always see the default value</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Editing Style</display_name>
@@ -93,15 +93,15 @@
 		<field attribute="show_keywords">
 			<display_name>Show keyword selector</display_name>
 			<note>Choose whether metadata editors should be able to choose asset keywords for this field's value, as an alternative to a specific date.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="required">
 			<display_name>Required</display_name>
 			<note>%description%</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="is_contextable">
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="frontend">
 			<display_name>Show On Frontend</display_name>

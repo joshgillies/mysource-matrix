@@ -96,7 +96,7 @@
 		<field attribute="use_client_side">
 			<display_name>Client-Side Validation</display_name>
 			<note>Server-side validation is always used to trap invalid input, after the form is submitted. Turn on client-side validation to provide an extra layer of validation that is executed at the browser level, before the form is submitted. Note that most but not all browsers support client-side validation</note>
-		<boolean true_text="on" false_text="off" />
+		<boolean true_text="On" false_text="Off" />
 		</field>
 		<field attribute="submission_errors_msg">
 			<display_name>Error Message Format</display_name>
@@ -108,7 +108,7 @@
 		<field attribute="require_captcha">
 			<display_name>Require CAPTCHA</display_name>
 			<note>CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included for form submissions to be accepted.</note>
-		<boolean true_text="yes" false_text="no" />
+		<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="captcha_length">
 			<display_name>CAPTCHA Key Length</display_name>

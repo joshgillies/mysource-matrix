@@ -19,11 +19,11 @@
 	<section name="General" write_access="write:attributes">
 		<field attribute="print">
 			<display_name>Print?</display_name>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="cache">
 			<display_name>Cache?</display_name>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Calendar Options">

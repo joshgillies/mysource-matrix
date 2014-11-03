@@ -35,7 +35,7 @@
         <field attribute="show_graph_title">
             <display_name>Show the graph title?</display_name>
             <note />
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="x_set_title">
             <display_name>Title for x-Axis</display_name>
@@ -60,22 +60,22 @@
         <field attribute="graph_angle">
             <display_name>Angle for the graph</display_name>
             <note />
-            <boolean true_text="vertical" false_text="horizontal" />
+            <boolean true_text="Vertical" false_text="Horizontal" />
         </field>
         <field attribute="x_font_label_angle">
             <display_name>Angle for x-Axis Label</display_name>
             <note />
-            <boolean true_text="vertical" false_text="horizontal" />
+            <boolean true_text="Vertical" false_text="Horizontal" />
         </field>
         <field attribute="y_font_label_angle">
             <display_name>Angle for y-Axis Label</display_name>
             <note />
-            <boolean true_text="vertical" false_text="horizontal" />
+            <boolean true_text="Vertical" false_text="Horizontal" />
         </field>
         <field attribute="show_legend">
             <display_name>Show the legend area?</display_name>
             <note />
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="background">
             <display_name>Background Colour</display_name>

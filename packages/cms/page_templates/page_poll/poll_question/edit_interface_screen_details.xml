@@ -43,7 +43,7 @@
 		<field attribute="allow_multiple">
 			<display_name>Allow Multiple Selections</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Voting Records" write_access="write:attributes">

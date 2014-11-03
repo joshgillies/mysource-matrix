@@ -20,7 +20,7 @@
         <field attribute="enabled">
             <display_name>Trigger Manager Status</display_name>
             <note>If disabled, no triggers will be executed</note>
-            <boolean true_text="enabled" false_text="disabled" />
+            <boolean true_text="Enabled" false_text="Disabled" />
         </field>
     </section>
 </contents>

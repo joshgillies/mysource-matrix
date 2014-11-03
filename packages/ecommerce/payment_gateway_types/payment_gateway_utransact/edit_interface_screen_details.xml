@@ -73,7 +73,7 @@
         <field attribute="display_ccv">
             <display_name>CV2 Verification</display_name>
             <node />
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
 

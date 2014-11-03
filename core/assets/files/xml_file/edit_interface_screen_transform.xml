@@ -27,7 +27,7 @@
 		<field attribute="xslt_file_replace_keywords" write_access="write:attributes">
 			<display_name>Replace Global Keywords</display_name>
 			<note>If set to 'Yes', global keywords in the XSL file will be replaced when applying to the XML data.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

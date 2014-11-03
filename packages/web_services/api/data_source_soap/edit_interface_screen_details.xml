@@ -58,7 +58,7 @@
         <field attribute="mute_exception">
             <display_name>Mute Exceptions</display_name>
             <note>Whether to ignore the SOAP exceptions when making the SOAP request</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="wsdl_caching">
             <display_name>Cache WSDL</display_name>

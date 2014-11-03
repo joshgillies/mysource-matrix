@@ -25,12 +25,12 @@
         <field attribute="header_row">
             <display_name>Use first row as attribute names?</display_name>
             <note>If enabled, the first row of the CSV file will be used as attribute names for the exposed assets</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="header_col">
             <display_name>Use first column as row identifier?</display_name>
             <note>If enabled, the first column of the CSV file will be used as an identifier for that row.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Upload new CSV file" read_access="write:attributes" write_access="write:attributes">

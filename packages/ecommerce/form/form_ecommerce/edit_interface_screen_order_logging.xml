@@ -19,7 +19,7 @@
     <section name="Log To File">
         <field attribute="log_to_file">
             <display_name>Log To File</display_name>
-			<boolean true_text="enabled" false_text="disabled" />
+			<boolean true_text="Enabled" false_text="Disabled" />
         </field>
         <field>
             <display_name>Info</display_name>

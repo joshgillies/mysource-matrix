@@ -67,7 +67,7 @@
 		<field attribute="reverse_sort">
 			<display_name>Reverse Sort</display_name>
 			<note>Choose "Yes" for results to be displayed in reverse order. This option does not require for report to be re-generated</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

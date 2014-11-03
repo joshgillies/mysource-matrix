@@ -37,7 +37,7 @@
         <field attribute="allow_global_replace">
             <display_name>Allow Keyword replacement</display_name>
             <note>Enabling this option will allow Squiz Matrix to replace keywords found in the REST response body. This can be useful when the response is returned from another instance of Squiz Matrix. Disabling this option will ensure that the system does not replace any keywords (or content using a format similar to a keyword) in the response.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
 </contents>

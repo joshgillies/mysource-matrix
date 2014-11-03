@@ -47,22 +47,22 @@
 		<field attribute="load_links">
 			<display_name>Tunnel Linked Pages?</display_name>
 			<note>If this option is enabled, hyperlinks and form-action URLs in the remote page will be rewritten so that the linked-to pages will be requested through this asset just as the original remote page was.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="tunnel_images">
 			<display_name>Tunnel Embedded Images?</display_name>
 			<note>If this option is enabled, URLs in IMAGE and SUBMIT tags, and image URLs referenced in CSS or HTML 'background' declarations, will be rewritten so that the relevant image files will be tunneled through this asset.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="tunnel_media">
 			<display_name>Tunnel Other Embedded Media?</display_name>
 			<note>If this option is enabled, URLs in EMBED and PARAM tags will be rewritten so that the relevant media files (flash, movies etc) will be tunneled through this asset</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="tunnel_scripts">
 			<display_name>Tunnel Scripts and Style Sheets?</display_name>
 			<note>If this option is enabled, URLs in SCRIPT and LINK tags, or next to 'import' directives within STYLE blocks, will be rewritten so that the relevant CSS or Javascript files will be tunneled through this asset.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Content Filtering" write_access="write:attributes" limbo_access="1">
@@ -89,17 +89,17 @@
 			<note>
 			If start and end tags are specified this switch allows you to specify whether they should be included in the result.
 			</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="multi_occurence">
 			<display_name>Get content from all occurrences</display_name>
 			<note>If the required tag has more than one occurrences in the content then setting this to 'Yes' would give you the content of all of the occurrences and to 'No' would give you the content till the occurence of the first end tag</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="strip_images">
 			<display_name>Strip Images?</display_name>
 			<note>If you select "Yes", all images on the target page will be removed and replaced with their Alt tag values (or word 'Image')</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Tag Replacements</display_name>
@@ -119,12 +119,12 @@
 		<field attribute="allow_redirect">
 			<display_name>Allow Redirects</display_name>
 			<note>If enabled, this asset will redirect to the necessary location automatically. It is important to leave this YES in the general case because many sites do silent redirects. If a redirect is required and this is set to NO, you will get an Error Message</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="verify_ssl">
 			<display_name>Verify SSL</display_name>
 			<note>If enabled, the SSL certificate of the remote content page will be verified, if the certificate fails verification an error message will be displayed</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="HTTP Authentication" write_access="write:attributes" limbo_access="1">

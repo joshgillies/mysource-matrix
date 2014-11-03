@@ -18,17 +18,17 @@
 		<field attribute="print">
 			<display_name>Print</display_name>
 			<note>Select whether this design area should be printed or hidden in this design customisation</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="cache">
 			<display_name>Cache?</display_name>
 			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="cache_globally">
 			<display_name>Cache Globally?</display_name>
 			<note>When enabled this design area will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the design area content is not dynamic based on URL. &lt;br/&gt; The URL recache suffix will not work for globally cached design areas. However you can clear global design area cache using the cache manager. </note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Options" write_access="write:attributes">
@@ -61,19 +61,19 @@
 		<field attribute="auto_access_history">
 			<display_name>Auto Add to History</display_name>
 			<note>If enabled assets will be added to access history automatically.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="store_permanent">
 			<display_name>Store Permanently</display_name>
 			<note>If enabled then access history will be stored in database permanently for logged in users. This will decrease performance slightly.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Display Options" write_access="write:attributes">
 		<field attribute="add_history_button_image">
 			<display_name>Use Image for Access History Add Button</display_name>
 			<note>If enabled then image used instead of form button</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="add_history_button_label" show_if="useAddButton">
 			<display_name>Access History Add Button Label</display_name>
@@ -88,7 +88,7 @@
 		<field attribute="remove_history_button_image">
 			<display_name>Use Image for Access History Remove Button</display_name>
 			<note>If enabled then image used instead of form button</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="remove_history_button_label" show_if="useRemoveButton">
 			<display_name>Access History Remove Button Label</display_name>

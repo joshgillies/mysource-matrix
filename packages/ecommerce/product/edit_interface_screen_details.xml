@@ -48,7 +48,7 @@
         <field write_access="write:attributes" attribute="accept_promotional_code">
             <display_name>Accept Promotional Code</display_name>
             <note>Set this value to 'Yes' to accept promotional codes to work on this product.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Product Description" limbo_access="1">

@@ -60,27 +60,27 @@
 		<field attribute="stalks">
 			<display_name>Print Stalks</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="top_level">
 			<display_name>Print Stalks at The Top Level</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="icons">
 			<display_name>Print Asset Icons</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="show_type_2">
 			<display_name>Show TYPE_2 Links</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="include_dependants">
 			<display_name>Show Dependant Assets</display_name>
 			<note>Dependant assets generally include type formats, or page bodycopies.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Exclude Asset List</display_name>

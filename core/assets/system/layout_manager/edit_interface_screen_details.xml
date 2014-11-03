@@ -19,7 +19,7 @@
         <field attribute="edit_css">
             <display_name>Output Edit CSS file?</display_name>
             <note>If this option is disabled, no Simple Edit formatting will be provided by MySource Matrix.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Edit Layouts">

@@ -32,7 +32,7 @@
 		<field attribute="interactive_mode">
 			<display_name>Interactive Mode</display_name>
 			<note>If enabled, bypasses the listing engine, displaying one question per page, providing feedback and allowing retries.</note>
-			<boolean true_text="enabled" false_text="disabled" />
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 		<field>
 			<display_name>Quiz repeatable?</display_name>
@@ -53,12 +53,12 @@
 		<field attribute="clientside_validation">
 			<display_name>Use Client-side Validation?</display_name>
 			<note>Warns the user with a popup when they submit the quiz if some questions have invalid or empty answers.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="log_submissions">
 			<display_name>Log submissions?</display_name>
 			<note>When enabled, User Details and Quiz responses will be logged. These logs will then be available for export from the &quot;Submission Logs&quot; screen.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="score_format">
 			<display_name>Score Format</display_name>
@@ -151,7 +151,7 @@
 		<field attribute="subs_only">
 			<display_name>Direct Links Only</display_name>
 			<note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="direction">
 			<display_name>Lookup Direction</display_name>

@@ -20,7 +20,7 @@
 		<field attribute="display_error">
 		    <display_name>Display Error Message</display_name>
 			<note>Choose whether you want the error message displayed.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="error_message">
 		    <display_name>Error Message</display_name>

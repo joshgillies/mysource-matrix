@@ -43,7 +43,7 @@
 	    <field attribute="personalised">
 			<display_name>Personalise?</display_name>
 			<note>If personalisation is enabled, events will only be shown if they are linked somewhere under the current user as well as under one of the locations specified above.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="parameter_map">
 			<display_name>Dynamic Event Sources</display_name>
@@ -76,7 +76,7 @@
 		<field attribute="enable_description_popups">
 			<display_name>Description Popups</display_name>
 			<note>If you enable description popups, the description of an event will appear as a popup when you move the mouse pointer over the event in month, week or day view</note>
-			<boolean true_text="enabled" false_text="disabled" />
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 		<field attribute="up_link_text">
 			<display_name>Up Link Text</display_name>
@@ -162,7 +162,7 @@
 		<field attribute="month_links_to_week">
 			<display_name>Week Links</display_name>
 			<note>If you enable week links, the calendar-format month view will display a link to the relevant week view at the start of each row</note>
-			<boolean true_text="enabled" false_text="disabled" />
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 		<field>
 			<display_name>Navigation Limit</display_name>
@@ -259,7 +259,7 @@
 		<field attribute="enable_event_dragging">
 			<display_name>Drag-and-Drop Editing</display_name>
 			<note>If you enable drag-and-drop editing, users with appropriate access will be able to drag single calendar events and drop them at another point in time.</note>
-			<boolean true_text="enabled" false_text="disabled" />
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 	</section>
 

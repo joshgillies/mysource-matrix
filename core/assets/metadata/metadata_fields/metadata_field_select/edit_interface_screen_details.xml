@@ -65,12 +65,12 @@
 		<field attribute="multiple">
 			<display_name>Allow Multiple</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="allow_empty">
 			<display_name>Allow Empty</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Style</display_name>
@@ -118,15 +118,15 @@
 		<field attribute="editable">
 			<display_name>Editable</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="required">
 			<display_name>Required</display_name>
 			<note>%description%</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="is_contextable">
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="frontend">
 			<display_name>Show On Frontend</display_name>

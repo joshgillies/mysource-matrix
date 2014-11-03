@@ -20,7 +20,7 @@
 		<field attribute="log_submissions">
 			<display_name>Log Submissions</display_name>
 			<note></note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Export" show_if="restrictedSubmissionAccess">

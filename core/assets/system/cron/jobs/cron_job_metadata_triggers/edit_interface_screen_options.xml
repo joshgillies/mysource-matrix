@@ -20,7 +20,7 @@
 		<field attribute="use_cron_last_run">
 			<display_name>Use Last Run</display_name>
 			<note>Set to Yes to use Cron Manager's Last Run value as Minimum Date.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="ignore_date" show_if="useCronLastRunDisabled">
 			<display_name>Minimum Date</display_name>

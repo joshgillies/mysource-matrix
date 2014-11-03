@@ -41,7 +41,7 @@
 		<field attribute="allow_unrestricted">
 			<display_name>Upload File</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

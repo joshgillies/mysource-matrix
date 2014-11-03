@@ -93,14 +93,14 @@
 		<field attribute="recursive_parents">
 			<display_name>Recursive Parent Groups</display_name>
 			<note>Allow the LDAP bridge to recursively return all parent groups of an LDAP user when the user logs in Matrix. These parent groups are used by Squiz Matrix's permission system. Disable this option to speed up the login process by only retrieving a user's immediate parent groups.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Cache Options" write_access="admin:attributes">
 		<field attribute="cache_status">
 			<display_name>Caching Status</display_name>
 			<note>Setting this value to 'On', will enable caching for the LDAP result and bring the Cache Expiry setting into effect. The Caching Status on the Cache Manager must also be enabled in order for this setting to take effect.</note>
-			<boolean true_text="on" false_text="off" />
+			<boolean true_text="On" false_text="Off" />
 		</field>
 		<field attribute="cache_expiry">
 			<display_name>Cache Expiry</display_name>

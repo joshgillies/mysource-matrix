@@ -58,12 +58,12 @@
         <field attribute="allow_public_user">
             <display_name>Ignore Permissions</display_name>
             <note>If this option is enabled, link permissions will not be checked when creating the asset. Otherwise, users must have permission to create assets in the create locations specified.</note>
-            <boolean true_text="yes" false_text="no"/>
+            <boolean true_text="Yes" false_text="No"/>
         </field>
         <field attribute="submit_to_page_url">
             <display_name>Form Submission URL</display_name>
             <note>If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the form should submit to the same URL it's displayed at, or to this page's own URL.</note>
-            <boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
+            <boolean true_text="This page's own URL" false_text="The current URL" />
         </field>
         <field attribute="link_value">
             <display_name>Set Link Value</display_name>
@@ -98,12 +98,12 @@
         <field attribute="require_captcha">
             <display_name>Require CAPTCHA</display_name>
             <note>CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included for form submissions to be accepted.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="provide_accessible_captcha">
             <display_name>Provide Accessible CAPTCHA</display_name>
             <note>If this option is enabled, an interface will be provided for an accessible CAPTCHA which requires the input of an email address to provide a validation email.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="captcha_length">
             <display_name>CAPTCHA Key Length</display_name>
@@ -123,7 +123,7 @@
         <field attribute="captcha_use_colours">
             <display_name>Use CAPTCHA Colours</display_name>
             <note>If this option is enabled, the CAPTCHA Background, Text and Border colours specified below will be used when rendering the CAPTCHA element.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="captcha_bgcolour">
             <display_name>CAPTCHA Background Colour</display_name>
@@ -143,7 +143,7 @@
         <field attribute="captcha_usefont">
             <display_name>Use CAPTCHA Font</display_name>
             <note>If this option is set to yes the CAPTCHA will use the true type font specified below rather than the default GD font. Using a CAPTCHA font gives you complete control over your CAPTCHA image.  This means that you must control the height and width of your CAPTCHA image as well as letter spacing.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field>
             <display_name>CAPTCHA Font</display_name>
@@ -196,7 +196,7 @@
         <field attribute="captcha_arc">
             <display_name>Use CAPTCHA Arc</display_name>
             <note>If this option is set to yes the CAPTCHA will generate arced lines across text, adding an additional security measure. Please note that this item is available only when a &quot;CAPTCHA Font&quot; is specified.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="captcha_arc_colour">
             <display_name>CAPTCHA Arc Colour</display_name>
@@ -206,12 +206,12 @@
         <field attribute="captcha_include_uppercase">
             <display_name>Include Uppercase Letters in CAPTCHA Text</display_name>
             <note>If this option is enabled, the generated CAPTCHA will contain at least one uppercase letter.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="captcha_include_numbers">
             <display_name>Include Numbers in CAPTCHA Text</display_name>
             <note>If this option is enabled, the generated CAPTCHA will contain at least one number.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="captcha_invalid_error_message">
             <display_name>Captcha Invalid Error Message</display_name>
@@ -228,7 +228,7 @@
         <field attribute="use_mollom">
             <display_name>Use Mollom Spam Check</display_name>
             <note>Mollom is an external tool which can filter out the submission made by an automated agent. If it is unsure it will use CAPTCHA to verify the legit submission. If this option is set to 'yes', %asset_builder_mollom_captcha% or %asset_builder_captcha_image% plus %asset_builder_mollom_captcha_field% and %asset_builder_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted. API keys can be set in External Tool Configuration.</note>
-            <boolean true_text="yes" false_text="no"/>
+            <boolean true_text="Yes" false_text="No"/>
         </field>
         <field>
             <display_name>Attributes To Check</display_name>
@@ -263,7 +263,7 @@
         <field attribute="use_recaptcha">
             <display_name>Use reCAPTCHA</display_name>
             <note>If this option is set to 'yes', %form_recaptcha% keyword must be included in form content. API keys needs to be set in External Tools Configuration</note>
-            <boolean true_text="yes" false_text="no"/>
+            <boolean true_text="Yes" false_text="No"/>
         </field>
         <field attribute="recaptcha_theme">
             <display_name>Theme</display_name>

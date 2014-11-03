@@ -37,7 +37,7 @@
 		<field attribute="http_auth">
 			<display_name>Use HTTP Authentication ?</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Listing Engine Assets Selection" write_access="write:attributes">

@@ -25,7 +25,7 @@
         <field attribute="accept_empty_country_question">
             <display_name>Accept empty question?</display_name>
             <note>If set to 'Yes', delivery prices per weight metric will be calculated without the need of the above country question is specified.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
 
@@ -41,12 +41,12 @@
         <field attribute="apply_tax_on_delivery">
             <display_name>Calculate Tax on Delivery?</display_name>
             <note>Whether to calculate tax on the delivery fee at the checkout.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="delivery_includes_tax">
             <display_name>Delivery Fee Includes Tax?</display_name>
             <note>Whether the delivery fee already includes the tax amount. If set to 'Yes', no additional tax will added to the delivery fee. This option is relevant only if "Calculate Tax on Delivery?" is set to Yes.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
 

@@ -25,7 +25,7 @@
 		<field attribute="static_url_versioning">
 			<display_name>Include file version in static URL</display_name>
 			<note>This will help bust external caching of statically served content.</note>
-			<boolean true_text="yes" false_text="no"/>
+			<boolean true_text="Yes" false_text="No"/>
 		</field>
 	</section>
 	<section name="Design Areas" write_access="write:links" read_access="write:">

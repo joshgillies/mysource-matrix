@@ -68,17 +68,17 @@
         <field attribute="allow_link">
             <display_name>Allow Linking To Existing Users</display_name>
             <note><![CDATA[If an user is logged in as a local Matrix user and Oauth authenticated,  but those 2 accounts are not linked,  Oauth Account Manager displays Create Link bodycopy to allow linking of accounts. <br/>Disabling this option will force Oauth Account Manager to only create new local users for new Oauth accounts.]]></note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="auto_create">
             <display_name>Automatic Creation</display_name>
             <note><![CDATA[After authentication of a new user, Oauth Account Manager can automatically create the linked local user and log in as the local user. The username is generated from Oauth id. Password is generated as random string. All other attributes are left blank. Enabling this option to skip Create User process.]]></note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="randomize_password">
             <display_name>Disallow Password Login</display_name>
             <note><![CDATA[After linking an Oauth Account to a user, this option will randomise the user’s password and disallow the user to log into the system using their standard Matrix username and password. The user will only be able to login via this bridge.]]></note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Populate User Attributes" write_access="write:menu">
@@ -127,29 +127,29 @@
         <field attribute="redirect_after_login">
             <display_name>Redirect After Login</display_name>
             <note></note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="redirect_after_create">
             <display_name>Redirect After User Created</display_name>
             <note></note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="redirect_after_link">
             <display_name>Redirect After Link Created</display_name>
             <note></note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Advanced Settings" write_access="write:attributes">
         <field attribute="allow_public_user">
             <display_name>Ignore Permissions</display_name>
             <note>If this option is enabled, link permissions will not be checked when creating the asset. Otherwise, users must have permission to create assets in the create locations specified.</note>
-            <boolean true_text="yes" false_text="no"/>
+            <boolean true_text="Yes" false_text="No"/>
         </field>
         <field attribute="submit_to_page_url">
             <display_name>Form Submission URL</display_name>
             <note>If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the form should submit to the same URL it's displayed at, or to this page's own URL.</note>
-            <boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
+            <boolean true_text="This page's own URL" false_text="The current URL" />
         </field>
         <field attribute="link_value">
             <display_name>Set Link Value</display_name>

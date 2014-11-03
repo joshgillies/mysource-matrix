@@ -105,7 +105,7 @@
 		<field attribute="sticky">
 			<display_name>Sticky?</display_name>
 			<note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="cust_required_error">
 			<display_name>Custom Error Message</display_name>
@@ -115,7 +115,7 @@
 		<field attribute="use_js">
 			<display_name>JS assistance</display_name>
 			<note>Use JS to validate date range and automatically correct input date.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

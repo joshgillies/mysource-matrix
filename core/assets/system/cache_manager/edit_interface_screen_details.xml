@@ -19,7 +19,7 @@
 		<field attribute="enabled">
 			<display_name>Caching Status</display_name>
 			<note>Setting this value to 'On' will enable caching for the system and bring the Default Expiry setting into effect.</note>
-			<boolean true_text="on" false_text="off" />
+			<boolean true_text="On" false_text="Off" />
 		</field>
 		<field>
 			<display_name>Cache Storage Type</display_name>
@@ -54,17 +54,17 @@
 		<field attribute="public_caching">
 			<display_name>Public Level Caching</display_name>
 			<note />
-			<boolean true_text="on" false_text="off" />
+			<boolean true_text="On" false_text="Off" />
 		</field>
 		<field attribute="permission_caching">
 			<display_name>Permission Level Caching</display_name>
 			<note />
-			<boolean true_text="on" false_text="off" />
+			<boolean true_text="On" false_text="Off" />
 		</field>
 		<field attribute="group_caching">
 			<display_name>Group Level Caching</display_name>
 			<note />
-			<boolean true_text="on" false_text="off" />
+			<boolean true_text="On" false_text="Off" />
 		</field>
 	</section>
 	<section name="Cacheable Root URLs" write_access="write:attributes">

@@ -45,7 +45,7 @@
         <field attribute="ws_security">
             <display_name>WS-Security Header</display_name>
             <note>If set to 'Yes', a Web Services Security Header will be sent on each SOAP Request. This is needed when Basic HTTP Authentication is not sufficient.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Synchronise Options" write_access="write:attributes">

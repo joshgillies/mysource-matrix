@@ -73,7 +73,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$constrain    = $asset->attr('constrain');
 
 		$int_edit_params  = new SimpleXMLElement('<int       width="8" />');
-		$bool_edit_params = new SimpleXMLElement('<boolean   true_text="yes" false_text="no" />');
+		$bool_edit_params = new SimpleXMLElement('<boolean   true_text="Yes" false_text="no" />');
 		$sel_edit_params  = new SimpleXMLElement('<selection style="box" columns="5" extras="" />');
 
 		if ($asset->name == '') {

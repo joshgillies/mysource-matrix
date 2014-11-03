@@ -36,32 +36,32 @@
 		<field attribute="enable_listing">
 			<display_name>Enable Listing</display_name>
 			<note>Enable or Disable the Listing Capability.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="use_custom_popup_html">
 			<display_name>Custom HTML popup</display_name>
 			<note>Enable or Disable custom HTML popup</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="toggle_root_nodes">
 			<display_name>Enable root nodes toggling</display_name>
 			<note>Allow toggling markers belongs to different root nodes. Enabling this will cause performance overhead.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="enable_create_location">
 			<display_name>Enable Create Location</display_name>
 			<note>Allow using an asset builder to add a Google Map Location Asset using this Map.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="enable_geocoder">
 			<display_name>Enable Geocoding Service</display_name>
 			<note>Allow using the Geocoding Service of Google.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="enable_street_view">
 			<display_name>Enable Standalone Street View</display_name>
 			<note>Allow displaying Street View in a standalone Div.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Default Settings" write_access="write:attributes" limbo_access="1">

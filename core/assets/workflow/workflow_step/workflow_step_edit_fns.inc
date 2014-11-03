@@ -140,7 +140,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$o->openField(translate('Unlisted User Commenting'));
 
 			$require_comment_attr = $asset->getAttribute('require_comment_from_unlisted_users');
-			$xml = simplexml_load_string('<boolean true_text="yes" false_text="no" />');
+			$xml = simplexml_load_string('<boolean true_text="Yes" false_text="no" />');
 			$require_comment_attr->setEditParams($xml);
 			$require_comment_attr->paint($prefix.'_require_comment_from_unlisted_users', !$write_access);
 			$o->note(translate('Requires users not specified in the condition steps to comment when approving or rejecting.'));
@@ -156,7 +156,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$o->closeField();
 		$o->openField('Escalate?');
 			$comparator_attr = $asset->getAttribute('escalate');
-			$xml = simplexml_load_string('<boolean true_text="yes" false_text="no" />');
+			$xml = simplexml_load_string('<boolean true_text="Yes" false_text="no" />');
 			$comparator_attr->setEditParams($xml);
 			$comparator_attr->paint($prefix.'_escalate', !$write_access);
 			$o->note(translate('Escalation will move to the first escalation step upon expiry, or to the next workflow step if no escalation steps are available. This option has no effect if an expiry period is not configured.'));

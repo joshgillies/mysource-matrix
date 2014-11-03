@@ -51,7 +51,7 @@
         <field attribute="subs_only">
             <display_name>Direct Links Only</display_name>
             <note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="direction">
             <display_name>Lookup Direction</display_name>
@@ -84,7 +84,7 @@
         <field attribute="link_value_filter_enabled">
             <display_name>Enable Link Value Filtering</display_name>
             <note>If set to 'Yes' and lookup direction is set to 'down the tree', only assets with the link value equal to the 'Link Value' field will be returned. If set to 'Yes' and the lookup direction is set as 'up the tree', only parents of children assets with the link value equal to the 'Link Value' field will be returned.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="List Formatting" write_access="write:content" limbo_access="1">

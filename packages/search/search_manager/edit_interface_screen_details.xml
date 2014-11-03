@@ -19,7 +19,7 @@
         <field attribute="indexing">
             <display_name>Indexing Status</display_name>
             <note />
-            <boolean true_text="on" false_text="off" />
+            <boolean true_text="On" false_text="Off" />
         </field>
     </section>
     <section name="Re-index Assets" show_if="indexingOn" read_access="write:attributes" write_access="write:attributes">
@@ -69,7 +69,7 @@
         <field attribute="enable_begins_with">
             <display_name>Enable Contains Search</display_name>
             <note>If this option is set to "No", searches will be limited to finding assets with words <![CDATA[<strong>beginning</strong>]]> with the search terms provided, rather than searching anywhere within the word. (For instance, searching for "room" keyword will not find "bedroom", but it will find "roommate".) With this limitation in mind, turning "Contains" searches off may increase the speed of searches within the system.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
 </contents>

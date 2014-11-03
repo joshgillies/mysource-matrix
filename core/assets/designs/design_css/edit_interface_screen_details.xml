@@ -59,17 +59,17 @@
         <field attribute="cache_css">
             <display_name>Use Static Cache File?</display_name>
             <note>If this option is enabled and this asset is live and has public read access granted, a static file representation of this CSS file will be served, thus reducing the load on the web server.  Note, however, that contextual design areas such as menus will not function when the static cache file is used.</note>
-            <boolean true_text="on" false_text="off"/>
+            <boolean true_text="On" false_text="Off"/>
         </field>
         <field attribute="strip_whitespace">
             <display_name>Strip Whitespace</display_name>
             <note>Whether to strip extra whitespace from the cached CSS file.</note>
-            <boolean true_text="on" false_text="off"/>
+            <boolean true_text="On" false_text="Off"/>
         </field>
         <field attribute="static_url_versioning">
             <display_name>Include file version in static URL</display_name>
             <note>This will help bust external caching of statically served content.</note>
-            <boolean true_text="yes" false_text="no"/>
+            <boolean true_text="Yes" false_text="No"/>
         </field>
     </section>
     <section name="Associated Files" write_access="write:parsing" read_access="write:">

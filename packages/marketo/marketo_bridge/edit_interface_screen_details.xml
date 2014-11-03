@@ -46,14 +46,14 @@
 		<field attribute="debug">
 			<display_name>Debug</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Get Lead API Settings" write_access="write:attributes">
 		<field attribute="get_lead">
             <display_name>Enabled</display_name>
             <note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="get_lead_allowed_attributes">
             <display_name>Allowed Attributes</display_name>
@@ -75,7 +75,7 @@
 		<field attribute="sync_lead">
             <display_name>Enabled</display_name>
             <note />
-	    	<boolean true_text="yes" false_text="no" />
+	    	<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="sync_lead_allowed_attributes">
             <display_name>Allowed Attributes</display_name>

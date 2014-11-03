@@ -47,7 +47,7 @@
 		<field attribute="spelleroff">
 			<display_name>Turn off Speller</display_name>
 			<note>Turn off spelling indexing</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="spelling_threshold">
 			<display_name>Spelling Threshold</display_name>
@@ -57,12 +57,12 @@
 		<field attribute="ibd">
 			<display_name>Index if binary</display_name>
 			<note>Index all documents even if the document appears to be binary</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="ixcom">
 			<display_name>Index Comments</display_name>
 			<note>Index comments found in HTML or XML documents</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Rebuild Cache" show_if="indexingOn" read_access="write:attributes" write_access="write:attributes">

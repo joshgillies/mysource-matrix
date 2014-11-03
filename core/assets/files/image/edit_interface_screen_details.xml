@@ -33,7 +33,7 @@
 			</function_call>
 		</field>
 		<field attribute="allow_unrestricted">
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="alt">
 			<display_name>Alt</display_name>

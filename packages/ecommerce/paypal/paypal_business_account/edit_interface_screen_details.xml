@@ -73,7 +73,7 @@
         <field attribute="send_email_on_error">
             <display_name>Send emails on error?</display_name>
             <note>Yes, if an email will be sent to the above email address when an error occurs (when processing Paypal Order assets only).</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
 </contents>

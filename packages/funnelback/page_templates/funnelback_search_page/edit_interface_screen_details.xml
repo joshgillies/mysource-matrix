@@ -40,7 +40,7 @@
         <field attribute="allow_empty">
             <display_name>Allow Empty Searches</display_name>
             <note />
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field keyword="sort">
             <display_name>Sort Order</display_name>
@@ -85,7 +85,7 @@
         <field attribute="stored_query_show_results">
             <display_name>Show Results Page</display_name>
             <note>If set to yes, and the dynamic query is set, then instead of displaying the initial layout page, it will jump directly to the results page</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Display Options" write_access="write:attributes" limbo_access="1">
@@ -114,7 +114,7 @@
         <field attribute="disable_keyword_replacements">
             <display_name>Disable Keyword Replacements</display_name>
             <note>If set to Yes, Funnelback Search Page will not replace the keywords that might be used in the user input on the frontend.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
 

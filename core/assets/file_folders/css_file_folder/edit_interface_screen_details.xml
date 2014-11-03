@@ -37,7 +37,7 @@
 		<field attribute="allow_unrestricted">
 			<display_name>Allow Unrestricted Access</display_name>
 			<note>Set to Yes to allow this file to be served by the web server if it is Live and publicly readable.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Linked Files" write_access="write:links" limbo_access="1">

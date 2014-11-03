@@ -25,12 +25,12 @@
 		<field attribute="limbo_no_frames">
 			<display_name>No frames in Simple Edit Interface</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="static_url_versioning">
 			<display_name>Include file version in static URL</display_name>
 			<note>This will help bust external caching of statically served content.</note>
-			<boolean true_text="yes" false_text="no"/>
+			<boolean true_text="Yes" false_text="No"/>
 		</field>
 		<field>
 			<display_name>File Reference Method</display_name>

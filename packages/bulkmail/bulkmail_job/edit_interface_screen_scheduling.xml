@@ -20,7 +20,7 @@
 		<field attribute="scheduling_status">
 			<display_name>Enabled</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Scheduling Details</display_name>

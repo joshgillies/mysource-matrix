@@ -75,12 +75,12 @@
 		<field attribute="multiple">
 			<display_name>Multiple?</display_name>
 			<note></note>
-		<boolean true_text="yes" false_text="no" />
+		<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="allow_empty">
 			<display_name>Use Empty Option?</display_name>
 			<note></note>
-		<boolean true_text="yes" false_text="no" />
+		<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="empty_key">
 			<display_name>Empty Option Value</display_name>
@@ -95,7 +95,7 @@
 		<field attribute="allow_empty_selected">
 			<display_name>Allow Empty Option To Be Selected?</display_name>
 			<note></note>
-		<boolean true_text="yes" false_text="no" />
+		<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="empty_selected_error">
 			<display_name>Empty Option Selected Error</display_name>
@@ -115,7 +115,7 @@
 		<field attribute="sticky">
 			<display_name>Sticky?</display_name>
 			<note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">

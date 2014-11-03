@@ -63,7 +63,7 @@
     	<field attribute="download_files">
     	   <display_name>Download Files</display_name>
     		<note>Enable downloading of attachments which comes with TRIM documents. Document Type must be added in Result Field.</note>
-    		<boolean true_text="yes" false_text="no" />
+    		<boolean true_text="Yes" false_text="No" />
     	</field>
     	<field attribute="download_limit">
 			<display_name>File size Download Limit</display_name>
@@ -91,7 +91,7 @@
     	<field attribute="accept_empty_response">
     		<display_name>Update on Empty Response</display_name>
 			<note>Whether to update and clear the local TRIM records if there is empty or no response from the TRIM</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
     	</field>
     	<field>
     		<function_call>
@@ -131,7 +131,7 @@
     	<field attribute="convert_timezone">
     		<display_name>Use Local Time</display_name>
     		<note>Convert all Datetime typed result fields from GMT to local time. Outputted format can be customized using keyword modifier date_format. e.g %ds__recCreated^date_format:Y% will print a full numeric representation of a year in local time.</note>
-    		<boolean true_text="yes" false_text="no" />
+    		<boolean true_text="Yes" false_text="No" />
     	</field>
     </section>
     <section name="Classification Options" write_access="write:attributes">
@@ -142,7 +142,7 @@
         </field>
         <field attribute="classification_sub">
 			<display_name>Include Sub-classifications</display_name>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="General Search Options" write_access="write:attributes">

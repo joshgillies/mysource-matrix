@@ -37,7 +37,7 @@
 		<field attribute="create_css_file" write_access="write:attributes">
 			<display_name>Create CSS File?</display_name>
 			<note>Select Yes to create a text file with each document's CSS Styles, under the root element of the import</note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<function_call>

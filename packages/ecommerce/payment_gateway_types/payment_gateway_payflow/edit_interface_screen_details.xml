@@ -73,19 +73,19 @@
         <field attribute="cv2_enabled">
             <display_name>Enable CV2</display_name>
             <note>If enabled, CV2 is required when submitting credit card details</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="avs_enabled">
             <display_name>Enable AVS</display_name>
             <note>If enabled, billing address details is required when submitting credit card details</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Test Mode" write_access="write:attributes">
         <field attribute="test_mode">
             <display_name>Enable Test Mode</display_name>
             <note />
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Pass through Variables" write_access="write:attributes">

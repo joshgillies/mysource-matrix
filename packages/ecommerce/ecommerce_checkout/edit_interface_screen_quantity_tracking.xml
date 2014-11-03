@@ -19,7 +19,7 @@
         <field attribute="enforce_quantities">
             <display_name>Enforce Quantities</display_name>
             <note>Whether the cart should update product quantity information upon successful order delivery, and check items for availability as they are added to the cart.</note>
-            <boolean true_text="yes" false_text="no" />
+            <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="quantity_selector">
             <display_name>Quantity Selector</display_name>

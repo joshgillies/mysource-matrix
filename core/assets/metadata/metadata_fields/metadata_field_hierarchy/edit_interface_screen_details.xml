@@ -83,12 +83,12 @@
 		<field attribute="is_contextable">
 			<display_name>Contextable?</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="allow_empty">
 			<display_name>Allow Empty</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="visible_part">
 	    	<display_name>Frontend Part</display_name>
@@ -104,7 +104,7 @@
 		<field attribute="multiple">
 			<display_name>Allow Multiple</display_name>
 			<note />
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="hier_sort">
 			<display_name>Sort Hierarchy</display_name>

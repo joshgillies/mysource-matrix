@@ -69,7 +69,7 @@
 		<field attribute="not_found_page_cache_globally">
             <display_name>Cache Globally</display_name>
 			<note>When enabled this Not Found Page will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the Not Found Page content is not dynamic based on URL. </note>
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>
