@@ -50,7 +50,7 @@ class Cache_Storage_Redis extends Cache_Storage
 	*
 	* @var object Redis
 	*/
-	private $_redis = NULL;
+	protected $_redis = NULL;
 
 
 	/**
@@ -66,7 +66,7 @@ class Cache_Storage_Redis extends Cache_Storage
 	}//end constructor
 
 
-	private function _initRedis()
+	protected function _initRedis()
 	{
 		if ($this->_redis !== NULL) {
 			return TRUE;

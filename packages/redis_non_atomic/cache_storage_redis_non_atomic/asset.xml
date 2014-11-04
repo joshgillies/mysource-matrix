@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.1 2013/01/22 05:03:07 ewang Exp $
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>redis_non_atomic</package>
+	<type_code>cache_storage_redis_non_atomic</type_code>
+	<version>0.1</version>
+	<name>Non-atomic Redis Cache Storage</name>
+	<description>Storage mechanism for content cache data using non-atomic redis operations</description>
+	<instantiable>no</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>cache_storage_redis</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>cache_storage_redis</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path />
+</asset_info>
