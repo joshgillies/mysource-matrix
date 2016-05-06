@@ -551,6 +551,10 @@ TTable = function(name, rows, cols)
 		out += '>';
 		if (this.caption != null) out += '<caption>' + this.caption + '</caption>';
 		for (r = 0;r<this.rows;r++) {
+			var currentContent = this.matrix[r].cells[0].content;
+			var re= /src\s*=\s*(["'])\.\/\?a=/g;
+			var newContent = currentContent.replace(re, 'src=$1/?a=');
+			this.matrix[r].cells[0].content = newContent;
 			out += this.matrix[r];
 		}
 		out += '</table>';

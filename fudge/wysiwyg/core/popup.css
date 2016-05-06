@@ -393,6 +393,14 @@ a.search-result-expand-link {
 	background: url(../plugins/table_editing/images/grid.gif)
 }
 
+#table_container table {
+	border-collapse: collapse;
+}
+
+#table_container table td {
+	border: 1px solid black;
+}
+
 .sq-popup-clean-fieldset fieldset {
 	margin-top: 4px;
 	padding-right: 5px;

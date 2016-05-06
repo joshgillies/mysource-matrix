@@ -95,7 +95,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
-					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.png';
 					$inherit_alt = $inherit ? translate('Yes') : translate('No');
 
 
@@ -1810,7 +1810,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			} else {
 				$filename = $random_enabled ? 'tick' : 'cross';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.png" /> ';
 				echo translate('Enable "Random Order" option');
 
 			}
@@ -1830,7 +1830,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			} else {
 				$filename = $nosort_enabled ? 'tick' : 'cross';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.png" /> ';
 				echo translate('Enable "No Sorting" option');
 
 			}
@@ -2413,14 +2413,17 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					continue 2;
 				}
 			}
+
+			if($node['assetid'] === '0') continue 1;
 			// otherwise, create the appropriate notice link
-			if ($node['assetid'] != 0) {
+			if (is_numeric($node['assetid']) && count($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($node['assetid'])) !== 0) {
 				$new_root = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;
 					trigger_localised_error('CMS0016', sprintf(translate('Failed adding new root node "%1$s" [#%2$s]'), $new_root->name, $new_root->id), E_USER_WARNING);
-					break;
 				}
+			} else {
+				trigger_error(sprintf(translate('Failed adding Root Node. This #%1$s asset id is not a valid asset id.'), $node['assetid']), E_USER_WARNING);
 			}
 		}
 
@@ -2853,11 +2856,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$options = Array(
 					'assetid'			=> translate('Asset ID'),
 
-					'Version'			=> translate('Version'),
+					'version'			=> translate('Version'),
 
-					'Name'				=> translate('Name'),
+					'name'				=> translate('Name'),
 
-					'Short Name'		=> translate('Short Name'),
+					'short_name'		=> translate('Short Name'),
 
 					'status'			=> translate('Asset Status'),
 
@@ -2869,7 +2872,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 					'status_changed'	=> translate('Status Changed Date'),
 
-					'Type Code'			=> translate('Type Code'),
+					'type_code'			=> translate('Type Code'),
 
 				   );
 		$field = array_get_index($group_by_option, 'field', '');
@@ -2978,12 +2981,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$o->openField('Direct Parent Only ?');
 			if ($write_access) {
 				check_box($prefix.'[direct_parent_only]', '1', array_get_index($group_by_option, 'direct_parent_only', FALSE));
-				label('Only list assets with direct parent that matches the Restricted Types', $prefix.'[direct_parent_only]');
+				label('Group assets by direct parent asset', $prefix.'[direct_parent_only]');
 			} else {
 				?>
-				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo array_get_index($group_by_option, 'direct_parent_only', FALSE) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo array_get_index($group_by_option, 'direct_parent_only', FALSE) ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 				<?php
-				echo 'Only list assets with direct parent that matches the Restricted Types';
+				echo 'Group assets by direct parent asset';
 			}
 		$o->closeField();
 
@@ -3125,7 +3128,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$keyword = array_get_index($group_by_option, 'keyword', NULL);
 			if ($write_access) {
-				text_box($prefix.'[keyword]', $keyword, 10);
+				text_box($prefix.'[keyword]', $keyword, 50);
 			} else {
 				if (is_null($keyword)) {
 					echo '<em>'.translate('No keyword specified').'</em>';
@@ -3207,7 +3210,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 						'standard_asset'	=> translate('Standard Asset Field'),
 
-						'Keyword'			=> translate('Keyword'),
+						'keyword'			=> translate('Keyword'),
 
 					   );
 
@@ -3385,7 +3388,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 										label(translate('Allow multiple selections'), $prefix.'_sel['.$name.'][options][allow_multiple]');
 
 									} else {
-										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($options, 'allow_multiple', $defaults['options']['allow_multiple']) ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($options, 'allow_multiple', $defaults['options']['allow_multiple']) ? 'tick' : 'cross'); ?>.png" width="15" height="15" /><?php
 										echo ' '.translate('Allow multiple selections');
 
 									}
@@ -3402,7 +3405,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 										label(translate('Allow negative values'), $prefix.'_sel['.$name.'][options][allow_negative]');
 
 									} else {
-										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($options, 'allow_negative', $defaults['options']['allow_negative']) ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($options, 'allow_negative', $defaults['options']['allow_negative']) ? 'tick' : 'cross'); ?>.png" width="15" height="15" /><?php
 										echo ' '.translate('Allow negative values');
 
 									}
@@ -3420,7 +3423,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 											label(translate('Restrict values to a range').':', $prefix.'_sel['.$name.'][options][restrict_range][enable]');
 
 										} else {
-											?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($restrict_range, 'enable', $defaults['options']['restrict_range']['enable']) ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+											?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($restrict_range, 'enable', $defaults['options']['restrict_range']['enable']) ? 'tick' : 'cross'); ?>.png" width="15" height="15" /><?php
 											echo translate('Restrict values to a range') ?>:<?php
 
 										}
@@ -3958,7 +3961,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
-					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.png';
 					$inherit_alt = $inherit ? translate('Yes') : translate('No');
 
 
@@ -4540,7 +4543,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$save_exclude_assets = Array();
 		foreach ($exclude_assets as $index => $asset_info) {
 			if (!empty($asset_info['assetid'])) {
-				$save_exclude_assets[] = $asset_info['assetid'];
+				if (!is_numeric($asset_info['assetid']) || count($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_info['assetid'])) === 0) {
+					trigger_error(sprintf(translate('Failed adding Exculded Assets root node. This #%1$s asset id is not a valid asset id.'), $asset_info['assetid']), E_USER_WARNING);
+				} else {
+					$save_exclude_assets[] = $asset_info['assetid'];
+				}
 			}//end if
 		}//end foreach
 
@@ -4604,7 +4611,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$save_exclude_assets = Array();
 		foreach ($exclude_assets as $index => $asset_info) {
 			if (!empty($asset_info['assetid'])) {
-				$save_exclude_assets[] = $asset_info['assetid'];
+				if (!is_numeric($asset_info['assetid']) || count($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_info['assetid'])) === 0) {
+					trigger_error(sprintf(translate('Failed adding Exculde Root Node. This #%1$s asset id is not a valid asset id.'), $asset_info['assetid']), E_USER_WARNING);
+				} else {
+					$save_exclude_assets[] = $asset_info['assetid'];
+				}
 			}//end if
 		}//end foreach
 

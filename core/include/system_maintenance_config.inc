@@ -369,7 +369,7 @@ class System_Maintenance_Config extends Config
 		$o->closeField();
 		$o->closeSection();
 
-		if ($have_lock) $o->commitButton('', true);
+		if ($have_lock) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 
@@ -571,7 +571,7 @@ class System_Maintenance_Config extends Config
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
-					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.png';
 					$inherit_alt = $inherit ? translate('Yes') : translate('No');
 
 

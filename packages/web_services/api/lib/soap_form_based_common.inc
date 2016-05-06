@@ -100,11 +100,22 @@ class SOAP_Form_Based_Common
 				$question_assetid = $question_match;
 			}
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
+
 			if(empty($question_asset) || get_class($question_asset) != 'Form_Question_Type_File_Upload') return $content;
 			// is the file an asset or just raw file in data dir?
 
 			$replacement = '';
-			if(isset($question_asset->extra_data['filesystem_path']) && !empty($question_asset->extra_data['filesystem_path'])) {
+			if(isset($_FILES['q'.$question_asset->id]['tmp_name']) && !empty($_FILES['q'.$question_asset->id]['tmp_name'])) {
+				$file_path  = $_FILES['q'.$question_asset->id]['tmp_name'];
+				if(strpos($file_path, '/') !== 0) $file_path = SQ_SYSTEM_ROOT.'/'.$file_path;
+				$replacement = file_get_contents($file_path);
+			}
+			else if(isset($question_asset->extra_data['temp_filesystem_path']) && !empty($question_asset->extra_data['temp_filesystem_path'])) {
+				$file_path  = $question_asset->extra_data['temp_filesystem_path'];
+				if(strpos($file_path, '/') !== 0) $file_path = SQ_SYSTEM_ROOT.'/'.$file_path;
+				$replacement = file_get_contents($file_path);
+			}
+			else if(isset($question_asset->extra_data['filesystem_path']) && !empty($question_asset->extra_data['filesystem_path'])) {
 				$file_path  = $question_asset->extra_data['filesystem_path'];
 				if(strpos($file_path, '/') !== 0) $file_path = SQ_SYSTEM_ROOT.'/'.$file_path;
 				$replacement = file_get_contents($file_path);
@@ -235,23 +246,9 @@ class SOAP_Form_Based_Common
 	* @return array
 	* @access public
 	*/
-	public static function toArray($data, &$form)
+	public static function toArray($data, &$form, $ns=null)
 	{
-		if (is_object($data)) $data = get_object_vars($data);
-
-		// Don't play with empty object or array
-		if (empty($data) && (is_array($data) || is_object($data))) return '';
-
-		if(is_array($data)) {
-			$result = Array();
-			foreach ($data as $index => $element) {
-				$result[$index] = self::toArray($element, $form);
-			}
-			return $result;
-		}else {
-			// Also replace file content keyword with actual binary file
-			return (self::getFileContentReplacementsFromForm($data, $form));
-		}
+		return SOAP_Common::toArray($data, $form, $ns);
 
 	}//end toArray
 

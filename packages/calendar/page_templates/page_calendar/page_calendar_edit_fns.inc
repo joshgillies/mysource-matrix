@@ -327,17 +327,17 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	*/
 	function _paint5MinTimeField($prefix, $default_hour=9, $default_min=0, $default_is_pm=FALSE)
 	{
-		$hour_options = Array(12=>12, 1=>1, 2=>2, 3=>3, 4=>4, 5=>5, 6=>6, 7=>7, 8=>8, 9=>9, 10=>10, 11=>11, 12=>12);
+		$hour_options = Array();
+		for($i=0; $i < 25; $i++) {
+			$hour_options[$i] = $i;
+		}
 		$min_options = Array();
 		for ($i=0; $i < 60; $i += 5) {
 			$min_options[sprintf('%02d', $i)] = sprintf('%02d', $i);
 		}
-		$is_pm_options = Array(0=>'am', 1=>'pm');
 		combo_box($prefix.'[hours]', $hour_options, FALSE, $default_hour, 0);
 		echo ' : ';
 		combo_box($prefix.'[minutes]', $min_options, FALSE, sprintf('%02d', $default_min), 0);
-		echo '&nbsp;';
-		combo_box($prefix.'[is_pm]', $is_pm_options, FALSE, (int)$default_is_pm, 0);
 
 	}//end _paint5MinTimeField()
 
@@ -360,11 +360,8 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		if ($_POST[$prefix]['minutes'] != (int)$_POST[$prefix]['minutes']) {
 			return FALSE;
 		}
-		if ($_POST[$prefix]['is_pm'] && ($_POST[$prefix]['hours'] != 12)) {
-			$_POST[$prefix]['hours'] += 12;
-		}
-		if (!$_POST[$prefix]['is_pm'] && ($_POST[$prefix]['hours'] == 12)) {
-			$_POST[$prefix]['hours'] = 0;
+		if ($_POST[$prefix]['hours'] == 24 && $_POST[$prefix]['minutes'] > 0) {
+			$_POST[$prefix]['minutes'] = 0;
 		}
 		return sprintf('%02d', $_POST[$prefix]['hours']).':'.$_POST[$prefix]['minutes'];
 
@@ -385,14 +382,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			list($hour,$minute) = sscanf($asset->attr('day_starts_at'),'%02d:%02d');
-			$is_pm = FALSE;
-			if ($hour >= 12) {
-				$is_pm = TRUE;
-				$hour -= 12;
-			}
-			if ($hour == 0) $hour = 12;
-
-			$this->_paint5MinTimeField($prefix.'_day_start_time', $hour, $minute, $is_pm);
+			$this->_paint5MinTimeField($prefix.'_day_start_time', $hour, $minute);
 		} else {
 			echo $asset->attr('day_starts_at');
 		}
@@ -437,14 +427,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			list($hour,$minute) = sscanf($asset->attr('day_ends_at'),'%02d:%02d');
-			$is_pm = FALSE;
-			if ($hour >= 12) {
-				$is_pm = TRUE;
-				$hour -= 12;
-			}
-			if ($hour == 0) $hour = 12;
-
-			$this->_paint5MinTimeField($prefix.'_day_end_time', $hour, $minute, $is_pm);
+			$this->_paint5MinTimeField($prefix.'_day_end_time', $hour, $minute);
 		} else {
 			echo $asset->attr('day_ends_at');
 		}
@@ -495,7 +478,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 				check_box($prefix.'_show_days['.$day_number.']', 1, $days_to_show[$day_number]);
 			} else {
 				?>
-				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $days_to_show[$day_number] ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $days_to_show[$day_number] ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 				<?php
 			}
 			echo $day_name;
@@ -985,7 +968,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 						if ($write_access) {
 							check_box($prefix.'_root_nodes_columnised['.$id.']', '1', in_array($id, $current_column_nodes));
 						} else {
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.(in_array($id, $current_column_nodes) ? 'tick' : 'cross').'.gif" width="15" height="15" />';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.(in_array($id, $current_column_nodes) ? 'tick' : 'cross').'.png" width="15" height="15" />';
 						}
 					?>
 				</td>
@@ -1000,7 +983,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 						if ($write_access) {
 							check_box($prefix.'_root_nodes_columnised[other]', '1', in_array('*', $current_column_nodes));
 						} else {
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.(in_array('*', $current_column_nodes) ? 'tick' : 'cross').'.gif" width="15" height="15" />';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.(in_array('*', $current_column_nodes) ? 'tick' : 'cross').'.png" width="15" height="15" />';
 						}
 					?>
 				</td>

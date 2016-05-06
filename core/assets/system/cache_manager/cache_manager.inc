@@ -194,7 +194,8 @@ class Cache_Manager extends Asset
 				return FALSE;
 			}
 		} else {
-			$perm_key = '';
+			// A dummy string, as the db expects this value to be non-empty
+			$perm_key = 'pk';
 		}
 
 		if ($use_url && !$this->global_cache) {
@@ -241,7 +242,8 @@ class Cache_Manager extends Asset
 				return FALSE;
 			}
 		} else {
-			$perm_key = '';
+			// A dummy string, as the db expects this value to be non-empty
+			$perm_key = 'pk';
 		}
 
 		if ($use_url && !$this->global_cache) {
@@ -261,6 +263,7 @@ class Cache_Manager extends Asset
 		} else {
 			$expiry = $now + $this->getExpiry($asset_type, $assetid);
 		}
+		
 		return $this->_storage->store($cache_key, $perm_key, $url, $assetid, $contents, $expiry);
 
 	}//end saveToCache()
@@ -425,12 +428,11 @@ class Cache_Manager extends Asset
 				}
 			}
 		} else {
-			if (empty($cache_key)) {
 				// if permission level caching is on - check read/write/admin access for this asset
 				// if the key is blank (representing a non list style asset)
 				if ($this->attr('permission_caching')) {
-					$groups = array_keys($current_user->getGroups());
-					$userids = Array((string) $current_user->id) + $groups;
+					$groups = $current_user->getUserGroups();
+					$userids = array_merge(Array((string) $current_user->id), $groups);
 
 					// note that we dont use the cache in rollback view mode so we dont have
 					// to run this query through the rollback functions
@@ -456,7 +458,6 @@ class Cache_Manager extends Asset
 						break;
 					}
 				}
-			} else {
 				// if group level caching is on - check the groups the user is in if they are logged in
 				// and if user satisfies the group security restrictions
 				if ($this->attr('group_caching')) {
@@ -464,7 +465,6 @@ class Cache_Manager extends Asset
 					sort($groups);
 					$perm_key = implode('|', $groups);
 				}
-			}
 		}//end else - if logged in
 		$perm_key = (empty($perm_key)) ? '' : md5($perm_key);
 		return $perm_key;
@@ -534,7 +534,7 @@ class Cache_Manager extends Asset
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		$current_root_url = '';
 		foreach ($root_urls as $url) {
-			if (0 === strpos($current_url, $url)) {
+			if (!empty($url) && 0 === strpos($current_url, $url)) {
 				if (strlen($url) > strlen($current_root_url)) {
 					$current_root_url = $url;
 				}
@@ -593,10 +593,19 @@ class Cache_Manager extends Asset
 			return FALSE;
 		}
 		
-		// if it's non-public user and we should only send to public user on current URL, do not send header
-		$is_public = $GLOBALS['SQ_SYSTEM']->user instanceof Public_User;
-		if (!$is_public && !in_array($current_root_url, $this->attr('user_cacheable_header_urls'))) {
-			return FALSE;
+		// if it's in this array, it means we are relaxed on permission of asset to send header
+		// we just need to check if current user has read access to the asset
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if(in_array($current_root_url, $this->attr('user_cacheable_header_urls'))) {
+			if(!$asset->readAccess() || $asset->status < SQ_STATUS_LIVE) {
+				return FALSE;
+			}
+		}
+		else {
+			// we will need to make sure asset is unrestricted public readable
+			if(!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) || !$asset->effectiveUnrestricted()) {
+				return FALSE;
+			}
 		}
 		
 		// check type code and root node specific settings
@@ -783,6 +792,13 @@ class Cache_Manager extends Asset
 		}
 
 		$this->_storage = new $asset_type();
+
+		// If the selected cache storage is not valid, use the default
+		if (!$this->_storage->isValid()) {
+			trigger_error('The cache storage type "'.$storage_type.'" cannot be used under current conditions, reverting to default', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('Cache_Storage_Default');
+			$this->_storage = new Cache_Storage_Default();
+		}
 
 	}//end _loadCacheStorage()
 

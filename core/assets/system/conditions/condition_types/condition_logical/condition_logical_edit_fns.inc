@@ -69,6 +69,9 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		}
 		$allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));
 
+		// add the Custom Keyword option to the head of array
+		array_push($allowed_keywords, 'Custom Keyword');
+
 		?>
 		<table class="sq-backend-table">
 			<?php
@@ -99,7 +102,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 					   $operator = $condition_data['operator'];
 					}
 					if ($write_access) {
-						combo_box($prefix.'[operator]', Array('ALL' => translate('condition_match_on_following_keywords',strtoupper(translate('All'))), 'ANY' => translate('condition_match_on_following_keywords',strtoupper(translate('Any')))), FALSE, $operator);
+						combo_box($prefix.'[operator]', Array('ALL' => sprintf(translate('Match on %s of the following keywords'),strtoupper(translate('All'))), 'ANY' => sprintf(translate('Match on %s of the following keywords'),strtoupper(translate('Any')))), FALSE, $operator);
 
 
 					} else {
@@ -131,12 +134,20 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 							<?php
 							echo '<span class="sq-inline-fields-wrapper">%';
 							if ($write_access) {
-								combo_box($prefix.'[keyword'.$i.']', array_merge($special_option, $keyword_options), FALSE, $keyword_info['constant_part']);
-								// This is a special case for generic/variable keywords (like asset_metadata_)
-								// which name must be completed.
-								// For those keywords, we show an additional box to type the rest of the name
-								if ($keyword_info['is_variable']) {
-									text_box($prefix.'[name_extension_'.$i.']', $keyword_info['variable_part'], 30);
+								if(self::_isCustomKeyword($keyword, $allowed_keywords)) {
+									if(strpos($keyword, 'Custom Keyword') === 0) {
+										$keyword = '';
+									}
+									text_box($prefix.'[keyword'.$i.']', $keyword, 80);
+								}
+								else {
+									combo_box($prefix.'[keyword'.$i.']', array_merge($special_option, $keyword_options), FALSE, $keyword_info['constant_part']);
+									// This is a special case for generic/variable keywords (like asset_metadata_)
+									// which name must be completed.
+									// For those keywords, we show an additional box to type the rest of the name
+									if ($keyword_info['is_variable']) {
+										text_box($prefix.'[name_extension_'.$i.']', $keyword_info['variable_part'], 30);
+									}
 								}
 							} else {
 								echo ($keyword_info['constant_part']).array_get_index($keyword_info, 'variable_part', '');
@@ -171,30 +182,21 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	public static function processEditInterface(Backend_Outputter $o, $prefix, Array $allowed_keywords = Array())
+	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
-	    if (empty($allowed_keywords)) {
-	        // we don't know the type of the asset here so we add the keywords of the generic Asset object
-	        $dummy_asset = new Asset();
-	        $allowed_keywords = array_keys($dummy_asset->getAvailableKeywords());
-	    }
-        $allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));
-
+		$j = count(preg_grep("/keyword[0-9]/", array_keys($_POST[$prefix])));
 		$logical_keywords = Array();
 
-		for ($i = 0; $i < 100; $i++) {
+		for ($i = 0; $i < $j; $i++) {
 			if (isset($_POST[$prefix]['keyword'.$i])) {
-				$keyword_name = $_POST[$prefix]['keyword'.$i];
-				if ($keyword_name != 'none') {
-					$keyword_info = self::_getKeywordInfo($keyword_name, $allowed_keywords);
-					if ($keyword_info['is_variable']) {
+				$keyword_name = isset($_POST[$prefix]['keyword'.$i]) ? $_POST[$prefix]['keyword'.$i] : '';
+				if ($keyword_name != 'none' && !empty($keyword_name)) {
 						if (!empty($_POST[$prefix]['name_extension_'.$i])) {
 							$name_extension = trim($_POST[$prefix]['name_extension_'.$i]);
 							if (!empty($name_extension)) {
-								$keyword_name = $keyword_info['constant_part'].$name_extension;
+								$keyword_name .= $name_extension;
 							}
 						}
-					}
 					$logical_keywords[$keyword_name] = '';
 				}
 			}
@@ -253,6 +255,52 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		return $ret;
 
 	}//end _getKeywordInfo()
+
+
+
+	/**
+	* Check if a keyword name is a custom keyword ( not in allowed list)
+	*
+	* @param string	$keyword_name		the keyword to analyse
+	* @param array	&$allowed_keywords	allowed keywords, this is the list of keywords
+	*									as returned by getAssetKeywords().
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected static function _isCustomKeyword($keyword_name, Array &$allowed_keywords)
+	{
+
+		// if the option value is -- None -- ignore it
+		if(strpos($keyword_name, '-- ') === 0) {
+			return FALSE;
+		}
+		if(empty($keyword_name)) {
+			return FALSE;
+		}		
+		if(strpos($keyword_name, 'Custom Keyword') === 0) {
+			return TRUE;
+		}
+
+
+		$ret = TRUE;
+
+		$keyword_parts = Array();
+		foreach ($allowed_keywords as $allowed_keyword) {
+				if (preg_match('/^'.$allowed_keyword.'(.*)$/', $keyword_name, $keyword_parts)) {
+					if(preg_match('/_$/', $allowed_keyword) || $allowed_keyword === $keyword_name) {
+						// there is a match, so it's not a custom keyword
+						$ret = FALSE;
+						return $ret;
+					}
+				}
+		}
+
+		return $ret;
+
+	}//end _isCustomKeyword()
+
+
 
 }//end class
 

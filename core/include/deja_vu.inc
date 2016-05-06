@@ -91,7 +91,7 @@ class Deja_Vu extends MySource_Object
             $config = explode(',', file_get_contents(SQ_DEJA_VU_CONTROL));
             $this->_enabled = (int) array_get_index($config, 0, 0);
             $this->_recaching_delay = array_get_index($config, 1, 0);
-            $this->_cache_storage = array_get_index($config, 2, 'memcache');
+            $this->_cache_storage = trim(array_get_index($config, 2, 'memcache'));
 
             if ($this->_enabled !== 1) $this->_enabled = 0;
         }

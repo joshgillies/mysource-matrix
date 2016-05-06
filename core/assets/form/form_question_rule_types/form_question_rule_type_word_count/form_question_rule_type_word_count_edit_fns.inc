@@ -47,10 +47,24 @@ class Form_Question_Rule_Type_Word_Count_Edit_Fns extends Form_Question_Rule_Edi
 	{
 		$operator_list = $asset->getOperators();
 
+		$op    = array_get_index($rule_data, 'operator', '==');
+		$value = array_get_index($rule_data, 'value', '');
+
+		$comparison_text = Array(
+			'==' => translate('Response must be exactly %s words long'),
+			'!=' => translate('Response must not be %s words long'),
+			'>'  => translate('Response must be longer than %s words'),
+			'<'  => translate('Response must be shorter than %s words'),
+			'>=' => translate('Response must be no shorter than %s words'),
+			'<=' => translate('Response must be no longer than %s words'),
+		);
+
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
-
-			echo translate('core_form_rule_count_edit_'.array_get_index($rule_data, 'operator', '=='), $rule_data['value']);
+			echo sprintf(
+				$comparison_text[$op],
+				$value
+			);
 			$o->closeField();
 
 		} else {
@@ -58,14 +72,14 @@ class Form_Question_Rule_Type_Word_Count_Edit_Fns extends Form_Question_Rule_Edi
 			$o->openField(translate('Operator'));
 
 			// list of operators
-			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '=='));
+			combo_box($prefix.'[operator]', $operator_list, false, $op);
 			$o->closeField();
 
 			$o->openField(translate('Number of Words'));
 
 			// give a text box to write the comparison value in
-			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
-			echo ' '.translate('Word(s).');
+			int_text_box($prefix.'[value]', $value, false, 3);
+			echo ' '.translate(' words');
 
 			$o->closeField();
 

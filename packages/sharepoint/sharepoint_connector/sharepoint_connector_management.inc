@@ -79,6 +79,20 @@ class Sharepoint_Connector_Management extends Asset_Management
 															'allow_empty'	=> TRUE,
 															   ),
 										   ),
+                        'authentication_type'           => Array(
+                                        'added'         => '0.17',
+                                        'type'          => 'selection',
+                                        'default'       => 'HTTP_BASIC',
+                                        'parameters'    => Array(
+                                                            'multiple'      => FALSE,
+                                                            'allow_empty'   => FALSE,
+                                                            'sort_options'  => TRUE,
+                                                            'options'       => Array(
+                                                                                'HTTP_BASIC'   => 'HTTP Basic',
+                                                                                'NTLM' => 'NTLM',
+                                                    ),
+                                            ),
+                                    ),
 					  );
 
 	}//end constructor

@@ -57,10 +57,12 @@
             <note>Pre-processing Matrix global keywords allows %globals_*% keywords to be evaluated prior to running JavaScript.</note>
             <boolean true_text="Yes" false_text="No" />
         </field>
-        <field attribute="js_engine">
+        <field>
             <display_name>JS Engine</display_name>
-            <note>SpiderMokey requires engine binary path specified in External Tools Configuration.V8 engine requires v8js PECL extension to be installed.</note>
-            <selection />
+            <function_call>
+                <paint_function name="paintJavaScriptEngine" />
+                <process_function name="processJavaScriptEngine" />
+            </function_call>
         </field>
         <field>
             <display_name>Include Files</display_name>

@@ -41,5 +41,45 @@ class Google_Analytics_Connector_Management extends Asset_Management
 	}//end constructor
 
 
+	/**
+	* Upgrade to a new version
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.2', '<')) {
+			echo('Upgrading Google Analytics Connector from v'.$current_version."\n");
+			
+			// Version 0.2 updates Connectors to use the Bearer access token type instead
+			// of the default URI token type. This is necessary once we start doing write
+			// actions to the GA API.
+			$connectors = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('google_analytics_connector', FALSE, TRUE);
+			$count = 0;
+
+			foreach ($connectors as $id => $type) {
+				$connector_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$connector_asset->setAttrValue('access_token_type', 'bearer');
+				$connector_asset->saveAttributes();
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($connector_asset, TRUE);
+				unset($connector_asset);
+
+				$count++;
+			}//end foreach
+
+			pre_echo('Upgrade of Google Analytics Connector to v0.2 complete. Updated '.$count.' asset(s).');
+
+		}//end if
+
+		return TRUE;
+
+	}//end _upgrade()
+
 }//end class
 ?>

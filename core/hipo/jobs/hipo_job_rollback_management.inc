@@ -512,6 +512,18 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 				$step_data['percent_done'] = 50;
 				$step_data['complete']     = FALSE;
 			}
+
+			if ($step_data['complete']) {
+				// Prepare message to be logged
+				$msg_reps = Array(
+							'current_user'	=> $GLOBALS['SQ_SYSTEM']->user->name,
+							'current_userid'=> $GLOBALS['SQ_SYSTEM']->user->id,
+							'purge_fv_date'	=> $this->_running_vars['purge_fv_date'],
+						);
+				$msg_body = translate('%current_user%(#%current_userid%) has purged all file and file versioning entries before %purge_fv_date%');
+				// Log the message
+				$this->logMessages($msg_reps, $msg_body);
+			}
 		} else {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
@@ -558,6 +570,19 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 				$step_data['percent_done'] = (int)(((count($this->_running_vars['rollback_table_names']) - count($this->_running_vars['to_check'])) / count($this->_running_vars['rollback_table_names'])) * 100);
 				$step_data['complete']     = FALSE;
 			}
+
+			if ($step_data['complete']) {
+				// Prepare message to be logged
+				$msg_reps = Array(
+							'current_user'	=> $GLOBALS['SQ_SYSTEM']->user->name,
+							'current_userid'=> $GLOBALS['SQ_SYSTEM']->user->id,
+							'reset_rollback'=> $this->_running_vars['reset_rollback'],
+						);
+				$msg_body = translate('%current_user%(#%current_userid%) has reset rollback entries');
+				// Log the message
+				$this->logMessages($msg_reps, $msg_body);
+			}
+
 		} else {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
@@ -580,6 +605,14 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 	*/
 	function toggleRollbackState(&$step_data, $prefix)
 	{
+		// log message info
+		$msg_reps = Array(
+					'current_user'	=> $GLOBALS['SQ_SYSTEM']->user->name,
+					'current_userid'=> $GLOBALS['SQ_SYSTEM']->user->id,
+					'enabled'		=> (($this->_running_vars['enable_rollback']) ? 'enabled' : 'disabled'),
+				);
+		$msg_body = translate('%current_user%(#%current_userid%) has %enabled% the Rollback Manager');
+
 		if ($this->_running_vars['start_job']) {
 			$this->_running_vars['start_job'] = FALSE;
 			$this->_running_vars['to_check'] = $this->_running_vars['rollback_table_names'];
@@ -592,6 +625,10 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					$this->_running_vars['start_job'] = TRUE;
 					$this->skipStep(5);
 					$this->skipStep(6);
+
+					// Log the message
+					$this->logMessages($msg_reps, $msg_body);
+
 					return TRUE;
 				}
 			}
@@ -621,6 +658,11 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 			} else {
 				$step_data['percent_done'] = (int)(((count($this->_running_vars['rollback_table_names']) - count($this->_running_vars['to_check'])) / count($this->_running_vars['rollback_table_names'])) * 100);
 				$step_data['complete']     = FALSE;
+			}
+
+			if ($step_data['complete']){
+				// Log the message
+				$this->logMessages($msg_reps, $msg_body);
 			}
 		} else {
 			$step_data['percent_done'] = 100;
@@ -669,6 +711,18 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 				$step_data['percent_done'] = (int)(((count($this->_running_vars['rollback_table_names']) - count($this->_running_vars['to_check'])) / count($this->_running_vars['rollback_table_names'])) * 100);
 
 				$step_data['complete']     = FALSE;
+			}
+
+			if ($step_data['complete']){
+				// Prepare message to be logged
+				$msg_reps = Array(
+							'current_user'	=> $GLOBALS['SQ_SYSTEM']->user->name,
+							'current_userid'=> $GLOBALS['SQ_SYSTEM']->user->id,
+							'purge_rb_date' => $this->_running_vars['purge_rb_date'],
+						);
+				$msg_body = translate('%current_user%(#%current_userid%) has deleted entries before %purge_rb_date%');
+				// Log the message
+				$this->logMessages($msg_reps, $msg_body);
 			}
 		} else {
 			$step_data['percent_done'] = 100;
@@ -765,6 +819,17 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 				$step_data['percent_done'] = (int)(((count($this->_running_vars['rollback_table_names']) - count($this->_running_vars['to_check'])) / count($this->_running_vars['rollback_table_names'])) * 100);
 				$step_data['complete']     = FALSE;
 			}
+
+			if ($step_data['complete']){
+				// Prepare message to be logged
+				$msg_reps = Array(
+							'current_user'	=> $GLOBALS['SQ_SYSTEM']->user->name,
+							'current_userid'=> $GLOBALS['SQ_SYSTEM']->user->id,
+						);
+				$msg_body = translate('%current_user%(#%current_userid%) has deleted redundant entries');
+				// Log the message
+				$this->logMessages($msg_reps, $msg_body);
+			}
 		} else {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
@@ -798,6 +863,28 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 
 	}//end completeTransaction()
 
+	/**
+	* Logs the events of this HIPO Squizmap #7999
+	*
+	* @param array	$msg_reps	array of log message info
+	* @param string	$msg_body	log message
+	*
+	* @access private
+	*/
+	private function logMessages($msg_reps, $msg_body)
+	{
+		// log message using messaging service
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$msg_type    = translate('hipo.job');
 
+		$msg_subject = translate('Rollback Manager');
+		
+		$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+		$message->subject = $msg_subject;
+		$message->body    = $msg_body;
+		$message->parameters['job'] = translate($this->code_name);
+		$message->send();
+
+	}//end logMessages()
 }//end class
 ?>

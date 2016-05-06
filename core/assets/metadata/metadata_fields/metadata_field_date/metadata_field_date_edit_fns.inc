@@ -344,7 +344,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			?>
 			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/js/metadata_field_date.js"></script>
 			<?php
-			echo '<span class="sq-metadata-settings-wrapper">';
+			if($enable_default || $print_cascade_values_option) echo '<span class="sq-metadata-settings-wrapper">';
 				if ($enable_default) {
 					echo '<span class="sq-metadata-default-wrapper">';
 						if ((substr($default_val, 0, 1) == '%') || empty($value)) {
@@ -357,6 +357,15 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							if($dy == NULL && $dm == NULL && $dd == NULL && $dh == NULL && $di == NULL && $ds == NULL) {
 								$default_date_exp = 'null';
 							} else {
+								if ($dy == NULL) {
+									$dy = '0000';
+								}
+								if ($dm == NULL) {
+									$dm = '00';
+								}
+								if ($dd == NULL) {
+									$dd = '00';
+								}
 								if ($dh == NULL) {
 									$dh = '00';
 								}
@@ -379,20 +388,22 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo '</span>';
 				}
 
-				if ($write_access && $print_cascade_values_option) {
+				$allow_cascading = $asset->attr('allow_cascading');
+				if ($write_access && $print_cascade_values_option && $allow_cascading) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
 						label(translate('Cascade value'), $prefix.'_cascade_value');
 
 					echo '</span>';
 				}
-			echo '</span>';
+				
+			if($enable_default || $print_cascade_values_option) echo '</span>';
 
 			echo '<div class="sq-metadata-date-wrapper">';
 				echo '<span class="sq-inline-fields-wrapper bottom-margin">';
 					$field->printField();
 				echo '</span>';
-				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 47px">-'.strtoupper(translate('or in')).'- </b>';
+				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b>-'.strtoupper(translate('or in')).'- </b>';
 
 				preg_match('/([0-9]+)\s([i|h|d|w|m|y])/', $value, $matches);
 				text_box($prefix.'_duration', '0', 2, '', TRUE);
@@ -458,7 +469,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 					}
 				echo '</span>';
 			}
-			echo $field->format();
+
+			// Check to see if our value isnt empty, before we try to format the field Squizmap #7682
+			if (!$field->isEmpty()){
+				echo $field->format();
+			}
 		}//end if
 
 		return $write_access;
@@ -529,11 +544,12 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*											NULL means that there is no current value set
 	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param boolean        		$content_file   Whether the generated metadata will be included in a metadata content file
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Field_Date $asset, $value_str, &$tag_value, Array &$keywords)
+	public function generateMetadata(Metadata_Field_Date $asset, $value_str, &$tag_value, Array &$keywords, $content_file=TRUE)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
@@ -555,11 +571,18 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (substr($value, 0, 1) != '%') {
 			if (empty($value)) $value = NULL;
 			$field = $asset->_getDateTimeField('', $value);
-			$value = $field->format();
+
+			// Check to see if our value isnt empty, if so we just need an empty string
+			// no need to format the field as its empty anyway Squizmap #7682
+			if ($field->isEmpty()){
+				$value = '';
+			} else {
+				$value = $field->format();
+			}
 		}
 
 		ob_start();
-			parent::generateMetadata($asset, Metadata_Field::encodeValueString($value, $value_components), $tag_value, $keywords);
+			parent::generateMetadata($asset, Metadata_Field::encodeValueString($value, $value_components), $tag_value, $keywords, $content_file);
 			$metadata_tag = ob_get_contents();
 		ob_end_clean();
 

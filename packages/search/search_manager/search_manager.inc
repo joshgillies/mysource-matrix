@@ -2148,6 +2148,17 @@ class Search_Manager extends Asset
 	*/
 	function _saveWeightings($weightings, $type)
 	{
+		// remove those settings that points to non-exist asset
+		if(!empty($weightings)) {
+			foreach ($weightings as $assetid => $data) {
+				if(is_numeric($assetid)) {
+					$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE);
+					if(empty($asset_info)) {
+						unset($weightings[$assetid]);
+					}
+				}
+			}
+		}
 		if (!in_array($type, Array('asset_type', 'asset', 'asset_tree', 'metadata'))) {
 			trigger_error('Invalid weightings type "'.$type.'"', E_USER_ERROR);
 			return FALSE;
@@ -2432,14 +2443,16 @@ class Search_Manager extends Asset
 							$term_results = $this->_processWordSearch($search_term, $data_source, $base_query, $word_logic);
 
 							if (!is_null($term_results)) {
-								if (!isset($all_source_results[$search_term])) {
-									$all_source_results[$search_term] = Array();
+								// If we have single data soruce for this field, "terms result" will already have "all source" result for this field
+								if (count($field_details['data_sources']) > 1) {
+									if (!isset($all_source_results[$search_term])) {
+										$all_source_results[$search_term] = Array();
+									}
+									$all_source_results[$search_term] = $all_source_results[$search_term] + $term_results;
+
+									// Records all the assets in which we find the term.
+									$all_source_assetids = $all_source_assetids + $term_results;
 								}
-								$all_source_results[$search_term] = $all_source_results[$search_term] + $term_results;
-
-								// Records all the assets in which we find the term.
-								$all_source_assetids = $all_source_assetids + $term_results;
-
 								$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
 								$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
 							}
@@ -2451,7 +2464,7 @@ class Search_Manager extends Asset
 				if (!$include_context) {
 					$cross_source_results = $all_source_assetids;
 					foreach ($all_source_results as $term => $results) {
-						$cross_source_results = array_intersect_assoc($cross_source_results, $results);
+						$cross_source_results = array_intersect_assoc_recursive($cross_source_results, $results);
 					}
 				} else {
 					$cross_source_results = array();
@@ -2837,43 +2850,98 @@ class Search_Manager extends Asset
 		if (is_null($results_so_far)) {
 			return $new_results;
 		} else {
-			if ($logic == 'OR') {
-				$res_results = $results_so_far;
-			} else {
-				$res_results = Array();
+			if (empty($new_results)) {
+				return $logic == 'OR' ? $results_so_far : Array();
 			}
-			if(empty($new_results)) return $res_results;
-			if (isset($results_so_far[0])) {
-				// getAll format, rather than getAssoc format
-				foreach ($new_results as $new_result) {
-					$added = FALSE;
-					$found = FALSE;
-					foreach ($results_so_far as $i => $old_result) {
-						if ($old_result['assetid'] == $new_result['assetid']) {
-							$found = TRUE;
-							if ($old_result['source'] == $new_result['source']) {
-								if ($logic == 'AND') {
-									$old_result['search_score'] += $new_result['search_score'];
-									$res_results[] = $old_result;
-								} else {
-									$res_results[$i]['search_score'] += $new_result['search_score'];
-								}
-								$added = TRUE;
-								break;
-							} else if ($logic == 'AND') {
-								// the assetid is common even though the source isn't, so the
-								// existing entry deserves to stay
-								$res_results[] = $old_result;
-							}
+			// Whether the result is expected in full format with 'source' info, or just the assetid the score
+			$full_format_result = isset($results_so_far[0]);
+
+			if ($full_format_result) {
+
+				// Transform the search result array structure as
+				// Array(
+				//		0 => Array(
+				//				'assetid' => [ASSETID],
+				//				'search_score' => [SCORE],
+				//				'source' => [SOURCE],
+				//			)
+				//	)
+				//
+				// to
+				//
+				// Array(
+				//		[ASSETID]^[SOURCE] => [SCORE] (total score)
+				//	)
+				//
+				// Due to this we can avoid nested for loop when comparing the current search results with the new ones when combining the search result
+				// If both current and new search results contains thousands entries then nested for loop
+
+				$current_search_info = Array();
+				$current_search_assetids = Array();
+				foreach($results_so_far as $search_info) {
+					if (isset($search_info['assetid']) && isset($search_info['source'])) {
+						$key = $search_info['assetid'].'^'.$search_info['source'];
+						$current_search_info[$key] = (isset($current_search_info[$key]) ? $current_search_info[$key] : 0) + $search_info['search_score'];
+
+						// Track the current result assetids with their sources
+						// We need this info when adding the old result to the main result of only assetid bit gets matched
+						if (!isset($current_search_assetids[$search_info['assetid']])) {
+							$current_search_assetids[$search_info['assetid']] = Array();
 						}
-					}
-					if (!$added && ($found || ($logic == 'OR'))) {
-						// we haven't added it yet and either the logic is "OR" or the assetid is common
-						// so we add the new result now
-						$res_results[] = $new_result;
+						$current_search_assetids[$search_info['assetid']][$key] = $current_search_info[$key];
+					}//end if
+				}//end foreach
+
+				$new_search_info = Array();
+				foreach($new_results as $search_info) {
+					if (isset($search_info['assetid']) && isset($search_info['source'])) {
+						$key = $search_info['assetid'].'^'.$search_info['source'];
+						$new_search_info[$key] = (isset($new_search_info[$key]) ? $new_search_info[$key] : 0) + $search_info['search_score'];
 					}
 				}
+
+				$results = $logic == 'OR' ? $current_search_info : Array();
+				foreach ($new_search_info as $search_key => $search_score) {
+					$search_key_parts = explode('^', $search_key);
+					$new_search_assetid = $search_key_parts[0];
+
+					if (isset($current_search_info[$search_key])) {
+						// Asset id along with the source is common
+						$results[$search_key] = $search_score + $current_search_info[$search_key];
+
+					} else if (isset($current_search_assetids[$new_search_assetid])) {
+						// Asset id is common, though the source is differnet
+						$results[$search_key] = $search_score;
+						// Keep the old entries too with the matching assetid
+						$results += $current_search_assetids[$new_search_assetid];
+
+					} else if ($logic == 'OR') {
+						// New non-matching entry
+						$results[$search_key] = $search_score;
+					}
+				}//end foreach
+
+				unset($current_search_info);
+				unset($current_search_assetids);
+				unset($new_search_info);
+
+				// Transform the format back
+				$res_results = Array();
+				foreach	($results as $search_key => $search_score) {
+					$search_key_parts = explode('^', $search_key);
+					$assetid =  $search_key_parts[0];
+					$source =  $search_key_parts[1];
+					$res_results[] = Array(
+										'assetid' => $assetid,
+										'search_score' => $search_score,
+										'source' => $source,
+									);
+				}//end foreach
+				unset($results);
+
 			} else {
+				// getAssoc format i.e. Array( assetid => score)
+				$res_results = $logic == 'OR' ? $results_so_far : Array();
 				foreach ($new_results as $assetid => $score) {
 					if ($logic == 'OR') {
 						$res_results[$assetid] = $score + array_get_index($results_so_far, $assetid);
@@ -2882,8 +2950,12 @@ class Search_Manager extends Asset
 					}
 				}
 			}
+
 			return $res_results;
+
 		}//end else
+
+		return Array();
 
 	}//end _combineResults()
 

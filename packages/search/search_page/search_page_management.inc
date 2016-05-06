@@ -143,7 +143,7 @@ class Search_Page_Management extends Asset_Management
 		$this->vars['no_roles_check']	= Array(
 											'added'			=> '0.12',
 											'type'			=> 'boolean',
-											'default'		=> FALSE,
+											'default'		=> TRUE,
 											'description'	=> 'If true, search for assets without checking roles',
 											'parameters'	=> Array('allow_empty' => FALSE),
 										  );
@@ -328,6 +328,31 @@ class Search_Page_Management extends Asset_Management
 															'parameters'	=> Array('allow_empty' => FALSE),
 														  );
 
+		$this->vars['parameter_map'] = Array(
+										'added'			=> '0.15',
+										'type'			=> 'parameter_map',
+										'default'		=> Array(),
+										'parameters'	=> Array(
+															'parameters'	=> Array(
+																				'root_node'			=> 'Replacement Root node for the listing (must be a child of the static root node)',
+																				'asset_selection'	=> 'Array of specific asset IDs or selection group (specified assets must be children of the static root node)',
+																			   ),
+														   ),
+										);
+		$this->vars['dynamic_asset_selection_option'] = Array(
+										'added'			=> '0.27',
+										'type'			=> 'selection',
+										'default'		=> 'static_root',
+										'parameters'	=> Array(
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+															'options'		=> Array(
+																				'static_root'		=> 'Use static root node',
+																				'empty_result'		=> 'Return empty result',
+																			   ),
+														   ),														   
+									   );
+
 	}//end constructor
 
 
@@ -369,6 +394,48 @@ class Search_Page_Management extends Asset_Management
 	function _upgrade($current_version)
 	{
 		parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.27', '<')) {
+			echo('UPGRADING SEARCH PAGE FROM '.$current_version."\n");
+			$count = 0;
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			pre_echo('Updating Search Pages...');
+			// Get all Listing Engine Page assets
+			$search_pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('search_page', FALSE, TRUE);
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
+			foreach ($search_pages as $id => $type) {
+				$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$get_attr_details = $search_page->getAttribute('no_roles_check');
+				$attr_id = $get_attr_details->id;
+				$sql = 'SELECT custom_val FROM sq_ast_attr_val';
+				$where = ' WHERE assetid = '.MatrixDAL::quote($id);
+				$where .= ' AND attrid = '.MatrixDAL::quote($attr_id);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
+				$result = DAL::executePdoAll($query);
+				if(empty($result)) {
+					$search_page->setAttrValue('no_roles_check', FALSE);
+					if (!$search_page->saveAttributes()) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						pre_echo('UPGRADE FAILED - Could not save attribute of asset #'.$id);
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						return FALSE;
+					}//end if
+					$count++;
+				}
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($search_page, TRUE);
+		        unset($search_page);
+			}
+
+			pre_echo('Updated - '.$count.' search page(s)...');
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+			pre_echo('SEARCH PAGES SUCCESSFULLY UPGRADED TO VERSION 0.27');
+		}
 
 		if (version_compare($current_version, '0.26', '<')) {
 			echo('UPGRADING SEARCH PAGE FROM '.$current_version."\n");

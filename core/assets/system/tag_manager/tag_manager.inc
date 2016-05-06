@@ -513,6 +513,20 @@ class Tag_Manager extends Asset
 
 	}//end isTagSourceRestricted()
 
+	/**
+	* Provides extra checking and disable invalid status change on errors
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	* @param boolean	$run_updated	specify it we want to run _upated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
+	{
+		// left blank to overide processStatusChange
+	}//end processStatusChange()
 
 }//end class
 ?>

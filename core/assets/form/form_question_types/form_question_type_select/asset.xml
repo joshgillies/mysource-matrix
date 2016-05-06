@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>form_question_type_select</type_code>
-	<version>0.5</version>
+	<version>0.6</version>
 	<name>Form Question - Select</name>
 	<description>Select question for Form</description>
 	<instantiable>yes</instantiable>

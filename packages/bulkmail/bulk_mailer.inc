@@ -94,7 +94,20 @@ class Bulk_Mailer
 		// pick up a timeout-ed job (higher priority than a new job)
 		foreach ($results as $job_id => $info) {
 			if ($info['status'] == BML_JOB_STATE_RUNNING) {
-				$progress_info = $bm->getJobProgress($job_id);
+
+				// Get the latest job info from the db
+				$job_result = $bm->getQueuedJobs($job_id);
+				if (empty($job_result[$job_id])) {
+					continue;
+				}
+				
+				$info = $job_result[$job_id];
+				// If the job status has changed since the cron started then its being processed (or already processed) by other cron process
+				if (!isset( $info['status']) || $info['status'] != BML_JOB_STATE_RUNNING) {
+					continue;
+				}
+				$progress_info = $info['progress'];
+
 				// check timeout and excluded time, make sure we take over this job if timeout_threshold is reached
 				if ($this->checkThreshold('time_out', Array(), $progress_info)) {
 					if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
@@ -108,6 +121,19 @@ class Bulk_Mailer
 		// pick up a new job or a resume a paused job (normal priority)
 		foreach ($results as $job_id => $info) {
 			if ($info['status'] == BML_JOB_STATE_NOT_RUNNING) {
+
+				// Get the latest job info from the db
+				$job_result = $bm->getQueuedJobs($job_id);
+				if (empty($job_result[$job_id])) {
+					continue;
+				}
+
+				$info = $job_result[$job_id];
+				// If the job status has changed since the cron started then its being processed (or already processed) by other cron process
+				if (!isset( $info['status']) || $info['status'] != BML_JOB_STATE_NOT_RUNNING) {
+					continue;
+				}
+
 				// excluded time threshold rule
 				if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
 					$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
@@ -227,6 +253,9 @@ class Bulk_Mailer
 		$header_details = $details['header_details'];
 		$header_details['from'] = $details['from'];
 
+		// Cached Post Office asset id when creating the job (used for adhoc jobs)
+		$job_po_id = $info[$job_id]['po_id'];
+
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = retrieve_keywords_replacements($details['subject']);
 		$replacements = Array();
@@ -318,11 +347,22 @@ class Bulk_Mailer
 				$mime = new Mail_mime("\n");
 				$mail_queue = new Mail_Queue($details['queue_details'], $details['server_details']);
 
+				$current_post_office = NULL;
 				if (strpos($job_id, ':') === FALSE) {
 					$job = $am->getAsset($job_id);
 					$current_post_office = $job->getPostOffice();
 				} else {
-					$job = $current_post_office = NULL;
+					$job = NULL;
+					if (!empty($job_po_id) && $am->getAssetInfo($job_po_id, 'bulkmail_post_office')) {
+						$current_post_office = $am->getAsset($job_po_id);
+					}
+				}
+				if (!is_null($current_post_office)) {
+					// If we have post office, get the current test mode info status from it
+					$test_mode = $current_post_office->attr('bulkmail_mode') == 'test';
+				} else {
+					// Get the test mode info from the job data cache created when scheduling the job
+					$test_mode = isset($details['bulkmail_mode']) && $details['bulkmail_mode'] == 'test';
 				}
 
 				if ($details['content_text_only']) {
@@ -503,7 +543,7 @@ class Bulk_Mailer
 								$header_details['custom_id'] = $user_id;
 								$header_details['To'] = $email; // FR: 2515
 								// Check for Test Mode
-								if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
+								if ($test_mode) {
 									// Log the emails
 									$message_type = 'bulkmail.job.testmode';
 									$msg_reps = Array(
@@ -566,75 +606,82 @@ class Bulk_Mailer
 		$this->_reconnectDB();
 		$progress_info = $bm->getJobProgress($job_id);
 		if ($progress_info['current_count'] >= $progress_info['total_count']) {
+			$current_post_office = NULL;
 			if (strpos($job_id, ':') === FALSE) {
 				$job = $am->getAsset($job_id);
 				$current_post_office = $job->getPostOffice();
 			} else {
-				$job = $current_post_office = NULL;
+				$job = NULL;
+				if (!empty($job_po_id) && $am->getAssetInfo($job_po_id, 'bulkmail_post_office')) {
+					$current_post_office = $am->getAsset($job_po_id);
+				}
+			}
+
+			if (!is_null($current_post_office)) {
+				// If we have post office, get the current test mode info status from it
+				$test_mode = $current_post_office->attr('bulkmail_mode') == 'test';
+			} else {
+				// Get the test mode info from data cache created when scheduling the job
+				$test_mode = isset($details['bulkmail_mode']) && $details['bulkmail_mode'] == 'test';
 			}
 
 			// remove job entry from the db queue table
 			$bm->deleteJob($job_id);
 
-			// if this is not an ad-hoc job, log an internal message
-			$job_id_parts = explode(':', $job_id);
-			if (!isset($job_id_parts[1])) {
+			if ($test_mode) {
+				$message_type = 'bulkmail.job.testmode.completed';
+				$msg_subject  = translate('Bulkmail Test Mode Completed');
+				$msg_body     = translate('Bulkmail Test mode was completed. Mail was requested for %num_recip% recipients.');
+				$msg_reps = Array(
+								'num_recip'		=> number_format($progress_info['total_count']),
+								'num_problem'	=> number_format(count($progress_info['problematic'])),
+								'num_filtered'	=> isset($progress_info['filtered']) ? number_format(count($progress_info['filtered'])) : 0,
+							);
+			} else {
+				$subtype = '';
+				$msg_subject = translate('Bulkmail Job Completed');
+				$msg_body    = translate('<strong>Mail successfully sent to %num_recip% recipients.</strong>');
+				if (count($progress_info['problematic']) > 0) {
+					trigger_localised_error('BML0010', sprintf(translate('Problematic recipient id found: %s.', implode(','), $progress_info['problematic'])), E_USER_WARNING);
+					$subtype = '.error';
+					$msg_subject = translate('Bulkmail Job Completed with Error');
+					$msg_body   .= '<br/>'.translate('%num_problem% recipients were skipped due to problems in generation.');
+				}
 
-				if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
-					$message_type = 'bulkmail.job.testmode.completed';
-					$msg_subject  = translate('Bulkmail Test Mode Completed');
-					$msg_body     = translate('Bulkmail Test mode was completed. Mail was requested for %num_recip% recipients.');
-					$msg_reps = Array(
-									'num_recip'		=> number_format($progress_info['total_count']),
-									'num_problem'	=> number_format(count($progress_info['problematic'])),
-									'num_filtered'	=> isset($progress_info['filtered']) ? number_format(count($progress_info['filtered'])) : 0,
-								);
-				} else {
-					$subtype = '';
-					$msg_subject = translate('Bulkmail Job Completed');
-					$msg_body    = translate('<strong>Mail successfully sent to %num_recip% recipients.</strong>');
-					if (count($progress_info['problematic']) > 0) {
-						trigger_localised_error('BML0010', sprintf(translate('Problematic recipient id found: %s.', implode(','), $progress_info['problematic'])), E_USER_WARNING);
-						$subtype = '.error';
-                        $msg_subject = translate('Bulkmail Job Completed with Error');
-                        $msg_body   .= '<br/>'.translate('%num_problem% recipients were skipped due to problems in generation.');
-					}
-
-					if (isset($progress_info['filtered']) && (count($progress_info['filtered']) > 0)) {
-                        $msg_body .= '<br/>'.translate('%num_filtered% recipients were also skipped as their bulkmail\'s contents failed to match the enabled Body filter.');
-						trigger_localised_error('BML0019', sprintf(translate('Recipient id skipped due to body filter failing to match: %s.', implode(','), $progress_info['filtered'])), E_USER_WARNING);
-						if (empty($subtype)) {
-							$subtype     = '.filtered';
+				if (isset($progress_info['filtered']) && (count($progress_info['filtered']) > 0)) {
+					$msg_body .= '<br/>'.translate('%num_filtered% recipients were also skipped as their bulkmail\'s contents failed to match the enabled Body filter.');
+					trigger_localised_error('BML0019', sprintf(translate('Recipient id skipped due to body filter failing to match: %s.', implode(','), $progress_info['filtered'])), E_USER_WARNING);
+					if (empty($subtype)) {
+						$subtype     = '.filtered';
 							$msg_subject = translate('Bulkmail Job Completed, some Filtered');
-                        } else {
+				} else {
 							$subtype    .= '+filtered';
 							$msg_subject = translate('Bulkmail Job Completed with Error and some Filtered');
 						}
-					}
+				}
+				if ($subtype !== '') {
+				     $msg_body .= ' '.translate('Please check the Bulkmail Error log for details.');
+				}
+				$message_type = 'bulkmail.job.completed'.$subtype;
 
-					if ($subtype !== '') {
-					     $msg_body .= ' '.translate('Please check the Bulkmail Error log for details.');
-					}
-					$message_type = 'bulkmail.job.completed'.$subtype;
+				// format recipient count with grouped thousands
+				$msg_reps = Array(
+								'num_recip'		=> number_format($progress_info['total_count']),
+								'num_problem'	=> number_format(count($progress_info['problematic'])),
+								'num_filtered'	=> isset($progress_info['filtered']) ? number_format(count($progress_info['filtered'])) : 0,
+							);
+			}//end if
 
-					// format recipient count with grouped thousands
-					$msg_reps = Array(
-									'num_recip'		=> number_format($progress_info['total_count']),
-									'num_problem'	=> number_format(count($progress_info['problematic'])),
-									'num_filtered'	=> isset($progress_info['filtered']) ? number_format(count($progress_info['filtered'])) : 0,
-								);
-				}//end if
+			// Send the message
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+			$message->subject = $msg_subject;
+			$message->body    = $msg_body;
+			$message->parameters['assetid'] = $job_id;
+			$message->send();
+			$am->forgetAsset($message);
+			$am->forgetAsset($ms);
 
-				// Send the message
-				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
-				$message->subject = $msg_subject;
-				$message->body    = $msg_body;
-				$message->parameters['assetid'] = $job_id;
-				$message->send();
-				$am->forgetAsset($message);
-				$am->forgetAsset($ms);
-			}
 			if (!is_null($job)) $am->forgetAsset($job);
 			if (!is_null($current_post_office)) $am->forgetAsset($current_post_office);
 

@@ -208,7 +208,7 @@ class Ldap
 
 		if (!$sr) {
 			$ldap_error = ldap_err2str(ldap_errno($this->ptr));
-			log_error($ldap_error.' Filter string: '.$filter);
+			log_error($ldap_error.' Filter string: '.$filter.' DN: ['.$startdn.'] could not be found');
 			return 0;
 		} else {
 			if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);
@@ -251,7 +251,7 @@ class Ldap
 
 			if (!$sr) {
 				$ldap_error = ldap_err2str(ldap_errno($this->ptr));
-				log_error($ldap_error.' Filter string: '.$filter);
+				log_error($ldap_error.' Filter string: '.$filter.' DN: ['.$startdn.'] could not be found');
 				return FALSE;
 			}
 
@@ -270,7 +270,7 @@ class Ldap
 
 				if (!$sr) {
 					$ldap_error = ldap_err2str(ldap_errno($this->ptr));
-					log_error($ldap_error.' Filter string: '.$filter);
+					log_error($ldap_error.' Filter string: '.$filter.' DN: ['.$startdn.'] could not be found');
 					return FALSE;
 				}
 				$page_entries = $this->getEntries($sr, $binary_attributes);
@@ -314,7 +314,7 @@ class Ldap
 						$group_sr = @ldap_read($this->ptr, $entry['dn'], '(objectClass=*)', Array($member_attr));
 						if (!$group_sr) {
 							$ldap_error = ldap_err2str(ldap_errno($this->ptr));
-							log_error($ldap_error.' Filter string: '.$filter);
+							log_error($ldap_error.' Filter string: '.$filter.' DN: ['.$startdn.'] could not be found');
 							return FALSE;
 						}
 
@@ -353,6 +353,19 @@ class Ldap
 
 		if (!isset($entries['count'])) {
 			$entries = Array('count' => 0);
+		}
+
+		// Handling of non UTF-8 responses Squizmap #6926
+		if (!empty($entries[0]['dn']) && mb_detect_encoding($entries[0]['dn'], 'auto', TRUE) !== 'UTF-8') {
+			// attempt to convert the encoding to UTF-8 and check if its valid
+			$entries[0]['dn'] = mb_convert_encoding($entries[0]['dn'], 'UTF-8');
+			
+			// check to see if we have successully changed the encoding
+			$encoding = mb_detect_encoding($entries[0]['dn']);
+			if ($encoding !== 'UTF-8' && $encoding !== 'ASCII' && $encoding !== 'UTF-7') {
+				// trigger error if we have failed to convert the encoding of the response
+				log_error('Failed to convert LDAP response into UTF-8', E_USER_WARNING);
+			}
 		}
 
 		return $entries;

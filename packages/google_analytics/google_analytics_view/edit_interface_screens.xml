@@ -18,7 +18,7 @@
 <screens>
     <screen code_name="paths" display_name="Web Paths" icon="edit" lock_type="" force_unlock="0" />
 	<screen code_name="summary" display_name="Summary" icon="edit" lock_type="" force_unlock="0" />
-	<screen code_name="content" display_name="Content" icon="edit" lock_type="" force_unlock="0" />
+	<screen code_name="content" display_name="Traffic" icon="edit" lock_type="" force_unlock="0" />
 	<screen code_name="audience" display_name="Audience" icon="edit" lock_type="" force_unlock="0" />
 	<screen code_name="goals" display_name="Goals" icon="edit" lock_type="" force_unlock="0" />
 	<screen code_name="experiments" display_name="Experiments" icon="edit" lock_type="" force_unlock="0" />

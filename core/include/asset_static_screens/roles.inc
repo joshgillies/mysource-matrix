@@ -76,7 +76,7 @@ function paintInlineRoles(&$owner, &$o, &$ei)
 					?>
 				</td>
 				<td class="sq-backend-table-cell-alt" rowspan="<?php echo $userid_count; ?>">
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($global_role) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($global_role) ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 				</td>
 			</tr>
 			<?php
@@ -243,7 +243,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 									if (SQ_CONF_ENABLE_GLOBAL_ROLES == '1') {
 									?>
 										<td class="sq-backend-table-cell-alt" rowspan="<?php echo $userid_count; ?>">
-											<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($global_role) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+											<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($global_role) ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 										</td>
 									<?php
 									}

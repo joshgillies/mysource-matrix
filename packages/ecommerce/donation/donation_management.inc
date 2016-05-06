@@ -52,6 +52,7 @@ class Donation_Management extends Asset_Management
 												'default'		=> '',
 												'description'	=> 'The long description of the donation',
 												'is_contextable'	=> TRUE,
+												'is_admin'		=> FALSE,
 											   ),
 						'short_description'	=> Array(
 												'added'			=> '0.1',
@@ -59,6 +60,7 @@ class Donation_Management extends Asset_Management
 												'default'		=> '',
 												'description'	=> 'The short description of the donation for small display space',
 												'is_contextable'	=> TRUE,
+												'is_admin'		=> FALSE,
 											   ),
 						'details'			=> Array(
 												'added'			=> '0.1',
@@ -66,6 +68,7 @@ class Donation_Management extends Asset_Management
 												'default'		=> '',
 												'description'	=> 'The detailed specifications of the donation',
 												'is_contextable'	=> TRUE,
+												'is_admin'		=> FALSE,
 											   ),
 					  );
 		

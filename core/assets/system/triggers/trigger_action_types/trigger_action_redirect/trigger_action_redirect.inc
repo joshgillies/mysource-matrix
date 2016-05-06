@@ -79,8 +79,7 @@ class Trigger_Action_Redirect extends Trigger_Action
 
 		if (!empty($url)) {
 			header('Location: '.$url);
-			exit();
-
+			
 			return Array(
 					'assetid'	=> $state['asset']->id,
 					'url'		=> $url,
@@ -160,7 +159,19 @@ class Trigger_Action_Redirect extends Trigger_Action
 
 	}//end getLocks()
 
+	/**
+	* Run any actions that need to be completed once trigger actions have been completed
+	* added for Squizmap #5759 to allow succes log messages to be logged
+	*
+	* @access public
+	*/
+	public static function afterTriggerActionComplete()
+	{
+		// Stop any further redirects from occuring
+		exit();
 
+		return TRUE;
+	}//end afterTriggerAction()
 }//end class
 
 ?>

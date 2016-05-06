@@ -22,7 +22,7 @@
 	<name>Update Internal Messages</name>
 	<description>Trigger Action to update the internal messages values</description>
 	<instantiable>no</instantiable>
-	<allowed_access>backend_user</allowed_access>
+	<allowed_access>system</allowed_access>
 	<parent_type>trigger_action</parent_type>
 	<requirements>
 		<requirement type="asset">

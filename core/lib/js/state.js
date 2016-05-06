@@ -20,7 +20,6 @@
 function changesMade()
 {
 	document.forms[0]['changes'].value = '1';
-	checkChangesMade();
 	return true;
 }
 
@@ -41,7 +40,7 @@ function saveState()
 {
 	var currentForm = document.forms[0];
 	var currentState = '';
-	
+	var eleID = 0;
 	for (var i=0; i < currentForm.elements.length; i++) {
 		var el = currentForm.elements[i];
 		if (el.type == 'hidden' || el.type == 'password') {
@@ -59,15 +58,24 @@ function saveState()
 			// download file on form submisons log screen.
 			// see bug #4952 "Unsaved changes" JS popup in 
 			// IE when exporting Form Submissions
+		} else if (el.parentNode.className === "htmlarea-select-container") {
+			// when classic WYSIWYG is active it hads 5 select box
+			// 5 select box (font type, font size, heading, select keyword and language)
+			// see bug Squizmap # 8208
+		} else if (el.id === "MatrixViper-tabTextfield") {
+			// when viper is enabled it add some input textbox with this Id which differs it from initial state
+			// see bug Squizmap #8208
 		} else if (el.type =='checkbox' || el.type == 'radio') {
 			// Save the checkbox/radio
 			if (el.checked) {
-				currentState += recordField(i, '1');
+				currentState += recordField(eleID, '1');
 			} else {
-				currentState += recordField(i, '0');
+				currentState += recordField(eleID, '0');
 			}
+			eleID++;
 		} else if (el.type == 'select-one') {
-			currentState += recordField(i, el.selectedIndex);
+			currentState += recordField(eleID, el.selectedIndex);
+			eleID++;
 		} else if (el.type == 'select-multiple') {
 			var ssm = '';
 			for (var j=0; j < el.options.length; j++) {
@@ -76,10 +84,40 @@ function saveState()
 					ssm += '-';
 				}
 			}
-			currentState += recordField(i, ssm);
+			currentState += recordField(eleID, ssm);
+			eleID++;
 		} else {
+
+			// for viper
+			var vcontentId = el.id.substring(0, el.id.length - 6);
+			var vcontent = document.getElementById(vcontentId);
+			if (vcontent !== null) {
+				var getClass = vcontent.getAttribute('class');
+				// grab viper div
+				if (getClass === "with-viper" && typeof(Matrix_Viper) === 'object') {
+					el.value = Matrix_Viper.viper.getHtml(vcontent);
+				}
+			}
+			
+			//Check for classic wysiwyg 
+			var ccontentId = el.id + '_wysiwyg_div';
+			var emailcontentId = el.id + '_text_body_div';
+			var ccontent = document.getElementById(ccontentId);
+			var econtent = document.getElementById(emailcontentId);
+			if (ccontent !== null || econtent !== null) {
+				// grab HTMLArea editor object
+				var HTMLArea = eval('editor_' + el.id);
+				if(HTMLArea && HTMLArea.getHTML) {
+					var result = HTMLArea.getHTML();
+					if(result) {
+						el.value = result.replace(new RegExp("\n",'g'),"");
+					}
+				}
+			}
+				
 			// Finally save text fields, text boxes etc.
-			currentState += recordField(i, el.value);
+			currentState += recordField(eleID, el.value);
+			eleID++;
 		}
 	}
 
@@ -139,16 +177,4 @@ onsubmit = function(e) {
 
 onreset = function(e) {
 	resetChanges();
-}
-
-// Adds a class to the commit button wrapper div so that we can indicate that changes are made but not saved.
-function checkChangesMade()
-{
-	if (document.forms[0]['state'].value != saveState()) {
-		if(document.body.className.indexOf('sq-changes-made') < 0){
-			document.body.className += ' sq-changes-made';
-		}
-	} else {
-		document.body.className = document.body.className.replace(/ sq-changes-made/, '');
-	}
 }

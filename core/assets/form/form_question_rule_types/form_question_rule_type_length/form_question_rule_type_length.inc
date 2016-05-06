@@ -135,7 +135,28 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
 
-		$valid = eval('return \''.strlen($answer).'\''.$operator.'\''.$value.'\';');
+		$valid = FALSE;
+		switch($operator) {
+			case '==':
+				$valid = strlen($answer) == $value;
+				break;
+			case '!=':
+				$valid = strlen($answer) != $value;
+				break;
+			case '>':
+				$valid = strlen($answer) > $value;
+				break;
+			case '<':
+				$valid = strlen($answer) < $value;
+				break;
+			case '>=':
+				$valid = strlen($answer) >=  $value;
+				break;
+			case '<=':
+				$valid = strlen($answer) <=  $value;
+				break;
+		}
+
 		return $valid;
 
 	}//end evaluate()
@@ -153,14 +174,35 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	function ruleDescription(&$q_asset, $rule_data)
 	{
 		$operator = array_get_index($rule_data, 'operator', '==');
+		$value    = array_get_index($rule_data, 'value', '');
 
-		$value = array_get_index($rule_data, 'value', '');
+		$description_text = Array(
+			'=='     => translate('The response to "%1$s" must be exactly %2$s characters long'),
+			'==_acc' => translate('The response must be exactly %2$s characters long.'),
+			'!='     => translate('The response to "%1$s" must not be %2$s characters long'),
+			'!=_acc' => translate('The response must not be %2$s characters long.'),
+			'>'      => translate('The response to "%1$s" must be longer than %2$s characters'),
+			'>_acc'  => translate('The response must be longer than %2$s characters.'),
+			'<'      => translate('The response to "%1$s" must be shorter than %2$s characters'),
+			'<_acc'  => translate('The response must be shorter than %2$s characters.'),
+			'>='     => translate('The response to "%1$s" must be no shorter than %2$s characters'),
+			'>=_acc' => translate('The response must be no shorter than %2$s characters.'),
+			'<='     => translate('The response to "%1$s" must be no longer than %2$s characters'),
+			'<=_acc' => translate('The response must be no longer than %2$s characters.'),
+		);
+
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
-	    	$use_accessible_string = $form->useAccessibleFormat();
-		if($use_accessible_string)
-		    $error_str = translate('core_form_rule_length_desc_'.$operator.'_accessible', $value);
-		else
-		     $error_str = translate('core_form_rule_length_desc_'.$operator, $q_asset->attr('name'), $value);
+	    $use_accessible_string = $form->useAccessibleFormat();
+
+		if ($use_accessible_string) {
+			$operator .= '_acc';
+		}
+
+		$error_str = sprintf(
+			$description_text[$operator],
+			$q_asset->attr('name'),
+			$value
+		);
 
 		return $error_str;
 

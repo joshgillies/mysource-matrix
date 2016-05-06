@@ -1055,7 +1055,7 @@
 		<table name="ast_mdata_val" require_rollback="1">
 			<columns>
 				<column name="assetid" allow_null="0">
-					<type>VARCHAR(15)</type>
+					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
 					<description />
@@ -1257,7 +1257,7 @@
 					<description>Any params needed for search or jut making sense of the message in the form "key:value;key:value" eg. assetid:4;attributeid:12</description>
 				</column>
 				<column name="assetid" allow_null="1">
-					<type>VARCHAR(15)</type>
+					<type>VARCHAR(255)</type>
 					<description>The asset (if applicable) the log message is about. If it's not about an asset, this is left as null.</description>
 				</column>
 			</columns>
@@ -1462,6 +1462,62 @@
 					<default />
 					<description>Trigger category</description>
 				</column>
+				<column name="created" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="created_userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="updated" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="updated_userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="published" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="published_userid" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="status_changed" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="status_changed_userid" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
 			</columns>
 			<keys>
 				<primary_key>
@@ -1486,7 +1542,7 @@
 					<description>Event type code (asset type) a trigger in triggerid is interested in.</description>
 				</column>
 				<column name="assetid" allow_null="0">
-					<type>VARCHAR(15)</type>
+					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
 					<description>Asset ID of the asset broadcasting the event a trigger in triggerid is interested in.</description>
@@ -1936,7 +1992,7 @@
 					<description>The URL of this cache entry</description>
 				</column>
 				<column name="assetid" allow_null="0">
-					<type>VARCHAR(15)</type>
+					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
 					<description>The assetid of the cached asset</description>

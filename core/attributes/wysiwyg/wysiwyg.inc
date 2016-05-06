@@ -35,6 +35,9 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 {
 
+	public static $bodycopy_cssids=NULL;
+	
+	public static $design_styles=NULL;
 
 	/**
 	* Constructor
@@ -274,12 +277,17 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*/
 	function paint($prefix, $read_only=false, &$owner=null)
 	{
+		if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !headers_sent()) {
+			// Without this header disabled, Chrome will not output the iframe's source in the editor
+			header('X-XSS-Protection: 0');
+		}
+
 		if ($read_only) {
 			echo $this->value;
 			return;
 		}
 
-		$this->_saveCssAssetIds();
+		self::getDesignAttributes();
 
 		// get keywords replacement
 		if($owner == null) $owner = new Asset();
@@ -336,6 +344,12 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		<?php
 		$o = empty($GLOBALS['SQ_SYSTEM']->backend) ? NULL : $GLOBALS['SQ_SYSTEM']->backend->out;
 
+		// if Javascript is detected in the HTML, we can't print it as HTML, use raw input
+		$html = $this->value;
+		if(isWYSIWYGJS($html, $prefix)) {
+			return FALSE;
+		}
+
 		if(!is_null($o) && $o->isViperAvailable()) {
 
 		    $o->enableViperEditor();
@@ -349,10 +363,13 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		    // Clean the HTML before passing to the Matrix backend form
 		    $o->addOnSubmit('Matrix_Viper.viper.cleanDOM(document.getElementById("'.$prefix.'_contents_div_viper"));');
+		    // Check if there is temp image previews, you have to either remove them or upload to asset
+			$o->addOnSubmit('if(!Matrix_Viper.checkImagePreview(document.getElementById("'.$prefix.'_contents_div_viper"), "'.translate('You have image previews in the content that are not yet uploaded. Saving without uploading them will remove them from the content. Are you sure you want to save?').'")) return false;');
 		    // Use a hidden input to pass the Viper edited content to Matrix backend form
-		    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
+		    $o->addOnSubmit('var element =  document.getElementById("'.$prefix.'_contents_div_viper_input"); if (typeof(element) != "undefined" && element != null) { document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML; }');
+		    $o->addOnSubmit('if(Matrix_Viper.checkSourceEditorPopup()) { return false;}');
 		    ?>
-		  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>"><?php echo $this->value;?></div>
+		  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" ondrop="event.preventDefault(); return false;"  ondragover="event.preventDefault(); return false;" ><?php echo $this->value;?></div>
 		  <textarea id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input"></textarea>
 		  <?php
 		}
@@ -360,7 +377,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		?>
 
 			    <div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
-			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper htmlarea-div"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
+			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper htmlarea-div"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}" ondrop="event.preventDefault(); return false;"  ondragover="event.preventDefault(); return false;"  ><?php echo $this->value?></div>
 
 		<?php
 		}
@@ -547,14 +564,21 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 
 	/**
-	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
+	* Get the ids of all css files attached to this url to be used by the wysiwyg editor later on
+	* Or the backend asset's design (based on preview URL) style attributes
 	*
-	* @return void
+	* @param string $attr_type Either 'css_assetids' or 'wysiwyg_styles'
+	*
+	* @return array
 	* @access private
 	*/
-	protected function _saveCssAssetIds()
+	public static function getDesignAttributes($attr_type='css_assetids')
     {
-        if (!isset($GLOBALS['sq_bodycopy_cssids']) && isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
+		if ($attr_type != 'css_assetids' && $attr_type != 'wysiwyg_styles') {
+			return FALSE;
+		}
+
+        if (!isset(self::$bodycopy_cssids) && !empty($GLOBALS['sq_preview_url'])) {
             $url = $GLOBALS['sq_preview_url'];
             $url = preg_replace('|^http[s]?://|', '', $url);
 
@@ -562,20 +586,18 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
             if ($designid) {
                 $design = $GLOBALS['SQ_SYSTEM']->am->getAsset($designid);
-                $stylesheets = $design->getStylesheets();
 
-                // save the ids of all the css files into a global var so the wysiwyg style
-                // drop down plugin can access this information without another querey
-                // we can also limit the stylesheets that are available to it here if we want
-                $GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
-
-                $GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
+				self::$bodycopy_cssids = array_keys($design->getStylesheets());
+				self::$design_styles = $design->attr('wysiwyg_classes');
+                
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
                 unset($design);
-
             }
         }
 
-	}//end _saveCssAssetIds()
+		return $attr_type == 'css_assetids' ? self::$bodycopy_cssids : self::$design_styles;
+
+	}//end getDesignAttributes()
 
 
 }//end class

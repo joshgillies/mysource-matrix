@@ -57,7 +57,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_METADATA_THRESHOLD]', SQ_HIPO_METADATA_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_METADATA_THRESHOLD]', SQ_HIPO_METADATA_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_METADATA_THRESHOLD;
 		}
@@ -211,15 +211,16 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 			foreach ($this->_running_vars['schema_changes'] as $schema_change) {
 				$assetids = $schema_change['assetids'];
 				foreach ($assetids as $assetid) {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid);
 
-					if (is_null($asset)) {
+					if (empty($asset_info)) {
 						trigger_localised_error('HIPO0016', sprintf(translate('Unable to initialise Edit Metadata Schemas HIPO, invalid asset ID specified (%s)'), $assetid), E_USER_WARNING);
 						return '';
 					}
 
 					if ($schema_change['cascades']) {
-						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+						// we only get non-dependant assets to apply schema
+						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, '', TRUE, FALSE);
 					} else {
 						$child_assets = Array();
 					}
@@ -227,7 +228,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					// add the parent asset to the list too
 					$child_assets[$assetid]    = Array (
 												0    => Array (
-														'type_code'    => $asset->type(),
+														'type_code'    => $asset_info[$assetid]['type_code'],
 													   ),
 											  );
 
@@ -335,7 +336,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							case -1 :
 								// delete a schema
 								$step_data['message'] = htmlentities('Removing "'.$schema->name.'" (#'.$schema->id.') from "'.$asset->name.'" (#'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-								$mm->deleteSchema($asset->id, $set_data['schemaid']);
+								$delete_values = isset($set_data['delete_values']) ? $set_data['delete_values'] : TRUE;
+								$mm->deleteSchema($asset->id, $set_data['schemaid'], $delete_values);
 							break;
 
 							case 0  :

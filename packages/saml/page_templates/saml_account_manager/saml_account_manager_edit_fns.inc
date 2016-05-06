@@ -146,12 +146,26 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	*/
 	function paintAcsUrl(&$asset, &$o, $prefix)
 	{
-		   $acs_asset = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'saml2_acs', TRUE, 'saml2_assertion_consumer_service', 'major', '1');
-		   $acs_asset =  $GLOBALS['SQ_SYSTEM']->am->getAsset($acs_asset['minorid']);
-		   if($acs_asset) {
-		       echo ($acs_asset->getUrl());
-		   }
-	}
+		$acs_asset_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'saml2_acs', TRUE, 'saml2_assertion_consumer_service', 'major', '1');
+		$acs_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($acs_asset_link['minorid']);
+		$asset_urls = $acs_asset->getLookups();
+		usort($asset_urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
+		$acs_urls = Array();
+
+		if ($acs_asset) {
+			echo '<ul>';
+			foreach ($asset_urls as $index => $acs_url_info) {
+				if ($acs_url_info['http']) {
+					echo '<li> http://'.$acs_url_info['url'].'</li>';
+				}
+				if ($acs_url_info['https']) {
+					echo '<li> https://'.$acs_url_info['url'].'</li>';
+				}
+			}
+			echo '</ul>';
+		}
+
+	}//end paintAcsUrl()
 
 
 	/**
@@ -166,14 +180,26 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	*/
 	function paintSlsUrl(&$asset, &$o, $prefix)
 	{
-		   $sls_asset = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'saml2_sls', TRUE, 'saml2_single_logout_service', 'major', '1');
-		   $sls_asset =  $GLOBALS['SQ_SYSTEM']->am->getAsset($sls_asset['minorid']);
-		   if($sls_asset) {
-			echo ($sls_asset->getUrl());
-		   }
-	}
+		$sls_asset_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'saml2_sls', TRUE, 'saml2_single_logout_service', 'major', '1');
+		$sls_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sls_asset_link['minorid']);
+		$asset_urls = $sls_asset->getLookups();
+		usort($asset_urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
+		$sls_urls = Array();
 
+		if ($sls_asset) {
+			echo '<ul>';
+			foreach ($asset_urls as $index => $sls_url_info) {
+				if ($sls_url_info['http']) {
+					echo '<li> http://'.$sls_url_info['url'].'</li>';
+				}
+				if ($sls_url_info['https']) {
+					echo '<li> https://'.$sls_url_info['url'].'</li>';
+				}
+			}
+			echo '</ul>';
+		}
 
+	}//end paintSlsUrl()
 
 
 	/**
@@ -311,7 +337,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			echo check_box($prefix.'_customise_form', 1, !empty($customised_types));
 		} else {
 			$fn = !empty($customised_types) ? 'tick' : 'cross';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.png" />';
 		}
 
 	}//end paintCreateFormCustomisation()
@@ -429,10 +455,6 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	    return ($location == 'attribute');
 	} // end saml_userid_in_attribute()
 
-
-
-
-
 	/**
 	* Paint the interface for prefilling/sync attributes from user profile api response
 	*
@@ -516,7 +538,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 							<?php
 							if ($write_access) {
 								?>
-								<td class="sq-backend-table-cell" " align="center">
+								<td class="sq-backend-table-cell" align="center">
 									<?php check_box($type_prefix.'_delete_prefilled['.$attr.']'); ?>
 								</td>
 								<?php
@@ -591,12 +613,20 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		$attr_name = $prefill ? 'prefilled_fields' : 'synced_fields';
 		$current = $asset->attr($attr_name);
+		// preserves the Populate and Sync User Attributes on change of create user type
+		$current_type = key($current);
+
 		$required_fields = Array();
 
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
 
 			if (!isset($current[$create_type])) {
-				$current[$create_type] = Array();
+				// preserves the Populate and Sync User Attributes on change of create user type
+				if (isset($current[$current_type])) {
+					$current[$create_type] = $current[$current_type];
+				} else {
+					$current[$create_type] = Array();
+				}
 			}
 			$type_prefix = $prefix.'_'.$create_type;
 
@@ -675,8 +705,61 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		$this->processPrefillSyncFields($asset, $o, $prefix, TRUE);
 	}//end processPrefillFields();
 
+	/**
+	* Paint the interface for setting the ldap bridge
+	*
+	* @param SAML_LDAP_Account_Manager  $asset  the asset whose interface we are painting
+	* @param Backend_Outputter          $o      the Backend Outputter object
+	* @param string                     $prefix prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintLDAPBridge(&$asset, Backend_Outputter $o, $prefix)
+	{
+		if($GLOBALS['SQ_SYSTEM']->userSystemAdmin()){
+			return $this->paintNoticeLinkedAsset($asset, 'ldap_bridge', Array('ldap_bridge' => 'I'));
+		}
+		
+		return FALSE;
+	}//end paintRootNode()
+	
+	
+	/**
+	* Processes the setting of ldap bridge
+	*
+	* @param SAML_LDAP_Account_Manager  $asset  the asset whose interface we are painting
+	* @param Backend_Outputter          $o      the Backend Outputter object
+	* @param string                     $prefix prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processLDAPBridge(&$asset, Backend_Outputter $o, $prefix)
+	{
+		if($GLOBALS['SQ_SYSTEM']->userSystemAdmin()){
+			return $this->processNoticeLinkedAsset($asset, 'ldap_bridge');
+		}
+		
+		return FALSE;
+	}//end processLDAPBridge()
 
-
+	/**
+	* Is the user a System admin or higher?
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function saml_ldap_lookup_options(&$asset, $prefix){
+		if($GLOBALS['SQ_SYSTEM']->userSystemAdmin()){
+			return TRUE;
+		}
+		
+		return FALSE;
+	}// end saml_ldap_lookup_options()
 
 }//end class
 

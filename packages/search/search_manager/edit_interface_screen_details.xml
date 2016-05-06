@@ -55,16 +55,6 @@
             </function_call>
         </field>
     </section>
-    <section name="Global Weights" write_access="write:attributes">
-        <field>
-            <display_name>Global Weights</display_name>
-            <note />
-            <function_call>
-                <paint_function name="paintWhiteWords" />
-                <process_function name="processWhiteWords" />
-            </function_call>
-        </field>
-    </section>
     <section name="Search Options" write_access="write:attributes">
         <field attribute="enable_begins_with">
             <display_name>Enable Contains Search</display_name>

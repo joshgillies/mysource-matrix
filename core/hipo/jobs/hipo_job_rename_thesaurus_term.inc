@@ -66,7 +66,7 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD]', SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD]', SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD;
 		}

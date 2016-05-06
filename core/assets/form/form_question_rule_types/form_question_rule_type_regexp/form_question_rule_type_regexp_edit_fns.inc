@@ -50,7 +50,13 @@ class Form_Question_Rule_Type_Regexp_Edit_Fns extends Form_Question_Rule_Edit_Fn
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
 
-			echo translate('core_form_rule_regexp_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), array_get_index($rule_data, 'value', translate('None')));
+			$operator = array_get_index($rule_data, 'operator', 1);
+			if($operator) {
+				echo sprintf(translate('Response must match the regular expression %s'), array_get_index($rule_data, 'value', translate('None')));
+			}
+			else {
+				echo sprintf(translate('Response must NOT match the regular expression %s'), array_get_index($rule_data, 'value', translate('None')));
+			}
 
 			$o->closeField();
 

@@ -537,41 +537,5 @@ class Page_Asset_Listing extends Listing_Engine
 
 	}//end _combineAssets()
 
-
-	/**
-	* Combines assets and root nodes together
-	*
-	* @param array	$assets		Set of assets
-	* @param array	$root_nodes	Set of root nodes
-	* @param array	$types		List of the wanted types
-	*
-	* @return array
-	* @access private
-	*/
-	function _combineRootNodes($assets=Array(), $root_nodes=Array(), $types=Array())
-	{
-		foreach ($root_nodes as $root_node) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node);
-			if (!is_null($asset)) {
-				foreach ($types as $wanted_type => $include) {
-					if ($asset instanceof $wanted_type) {
-						$assets[$root_node] = Array(
-												Array(
-													'type_code'	=> $asset->type(),
-													'sort_value'=> $asset->short_name,
-													'first_letter'=> substr($asset->short_name, 0 , 1),
-												),
-											  );
-					}//end if
-				}//end foreach
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			}//end if
-		}//end foreach
-
-		return $assets;
-
-	}//end _combineRootNodes()
-
-
 }//end class
 ?>

@@ -45,6 +45,16 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'attributes',
 													   ),
+									'metadataSchemas' => Array(
+														'name'			=> 'Metadata Schemas',
+														'force_unlock'	=> TRUE,
+														'lock_type'		=> 'metadata',
+													   ),
+									'metadata'		=> Array(
+														'name'			=> 'Metadata',
+														'force_unlock'	=> TRUE,
+														'lock_type'		=> 'metadata',
+													   ),
 									'permissions'	=> Array(
 														'name'			=> 'Permissions',
 														'force_unlock'	=> TRUE,
@@ -155,7 +165,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 				$display_image = 'cross';
 				if ($checked) $display_image = 'tick';
 
-				$mask = '<img src="'.sq_web_path('lib').'/web/images/'.$display_image.'.gif" />';
+				$mask = '<img src="'.sq_web_path('lib').'/web/images/'.$display_image.'.png" />';
 				echo $mask.' '.$connection_opt_names[$option].'<br />';
 			}
 		}//end for
@@ -471,6 +481,128 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		return !$this->ldapAvailable();
 
 	}//end ldapNotAvailable()
+
+
+	/**
+	* Paint the interface for editing Auth Filter settings
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAuthFilter(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$auth_filter = $asset->attr('auth_filter');
+		$attributes = $asset->attr('attributes');
+		$auth_filter_status = $asset->attr('auth_filter_status');
+
+		$uid_attribute = (isset($attributes['uid']) && !empty($attributes['uid'])) ? $attributes['uid'] : '';
+
+		$warning_message = translate('<strong>Warning:</strong> User ID attribute needs to be set on the Attribute Setup screen for the Auth Filter to work.');
+		if ($write_access) {
+			// first paint the checkbox to activate/deactivate the auth filter text box
+			check_box($prefix.'_auth_filter_status', '1', $auth_filter_status, 'toggle_auth_filter_field(this)');
+			label('Use Default Filter', $prefix.'_auth_filter_status');
+			$disabled = ($auth_filter_status) ? 'disabled' : '';
+
+			$default_value = ($uid_attribute !== '') ? '('.$uid_attribute.'=%username%)' : '';
+			$auth_filter_value = ($auth_filter_status || empty($auth_filter)) ? $default_value : $auth_filter;
+
+			?>
+				<div id="<?php echo $prefix; ?>_placeholder_auth_field" style="display:<?php echo ($uid_attribute !== '') ? 'block' : 'none'; ?>">
+			<?php
+					text_box($prefix.'_auth_filter_value', $auth_filter_value, '40', '', FALSE, $disabled);
+			?>
+				</div>
+				<div id="<?php echo $prefix; ?>_placeholder_warning" style="display:<?php echo (!$auth_filter_status && $uid_attribute === '') ? 'block' : 'none'; ?>" class="sq-warning-message top-margin">
+				<?php echo $warning_message; ?>
+				</div>
+			<?php
+
+			?>
+				<script type="text/javascript"><!--
+				var uid_attribute = '<?php echo $uid_attribute; ?>';
+
+				function toggle_auth_filter_field(auth_filter_checkbox) {
+					var text_box_span = document.getElementById('<?php echo $prefix; ?>_placeholder_auth_field');
+					var text_box = document.getElementById('<?php echo $prefix; ?>_auth_filter_value');
+					var warning_span  = document.getElementById('<?php echo $prefix; ?>_placeholder_warning');
+
+					if (auth_filter_checkbox.checked) {
+						text_box_span.style.display = 'block';
+						text_box.disabled = true;
+						warning_span.style.display = 'none';
+						text_box.value = '<?php echo $default_value; ?>';
+					} else {
+						if (uid_attribute == '') {
+							text_box_span.style.display = 'none';
+							text_box.disabled = true;
+							warning_span.style.display = 'block';
+						} else {
+							text_box_span.style.display = 'block';
+							text_box.disabled = false;
+							warning_span.style.display = 'none';
+							text_box.value = '<?php echo $auth_filter_value; ?>';
+						}
+					}
+				}
+				-->
+				</script>
+			<?php
+		} else {
+			if ($auth_filter_status) {
+				?>
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo 'tick'; ?>.png" width="15" height="15" border="0" />
+				<?php
+				echo translate('Use Default Filter');
+			} else {
+				if ($uid_attribute === '') {
+				?>
+					<div style="display:<?php echo 'block'; ?>" class="sq-warning-message top-margin">
+					<?php echo $warning_message; ?>
+					</div>
+				<?php
+				} else {
+					echo $auth_filter;
+				}
+			}
+
+		}
+
+		return $write_access;
+
+	}//end paintAuthFilter()
+
+
+	/**
+	* Processes the interface for editing Auth Filter settings
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAuthFilter(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($write_access) {
+			$auth_filter_status = array_get_index($_POST, $prefix.'_auth_filter_status');
+			$auth_filter = array_get_index($_POST, $prefix.'_auth_filter_value');
+
+			return $asset->setAttrValue('auth_filter_status', $auth_filter_status) && $asset->setAttrValue('auth_filter', $auth_filter);
+		}
+
+		return $write_access;
+
+	}//end processAuthFilter()
 
 
 }//end class

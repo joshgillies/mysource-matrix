@@ -105,6 +105,37 @@ class Image_Variety_Management extends Asset_Management
 											'is_admin'		=> FALSE,
 											'is_contextable'	=> TRUE,
 										   ),
+						'variety_width'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+						'variety_height'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+						'variety_size'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+						'caption'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The caption attribute for the IMG tag',
+											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
+										   ),
+						'title'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The title attribute for the IMG tag',
+											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
+										   ),
 					  );
 
 	}//end constructor

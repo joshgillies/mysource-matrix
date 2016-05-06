@@ -58,9 +58,11 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		$options = $asset->getOptions();
 		if (count($options) > 0) {
+			$old_values = Array();
 			foreach ($options as $key => $value) {
-				hidden_field($prefix.'_old_options['.$key.']', $value, 'id='.$prefix.'_old_options['.htmlspecialchars($key).']');
+				$old_values[$key] = $value;
 			}
+			hidden_field($prefix.'_old_options', serialize($old_values), 'id='.$prefix.'_old_options');
 		}
 		$multiple = ($asset->attr('multiple')) ? TRUE : FALSE;
 		return combo_box($prefix.'_default', $options, $multiple, $asset->attr('default'));
@@ -86,7 +88,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 
 			if (!is_array($default)) $default = Array($default);
 
-			$old_options = array_get_index($_POST, $prefix.'_old_options', Array());
+			$old_options = isset($_POST[$prefix.'_old_options']) ? unserialize($_POST[$prefix.'_old_options']) : Array();
 
 			if (!empty($old_options)) {
 				$new_options = $asset->getOptions();
@@ -195,6 +197,15 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		$value = $asset->attr('options');
 
 		if (!$read_only) {
+			// Check if number of options have exceed "max_input_vars"
+			// Note that each option will require 2 input fields plus 32 other fields in the screen
+			$input_fields_count = count($value)*2 + 32;
+			$max_allowed_options = ceil((ini_get('max_input_vars')-32)/2);
+			if ($input_fields_count > ini_get('max_input_vars')) {
+				$value = array_slice($value, 0, $max_allowed_options, TRUE);
+				trigger_error('The number of input fields resulting from given set of options have exceeded the maximum allowed number of input fields setting. The options list have been truncated at the end. Increment the PHP ini setting parameter "max_input_vars" to "'.$input_fields_count.'" atleast to edit/view all the currnet options.', E_USER_WARNING);
+			}
+
 			?>
 				<div id="option-list-<?php echo $prefix; ?>" class="sq-option-list">
 					<label class="sq-option-list-header value" for="<?php echo $prefix; ?>_options_keys[0]"><?php echo translate('Value'); ?></label><label class="sq-option-list-header text" for="<?php echo $prefix; ?>_options[0]"><?php echo translate('Text'); ?></label>
@@ -549,6 +560,7 @@ function processOptions(&$asset, &$o, $prefix)
 
 	// Save the values
 	if (!isset($_REQUEST[$prefix.'_options'])) return;
+
 	$value = $_REQUEST[$prefix.'_options'];
 	foreach ($value as $i => $v) {
 		$value[$i] = htmlentities($v, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);

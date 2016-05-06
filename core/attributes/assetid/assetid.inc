@@ -164,8 +164,11 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 			if (!assert_valid_assetid($value, $error_msg, TRUE, FALSE)) {
 				return FALSE;
 			}
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
-			if (is_null($asset)) return FALSE;
+			// In we are importing the assets, don't validate the asset id as the asset might not in the db yet
+			if (!defined('SQ_IN_IMPORT') || !SQ_IN_IMPORT) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
+				if (is_null($asset)) return FALSE;
+			}
 		}
 		return TRUE;
 

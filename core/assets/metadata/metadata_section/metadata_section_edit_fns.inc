@@ -52,9 +52,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function paintInlineOptionInterface(Metadata_Section $asset, Backend_Outputter $o)
+	public function paintInlineOptionInterface(Metadata_Section $asset, Backend_Outputter $o, $write_access=NULL)
 	{
-		$write_access = $asset->writeAccess('links');
+		$write_access = !is_null($write_access) ? $write_access && $asset->writeAccess('links') : $asset->writeAccess('links');
 		$prefix = $asset->getPrefix();
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
@@ -113,7 +113,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 									if ($write_access) {
 										check_box($prefix.'_asset_type_inherit['.$asset_type.']', '1', $inheritance);
 									} else {
-										echo '<img src="'.sq_web_path('lib').'/web/images/'.($inheritance ? 'tick' : 'cross').'.gif" width=" 15" height="15" />';
+										echo '<img src="'.sq_web_path('lib').'/web/images/'.($inheritance ? 'tick' : 'cross').'.png" width=" 15" height="15" />';
 									}
 									?>
 								</td>
@@ -190,7 +190,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				text_box($prefix.'_new_field', '', 30);
+				preg_text_box($prefix.'_new_field', '', 30, '/[^a-z0-9\-\_\.]/i');
 
 			$o->closeField();
 
@@ -328,17 +328,14 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$new_field = new $new_field_type();
 
 			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 0);
-			$new_field->setAttrValue('name', $new_field_name);
-			if ($new_field->create($section_link)) $updated = TRUE;
+			if ($new_field->setAttrValue('name', $new_field_name) && $new_field->create($section_link)) $updated = TRUE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $updated;
-
-		return TRUE;
-
+	
 	}//end processInlineOptionInterface()
 
 
@@ -380,20 +377,6 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 		if (empty($restrictions) || $flag_match_found ) {
 			$o->openSection($asset->name);
-			if ($write_access) {
-				if (isset($GLOBALS['painted_inline_value_interface'][$asset->id])) {
-					// this is the second time we have painted this interface
-					$o->openField(translate('Please Note'));
-
-						echo '<span class="sq-backend-warning"><b>'.translate('The editing interface for this metadata section has already been shown above. The current metadata values are displayed below but cannot be edited. To edit these metadata values, please use the editing interface displayed above.').'</b></span>';
-
-					$o->closeField();
-					$write_access = FALSE;
-				} else {
-					// make sure we dont try and paint the same interface twice
-					$GLOBALS['painted_inline_value_interface'][$asset->id] = TRUE;
-				}
-			}
 
 			$section_description = $asset->attr('description');
 			if (!empty($section_description)) {
@@ -408,8 +391,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($field)) continue;
 				$edit_fns = $field->getEditFns();
-				$type_code = $type_code_prefix ? $type_code : NULL;
-				if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access, $print_cascade_values_option, $type_code)) {
+				if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access, $print_cascade_values_option, $type_code, $type_code_prefix)) {
 					$res = TRUE;
 				}
 			}
@@ -532,11 +514,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	* @param array				&$tag_values	the metadata tag values
 	* @param array				&$keywords		an array we can put keywords in that need replacing
 	* @param string				$type_code		The type_code of the asset that the metadata is being printed
+	* @param boolean            $content_file   Whether the generated metadata will be included in a metadata content file
+	* @param array				&$mfield_types  Type of the metadata fields 
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(Metadata_Section $asset, Array &$values, Array &$tag_values, Array &$keywords, $type_code=NULL)
+	function generateMetadata(Metadata_Section $asset, Array &$values, Array &$tag_values, Array &$keywords, $type_code=NULL, $content_file=TRUE, &$mfield_types=Array())
 	{
 		$frontend_option = $asset->attr('frontend');
 		$flag_match_found = FALSE;
@@ -573,14 +557,19 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$valid_fields = Array();
 			foreach ($current_links as $link) {
 				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+
+				// Check if field is linked to other section that has restriction on this asset type
+				if ($field->isFieldOnRestrictedSection($type_code)) {
+					continue;
+				}
 				if (is_null($field)) continue;
 				$valid_fields[] = $field->name;
 
 				$edit_fns = $field->getEditFns();
 				$tag_values[$field->name] = '';
+				$mfield_types[$field->name] = $field->type();
 
-
-					if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL), $tag_values[$field->name], $keywords)) {
+					if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL), $tag_values[$field->name], $keywords, $content_file)) {
 						ob_end_clean();
 						return FALSE;
 					}

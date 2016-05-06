@@ -422,7 +422,7 @@ class wysiwyg
                             // its possible for plugin to get miss out from js code if a div content having keywords
                             // is linked (new link) elsewhere next to the div content without any keywords
 							// See bug #4475
-							alert(js_translate('unknown_toolbar_item', txt));
+							alert(js_translate('FIXME: Unknown toolbar item: %s', txt));
 						}
 						return el;
 					};
@@ -768,7 +768,7 @@ HTMLArea.prototype.traverseChildrenNodes = function(me, callback) {
 HTMLArea.prototype.containsText = function(node) {
 
 	if (node.nodeType == 1 && HTMLArea.prototype.inArray(node.nodeName.toLowerCase(), HTMLArea.prototype.inline_tags) && node.hasChildNodes() && node.firstChild.nodeValue) return true;
-	else if (node.nodeType == 3 && node.nodeValue != '') return true;
+	else if (node.nodeType == 3 && node.nodeValue.trim().length > 0) return true;
 	else return null;
 
 };
@@ -1105,7 +1105,9 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 						break;
 						case "wysiwyg":
 							if (HTMLArea.is_gecko) {
-								retVal = this._iframe.contentWindow.document.body.innerHTML;
+								if(this._iframe) {
+									retVal = this._iframe.contentWindow.document.body.innerHTML;
+								}
 								// if we are using firefox and if it is the initial container
 								// we need to remove any new line character because
 								// firefox will keep on adding <br> and additional \n(\n)
@@ -1618,7 +1620,16 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 							foreach ($plugin->buttons as $id => $button) {
 								if (isset($button['menu_end'])) continue;
 								if (!$button['command']) continue;
-								$output .= "$id:".str_repeat(' ',30 - strlen($id))."[\"".$button['command']."\",".str_repeat(' ',30 - strlen($button['command']))."\"".$button['tooltip']."\",".str_repeat(' ',30 - strlen($button['tooltip']))."".$button['textmode'].",     ".(($button['textmode'] === 'true') ? ' ' : '')."".$button['position'].", \"".$button['context']."\"],\n\t\t\t\t\t\t";
+								$output .= "$id:".
+									str_repeat(' ',max(0, 30 - strlen($id))).
+									"[\"".$button['command']."\",".
+									str_repeat(' ',max(0, 30 - strlen($button['command']))).
+									"\"".$button['tooltip']."\",".
+									str_repeat(' ',max(0, 30 - strlen($button['tooltip']))).
+									"".$button['textmode'].",     ".
+									(($button['textmode'] === 'true') ? ' ' : '').
+									"".$button['position'].", \"".
+									$button['context']."\"],\n\t\t\t\t\t\t";
 							}
 						}
 						$output = trim($output,"\t\n,");

@@ -6,5 +6,5 @@ if [ ! -f $SYSTEM_ROOT/core/include/init.inc ]; then
 	exit 1
 fi
 
-rm -r ${SYSTEM_ROOT}/core/lib/DAL/Oven/*
-rm -r ${SYSTEM_ROOT}/core/lib/DAL/QueryStore/*
+rm -r ${SYSTEM_ROOT}/data/private/Oven/*
+rm -r ${SYSTEM_ROOT}/data/private/QueryStore/*

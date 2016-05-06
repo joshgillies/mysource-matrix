@@ -146,6 +146,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		}
 
 		// set the new value
+		$metadata = Array();
 		$metadata[$settings['fieldid']] = Array(
 											0	=> Array (
 													'name'	=> $field_name,

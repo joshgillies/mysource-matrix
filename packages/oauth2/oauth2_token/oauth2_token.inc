@@ -215,9 +215,13 @@ class Oauth2_Token extends Page
 			$token = $this->_parseStoreAccessToken($response);
 		    }
 		    else {
-			// no refresh token
-			// just start the auth again to get new access token
-			$this->_startAuthenticationRedirect();
+				// no refresh token
+				// just start the auth again to get new access token
+				if($token_storage !== 'global') {
+					$this->_startAuthenticationRedirect();
+				}{
+					trigger_error('Access Token has expired and there is no Refresh Token available.');
+				}
 		    }
 		}
 	    }
@@ -235,7 +239,7 @@ class Oauth2_Token extends Page
 	 * @return array
 	 * @access public
 	 */
-	public function fetch ($url, $force=TRUE)
+	public function fetch ($url, $force=TRUE, $parameters=Array(), $http_method=OAuth2_Client::HTTP_METHOD_GET, Array $http_headers=Array(), $form_content_type=OAuth2_Client::HTTP_FORM_CONTENT_TYPE_MULTIPART)
 	{
 	    $token = $this->getAccessToken($force);
 	    $this->client->setAccessToken($token['access_token']);
@@ -244,7 +248,7 @@ class Oauth2_Token extends Page
 	    $type = $this->attr('access_token_type');
 	    $this->client->setAccessTokenType(constant('Oauth2_Client::ACCESS_TOKEN_'.strtoupper($type)));
 
-	    $response = $this->client->fetch($url);
+	    $response = $this->client->fetch($url, $parameters, $http_method, $http_headers, $form_content_type);
 	    return $response;
 	}
 
@@ -304,9 +308,27 @@ class Oauth2_Token extends Page
 	    if(isset($info['expires_in']))
 			$expire = $info['expires_in'];
 
+		// for social media network Yammer, the response is slightly different
+		if(is_array($info['access_token'])) {
+			if(isset($info['access_token']['token'])) {
+				$token['access_token'] = $info['access_token']['token'];
+			}
+			if(isset($info['access_token']['expires_at'])) {
+				$expire = $info['access_token']['expires_at'] - time();
+			}
+		}
+
+		// for morning star, the date format is different
+		if(isset($expire) && preg_match('/\/Date\(/', $expire)) {
+			$expire = filter_var($expire, FILTER_SANITIZE_NUMBER_INT);
+			// it uses milliseconds
+			$expire = round($expire / 1000) - time();
+		}
+
+
 		// if we have override expiry setting
 		$override_expiry = $this->attr('token_expiry');
-		if($override_expiry > 0) {
+		if($override_expiry > 0 && $override_expiry < $expiry) {
 			$expire = $override_expiry;
 		}
 
@@ -337,6 +359,8 @@ class Oauth2_Token extends Page
 		$token['access_token'] = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_access_token'];
 		$token['expires_at'] = isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_expires_at']) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_expires_at'] : NULL;
 		$token['refresh_token'] = isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_refresh_token']) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_refresh_token'] : NULL;
+	    $token['refresh_token_expires_at'] = isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_refresh_token_expires_at']) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_refresh_token_expires_at'] : NULL;
+	    $token['download_token'] = isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_download_token']) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_download_token'] : NULL;
 	    }
 	     else if ($storage === 'global') {
 		$token = $this->attr('global_access_token');
@@ -352,6 +376,8 @@ class Oauth2_Token extends Page
 		    $token['access_token'] =$result[0]['access_token'];
 		    $token['expires_at'] =strtotime($result[0]['expires_at']);
 		    $token['refresh_token'] =$result[0]['refresh_token'];
+		    $token['refresh_token_expires_at'] =strtotime($result[0]['refresh_token_expires_at']);
+		    $token['download_token'] =$result[0]['download_token'];
 		}
 	     }
 
@@ -374,6 +400,10 @@ class Oauth2_Token extends Page
 		    $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_expires_at'] = $token['expires_at'];
 		if(isset($token['refresh_token']))
 		    $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_refresh_token'] = $token['refresh_token'];
+		if(isset($token['refresh_token_expires_at']))
+		    $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_refresh_token_expires_at'] = $token['refresh_token_expires_at'];
+		if(isset($token['download_token']))
+		    $_SESSION[SQ_SESSION_SANDBOX_INDEX]['oauth2_'.$this->id.'_download_token'] = $token['download_token'];
 	    }
 	    else if ($storage === 'global') {
 		//  write access to this asset should be checked earlier
@@ -398,6 +428,8 @@ class Oauth2_Token extends Page
 						'access_token'	=> $token['access_token'],
 						'expires_at'		=> isset($token['expires_at']) ? ts_iso8601($token['expires_at']) : NULL,
 						'refresh_token'	=> isset($token['refresh_token']) ? $token['refresh_token'] : NULL,
+						'refresh_token_expires_at'	=> isset($token['refresh_token_expires_at']) ? ts_iso8601($token['refresh_token_expires_at']) : NULL,
+						'download_token'	=> isset($token['download_token']) ? $token['download_token'] : NULL,
 						'created'		=> ts_iso8601(time()),
 					    );
 		$result = MatrixDAL::executeQuery('oauth2_package', 'addToken', $bind_vars);

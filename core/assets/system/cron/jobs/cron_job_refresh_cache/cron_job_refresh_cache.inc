@@ -59,11 +59,13 @@ class Cron_Job_Refresh_Cache extends Cron_Job
 	protected function _getName($short_name=FALSE)
 	{
 		$id = $this->attr('asset');
-		if ($GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
+		if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($id)) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 			$name = $asset->name;
+		} else {
+			$name = translate('Unknown asset');
 		}
-		return "Refresh Cache \"$name\" [#$asset->id]";
+		return "Refresh Cache \"$name\" [#$id]";
 
 	}//end _getName()
 
@@ -90,12 +92,19 @@ class Cron_Job_Refresh_Cache extends Cron_Job
 		}
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
+		$assetid = $this->attr('asset');
+		if (!$am->getAssetInfo($assetid)) {
+			$readable_asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
+			trigger_localised_error('CRON0066', sprintf('Unable to run the %1$s #%2$s, the assoicated asset #%3$s does not exist', $readable_asset_type, $this->id, $assetid), E_USER_WARNING);
+
+			return SQ_CRON_JOB_COMPLETED;
+		}
+		
 		// Start
 		$this->setAttrValue('running', TRUE);
 		$this->saveAttributes();
 
 		// Clear the existing cache
-		$assetid = $this->attr('asset');
 		$cm->clearCache(Array($assetid));
 		$asset = $am->getAsset($assetid);
 		$urls_info = $asset->getURLs();

@@ -58,7 +58,7 @@ $pickerid = preg_replace('/[^0-9]+/', '', $pickerid);
 				var color = ValidateColor(string);
 				if (color == null) {
 					// invalid color
-					alert(js_translate('invalid_colour_code', string));
+					alert(js_translate('Invalid colour code: %s', string));
 				} else {
 					// valid color
 					View(color); // show selected color

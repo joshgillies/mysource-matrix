@@ -62,6 +62,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 						'serialise',
 						'http_request',
 						'oauth',
+						'dynamic_file',
 					);
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');

@@ -106,6 +106,20 @@ class Sharepoint_Saved_Search_Management extends Asset_Management
 		                                            'type'      => 'password',
 		                                            'default'   => '',
 		                                           ),
+                        'authentication_type'   => Array(
+				                                        'added'         => '0.17',
+				                                        'type'          => 'selection',
+				                                        'default'       => 'HTTP_BASIC',
+				                                        'parameters'    => Array(
+				                                                            'multiple'      => FALSE,
+				                                                            'allow_empty'   => FALSE,
+				                                                            'sort_options'  => TRUE,
+				                                                            'options'       => Array(
+				                                                                                'HTTP_BASIC'   => 'HTTP Basic',
+				                                                                                'NTLM' => 'NTLM',
+				                                                    ),
+				                                            ),
+				                                    ),
 
 						'dynamic_vars'			=> Array(
 													'added'		=> '0.2',

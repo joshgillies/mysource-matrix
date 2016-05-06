@@ -70,7 +70,7 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	public function paintDetails(Data_Source_Record_Set $asset, Backend_Outputter $o, $prefix)
 	{
 		$vars = $asset->vars;
-	
+
 		// See if the datasource has any attributes defined as the "binary data"
 		$asset_bits = explode(':', $asset->id);
 		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_bits[0]);
@@ -80,15 +80,24 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		?>
-		<b>Record Set Is: </b>
-		<table>
+		<table class="sq-backend-table">
+			<tr>
+				<th><?php echo translate('Key');?></th>
+				<th><?php echo translate('Keyword');?></th>
+				<th><?php echo translate('Value');?></th>
+			</tr>
 			<?php
 			foreach ($vars as $key => $value) {
 				?>
 				<tr>
 				<?php
 				if ($key != 'shadow_asset_name') {
-					?><td><b><?php echo $key;?></b></td>
+					?><td><?php echo $key;?></td>
+					<td>
+					<?php
+						echo '%ds__'.$key.'%';
+					?>
+					</td>
 					<td><?php
 						// If the value is defined as "binary", do not paint it
 						if (!empty($binary_attrs) && in_array($key, $binary_attrs)) {

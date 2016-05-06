@@ -471,7 +471,7 @@ class Cron_Job extends Asset
 			break;
 
 			case 'MT' :
-				$ret_val .= translate('cron_run_month' ,$when_arr['hour'].':'.$when_arr['minute'], date('jS', mktime(0, 0, 0, 1, (int) $when_arr['day'], 2000)));
+				$ret_val .= sprintf(translate('%1$s on the %2$s'),$when_arr['hour'].':'.$when_arr['minute'], date('jS', mktime(0, 0, 0, 1, (int) $when_arr['day'], 2000)));
 			break;
 
 			case 'WK' :
@@ -496,13 +496,13 @@ class Cron_Job extends Asset
 			case 'TI' :
 				if ($when_arr['minute'] != '') {
 					$interval_unit = 'minute';
-					$interval_str  = translate('%2$s minutes');
+					$interval_str  = translate('%s minutes');
 				} else if ($when_arr['hour'] != '') {
 					$interval_unit = 'hour';
-					$interval_str  = translate('%2$s hours');
+					$interval_str  = translate('%s hours');
 				} else if ($when_arr['day'] != '') {
 					$interval_unit = 'day';
-					$interval_str  = translate('%2$s days');
+					$interval_str  = translate('%s days');
 				}
 
 				// format date, eg. 02:00 on 21 Jan, 2006
@@ -510,7 +510,7 @@ class Cron_Job extends Asset
 				$ret_val = sprintf(
 				    translate('Next run %1$s. Repeating every %2$s'),
 				    $next_run,
-				    $when_arr[$interval_unit]
+				    sprintf($interval_str, $when_arr[$interval_unit])
 				);
 			break;
 
@@ -675,7 +675,7 @@ class Cron_Job extends Asset
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openQueue();
 		$msg = $ms->newMessage();
-
+		$msg->parameters['assetid'] = $this->id;
 		$msg_reps = Array(
 						'cron_type_code'	=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'),
 						'cron_job_name'		=> $this->name,

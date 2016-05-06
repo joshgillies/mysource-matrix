@@ -148,7 +148,7 @@ class Js_File_Folder extends File_Folder
 			// Temp output file
 			$output_file = tempnam(SQ_TEMP_PATH, 'js_min_');
 
-			$command = 'java -jar '.SQ_TOOL_CLOSURE_COMPILER_PATH.' '.
+			$command = SQ_TOOL_JAVA_PATH.' -jar '.SQ_TOOL_CLOSURE_COMPILER_PATH.' '.
 							'--js '.implode(' ', $source_files).' '.
 							($create_source_map ? '--create_source_map '.$source_map_file.' ' : '').
 							'--source_map_format=V3'.' '.
@@ -729,6 +729,19 @@ class Js_File_Folder extends File_Folder
 		return $source_map_files;
 
 	}//end _getSourceMapFiles()
+
+
+	/**
+	* Returns the tag name to wrap the file contents when outputtiing  '%file_list% keyword replacement
+	*
+	* @return string
+	* @access protected
+	*/
+	protected function _contentTypeTagName()
+	{
+		return 'script';
+
+	}//end _contentTypeTagName()
 
 
 	/**

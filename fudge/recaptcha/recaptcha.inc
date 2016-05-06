@@ -218,25 +218,21 @@ class Recaptcha {
 
 		$req = self::_recaptcha_qsencode ($data);
 
-		$http_request  = "POST $path HTTP/1.0\r\n";
-		$http_request .= "Host: $host\r\n";
-		$http_request .= "Content-Type: application/x-www-form-urlencoded;\r\n";
-		$http_request .= "Content-Length: " . strlen($req) . "\r\n";
-		$http_request .= "User-Agent: reCAPTCHA/PHP\r\n";
-		$http_request .= "\r\n";
-		$http_request .= $req;
+		$headers = Array('Content-Type: application/x-www-form-urlencoded');
+		$options = Array(
+						'USERAGENT'      => 'reCAPTCHA/PHP',
+						'HTTP_VERSION'   => CURL_HTTP_VERSION_1_0,
+						'POST'           => TRUE,
+						'FOLLOWLOCATION' => TRUE,
+						'HEADER'         => FALSE,
+						'RETURNTRANSFER' => TRUE,
+						'HTTPHEADER'     => $headers,
+						'PORT'           => $port,
+						'POSTFIELDS'     => $req,
+					);
 
-		$response = '';
-		if(FALSE ==($fs = @fsockopen($host, $port, $errno, $errstr, 10))) {
-			die ('Could not open socket');
-		}
-
-		fwrite($fs, $http_request);
-
-		while ( !feof($fs) )
-			$response .= fgets($fs, 1160); // One TCP-IP packet
-		fclose($fs);
-		$response = explode("\r\n\r\n", $response, 2);
+		$details = fetch_url($host.$path, $options);
+		$response = $details['response'];
 
 		return $response;
 
@@ -319,12 +315,16 @@ class Recaptcha {
 													 ) + $extra_params
 											  );
 
-		$answers = explode ("\n", $response [1]);
+		$answers = explode ("\n", $response);
 
 		$recaptcha_response->is_valid = isset($answers [0]) && $answers [0] == 'true';
 		$recaptcha_response->error =  Array();
 		if (isset($answers[1]) && isset(self::$error_codes[$answers[1]])) {
 			$recaptcha_response->error =  Array($answers[1] => self::$error_codes[$answers[1]]);
+		}
+
+		if (!$recaptcha_response->is_valid && empty($recaptcha_response->error)) {
+			$recaptcha_response->error = Array('Server returned unexpected response.');
 		}
 
 		return $recaptcha_response;

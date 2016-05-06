@@ -1,0 +1,4380 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.7.4\n"
+
+msgid "HTML content could not be converted to markdown content because markdownify tool has not been configured properly."
+msgstr "Nie można zamienić treści HTML na treść Markdown, ponieważ narzędzie Markdownify nie zostało właściwie skonfigurowane."
+
+msgid "This markdown content type can not be saved because markdown tool has not been configured properly."
+msgstr "Nie można zapisać treści typu markdown, ponieważ narzędzie Markdown nie zostało właściwie skonfigurowane."
+
+msgid "Markdown tool has not been configured correctly. Markdown content type could not be saved"
+msgstr "Narzędzie Markdown nie zostało właściwie skonfigurowane. Nie można zapisać treści typu Markdown."
+
+msgid "Markdown Editor Size"
+msgstr "Rozmiar edytora Markdown"
+
+msgid "Raw HTML Editor Size"
+msgstr "Rozmiar edytora surowego kodu HTML"
+
+msgid "Nested Content"
+msgstr "Treść zagnieżdżona"
+
+#, fuzzy
+msgid "<strong>Warning:</strong> You are nesting in a form based asset. This can cause issues if caching is enabled. Please ensure caching settings are properly configured."
+msgstr "<strong>Ostrzeżenie:</strong> Zagnieżdżasz treść w elemencie opartym na formularzu. Może to spowodować problemy, jeśli funkcja buforowania jest włączona. Upewnij się, że ustawienia buforowania są poprawnie skonfigurowane."
+
+msgid "Add a new variable..."
+msgstr "Dodaj nową zmienną..."
+
+msgid "No variables are set."
+msgstr "Nie ustawiono żadnych zmiennych."
+
+msgid "No page has been selected"
+msgstr "Nie wybrano żadnej strony."
+
+msgid "RECURSION WARNING"
+msgstr "OSTRZEŻENIE: PROBLEM Z REKURSJĄ"
+
+msgid "You are nesting the content of this page inside itself"
+msgstr "Zagnieżdżasz treść tej strony w niej samej."
+
+#, fuzzy
+msgid "The asset being nested in a nest content cell"
+msgstr "Zagnieżdżasz element w komórce zagnieżdzonej treści."
+
+msgid "Nested Content - %s"
+msgstr "Zagnieżdzona treść - %s"
+
+msgid "Click to preview in a new window"
+msgstr "Kliknij, aby otworzyć podgląd w nowym oknie"
+
+msgid "Snippet Root Node"
+msgstr "Pokaż węzeł główny"
+
+msgid "All content types found under this asset will be available in the Snippet Content Type dropdown."
+msgstr "Wszystkie rodzaje treści znalezione w tym elemencie będą dostępne w rozwijanej liście Pokaż Rodzaj Treści."
+
+#, fuzzy
+msgid "Snippet Keywords Permission Check"
+msgstr "Sprawdzanie uprawnień podczas ładowania słów kluczowych we wstawkach"
+
+msgid "Turn off WYSIWYG snippet keywords permission check to improve performance."
+msgstr "Wyłącz sprawdzanie uprawnień podczas ładowania słów kluczowych we wstawkach w edytorze WYSIWYG, aby poprawić wydajność."
+
+msgid "Enable permission check"
+msgstr "Włącz sprawdzanie uprawnień"
+
+msgid "Disable permission check"
+msgstr "Wyłącz sprawdzanie uprawnień"
+
+#, fuzzy
+msgid "Linked as an active snippet"
+msgstr "Połączony jako aktywna wstawka"
+
+#, fuzzy
+msgid "You do not have access to any of the available snippets"
+msgstr "Nie masz dostępu do żadnych z dostępnych wstawek"
+
+msgid "Please select a snippet from the dropdown box"
+msgstr "Wybierz wstawkę z rozwijanej listy"
+
+#, fuzzy
+msgid "Warning: Unable to preview selected snippet: %s<br />Make sure you have effective read access to the selected snippet<br />Make sure the snippet is correctly listed under the snippet root"
+msgstr "Ostrzeżenie: Nie udało się utworzyć podglądu wybranej wstawki: %s<br />Upewnij się, że masz odpowiednie uprawnienia do odczytu wybranej wstawki<br />Upewnij się, że wstawka została przyporządkowana do właściwego źródła wstawek."
+
+msgid "Show Line Numbers:"
+msgstr "Pokaż numery wierszy:"
+
+msgid "Line Number Orientation:"
+msgstr "Orientacja numerów wierszy:"
+
+msgid "Left"
+msgstr "Lewa"
+
+msgid "Right"
+msgstr "Prawa"
+
+msgid "Line Number Style:"
+msgstr "Styl numerów wierszy:"
+
+msgid "Line Number Class:"
+msgstr "Klasa numerów wierszy:"
+
+msgid "Code Editor Size"
+msgstr "Rozmiar edytora kodu"
+
+msgid "HTML Code Highlighting Classes"
+msgstr "Klasy wyróżniania kodu HTML"
+
+msgid "PHP Code Highlighting Classes"
+msgstr "Klasy wyróżniania kodu PHP"
+
+msgid "JavaScript Code Highlighting Classes"
+msgstr "Klasy wyróżniania kodu JavaScript"
+
+msgid "Line Numbers"
+msgstr "Numery wierszy"
+
+msgid "Attribute Names"
+msgstr "Nazwy atrybutów"
+
+msgid "Attribute Value"
+msgstr "Wartość atrybutów"
+
+#, fuzzy
+msgid "Tag Brackets"
+msgstr "Nawiasy tagów"
+
+msgid "Tag Name"
+msgstr "Nazwa tagu"
+
+msgid "HTML Comment"
+msgstr "Komentarz HTML"
+
+msgid "Background"
+msgstr "Tło"
+
+msgid "HTML"
+msgstr "HTML"
+
+msgid "Comment"
+msgstr "Komentarz"
+
+msgid "String"
+msgstr "Ciąg znaków"
+
+msgid "Reserved"
+msgstr "Zarezerwowane"
+
+msgid "Function"
+msgstr "Funkcja"
+
+msgid "Brackets"
+msgstr "Nawiasy"
+
+msgid "Show Line Numbers"
+msgstr "Pokaż numery wierszy"
+
+msgid "Hide line numbers"
+msgstr "Ukryj numery wierszy"
+
+msgid "Show line numbers"
+msgstr "Pokaż numery wierszy"
+
+msgid "Line numbers hidden"
+msgstr "Numery wierszy schowane"
+
+msgid "Line numbers shown"
+msgstr "Numery wierszy widoczne"
+
+msgid "Line Number Orientation"
+msgstr "Orientacja numerów wierszy"
+
+msgid "Line numbers on left"
+msgstr "Numery wierszy po lewej"
+
+msgid "Line numbers on right"
+msgstr "Numery wierszy po prawej"
+
+msgid "Line Number Style"
+msgstr "Styl numerów wierszy"
+
+#, fuzzy
+msgid "Span"
+msgstr "Obszar"
+
+msgid "List"
+msgstr "Lista"
+
+msgid "Line Number Class"
+msgstr "Klasa numerów wierszy"
+
+msgid "Structured Tree Formatting Options"
+msgstr "Opcje strukturalnego formatowania drzew"
+
+#, fuzzy
+msgid "Structured Tree CSS Classes"
+msgstr "Klasy kodu CSS dla strukturalnych drzew"
+
+msgid "Bold"
+msgstr "Pogrubienie"
+
+msgid "Underline"
+msgstr "Podkreślenie"
+
+msgid "Italic"
+msgstr "Kursywa"
+
+#, fuzzy
+msgid "Connections"
+msgstr "Połączenia"
+
+msgid "Node Text"
+msgstr "Tekst węzła"
+
+msgid "Node Branches"
+msgstr "Gałęzie węzła"
+
+msgid "Image Content Type Value Defaults"
+msgstr "Domyślne parametry dla typu treści Obraz"
+
+msgid "Image Fields to Show"
+msgstr "Pokazywane pola dla obrazów"
+
+msgid "Image CSS Classes"
+msgstr "Klasy kodu CSS dla obrazów"
+
+msgid "Image Preview CSS Classes"
+msgstr "Klasy kodu CSS dla podglądu obrazów"
+
+msgid "Caption Position"
+msgstr "Pozycja podpisu do obrazów"
+
+msgid "Use Caption Attribute"
+msgstr "Atrybut zastosowania odpisu do obrazów"
+
+msgid "Constrain Proportions"
+msgstr "Ogranicz proporcje"
+
+msgid "Shrink/Stretch to Dimensions"
+msgstr "Zmniejsz/rozciągnij do rozmiarów"
+
+#, fuzzy
+msgid "On Click"
+msgstr "Na kliknięcie"
+
+msgid "HTML Layout"
+msgstr "Layout HTML"
+
+msgid "Caption Options"
+msgstr "Opcje podpisu obrazów"
+
+msgid "Dimension Options"
+msgstr "Opcje wymiarów"
+
+msgid "Surrounding Container"
+msgstr "Kontener otaczający"
+
+msgid "Image Table Cell"
+msgstr "Komórka tabeli obrazu"
+
+msgid "Caption Table Cell"
+msgstr "Komórka tabeli podpisu"
+
+msgid "Image Tag"
+msgstr "Tag obrazu"
+
+msgid "Image Div"
+msgstr "DIV obrazu"
+
+msgid "Caption Div"
+msgstr "DIV podpisu"
+
+msgid "Preview Image Table"
+msgstr "Podgląd tabeli obrazu"
+
+msgid "Close Preview Cell"
+msgstr "Zamknij komórkę podglądu"
+
+msgid "Close Preview Div"
+msgstr "Zamknij DIV podlgądu"
+
+msgid "No asset types have been selected"
+msgstr "Nie wybrano żadnego rodzaju elementów"
+
+msgid "Custom Grouping is currently selected. Asset positions are not used for Custom Grouping"
+msgstr "Grupowanie niestandardowe jest obecnie zaznaczone. Pozycje elementów nie są wykorzystywane przy grupowaniu niestandardowym."
+
+#, fuzzy
+msgid "There are no asset positions defined. All assets will be listed using the sorting settings."
+msgstr "Pozycje elementów nie zostały zdefiniowane. Wszystkie elementy zostaną wyświetlone za pomocą ustawień sortowania."
+
+msgid "New Asset Position:"
+msgstr "Nowa pozycja elementu:"
+
+msgid "Row"
+msgstr "Rząd"
+
+# Potrzeba Singular/Plural
+msgid "Column(s)"
+msgstr "Kolumna/Kolumny"
+
+msgid "All remaining"
+msgstr "Wszystkie pozostałe"
+
+msgid "Customise row"
+msgstr "Dostosuj rząd"
+
+msgid "The number of columns for \"all remaining rows\" must be at least 1. Resetting number of columns to 1."
+msgstr "Liczba kolumn dla \"wszystkie pozostałe rzędy\" musi wynosić conamniej 1. Resetowanie liczby kolumn do 1."
+
+msgid "The number of columns for row %s must be at least 1. Resetting number of columns to 1."
+msgstr "Liczba kolumn dla rzędu %s musi wynosić conajmniej 1. Resetowanie liczby kolumn do 1."
+
+#, fuzzy
+msgid "Failed adding customisation for row %s, row has already been customised"
+msgstr "Dostosowywanie rzędu %s nie powiodło się, rząd ma już dostosowanie."
+
+msgid "Failed adding customisation for row %s, number of columns must be greater than zero"
+msgstr "Dostosowywanie rzędu %s nie powiodło się, liczba kolumn musi być powyżej zera"
+
+# Differentiation between singular and plural for columns needed.
+msgid "All remaining rows will have %s column(s)"
+msgstr "Wszystkie pozostałe rzędy będą miały %s kolumn"
+
+# configured to list - konfigurowany, aby wykazać czy skonfigurowany pod listę ?
+msgid "Note: This asset has been configured to list %s' assets per page, so the highlighted cells will not be displayed"
+msgstr "Uwaga: Element jest skonfigurowany pod listę %s' elementów na stronę. Wyróżnione komórki nie zostaną pokazane."
+
+msgid "Edit Format"
+msgstr "Edytuj format"
+
+msgid "This format defines the layout of the page. Ensure you use the %asset_listing% keyword to include the list of assets on the page."
+msgstr "Format definiuje layout strony. Upewnij się, że korzystasz ze słowa kluczowego %lista_elementów%, która obejmuje listę elementów na stronie."
+
+msgid "This format defines the layout of the page when the <b>Customise No Results Bodycopy</b> option is turned on, and there are no assets to list."
+msgstr "Format definiuje layout strony, kiedy włączona jest opcja <b>Customise No Results Bodycopy</b> i nie ma elementów do pokazania."
+
+msgid "This is the default format for all assets in the list if they do not have a customised format for their asset type or position."
+msgstr "To jest domyślny format dla wszystkich elementów w liście, jeśli nie mają ustawionego niestandardowego formatu dla danego rodzaju lub danej pozycji elementu."
+
+msgid "There are no groups defined"
+msgstr "Brak zdefiniowanych grup"
+
+msgid "There are no custom type formats defined"
+msgstr "Brak zdefiniowanych formatów niestandardowych"
+
+msgid "New Type Format:"
+msgstr "Nowy rodzaj formatów:"
+
+msgid "You cant delete a format and create it at the same time. The current type format for type %s has not been deleted."
+msgstr "Możesz usuwać i dodawać formaty w tym samym czasie. Nie usunięto aktualnego rodzaju formatu dla rodzaju %s."
+
+msgid "Failed deleting format for type %s, couldnt get format bodycopy link"
+msgstr "Usuwanie formatu dla rodzaju %s nie powiodło się, nie można pobrać łącza formatowania treści"
+
+msgid "Failed deleting format for type %s"
+msgstr "Niepowodzenie usunięcia formatu dla rodzaju %s "
+
+msgid "Cannot customise the format of type %s, type is not valid"
+msgstr "Nie można dostosować formatu typu %s, rodzaj nie jest poprawny"
+
+msgid "Cannot customise type %s, it is already customised"
+msgstr "Nie można dostosować rodzaju %s, ponieważ został już dostosowany"
+
+msgid "There are no custom position formats defined"
+msgstr "Brak zdefiniowanych formatów niestandardowych"
+
+msgid "New Position Format:"
+msgstr "Nowy format pozycji:"
+
+msgid "You cant delete a format and create it at the same time. The current list position format for position %s has not been deleted."
+msgstr "Możesz usuwać i dodawać formaty w tym samym czasie. Nie usunięto aktualnego formatu pozycji listy dla pozycji %s."
+
+msgid "Failed deleting format for position %s, couldnt get format bodycopy link"
+msgstr "Usuwanie formatu dla pozycji %s nie powiodło się, nie można pobrać łącza formatowania treści"
+
+msgid "Failed deleting format for position %s"
+msgstr "Niepowodzenie usunięcia formatu dla pozycji %s"
+
+msgid "Position %s Format"
+msgstr "Format pozycji %s"
+
+msgid "Cannot customise list position %s, it is already customised"
+msgstr "Nie można dostosować pozycji listy %s, ponieważ została już dostosowana"
+
+msgid "Random list format is currently selected. Sorting is disabled."
+msgstr "Aktualnie wybrano przypadkowy format listy. Sortowanie jest wyłączone."
+
+msgid "There are no types defined. No sorting can be applied."
+msgstr "Brak zdefiniowanych rodzajów. Nie można zastosować sortowania."
+
+msgid "Sorting by Standard Asset Field Value"
+msgstr "Sortowanie według standardowej wartości pola elementu"
+
+msgid "Sorting by Asset Attribute Value"
+msgstr "Sortowanie według wartości atrybutu elementu"
+
+msgid "Sorting by Metadata Field Value"
+msgstr "Sortowanie według wartości pola metadanych"
+
+msgid "Extra Sort-by options"
+msgstr "Dodatkowe opcje sortowania"
+
+msgid "Asset Field"
+msgstr "Pole elementu"
+
+msgid "Display Name"
+msgstr "Nazwa wyświetlana"
+
+msgid "There are no standard asset field sort options"
+msgstr "Brak opcji sortowania standardowych pól elementów"
+
+msgid "Attribute Name"
+msgstr "Nazwa atrybutu"
+
+msgid "There are no asset attribute sort options"
+msgstr "Brak opcji sortowania atrybutów elementów"
+
+msgid "The selected asset type does not have any attributes to be used for sorting."
+msgstr "Wybrany rodzaj elementu nie posiada żadnych atrybutów niezbędnych do sortowania."
+
+msgid "There are no metadata field sort options"
+msgstr "Brak opcji sortowania pól metadanych"
+
+msgid "There are no keyword sort options"
+msgstr "Brak opcji sortowania słów kluczowych"
+
+msgid "Random Sorting"
+msgstr "Sortowanie losowe"
+
+msgid "Enable \"Random Order\" option"
+msgstr "Włącz opcję \"Kolejność przypadkowa\""
+
+msgid "No Sorting"
+msgstr "Bez sortowania"
+
+#, fuzzy
+msgid "Enable \"No Sorting\" option"
+msgstr "Włącz opcję \"Bez sortowania\""
+
+msgid "No sorting applied"
+msgstr "Nie zastosowano sortowania"
+
+msgid "There are no sort-by options"
+msgstr "Brak opcji sortowania według wartości"
+
+#, js-translate
+msgid "Browser cannot support script - Get Element By ID is not defined"
+msgstr "Przęglądarka nie obsługuje skryptu - Funkcja Wyszukaj element za pomocą ID nie została zdefiniowana"
+
+#, js-translate
+msgid "Browser cannot support script - Inner HTML is not defined"
+msgstr "Przęglądarka nie obsługuje skryptu - Wewnętrzny kod HTML nie został zdefiniowany"
+
+msgid "Sort-by Option Name"
+msgstr "Nazwa opcji sortowania według wartości"
+
+msgid "Order"
+msgstr "Kolejność"
+
+msgid "Move Up"
+msgstr "Do góry"
+
+msgid "Move Down"
+msgstr "Na dół"
+
+msgid "Parent Asset"
+msgstr "Element typu rodzic"
+
+msgid "Asset Metadata"
+msgstr "Metadane elementu"
+
+msgid "Standard Asset Field"
+msgstr "Standardowe pole elementu"
+
+msgid "Asset Attribute"
+msgstr "Atrybut elementu"
+
+msgid "Group Level %s: %s"
+msgstr "Poziom grupy %s: %s"
+
+msgid "Allow Blank Group Name"
+msgstr "Zezwalaj na pustą nazwę grupy"
+
+msgid "If the grouping source returns a blank value, consider it as a valid group name."
+msgstr "Jeśli źródło grupowania zwróci pustą wartość, uznaj to za prawidłową nazwę grupy."
+
+#, fuzzy
+msgid "Group Name Match Search Query"
+msgstr "Kwerenda wyszukiwania dopasowania nazwy grupy"
+
+msgid "On a Search Page, consider it as a valid group only if group name matches with any search query string."
+msgstr "Będąc na stronie wyszukiwania, uznaj za prawidłową nazwę groupy, która pasuje do ciągu kwerendy wyszukiwania."
+
+msgid "Sort Order"
+msgstr "Kolejność sortowania"
+
+msgid "Ascending Order"
+msgstr "Rosnąco"
+
+msgid "Descending Order"
+msgstr "Malejąco"
+
+msgid "Max Children Per Group"
+msgstr "Maksymalna ilość elementów dzieci w grupie"
+
+msgid "Delete this grouping and its group format"
+msgstr "Usuń grupowanie i format grupy"
+
+msgid "Edit Group Format"
+msgstr "Edytuj format grupy"
+
+msgid "If the metadata schema that contains this field is not applied to an asset, it will be omitted from the asset listing"
+msgstr "Jeśli schemat metadanych, który zawiera to pole, nie został zastosowany w elemencie, nie zostanie uwzględniony w liście elementów"
+
+msgid "Default Metadata Sort Type"
+msgstr "Domyślny rodzaj sortowania metadanych"
+
+msgid "Raw Value"
+msgstr "Wartość surowa"
+
+msgid "Presentation Value"
+msgstr "Wartość prezentacyjna"
+
+msgid "To sort by the raw metadata value entered on the metadata screen, select Raw Value. To sort by the value displayed on the frontend, select Presentation Value. Sorting by Raw Value will perform the sort before keywords are replaced and presentation formats are applied."
+msgstr "Aby sortować według surowej wartości metadanych widocznych w oknie metadanych, zaznacz Wartość surowa. Aby sortować według wartości widocznej na stronie, zaznacz Wartość prezentacyjna. Sortowanie według wartości surowej zostanie przeprowadzone przed zastąpieniem słów kluczowych i przed zastosowaniem formatów prezentacyjnych."
+
+msgid "Group By Individual Entry"
+msgstr "Grupowanie według poszczególnych wpisów"
+
+msgid "If the Metadata Field contains mutiple entries such as a Multiple Selection Field or a Multiple Text Field, use individual entries as grouping source."
+msgstr "Jeśli Pole metadanych zawiera wiele wpisów takich jak Pole Wielokrotnego Wyboru lub Pole Wielu Tekstów, zastosuj poszczególne wpisy jako źródło grupowania."
+
+msgid "Asset Status"
+msgstr "Status elementów"
+
+msgid "No field has been selected"
+msgstr "Nie wybrano żadnego pola"
+
+msgid "Restrict Types"
+msgstr "Ogranicz rodzaje"
+
+msgid "Inherits Child Types"
+msgstr "Zastosuj elementy typu dziecko"
+
+msgid "If no asset types are chosen, no asset type restriction will be enforced, and all parents will be included by default"
+msgstr "Jeśli nie wybrano żadnego typu elementów, nie zostanie zastosowane ograniczenie typów elementów. Wszystkie elementy typu rodzic zostaną uwzględnione domyślnie."
+
+msgid "Select"
+msgstr "Wybierz"
+
+msgid "No keyword specified"
+msgstr "Brak określonych słów kluczowych"
+
+msgid "Radio Buttons"
+msgstr "Przyciski wyboru"
+
+msgid "Drop-Down List"
+msgstr "Lista rozwijana"
+
+msgid "Text Field"
+msgstr "Pole tekstowe"
+
+msgid "Input Style"
+msgstr "Styl wprowadzanego tekstu"
+
+msgid "Allow multiple selections"
+msgstr "Zezwalaj na wiele zaznaczeń"
+
+msgid "(Radio Buttons and Drop-down Lists only)"
+msgstr "(Wyłącznie przyciski wyboru i listy rozwijane)"
+
+#, fuzzy
+msgid "Allow negative values"
+msgstr "Zezwalaj na wartości ujemne"
+
+msgid "(Text Fields and Drop-down Lists only)"
+msgstr "(Wyłącznie pola tekstowe i listy rozwijane)"
+
+msgid "Restrict values to a range"
+msgstr "Ogranicz wartości do zakresu"
+
+msgid "(From %1$s to %2$s)"
+msgstr "(Od %1$s do %2$s)"
+
+msgid "(Text Fields and Drop-down Lists only - required for Drop-down Lists)"
+msgstr "(Wyłącznie pola tekstowe i listy rozwijane - wymagane dla list rozwijanych)"
+
+msgid "(Note, this option will be overridden by the previous options)"
+msgstr "(Uwaga, ta opcja zostanie zastąpiona przez poprzednie opcje)"
+
+msgid "Add New Selection?"
+msgstr "Dodaj nowe zaznaczenie?"
+
+msgid "Button Label"
+msgstr "Etykieta przycisku"
+
+#, fuzzy
+msgid "Target"
+msgstr "Strony docelowe"
+
+msgid "Add New Target?"
+msgstr "Dodaj nową stronę docelową?"
+
+msgid "No statuses are selected. Only assets for which the user has sufficient read permissions will be listed."
+msgstr "Nie wybrano żadnych statusów. Zostaną wyświetlone tylko te elementy, do których użytkownik ma wystarczające uprawnienia odczytu."
+
+msgid "Include effective permissions"
+msgstr "Uwzględnij efektywne uprawnienia"
+
+# The adjective needs to be adjusted according to what “effective” refers to.
+#, fuzzy
+msgid "Effective %1$s"
+msgstr "Effective %1$s"
+
+msgid "This must be selected as a dynamic parameter above"
+msgstr "Zaznacz to jako parametr dynamiczny u góry"
+
+msgid "Depth"
+msgstr "Głębokość"
+
+msgid "Infinite"
+msgstr "Nieskonczona"
+
+msgid "Drop-down List"
+msgstr "Lista rozwijana "
+
+msgid "Check Boxes"
+msgstr "Sprawdź ramkę"
+
+msgid "Fit to contents"
+msgstr "Dopasuj do zawartości"
+
+msgid "Not Specified"
+msgstr "Nie określono"
+
+msgid "Separator"
+msgstr "Separator"
+
+msgid "Proxy Asset Types"
+msgstr "Rodzaje elementów proxy"
+
+msgid "There are no current types defined"
+msgstr "Brak zdefiniowanych rodzajów"
+
+msgid "Proxy Type Code"
+msgstr "Kod rodzaju proxy"
+
+msgid "Child Type Codes"
+msgstr "Kod rodzaju dziecko"
+
+msgid "New Proxy Asset Type"
+msgstr "Nowy typ elementu proxy"
+
+msgid "All available type codes have been selected as proxies"
+msgstr "Wszystkie dostępne typy kodów zostały wybrane jako proxy"
+
+msgid "Default Format"
+msgstr "Format domyślny"
+
+msgid "No results were found"
+msgstr "Nie znaleziono wyników"
+
+msgid "The root node of the Asset Listing"
+msgstr "Katalog główny Listy elementów"
+
+msgid "You cannot delete the link between the type formats folder and the %s page"
+msgstr "Nie możesz usunąć łącza między folderem typów formatów a stroną %s"
+
+msgid "You cannot delete the link between the position formats folder and the %s page"
+msgstr "Nie możesz usunąć łącza między folderem pozycji formatów a stroną %s"
+
+msgid "You cannot delete the link between the group formats folder and the %s page"
+msgstr "Nie możesz usunąć łącza między folderem grup formatów a stroną %s"
+
+msgid "You cannot delete the link between the page contents and the %s page"
+msgstr "Nie możesz usunąć łącza między zawartością treści a stroną %s"
+
+msgid "Cannot complete the cloning. Group Formats folder was not properly created"
+msgstr "Nie można dokończyć klonowania. Folder grup formatów został utworzony niepoprawnie"
+
+# Depending on what even and odd refer to the ending in Polish will have to be adjusted.
+msgid "even"
+msgstr "parzysty"
+
+# Depending on what even and odd refer to the ending in Polish will have to be adjusted.
+msgid "odd"
+msgstr "nieparzysty"
+
+msgid "Supplied dynamic root node (Id: #%1$s) is in an unauthorised part of the system.  Defaulting to static root node. See Asset (Id: #%2$s)"
+msgstr "Dostarczony dynamiczny węzeł nawigacyjny (nr ID: #%1$s) jest w niedozwolonej części systemu. Przywracanie domyślnego węzła statycznego. Patrz element (nr ID: #%2$s) "
+
+msgid "Asset Contents (including paintlayout)"
+msgstr "Zawartość elementu (łącznie ze schematami graficznymi)"
+
+msgid "Asset Contents (user-defined paint layout)"
+msgstr "Zawartość elementu (schemat graficzny użytkownika)"
+
+msgid "Asset Name Linked"
+msgstr "Połączona nazwa elementu"
+
+msgid "Short Asset Name Linked"
+msgstr "Połączona nazwa skrócona elementu"
+
+msgid "Asset Position"
+msgstr "Pozycja elementu"
+
+msgid "Asset's position is odd or even"
+msgstr "Pozycja elementu jest parzysta lub nieparzysta"
+
+msgid "Root Nodes (separated by commas)"
+msgstr "Węzły główne (oddzielone przecinkami)"
+
+msgid "Asset Contents (excluding paintlayout)"
+msgstr "Zawartość elementu (bez schematów graficznych)"
+
+msgid "Asset Selection (%s)"
+msgstr "Zaznaczenie elementu (#%s)"
+
+msgid "Reset Button"
+msgstr "Przycisk Resetuj"
+
+msgid "Submit Button"
+msgstr "Przycisk Wyślij"
+
+msgid "Asset Listing"
+msgstr "Lista elementów"
+
+msgid "Previous Page Link"
+msgstr "Łącze do Poprzedniej strony"
+
+msgid "Previous page Href"
+msgstr "Odwołanie do Poprzedniej strony"
+
+msgid "Next Page Link"
+msgstr "Łącze do Następnej strony"
+
+msgid "Next Page Href"
+msgstr "Odwołanie do Następnej strony"
+
+msgid "Page List"
+msgstr "Lista stron"
+
+msgid "Page List (without unused letters)"
+msgstr "Lista stron (bez nieużywanych liter)"
+
+msgid "Sliding page list showing X page numbers at a time"
+msgstr "Przesuwana lista stron z X liczbą stron pokazywanych na raz"
+
+msgid "Page Number"
+msgstr "Numer strony"
+
+msgid "Total Assets Listed"
+msgstr "Łączna liczba elementów w liście"
+
+msgid "Assets Listed On This Page"
+msgstr "Liczba elementów na stronie"
+
+msgid "Total Pages"
+msgstr "Łączna liczba stron"
+
+msgid "First Asset on Page's Position Number"
+msgstr "Pierwszy element w liczbie pozycji strony"
+
+msgid "Last Asset on Page's Position Number"
+msgstr "Ostatni element w liczbie pozycji strony"
+
+msgid "Number of unique assets"
+msgstr "Liczba elementów unikatowych"
+
+#, fuzzy
+msgid "Structured Root Node Selector"
+msgstr "Selektor Strukturalnego węzła głównego"
+
+msgid "Asset Selection Check All (%s)"
+msgstr "Wybór elementów Zaznacz wszystkie (%s)"
+
+#, fuzzy
+msgid "Asset Target Button (%s)"
+msgstr "Przycisk do strony docelowej elementu (%s)"
+
+msgid "Asset Group Listing"
+msgstr "Lista grupy elementów"
+
+msgid "Asset Group Name"
+msgstr "Nazwa grupy elementów"
+
+#, fuzzy
+msgid "Asset Group Name Linked"
+msgstr "Łącze Nazwy grupy elementów"
+
+msgid "Contents of the Parent Asset"
+msgstr "Zawartość Elementu rodzic"
+
+msgid "Raw Contents of the Parent Asset"
+msgstr "Surowa zawartość Elementu rodzic"
+
+#, fuzzy
+msgid "Asset Group Immediate Child Group Count"
+msgstr "Liczba Elementów typu dziecko w Grupie elementów"
+
+msgid "Asset Group Total Child Asset Count"
+msgstr "Łączna liczba elementów typu dziecko w Grupie elementów"
+
+msgid "Asset Selection Check All In Group (%s)"
+msgstr "Wybór elementów Zaznacz wszystkie grupie (%s)"
+
+msgid "Icon"
+msgstr "Ikona"
+
+msgid "Last Status Change"
+msgstr "Ostatnia zmiana statusu"
+
+msgid "Last Status Changer"
+msgstr "Użytkownik, który dokonał ostatniej zmiany statusu"
+
+msgid "Broken Link(s) found in \"%link_report_name%\" (Id# %link_report_id%)"
+msgstr "Przerwane łącza znalezione w \"%link_report_name%\" (ld# %link_report_id%)"
+
+msgid "A broken %type% link was found in asset #%assetid%"
+msgstr "Znaleziono przerwane łącze %type% w elemencie #%assetid%"
+
+msgid "Link URL: %link%"
+msgstr "URL łącza: %link%"
+
+msgid "Comment: %description%"
+msgstr "Komentarz: %description%"
+
+msgid "Broken link notification has already been sent for this version of the report (Date: %s)"
+msgstr "Powiadomienie o przerwanym łączu zostało już wysłane dla tej wersji raportu (Data: %s)"
+
+msgid "Could not create data directory, report generation aborted"
+msgstr "Nie można utworzyć katalogu danych, generowanie raportu przerwane"
+
+msgid "Skipping nest content container %s"
+msgstr "Pomiń kontener zagnieżdżonej treści %s"
+
+msgid "Skipping asset %s with unwanted status"
+msgstr "Pomiń element %s o niechcianym statusie"
+
+msgid "Generating links report..."
+msgstr "Wygeneruj raport łącz..."
+
+msgid "Could not generate links report for assetd #%s, asset does not exist"
+msgstr "Nie można wygenerować raportu łącz dla elementu #%s, element nie istnieje"
+
+msgid "Skipping asset %s"
+msgstr "Pomiń element #%s"
+
+msgid "Link points to an invalid assetid"
+msgstr "Łącze prowadzi do nieistniejącego numeru ID elementu"
+
+msgid "Link points to an asset that is in the trash"
+msgstr "Łącze prowadzi do elementu w koszu"
+
+msgid "Link points to valid asset, but the anchor \"%s\" does not exist"
+msgstr "Łącze prowadzi do istniejącego elementu, ale kotwica \"%s\" nie istnieje"
+
+msgid "The URL is missing a protocol"
+msgstr "W adresie URL brakuje protokołu"
+
+msgid "The URL is missing a hostname"
+msgstr "W adresie URL brakuje nazwy hosta"
+
+msgid "The host specified in this URL cannot be contacted, or is not responding on the specified port"
+msgstr "Nie można skontaktować się z hostem podanym w URL lub nie odpowiada przez wybrany port."
+
+msgid "The URL was not found"
+msgstr "Nie znaleziono URL"
+
+msgid "Proxy Authentication Required"
+msgstr "Wymagane uwierzytelnienie proxy"
+
+msgid "The URL has been permanently moved to \"%s\""
+msgstr "Adres URL został na stałe przeniesiony do \"%s\""
+
+msgid "The URL has been permanently moved"
+msgstr "Adres URL został na stałe przeniesiony"
+
+msgid "The URL has been temporarily moved to \"%s\""
+msgstr "Adres URL został tymczasowo przeniesiony do \"%s\""
+
+msgid "The URL has been temporarily moved"
+msgstr "Adres URL został tymczasowo przeniesiony"
+
+msgid "The URL had a bad request"
+msgstr "Nieprawidłowe zapytanie dla adresu URL"
+
+msgid "Access was denied to this URL"
+msgstr "Odmowa dostępu do adresu URL"
+
+msgid "Access was forbidden to this URL"
+msgstr "Zakaz dostępu do adresu URL"
+
+msgid "Client browser does not accept the MIME type of the requested page"
+msgstr "Przeglądarka klienta nie akceptuje typu MIME wyszukiwanej strony"
+
+msgid "Request timed out"
+msgstr "Upłynął limit czasu żądania"
+
+msgid "The URL had a precondition that failed"
+msgstr "Błędny warunek wstępny adresu URL"
+
+#, fuzzy
+msgid "Communication with server timed out"
+msgstr "Połączenie z serwerem wygasło"
+
+msgid "The URL returned response \"%s\""
+msgstr "Odpowiedź adresu URL \"%s\""
+
+msgid "The email address does not appear to be valid"
+msgstr "Adre e-mail jest nieaktualny"
+
+msgid "<b>Note</b> The current links report is shown below. You can regenerate this report on the details screen."
+msgstr "<b>Uwaga</b>Poniżej znajduje się aktualny raport łącz. Możesz wygenerować ten raport na ekran szczegółów."
+
+msgid "Linking To"
+msgstr "Łącze do"
+
+msgid "Unknown asset #%s"
+msgstr "Nieznany element #%s"
+
+msgid "Edit this asset"
+msgstr "Edytuj element"
+
+msgid "External Links"
+msgstr "Łącza zewnętrzne"
+
+msgid "No external links were found"
+msgstr "Nie znaleziono łącz zewnętrznych"
+
+msgid "Email Links"
+msgstr "Łącza adresu e-mail"
+
+msgid "No email links were found"
+msgstr "Nie znaleziono łącz adresu e-mail"
+
+msgid "Internal Links"
+msgstr "Łącza wewnętrzne"
+
+msgid "Display %s Links Section"
+msgstr "Pokaż sekcję łącz %s"
+
+msgid "Display Broken Links"
+msgstr "Pokaż przerwane łącza"
+
+msgid "Display Working Links"
+msgstr "Pokaż sprawne łącza"
+
+msgid "No status selected"
+msgstr "Nie wybrano statusu"
+
+msgid "The report could not be exported as another error has occurred. Please check previous error messages."
+msgstr "Nie można wyeksportować raportu ze względu na wystąpienie kolejnego błędu. Sprawdź treść poprzednich błędów."
+
+msgid "Scheduled Future Regeneration"
+msgstr "Zaplanowane wygenerowanie kolejnego raportu w przyszłości"
+
+msgid "(#%1$s) %2$s"
+msgstr "(#%1$s) %2$s"
+
+msgid "Schedule a Future Report Regeneration"
+msgstr "Zaplanuj wygenerowanie kolejnego raportu"
+
+msgid "The Scheduled Jobs Manager has not been configured. No future regeneration can be set for this asset."
+msgstr "Menedżer zaplanowanych zadań nie został skonfigurowany. Dla tego elementu nie można zaplanować wygenerowania kolejnego raportu."
+
+#, fuzzy
+msgid "You must acquire lock to schedule a Future Report Regeneration Cron Job"
+msgstr "Uzyskaj blokadę, aby zaplanować zadanie cron dla wygenerowania kolejnego raportu"
+
+msgid "Report Broken Links Now"
+msgstr "Utwórz raport o przerwanych łączach"
+
+msgid "Send notification mail to asset administrators if a broken link is found in the generated report"
+msgstr "Wyślij powiadomienie e-mail do administratorów elementów, jeśli w wygenerowanym raporcie pojawi się przerwane łącze"
+
+msgid "Export Files"
+msgstr "Eksportuj pliki"
+
+msgid "Exporting Files"
+msgstr "Eksportowanie plików"
+
+msgid "Cannot complete the export. An error occured making the archive."
+msgstr "Nie można dokończyć eksportu. Wystąpił błąd podczas tworzenia archiwum"
+
+msgid "Cannot cleanup. An error occured cleaning up."
+msgstr "Nie można przeprowadzić oczyszczania. Wystąpił błąd."
+
+msgid "Not submitted"
+msgstr "Nie przesłano"
+
+msgid "(Questions of this type cannot be edited)"
+msgstr "(Nie można edytować pytań tego typu)"
+
+msgid "(This question has been deleted from the form and cannot be edited)"
+msgstr "(Nie można edytować pytania, ponieważ zostało ono usunięte z formularza)"
+
+msgid "(This section has been deleted)"
+msgstr "(Sekcja została usunięta)"
+
+#, fuzzy
+msgid "Errors during processing - form submission not updated:"
+msgstr "Błąd podczas przetwarzania - formularz przesyłania nie został zaktualizowany"
+
+msgid "There are no Form Sections nested underneath the current asset."
+msgstr "Brak zagnieżdzonych sekcji formularza w danym elemencie."
+
+msgid "To re-order sections in the default display of the form, or to delete a nested section, please use the asset map. You can use the binoculars icon next to a section name to jump to its location in the asset tree."
+msgstr "Aby uporządkować sekcje w domyślnym widoku formularza na nowo lub usunąć zagnieżdżoną sekcję, skorzystaj z mapy elementów. Skorzystaj z ikony lornetki obok nazwy sekcji, aby przejść do jej lokalizacji w drzewie elementów."
+
+msgid "Unable to create nested section \"%1$s\" underneath \"%2$s\""
+msgstr "Utworzenie zagnieżdżonej sekcji \"%1$s\" w \"%2$s\" nie powiodło się."
+
+msgid "Response to %1$s: %2$s"
+msgstr "Odpowiedź dla %1$s: %2$s"
+
+msgid "Question Name: %1$s: %2$s"
+msgstr "Nazwa pytania: %1$s: %2$s"
+
+msgid "Question Note: %1$s: %2$s"
+msgstr "Notatka do pytania: %1$s: %2$s"
+
+msgid "There were errors submitting the form.  Please correct the marked fields and try again"
+msgstr "Podczas przesyłania formularza wystąpiły błędy. Popraw zaznaczone pola i spróbuj ponownie"
+
+msgid "Submissions"
+msgstr "Przesłane formularze"
+
+msgid "This submission does not seem legitimate. This submission has not been accepted."
+msgstr "Przesyłanie nie jest dozwolone. Przesyłanie nie zostało zaakceptowane."
+
+msgid "Incorrect security key. Please try again"
+msgstr "Nieprawidłowy klucz bezpieczeństwa. Spróbuj ponownie"
+
+msgid "Incomplete Submissions"
+msgstr "Niedokończony formularz"
+
+msgid "Cannot create form submission - submissions folder not found.  Upgrade may be required."
+msgstr "Nie można przesłać formularza - nie znaleziono folderu przesłanych formularzy. Aktualizacja jest wymagana."
+
+msgid "Form Contents"
+msgstr "Zwartość formularza"
+
+msgid "Current Page Contents"
+msgstr "Zawartość aktualnej strony"
+
+msgid "List of Submission Errors"
+msgstr "Lista błędów w formularzu"
+
+msgid "Message indicating that there were errors"
+msgstr "Wiadomość wskazująca na błędy"
+
+#, fuzzy
+msgid "Required field note"
+msgstr "Pole notatki jest obowiązkowe"
+
+msgid "Question Name: %s"
+msgstr "Nazwa pytania: %s"
+
+msgid "Previous Page Button"
+msgstr "Przycisk do Strony poprzedniej"
+
+msgid "Honeypot Question"
+msgstr "Pytanie honeypot"
+
+msgid "Number of submissions allowed for this form"
+msgstr "Dozwolona liczba przesłań dla formularza"
+
+msgid "Number of submissions completed on this form"
+msgstr "Liczba dokończonych przesłań dla formularza"
+
+msgid "Number of submissions left for this form"
+msgstr "Pozostała liczba przesłań dla formularza"
+
+msgid "Submission Summary"
+msgstr "Podsumowanie przesłania"
+
+#, fuzzy
+msgid "semantic"
+msgstr "semantyczny"
+
+msgid "Submission Info"
+msgstr "Informacja o przesłaniu"
+
+msgid "Submission Id"
+msgstr "Nr ID przesłania"
+
+msgid "Submission IP Address"
+msgstr "Adres IP przesłania"
+
+msgid "Time of Submission (%s)"
+msgstr "Godzina przesłania (%s)"
+
+msgid "yyyy-mm-dd hh:mm:ss"
+msgstr "yyyy-mm-dd hh:mm:ss"
+
+msgid "Response to %s"
+msgstr "Odpowiedź dla %s"
+
+#, fuzzy
+msgid "Question Note: %s"
+msgstr "Notatka pytania: %s"
+
+msgid "Section Title: %s"
+msgstr "Tytuł sekcji: %s"
+
+msgid "Input Field: %1$s: %2$s"
+msgstr "Pole danych wejściowych: %1$s: %2$s"
+
+msgid "Question ID: %1$s: %2$s"
+msgstr "ID pytania: %1$s: %2$s"
+
+msgid "Question Label: %1$s: %2$s"
+msgstr "Etykieta pytania: %1$s: %2$s"
+
+msgid "Question Error: %1$s: %2$s"
+msgstr "Błąd pytania: %1$s: %2$s"
+
+msgid "Question Contents: %s"
+msgstr "Zawartość pytania: %s"
+
+msgid "Input Field: %s"
+msgstr "Pole danych wejściowych: %s"
+
+msgid "Asset ID: %s"
+msgstr "Nr ID elementu: %s"
+
+msgid "Question Label: %s"
+msgstr "Etykieta pytania %s"
+
+msgid "Question Error: %s"
+msgstr "Błąd pytania: %s"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CAPTCHA image"
+msgstr "Obraz CAPTCHA"
+
+msgid "CAPTCHA input field"
+msgstr "Pole danych wejściowych CAPTCHA"
+
+msgid "CAPTCHA regeneration link"
+msgstr "Łącze do wygenerowania CAPTCHA"
+
+msgid "CAPTCHA error message"
+msgstr "Tręść błędu CAPTCHA"
+
+msgid "CAPTCHA input label"
+msgstr "Wprowadzenie danych CAPTCHA"
+
+msgid "Mollom CAPTCHA"
+msgstr "CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA image"
+msgstr "Obraz CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA audio"
+msgstr "Audio CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA input field"
+msgstr "Pole danych wejściowych dla CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA regeneration link"
+msgstr "Łącze generujące CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA error message"
+msgstr "Tręść błędu CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA input label"
+msgstr "Wprowadzenie danych CAPTCHA Mollom"
+
+msgid "Regenerate security key"
+msgstr "Wygeneruj klucz bezpieczeństwa"
+
+msgid "Next"
+msgstr "Następne"
+
+msgid "Save"
+msgstr "Zapisz"
+
+msgid "Your progress has been saved."
+msgstr "Postęp został zapisany."
+
+msgid "Use the link below to resume the form submission:<br/>Link: %return_to_form_url_latest%<br/>Password: %form_submission_password%"
+msgstr "Skorzystaj z poniższego łącza, aby kontynuować przesyłanie formularza: <br/>Łącze: %return_to_form_url_latest%<br/>Hasło: %form_submission_password%"
+
+msgid "Save and Exit"
+msgstr "Zapisz i wyjdź"
+
+msgid "Please enter the password to retrieve the submission:<br /><br />%public_form_password_input% %public_form_submit_button%"
+msgstr "Wpisz hasło, aby otrzymać dostęp: <br /><br />%public_form_password_input% %public_form_submit_button%"
+
+msgid "Incorrect password"
+msgstr "Nieprawidłowe hasło"
+
+msgid "Cannot delete exclusive link between %1$s and %2$s"
+msgstr "Nie można usunąć wyłącznego łącza między %1$s a %2$s"
+
+msgid "This form does not contain any sections"
+msgstr "Formularz nie zawiera żadnych sekcji"
+
+msgid "Check/Uncheck all"
+msgstr "Zaznacz/Odznacz wszystkie"
+
+msgid "No bodycopies are customised"
+msgstr "Nie dopasowano żadnych treści"
+
+msgid "Page Contents"
+msgstr "Zawartość strony"
+
+msgid "Thank You"
+msgstr "Dziękujemy"
+
+msgid "Confirmation Page Contents"
+msgstr "Potwierdzenie Zawartości strony"
+
+msgid "Unattached Questions Format"
+msgstr "Niezałączony format pytań"
+
+msgid "Exit Page Contents"
+msgstr "Wyjdź z Zawartości strony"
+
+msgid "These options apply only if you use the 'Form Contents' (<b>%form_contents%</b>) keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set."
+msgstr "Opcje mają zastosowanie, jeśli używasz słowa kluczowego 'Zawartość formularza' (<b>%form_contents%</b>) w treści Zawartości strony lub jeśli nie masz ustawionej treści dla Zawartości strony."
+
+msgid "If you use complex formatting, you can position question fields and responses individually, rather than in a single block."
+msgstr "Jeśli używasz skomplikowanego formatowania, możesz rozmieszczać pola pytań i odpowiedzi indywidualnie niż w jednym bolku."
+
+#, fuzzy
+msgid "Click here for a <a href=\"#\" onClick=\"javascript: var win = window.open('%1$s', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=%2$s,height=%3$s\"
+msgstr "Kliknij tu <a href=\"#\" onClick=\"javascript: var win = window.open('%1$s', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=%2$s,height=%3$s"
+
+msgid "None selected"
+msgstr "Nie wybrano"
+
+msgid "The CAPTCHA Font specified was not a TrueType Font File (ie; did not have a .ttf extension)"
+msgstr "Wybrana Czcionka CAPTCHA nie jest w dostępna w formacie TrueType (brak rozszerzenia .ttf)"
+
+msgid "No attributes are set be checked for spam"
+msgstr "Atrybuty nie są sprawdzanie pod względem spamu"
+
+msgid "Select Question"
+msgstr "Wybierz pytanie"
+
+msgid "New question to check ?"
+msgstr "Chcesz sprawdzić nowe pytanie?"
+
+msgid "This form has the \"Restrict Submission Access\" setting enabled, which means only users with admin permissions can access the form submission details."
+msgstr "Formularz ma włączoną opcję \"Ogranicz Dostęp do Przesyłania\", co oznacza, że tylko użytkownicy z uprawnieniami administratora mają dostęp do szczegółów przesyłania formularza."
+
+msgid "Location"
+msgstr "Lokalizacja"
+
+msgid "Location does not exist or is not writable"
+msgstr "Lokalizacja nie istnieje lub jest niezapisywalna"
+
+msgid "Path is relative to Matrix installation location unless prefixed with '/'."
+msgstr "Ścieżka jest względna dla lokalizacji instalacji Matrix, jeśli nie została poprzedzona '/'."
+
+msgid "XML Detail"
+msgstr "Szczegóły kodu XML"
+
+msgid "XML Value to Store"
+msgstr "Wartość kodu XML, która zostanie zapisana"
+
+msgid "Sort Answers"
+msgstr "Sortuj odpowiedzi"
+
+msgid "Developer key:"
+msgstr "Klucz dewelopera:"
+
+msgid "Authentication:"
+msgstr "Uwierzytelnienie:"
+
+msgid "<strong style=\"color: #f00\">Client credentials missing.</strong>"
+msgstr "<strong style=\"color: #f00\">Brak poświadczeń klienta.</strong>"
+
+msgid "<strong style=\"color: #060\">Access Token Granted</strong>"
+msgstr "<strong style=\"color: #060\">Przyznano Token dostępu</strong>"
+
+msgid "Get Access Token"
+msgstr "Uzyskaj Token dostępu"
+
+msgid "Authorise Token"
+msgstr "Uwierzytelnij Token"
+
+msgid "Get Request Token"
+msgstr "Uzyskaj Token żądania"
+
+msgid "Reset Authentication?"
+msgstr "Resetuj Uwierzytelnienie?"
+
+msgid "YouTube Video Setup"
+msgstr "Ustawienia filmów z YouTube"
+
+#, fuzzy
+msgid "Privacy:"
+msgstr "Ochrona prywatności:"
+
+msgid "Title:"
+msgstr "Tytuł:"
+
+msgid "Description:"
+msgstr "Opis:"
+
+msgid "Category:"
+msgstr "Kategoria:"
+
+msgid "Video Source:"
+msgstr "Źródło filmu:"
+
+msgid "Delete Video from server?"
+msgstr "Usunąć film z serwera?"
+
+msgid "Video Upload Timeout (sec)"
+msgstr "Upłynął limit czasu ładowania filmu (sek.)"
+
+msgid "Submission Time"
+msgstr "Czas przesyłania"
+
+msgid "There are no submissions during the time period specified above"
+msgstr "Brak przesyłań w czasie określonym powyżej"
+
+msgid "Go to the first page of submissions"
+msgstr "Idź do pierwszej strony przesłań"
+
+msgid "Go to the previous page of submissions"
+msgstr "Idź do poprzedniej strony przesłań"
+
+msgid "Go to the next page of submissions"
+msgstr "Idź do następnej strony przesłań"
+
+msgid "Go to the last page of submissions"
+msgstr "Idź do ostatniej strony przesłań"
+
+msgid "Displaying submissions <b>%1$s</b> to <b>%2$s</b>, out of <b>%3$s</b> total submissions"
+msgstr "Wyświetalne przesyłania <b>%1$s</b> do <b>%2$s</b>, z <b>%3$s</b> przesłań w łącznie"
+
+msgid "Expand?"
+msgstr "Rozwiń?"
+
+msgid "No logged in user"
+msgstr "Brak zalogowanych użytkowników"
+
+#, fuzzy
+msgid "Edit"
+msgstr "Edytuj"
+
+msgid "Comma Separated Values (CSV)"
+msgstr "Wartości rozdzielone przecinkiem (CSV)"
+
+msgid "Comma Separated Values (CSV) - No Header Row"
+msgstr "Wartości rozdzielone przecinkiem (CSV) - bez rzędu nagłówka"
+
+msgid "XML Format"
+msgstr "Format XML"
+
+msgid "User Submitting Form"
+msgstr "Formularz przesyłania użytkownika"
+
+msgid "There are no \"Send Logs\" jobs scheduled for this form"
+msgstr "Brak zaplanowanych zadań typu \"Send Logs\" dla tego formularza"
+
+msgid "Add new job"
+msgstr "Dodaj nowe zadanie"
+
+msgid "There are no Selective Email rules yet set up for this form"
+msgstr "Brak ustawionych zasad dla Selektywnych e-maili w tym formularzu"
+
+#, fuzzy
+msgid "<b>WARNING:</b> This rule contains no parts"
+msgstr "<b>OSTRZEŻENIE:</b> Zasada nie zawiera części"
+
+msgid "<b>WARNING:</b> This Selective Email rule is invalid because it refers to deleted questions"
+msgstr "<b>OSTRZEŻENIE:</b> Ta zasada Selektywnych e-maili jest niepoprawna, ponieważ odnosi się do usuniętych pytań"
+
+msgid "Send to a Friend"
+msgstr "Wyślij znajomemu"
+
+msgid "Recipient"
+msgstr "Adresat"
+
+msgid "Receipt"
+msgstr "Odbiór"
+
+msgid "Unknown Email Type"
+msgstr "Nieznany rodzaj e-maila"
+
+msgid "No Email Address Specified"
+msgstr "Nie podano adresu e-mail"
+
+#, fuzzy
+msgid "You must select a question before you can select the type of rule part"
+msgstr "Musisz wybrać pytanie, zanim wybierzesz część rodzaju zasady"
+
+msgid "Unlock the form to select an active Selective Email rule"
+msgstr "Odblokuj formularz, aby wybrać aktywną zasadę Selektywnych e-maili"
+
+msgid "Select an active Selective Email rule to edit it"
+msgstr "Wybierz aktywną zasadę Selektywnych e-maili, aby edytować"
+
+msgid "This Selective Email rule is empty"
+msgstr "Ta zasada Selektywnych e-maili jest pusta"
+
+msgid "Applies To"
+msgstr "Ma zastosowanie w"
+
+msgid "The question that this rule part applied to (Id: #%s) has been deleted; you cannot edit this rule part. It is recommended that you delete it"
+msgstr "Pytanie, dla którego miała zasostowanie część zasady (Nr ID: #%s), zostało usunięte; nie możesz edytować tej części zasady. Zalecane jest jej usunięcie"
+
+msgid "When %1$s rule parts are matched,<br/>send a %2$s to %3$s"
+msgstr "Jeśli części %1$s zasad pasują do siebie,<br/> wyślij %2$s do %3$s"
+
+msgid "Send the submission logs at"
+msgstr "Wyślij logi przesyłań do"
+
+msgid "To schedule a job you must specify the date at which the logs should be sent"
+msgstr "Aby zaplanować zadanie, musisz ustawić datę rozpoczęcia wysyłania logów."
+
+msgid "You will need to specify the repetation parameter for the repeating cron job"
+msgstr "Musisz ustawić parametr powtarzania dla powtarzania zadania cron."
+
+msgid "Cannot find form asset to get the submission log from"
+msgstr "Nie znaleziono elementu formularza, z którego można uzyskać logi przesyłań"
+
+#, fuzzy
+msgid "Submission log \"start\" date not configured"
+msgstr "Nie ustawiono daty rozpoczęcia \"start\" dla logów przesyłań."
+
+msgid "Export all the files under this root node"
+msgstr "Eksportuj wszystkie pliki wybranego węzła głównego"
+
+msgid "Save As"
+msgstr "Zapisz jako"
+
+msgid "Name to save the exported files as"
+msgstr "Zapisz eksportowane pliki jako"
+
+msgid "Save Location"
+msgstr "Zapisz lokalizację"
+
+msgid "Location to save the exported files"
+msgstr "Lokalizacja do zapisania eksportowanych plików"
+
+msgid "Keep Structure"
+msgstr "Zachowaj Strukturę"
+
+msgid "When exporting, keep the structure underneath the root node"
+msgstr "Zachowaj Strukturę w węźle głównym podczas eksportu"
+
+msgid "Cannot complete the export. No root node specified."
+msgstr "Nie można dokończyć eksportu. Nie wybrano węzła głównego."
+
+msgid "Cannot complete the export. No save name specified."
+msgstr "Nie można dokończyć eksportu. Nie wybrano nazwy dla zapisywanych plików."
+
+msgid "Cannot complete the export. No save location specified."
+msgstr "Nie można dokończyć eksportu. Nie wybrano lokalizacji dla zapisywanych plików."
+
+msgid "Cannot complete the export. Save location is NOT writable."
+msgstr "Nie można dokończyć eksportu. Wybrana lokalizacja dla zapisywanych plików jest niezapisywalna."
+
+msgid "No assets are currently excluded"
+msgstr "Nie wykluczono żadnych elementów"
+
+msgid "All Asset Types Included"
+msgstr "Uwzlgędnij wszystkie rodzaje elementów"
+
+msgid "No asset type display formats defined."
+msgstr "Brak zdefiniowanych formatów wyświetlania rodzajów elementów."
+
+msgid "The root node of the %s"
+msgstr "Węzeł główny dla %s"
+
+msgid "Site Map"
+msgstr "Mapa strony"
+
+msgid "Password Reset Request"
+msgstr "Żądanie zresetowania hasła"
+
+msgid "A password reset request has been received for the account with username \"%1$s\".  To set a new password for this account please visit %2$s"
+msgstr "Otrzymano żądanie zresetowania hasła dla konta o nazwie użytkownika \"%1$s\". Aby ustawić nowe hasło dla tego konta, idź do %2$s"
+
+msgid "Accounts Pending Reset"
+msgstr "Konta oczekujące na zresetowanie hasła"
+
+msgid "You must specify a username."
+msgstr "Wybierz nazwę użytkownika."
+
+msgid "Specified username does not exist."
+msgstr "Wybrany użytkownik nie istnieje."
+
+msgid "No password reset request specified. Please submit another password reset request."
+msgstr "Nie wybrano żadnego żądania zresetowania hasła. Prześlij żądanie ponownie."
+
+msgid "Please open the reset link in the same browser session in which the password reset was requested."
+msgstr "Otwórz łącze resetujące w tej samej sesji przeglądarki, w której przesłano żądanie zresetowania hasła."
+
+msgid "Password reset link is invalid. Please submit another password reset request."
+msgstr "Łącze resetujące hasło jest niepoprawne. Prześlij żądanie ponownie."
+
+msgid "The user associated with this password reset could not be found."
+msgstr "Nie znaleziono użytkownika skojarzonego z tym żądaniem zresetowania hasła."
+
+msgid "You must specify a new password."
+msgstr "Wpisz nowe hasło."
+
+msgid "You specified an invalid password. Please try again."
+msgstr "Wpisałeś niepoprawne hasło. Spróbuj ponownie."
+
+msgid "The passwords entered do not match."
+msgstr "Wpisane hasła nie są identyczne."
+
+msgid "Request"
+msgstr "Żądanie"
+
+msgid "To reset your password, enter your username below. An email containing further instructions will be sent to the email address with which you registered."
+msgstr "Aby zresetować hasło, wpisz nazwę użytkownika poniżej. Dalsze instrukcje otrzymasz na adres e-mail, który został użyty przy rejestracji."
+
+msgid "Request Receipt"
+msgstr "Otrzymanie żądania"
+
+msgid "Please check your email for instructions on how to complete the password reset procedure."
+msgstr "Sprawdź, czy otrzymałeś instrukcje resetowania hasła w swojej skrzynce e-mail."
+
+msgid "Please enter a new password for your account"
+msgstr "Wpisz nowe hasło dla swojego konta"
+
+msgid "Reset Receipt"
+msgstr "Otrzymanie żądania resetowania"
+
+msgid "Your password has been reset and you are now logged in."
+msgstr "Twoje hasło zostało zmienione. Jesteś zalogowany."
+
+#, fuzzy
+msgid "Score Categories"
+msgstr "Kategorie Wyników"
+
+#, fuzzy
+msgid "No score categories have been defined"
+msgstr "Brak zdefiniowanych kategorii wyników"
+
+msgid "Score Category"
+msgstr "Kategoria Wyniku"
+
+msgid "Minimum Score"
+msgstr "Wynik minimalny"
+
+msgid "Maximum Score"
+msgstr "Wynik maksymalny"
+
+msgid "Delete Category"
+msgstr "Usuń Kategorię"
+
+msgid "New Score Category"
+msgstr "Nowa Kategoria wyników"
+
+msgid "Supplementary Content"
+msgstr "Zawartość dodatkowa"
+
+#, fuzzy
+msgid "This format defines the layout of the \"Thank You\" page that (optionally) appears when the quiz is completed."
+msgstr "Ten format definiuje wygląd strony \"Dziękujemy\", której (opcjonalnie) pojawia się po ukończeniu quizu."
+
+#, fuzzy
+msgid "This format defines the layout of the \"Already Taken\" notification page appears (which displays when the test has already been taken)."
+msgstr "Ten format definiuje wygląd strony powiadamiającej \"Ukończono\" (która pojawia się, jeśli test został już ukończony)."
+
+#, fuzzy
+msgid "This format defines the layout of the \"User Details\" page that appears when a user has to enter their details. Make sure to include the %form_contents% keyword."
+msgstr "Ten format definiuje wygląd strony \"Dane użytkownika\", której pojawia się, jeśli użytkownik musi uzupełnić swoje dane. Upewnij się, aby uwzględnić słowo kluczowe %form_contents%."
+
+#, fuzzy
+msgid "This form defines which questions can/must be filled out before the quiz can be taken. Note that this form will be displayed to non-logged-in users regardless of the \"User Details Source\" setting."
+msgstr "Ten format definiuje, które pytania mogą/muszą zostać uzupełnione przed przejściem do wypełniania quizu. Formularz będzie pojawiał się niezalogowanym użytkownikom, niezależnie od ustawień w \"Źródło danych użytkownika\""
+
+msgid "User ID"
+msgstr "Nr ID użytkownika"
+
+msgid "Score"
+msgstr "Wynik"
+
+msgid "Please acquire the lock before exporting."
+msgstr "Uzyskaj blokadę przed eksportem."
+
+msgid "Displaying submissions <b>%1$s</b> to <b>%2$s</b>, out of <b>%3$s</b    > total submissions"
+msgstr "Pokazuję przesłania <b>%1$s</b> do <b>%2$s</b>, z <b>%3$s</b> przesłań łącznie"
+
+msgid "Pool Node"
+msgstr "Węzeł puli quizów"
+
+msgid "Pool Size"
+msgstr "Rozmiar Puli"
+
+msgid "Retries per Question"
+msgstr "Ponowne próby na Pytanie"
+
+msgid "Pool Order"
+msgstr "Kolejność w Puli"
+
+msgid "Not enough questions in the pool for pool root node (Id: #%s)."
+msgstr "Brak wystarczającej ilości pytań w puli dla głównego węzła puli (Nr ID: #%s)."
+
+msgid "Question #%s has not been answered."
+msgstr "Brak odpowiedzi na pytanie #%s"
+
+msgid "Question Text"
+msgstr "Tekst Pytania"
+
+msgid "Response Form"
+msgstr "Formularz odpowiedzi"
+
+msgid "Available Points"
+msgstr "Maksymalna ilość punktów"
+
+msgid "Question Number"
+msgstr "Numer pytania"
+
+#, fuzzy
+msgid "Question Note"
+msgstr "Notatka do pytania"
+
+#, fuzzy
+msgid "Use Bodycopy for Question Text?"
+msgstr "Wykorzystać treść strony w tekście Pytania?"
+
+msgid "If this is set to Yes, an additional \"Question Text\" bodycopy will appear, allowing you more control over the question text. Note that this is turned off by default."
+msgstr "Jeśli Tak, pojawi się dodatkowa treść dla \"Question Text\", zapewniając większą kontrolę nad tekstem pytania. Opcja jest domyślnie wyłączona."
+
+msgid "Page Contents (No Results)"
+msgstr "Zawartość Strony (Brak wyników)"
+
+msgid "Thank You Bodycopy"
+msgstr "Treść Główna Dziękujemy"
+
+msgid "Already Taken Bodycopy"
+msgstr "Treść Ukończono"
+
+msgid "User Details Bodycopy"
+msgstr "Treść Dane użytkownika"
+
+msgid "Cannot create form - problem creating submissions folder"
+msgstr "Nie można utworzyć formularza - problem z tworzeniem formularza"
+
+msgid "There are no quiz questions to display."
+msgstr "Brak pytań w quizie do wyświetlenia."
+
+msgid "Thank you for taking the quiz; your results are displayed below:"
+msgstr "Dziękujemy za udział w quizie; wyniki znajdują się poniżej:"
+
+msgid "Please fill out your details below:"
+msgstr "Uzupełnij swoje dane poniżej:"
+
+msgid "You've already taken this quiz, and cannot take it again."
+msgstr "Już wziąłeś udział w tym quizie; ponowny udział jest niemożliwy."
+
+msgid "User Details Form"
+msgstr "Formularz Szczegółów użytkownika"
+
+msgid "Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access."
+msgstr "Zbyt mała ilość pytań w głównym węźle puli (Nr ID: #%s). Poszukaj puli odpowiedniego rozmiaru lub sprawdź dostęp do odczytu użytkownika."
+
+msgid "Quiz Score (using Quiz Score Format setting)"
+msgstr "Wynik z quizu (korzystając z ustawień Formatu Wyników Quizów)"
+
+msgid "Question Number (Asset Position)"
+msgstr "Numer pytania (Pozycja Elementu)"
+
+msgid "Error list"
+msgstr "Lista błędów"
+
+msgid "Warning list"
+msgstr "Lista ostrzeżeń"
+
+msgid "Question Range (which questions are currently being displayed)"
+msgstr "Zakres pytań (które pytania są wyświetlane)"
+
+msgid "Question Count (number of questions in this quiz)"
+msgstr "Liczba pytań (liczba pytań w danym quizie)"
+
+msgid "Results Table (Full)"
+msgstr "Tabela wyników (pełna)"
+
+msgid "Results Table (Simple)"
+msgstr "Tabela wyników (uproszczona)"
+
+msgid "Interactive Question Response Form"
+msgstr "Interaktywny Formularz Pytań i Odpowiedzi"
+
+msgid "Interactive Question Text"
+msgstr "Interaktywny Tekst Pytania"
+
+msgid "Interactive Question Note"
+msgstr "Interaktywna Notatka Pytania"
+
+msgid "Interactive Question Number"
+msgstr "Interaktywny Numer Pytania"
+
+msgid "Interactive Button"
+msgstr "Interaktywny Przycisk"
+
+msgid "Your Answer"
+msgstr "Twoja Odpowiedź"
+
+msgid "Answer Text"
+msgstr "Tekst Odpowiedzi"
+
+msgid "Correct Answer"
+msgstr "Poprawna Odpowiedź"
+
+msgid "Correct Answer Text"
+msgstr "Poprawny Tekst Odpowiedzi"
+
+msgid "Your Score"
+msgstr "Twój Wynik"
+
+msgid "Response Supplement"
+msgstr "Suplement Odpowiedzi"
+
+msgid "Result for Question X"
+msgstr "Wynik dla Pytania X"
+
+msgid "Quiz: Total Points Obtained"
+msgstr "Quiz: Suma uzyskanych punktów"
+
+msgid "Quiz: Maximum Total Points"
+msgstr "Quiz: Maksymalna ilość punktów"
+
+msgid "Result for Question Group X"
+msgstr "Wynik dla Grupy pytań X"
+
+msgid "Score Category Name"
+msgstr "Nazwa kategorii wyniku"
+
+msgid "Score Category Supplementary Content"
+msgstr "Dodatkowa zawartość kategorii wyniku"
+
+msgid "&nbsp;"
+msgstr "&nbsp;"
+
+msgid "Totals"
+msgstr "Suma"
+
+msgid "Total Score"
+msgstr "Suma wyników"
+
+msgid "Total Maximum Score"
+msgstr "Maksymalna ilość punktów"
+
+msgid "Listing Engine Upgrade [from %s] FAILED"
+msgstr "Aktualizacja Silnika Tworzenia List [z %s] NIE POWIODŁA SIĘ"
+
+msgid "Asset Builder Upgrade [from %s] FAILED"
+msgstr "Aktualizacja Konstruktora Elementów [z %s] NIE POWIODŁA SIĘ"
+
+msgid "Use HTML for Question Option Text?"
+msgstr "Chcesz skorzystać z kodu HTML dla Tekst Opcji Pytań?"
+
+msgid "When set to Yes, this option provides the ability to include HTML in the Option Text for each question."
+msgstr "Jeśli tak, opcja daje możliwość włączenia kodu HTML w Teskt opcji dla każdego pytania."
+
+msgid "Question Options"
+msgstr "Opcje pytań"
+
+msgid "There are currently no options for this question."
+msgstr "Brak opcji dla tego pytania."
+
+msgid "Option Text"
+msgstr "Tekst opcji"
+
+msgid "Points"
+msgstr "Punkty"
+
+msgid "string"
+msgstr "Ciąg"
+
+msgid "Editing group membership for %s"
+msgstr "Edycja członkostwa grupy dla %s"
+
+msgid "You need to log in to use this page"
+msgstr "Zaloguj się, aby korzystać z tej strony"
+
+msgid "No Root Node Selected"
+msgstr "Nie wybrano węzła głównego"
+
+msgid "No statuses are selected"
+msgstr "Nie wybrano żadnych statusów"
+
+msgid "Do not change status"
+msgstr "Nie zmieniaj statusu"
+
+msgid "No fixed create locations have been specified"
+msgstr "Brak określonych domyślnych lokalizacji dla tworzenia elementów"
+
+msgid "Add Location"
+msgstr "Dodaj lokalizację"
+
+msgid "Location Options"
+msgstr "Opcje lokalizacji"
+
+#, fuzzy
+msgid "Allow No Selection"
+msgstr "Zezwalaj na brak zaznaczenia"
+
+#, fuzzy
+msgid "Allow Multiple Selections"
+msgstr "Zezwalaj na wiele zaznaczeń"
+
+#, js-translate
+msgid "Are you sure you want to delete this set of selectable create locations?"
+msgstr "Na pewno usunąć zestaw wybieralnych lokalizacji domyślnych?"
+
+msgid "No sets of selectable locations have been specified"
+msgstr "Nie określno żadnego zestawu wybieralnych lokalizacji"
+
+msgid "Add New Set"
+msgstr "Dodaj nowy zestaw"
+
+msgid "You must specify the type of asset to create before create location rules can be defined"
+msgstr "Zanim zdefiniujesz zasady dla domyślnych lokalizacji, musisz określić rodzaj elementu, który chcesz stworzyć."
+
+msgid "Starts With"
+msgstr "Rozpoczyna się"
+
+msgid "Ends With"
+msgstr "Kończy się"
+
+msgid "Contains"
+msgstr "Zawiera"
+
+msgid "Rules for Asset Type '%s'"
+msgstr "Zasady dla Rodzaju elementów '%s'"
+
+msgid "Select Attribute"
+msgstr "Wybierz Atrybut"
+
+msgid "If all these conditions are true..."
+msgstr "Jeśli wszystkie warunki są prawdziwe..."
+
+msgid "...link the asset to all these locations:"
+msgstr "...połącz elementy z następującymi lokalizacjami:"
+
+msgid "(no rules defined)"
+msgstr "(Brak zdefiniowanych zasad)"
+
+msgid "No sets of dynamic locations have been specified"
+msgstr "Nie określono zestawów dynamicznych lokalizacji"
+
+#, fuzzy
+msgid "Levels (0 is unlimited depth)"
+msgstr "Poziomy (0 jest nieograniczonie głębokie)"
+
+#, fuzzy
+msgid "%s Levels"
+msgstr "% poziomów"
+
+msgid "Restrict to these Asset Types"
+msgstr "Ogranicz do tych rodzajów elementów"
+
+msgid "Include links of the following type in the locations list"
+msgstr "Uwzględniaj łącza do danego rodzaju w liście lokalizacji"
+
+msgid "No exclusions."
+msgstr "Brak wykluczeń."
+
+msgid "Link Type of Created Asset"
+msgstr "Typ łącza dla Utworzonego elementu"
+
+msgid "Display Assets as a Tree"
+msgstr "Wyświetl elementy jako drzewo"
+
+msgid "Display Assets as a Normal List"
+msgstr "Wyświetl elementy w normalnej liście"
+
+msgid "Rules"
+msgstr "Zasady"
+
+#, js-translate
+msgid "Are you sure you want to delete this set of dynamic create locations?"
+msgstr "Na pewno usunąć zestaw dynamicznych lokalizacji domyślnych dla stworzonych elementów?"
+
+#, fuzzy
+msgid "No attributes are currently set to be required"
+msgstr "Nie ustawiono żadnych atrybutów, które będą wymagane"
+
+msgid "Error Text"
+msgstr "Tekst błędu"
+
+msgid "Unknown Metadata Field"
+msgstr "Nieznane Pole metadanych"
+
+msgid "New required attribute ?"
+msgstr "Nowy wymagany atrybut ?"
+
+msgid "New attribute to check ?"
+msgstr "Sprawdzić nowy atrybut ?"
+
+msgid "%s Create Form Layout"
+msgstr "%s Stwórz z Szaty Graficznej"
+
+msgid "The value of %s is not valid"
+msgstr "Wartość %s jest nieprawdiłowa"
+
+msgid "Please enter a value for %s"
+msgstr "Wpisz wartość dla %s"
+
+msgid "Unable to determine where to create this %s"
+msgstr "Nie można ustalić, gdzie zapisać %s"
+
+msgid "Please enter the characters in the image to verify your submission"
+msgstr "Wpisz ciąg znaków ze zdjęcia, aby zweryfikować przesyłane dane"
+
+msgid "Asset %s was null"
+msgstr "Element %s wynosił null"
+
+msgid "Failed to create link to asset %s"
+msgstr "Utworzenie łącza dla elementu %s nie powiodło się"
+
+msgid "Unable to save web path of asset: \"%1$s\" under parent: \"%2$s\""
+msgstr "Nie można zapisać ścieżki dla elementu: \"%1$s\" w elemencie rodzic: \"%2$s\""
+
+msgid "You must select an option from the %s"
+msgstr "Wybierz opcję z %s"
+
+msgid "UNDEFINED INPUT STYLE %s"
+msgstr "Niezdefiniowany styl danych wejściowych %s"
+
+msgid "Not Logged In"
+msgstr "Nie jesteś zalogowany"
+
+msgid "Logged in"
+msgstr "Jesteś zalogowany"
+
+msgid "Created"
+msgstr "Utworzono"
+
+msgid "Asset created<br />See it <a href=\"%created_asset_url%\">here</a>"
+msgstr "Utworzono Element<br />Możesz go zobaczyć <a href=\"%created_asset_url%\">tutaj</a>"
+
+msgid "Login Invite"
+msgstr "Zaproszenie do logowania"
+
+msgid "Login Form"
+msgstr "Formularz logowania"
+
+msgid "Login Error Message"
+msgstr "Wiadomość o błędzie podczas logowania"
+
+msgid "Create Asset Invite"
+msgstr "Stwórz element zaproszenia"
+
+msgid "Create Asset Form"
+msgstr "Stwórz element formularza"
+
+msgid "Create Asset Error Message"
+msgstr "Stwórz element wiadomości o błędzie"
+
+msgid "Login Form Username Field"
+msgstr "Formularz logowania Pole nazwy użytkownika"
+
+msgid "Login Form Password Field"
+msgstr "Formularz logowania Pole hasła"
+
+msgid "Login Form Submit Button"
+msgstr "Formularz logowania Przycisk Wyślij"
+
+msgid "Display Captcha Form"
+msgstr "Pokaż formularz Captcha"
+
+msgid "Display Captcha Image"
+msgstr "Pokaż obraz Captcha"
+
+msgid "Display Captcha Field"
+msgstr "Pokaż pole Captcha"
+
+msgid "Display Captcha Link"
+msgstr "Pokaż łącze Captcha"
+
+msgid "Mollom CAPTCHA Image"
+msgstr "Obraz CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA Audio"
+msgstr "Audio CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA Input Field"
+msgstr "Pole danych wejściowych CAPTCHA Mollom"
+
+msgid "Mollom CAPTCHA Regeneration Link"
+msgstr "Łącze generujące CAPTCHA Mollom"
+
+msgid "Display reCAPTCHA Form"
+msgstr "Pokaż formularz reCAPTCHA"
+
+msgid "Display Honeypot question"
+msgstr "Pokaż pytanie Honeypot"
+
+msgid "Created Asset ID"
+msgstr "Utworzono ID elementu"
+
+msgid "Created Asset Name"
+msgstr "Utworzono nazwę elementu"
+
+msgid "Created Asset Short Name"
+msgstr "Utworzono skróconą nazwę elementu"
+
+msgid "Created Asset URL"
+msgstr "Utworzono adres URL elementu"
+
+msgid "Created Asset Simple Edit URL"
+msgstr "Utworzono Uproszczone edytowanie adresu URL elementu"
+
+msgid "Created Asset Admin Interface URL"
+msgstr "Utworzono Adres URL do interfejsu administratora elementu"
+
+msgid "%s Field"
+msgstr "Pole %s"
+
+msgid "Asset Builder Upgrade [from %s] FAILED - Couldn't save attributes"
+msgstr "Aktualizacja Konstruktora Elementów [z %s] NIE POWIODŁA SIĘ - Nie można zapisać atrybutów"
+
+msgid "There are no ranges"
+msgstr "Brak zdefiniowanych zakresów"
+
+msgid "When this option is set, the Oldest Date and Newest Date options are ignored, and this predefined range is used.<br/><br/>For these ranges, the Newest Date is set to \"now\", and the Oldest Date is set to 00:00:00 on the first day of the specified period. For \"This Week\", weeks start on Monday, in line with the ISO definition."
+msgstr "Gdy opcja jest aktywna, Najstarsza Data i Najnowsza Data są ignorowane, a zastosowany zostaje wstępnie zdefiniowany zakres.<br/><br/>Dla tych zakresów, Najnowsza Data ustawiona jest jako \"teraz\", a najstarsza Data ustawiona jest jako 00:00:00 pierwszego dnia wyznaczonego okresu. Dla \"Ten tydzień\", tydzień zaczyna się w poniedziałek, zgodnie z definicją ISO."
+
+msgid "Please select a date range to customise"
+msgstr "Wybierz zakres dat, aby dostosować."
+
+msgid "No link types have been selected - <b>no assets will be displayed</b>"
+msgstr "Nie wybrano żadnych łącz - <b>żadne elementy nie zostaną wyświetlone</b>"
+
+msgid "No type settings have been configured for this page - no assets will be listed"
+msgstr "Nie skonfigurowano żadnych ustawień rodzaju dla tej strony - żadne elementy nie zostaną pokazane w liście"
+
+msgid "From date \"%s\" is not a valid date. No assets will be displayed."
+msgstr "Od daty \"%s\" nie jest poprawną datą. Żadne elementy nie zostaną wyświetlone."
+
+msgid "From time \"%s\" is not a valid time. No assets will be displayed."
+msgstr "Od czasu \"%s\" nie jest poprawnym czasem. Żadne elementy nie zostaną wyświetlone."
+
+msgid "To date \"%s\" is not a valid date. No assets will be displayed."
+msgstr "Do daty \"%s\" nie jest poprawną datą. Żadne elementy nie zostaną wyświetlone."
+
+msgid "To time \"%s\" is not a valid time. No assets will be displayed."
+msgstr "Do czasu \"%s\" nie jest poprawnym czasem. Żadne elementy nie zostaną wyświetlone."
+
+msgid "No date settings have been configured for this page - no assets will be listed"
+msgstr "Nie skonfigurowano żadnych ustawień daty dla tej strony - żadne elementy nie zostaną pokazane w liście"
+
+msgid "Date Range List"
+msgstr "Lista Zakresu dat"
+
+msgid "Date Range List Linked"
+msgstr "Łącze dla Listy Zakresu dat"
+
+msgid "Could not decode URL"
+msgstr "Nie można odkodować adresu URL"
+
+msgid "URL not allowed: \"%s\""
+msgstr "Niedozwolony Adres URL: \"%s\""
+
+msgid "You cannot include or redirect to one of your own urls."
+msgstr "Nie możesz uwzględnić lub przekierować do własnego adresu URL."
+
+msgid "Cannot connect to server while attempting to access \"%1$s\" - %2$s"
+msgstr "Nie można połączyć z serwerem podczas próby uzyskania dostępu do \"%1$s\" - %2$s"
+
+msgid "Error response %1$s from server while attempting to access \"%2$s\""
+msgstr "Odpowiedź o błędzie %1$s od serwera podczas próby uzyskania dostępu do \"%2$s\""
+
+msgid "Redirected to a disallowed url: \"%1$s\" from \"%2$s\""
+msgstr "Przekierowano do niedozwolonego adresu URL: \"%1$s\" do \"%2$s\""
+
+msgid "Cannot encode URL hash - no URL supplied"
+msgstr "Nie można zakodować skrótu adresu URL - brak adresu URL"
+
+msgid "No URLs may be tunneled"
+msgstr "Adresy URL nie mogą być tunelowane"
+
+msgid "Any URL may be tunneled"
+msgstr "Wszystkie adresy URL mogą być tunelowane"
+
+msgid "Only the following URLs may be tunneled:"
+msgstr "Tylko następujące adresy URL mogą być tunelowane:"
+
+msgid "URLs underneath the Remote URL above"
+msgstr "Adresy URL poniżej Zdalnego adresu URL powyżej"
+
+msgid "URLs in the same domain as the Remote URL above"
+msgstr "Adresy URL na tej samej domenie co Zdalne adresy URL powyżej"
+
+msgid "URLs based the following 'white list' URLs:"
+msgstr "Adresy URL opierają się na następującej 'białej liście' adresów URL:"
+
+msgid "<b>NOTE: </b>Enabling this option can result in System being used as a Proxy to access <b>any domain</b>."
+msgstr "<b>UWAGA:</b>Włączenie tej opcji może spowodować, że system będzie wykorzystywany jako proxy, aby uzyskać dostęp do <b>jakiejkolwiek domeny</b>."
+
+msgid "Cannot add duplicate variable."
+msgstr "Nie można dodać zduplikowanej zmiennej."
+
+msgid "Tag"
+msgstr "Tag"
+
+msgid "Remove Contents"
+msgstr "Usuń zawartość"
+
+msgid "No tag replacements defined"
+msgstr "Brak zdefiniowanych zastępstw dla tagów"
+
+msgid "Number of assets tagged with this term"
+msgstr "Liczba elementów oznaczonych tym terminem"
+
+#, fuzzy
+msgid "Size of this tag in a cloud"
+msgstr "Rozmiar tagu w chmurze"
+
+msgid "No voting records exist for this question"
+msgstr "Brak rekordów głosowania dla tego pytania"
+
+msgid "You require Admin Permission for this question to be able to delete users' voting records"
+msgstr "Musisz mieć Pozwolenie Administratora, aby usunąć rekordy głosowania użytkownika dla danego pytania"
+
+#, fuzzy
+msgid "Option List"
+msgstr "Lista opcji"
+
+msgid "Vote Button"
+msgstr "Przycisk Głosuj"
+
+msgid "Vote Button (Opens results in a new window)"
+msgstr "Przycisk Głosuj (Otwieranie wyników w nowym oknie)"
+
+msgid "Vote Button Javascript"
+msgstr "Przycisk Głosuj Javascript"
+
+msgid "Vote Button Javascript (Opens results in a new window)"
+msgstr "Przycisk Głosuj Javascript (Otwieranie wyników w nowym oknie)"
+
+msgid "View Results Link"
+msgstr "Pokaż Łącze wyników"
+
+msgid "View Results URL"
+msgstr "Pokaż adres URL wyników"
+
+msgid "View Past Questions"
+msgstr "Pokaż Pytania poprzednie"
+
+msgid "View Past Questions URL"
+msgstr "Pokaż adres URL dla pytań poprzednich"
+
+msgid "A link to Active Question"
+msgstr "Łącze do aktywnego pytania"
+
+msgid "A link to Active Question Results"
+msgstr "Łącze do wyników aktywnego pytania"
+
+msgid "A link to Active Question with creation date"
+msgstr "Łącze do aktywnego pytania z datą utworzenia"
+
+msgid "A link to Active Question Results with creation date"
+msgstr "Łącze do wyników aktywnego pytania z datą utworzenia"
+
+#, fuzzy
+msgid "Option Label"
+msgstr "Etykieta Opcje"
+
+msgid "Option Number"
+msgstr "Numer Opcji"
+
+msgid "Option Id"
+msgstr "Nr ID Opcji"
+
+msgid "Option Selection (Radio button or Checkbox)"
+msgstr "Wybór Opcji (Przycisk wyboru lub Pole wyboru)"
+
+msgid "Results List"
+msgstr "Lista wyników"
+
+#, fuzzy
+msgid "Option Graph Bar"
+msgstr "Wykres Głosów na Opcję"
+
+msgid "Option Votes (Number)"
+msgstr "Głosy na Opcję (Liczba)"
+
+msgid "Option Votes (Percent)"
+msgstr "Głosy na Opcję (Procent)"
+
+msgid "Question List"
+msgstr "Lista pytań"
+
+msgid "Question List (with creation dates)"
+msgstr "Lista pytań (z datami utworzenia)"
+
+msgid "Question List (without active question)"
+msgstr "Lista pytań (bez pytania aktywnego)"
+
+msgid "Question List (with dates, without active question)"
+msgstr "Lista pytań (z datami, bez pytania aktywnego)"
+
+msgid "Poll question not created"
+msgstr "Nie stworzono pytania dla głosowania"
+
+msgid "This format defines the layout of the page when the user viewing the page is not logged in."
+msgstr "Ten format definiuje schemat graficzny strony, gdy użytkownik odwiedzający stronę nie jest zalogowany."
+
+msgid "This page is only available to logged-in users"
+msgstr "Strona jest dostępna tylko dla zalogowanych użytkowników."
+
+msgid "Managing links for %s"
+msgstr "Zarządzaj łączami dla %s"
+
+msgid "Successfully added \"%s\" to the following: %s"
+msgstr "Pomyślnie dodano \"%s\" do: %s"
+
+msgid "Successfully removed \"%s\" from the following: %s"
+msgstr "Pomyślnie usunięto \"%s\" z: %s"
+
+msgid "Unable to add \"%s\" to the following: %s"
+msgstr "Nie można dodać \"%s\" do: %s"
+
+msgid "Unable to remove \"%s\" from the following: %s"
+msgstr "Nie można usunąć \"%s\" z: %s"
+
+msgid "The list of error messages"
+msgstr "Lista powiadomień o błędach"
+
+#, fuzzy
+msgid "The list of success messages"
+msgstr "Lista powiadomień o powodzeniach"
+
+msgid "Could not locate the Form Contents for custom form page \"%1$s\" (Id: %2$s)"
+msgstr "Nie można zlokalizować Zawartości Formularza dla niestandardowej strony formularza \"%1$s\" (Nr ID: %2$s)"
+
+msgid "Delegate method \"%2$s\" not found in edit functions of asset \"%1$s\""
+msgstr "Nie znaleziono metody delegacji \"%2$s\" w funkcjach edycji elementu \"%1$s\""
+
+msgid "Could not locate the form asset for Custom Form \"%s\""
+msgstr "Nie można zlokalizować elementu formularza dla Formularza niestandardowego \"%s\""
+
+msgid "There are currently no pages to display"
+msgstr "Brak stron do wyświetlenia"
+
+msgid "Contents"
+msgstr "Zawartość"
+
+msgid "Create New Page"
+msgstr "Stwórz nową stronę"
+
+#, fuzzy
+msgid "This asset uses its children to display its content. Getting here is a mistake"
+msgstr "Element korzysta z elementów typu dziecko, aby wyświetlić swoją zawartość. Pomyłka."
+
+msgid "Previous Page Href"
+msgstr "Odwłoanie do Poprzedniej strony"
+
+msgid "Previous Page Name"
+msgstr "Nazwa Poprzedniej strony"
+
+msgid "Next Page Name"
+msgstr "Nazwa Następnej strony"
+
+msgid "Total Page Count"
+msgstr "Łączna liczba stron"
+
+msgid "Specific Page Name"
+msgstr "Określona Nazwa strony"
+
+msgid "Specific Page Href"
+msgstr "Określone Odwołanie do strony"
+
+msgid "Specific Page Link"
+msgstr "Określone Łącze do strony"
+
+msgid "Specific Page Asset ID"
+msgstr "Określony Numer ID elementu strony"
+
+msgid "Current Page Name"
+msgstr "Nazwa aktualnej strony"
+
+msgid "Current Page Name (for compatibility only)"
+msgstr "Nazwa aktualnej strony (dla zgodności)"
+
+msgid "Current Page Number"
+msgstr "Numer aktualnej strony"
+
+msgid "Current Page Asset ID"
+msgstr "Numer ID aktualnego elementu strony"
+
+msgid "Table of Contents - Unordered"
+msgstr "Tabela zawartości - Nieuporządkowana"
+
+msgid "Table of Contents - Ordered"
+msgstr "Tabela zawartości - Uporządkowana"
+
+msgid "Navigation Menu - Selection List"
+msgstr "Menu nawigacyjne - Lista wyboru"
+
+msgid "Validate ?"
+msgstr "Zweryfikować ?"
+
+msgid "Customise Account Manager Form"
+msgstr "Dopasuj Formularz na stronie Account Managera"
+
+msgid "Customise Account Manager Logged In Form"
+msgstr "Dopasuj Formularz na stronie Account Managera po Zalogowaniu"
+
+msgid "Activating your new account"
+msgstr "Aktywuj swoje nowe konto"
+
+msgid "Thank you for registering.  To activate your account please go to %s."
+msgstr "Dziękujemy za rejestrację. Aby aktywować konto przejdź do %s."
+
+msgid "Created, awaiting validation"
+msgstr "Utworzono, oczekuję weryfikacji."
+
+msgid "Created but not live"
+msgstr "Utworzono, lecz nie jest online."
+
+msgid "Created, live"
+msgstr "Utworzono, live."
+
+msgid "Username is required to send the validation email"
+msgstr "Nazwa użytkwnika jest potrzebna do wysłania e-maila weryfikującego."
+
+msgid "Email is required to send the validation email"
+msgstr "Adres e-mail jest potrzebny do wysłania e-maila weryfikującego."
+
+msgid "%s Logged In Form Layout"
+msgstr "%s Schemat graficzny formularza po zalogowaniu"
+
+msgid "You do not have access to edit your details."
+msgstr "Nie masz dostępu do edycji swoich danych."
+
+msgid "Your account has been created but needs to be activated before you can log in."
+msgstr "Twoje konto zostało utworzone, lecz musisz je aktywować zanim się zalogujesz."
+
+msgid "Your account has been created and activated.  Please log in using the form below."
+msgstr "Twoje konto zostało utworzone i zaktywowane. Zaloguj się z pomocą formularza poniżej."
+
+msgid "This user asset cannot be validated because no create locations to move it to have been found"
+msgstr "Element użytkownika nie może być zweryfikowany, ponieważ nie odnaleziono domyślnych lokalizacji dla przeniesienia elementu."
+
+msgid "Specified user name was not found"
+msgstr "Nie znaleziono wybranej nazwy użytkownika."
+
+msgid "Validation email cannot be sent to this user"
+msgstr "Nie można wysłać e-maila weryfikującego do tego użytkownika."
+
+msgid "Edit Details Invite"
+msgstr "Edytuj Szczegóły zaproszenia"
+
+msgid "Edit Details Form"
+msgstr "Edytuj Szczegóły formularza"
+
+msgid "Edit Details Success Message"
+msgstr "Edytuj Szczegóły wiadomości o powodzeniu"
+
+msgid "Lock Error Message"
+msgstr "Wiadomość błędu zablokowania"
+
+msgid "List of Form Submission Errors"
+msgstr "Lista Błędów przesyłania formularza"
+
+msgid "Logout Form"
+msgstr "Formularz wylogowania"
+
+msgid "Create Account Invite"
+msgstr "Stwórz zaproszenie do konta"
+
+msgid "Create Account Form"
+msgstr "Stwórz formularz dla konta"
+
+msgid "Create Account Error Message"
+msgstr "Stwórz Wiadomość o błędzie konta"
+
+msgid "Resend Validation Form"
+msgstr "Prześlij formularz weryfikacyjny ponownie"
+
+msgid "Resend Validation Error"
+msgstr "Prześlij błąd weryfikacji ponownie"
+
+msgid "Resend Validation Success"
+msgstr "Prześlij wiadomość o powodzeniu weryfikacji ponownie"
+
+msgid "No URL or Asset selected for %1$s \"%2$s\" (Id #%3$s)"
+msgstr "Nie wybrano żadnego adresu URL ani Elementu dla %1$s \"%2$s\" (Nr ID #%3$s)"
+
+msgid "None Set"
+msgstr "Brak ustawień"
+
+#, fuzzy
+msgid "You can not delete the Page Contents bodycopy from the Decision Tree Page."
+msgstr "Nie można usunąć treści Zawartości strony z elementu Strony Drzewa Decyzji"
+
+msgid "The Decision Tree Page Id: #%s does not have a first question!."
+msgstr "Numer ID Strony Drzewa Decyzji: #%s nie ma pierwszego pytania!"
+
+msgid "First Question has not been selected."
+msgstr "Nie wybrano pierwszego pytania."
+
+msgid "Result Bodycopy"
+msgstr "Treść wyniku"
+
+#, fuzzy
+msgid "Points Range (min to max inclusive)"
+msgstr "Zakres punktów (niewykluczające minimum do maksimum)"
+
+msgid "Min and Max values must be numeric for the bodycopy points range."
+msgstr "Wartości minimum i maksimum muszą być wyrażone numerycznie dla treści zakresu punktów."
+
+msgid "The Min value can not be greater than the Max in the Points Range."
+msgstr "Wartość minimum nie może być większa od wartości maksymalnej w Zakresie punktów."
+
+#, fuzzy
+msgid "Failed to create the required number of result bodycopies."
+msgstr "Stworzenie określonej liczby treści wyników nie powiodło się."
+
+msgid "Answer Rule"
+msgstr "Zasada Odpowiedzi"
+
+msgid "Next Question"
+msgstr "Następne pytanie"
+
+msgid "Points Value"
+msgstr "Wartość punktów"
+
+msgid "The Points Value field must be numeric for Answer Destinations."
+msgstr "Wartość punktów musi być wyrażona numerycznie dla Miejsca docelowego dla Odpowiedzi."
+
+msgid "Range Type"
+msgstr "Rodzaj zakresu"
+
+msgid "Range Values (min to max)"
+msgstr "Wartości zakresu (minimum do maksimum)"
+
+#, fuzzy
+msgid "INCLUSIVE"
+msgstr "NIEWYKLUCZAJĄCE"
+
+msgid "MINIMUM INCLUSIVE"
+msgstr "NIEWYKLUCZAJĄCE MINIMUM"
+
+msgid "MAXIMUM INCLUSIVE"
+msgstr "NIEWYKLUCZAJĄCE MAKSIMUM"
+
+msgid "NOT INCLUSIVE"
+msgstr "WYKLUCZAJĄCE"
+
+msgid "Answer Key"
+msgstr "Klucz odpowiedzi"
+
+msgid "Asset Selections"
+msgstr "Wybór elementów"
+
+msgid "Asset Targets"
+msgstr "Strony docelowe elementu"
+
+msgid "Selection groups define selection columns available for use by the asset, eg. checkbox or radiobutton columns."
+msgstr "Grupy wyboru definiują kolumny wyboru dostępne do wykorzystania według elementu, np. kolumny pola wyboru lub przycisku wyboru."
+
+msgid "Asset Targets are used to send a list of selected assets to another asset, or URL."
+msgstr "Strony docelowe elementu są wykorzystywane do przesyłania listy wybranych elementów do innego elementu lub adresu URL."
+
+msgid "New Group ?"
+msgstr "Nowa grupa?"
+
+msgid "To make these grouping settings apply to the frontend you must choose \"Custom Grouping\" in the \"List Format\" field on the details screen"
+msgstr ""
+
+msgid "Note that the new group will be positioned in relation to the <b>current</b> group positions, even if you delete one or more of those groups at the same time"
+msgstr ""
+
+msgid "Exclude Assets"
+msgstr ""
+
+#, fuzzy
+msgid "Exclude Root Node"
+msgstr "Pokaż węzeł główny"
+
+#, fuzzy
+msgid "Asset Statuses to List"
+msgstr "Lista uporządkowana"
+
+msgid "Asset Access to List"
+msgstr ""
+
+msgid "Exclude This Asset"
+msgstr ""
+
+#, fuzzy
+msgid "Root Nodes"
+msgstr "Węzły nawigacyjne"
+
+msgid "Direct Links Only"
+msgstr ""
+
+msgid "Lookup Direction"
+msgstr ""
+
+#, fuzzy
+msgid "List Format"
+msgstr "Format listy"
+
+#, fuzzy
+msgid "Assets Per Page"
+msgstr "Liczba elementów na stronę"
+
+#, fuzzy
+msgid "Start Position"
+msgstr "Data rozpoczęcia"
+
+#, fuzzy
+msgid "A-Z Listing Style"
+msgstr "Styl wyświetlania"
+
+msgid "A-Z Letter Format"
+msgstr ""
+
+#, fuzzy
+msgid "Previous Link"
+msgstr "Poprzednie łącze"
+
+#, fuzzy
+msgid "Next Link"
+msgstr "Następne łącze"
+
+#, fuzzy
+msgid "Non A-Z page text"
+msgstr "Tekst łącza Następna strona"
+
+#, fuzzy
+msgid "Page Link Format"
+msgstr "Format łącza strony"
+
+#, fuzzy
+msgid "Current Page Format"
+msgstr "Format bieżącej strony"
+
+#, fuzzy
+msgid "Hide Unlinked Navigational Text"
+msgstr "Ukryj niepołączony tekst nawigacyjny"
+
+#, fuzzy
+msgid "Asset Positions"
+msgstr "Element"
+
+#, fuzzy
+msgid "Customise No Results Bodycopy?"
+msgstr "Dostosuj"
+
+msgid "If specified, all children of selected nodes will be excluded"
+msgstr ""
+
+msgid "If selected, only assets in the statuses chosen will be listed. If no statuses are selected, assets to which the current user has effective read permission will be listed."
+msgstr ""
+
+msgid "If set to 'Yes', this asset will not list the Asset that is currently being accessed."
+msgstr ""
+
+msgid "Leave blank to list the sub assets/children of this asset listing page"
+msgstr ""
+
+msgid "If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed."
+msgstr ""
+
+msgid "Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below."
+msgstr ""
+
+#, fuzzy
+msgid "A standard list displays all assets on a single page or can be broken up into multiple pages"
+msgstr "Standardowe lista wyświetla wszystkie elementy na jednej stronie albo można ją podzielić na wiele stron"
+
+msgid "Set to '0' (zero) to list all assets on the same page.<br/><b>NOTE:</b> This option is only valid when using the standard or custom grouping list formats..<br/>If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset). <br/>Keywords can be used to dynamically set the number of items on the page."
+msgstr ""
+
+msgid "Position in the list to start at. For custom grouping, this will apply to the individual group listing."
+msgstr ""
+
+msgid "A Single Page will display all assets on one page, with headings for each letter in the list. When a user clicks a letter in the list of characters, it will automatically jump to that letter on the page."
+msgstr ""
+
+msgid "This option only applies for a Single Page A-Z Listing.<br/> Available keyword is %letter_group% which generates an anchored heading for each letter."
+msgstr ""
+
+#, fuzzy
+msgid "This is the text that will be printed to link to the previous results page"
+msgstr "Ten tekst pojawi się w łączu do poprzedniej strony wyników (jeśli istnieje)"
+
+#, fuzzy
+msgid "This is the text that will be printed to link to the next results page"
+msgstr "Ten tekst pojawi się w łączu do następnej strony wyników (jeśli istnieje)"
+
+msgid "Link text to a page containg assets in the A-Z list format which do not begin with A-Z, i.e. numbers or other characters"
+msgstr ""
+
+msgid "This format defines the individual layout of items on the listing's linked page list. If you are using the A-Z list format, this will define the individual layout of items on the linked character list. Available keywords: %page_link% and %page_number%."
+msgstr ""
+
+msgid "This format defines the layout of the current page number on the listing's linked page list. If you are using the A-Z list format, this will define the layout of an item in the linked character list when no results are found under that particular letter. Available keywords: %page_number%."
+msgstr ""
+
+#, fuzzy
+msgid "This option lets you define if the navigational text, like 'Previous Page' or 'Next Page', should be hidden if these text is not a link. This is useful to hide 'Next Page' on last page and 'Prev Page' on first page etc.,."
+msgstr "Dzięki tej opcji możesz określić, czy tekst nawigacyjny, taki jak 'Poprzednia strona' lub 'Następna strona' powinien być ukryty, gdy tekst nie jest łączem. Dobrym pomysłem jest ukrycie tekstu 'Następna strona' na ostatniej stronie i tekstu 'Poprzednia strona' na pierwszej itd."
+
+msgid "You can configure the list to include certain assets at specific positions, even if they would not normally be included in the list."
+msgstr ""
+
+msgid "If this is set to Yes, an additional \"Page Contents (No Results)\" bodycopy will appear, allowing you to specify different contents when there are no assets to list. Note that this is turned on by default."
+msgstr ""
+
+msgid "Current Settings"
+msgstr ""
+
+msgid "Sort-by Options Order"
+msgstr ""
+
+#, fuzzy
+msgid "Ascending Sort Text"
+msgstr "Zastąp tekst"
+
+#, fuzzy
+msgid "Descending Sort Text"
+msgstr "Zastąp tekst"
+
+#, fuzzy
+msgid "Default Sort-by Option"
+msgstr "Użyj wartości domyślnej"
+
+#, fuzzy
+msgid "Default Sort Direction"
+msgstr "Użyj wartości domyślnej"
+
+msgid "The sorting options will appear in this order in the sort-by selector"
+msgstr ""
+
+msgid "This text will be used in the sort-direction selector"
+msgstr ""
+
+msgid "This sorting option will be used by default, and will be the default value of the sort-by selector."
+msgstr ""
+
+msgid "This sort direction will be used by default, and will be the default value of the sort-direction selector."
+msgstr ""
+
+#, fuzzy
+msgid "Column Type"
+msgstr "Rodzaj"
+
+msgid "Row Class"
+msgstr ""
+
+msgid "Generate the column in table style or using a div for each row"
+msgstr ""
+
+msgid "If column type is Div based, a style class can be specified for each row"
+msgstr ""
+
+#, fuzzy
+msgid "Report Broken Links?"
+msgstr "Wygeneruj raport"
+
+#, fuzzy
+msgid "Follow Redirect Link?"
+msgstr "Usuń łącze"
+
+#, fuzzy
+msgid "Content To Display In Report"
+msgstr "Wygeneruj raport"
+
+#, fuzzy
+msgid "Export Report"
+msgstr "Wygeneruj raport"
+
+msgid "Only assets in the statuses chosen will be included in report. Change of this option will require regenerating report."
+msgstr ""
+
+msgid "Notify the asset administrators if a broken link is found during the report generation process. You will have to add 'asset.report.brokenlink' to 'Log To Email White List' in the Messaging Service Configuration for this to work."
+msgstr ""
+
+msgid "Follow redirect of external link to check the final url."
+msgstr ""
+
+msgid "These options can be changed and are visible in the report display and export without regenerating the report."
+msgstr ""
+
+msgid "This will allow you download a CSV (Comma Separated Values) file, containing the content of the report as per the above display options."
+msgstr ""
+
+#, fuzzy
+msgid "Time Submitted"
+msgstr "Godzina"
+
+#, fuzzy
+msgid "Current Sections"
+msgstr "Aktualne subskrypcje"
+
+#, fuzzy
+msgid "Add Section(s)"
+msgstr "Dodaj anulację"
+
+#, fuzzy
+msgid "Section Width"
+msgstr "szerokość"
+
+#, fuzzy
+msgid "Question Width"
+msgstr "szerokość"
+
+#, fuzzy
+msgid "Answer Width"
+msgstr "szerokość"
+
+msgid "Defines the name of the form section"
+msgstr ""
+
+msgid "Select the question type and the number of questions to add"
+msgstr ""
+
+msgid "Enter the names of the Form Sections you want to create. One new section will be created for each entry, and linked beneath this one."
+msgstr ""
+
+msgid "If enabled, a format bodycopy will be created allowing you to customise the default format of this form section. If disabled, a default format will be used."
+msgstr ""
+
+msgid "The section will be this width when printed on the frontend. This can be a number of pixels or a percentage of the form width"
+msgstr ""
+
+msgid "The width of the column for question names. This can be a number of pixels or a percentage of the section width"
+msgstr ""
+
+msgid "The width of the column for the question answer fields. This can be a number of pixels or a percentage of the section width"
+msgstr ""
+
+#, fuzzy
+msgid "Add Sections"
+msgstr "Dodaj anulację"
+
+#, fuzzy
+msgid "Accessible Format"
+msgstr "Format kalendarza"
+
+#, fuzzy
+msgid "Required field mark"
+msgstr "To pole jest obowiązkowe i powinno być unikalne"
+
+msgid "Use Confirmation Page?"
+msgstr ""
+
+msgid "Use Bodycopy?"
+msgstr ""
+
+#, fuzzy
+msgid "Note Text Size"
+msgstr "Uwaga"
+
+#, fuzzy
+msgid "Form Extra Attribute"
+msgstr "Atrybut zestawu rekordów"
+
+msgid "Client-Side Validation"
+msgstr ""
+
+#, fuzzy
+msgid "Error Message Format"
+msgstr "Wiadomość"
+
+#, fuzzy
+msgid "No. of Submission allowed"
+msgstr "Adres URL przesyłania formularza"
+
+#, fuzzy
+msgid "Restrict Submission Access"
+msgstr "Adres URL przesyłania formularza"
+
+msgid "Require CAPTCHA"
+msgstr ""
+
+msgid "Provide Accessible CAPTCHA"
+msgstr ""
+
+msgid "CAPTCHA Key Length"
+msgstr ""
+
+#, fuzzy
+msgid "CAPTCHA Character Zoom"
+msgstr "Wstaw znak specjalny"
+
+#, fuzzy
+msgid "CAPTCHA Regen Link Text"
+msgstr "Tekst łącza Następna strona"
+
+#, fuzzy
+msgid "Use CAPTCHA Colours"
+msgstr "Użyj wartości domyślnej"
+
+#, fuzzy
+msgid "CAPTCHA Background Colour"
+msgstr "Kolor tekstu"
+
+#, fuzzy
+msgid "CAPTCHA Text Colour"
+msgstr "Kolor tekstu"
+
+#, fuzzy
+msgid "CAPTCHA Border Colour"
+msgstr "Kolor tekstu"
+
+#, fuzzy
+msgid "Use CAPTCHA Font"
+msgstr "Użyj wartości domyślnej"
+
+msgid "CAPTCHA Font"
+msgstr ""
+
+#, fuzzy
+msgid "CAPTCHA Font Size"
+msgstr "Rozmiar"
+
+#, fuzzy
+msgid "CAPTCHA Width"
+msgstr "szerokość"
+
+#, fuzzy
+msgid "CAPTCHA Height"
+msgstr "Wysokość"
+
+#, fuzzy
+msgid "CAPTCHA Min Angle"
+msgstr "min"
+
+#, fuzzy
+msgid "CAPTCHA Max Angle"
+msgstr "Wiersze maks."
+
+msgid "CAPTCHA X Start"
+msgstr ""
+
+#, fuzzy
+msgid "CAPTCHA Min Distance"
+msgstr "min"
+
+#, fuzzy
+msgid "CAPTCHA Max Distance"
+msgstr "Wiersze maks."
+
+#, fuzzy
+msgid "Use CAPTCHA Arc"
+msgstr "Użyj wartości domyślnej"
+
+#, fuzzy
+msgid "CAPTCHA Arc Colour"
+msgstr "Kolor tekstu"
+
+msgid "Include Uppercase Letters in CAPTCHA Text"
+msgstr ""
+
+msgid "Include Numbers in CAPTCHA Text"
+msgstr ""
+
+msgid "Captcha Invalid Error Message"
+msgstr ""
+
+msgid "Captcha Required Form Error Message"
+msgstr ""
+
+#, fuzzy
+msgid "Captcha Label Text"
+msgstr "Zastąp tekst"
+
+msgid "Multi-Page?"
+msgstr ""
+
+#, fuzzy
+msgid "Next Page Button Text"
+msgstr "Tekst łącza Następna strona"
+
+#, fuzzy
+msgid "Previous Page Button Text"
+msgstr "Tekst łącza Poprzednia strona"
+
+#, fuzzy
+msgid "Save Button Text"
+msgstr "Tekst do przycisku Wyślij"
+
+#, fuzzy
+msgid "Save and Exit Button Text"
+msgstr "Tekst do przycisku Wyślij"
+
+msgid "Page List Entry Format"
+msgstr ""
+
+msgid "\"Unattached Questions\" Page Name"
+msgstr ""
+
+msgid "Confirmation Page Name"
+msgstr "Nazwa strony potwierdzenia"
+
+msgid "Save Confirmation Text"
+msgstr ""
+
+msgid "Allow Public Incomplete Submission"
+msgstr ""
+
+#, fuzzy
+msgid "Public User Email Question"
+msgstr "Aktualny użytkownik %s użytkownikiem publicznym"
+
+msgid "Submission Retrieval Email Format"
+msgstr ""
+
+msgid "Submission Retrieval Message Format"
+msgstr ""
+
+msgid "Password Verification Form Format"
+msgstr ""
+
+msgid "Incorrect Password Message"
+msgstr "Nieprawidłowe wiadomość hasła"
+
+msgid "Form Width"
+msgstr "Szerokość formy"
+
+#, fuzzy
+msgid "Submit Button Extras"
+msgstr "Przycisk Wyślij"
+
+#, fuzzy
+msgid "Reset Button Extras"
+msgstr "Tekst do przycisku Resetuj"
+
+msgid "Use Mollom Spam Check"
+msgstr ""
+
+msgid "Questions To Check"
+msgstr "Pytania do sprawdzenia"
+
+#, fuzzy
+msgid "Unsure Error Message"
+msgstr ""
+
+msgid "Spam Error Message"
+msgstr "Treść błędu o spamie"
+
+#, fuzzy
+msgid "CAPTCHA Incorrect Text"
+msgstr "Zastąp tekst"
+
+#, fuzzy
+msgid "CAPTCHA Label Text"
+msgstr "Zastąp tekst"
+
+msgid "Form Submission URL"
+msgstr "Adres URL przesyłania formularza"
+
+#, fuzzy
+msgid "Use reCAPTCHA"
+msgstr "Użyj wartości domyślnej"
+
+msgid "Theme"
+msgstr "Motyw"
+
+msgid "Error Message"
+msgstr "Wiadomość o błędzie"
+
+msgid "Field Id"
+msgstr "Nr ID pola"
+
+msgid "Field Class"
+msgstr "Klasa pola"
+
+msgid "Time Period"
+msgstr "Czas"
+
+msgid "If you reorder or delete questions, you must commit the changes before they will take effect."
+msgstr ""
+
+msgid "Select the question type and the number of questions to add."
+msgstr ""
+
+msgid "Enter names for new sections you want to add."
+msgstr ""
+
+msgid "Click on a section's name to display that section."
+msgstr ""
+
+msgid "Enable this option to output WCAG 2.0 accessible HTML content on the form, rather than the standard tabular format."
+msgstr ""
+
+msgid "HTML included in label to indicate the question is required."
+msgstr ""
+
+msgid "The meaning of required field mark is defined at the start of form."
+msgstr ""
+
+msgid "If \"Yes\", a confirmation page will appear after the form (or the last page) is completed, but before the form as a whole is fully submitted. This will allow the form's users to confirm that they have filled all parts of the form correctly, before they submit the form."
+msgstr ""
+
+msgid "When bodycopy is not used, a default style will be used."
+msgstr ""
+
+msgid "This button text is used for the \"submit button\" keyword on the last page of the form. If no custom text is entered here, \"Submit\" will be used."
+msgstr ""
+
+msgid "If no custom text is entered here, \"Reset\" will be used."
+msgstr ""
+
+msgid "Question notes (if any) will be displayed at this size."
+msgstr ""
+
+msgid "Adding extra attributes to the Form HTML Tag.e.g autocomplete=\"off\"."
+msgstr ""
+
+msgid "Server-side validation is always used to trap invalid input, after the form is submitted. Turn on client-side validation to provide an extra layer of validation that is executed at the browser level, before the form is submitted. Note that most but not all browsers support client-side validation."
+msgstr ""
+
+msgid "The %form_errors_message% keyword will be replaced with this text if there are submission errors."
+msgstr ""
+
+msgid "If set only this many submissions will be allowed. Once the number of submissions is reached, the 'submissions_exhausted' bodycopy will be displayed. Default value is 0 this disables the feature and limit is imposed on the number of submissions."
+msgstr ""
+
+msgid "This text will be used by Matrix to show error when the submission limit has been reached while the form was still being filled in by user."
+msgstr ""
+
+msgid "If set to \"Yes\", Form Submission assets created by this form will only be accessible by users with admin permissions. Read and Write permission settings will be ignored and users with those permissions will not be able to view or edit the Form Submission assets."
+msgstr ""
+
+msgid "CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included on one page for form submissions to be accepted. If no bodycopies are customised, it will appear on the last page of the form."
+msgstr ""
+
+msgid "If this option is enabled, an interface will be provided for an accessible CAPTCHA which requires the input of an email address to provide a validation email."
+msgstr ""
+
+msgid "Number of characters in the CAPTCHA key."
+msgstr ""
+
+msgid "Easier reading with zoomed text."
+msgstr ""
+
+msgid "This text will appear when the %form_captcha_link% keyword is used."
+msgstr ""
+
+msgid "If this option is enabled, the CAPTCHA Background, Text and Border colours specified below will be used when rendering the CAPTCHA element."
+msgstr ""
+
+msgid "This background colour is only used when the contents bodycopy is customised with captcha keywords."
+msgstr ""
+
+msgid "This text colour is only used when the contents bodycopy is customised with captcha keywords."
+msgstr ""
+
+msgid "This border colour is only used when the contents bodycopy is customised with captcha keywords."
+msgstr ""
+
+msgid "If this option is set to yes the CAPTCHA will use the true type font specified below rather than the default GD font. Using a CAPTCHA font gives you complete control over your CAPTCHA image.  This means that you must control the height and width of your CAPTCHA image as well as letter spacing."
+msgstr ""
+
+msgid "Choose a font file on your current system to be used as the captcha font."
+msgstr ""
+
+msgid "This will be used in place of the zoom option when using true type fonts."
+msgstr ""
+
+msgid "The width of the CAPTCHA image.  Be sure to account for character angle, x-start and character spacing."
+msgstr ""
+
+msgid "The height of the CAPTCHA image.  This value to be slightly higher than your font size."
+msgstr ""
+
+msgid "The minimum angle that will be used for the CAPTCHA text.  This can also be a negative value."
+msgstr ""
+
+msgid "The maximum angle that will be used for the CAPTCHA text."
+msgstr ""
+
+msgid "The x-position on the image where letters will begin to be drawn."
+msgstr ""
+
+msgid "The minimum distance between each character."
+msgstr ""
+
+msgid "The maximum distance between each character."
+msgstr ""
+
+msgid "If this option is set to yes the CAPTCHA will generate arced lines across text, adding an additional security measure. Please note that this item is available only when a \"CAPTCHA Font\" is specified."
+msgstr ""
+
+msgid "This value will change the CAPTCHA arc colour. Please note that this item is available only when a \"CAPTCHA Font\" is specified."
+msgstr ""
+
+msgid "If this option is enabled, the generated CAPTCHA will contain at least one uppercase letter."
+msgstr ""
+
+msgid "If this option is enabled, the generated CAPTCHA will contain at least one number."
+msgstr ""
+
+msgid "Custom error message if CAPTCHA entered at current page is incorrect."
+msgstr ""
+
+msgid "Custom error message if valid CAPTCHA is not found for entire form submission."
+msgstr ""
+
+msgid "Custom the text of label for CAPTCHA input field."
+msgstr ""
+
+msgid "If \"Yes\", then each section directly linked underneath this form will become one page, ordered by how they are ordered in the Asset Map. Unattached questions, if any, will be placed on one additional page before any sections are displayed. If \"No\", all questions will appear on one page."
+msgstr ""
+
+msgid "On multi-page forms, the Submit keyword will be replaced with the Next Page button if it is not the last page. If no custom text is entered here, \"Next Page\" will be used."
+msgstr ""
+
+msgid "This button returns you to the previous page in a multi-page form. If <strong>Multi-Page</strong> and <strong>Use Confirmation Page</strong> are both turned off, no Previous Page button will be displayed, and its keyword will be blanked out. If no custom text is entered here, \"Previous Page\" will be used."
+msgstr ""
+
+msgid "This button saves the data on the current page, but remains on the same page for further editing. If no custom text is entered here, \"Save\" will be used."
+msgstr ""
+
+msgid "This button only appears when the \"Exit Page Contents\" bodycopy is customised, thereby enabling the \"Save and Exit\" feature. If no custom text is entered here, \"Save and Exit\" will be used."
+msgstr ""
+
+msgid "This setting allows you to customise how each page is displayed in the page list. The following keywords are allowed"
+msgstr ""
+
+msgid "The name that \"page name\" keywords return for the \"Unattached Questions\" page (if any questions have been created directly on this form)."
+msgstr ""
+
+msgid "The name that \"page name\" keywords return for the Confirmation page, if enabled."
+msgstr ""
+
+msgid "This text is accessible through the %save_confirmation% keyword, to be used on a Page Contents or page format bodycopy when a user clicks on the \"Save\" button. If omitted, a default message (\"Your progress has been saved\") will be used."
+msgstr ""
+
+msgid "Whether to allow Public User to save their form submission progress. Useful in the multi-page form."
+msgstr ""
+
+msgid "The address entered in response to this question will regarded as the Public User's authorised email. If not set, no email notification/reminder will be sent to the Public User."
+msgstr ""
+
+msgid "<p>This email will be sent to the Public User after they save the submission. The following keywords are available:</p"
+msgstr ""
+
+msgid "Text format to display the form submission retrieval information. This text is accessible through the %submission_access_info% keyword, to be used on a Page Contents or Page Format bodycopy when a user clicks on the \"Save\" button. Keywords available are same as in \"Submission Retrieval Email Format\"."
+msgstr ""
+
+msgid "<p>This form will be presented to the public user, when trying retrive the previously saved incomplete submission. Additional to the \"Public User Email Question\" keywords, following keywords are available:</p"
+msgstr ""
+
+msgid "Submit button text in the Public User password verification form. If no custom text is entered here, \"Submit\" will be used."
+msgstr ""
+
+msgid "Error message to display when the password entered by the Public User is incorrect. If empty \"Invalid password\" will be used."
+msgstr ""
+
+msgid "The width options apply only if you use the 'Form Contents' (<b>%form_contents%</b>) keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set."
+msgstr ""
+
+msgid "The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage."
+msgstr ""
+
+msgid "The width of the column for question names. This can be a number of pixels or a percentage of the form width."
+msgstr ""
+
+msgid "The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width."
+msgstr ""
+
+msgid "Allows you to add extra HTML attributes to the Submit button, such as JavaScript code or custom CSS classes. Note that if a custom class is specified (eg. <em>class=\"css-class-name\"</em>), it will override any default styling for form fields."
+msgstr ""
+
+msgid "Allows you to add extra HTML attributes to the Reset button, such as JavaScript code or custom CSS classes. Note that if a custom class is specified (eg. <em>class=\"css-class-name\"</em>), it will override any default styling for form fields."
+msgstr ""
+
+msgid "Mollom is an external tool which can filter out the submission made by an automated agent. If it is unsure it will use CAPTACHA to verify the legit submission. If this option is set to 'yes', %form_mollom_captcha% or %form_mollom_captcha_image% plus %form_mollom_captcha_field% and %form_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted. API keys can be set in External Tools Configuration."
+msgstr ""
+
+msgid "Select the question to check for spam."
+msgstr ""
+
+msgid "Error message to display when Mollom is unsure whether a submission is spam and asks user to verify the submission's legitimacy by entering the CAPTCHA value."
+msgstr ""
+
+msgid "Error message to dispay when Mollom identifies a submission as spam."
+msgstr ""
+
+msgid "Error message to dispay when user enters incorrect CAPTCHA value."
+msgstr ""
+
+msgid "This text will appear when the %form_mollom_captcha_regen_link% keyword is used."
+msgstr ""
+
+msgid "This text will appear as a label for CAPTCHA input box."
+msgstr ""
+
+msgid "If this option is set to 'yes', %form_recaptcha% keyword must be included in form content. API keys needs to be set in External Tools Configuration."
+msgstr ""
+
+msgid "Standard theme to use for printing the reCAPTCHA box."
+msgstr ""
+
+msgid "Error message to dispay if reCAPTCHA validation fails."
+msgstr ""
+
+msgid "Honeypot input field name. %form_honeypot_field% keyword needs to be included in form content to include the Honeypot question in the output."
+msgstr ""
+
+#, fuzzy
+msgid "Honeypot input field id."
+msgstr "Pole danych wejściowych dla %s"
+
+msgid "Honeypot input field CSS class name."
+msgstr ""
+
+msgid "Error message to display if the Honeypot validation fails."
+msgstr ""
+
+msgid "Estimated minimum time (in seconds) required by a user to complete the form. If the form gets submitted before the submission time threshold, the submission will not be accepted. If empty or set to '0', the submission time check will be ignored."
+msgstr ""
+
+msgid "Error message to display if the time requirement check fails."
+msgstr ""
+
+#, fuzzy
+msgid "Send Reminder Email After"
+msgstr "Nie można wysłać e-maila weryfikującego"
+
+msgid "Expire Submissions After"
+msgstr ""
+
+msgid "Logged User Email Format"
+msgstr ""
+
+#, fuzzy
+msgid "Public User Email Format"
+msgstr "Aktualny użytkownik %s użytkownikiem publicznym"
+
+msgid "A reminder email will be triggered when an incomplete submission has existed for longer than this time period. Set to zero (0) to disable. If this period is shorter than the <em>Expire Submissions After</em> setting, then no reminder emails will be sent."
+msgstr ""
+
+msgid "Incomplete submissions will be deleted when they have existed in the system beyond the set time period. Set to zero (0) to disable."
+msgstr ""
+
+msgid "For the settings on this page to take effect, the Scheduled Jobs Manager must be properly set up by a system administrator. Forms will be inspected by the  on each run of the Scheduled Jobs Manager."
+msgstr ""
+
+msgid "<p>This email will be sent when an incomplete submission (created by a <strong>Logged User</strong>) has been in the system for longer than the <em>Send Reminder Email After</em> period. If the User that created the submission has an email address set, this email will be sent to them. You can also specify additional recipients of the email by entering valid email addresses into the <em>To:</em> field, or selecting User or User Group assets with the Asset Finder.</p"
+msgstr ""
+
+msgid "<p>This email will be sent when an incomplete submission (created by a <strong>Public User</strong>) has been in the system for longer than the <em>Send Reminder Email After</em> period. Since the Public User account does not has any email address set, the email will be sent to the email address saved in the submission itself, as configured in the \"Public User Incomplete Submission\" section in the \"Form Contents\" screen. You can also specify additional recipients of the email by entering valid email addresses into the <em>To:</em> field, or selecting User or User Group assets with the Asset Finder.</p"
+msgstr ""
+
+#, fuzzy
+msgid "Recipient Email Format"
+msgstr "Adresat"
+
+#, fuzzy
+msgid "Receipt Recipient Question"
+msgstr "Adresat"
+
+msgid "Receipt Email Format"
+msgstr ""
+
+#, fuzzy
+msgid "STAF Recipient Question"
+msgstr "Adresat"
+
+msgid "STAF Email Format"
+msgstr ""
+
+msgid "If the 'To' field is empty then no Recipient e-mails will be sent. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:<br /"
+msgstr ""
+
+msgid "The address entered in response to this question will always receive Receipt e-mails. You may select from questions of Email Address type only. If this attribute is not filled no Receipt e-mails will be sent."
+msgstr ""
+
+msgid "Note that the receipt will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:<br /"
+msgstr ""
+
+msgid "The email address(es) entered in response to the question selected will always receive Send to a Friend emails. This question can either be of Email Address type or a standard Text field - multi-line Text fields are acceptable and can be used to specify multiple e-mail addresses on each line. If this attribute is not filled no Send to a Friend emails will be sent."
+msgstr ""
+
+msgid "You can use the 'To' address to specify additional email addresses that the email should be sent to, in addition to what is entered in the question specified above. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:<br /"
+msgstr ""
+
+#, fuzzy
+msgid "Log Submissions"
+msgstr "Log"
+
+#, fuzzy
+msgid "Date Range"
+msgstr "Zakres dat"
+
+#, fuzzy
+msgid "Items per Page"
+msgstr "Liczba elementów na stronę"
+
+msgid "Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit. <strong>Only completed submissions will be listed here.</strong>"
+msgstr ""
+
+#, fuzzy
+msgid "Apply Rule To"
+msgstr "Linijka pozioma"
+
+#, fuzzy
+msgid "Add Rule Part"
+msgstr "Linijka pozioma"
+
+msgid "Check this box to create a new, empty Selective Email rule"
+msgstr ""
+
+msgid "Only valid rules (marked with a tick in the Valid column) can be processed. To be valid a rule must consist of at least one part, and must specify an email address(es) to send the Selective Email to"
+msgstr ""
+
+msgid "You can send emails to more than one recipient by separating email addresses with white space, a comma or a semi-colon"
+msgstr ""
+
+msgid "Select the form question asset that this rule part will apply to"
+msgstr ""
+
+msgid "Task Name"
+msgstr "Nazwa zadania"
+
+msgid "Send Logs Since"
+msgstr "Prześlij logi od daty"
+
+msgid "Start Date"
+msgstr "Data rozpoczęcia"
+
+msgid "Log Format"
+msgstr "Format logu"
+
+msgid "CSV Delimiter"
+msgstr "Ogranicznik CSV"
+
+msgid "Email Format"
+msgstr ""
+
+msgid "Specify from which date to send the submission logs of -- either from the allocated Start Date or from when the cron job was last run"
+msgstr ""
+
+msgid "Send the submissions since the specified date"
+msgstr ""
+
+#, fuzzy
+msgid "Static Root Node"
+msgstr "Dostarcziny dynamiczny węzeł nawigacyjny (nr ID: #%1$s) jest w niedozwolonej części systemu. Przywracanie domyślnego węzła statycznego. Patrz element (nr ID: #%2$s)"
+
+#, fuzzy
+msgid "Dynamic Root Node"
+msgstr "Dostarcziny dynamiczny węzeł nawigacyjny (nr ID: #%1$s) jest w niedozwolonej części systemu. Przywracanie domyślnego węzła statycznego. Patrz element (nr ID: #%2$s)"
+
+#, fuzzy
+msgid "Map Format"
+msgstr "Format kalendarza"
+
+#, fuzzy
+msgid "Number of Columns"
+msgstr "Numer portu serwera proxy"
+
+#, fuzzy
+msgid "Number of Levels"
+msgstr "Maksymalna liczba wyświetlanych poziomów w selektorze lokalizacji."
+
+#, fuzzy
+msgid "Print Stalks"
+msgstr "Wydrukować?"
+
+#, fuzzy
+msgid "Print Stalks at The Top Level"
+msgstr "Pokaż najwyżej umieszony element w selektorze"
+
+#, fuzzy
+msgid "Print Asset Icons"
+msgstr "Wydrukować?"
+
+msgid "Show TYPE_2 Links"
+msgstr ""
+
+msgid "Show Dependant Assets"
+msgstr ""
+
+#, fuzzy
+msgid "Exclude Asset List"
+msgstr "Godzina wykluczenia OD nie może być taka sama jak DO."
+
+msgid "Include Type List"
+msgstr ""
+
+#, fuzzy
+msgid "Display Formats"
+msgstr "Brak zdefiniowanych formatów niestandardowych"
+
+msgid "Leave blank to print the site map for the current site"
+msgstr ""
+
+msgid "Format in which the Site Map is to be displayed. Note stalks are useless in 'Unordered List' format"
+msgstr ""
+
+msgid "Enter 0 for all levels"
+msgstr ""
+
+msgid "Dependant assets generally include type formats, or page bodycopies."
+msgstr ""
+
+msgid "Assets within this list are excluded from the site map"
+msgstr ""
+
+msgid "Asset types within this list are included in the site map. If nothing is selected all asset types will be included."
+msgstr ""
+
+msgid "Change the display format of asset types using html and keywords."
+msgstr ""
+
+#, fuzzy
+msgid "Show Error"
+msgstr "BŁĄD: nie można zainicjować IFRAME."
+
+#, fuzzy
+msgid "Check Browser Session"
+msgstr "Czas wygaśnięcia pamięci podręcznej przeglądarki"
+
+#, fuzzy
+msgid "Auto Complete Password"
+msgstr "Automatyczne odświeżanie"
+
+msgid "Note that the password reset request email will always be sent to the user who has requested to have their password reset. You can use the 'To' address to specify additional email address that the notification should be additionally sent to. You may use any of the user keywords in  any of the above fields. You may also specify: fields:<br /"
+msgstr ""
+
+msgid "Setting this option to \"yes\" will display an error message if the user submits a non-existent username for the password reset request."
+msgstr ""
+
+msgid "Force user to open the reset link in the same browser session in which the password reset was requested. This measure is in place to ensure that no other users on the same email address will be able to complete the password reset request on your account."
+msgstr ""
+
+msgid "If set to 'Disable', the login forms will allow, browsers which support the attribute, to populate the password field on login screen."
+msgstr ""
+
+msgid "Defines the name of the question group"
+msgstr ""
+
+msgid "Score ranges can be categorised in this section, by specifying a category name and a score range. For example: A range named \"Low\" may correspond to a Question Group score of between 0 and 10 points. The score ranges are inclusive and can be closed (eg; between 0 and 10) or open-ended (eg; 10 or higher) - this is achieved by omitting a number from the open end of the score range."
+msgstr ""
+
+msgid "Supplementary content related to Score Categories (specified above) can be provided in this section. This content is intended as a general overview of the score obtained for the Question Group upon completion of the Quiz. A keyword is provided in the \"Thank You\" bodycopy to print the applicable content for the Group."
+msgstr ""
+
+#, fuzzy
+msgid "Interactive Mode"
+msgstr "Tryb wysyłania wiadomości masowych"
+
+msgid "Quiz repeatable?"
+msgstr ""
+
+#, fuzzy
+msgid "Post-Quiz Action"
+msgstr "Poczta"
+
+msgid "Use Client-side Validation?"
+msgstr ""
+
+#, fuzzy
+msgid "Log submissions?"
+msgstr "Log"
+
+#, fuzzy
+msgid "Score Format"
+msgstr "Format kalendarza"
+
+msgid "Question Pools"
+msgstr ""
+
+msgid "Question Pool Setup"
+msgstr ""
+
+#, fuzzy
+msgid "Question Option Format"
+msgstr "Format kalendarza"
+
+#, fuzzy
+msgid "Number of questions"
+msgstr "Numer portu serwera proxy"
+
+msgid "Question Pool"
+msgstr ""
+
+#, fuzzy
+msgid "Root Node Logic"
+msgstr "Pokaż węzeł główny"
+
+#, fuzzy
+msgid "Minimum Depth/Height"
+msgstr "Wysokość"
+
+#, fuzzy
+msgid "Maximum Depth/Height"
+msgstr "Maksymalna głębokość"
+
+#, fuzzy
+msgid "Link Types"
+msgstr "Ten rodzaj preferencji umożliwia dostosowanie wzorów używanych do protokołów (lub rodzajów łączy) wyświetlanych w oknie podręcznym wstawiania łącza."
+
+#, fuzzy
+msgid "User Details Source"
+msgstr "Szczegóły"
+
+msgid "Results Email Format"
+msgstr ""
+
+#, fuzzy
+msgid "Submit Question Button Text"
+msgstr "Tekst do przycisku Wyślij"
+
+#, fuzzy
+msgid "Retry Button Text"
+msgstr "Tekst do przycisku Wyślij"
+
+#, fuzzy
+msgid "Next Button Text"
+msgstr "Tekst łącza Następna strona"
+
+msgid "If enabled, bypasses the listing engine, displaying one question per page, providing feedback and allowing retries."
+msgstr ""
+
+msgid "Determines whether or not the quiz can be retaken once the user has completed the test once."
+msgstr ""
+
+msgid "Choose whether or not to show the \"Thank You\" page when the quiz is completed."
+msgstr ""
+
+msgid "Warns the user with a popup when they submit the quiz if some questions have invalid or empty answers."
+msgstr ""
+
+msgid "When enabled, User Details and Quiz responses will be logged. These logs will then be available for export from the \"Submission Logs\" screen."
+msgstr ""
+
+msgid "Score format used for %quiz_score% keyword and for Score field in Submission Logs. Available keywords: <br /"
+msgstr ""
+
+msgid "Select the root nodes to extract Online Quiz Multiple-Choice Questions from."
+msgstr ""
+
+msgid "Number of questions under each 'Pool Node' should be greater than or equal to the 'Pool Size' plus ('Pool Size' times the 'Retries per Question'). <br /"
+msgstr ""
+
+msgid "This is an <b>optional</b> format which only applies to the Online Quiz Multiple-Choice Question Radio Button/Checkbox Option Style.<br /"
+msgstr ""
+
+msgid "The number of questions to be drawn from the question pool (see below).<br />Set to '0' (zero) to draw all the available assets from the question pool."
+msgstr ""
+
+msgid "Assets will only be shown if their status is listed here"
+msgstr ""
+
+msgid "Select the root node of a group of question assets to draw from when selecting questions to appear in the quiz. Leave blank to list the sub assets/children of this quiz asset."
+msgstr ""
+
+msgid "Defines how assets are managed when there is more than one root node displayed (either selected above, or through a replacement root node setting). If there is only one root node selected, then this option has no effect."
+msgstr ""
+
+msgid "This optional setting only applies when <em>Direct Links Only</em> is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'."
+msgstr ""
+
+msgid "This optional setting only applies when <em>Direct Links Only</em> is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'."
+msgstr ""
+
+msgid "This setting only applies when <em>Direct Links Only</em> is turned on.  Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links."
+msgstr ""
+
+msgid "Select where to draw user details (eg. name, email) from. Note that any non-logged in users will be presented with the user details form regardless of this setting."
+msgstr ""
+
+msgid "The format for the results email sent once a quiz has been completed. Leave \"To:\" blank to disable the sending of the results email.<br /"
+msgstr ""
+
+#, fuzzy
+msgid "A standard list displays all assets on a single page or can be broken up into multiple pages"
+msgstr "Standardowe lista wyświetla wszystkie elementy na jednej stronie albo można ją podzielić na wiele stron"
+
+msgid "Set to '0' (zero) to list all assets on the same page.<br/><b>NOTE:</b> This option is only valid when using the standard or custom grouping list formats..<br/>If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).<br />Keywords can be used to dynamically set the number of items on the page."
+msgstr ""
+
+msgid "This is the format of a linked page number in pagination. Available keywords are %page_link%, %page_number%"
+msgstr ""
+
+msgid "This is the format of current page number in pagination. Available keyword is %page_number%"
+msgstr ""
+
+msgid "Further information which may be displayed alongside the question during the Quiz, or within the Quiz results."
+msgstr ""
+
+#, fuzzy
+msgid "Export Fields"
+msgstr "Puste pola"
+
+msgid "Expand Sections"
+msgstr ""
+
+msgid "Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit"
+msgstr ""
+
+#, fuzzy
+msgid "Option Style"
+msgstr "Styl wyświetlania"
+
+#, fuzzy
+msgid "Maximum number of option selections"
+msgstr "Maksymalna liczba wyświetlanych poziomów w selektorze lokalizacji."
+
+msgid "Forfeit Penalty"
+msgstr ""
+
+msgid "Supplementary content related to a Question Option (specified above) can be provided in this section. This content is intended to provide further information related to a Question Option to be shown upon completion of the Quiz. This content can be printed in the \"Thank You\" bodycopy."
+msgstr ""
+
+msgid "Defines the maximum number of options a user can select when answering this question without forfeiting points."
+msgstr ""
+
+msgid "The number of points a user will lose if they forfeit this question (ie. selected too many options, or didn't answer the question)."
+msgstr ""
+
+#, fuzzy
+msgid "Location Selector Width"
+msgstr "Szerokość selektora lokalizacji"
+
+#, fuzzy
+msgid "Location Selector Height"
+msgstr "Wysokość selektora lokalizacji"
+
+#, fuzzy
+msgid "Maximum Depth"
+msgstr "Maksymalna głębokość"
+
+#, fuzzy
+msgid "Show Root Node"
+msgstr "Pokaż węzeł główny"
+
+#, fuzzy
+msgid "Listing Style"
+msgstr "Styl wyświetlania"
+
+#, fuzzy
+msgid "Text for the submit button"
+msgstr "Tekst do przycisku Wyślij"
+
+msgid "Select which type of links to create and modify on the frontend."
+msgstr ""
+
+#, fuzzy
+msgid "Width in Pixels. 0 width will size the selector based on contents."
+msgstr "Szerokość w pikselach. Szerokość 0 dopasuje rozmiar selektora w zależności od treści."
+
+#, fuzzy
+msgid "In entries. 0 height will result in a standard dropdown selector."
+msgstr "XXXX We wpisach. Wysokość 0 sprawi, że pojawi się standardowy, rozwijany selektor."
+
+#, fuzzy
+msgid "Maximum number of levels to display in the location selector."
+msgstr "Maksymalna liczba wyświetlanych poziomów w selektorze lokalizacji."
+
+#, fuzzy
+msgid "This text will be displayed between levels in the selector."
+msgstr "Ten tekst pojawi się pomiędzy poziomami w selektorze."
+
+#, fuzzy
+msgid "Show the top level asset in the selector"
+msgstr "Pokaż najwyżej umieszony element w selektorze"
+
+#, fuzzy
+msgid "Allow the selection of multiple new links at once"
+msgstr "Zezwalaj na zaznaczenie wielu nowych łączy jednocześnie"
+
+#, fuzzy
+msgid "Style to display for selections"
+msgstr "XXXX Styl do wyświetlenia dla zaznaczeń"
+
+#, fuzzy
+msgid "Asset Types to Create"
+msgstr "Rodzaje elementów"
+
+#, fuzzy
+msgid "Create Status"
+msgstr "Status"
+
+#, fuzzy
+msgid "Metadata Schemas to Apply"
+msgstr "Metadane"
+
+msgid "Set Link Value"
+msgstr ""
+
+msgid "Paint Layout to Apply"
+msgstr ""
+
+msgid "Override Paint Layout to Apply"
+msgstr ""
+
+#, fuzzy
+msgid "Create Form Customisation"
+msgstr "Adres URL przesyłania formularza"
+
+#, fuzzy
+msgid "Attributes To Check"
+msgstr "Sprawdź pisownię"
+
+#, fuzzy
+msgid "Captcha Incorrect Text"
+msgstr "Zastąp tekst"
+
+msgid "Note that the Asset Builder will attempt to change status AFTER any 'asset created' triggers are run. If these triggers involve changing the status of an asset automatically, you should use the 'Do not change status' option. With this option, the Asset Builder will not attempt to change the status of the asset. If nothing else changes the status of the asset, the status will default to Under Construction."
+msgstr ""
+
+msgid "These metadata schemas will be applied to created assets.  Values for these schemas' fields may be supplied by the user when creating the asset.  By default, the complete interface for these schemas, exactly as it would appear in the administration interface, will be printed above the default create form for each asset type.  It is recommended that the create form be customised (see below) so that the individual fields can be laid out appropriately within the form using %metadata-F_(fieldid)% keywords."
+msgstr ""
+
+msgid "If this option is enabled, link permissions will not be checked when creating the asset. Otherwise, users must have permission to create assets in the create locations specified."
+msgstr ""
+
+msgid "If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the form should submit to the same URL it's displayed at, or to this page's own URL."
+msgstr ""
+
+msgid "If this option holds a value, each link will be created with the value. If this option is left blank, then each link will be created without a value"
+msgstr ""
+
+msgid "You may select a paint layout to apply to newly created assets. This paint layout is an asset based layout which means it will be applied to all URLs of the asset and will be inherited by all of its children."
+msgstr ""
+
+msgid "You may select an override paint layout to apply to newly created assets. This paint layout is an asset based override layout which means it will be applied to all URLs of the asset but will not be inherited by any of its children."
+msgstr ""
+
+msgid "If an asset type is selected for create form customisation, a layout asset will be created under this page and will be be used when displaying the create form for that asset type.  Fields from the details or metadata screens may be included in the layout."
+msgstr ""
+
+msgid "CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included for form submissions to be accepted."
+msgstr ""
+
+msgid "Number of characters in the CAPTCHA key"
+msgstr ""
+
+msgid "Each character will be randomly zoomed between x1 and this figure."
+msgstr ""
+
+msgid "Customise the text of label for CAPTCHA input field."
+msgstr ""
+
+msgid "Mollom is an external tool which can filter out the submission made by an automated agent. If it is unsure it will use CAPTCHA to verify the legit submission. If this option is set to 'yes', %asset_builder_mollom_captcha% or %asset_builder_captcha_image% plus %asset_builder_mollom_captcha_field% and %asset_builder_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted. API keys can be set in External Tool Configuration."
+msgstr ""
+
+msgid "Select the asset attribute to check for spam"
+msgstr ""
+
+msgid "Error message to display when Mollom is unsure whether a submission is spam and asks user to verify the submission's legitimacy by entering the CAPTCHA value"
+msgstr ""
+
+msgid "Error message to dispay when Mollom identifies a submission as spam"
+msgstr ""
+
+msgid "Error message to dispay when user enters incorrect captcha value"
+msgstr ""
+
+msgid "This text will appear when the %asset_builder_mollom_captcha_regen_link% keyword is used."
+msgstr ""
+
+msgid "If this option is set to 'yes', %form_recaptcha% keyword must be included in form content. API keys needs to be set in External Tools Configuration"
+msgstr ""
+
+msgid "Standard theme to use for printing the reCAPTCHA box"
+msgstr ""
+
+msgid "Error message to dispay if reCAPTCHA validation fails"
+msgstr ""
+
+msgid "Honeypot input field name. %form_honeypot_field% keyword needs to be included in form content to include the Honeypot question in the output"
+msgstr ""
+
+#, fuzzy
+msgid "Honeypot input field id"
+msgstr "Pole danych wejściowych dla %s"
+
+msgid "Honeypot input field CSS class name"
+msgstr ""
+
+msgid "Error message to display if the Honeypot validation fails"
+msgstr ""
+
+msgid "Estimated minimum time (in seconds) required by a user to complete the form. If the form gets submitted before the submission time threshold, the submission will not be accepted. If empty or set to '0', the submission time check will be ignored"
+msgstr ""
+
+msgid "Error message to display if the time requirement check fails"
+msgstr ""
+
+msgid "Invite"
+msgstr ""
+
+msgid "This message is displayed above the form used to log into the system"
+msgstr ""
+
+msgid "This message is displayed if the user tried to log into the system but the login failed (probably due to an incorrect username or password)"
+msgstr ""
+
+msgid "This message is displayed above the form used to create a new asset"
+msgstr ""
+
+msgid "This message is displayed if the new asset could not be created"
+msgstr ""
+
+msgid "Additional Location Data Sources"
+msgstr ""
+
+msgid "Default Link Type"
+msgstr "Domyślny rodzaj łącza"
+
+#, fuzzy
+msgid "Permitted Tree Locations"
+msgstr "Nie wybrano lokalizacji z drzewa"
+
+#, fuzzy
+msgid "Permitted Asset Types"
+msgstr "Rodzaje elementów"
+
+msgid "All new assets created will be linked under these assets."
+msgstr ""
+
+msgid "When creating a new asset, the frontend user will be asked to choose a location from the listed options in each of these sets"
+msgstr ""
+
+msgid "When creating a new asset, the frontend user will be asked to chose a location (or locations) from the assets that match the conditions for each of these sets.  (The lists of options are calculated dynamically at run-time so new options will appear automatically)."
+msgstr ""
+
+msgid "New assets will be linked under additional locations according to these rules."
+msgstr ""
+
+msgid "This is an advanced option.  If you specify some data sources to get additional location data from, and the assetids supplied by those data sources at runtime satisfy the conditions above, the created asset will be linked under those locations as well.  Lists of locations can be supplied in the format assetid;assetid;assetid or assetid-linktype;assetid-linktype;"
+msgstr ""
+
+msgid "If the source is either GET or POST, the passed value is the ID of the asset to link the created asset under, optionally followed by the link type (eg. \"145-2\", for an asset to be created under asset #145, with a Type 2 link)."
+msgstr ""
+
+msgid "This value is used for any of the Additional Location Data Sources above that don't specify a link type."
+msgstr ""
+
+msgid "Create locations gathered from the data sources above will only be processed if they or one of their ancestor assets is listed above."
+msgstr ""
+
+msgid "Create locations gathered from the data sources above will only be processed if their asset type or one of its ancestor types is listed above."
+msgstr ""
+
+#, fuzzy
+msgid "Date Field"
+msgstr "Pole metadanych dla daty z nieważną wartością:"
+
+msgid "Link Value Filtering Logic"
+msgstr ""
+
+msgid "Enable Link Value Filtering"
+msgstr ""
+
+#, fuzzy
+msgid "This is the date used to determine if something is \"new\""
+msgstr "Jest to data używana do określenia, jaki przedział dat ograniczyć"
+
+msgid "If set to 'Yes', this asset will not list the Asset thats been currently been accessed."
+msgstr ""
+
+msgid "Leave blank to list the children of this What's New listing page."
+msgstr ""
+
+msgid "Only assets that are linked underneath the root node(s) with the appropriate link types will be listed. The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links. This setting only applies when <b>Direct Links Only</b> is turned on."
+msgstr ""
+
+msgid "This specifies if assets returned should have link value equal or different from the 'Link Value' field. You will need to enable 'Link Value Filtering'."
+msgstr ""
+
+msgid "If set to 'Yes' and lookup direction is set to 'down the tree', only assets with the link value equal to the 'Link Value' field will be returned. If set to 'Yes' and the lookup direction is set as 'up the tree', only parents of children assets with the link value equal to the 'Link Value' field will be returned."
+msgstr ""
+
+#, fuzzy
+msgid "Customise Range"
+msgstr "Dostosuj"
+
+#, fuzzy
+msgid "Add New Range?"
+msgstr "Dodaj nowy nagłówek"
+
+#, fuzzy
+msgid "Date Range Name"
+msgstr "Zakres dat"
+
+#, fuzzy
+msgid "Related Nodes"
+msgstr "Węzły nawigacyjne"
+
+#, fuzzy
+msgid "Thesaurus Filters"
+msgstr "FIltry"
+
+msgid "Only assets that are related to these nodes will be listed. Leave blank to list all assets related to this asset listing."
+msgstr ""
+
+msgid "Only assets that are tagged by terms defined by these thesauruses will be listed. Leave blank to list all the related assets of the related nodes"
+msgstr ""
+
+msgid "Optional setting that defines the minimum number of levels below/above a root node an asset must be to qualify for listing. The immediate child/parent is level '1' for the purposes of this and the Maximum Depth/Height setting. Only makes sense when <b>Direct Links Only</b> is turned off."
+msgstr ""
+
+msgid "Optional setting that defines the maximum number of levels below/above a root node an asset can be to qualify for listing."
+msgstr ""
+
+#, fuzzy
+msgid "Remote URL"
+msgstr "adrs URL"
+
+msgid "Overall Tunneling Rules"
+msgstr ""
+
+#, fuzzy
+msgid "Tunnel Linked Pages?"
+msgstr "Strony docelowe"
+
+msgid "Tunnel Embedded Images?"
+msgstr ""
+
+msgid "Tunnel Other Embedded Media?"
+msgstr ""
+
+msgid "Tunnel Scripts and Style Sheets?"
+msgstr ""
+
+#, fuzzy
+msgid "When Tag(s) Not Found"
+msgstr "Oznaleziono problemowy nr ID adresata: %s."
+
+#, fuzzy
+msgid "Include Start/End Tags?"
+msgstr "Początek i koniec"
+
+msgid "Get content from all occurrences"
+msgstr ""
+
+msgid "Strip Images?"
+msgstr ""
+
+msgid "Tag Replacements"
+msgstr "Zastępstwa tagów"
+
+msgid "Timeout in seconds"
+msgstr "Limit czasu w sekundach"
+
+#, fuzzy
+msgid "Allow Redirects"
+msgstr "Zezwól na wiele?"
+
+#, fuzzy
+msgid "Verify SSL"
+msgstr "Temat e-maila weryfikującego"
+
+#, fuzzy
+msgid "User Name"
+msgstr "Obowiązkowy format każdego wiersza: \"Bulkmail User name, Bulkmail User email address\""
+
+msgid "This is the URL to grab the contents from. Please supply the a complete URL, together with protocol, i.e. http://www.this.com"
+msgstr ""
+
+msgid "If no types of tunneling are enabled, all elements of the remote page are requested directly from the remote server by the browser.  Tunneling can be useful if you are using this page to perform HTTP Authentication on the remote server, or if the target server is configured to only allow access from this matrix server. However, enabling these options may significantly increase the load time of the target page and may increase the traffic on the matrix server."
+msgstr ""
+
+msgid "If this option is enabled, hyperlinks and form-action URLs in the remote page will be rewritten so that the linked-to pages will be requested through this asset just as the original remote page was."
+msgstr ""
+
+msgid "If this option is enabled, URLs in IMAGE and SUBMIT tags, and image URLs referenced in CSS or HTML 'background' declarations, will be rewritten so that the relevant image files will be tunneled through this asset."
+msgstr ""
+
+msgid "If this option is enabled, URLs in EMBED and PARAM tags will be rewritten so that the relevant media files (flash, movies etc) will be tunneled through this asset"
+msgstr ""
+
+msgid "If this option is enabled, URLs in SCRIPT and LINK tags, or next to 'import' directives within STYLE blocks, will be rewritten so that the relevant CSS or Javascript files will be tunneled through this asset."
+msgstr ""
+
+msgid "When filtering content based on Start/End tags, please be aware that complex nested content might not be properly identified, i.e. if there is a table inside a table and you want to capture the top level table, the captured region might start at the right spot, but end when the included table ends, without reaching the end of the top level one."
+msgstr ""
+
+msgid "Content on the remote page will be discarded until this tag is reached. You can use standard HTML elements or define your own tag to use (for example &#38;#60;&#33;-- START --&#62;)."
+msgstr ""
+
+msgid "After the Start Tag has been encountered, all the content on the remote page will be captured until this tag is reached. You can use standard HTML elements or define your own tag to use (for example &#38;#60;&#33;-- END --&#62;). If this tag is not found, everything is captured till the end of page."
+msgstr ""
+
+msgid "This option can be used to determine what is displayed when Start and End Tags are configured for content filtering, but are not present in the remote content."
+msgstr ""
+
+msgid "If start and end tags are specified this switch allows you to specify whether they should be included in the result."
+msgstr ""
+
+msgid "If the required tag has more than one occurrences in the content then setting this to 'Yes' would give you the content of all of the occurrences and to 'No' would give you the content till the occurence of the first end tag"
+msgstr ""
+
+msgid "If you select \"Yes\", all images on the target page will be removed and replaced with their Alt tag values (or word 'Image')"
+msgstr ""
+
+msgid "If the content cannot be retrieved within the specified period, an error message will be displayed. This value must be non-negative. If you try to submit a negative number, it will be changed to the default value."
+msgstr ""
+
+msgid "If enabled, this asset will redirect to the necessary location automatically. It is important to leave this YES in the general case because many sites do silent redirects. If a redirect is required and this is set to NO, you will get an Error Message"
+msgstr ""
+
+msgid "If enabled, the SSL certificate of the remote content page will be verified, if the certificate fails verification an error message will be displayed"
+msgstr ""
+
+msgid "Please note that HTTP Authentication may not properly work in the mixed content environments. This means that although this asset will be able to obtain the bare HTML page from the remote source, the images and other includes will be requested by the web browser (not this asset) so the user will be prompted to authenticate as well. To overcome this issue, you may try tunneling the content (above)."
+msgstr ""
+
+msgid "If not using HTTP authentication, leave this blank."
+msgstr ""
+
+msgid "Password will not be shown"
+msgstr "Hasło nie zostanie pokazane"
+
+msgid "Display Error Message"
+msgstr "Wyświetl wiadomość o błędzie"
+
+msgid "Binary File Message"
+msgstr "Binarna treść pliku"
+
+msgid "Choose whether you want the error message displayed."
+msgstr ""
+
+msgid "This message is displayed if an error occurs while capturing remote content."
+msgstr ""
+
+msgid "Site viewers will see this message if they follow a link to a binary file. Use the %remote_url% keyword replacement to make the url appear in the text of the message."
+msgstr ""
+
+#, fuzzy
+msgid "New ?"
+msgstr "Nowy?"
+
+msgid "Post data with the name(s) and value(s) above will be sent with the request to the Remote URL specified for this asset only."
+msgstr ""
+
+#, fuzzy
+msgid "If dynamic root not found"
+msgstr "Jeśli nie znaleziono dynamicznego węzła głownego"
+
+msgid "If asset selection not specified"
+msgstr ""
+
+msgid "Leave blank to list the children of this asset listing page."
+msgstr ""
+
+msgid "This optional setting only applies when <em>Direct Links Only</em> is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0, will include the root nodes in the results"
+msgstr ""
+
+msgid "This optional setting only applies when <em>Direct Links Only</em> is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0 (with the minimum depth/height set to 0 as well) will only return the root nodes."
+msgstr ""
+
+msgid "The value provided in that field will be used to filter the assets returned. You will need to enable 'Link Value Filtering'."
+msgstr ""
+
+msgid "Group Formats"
+msgstr "Formaty grup"
+
+msgid "Thesaurus Filtering"
+msgstr "Filtrowanie za pomocą Tezaurusa"
+
+msgid "First page only"
+msgstr "Tylko pierwsza strona"
+
+msgid "Maximum Tag Size"
+msgstr "Maksymalny rozmiar tagu"
+
+msgid "You can filter the terms with a specific thesaurus"
+msgstr ""
+
+msgid "If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0, will include the root nodes in the results"
+msgstr ""
+
+msgid "Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links."
+msgstr ""
+
+msgid "Set to '0' (zero) to list all assets on the same page.<br/><b>NOTE:</b> This option is only valid when using the standard or custom grouping list formats"
+msgstr ""
+
+msgid "Set this field to Yes to optimise the search in the case where you are not showing multiple pages"
+msgstr ""
+
+msgid "Determine the maximum value for the %tag_size% keyword in the Term Type Format. This keyword is typically used in conjunction with CSS to create tag clouds."
+msgstr ""
+
+msgid "Multiple Page Page Name"
+msgstr ""
+
+msgid "Current Question"
+msgstr "Aktualne pytanie"
+
+msgid "Add Poll Question"
+msgstr "Dodaj pytanie do głosowania"
+
+msgid "Allow Multiple Voting"
+msgstr "Zezwól na wielokrotne głosowanie"
+
+#, fuzzy
+msgid "Vote Button Label"
+msgstr "Tekst Przycisku Głosuj"
+
+msgid "Previous Questions Link Text"
+msgstr "Tekst łącza Poprzednie pytania"
+
+msgid "View Results Link Text"
+msgstr "Pokaż tekst łącza wyników"
+
+msgid "New Window?"
+msgstr "Otworzyć w nowym oknie?"
+
+msgid "Window Width"
+msgstr "Szerokość okna"
+
+msgid "Window Height"
+msgstr "Wysokość okna"
+
+msgid "Graph Box Width (pixels)"
+msgstr "Szerokość ramki wykresu (piksele)"
+
+msgid "Graph Box Height (pixels)"
+msgstr "Wysokość ramki wykresu (piksele)"
+
+msgid "Graph Bar Colour"
+msgstr "Kolor słupka wykresu"
+
+msgid "Select which poll question you would like displayed."
+msgstr ""
+
+msgid "Add a new poll question to the current poll page."
+msgstr ""
+
+msgid "If this is set to Yes then results will be displayed in a new window."
+msgstr ""
+
+msgid "Poll Question"
+msgstr ""
+
+msgid "Current Options"
+msgstr "Aktualne opcje"
+
+msgid "Add New Options"
+msgstr "Dodaj nowe opcje"
+
+msgid "Delete users"
+msgstr "Usunięci użytkownicy"
+
+msgid "Select the number of options to add"
+msgstr ""
+
+msgid "Delete records of users voting on this poll"
+msgstr ""
+
+msgid "Managed Asset"
+msgstr "Element zarządzany"
+
+msgid "Select an asset for which to manage links. If no asset is selected, the current user will be used instead."
+msgstr ""
+
+msgid "Current Pages"
+msgstr "Aktualne strony"
+
+msgid "Manually Validate"
+msgstr "Weryfikuj ręcznie"
+
+msgid "Type of Account"
+msgstr "Rodzaj konta"
+
+msgid "Enter Simple Edit mode?"
+msgstr "Włączyć tryb edycji uproszczonej?"
+
+msgid "Use Email Validation"
+msgstr "Skorzystaj z weryfikacji mailowej"
+
+msgid "Send Validation Button Text"
+msgstr "Prześlij tekst przycisku weryfikującego."
+
+msgid "Pending Account Re-send Period"
+msgstr ""
+
+msgid "Pending Account Deletion Period"
+msgstr ""
+
+msgid "Post-Login Redirect"
+msgstr "Przekierowanie po zalogowaniu"
+
+msgid "Logged In Bodycopy Customisation"
+msgstr "Dopasowanie Treści głównej po zalogowaniu"
+
+msgid "Select what type of user account you would like to create"
+msgstr ""
+
+msgid "These metadata schemas will be applied to created user assets.  Values for these schemas' fields may be supplied by the user when creating the asset.  By default, the complete interface for these schemas, exactly as it would appear in the administration interface, will be printed above the default create form for the selected user asset type.  It is recommended that the create form be customised (see below) to lay out the metadata fields more appropriately within the form."
+msgstr ""
+
+msgid "By default, the Account Manager automatically switches to Simple Edit mode when a user successfully logs in. This allows the use"
+msgstr ""
+
+msgid "Should the account remain inactive until the user verifies the email address they have given?"
+msgstr ""
+
+msgid "Note that the validation email will always be sent to the user who has signed up for an account. You can use the 'To' address to specify additional email address that the notification should be additionally sent to. You may use the following keywords in any of the above fields:<br /"
+msgstr ""
+
+msgid "Text that will be displayed on the re-send validation email form button"
+msgstr ""
+
+msgid "Period of time a user asset remains in the Pending Accounts folder before the validation email is re-sent. Set to zero (0) to disable"
+msgstr ""
+
+msgid "Period of time a user asset remains in the Pending Accounts folder before the user is deleted. Set to zero (0) to disable"
+msgstr ""
+
+msgid "If you specify an asset here, users will be redirected to that asset after logging in via this page.  Otherwise they will be show the contents of the \"logged in\" bodycopy.  If they are already logged in when they navigate to this page they will always be shown the contents of the \"logged in\" bodycopy, regardless of this setting."
+msgstr ""
+
+msgid "If create form customisation is enabled, a layout asset will be created under this page and will be used when showing the %create_form% keyword in the 'not logged in' bodycopy.  Fields from the user's details or metadata screens may be included in the layout.  Note that the %edit_details_form% keyword in the 'logged in' bodycopy is not affected by this; its presentation is controlled by the layout selected in the layout manager for the user's asset type."
+msgstr ""
+
+msgid "If logged in customisation is enabled, a layout asset will be created under this page and will be used when showing the logged in bodycopy.  Fields from the user's details or metadata screens may be included in the layout."
+msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "Lock Error"
+msgstr "Błąd blokady"
+
+msgid "This message is displayed above the form used to create a new account"
+msgstr ""
+
+msgid "This message is displayed if the new account could not be created"
+msgstr ""
+
+msgid "This message is displayed above the form used to edit the account details of the currently logged in user"
+msgstr ""
+
+msgid "This message is displayed when the user's account has been updated"
+msgstr ""
+
+msgid "This message is displayed when the system cannot lock the current user for editing - probably due to the lock being held by someone else"
+msgstr ""
+
+msgid "This message is displayed if validation email was sent"
+msgstr ""
+
+msgid "This message is displayed if there was an error with sending the validation email"
+msgstr ""
+
+msgid "Permanent Redirect"
+msgstr ""
+
+msgid "or Use query <br /> string parameter?"
+msgstr ""
+
+msgid "URL Suffix"
+msgstr "Sufiks adresu URL"
+
+msgid "Pass through query <br /> string parameters?"
+msgstr ""
+
+msgid "Redirect Timeout"
+msgstr "Limit czasu przekierowania"
+
+msgid "Session Variable Names"
+msgstr ""
+
+msgid "Session Variables"
+msgstr ""
+
+msgid "HTTP 301 response code will be sent to tell user-agents that the location has permanently moved. This is useful for search engines"
+msgstr ""
+
+msgid "%description% (for example, <i>http://matrix.squiz.net/</i>). Global keywords are supported."
+msgstr ""
+
+msgid "%description% <br /"
+msgstr "%description% <br /"
+
+msgid "%description%. Global keywords are supported."
+msgstr ""
+
+msgid "Setting a value greater than 0 in this field will apply a timeout on the redirect page, automatically redirecting a user after the specified period of time has passed (in seconds). This will allow you to, for example, display a redirect message to users through the use of a Paint Layout. Please note that the use of a Paint Layout is required if a timeout has been configured in this field.<br"
+msgstr ""
+
+msgid "The names of the session variables"
+msgstr ""
+
+msgid "This section allows for content to be set from the redirect page into the current session. For example, if you have a web campaign and make this page the target link, then by using the session data, you can change content on the redirected asset based on the campaign."
+msgstr ""
+
+msgid "First Question"
+msgstr "Pierwsze pytanie"
+
+msgid "Add a Question"
+msgstr "Dodaj pytanie"
+
+msgid "Number of Bodycopies"
+msgstr "Liczba treści głównych"
+
+msgid "Points Range"
+msgstr "Zakres punktów"
+
+msgid "You can create up to 10 bodycopies at a time. These will be created under the Result Bodycopies folder."
+msgstr ""
+
+msgid "If the points range is not satisfied, the Default Result Bodycopy will be used"
+msgstr ""
+
+msgid "Question Name"
+msgstr "Nazwa pytania"
+
+msgid "Question Title"
+msgstr "Tytuł pytania"
+
+msgid "Answer Ranges"
+msgstr "Zakresy odpowiedzi"
+
+msgid "Button Value"
+msgstr "Wartość przycisku"
+
+msgid "Answers"
+msgstr "Odpowiedzi"
+
+msgid "Next Questions"
+msgstr "Następne pytania"
+
+msgid "Add A Question"
+msgstr "Dodaj pytanie"
+
+msgid "Enter possible answer ranges. You may leave either the min or max empty to use only one side of the operator."
+msgstr ""
+
+msgid "This is name of the submit button that will be displayed next to the question"
+msgstr ""
+
+msgid "If you choose an existing question which is not an immediate child of this question, a new link will be created under this question. Specifying the Next Question will override the use of Result Bodycopies. Do not specify a Result Bodycopy if you want to use the Points Values to dynamically select the Result Bodycopy (configure on the Decision Tree Page details screen)."
+msgstr ""
+
+msgid "These are the potential next questions for this question."
+msgstr ""
+
+msgid "Select the question type and enter the name of the question to add."
+msgstr ""
+
+msgid "Style?"
+msgstr "Styl wyświetlania"
+
+msgid "Empty Text Key"
+msgstr ""
+
+msgid "Enter possible key/value options (the list will expand as necessary)"
+msgstr ""
+
+msgid "Single drop down select or radio boxes"
+msgstr ""
+
+msgid "Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class=\"yourCssClass\". Note onClick and onChange are already used for check box and select inputs respectively."
+msgstr ""
+
+msgid "This text will be added as the empty option key"
+msgstr ""
+
+msgid "This text will be added as the empty option"
+msgstr ""
+

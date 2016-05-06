@@ -90,7 +90,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				$dom = new DOMDocument();
 				// use DOMDocument::loadXML() to see if there is any entity  reference loop
 				// which may exhaust us of the memory limit, if not then continue as normal
-				if ($dom->loadXML($soap_message, LIBXML_NOENT)) {
+				if ($dom->loadXML($soap_message, LIBXML_NOENT|LIBXML_PARSEHUGE)) {
 					$object = @simplexml_import_dom($dom);
 				} else {
 					// don't worry about any warning, if we are here then PHP has already raised the warning for us
@@ -140,7 +140,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				$dom = new DOMDocument();
 				// use DOMDocument::loadXML() to see if there is any entity  reference loop
 				// which may exhaust us of the memory limit, if not then continue as normal
-				if ($dom->loadXML($match[2], LIBXML_NOENT)) {
+				if ($dom->loadXML($match[2], LIBXML_NOENT|LIBXML_PARSEHUGE)) {
 					$data = simplexml_import_dom($dom);
 				} else {
 					// don't worry about any warning, if we are here then PHP has already raised the warning for us
@@ -156,7 +156,11 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 		// Remove prefix from response keywords
 		foreach($soap_response_keywords as $key => $val) {
-			$soap_response_keywords[substr_replace($key, '', 0,  5)] = $val;
+			$new_key = substr_replace($key, '', 0,  5);
+			if(empty($new_key)) {
+				$new_key = 'Response';
+			}
+			$soap_response_keywords[$new_key] = $val;
 			unset($soap_response_keywords[$key]);
 		}
 
@@ -171,6 +175,33 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					$success = FALSE;
 				}
 			}//end foreach
+		}//end if
+
+
+		if (isset($settings['log_required']) && $settings['log_required'])
+		{
+			$location = array_get_index($settings, 'log_location', '');
+			if(strpos($location, '/') !== 0 && !empty($location)) {
+				$location = SQ_SYSTEM_ROOT.'/'.$location;
+			}//end if
+
+			if (authorised_file_write_path($location) && is_writable($location))
+				if (!empty($settings['log_name']))
+				{
+					$logFile = rtrim($location,'/') .'/'.basename(replace_global_keywords($settings['log_name']));
+
+					if (!empty($settings['log_format']))
+					{
+
+						$handle = fopen($logFile, 'a');
+						$message = replace_global_keywords($settings['log_format'])."\r\n";
+
+						if (!fwrite($handle, $message))
+							trigger_localised_error('SYS0051', sprintf(translate('Unable to Write to log file %s with message %s'), $logFile, $message), E_USER_WARNING);
+
+						fclose($handle);
+					}//end if
+				}//end if
 		}//end if
 
 		return $success;
@@ -238,7 +269,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 							check_box($prefix.'[mute_exceptions]', 1, $mute_exp);
 						} else {
 							$mute_exp_status = ($mute_exp == '1') ? 'tick' : 'cross';
-							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$mute_exp_status.'.gif" alt="" style="border: 0;" />';
+							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$mute_exp_status.'.png" alt="" style="border: 0;" />';
 						}
 					?>
 					</td>
@@ -271,7 +302,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 					<td>
 					<?php
-						if ($write_access) password_box($prefix.'[passphrase]', array_get_index($settings, 'passphrase', ''), 35);
+						if ($write_access) password_box($prefix.'[passphrase]', '', 35);
 					?>
 					</td>
 				</tr>
@@ -281,9 +312,14 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				</tr>
 			</table>
 
-		<p class="sq-backend-section-subheading">Test Response</p>
+		<p class="sq-backend-section-subheading"><?php echo translate('Additional SOAP Headers'); ?></p>
+		<div id="<?php echo $prefix ?>_additional_soap_header">
+			<?php Soap_Common::paintAdditionalSOAPHeader($prefix.'[additional_soap_headers]', $settings,false, $o, $write_access)?>
+		</div>
+
+		<p class="sq-backend-section-subheading"><?php echo translate('Test Response'); ?></p>
 		<div id="<?php echo $prefix ?>_test_request_response">
-			<table class="sq-backend-table" >
+			<table class="sq-backend-table with-bottom-margin" >
 				<tr>
 					<th style="width: 130px;"><?php echo translate('Run Test'); ?></th>
 
@@ -294,7 +330,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 							check_box($prefix.'[run_test]', 1, $run_test);
 						} else {
 							$run_test_status = ($run_test == '1') ? 'tick' : 'cross';
-							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$run_test_status.'.gif" alt="" />';
+							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$run_test_status.'.png" alt="" />';
 						}
 					?>
 					</td>
@@ -336,6 +372,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						<td>
 							<?php
 								$action_selected = array_get_index($settings, 'action', '');
+								ksort($settings['actions']);
 								foreach ($settings['actions'] as $name => $detail) {
 									$action_list[$name] = $name;
 								}
@@ -482,7 +519,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 								foreach($response_keywords as $val) {
 									$val = trim($val, '%');
 									$val = substr_replace($val, '', 0,  strlen('globals_session_soap_'));
-
+									if(empty($val)) $val = 'Response';	
 									if ($val) {
 										$response_fields[$val] = $val;
 									}
@@ -501,7 +538,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 								check_box($prefix.'['.$settings['action'].'_treat_as_fatal]', '1', $treating_fatal);
 							} else {
 								$treat_fatal_status = ($treating_fatal == '1') ? 'tick' : 'cross';
-								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$treat_fatal_status.'.gif" alt="" style="border: 0;" />';
+								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$treat_fatal_status.'.png" alt="" style="border: 0;" />';
 							}
 							echo translate('Tick the box if the error is to be treated as Fatal, i.e. Stops the script execution. <br />NOTE :By Default the error will be treated as <i>E_USER_WARNING</i> which means the eror will be lodged but the scrit execution will continue');
 
@@ -564,6 +601,92 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		<?php
 		}
 
+		?>
+
+		<p class="sq-backend-section-subheading">Log</p>
+		<div id="<?php echo $prefix ?>_log">
+			<table class="sq-backend-table with-bottom-margin" >
+				<tr>
+					<th width="120"><?php echo translate('Enable Log');?></th>
+					<td><p>
+							<?php
+							$run_test = array_get_index($settings, 'log_required', 0);
+							check_box($prefix.'[log][log_required]', 1, $run_test);
+							?>
+						</p></td>
+				</tr>
+				<tr>
+					<th><?php echo translate('Location');?></th>
+					<td>
+						<?php
+						$location = array_get_index($settings, 'log_location', '');
+						text_box($prefix.'[log][log_location]', $location, 120);
+
+						if(strpos($location, '/') !== 0 && !empty($location)) {
+							$location = SQ_SYSTEM_ROOT.'/'.$location;
+						}
+						if ($run_test)
+						{
+							if (empty($location)) {
+								?><br />
+								<span class="sq-backend-warning"><?php echo translate('Location is required'); ?></span>
+
+								<?php
+							} else if (!is_dir($location)) {
+								?><br />
+								<span class="sq-backend-warning"><?php echo translate('Location does not exist or is not a valid directory.'); ?></span>
+
+								<?php
+							} else if (!authorised_file_write_path($location)) {
+								?><br />
+								<span class="sq-backend-warning"><?php echo translate('Location is not allowed. Please check Authorised File Write Paths setting in External Tools Configuration (i.e SQ_TOOL_AUTHORISED_FILE_WRITE_PATHS).'); ?></span>
+
+								<?php
+
+							} else if (!is_writable($location)) {
+								?><br />
+								<span class="sq-backend-warning"><?php echo translate('Location is not writable'); ?></span>
+
+								<?php
+							}
+						}//end if
+						?>
+						<div class="sq-backend-smallprint"><?php echo translate('Path is relative to Matrix installation location unless prefixed with \'/\'. Path must be allowed in Authorised File Write Paths setting in External Tools Configuration(i.e SQ_TOOL_AUTHORISED_FILE_WRITE_PATHS)');?></div>
+
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('Log Name');?></th>
+					<td>
+
+						<?php
+						$log_name = array_get_index($settings, 'log_name', '');
+						text_box($prefix.'[log][log_name]', $log_name, 120);
+
+						if ($run_test && empty($log_name)) {
+							?><br/>
+							<span class="sq-backend-warning"><?php echo translate('Log Name is required'); ?></span>
+							<?php
+						}
+						?>
+
+						<div class="sq-backend-smallprint"><?php echo translate('Global Keywords are supported.');?></div>
+
+
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('Log Format');?></th>
+					<td>
+						<?php text_box($prefix.'[log][log_format]', array_get_index($settings, 'log_format', ''), 120); ?>
+						<div class="sq-backend-smallprint"><?php echo translate('Global Keywords are supported.');?></div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<?php
+
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -585,16 +708,26 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		$settings['wsdl']				= array_get_index($request_data, 'wsdl', '');
 		$settings['mute_exceptions']	= array_get_index($request_data, 'mute_exceptions', FALSE);
 		$settings['local_cert']			= array_get_index($request_data['local_cert'], 'assetid','0');
-		$settings['passphrase']			= array_get_index($request_data, 'passphrase', '');
+		if(isset($request_data['passphrase']) && !empty($request_data['passphrase'])) {
+			$settings['passphrase']			= array_get_index($request_data, 'passphrase', '');
+		}
 		$settings['run_test']			= array_get_index($request_data, 'run_test', 0);
 		$settings['action']				= array_get_index($request_data, 'action', NULL);
 		$settings['auth_type']			= array_get_index($request_data, 'auth_type', NULL);
 		$settings['cache_wsdl']			= array_get_index($request_data, 'cache_wsdl', NULL);
 		$settings['service_address']	= array_get_index($request_data, 'service_address', NULL);
+		$settings['log_required']		= array_get_index($request_data['log'], 'log_required', 0);
+		$settings['log_location']		= trim(array_get_index($request_data['log'], 'log_location', NULL));
+		$settings['log_name']			= trim(array_get_index($request_data['log'], 'log_name', NULL));
+		$settings['log_format']			= trim(array_get_index($request_data['log'], 'log_format', NULL));
+
 
 		// Process function authentication fields
 		$o = new Backend_Outputter();
 		Soap_Common::processSoapAuthenticationFields($request_data, $settings, $o);
+
+		SOAP_Common::processAdditionalSOAPHeader($request_data, $settings, $o);
+
 
 		if(isset ($settings['wsdl']) && !empty($settings['wsdl'])) {
 
@@ -644,7 +777,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 					if ($xml_response === TRUE || $xml_response === FALSE) {
 						$response_list[$function_name] = SOAP_Common::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");
-						$keywords = 'globals_session_soap'.($xml_response ? '0' : '');
+						$keywords = '%globals_session_soap'.($xml_response ? '_0' : '').'%';
 					} else {
 						$response_list[$function_name] = SOAP_Common::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
 						$keywords = SOAP_Common::_parse_response_keywords ($xml_response, 'globals_session_soap_');
@@ -663,7 +796,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 
 		// grab the service address from WSDL
-		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], $settings['password']);
+		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], empty($settings['password']) ? '' : $settings['password']);
 
 
 		// Currently selected "Check response" fields
@@ -680,7 +813,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		foreach ($current_selected_fields as $index => $selected_field) {
 
 			// If the field is deleted or dosen't exists in SOAP response anymore
-			if ((!isset($request_data[$settings['action'].'_delete_field_'.$selected_field]) || !$request_data[$settings['action'].'_delete_field_'.$selected_field]) && strpos($keywords_string, '%globals_session_soap_'.$selected_field.'%') !== FALSE) {
+			if ((!isset($request_data[$settings['action'].'_delete_field_'.$selected_field]) || !$request_data[$settings['action'].'_delete_field_'.$selected_field])) {
 				if (isset($request_data[$settings['action'].'_error_msg_'.$selected_field])) {
 					$field_error_msgs[$selected_field] = trim($request_data[$settings['action'].'_error_msg_'.$selected_field]);
 				} else {

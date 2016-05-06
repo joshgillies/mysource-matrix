@@ -27,6 +27,14 @@
 			<note />
 			<text width="25" height="1" />
 		</field>
+        <field>
+            <display_name>Refresh Data</display_name>
+            <note />
+            <function_call>
+                <paint_function   name="paintRegenerate"   />
+                <process_function name="processRegenerate" />
+            </function_call>
+        </field>
 	</section>
     <section name="Connector and View" write_access="write:menu">
         <field>
@@ -35,6 +43,13 @@
             <function_call>
                 <paint_function   name="paintSelectConnector" />
                 <process_function name="processSelectConnector" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Google Account</display_name>
+            <note/>
+            <function_call>
+                <paint_function   name="paintGoogleAccount" />
             </function_call>
         </field>
         <field>

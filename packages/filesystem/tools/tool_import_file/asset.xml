@@ -22,7 +22,7 @@
 	<package>filesystem</package>
 	<type_code>tool_import_file</type_code>
 	<version>0.1</version>
-	<name>Import File Tool</name>
+	<name>File Bridge Import Tool</name>
 	<description>Import a File/Folder from under a file bridge</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>

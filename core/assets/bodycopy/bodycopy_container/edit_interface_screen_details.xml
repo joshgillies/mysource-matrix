@@ -30,5 +30,13 @@
 				<process_function name="processDescription" />
 			</function_call>
 		</field>
+		<field>
+			<display_name>Template</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintTemplate" />
+				<process_function name="processTemplate" />
+			</function_call>
+		</field>
 	</section>
 </contents>

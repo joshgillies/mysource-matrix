@@ -178,21 +178,21 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 				}
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.png" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Cascade schema changes');
 
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_dependents ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.png" alt="'.($cascade_to_dependents ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Only Cascade schema changes to dependent assets');
 
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.png" alt="'.($cascade_to_new ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Automatically cascade this schema to newly-linked children');

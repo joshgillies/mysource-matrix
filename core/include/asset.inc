@@ -509,14 +509,6 @@ class Asset extends MySource_Object
 
 		if (!$event_result) return $this->_abortCreate(FALSE, $linkid);
 
-
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-			// Perform any additional processing required, such as creating other assets
-			if (!$this->_createAdditional($link)) {
-				return $this->_abortCreate(FALSE, $linkid);
-			}
-		}
-
 		// If for some unknown reason they don't have write access to the asset
 		// from the cascaded permissions of the parent (goodness knows why - you
 		// shouldn't be here in the first place!), add an explicit permission
@@ -530,6 +522,14 @@ class Asset extends MySource_Object
 			}
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
+
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+			// Perform any additional processing required, such as creating other assets
+			if (!$this->_createAdditional($link)) {
+				return $this->_abortCreate(FALSE, $linkid);
+			}
+		}
+
 
 		unset($this->_tmp['__creating__']);
 		if (!$this->_updated()) return $this->_abortCreate(FALSE, $linkid);
@@ -1048,7 +1048,7 @@ class Asset extends MySource_Object
 	public function useSystemVersion()
 	{
 		if (!isset($this->_tmp['use_system_version'])) {
-			if (!($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
+			if (!$this->supportsSystemVersion() || !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
 				$this->_tmp['use_system_version'] = FALSE;
 			} else {
 				if ($GLOBALS['SQ_SYSTEM']->getGlobalDefine('force_system_version')) {
@@ -1516,20 +1516,26 @@ class Asset extends MySource_Object
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
 
-		if (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__']) {
+		if (!$this->id || (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__'])) {
 			return TRUE;
 		}
 
-		$updated = time();
-		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$default_context = 0;
+		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$name            = check_char_encoding(substr($this->_getName(FALSE, $default_context), 0, 255));
 		$short_name      = check_char_encoding(substr($this->_getName(TRUE, $default_context), 0, 255));
 
+		// We dont need to update db for shadow assets
+		$is_shadow = $this->id && (strpos($this->id, ':') > 0);
 
+		// Asset fields that got updated
+		// We know that 'updated' field ALWAYS changes, no need to check the value changes
+		$changed_data = Array('updated');
 
 		// if we have an ID hit the DB
-		if ($this->id) {
+		if (!$is_shadow) {
+
+			$updated = time();
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1574,16 +1580,12 @@ class Asset extends MySource_Object
 				throw new Exception('Unable to update asset "'.$this->_getName().'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
 
-			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-
+			// Check the updated files before updating the asset
 			$fields = Array(
-						'name',
-						'short_name',
-						'updated_userid',
-					  );
-
-			// We know that 'updated' field ALWAYS changes, no need to check the value changes
-			$changed_data = Array('updated');
+					'name',
+					'short_name',
+					'updated_userid',
+				  );
 			foreach ($fields as $field) {
 				if ($this->$field != $$field) {
 					$changed_data[] = $field;
@@ -1607,11 +1609,12 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			$em->broadcastEvent($this, 'AssetUpdate', $changed_data);
+		}//end if not shadow asset
 
-			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_updated', $this);
-
-		}//end if $this->id
+		// Tell others that we just updated ourself
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'AssetUpdate', $changed_data);
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_updated', $this);
 
 		return TRUE;
 
@@ -1952,86 +1955,23 @@ class Asset extends MySource_Object
 		$new_type_code = strtolower($new_type_code);
 		$old_type_code = $this->type();
 
-		if ($this->type() == $new_type_code) return $this;
+		if ($this->type() == $new_type_code) {
+			return $this;
+		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->am->installed($new_type_code)) {
-			trigger_localised_error('SYS0085', sprintf(translate('Asset "%s" is not installed on the system'), $new_type_code), E_USER_WARNING);
+		// Check if we can morph into the specified target asset type
+		if (!$this->canMorph($new_type_code)) {
 			return NULL;
 		}
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = MatrixDAL::getDb();
-
-		// is this new type one of our decendents or ancestors?
-		$sql = 'SELECT COUNT(*)
-				FROM sq_ast_typ_inhd
-				WHERE (inhd_type_code = :type1 AND type_code = :type2)
-				   OR (inhd_type_code = :type2 AND type_code = :type1)';
-		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'type1', $this->type());
-			MatrixDAL::bindValueToPdo($query, 'type2', $new_type_code);
-			$count = MatrixDAL::executePdoOne($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to get number of inherited type codes for this inherited type code: '.$this->type().' and this type code: '.$new_type_code.' due to database error: '.$e->getMessage());
-		}
-
-		if ($count == 0) {
-			trigger_localised_error('SYS0234', sprintf(translate('Unable to cast "%1$s" to "%2$s", "%2$s" is not in the "%3$s" asset type hierarchy.'), $this->name, $new_type_code, $this->type()), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return NULL;
-		}
-
 		$am->includeAsset($new_type_code);
 		$tmp = new $new_type_code();
 
-		//// FIRST we need to check that all our links are allowed for the new type ////
-
-		// if there any children links
-		if ($num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major')) {
-
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL);
-			foreach ($links as $link) {
-				// Shadow asset links (such as tags) are not encumbered by
-				// type checks in createAssetLink(), so no restrictions here.
-				if (strpos($link['minorid'], ':') !== FALSE) {
-					continue;
-				}
-				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['is_exclusive']) !== TRUE) {
-					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					trigger_localised_error('SYS0236', sprintf(translate('Unable to cast "%1$s" to "%2$s", "%3$s" assets are not allowed to be "%4$s" linked to "%5$s" assets.'), $this->name, $new_type_code, $link['minor_type_code'], link_type_name($link['link_type']), $new_type_code), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return NULL;
-				}
-			}// end foreach
-
-		}// end if child links
-
-		// if there any parent links
-		$num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'minor');
-		if ($num_links) {
-
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
-			foreach ($links as $link) {
-				$parent = $am->getAsset($link['majorid'], $link['major_type_code']);
-				if (is_null($parent)) continue;
-				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['is_exclusive'])) !== TRUE) {
-					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					trigger_localised_error('SYS0235', sprintf(translate('Unable to cast "%1$s" to "%2$s", "%3$s" (Asset #%4$s) cannot be linked to the new Asset - (%5$s)'), $this->name, $new_type_code, $parent->name, $parent->id, $err_msg), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return NULL;
-				}
-			}// end foreach
-
-		}// end if parent links
-
+		// Open the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$current_var_list = array_keys($this->vars);
 		$new_var_list     = array_keys($tmp->vars);
@@ -2144,10 +2084,99 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return NULL;
-
 		}// end if
 
 	}//end morph()
+
+
+	/**
+	* Whether the asset can morph into the specified type code
+	*
+	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function canMorph($new_type_code)
+	{
+		$new_type_code = strtolower($new_type_code);
+		$old_type_code = $this->type();
+
+		if ($old_type_code == $new_type_code) {
+			return TRUE;
+		}
+
+		if (!$GLOBALS['SQ_SYSTEM']->am->installed($new_type_code)) {
+			trigger_localised_error('SYS0085', sprintf(translate('Asset "%s" is not installed on the system'), $new_type_code), E_USER_WARNING);
+			return FALSE;
+		}
+
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		// Is this new type one of our decendents or ancestors?
+		$sql = 'SELECT COUNT(*)
+				FROM sq_ast_typ_inhd
+				WHERE (inhd_type_code = :type1 AND type_code = :type2)
+				   OR (inhd_type_code = :type2 AND type_code = :type1)';
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type1', $this->type());
+			MatrixDAL::bindValueToPdo($query, 'type2', $new_type_code);
+			$count = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get number of inherited type codes for this inherited type code: '.$this->type().' and this type code: '.$new_type_code.' due to database error: '.$e->getMessage());
+		}
+
+		if ($count == 0) {
+			trigger_localised_error('SYS0234', sprintf(translate('Unable to cast "%1$s" to "%2$s", "%2$s" is not in the "%3$s" asset type hierarchy.'), $this->name, $new_type_code, $this->type()), E_USER_WARNING);
+			return FALSE;
+		}
+
+		$am->includeAsset($new_type_code);
+		$tmp = new $new_type_code();
+
+		// FIRST we need to check that all our links are allowed for the new type ////
+
+		// If there any children links
+		if ($num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major')) {
+
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL);
+			foreach ($links as $link) {
+				// Shadow asset links (such as tags) are not encumbered by
+				// type checks in createAssetLink(), so no restrictions here.
+				if (strpos($link['minorid'], ':') !== FALSE) {
+					continue;
+				}
+				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['is_exclusive']) !== TRUE) {
+					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+					trigger_localised_error('SYS0236', sprintf(translate('Unable to cast "%1$s" to "%2$s", "%3$s" assets are not allowed to be "%4$s" linked to "%5$s" assets.'), $this->name, $new_type_code, $link['minor_type_code'], link_type_name($link['link_type']), $new_type_code), E_USER_WARNING);
+					return FALSE;
+				}
+			}// end foreach
+		}// end if child links
+
+		// If there any parent links
+		$num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'minor');
+		if ($num_links) {
+
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+			foreach ($links as $link) {
+				$parent = $am->getAsset($link['majorid'], $link['major_type_code']);
+				if (is_null($parent)) {
+					continue;
+				}
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['is_exclusive'])) !== TRUE) {
+					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+					trigger_localised_error('SYS0235', sprintf(translate('Unable to cast "%1$s" to "%2$s", "%3$s" (Asset #%4$s) cannot be linked to the new Asset - (%5$s)'), $this->name, $new_type_code, $parent->name, $parent->id, $err_msg), E_USER_WARNING);
+					return FALSE;
+				}
+			}// end foreach
+		}// end if parent links
+
+		// Passed all checks
+		return TRUE;
+
+	}//end canMorph()
 
 
 	/**
@@ -2548,7 +2577,7 @@ class Asset extends MySource_Object
 		$orig_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'major', NULL, FALSE, NULL);
 		foreach ($orig_links as $orig_link) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
-			if ($asset->canCloneLink()) {
+			if (is_object($asset) && $asset->canCloneLink()) {
 				$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $orig_link['is_exclusive']);
 				if (!$linkid) return FALSE;
 			}
@@ -2594,6 +2623,16 @@ class Asset extends MySource_Object
 	{
 		$status = $this->getStatus();
 		$statii = $status->getAvailableStatii();
+
+		// Remove the safe edit related statii if the asset does not supports system version
+		if (!$this->supportsSystemVersion()) {
+			foreach($statii as $status_code => $status_name) {
+				if ($status_code & SQ_SC_STATUS_SAFE_EDITING) {
+					unset($statii[$status_code]);
+				}
+			}//end foreach
+		}//end if
+
 		ksort($statii, SORT_NUMERIC);
 		return array_reverse($statii, TRUE);
 
@@ -2648,6 +2687,22 @@ class Asset extends MySource_Object
 						}
 					}
 				}
+			}
+		}
+
+		// If we are dependant minor asset and the parent does not supports system version mode
+		// then we dont want to change our status to safe edit status too
+		if ($new_status & SQ_SC_STATUS_SAFE_EDITING) {
+			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
+			if (!empty($dependant_parents)) {
+				$dependant_parents = array_reverse($dependant_parents);
+				foreach ($dependant_parents as $parent_assetid) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+					if (!$asset->supportsSystemVersion()) {
+						// We don't want to rollback
+						return TRUE;
+					}
+				}//end foreach
 			}
 		}
 
@@ -2761,7 +2816,7 @@ class Asset extends MySource_Object
 	*/
 	public function setDate($date_type, $time=NULL, $userid=NULL)
 	{
-		if (!in_array($date_type, Array('published' ,'created'))) {
+		if (!in_array($date_type, Array('published' , 'updated', 'created'))) {
 			trigger_localised_error('SYS0198', translate('Only the published and created dates can be manually modified'), E_USER_WARNING);
 			return FALSE;
 		}
@@ -3213,6 +3268,26 @@ class Asset extends MySource_Object
 	}//end isDeletableLink()
 
 
+	/**
+	* Return TRUE if the non-significant child links (TYPE3 and NOTICE) of given asset should be cloned
+	*
+	* Override this function to return FALSE, if the asset does not want to clone non-significant links 
+	* for any of its dependants based on asset type or link value, when cloning the asset.
+	*
+	* @param object $dependant_asset Dependant asset being cloned
+	* @param array  $link_value      Link value for link between the asset and the depandant
+	*
+	* @return boolean
+	* @access public
+	* @see Asset_Manager::cloneAsset()
+	*/
+	public function cloneNonSignificantLinks($dependant_asset, $link_value='')
+	{
+		return TRUE;
+
+	}//end cloneNonSignificantLinks()
+
+
 //--        ATTRIBUTES        --//
 
 
@@ -3286,7 +3361,18 @@ class Asset extends MySource_Object
 
 			// log a message for the asset - this wont get logged until we close the queue
 			if($log_message) {
-				$password_attr = $attribute->type() == 'password';
+				$password_attr = FALSE;
+				if($attribute->type() == 'password') {
+					$password_attr = TRUE;
+				}
+				// filter out those serialised attribute that has "password" in it
+				if(is_scalar($attr_value)) {
+					$attr_value = mask_password_in_serialized_string($attr_value);
+				}
+				if(is_scalar($var_data['old_value'])) {
+					$var_data['old_value'] = mask_password_in_serialized_string($var_data['old_value']);
+				}
+
 				$msg_reps = Array(
 								'asset_name'	=> $this->name,
 								'attr_name'		=> $attribute->name,
@@ -3743,7 +3829,21 @@ class Asset extends MySource_Object
 								'asset_created_ical',
 								'asset_updated_ical',
 								'asset_created_by_name',
+								'asset_created_by_thumbnail',
+								'asset_created_by_thumbnail_title',
+								'asset_created_by_thumbnail_name',
+								'asset_created_by_thumbnail_assetid',
+								'asset_created_by_thumbnail_url',
+								'asset_created_by_thumbnail_caption',
+								'asset_created_by_thumbnail_alt',
 								'asset_updated_by_name',
+								'asset_updated_by_thumbnail',
+								'asset_updated_by_thumbnail_title',
+								'asset_updated_by_thumbnail_name',
+								'asset_updated_by_thumbnail_assetid',
+								'asset_updated_by_thumbnail_url',
+								'asset_updated_by_thumbnail_caption',
+								'asset_updated_by_thumbnail_alt',
 								'asset_published',
 								'asset_published_short',
 								'asset_published_readable',
@@ -3751,6 +3851,13 @@ class Asset extends MySource_Object
 								'asset_published_rfc2822',
 								'asset_published_ical',
 								'asset_published_by_name',
+								'asset_published_by_thumbnail',
+								'asset_published_by_thumbnail_title',
+								'asset_published_by_thumbnail_name',
+								'asset_published_by_thumbnail_assetid',
+								'asset_published_by_thumbnail_url',
+								'asset_published_by_thumbnail_caption',
+								'asset_published_by_thumbnail_alt',
 								'asset_status_changed',
 								'asset_status_changed_short',
 								'asset_status_changed_readable',
@@ -3758,6 +3865,13 @@ class Asset extends MySource_Object
 								'asset_status_changed_rfc2822',
 								'asset_status_changed_ical',
 								'asset_status_changed_by_name',
+								'asset_status_changed_by_thumbnail',
+								'asset_status_changed_by_thumbnail_title',
+								'asset_status_changed_by_thumbnail_name',
+								'asset_status_changed_by_thumbnail_assetid',
+								'asset_status_changed_by_thumbnail_url',
+								'asset_status_changed_by_thumbnail_caption',
+								'asset_status_changed_by_thumbnail_alt',
 								'asset_url',
 								'asset_href',
 								'asset_thumbnail',
@@ -3789,55 +3903,83 @@ class Asset extends MySource_Object
 		$keywords['asset_assetid']['value'] = $this->id;
 
 		if ($descriptions) {
-			$keywords['asset_assetid']['description']                     = 'The ID of the asset';
-			$keywords['asset_name']['description']                        = 'Full name of the asset';
-			$keywords['asset_type']['description']                        = 'Asset\'s type';
-			$keywords['asset_short_name']['description']                  = 'Short name of the asset';
-			$keywords['asset_version']['description']                     = 'Version of the asset being displayed';
-			$keywords['asset_version_major']['description']               = 'Major version number of the asset being displayed';
-			$keywords['asset_version_minor']['description']               = 'Minor version number of the asset being displayed';
-			$keywords['asset_version_micro']['description']               = 'Micro version number of the asset being displayed';
-			$keywords['asset_created']['description']                     = 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_updated']['description']                     = 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_status_updated']['description']              = 'The date and time the asset\'s status was last updated (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_published']['description']                   = 'The date and time the asset was last published (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_created_short']['description']               = 'The date when the asset was created (yyyy-mm-dd)';
-			$keywords['asset_updated_short']['description']               = 'The date when the asset was last updated (yyyy-mm-dd)';
-			$keywords['asset_published_short']['description']             = 'The date when the asset was last published (yyyy-mm-dd)';
-			$keywords['asset_status_updated_short']['description']        = 'The date when the asset\'s status was last changed (yyyy-mm-dd)';
-			$keywords['asset_created_readable']['description']            = 'The date when the asset was created (dd m yyyy h:mm[am pm])';
-			$keywords['asset_updated_readable']['description']            = 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
-			$keywords['asset_created_readabledate']['description']        = 'The date when the asset was created (date only - dd m yyyy)';
-			$keywords['asset_updated_readabledate']['description']        = 'The date when the asset was last updated (date only - dd m yyyy)';
-			$keywords['asset_created_readabletime']['description']        = 'The date when the asset was created (time only - h:mm[am pm])';
-			$keywords['asset_updated_readabletime']['description']        = 'The date when the asset was last updated (time only - h:mm[am pm])';
-			$keywords['asset_created_iso8601']['description']             = 'The date when the asset was created (ISO8601 format)';
-			$keywords['asset_updated_iso8601']['description']             = 'The date when the asset was last updated (ISO8601 format)';
-			$keywords['asset_published_iso8601']['description']           = 'The date when the asset was last published (ISO8601 format)';
-			$keywords['asset_created_rfc2822']['description']             = 'The date when the asset was created (RFC2822 format)';
-			$keywords['asset_updated_rfc2822']['description']             = 'The date when the asset was last updated (RFC2822 format)';
-			$keywords['asset_published_rfc2822']['description']           = 'The date when the asset was last published (RFC2822 format)';
-			$keywords['asset_created_ical']['description']                = 'The date when the asset was created (iCalendar format)';
-			$keywords['asset_updated_ical']['description']                = 'The date when the asset was last updated (iCalendar format)';
-			$keywords['asset_published_ical']['description']              = 'The date when the asset was last published (iCalendar format)';
-			$keywords['asset_published_readable']['description']          = 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
-			$keywords['asset_status_changed_readable']['description']     = 'The date when the asset\'s status was last changed (dd m yyyy h:mm[am pm])';
-			$keywords['asset_published_readabledate']['description']      = 'The date when the asset was last published (date only - dd m yyyy)';
-			$keywords['asset_status_changed_readabledate']['description'] = 'The date when the asset\'s status was last changed (date only - dd m yyyy)';
-			$keywords['asset_published_readabletime']['description']      = 'The date when the asset was last published (time only - h:mm[am pm])';
-			$keywords['asset_status_changed_readabletime']['description'] = 'The date when the asset\'s status was last changed (time only - h:mm[am pm])';
-			$keywords['asset_created_by_name']['description']             = 'The name of the user who created this asset';
-			$keywords['asset_updated_by_name']['description']             = 'The name of the user who last updated this asset';
-			$keywords['asset_published_by_name']['description']           = 'The name of the user who last published this asset';
-			$keywords['asset_status_changed_by_name']['description']      = 'The name of the user who last changed the status of this asset';
-			$keywords['asset_url']['description']                         = 'The absolute url to the asset';
-			$keywords['asset_href']['description']                        = 'The relative href to the asset';
-			$keywords['asset_thumbnail']['description']                   = 'The img tag for the thumbnail attached to the asset';
-			$keywords['asset_thumbnail_url']['description']               = 'The URL only for the thumbnail attached to the asset';
-			$keywords['asset_thumbnail_caption']['description']           = 'The caption for the thumbnail attached to the asset';
-			$keywords['asset_thumbnail_assetid']['description']           = 'The asset id for the thumbnail attached to the asset';
-			$keywords['asset_thumbnail_title']['description']             = 'The friendly name for the thumbnail attached to the asset';
-			$keywords['asset_thumbnail_name']['description']              = 'The file name for the thumbnail attached to the asset';
+			$keywords['asset_assetid']['description']								= 'The ID of the asset';
+			$keywords['asset_name']['description']									= 'Full name of the asset';
+			$keywords['asset_type']['description']									= 'Asset\'s type';
+			$keywords['asset_short_name']['description']							= 'Short name of the asset';
+			$keywords['asset_version']['description']								= 'Version of the asset being displayed';
+			$keywords['asset_version_major']['description']							= 'Major version number of the asset being displayed';
+			$keywords['asset_version_minor']['description']							= 'Minor version number of the asset being displayed';
+			$keywords['asset_version_micro']['description']							= 'Micro version number of the asset being displayed';
+			$keywords['asset_created']['description']								= 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_updated']['description']								= 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_status_updated']['description']						= 'The date and time the asset\'s status was last updated (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_published']['description']								= 'The date and time the asset was last published (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_created_short']['description']							= 'The date when the asset was created (yyyy-mm-dd)';
+			$keywords['asset_updated_short']['description']							= 'The date when the asset was last updated (yyyy-mm-dd)';
+			$keywords['asset_published_short']['description']						= 'The date when the asset was last published (yyyy-mm-dd)';
+			$keywords['asset_status_updated_short']['description']					= 'The date when the asset\'s status was last changed (yyyy-mm-dd)';
+			$keywords['asset_created_readable']['description']						= 'The date when the asset was created (dd m yyyy h:mm[am pm])';
+			$keywords['asset_updated_readable']['description']						= 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
+			$keywords['asset_created_readabledate']['description']					= 'The date when the asset was created (date only - dd m yyyy)';
+			$keywords['asset_updated_readabledate']['description']					= 'The date when the asset was last updated (date only - dd m yyyy)';
+			$keywords['asset_created_readabletime']['description']					= 'The date when the asset was created (time only - h:mm[am pm])';
+			$keywords['asset_updated_readabletime']['description']					= 'The date when the asset was last updated (time only - h:mm[am pm])';
+			$keywords['asset_created_iso8601']['description']						= 'The date when the asset was created (ISO8601 format)';
+			$keywords['asset_updated_iso8601']['description']						= 'The date when the asset was last updated (ISO8601 format)';
+			$keywords['asset_published_iso8601']['description']						= 'The date when the asset was last published (ISO8601 format)';
+			$keywords['asset_created_rfc2822']['description']						= 'The date when the asset was created (RFC2822 format)';
+			$keywords['asset_updated_rfc2822']['description']						= 'The date when the asset was last updated (RFC2822 format)';
+			$keywords['asset_published_rfc2822']['description']						= 'The date when the asset was last published (RFC2822 format)';
+			$keywords['asset_created_ical']['description']							= 'The date when the asset was created (iCalendar format)';
+			$keywords['asset_updated_ical']['description']							= 'The date when the asset was last updated (iCalendar format)';
+			$keywords['asset_published_ical']['description']						= 'The date when the asset was last published (iCalendar format)';
+			$keywords['asset_published_readable']['description']					= 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
+			$keywords['asset_status_changed_readable']['description']				= 'The date when the asset\'s status was last changed (dd m yyyy h:mm[am pm])';
+			$keywords['asset_published_readabledate']['description']				= 'The date when the asset was last published (date only - dd m yyyy)';
+			$keywords['asset_status_changed_readabledate']['description']			= 'The date when the asset\'s status was last changed (date only - dd m yyyy)';
+			$keywords['asset_published_readabletime']['description']				= 'The date when the asset was last published (time only - h:mm[am pm])';
+			$keywords['asset_status_changed_readabletime']['description']			= 'The date when the asset\'s status was last changed (time only - h:mm[am pm])';
+			$keywords['asset_created_by_name']['description']						= 'The name of the user who created this asset';
+			$keywords['asset_created_by_thumbnail']['description']					= 'The img tag for the thumbnail attached to the user who created this asset';
+			$keywords['asset_created_by_thumbnail_title']['description']			= 'The friendly name for the thumbnail attached to the user who created this asset';
+			$keywords['asset_created_by_thumbnail_name']['description']				= 'The file name for the thumbnail attached to the user who created this asset';
+			$keywords['asset_created_by_thumbnail_assetid']['description']			= 'The asset id for the thumbnail attached to the user who created this asset';
+			$keywords['asset_created_by_thumbnail_url']['description']				= 'The URL only for the thumbnail attached to the user who created this asset';
+			$keywords['asset_created_by_thumbnail_caption']['description']			= 'The caption for the thumbnail attached to the user who created this asset';
+			$keywords['asset_created_by_thumbnail_alt']['description']				= 'The alt for the thumbnail attached to the user who created this asset';
+			$keywords['asset_updated_by_name']['description']						= 'The name of the user who last updated this asset';
+			$keywords['asset_updated_by_thumbnail']['description']					= 'The img tag for the thumbnail attached to the user who updated this asset';
+			$keywords['asset_updated_by_thumbnail_title']['description']			= 'The friendly name for the thumbnail attached to the user who updated this asset';
+			$keywords['asset_updated_by_thumbnail_name']['description']				= 'The file name for the thumbnail attached to the user who updated this asset';
+			$keywords['asset_updated_by_thumbnail_assetid']['description']			= 'The asset id for the thumbnail attached to the user who updated this asset';
+			$keywords['asset_updated_by_thumbnail_url']['description']				= 'The URL only for the thumbnail attached to the user who updated this asset';
+			$keywords['asset_updated_by_thumbnail_caption']['description']			= 'The caption for the thumbnail attached to the user who updated this asset';
+			$keywords['asset_updated_by_thumbnail_alt']['description']				= 'The alt for the thumbnail attached to the user who updated this asset';
+			$keywords['asset_published_by_name']['description']						= 'The name of the user who last published this asset';
+			$keywords['asset_published_by_thumbnail']['description']				= 'The img tag for the thumbnail attached to the user who last published this asset';
+			$keywords['asset_published_by_thumbnail_title']['description']			= 'The friendly name for the thumbnail attached to the user who last published this asset';
+			$keywords['asset_published_by_thumbnail_name']['description']			= 'The file name for the thumbnail attached to the user who last published this asset';
+			$keywords['asset_published_by_thumbnail_assetid']['description']		= 'The asset id for the thumbnail attached to the user who last published this asset';
+			$keywords['asset_published_by_thumbnail_url']['description']			= 'The URL only for the thumbnail attached to the user who last published this asset';
+			$keywords['asset_published_by_thumbnail_caption']['description']		= 'The caption for the thumbnail attached to the user who last published this asset';
+			$keywords['asset_published_by_thumbnail_alt']['description']			= 'The alt for the thumbnail attached to the user who last published this asset';
+			$keywords['asset_status_changed_by_name']['description']				= 'The name of the user who last changed the status of this asset';
+			$keywords['asset_status_changed_by_thumbnail']['description']			= 'The img tag for the thumbnail attached to the user who last changed the status this asset';
+			$keywords['asset_status_changed_by_thumbnail_title']['description']		= 'The friendly name for the thumbnail attached to the user who last changed the status this asset';
+			$keywords['asset_status_changed_by_thumbnail_name']['description']		= 'The file name for the thumbnail attached to the user who last changed the status this asset';
+			$keywords['asset_status_changed_by_thumbnail_assetid']['description']	= 'The asset id for the thumbnail attached to the user who last changed the status this asset';
+			$keywords['asset_status_changed_by_thumbnail_url']['description']		= 'The URL only for the thumbnail attached to the user who last changed the status this asset';
+			$keywords['asset_status_changed_by_thumbnail_caption']['description']	= 'The caption for the thumbnail attached to the user who last changed the status this asset';
+			$keywords['asset_status_changed_by_thumbnail_alt']['description']		= 'The alt for the thumbnail attached to the user who last changed the status this asset';
+			$keywords['asset_url']['description']									= 'The absolute url to the asset';
+			$keywords['asset_href']['description']									= 'The relative href to the asset';
+			$keywords['asset_thumbnail']['description']								= 'The img tag for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_url']['description']							= 'The URL only for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_caption']['description']						= 'The caption for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_assetid']['description']						= 'The asset id for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_title']['description']						= 'The friendly name for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_name']['description']						= 'The file name for the thumbnail attached to the asset';
 
 		}//end if
 
@@ -3876,60 +4018,95 @@ class Asset extends MySource_Object
 		                     );
 
 		$default_keywords = Array(
-								'asset_assetid'                     => translate('The ID of the asset'),
-								'asset_name'                        => translate('The name of the asset'),
-								'asset_type'                        => translate('Asset ID'),
+								'asset_assetid'                     => translate('ID of the asset'),
+								'asset_name'                        => translate('Name of the asset'),
+								'asset_type'                        => translate('Asset type'),
 								'asset_short_name'                  => translate('Short name of the asset'),
 								'asset_version'                     => translate('Version of the asset being displayed'),
 								'asset_version_major'               => translate('Major version component of the asset being displayed'),
 								'asset_version_minor'               => translate('Minor version component of the asset being displayed'),
 								'asset_version_micro'               => translate('Micro version component of the asset being displayed'),
-								'asset_created'                     => translate('The date and time the asset was created').' ('.$time_formats_text['sql'].')',
-								'asset_updated'                     => translate('The date and time the asset was last updated').' ('.$time_formats_text['sql'].')',
-								'asset_created_short'               => translate('The date and time the asset was created').' ('.$time_formats_text['short'].')',
-								'asset_updated_short'               => translate('The date and time the asset was last updated').' ('.$time_formats_text['short'].')',
-								'asset_created_readable'            => translate('The date and time the asset was created').' ('.$time_formats_text['readable'].')',
-								'asset_updated_readable'            => translate('The date and time the asset was last updated').' ('.$time_formats_text['readable'].')',
-								'asset_created_readabledate'        => translate('The date and time the asset was created').' ('.$time_formats_text['readabledate'].')',
-								'asset_updated_readabledate'        => translate('The date and time the asset was last updated').' ('.$time_formats_text['readabledate'].')',
-								'asset_created_readabletime'        => translate('The date and time the asset was created').' ('.$time_formats_text['readabletime'].')',
-								'asset_updated_readabletime'        => translate('The date and time the asset was last updated').' ('.$time_formats_text['readabletime'].')',
-								'asset_created_iso8601'             => translate('The date and time the asset was created').' ('.$time_formats_text['iso8601'].')',
-								'asset_updated_iso8601'             => translate('The date and time the asset was last updated').' ('.$time_formats_text['iso8601'].')',
-								'asset_created_rfc2822'             => translate('The date and time the asset was created').' ('.$time_formats_text['rfc2822'].')',
-								'asset_updated_rfc2822'             => translate('The date and time the asset was last updated').' ('.$time_formats_text['rfc2822'].')',
-								'asset_created_ical'                => translate('The date and time the asset was created').' ('.$time_formats_text['ical'].')',
-								'asset_updated_ical'                => translate('The date and time the asset was last updated').' ('.$time_formats_text['ical'].')',
-								'asset_created_by_name'             => translate('The name of the user who created this asset'),
-								'asset_updated_by_name'             => translate('The name of the user who last updated this asset'),
-								'asset_published'                   => translate('The date when the asset was last published').' ('.$time_formats_text['sql'].')',
-								'asset_published_short'             => translate('The date when the asset was last published').' ('.$time_formats_text['short'].')',
-								'asset_published_readable'          => translate('The date when the asset was last published').' ('.$time_formats_text['readable'].')',
-								'asset_published_readabledate'      => translate('The date when the asset was last published').' ('.$time_formats_text['readabledate'].')',
-								'asset_published_readabletime'      => translate('The date when the asset was last published').' ('.$time_formats_text['readabletime'].')',
-								'asset_published_iso8601'           => translate('The date when the asset was last published').' ('.$time_formats_text['iso8601'].')',
-								'asset_published_rfc2822'           => translate('The date when the asset was last published').' ('.$time_formats_text['rfc2822'].')',
-								'asset_published_ical'              => translate('The date when the asset was last published').' ('.$time_formats_text['ical'].')',
-								'asset_published_by_name'           => translate('The name of the user who last published this asset'),
-								'asset_status_changed'              => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['sql'].')',
-								'asset_status_changed_short'        => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['short'].')',
-								'asset_status_changed_readable'     => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['readable'].')',
-								'asset_status_changed_readabledate' => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['readabledate'].')',
-								'asset_status_changed_readabletime' => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['readabletime'].')',
-								'asset_status_changed_iso8601'      => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['iso8601'].')',
-								'asset_status_changed_rfc2822'      => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['rfc2822'].')',
-								'asset_status_changed_ical'         => translate('The date when the asset\'s status was last changed').' ('.$time_formats_text['ical'].')',
-								'asset_status_changed_by_name'      => translate('The name of the user who last changed the status of this asset'),
-								'asset_url'                         => translate('The absolute url to the asset'),
-								'asset_href'                        => translate('The relative href to the asset'),
-								'asset_thumbnail'                   => translate('The img tag for the thumbnail attached to the asset'),
-								'asset_thumbnail_url'               => translate('The URL only for the thumbnail attached to the asset'),
-								'asset_thumbnail_caption'           => translate('The caption for the thumbnail attached to the asset'),
-								'asset_thumbnail_assetid'           => translate('The asset id for the thumbnail attached to the asset'),
-								'asset_thumbnail_title'             => translate('The friendly name for the thumbnail attached to the asset'),
-								'asset_thumbnail_name'              => translate('The file name for the thumbnail attached to the asset'),
-								'asset_status_description'          => translate('The description of the asset\'s status'),
-								'asset_status_colour'               => translate('The colour that corresponds to the asset\'s status'),
+								'asset_created'                     => translate('Date and time the asset was created').' ('.$time_formats_text['sql'].')',
+								'asset_updated'                     => translate('Date and time the asset was last updated').' ('.$time_formats_text['sql'].')',
+								'asset_created_short'               => translate('Date and time the asset was created').' ('.$time_formats_text['short'].')',
+								'asset_updated_short'               => translate('Date and time the asset was last updated').' ('.$time_formats_text['short'].')',
+								'asset_created_readable'            => translate('Date and time the asset was created').' ('.$time_formats_text['readable'].')',
+								'asset_updated_readable'            => translate('Date and time the asset was last updated').' ('.$time_formats_text['readable'].')',
+								'asset_created_readabledate'        => translate('Date and time the asset was created').' ('.$time_formats_text['readabledate'].')',
+								'asset_updated_readabledate'        => translate('Date and time the asset was last updated').' ('.$time_formats_text['readabledate'].')',
+								'asset_created_readabletime'        => translate('Date and time the asset was created').' ('.$time_formats_text['readabletime'].')',
+								'asset_updated_readabletime'        => translate('Date and time the asset was last updated').' ('.$time_formats_text['readabletime'].')',
+								'asset_created_iso8601'             => translate('Date and time the asset was created').' ('.$time_formats_text['iso8601'].')',
+								'asset_updated_iso8601'             => translate('Date and time the asset was last updated').' ('.$time_formats_text['iso8601'].')',
+								'asset_created_rfc2822'             => translate('Date and time the asset was created').' ('.$time_formats_text['rfc2822'].')',
+								'asset_updated_rfc2822'             => translate('Date and time the asset was last updated').' ('.$time_formats_text['rfc2822'].')',
+								'asset_created_ical'                => translate('Date and time the asset was created').' ('.$time_formats_text['ical'].')',
+								'asset_updated_ical'                => translate('Date and time the asset was last updated').' ('.$time_formats_text['ical'].')',
+								'asset_created_by_name'             => translate('Name of the user who created this asset'),
+								'asset_created_by_thumbnail' 		=> translate('Imgae tag for the thumbnail attached to the user who created this asset'),
+								'asset_created_by_thumbnail_title' 		=> translate('Friendly name for the thumbnail attached to the user who created this asset'),
+								'asset_created_by_thumbnail_name' 		=> translate('File name for the thumbnail attached to the user who created this asset'),
+								'asset_created_by_thumbnail_assetid' 	=> translate('Asset id for the thumbnail attached to the user who created this asset'),
+								'asset_created_by_thumbnail_url'		=> translate('URL only for the thumbnail attached to the user who created this asset'),
+								'asset_created_by_thumbnail_caption' 	=> translate('Caption for the thumbnail attached to the user who created this asset'),
+								'asset_created_by_thumbnail_alt' 		=> translate('ALT for the thumbnail attached to the user who created this asset'),
+								'asset_updated_by_name'             	=> translate('Name of the user who last updated this asset'),
+								'asset_updated_by_thumbnail' 			=> translate('Image tag for the thumbnail attached to the user who updated this asset'),
+								'asset_updated_by_thumbnail_title' 		=> translate('Friendly name for the thumbnail attached to the user who updated this asset'),
+								'asset_updated_by_thumbnail_name' 		=> translate('File name for the thumbnail attached to the user who updated this asset'),
+								'asset_updated_by_thumbnail_assetid' 	=> translate('Asset id for the thumbnail attached to the user who updated this asset'),
+								'asset_updated_by_thumbnail_url' 		=> translate('URL only for the thumbnail attached to the user who updated this asset'),
+								'asset_updated_by_thumbnail_caption' 	=> translate('Caption for the thumbnail attached to the user who updated this asset'),
+								'asset_updated_by_thumbnail_alt' 		=> translate('ALT for the thumbnail attached to the user who updated this asset'),
+								'asset_published'                   => translate('Date when the asset was last published').' ('.$time_formats_text['sql'].')',
+								'asset_published_short'             => translate('Date when the asset was last published').' ('.$time_formats_text['short'].')',
+								'asset_published_readable'          => translate('Date when the asset was last published').' ('.$time_formats_text['readable'].')',
+								'asset_published_readabledate'      => translate('Date when the asset was last published').' ('.$time_formats_text['readabledate'].')',
+								'asset_published_readabletime'      => translate('Date when the asset was last published').' ('.$time_formats_text['readabletime'].')',
+								'asset_published_iso8601'           => translate('Date when the asset was last published').' ('.$time_formats_text['iso8601'].')',
+								'asset_published_rfc2822'           => translate('Date when the asset was last published').' ('.$time_formats_text['rfc2822'].')',
+								'asset_published_ical'              => translate('Date when the asset was last published').' ('.$time_formats_text['ical'].')',
+								'asset_published_by_name'           => translate('Name of the user who last published this asset'),
+								'asset_published_by_thumbnail' 			=> translate('Image tag for the thumbnail attached to the user who last published this asset'),
+								'asset_published_by_thumbnail_title'	=> translate('Friendly name for the thumbnail attached to the user who last published this asset'),
+								'asset_published_by_thumbnail_name'		=> translate('File name for the thumbnail attached to the user who last published this asset'),
+								'asset_published_by_thumbnail_assetid'	=> translate('Asset id for the thumbnail attached to the user who last published this asset'),
+								'asset_published_by_thumbnail_url'		=> translate('URL only for the thumbnail attached to the user who last published this asset'),
+								'asset_published_by_thumbnail_caption'	=> translate('Caption for the thumbnail attached to the user who last published this asset'),
+								'asset_published_by_thumbnail_alt'		=> translate('ALT for the thumbnail attached to the user who last published this asset'),
+								'asset_status_changed_by_name' 			=> translate('Name of the user who last changed the status of this asset'),
+								'asset_status_changed'              => translate('Date when the asset\'s status was last changed').' ('.$time_formats_text['sql'].')',
+								'asset_status_changed_short'        => translate('Date when the asset\'s status was last changed').' ('.$time_formats_text['short'].')',
+								'asset_status_changed_readable'     => translate('Date when the asset\'s status was last changed').' ('.$time_formats_text['readable'].')',
+								'asset_status_changed_readabledate' => translate('Date when the asset\'s status was last changed').' ('.$time_formats_text['readabledate'].')',
+								'asset_status_changed_readabletime' => translate('Date when the asset\'s status was last changed').' ('.$time_formats_text['readabletime'].')',
+								'asset_status_changed_iso8601'      => translate('Date when the asset\'s status was last changed').' ('.$time_formats_text['iso8601'].')',
+								'asset_status_changed_rfc2822'      => translate('Date when the asset\'s status was last changed').' ('.$time_formats_text['rfc2822'].')',
+								'asset_status_changed_ical'         => translate('Date when the asset\'s status was last changed').' ('.$time_formats_text['ical'].')',
+								'asset_status_changed_by_thumbnail'			=> translate('Name of the user who last changed the status of this asset'),
+								'asset_status_changed_by_thumbnail_title'	=> translate('Friendly name for the thumbnail attached to the user who last changed the status this asset'),
+								'asset_status_changed_by_thumbnail_name'	=> translate('File name for the thumbnail attached to the user who last changed the status this asset'),
+								'asset_status_changed_by_thumbnail_assetid' => translate('Asset id for the thumbnail attached to the user who last changed the status this asset'),
+								'asset_status_changed_by_thumbnail_url'		=> translate('URL only for the thumbnail attached to the user who last changed the status this asset'),
+								'asset_status_changed_by_thumbnail_caption'	=> translate('Caption for the thumbnail attached to the user who last changed the status this asset'),
+								'asset_status_changed_by_thumbnail_alt'		=> translate('ALT for the thumbnail attached to the user who last changed the status this asset'),
+								'asset_url'                         => translate('Absolute url to the asset'),
+								'asset_href'                        => translate('Relative href to the asset'),
+								'asset_thumbnail'                   => translate('Image tag for the thumbnail attached to the asset'),
+								'asset_thumbnail_url'               => translate('URL only for the thumbnail attached to the asset'),
+								'asset_thumbnail_caption'           => translate('Caption for the thumbnail attached to the asset'),
+								'asset_thumbnail_assetid'           => translate('Asset id for the thumbnail attached to the asset'),
+								'asset_thumbnail_title'             => translate('Friendly name for the thumbnail attached to the asset'),
+								'asset_thumbnail_name'              => translate('File name for the thumbnail attached to the asset'),
+								'asset_linking_info'                => translate('List of lineages based on the asset'),
+								'asset_parents'                     => translate('List of parent asset ids of the asset'),
+								'asset_parent'                      => translate('Current context parent asset id of the asset'),
+								'asset_linking_lineage'             => translate('Current context Lineage ids of the asset'),
+								'asset_sibling_next'  				=> translate('Prints the asset ID of the next asset in the current lineage'),
+								'asset_sibling_prev'  				=> translate('Prints the asset ID of the previous asset in the current lineage'),
+								'asset_status_description'          => translate('Description of the asset\'s status'),
+								'asset_status_colour'               => translate('Colour that corresponds to the asset\'s status'),
+								'asset_status_code'					=> translate('Code of the asset\'s status') 
 							);
 
 		// add default keywords first
@@ -3961,15 +4138,16 @@ class Asset extends MySource_Object
 	* Note that this function returns NULL for any keywords it doesn't
 	* recognise, unless the keyword begins with %globals_
 	*
-	* @param string	$keyword	Keyword to find a replacement for
+	* @param string	$keyword					Keyword to find a replacement for
+	* @param string	$additional_replacements	Additional keyword replacements for 'replace_keywords' modifier
 	*
 	* @return string
 	* @access public
 	* @see _getKeywordReplacement
 	*/
-	public function getKeywordReplacement($keyword)
+	public function getKeywordReplacement($keyword, $additional_replacements=Array())
 	{
-		$replacement = $this->_getKeywordReplacement($keyword);
+		$replacement = $this->_getKeywordReplacement($keyword, $additional_replacements);
 		return $replacement;
 
 	}//end getKeywordReplacement()
@@ -3986,12 +4164,13 @@ class Asset extends MySource_Object
 	* Note that this function returns NULL for any keywords it doesn't
 	* recognise, unless the keyword begins with %globals_
 	*
-	* @param string	$keyword	Keyword to find a replacement for
+	* @param string	$keyword					Keyword to find a replacement for
+	* @param string	$additional_replacements	Additional keyword replacements for 'replace_keywords' modifier
 	*
 	* @return string
 	* @access private
 	*/
-	protected function _getKeywordReplacement($keyword)
+	protected function _getKeywordReplacement($keyword, $additional_replacements=Array())
 	{
 		if (empty($keyword)) return '';
 
@@ -4167,6 +4346,8 @@ class Asset extends MySource_Object
 				array_sort_by_length($related_assetids, FALSE, FALSE);
 
 				foreach($related_assetids as $field_name => $related_assetid) {
+					// Space chars in metadata field name in keyword are substituted by '_'
+					$field_name = str_replace(' ', '_', $field_name);
 					if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {
 						$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
 						if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
@@ -4186,6 +4367,8 @@ class Asset extends MySource_Object
 			//if ($replacement === NULL) {
 			//	unset($replacement);
 			//}
+		} else if (0 === strpos($keyword, 'asset_status_code')) {
+			$replacement = ($this->status) ? $this->status : '';
 
 		} else if (0 === strpos($keyword, 'asset_charset')) {
 			$replacement = ($this->charset) ? $this->charset : SQ_CONF_DEFAULT_CHARACTER_SET;
@@ -4253,7 +4436,7 @@ class Asset extends MySource_Object
 				$workflow_keyword_parts = explode(':', $workflow_keyword);
 
 				$schema_ids = Array();
-				$wf_replacements = Array();
+				$wf_replacements = Array();				
 
 				if (isset($workflow_keyword_parts[1])) {
 					$workflow_keyword = $workflow_keyword_parts[0];
@@ -4311,8 +4494,12 @@ class Asset extends MySource_Object
 					}
 				}
 
-				$replacement = implode(', ', $wf_replacements);
-				if (empty($replacement)) return NULL;
+				if (empty($wf_replacements)) {
+					// empty string if the asset isn't in workflow Squizmap #6826
+					$replacement = '';
+				} else {
+					$replacement = implode(', ', $wf_replacements);
+				}
 
 			} else 	{
 				$workflow_keyword = substr($keyword, strlen('asset_workflow_'));
@@ -4342,6 +4529,88 @@ class Asset extends MySource_Object
 		} else if (strpos($keyword, 'asset_ds_csv') !== FALSE) {
 			$row_col = explode('-', str_replace('asset_ds_csv_', '', $keyword));
 			$replacement = $this->getDsCsvKeywordReplacement($keyword, $row_col);
+		} else if (strpos($keyword, 'nested_get_') !== FALSE) {
+			// grab the get var from $_GET now.  we can't use global keyword globals_get here because it will be only replaced too late
+			$sub_keyword = substr($keyword, 11);
+			$replacement = array_get_index($_GET, $sub_keyword, '');
+		} else if ($keyword === 'asset_sibling_next') {
+			$replacement = '';
+			$parent_id = $GLOBALS['SQ_SYSTEM']->am->getAssetParentIdByURL($this->id);
+
+			 if(!empty($parent_id)) {
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($parent_id, SQ_LINK_TYPE_1, '', TRUE, 'major', NULL, NULL,NULL,'sort_order');
+				}
+				foreach ($links as $key => $link)
+				{
+					//Get the current postion of the asset and retrieves the next asset sibling
+					if($link['minorid'] === $this->id) {
+						$key = $key+1; 
+						if (isset($links[$key]) === TRUE) {
+							$replacement = $links[$key]['minorid'];
+						}
+						else {
+							$replacement = ''; 
+						}
+						break;
+					}
+				}
+				
+		} else if ($keyword === 'asset_sibling_prev') {
+			$replacement = ''; 
+			$parent_id = $GLOBALS['SQ_SYSTEM']->am->getAssetParentIdByURL($this->id);
+
+			 if(!empty($parent_id)) {
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($parent_id, SQ_LINK_TYPE_1, '', TRUE, 'major', NULL, NULL,NULL,'sort_order');
+				}
+				foreach ($links as $key => $link) 
+				{	
+					//Get the current postion of the asset and retrieves the previous asset sibling
+					if ($link['minorid'] === $this->id) {
+						$key = $key-1; 
+						if (isset($links[$key]) === TRUE) {
+							$replacement = $links[$key]['minorid'];
+						}
+						else {
+							$replacement = ''; 
+						}
+						break;
+					}
+				}
+				
+		} else if ($keyword === 'asset_parents') {
+			// Gets a list of the top level parent asset id's based on asset
+			$replacement = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id,'', TRUE, NULL,NULL, TRUE, NULL, 1));
+			$replacement = array_map('strval', $replacement);
+		} else if ($keyword === 'asset_parent') {
+			$replacement = '';
+			$replacement =  $GLOBALS['SQ_SYSTEM']->am->getAssetParentIdByURL($this->id);
+		} else if ($keyword === 'asset_linking_info') {
+			// Gets a list of the link lineages of the current asset	
+			$replacement = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($this->id);
+				foreach ($replacement as $key => &$value) {
+						$lineage_assetids = array_keys($value['lineage']);
+						$value['lineage'] = array_map('strval', $lineage_assetids);			
+				}		
+			unset($value);
+		} else if ($keyword === 'asset_linking_lineage') {
+			$replacement = '';
+			//Gets the lineage Asset IDs of the current asset 
+			//Gets the Url for the current asset based on the asset ID, strip the URL of http to get the link linages 
+			$asset_url_info = strip_url($GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id), TRUE);
+			if(!empty($asset_url_info))
+			{
+				//Create a variable to store the id values of the $lineage_assetids
+				$link_linage_ids = Array();
+				//Call the getLineageFromURL  which will return a collection of Link Linages 
+				$link_lineage_collection = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url_info);  
+				//Get the particular asset ids based on the Link Linage Collection 
+				foreach ($link_lineage_collection as $key => $value) 
+				{
+					$link_linage_ids[] = $value['assetid'];			
+				}
+				//Set the replacement object with the Lineage IDs  
+				$replacement =  $link_linage_ids;	
+			}
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
@@ -4361,7 +4630,8 @@ class Asset extends MySource_Object
 			}
 		}
 
-		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id), $keyword);
+
+		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id, 'replacements' => $additional_replacements), $keyword);
 
 		return $replacement;
 
@@ -4637,7 +4907,7 @@ class Asset extends MySource_Object
 		return $GLOBALS['SQ_SYSTEM']->user->canAccessBackend();
 
 	}//end backendAccess()
-
+	
 
 	/**
 	* Returns TRUE if the current user can live edit this asset
@@ -4683,10 +4953,10 @@ class Asset extends MySource_Object
 
 		if (!empty($lock_type)) {
 			// make sure user can't live edit attributes and metadata if workflow is used.
-			if ($lock_type !== 'attributes' && $lock_type !== 'metadata') {
+			if ($lock_type !== 'attributes' && $lock_type !== 'metadata' && $lock_type !== 'links') {
 				$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
 				// if we are getting a lock type that cant be safe edited (eg permissions), you can live edit
-				if (!in_array('attributes', array_keys($locks)) && !in_array('metadata', array_keys($locks))) {
+				if (!in_array('attributes', array_keys($locks)) && !in_array('metadata', array_keys($locks)) && !in_array('links', array_keys($locks))) {
 					return TRUE;
 				}
 			}
@@ -5387,16 +5657,13 @@ class Asset extends MySource_Object
 	/**
 	* Returns a reference to the Asset_Edit_Interface object for this asset type
 	*
+	* @see Asset_Manager::getAssetEditInterface()
 	* @return object
 	* @access public
 	*/
 	public function getEI()
 	{
-		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
-			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
-			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
-		}
-		return $this->_tmp['ei'];
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetEditInterface($this->type());
 
 	}//end getEI()
 
@@ -5404,18 +5671,13 @@ class Asset extends MySource_Object
 	/**
 	* Returns the Edit_Fns object appropriate for whatever asset type we are
 	*
+	* @see Asset::getEditFns()
 	* @return object
 	* @access public
 	*/
 	public function getEditFns()
 	{
-		if (!isset($this->_tmp['edit_fns'])) {
-			$class_name = $this->type().'_edit_fns';
-			require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
-			$this->_tmp['edit_fns'] = new $class_name();
-		}
-
-		return $this->_tmp['edit_fns'];
+		return $GLOBALS['SQ_SYSTEM']->am->getEditFns($this->id, $this->type());
 
 	}//end getEditFns()
 
@@ -5491,7 +5753,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns the href for this asset closest to the $base_url, but relative to the current url
+	* Returns the file system path for this asset
 	*
 	* @return string
 	* @access public
@@ -5611,7 +5873,7 @@ class Asset extends MySource_Object
 					if (is_null($parent)) continue;
 					$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
 					if (!empty($bad_paths)) {
-						trigger_localised_error('SYS0201', sprintf(translate('Path(s) "%1$s" already in use by one of the siblings of "%2$s"', implode('", "'), $bad_paths), $parent->name), E_USER_WARNING);
+						trigger_localised_error('SYS0201', sprintf(translate('Path(s) "%1$s" already in use by one of the siblings of "%2$s"'), implode('", "', $bad_paths), $parent->name), E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
@@ -6273,29 +6535,33 @@ class Asset extends MySource_Object
 			$parent_urls = $parent->getLookups();
 
 			for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
+					
+				// Get the protocol info for this parent url
+				$site_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($parent_urls[$j]['url']);
+				$site_https = isset($site_url_info['https']) ? $site_url_info['https'] : 0;
+				$site_http = isset($site_url_info['http']) ? $site_url_info['http'] : 0;
+
+				$https = ($this->force_secure === '-') ? '0' : $site_https;
+				$http  = ($this->force_secure === '1') ? '0' : $site_http;
+
+				if (!$http && !$https) {
+					$https = $site_https;
+					$http = $site_http;
+				}
+
+				// if we have no protocol then we can just ignore this parent URL
+				if (!$http && !$https) {
+					continue;
+				}
+
+				// If the parent has unrestricted URL, do not create children's URL based on it
+				if (strpos($parent_urls[$j]['url'], '/__data/') !== FALSE || strpos($parent_urls[$j]['url'], 'http://'.SQ_CONF_STATIC_ROOT_URL.'/') === 0 || strpos($parent_urls[$j]['url'], 'https://'.SQ_CONF_STATIC_ROOT_URL.'/') === 0) {
+					continue;
+				}
 
 				for ($k = 0; $k < $num_paths; $k++) {
 					$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 					if (isset($done_urls[$new_url])) continue;
-
-					// Get the protocol info for this new url
-					$site_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($new_url);
-
-					$site_https = isset($site_url_info['https']) ? $site_url_info['https'] : 0;
-					$site_http = isset($site_url_info['http']) ? $site_url_info['http'] : 0;
-
-					$https = ($this->force_secure === '-') ? '0' : $site_https;
-					$http  = ($this->force_secure === '1') ? '0' : $site_http;
-
-					if (!$http && !$https) {
-						$https = $site_https;
-						$http = $site_http;
-					}
-
-					// if we have no protocol then we can just ignore this URL
-					if (!$http && !$https) {
-						continue;
-					}
 
 					// check if another asset is using the new URL
 					$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url = :new_url';
@@ -6372,6 +6638,10 @@ class Asset extends MySource_Object
 								}
 
 								foreach ($applied_layout as $key => $old_layout_url) {
+									if ($old_layout_url != $tmp_old_url['url'] && strpos($old_layout_url, $tmp_old_url['url'].'/') === FALSE) {
+										// This URL does not belongs to the "old url" subdomain
+										continue;
+									}
 									$new_layout_url = str_replace($tmp_old_url['url'], $new_url, $old_layout_url);
 									try {
 										$bind_vars	= Array (
@@ -6748,6 +7018,32 @@ class Asset extends MySource_Object
 	}//end replaceKeywordsInString()
 
 
+
+	/**
+	* Replaces all keywords from the given value
+	* This function will handle global keywords
+	*
+	* @param string	$keyword	containing keywords
+	* @param string $convertto  data types  
+	* @return mixed
+	* @access public
+	*/
+	public function replaceAllKeywords($keyword, $convertto) 
+	{
+		if (!$keyword) return '';
+		$type = Array('boolean','integer','string','float','array','object','null');
+		
+		// Check for keywords in the give value
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		replace_global_keywords($keyword);
+		$replacement = $this->replaceKeywordsInString($keyword);
+		if (!empty($convertto) && in_array($convertto, $type)) {
+			settype($replacement, $convertto);
+		}
+		return $replacement;
+	} //end replaceAllKeywords()
+
+
 	/**
 	* Fast Track is way of flagging on this asset, "it's currently
 	* safe to skip certain expensive tasks". This is useful when
@@ -6826,7 +7122,6 @@ class Asset extends MySource_Object
 	*
 	* @param $task 		string 	Task to fasttrack
 	* @param $assetid	int		Asset associated with the task
-
 	* @see Trigger_Manager
 	* @see Search_Manger
 	* @see Metadata_Manager
@@ -7058,12 +7353,16 @@ class Asset extends MySource_Object
 										$eval_results[$condition] = $ret;
 
 										// send no-cache header is required
-										if($conditions_info[$condition]['force_no_cache']) {
-											$send_no_cache_header = TRUE;
-										}
+										// rm #7908 -- check to see if force_no_cache is exists, otherwise set it to FALSE 
+										if(array_get_index($conditions_info[$condition], 'force_no_cache', FALSE) === TRUE) {
+											if($conditions_info[$condition]['force_no_cache']) {
+												$send_no_cache_header = TRUE;
+											}
+										}							
 
 										// adds up the results to evaluate the group result
 										$sum_ret = $sum_ret && $ret;
+										$diff_ret = $sum_ret || $ret;
 										if ($op === 'one_match' && $ret) {
 											// if one match, any true will be true for all
 											$group_ret = TRUE;
@@ -7072,6 +7371,14 @@ class Asset extends MySource_Object
 											// if all match, any false will be false for all
 											$group_ret = FALSE;
 											break;
+										} else if ($op === 'none_match' && $ret) {
+											// if none match, any true will be a false for all
+											$group_ret = FALSE;
+											break;
+										} else if ($op === 'one_mismatch' && !$ret) {
+											// if one doesn't match, any false will be a true for all
+											$group_ret = TRUE;
+											break;
 										}
 									}
 								}
@@ -7079,6 +7386,9 @@ class Asset extends MySource_Object
 
 							// if all match and all conditions are true, then the group is true, otherwise just use default value
 				 			if ($op === 'all_match' && $sum_ret) $group_ret = TRUE;
+
+							// if none match and all conditions are false, then the group is true, otherwise just use default value
+				 			if ($op === 'none_match' && !$diff_ret) $group_ret = TRUE;
 
 							// sum up results of groups
 							$div_sum_ret = $div_sum_ret && $group_ret;
@@ -7132,8 +7442,11 @@ class Asset extends MySource_Object
 								$GLOBALS['SQ_CONDITION']['conditional_keywords'][$condition] = $ret;
 
 								// if it forces no cache header to be sent, then send no-cache header
-								if ($conditions_info[$condition]['force_no_cache']) {
-									$send_no_cache_header = TRUE;
+								// rm #7908 -- check to see if force_no_cache is exists, otherwise set it to FALSE  
+								if(array_get_index($conditions_info[$condition], 'force_no_cache', FALSE) === TRUE) {
+									if ($conditions_info[$condition]['force_no_cache']) {
+										$send_no_cache_header = TRUE;
+									}
 								}
 							}
 						}
@@ -7347,6 +7660,38 @@ class Asset extends MySource_Object
 		return TRUE;
 
 	}//end inMaintenanceMode
+
+
+	/**
+	* If the asset supports System Version mode (Safe Edit status)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function supportsSystemVersion()
+	{
+		return TRUE;
+
+	}//end supportsSystemVersion()
+
+
+	/**
+	* Returns original URL for a __data type url for file type assets
+	* see File.inc::getOriginalURL()
+	*
+	* @param string		data_url	asset's __data  url out of which we get the original URL
+	* @param string		site_url	url of site under which we have our asset
+	*
+	* @return array
+	* @access public
+	*/
+	public function getOriginalURL($data_url='', $site_url='')
+	{
+		$original_url = Array();
+
+		return $original_url;
+
+	}//end getOriginalURL()
 
 
 }//end class

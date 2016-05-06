@@ -41,10 +41,27 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	// prefix for all the form vars
-	$prefix = $owner->getPrefix();
+	// Replace '=' char in the prefix otherwise it will break the href url link
+	$prefix = str_replace('=', '-', $owner->getPrefix());
 	$invalid_dates = TRUE;
 
-	$log_types = include SQ_DATA_PATH.'/private/system/core/internal_message_types.inc';
+	// Get log types that this asset has received so far from the database
+	$sql = 'SELECT DISTINCT type
+				FROM sq_internal_msg
+				WHERE
+					(
+						type LIKE :type_asset OR
+						type LIKE :type_trigger OR
+						type LIKE :type_file
+					)
+					AND assetid = :assetid
+				ORDER BY type ASC';
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::bindValueToPdo($query, 'type_asset', 'asset%', PDO::PARAM_STR);
+	MatrixDAL::bindValueToPdo($query, 'type_trigger', 'trigger%', PDO::PARAM_STR);
+	MatrixDAL::bindValueToPdo($query, 'type_file', 'file%', PDO::PARAM_STR);
+	MatrixDAL::bindValueToPdo($query, 'assetid', $owner->id, PDO::PARAM_STR);
+	$log_types = MatrixDAL::executePdoAssoc($query, 'type');
 
 	// if it is in limbo mode there will be already an element with sq_backend_log_type id
 	// therefore we use differnet name for the combo box in limbo mode
@@ -71,11 +88,10 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	$selected_types = Array();
 	$o->openSection(translate('Logged Messages'));
 
-
 	$type_options = Array();
 	foreach ($log_types as $type) {
-		// We're only interested in log types starting with 'asset'
-		if (strpos($type, 'asset') !== 0) {
+		// We're only interested in log types starting with 'asset', 'trigger' and 'file'
+		if ((strpos($type, 'asset') !== 0) && (strpos($type, 'trigger') !== 0) && (strpos($type, 'file') !== 0)) {
 			continue;
 		}
 
@@ -261,12 +277,13 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 				for ($i = $start_printing_at; $i < $num_logs; $i++) {
 					$log_data = $all_logs[$i];
+					$file_log_type = !empty($log_data['type']) && strpos($log_data['type'], 'file') === 0;
 
 					?>
 					<tr>
 						<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
 						<td class="sq-backend-table-cell" nowrap><?php echo $log_data['from_name']; ?></td>
-						<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo nl2br(htmlentities($log_data['body'])); ?></td>
+						<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo $file_log_type ? $log_data['body'] :  nl2br(htmlentities($log_data['body'])); ?></td>
 					</tr>
 					<?php
 					$num_printed++;

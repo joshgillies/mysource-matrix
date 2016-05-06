@@ -93,7 +93,7 @@ class Page_Tag_Listing extends Page_Asset_Listing
 		$bind_vars = Array();
 
 		$root_asset_ids = $this->getRootNodes();
-
+		if(empty($root_asset_ids)) return $assets_to_list;
 		foreach ($root_asset_ids as $root_asset_id) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 

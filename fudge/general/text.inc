@@ -153,6 +153,34 @@ function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array(), 
 
 }//end apply_keyword_modifiers()
 
+/**
+ * Wrap a piece of text with an XML tag.
+ * @param {string} $text The text to wrap
+ * @param {string} $tag The tag to wrap the text with, in the format "tagname attr1='value 1' attr2=val2".
+ * @param {boolean} $showIfEmpty Whether to show the empty tag if no text specified.
+ * @return string
+ * @access public
+ */
+function wrap_with_tag($text, $tag, $showIfEmpty=false)
+{
+	if(!$text && !$showIfEmpty){
+		return "";
+	}
+
+	// Explode out our attributes
+	$tag_data = explode(' ', trim($tag), 2);
+
+	$tag = isset($tag_data[0]) ? $tag_data[0] : '';
+	$html_attrs = isset($tag_data[1]) ? ' '.trim($tag_data[1]) : '';
+
+	// return the tag
+	if (empty($text)) {
+		return "<$tag$html_attrs />";
+	} else {
+		return "<$tag$html_attrs>$text</$tag>";
+	}
+
+}//end wrap_with_tag
 
 /**
  * Returns a version of $text piped through a predefined modifier.
@@ -191,7 +219,15 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 
 		case "index":
 			$index = array_get_index($modifier['args'], 0, 0);
-			return array_get_index($text, $index, '');
+			$value = array_get_index($text, $index, FALSE);
+
+			// If integer index is provided, get the item at nth index
+			if ($value === FALSE && ctype_digit($index)) {
+				$text = array_values($text);
+				$value = array_get_index($text, $index, FALSE);
+			}
+
+			return $value !== FALSE ? $value : '';
 
 		case "as_xml":
 			$root_element = array_get_index($modifier['args'], 0, 'as_xml');
@@ -243,7 +279,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		case "implode":
 			$glue = array_get_index($modifier['args'], 0, '');
 			return implode($glue, $text);
-
+	
 		// Array value without any modifiers will be returned as a JSON string by default
 		case "as_json":
 		default:
@@ -253,7 +289,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 	}//end if is_array()
 
 	switch ($modifier['modifier']) {
-
+ 
 	case "replace_keywords":
 
 		/* This modifier takes another modifier as its arguments.
@@ -334,6 +370,21 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 	case "urlencode":
 		return urlencode($text);
 
+	case "base64url_encode":
+		$base64  = strtr(base64_encode($text), '+/', '-_');
+		$pad_arg = array_get_index($modifier['args'], 0);
+		if ($pad_arg === 'no_pad') {
+			$base64 = rtrim($base64, '=');
+		}
+		return $base64;
+
+	case "base64url_decode": 
+		$text = base64_decode(strtr($text, '-_', '+/'));
+		return $text;
+	
+	case "reverse":
+		return strrev($text);
+
 	case "urldecode":
 		return urldecode($text);
 
@@ -366,6 +417,15 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 
 	case "unescapehtml":
 		return htmlspecialchars_decode($text, ENT_QUOTES);
+
+	case "htmlentities":
+		if (is_numeric(array_get_index($modifier['args'], 0))) {
+			$flag = array_get_index($modifier['args'], 0);
+		} else {
+			$arg_flag = strtoupper(array_get_index($modifier['args'], 0, ''));
+			$flag = !empty($arg_flag) && defined($arg_flag) ? constant($arg_flag) : ENT_QUOTES;
+		}
+		return htmlentities($text, $flag , SQ_CONF_DEFAULT_CHARACTER_SET);
 
 	case "striphtml":
 		$allowable_tags = array_get_index($modifier['args'], 0, '');
@@ -402,6 +462,15 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		} else {
 			return $text;
 		}
+
+	case "lastchars":
+		// One argument; the max characters as an integer.
+		$max = array_get_index($modifier['args'], 0, 0);
+
+		if (SQ_CONF_DEFAULT_CHARACTER_SET == 'utf-8' && extension_loaded('mbstring'))
+			return mb_substr($text,  $max*-1, $max, SQ_CONF_DEFAULT_CHARACTER_SET);
+		else
+			return substr($text, $max*-1);
 
 	case "wordcount":
 		return str_word_count($text, 0, '0123456789');
@@ -525,26 +594,12 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 	case "tag":
 		// One argument; the tag name to wrap around the text.
 		$tag = array_get_index($modifier['args'], 0, NULL);
-		if ($tag) {
-			if (empty($text)) {
-				return "<$tag />";
-			} else {
-				return "<$tag>$text</$tag>";
-			}
-		}
-		return $text;
+		return wrap_with_tag($text,$tag,true);
 
 	case "tagif":
 		// Same as above, except do nothing if the text is empty.
 		$tag = array_get_index($modifier['args'], 0, NULL);
-		if ($tag) {
-			if (empty($text)) {
-				return "";
-			} else {
-				return "<$tag>$text</$tag>";
-			}
-		}
-		return $text;
+		return wrap_with_tag($text,$tag);
 
 	case "cdata":
 		// Escape CDATA closing markup.
@@ -724,14 +779,14 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 					}
 					if (@preg_match_all($regex_data[0]['regex'], $text, $matches)) {
 						if (isset($matches[0]) && count($matches[0]) > 0) {
-							return $success ? $success : count($matches[0]);
+							return $success !== NULL ? $success : count($matches[0]);
 						}
 					}
 				}
 			}
 		}
 
-		return $failure ? $failure : 0;
+		return $failure !== NULL ? $failure : 0;
 
 	case "preg_match_result":
 		$assetid = array_get_index($modifier['args'], 0, '');
@@ -914,7 +969,28 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		);
 
 		return preg_replace( $find , $replace , $text );
-	
+
+	case "append":
+		$string = array_get_index($modifier['args'], 0, '');
+		return $text.$string;
+
+	case "prepend":
+		$string = array_get_index($modifier['args'], 0, '');
+		return $string.$text;
+
+	case "append_if":
+		$string = array_get_index($modifier['args'], 0, '');
+		if(empty($text)) return $text;
+		return $text.$string;
+
+	case "prepend_if":
+		$string = array_get_index($modifier['args'], 0, '');
+		if(empty($text)) return $text;
+		return $string.$text;
+
+	case "json_decode":
+		return json_decode($text, TRUE);
+
 	default:
 		return $text;
 
@@ -1446,16 +1522,64 @@ function array_to_csv($array, $include_header=TRUE)
 
 
 /**
+* Checks if the given string represention of the array data contains safe array data
+* Intended to to be used to verify the array string is safe for eval()
+*
+* $param string $input
+*
+* @return boolean
+* @access public
+*/
+function safe_array_literal($input)
+{
+	$input = '<'.'?php'."\n".strtolower($input);
+	$tokens = token_get_all($input);
+	array_shift($tokens);
+
+	// Acceptable tokens
+	$white_list = Array(
+					'(' => 1, 
+					')' => 1, 
+					',' => 1,
+					';' => 1,
+					T_ARRAY => 1, 
+					T_CONSTANT_ENCAPSED_STRING => 1,
+					T_WHITESPACE => 1,
+					T_DOUBLE_ARROW => 1,
+					T_LNUMBER => 1,
+					T_STRING => 1, // Limited strings allowed
+				);
+
+	$valid = TRUE;
+	foreach ($tokens as $i => $token) {
+		$token_type = is_array($token) ? $token[0] : $token;
+		if (!isset($white_list[$token_type]) ||	($token_type == T_STRING && ($token[1] != 'false' && $token[1] != 'true' && $token[1] != 'null'))) {
+			$valid = FALSE;
+			break;
+		}
+	}
+
+	return $valid;
+
+}//end safe_array_literal()
+
+
+/**
 * Escape dangerous content (eg. <?php, <?, <script language="php">) by reference
 * Intended to be used on cache files that are eval()'d or include()'d
 *
-* @param string	&$subject	subject
+* @param string  &$subject    String to escape
+* @param boolean $add_slashes Whether to escape quotes by adding slashes
 *
 * @return string
 * @access public
 */
-function escape_php(&$subject)
+function escape_php(&$subject, $add_slashes=FALSE)
 {
+	if ($add_slashes) {
+		$subject = addslashes($subject);
+	}
+
 	// not necessary to escape the php end tag when outside of a PHP block
 	$subject = str_replace('<?', "<?php echo '<'.'?'; ?>", $subject);
 	$subject = str_replace('<%', "<?php echo '<'.'%'; ?>", $subject);

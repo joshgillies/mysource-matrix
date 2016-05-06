@@ -168,12 +168,27 @@ class Data_Source_Soap_Management extends Asset_Management
 																	),
 												'description' 	=> 'Caching option for WSDL',
 											   ),
+						'additional_headers'=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+													'description' 	=> 'Additional SOAP headers',
+												),
 						'request_timeout'	=> Array(
 												'added'			=> '0.2',
 												'type'			=> 'int',
 												'default'		=> 0,
 												'description' 	=> 'Seconds before the SOAP request should timeout',
 											   ),
+						'parse_response'	=> Array(
+												'added'		=> '0.2',
+												'type'		=> 'boolean',
+												'default'	=> TRUE,
+												'parameters'    => Array(
+																	'allow_empty' => FALSE,
+																),
+												'description' 	=> 'Whether to parse XML in the response',
+											),
 					  );
 
 	}//end constructor

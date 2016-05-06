@@ -17,10 +17,13 @@
 
 <contents>
 	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
+		<field>
 			<display_name>Field Name</display_name>
 			<note />
-			<text width="30" height="1" />
+			<function_call>
+				<paint_function   name="paintFieldNameComponents"   />
+				<process_function name="processFieldNameComponents" />
+			</function_call>
 		</field>
 		<field attribute="friendly_name">
 			<display_name>Friendly Name</display_name>
@@ -82,6 +85,11 @@
 			<note>If this field is not editable, the user will always see the default value</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
+		<field attribute="allow_cascading">
+			<display_name>Allow Cascading?</display_name>
+			<note>%description%</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
 		<field>
 			<display_name>Editing Style</display_name>
 			<note></note>
@@ -101,6 +109,8 @@
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="is_contextable">
+			<display_name>Contextable?</display_name>
+			<note>%description%</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="frontend">

@@ -36,16 +36,16 @@
 	</section>
 	<section name="Sections" limbo_access="1">
 		<field>
-			<display_name>Add Sections</display_name>
-			<note>Enter names for new sections you want to add.</note>
+			<display_name>Current Sections</display_name>
+			<note>Click on a section's name to display that section.</note>
 			<function_call>
 				<paint_function   name="paintSectionLinks"   />
 				<process_function name="processSectionLinks" />
 			</function_call>
 		</field>
 		<field read_access="write:menu" write_access="write:menu">
-			<display_name>Current Sections</display_name>
-			<note>Click on a section's name to display that section.</note>
+			<display_name>Add Sections</display_name>
+			<note>Enter names for new sections you want to add.</note>
 			<function_call>
 				<paint_function   name="paintAddSections"   />
 				<process_function name="processAddSections" />
@@ -282,12 +282,12 @@
 		</field>
 		<field attribute="next_button">
 			<display_name>Next Page Button Text</display_name>
-			<note>On multi-page forms, the Submit keyword will be replaced with the Next Page button if it is not the last page. If no custom text is entered here, &quot;Next Page&quot; will be used.</note>
+			<note>If either <![CDATA[<strong>Multi-Page?</strong>]]> or <![CDATA[<strong>Use Confirmation Page?</strong>]]> are set to "Yes", the Submit Button keyword will be replaced with the Next Page Button on pages other than the last. If left empty, "Next Page" will be used as the text for this button.</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="previous_button">
 			<display_name>Previous Page Button Text</display_name>
-			<note>This button returns you to the previous page in a multi-page form. If <![CDATA[<strong>Multi-Page</strong>]]> and <![CDATA[<strong>Use Confirmation Page</strong>]]> are both turned off, no Previous Page button will be displayed, and its keyword will be blanked out. If no custom text is entered here, &quot;Previous Page&quot; will be used.</note>
+			<note>If either <![CDATA[<strong>Multi-Page?</strong>]]> or <![CDATA[<strong>Use Confirmation Page?</strong>]]> are set to "Yes", a Previous Page Button with this text will be made available as a keyword. On the first page of a form, or if settings are both set to "No", the Previous Page Button keyword instead will be blank. If left empty, "Previous Page" will be used as the text for this button.</note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="save_button">

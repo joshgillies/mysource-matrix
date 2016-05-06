@@ -115,8 +115,11 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 			$comp_value *= 1024 * 1024 * 1024;
 		}
 
-		$expression = "return $filesize $operator $comp_value;";
-		$valid = eval($expression);
+		if ($operator == '<=') {
+			$valid = $filesize <= $comp_value;
+		} else {
+			$valid = $filesize >= $comp_value;
+		}
 
 		return $valid;
 
@@ -135,14 +138,36 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	function ruleDescription(&$q_asset, $rule_data)
 	{
 		$operator = array_get_index($rule_data, 'operator', '<=');
-		$comparison = array_get_index($rule_data, 'value', '').' '.array_get_index($rule_data, 'multiplier', '');
+		$value = array_get_index($rule_data, 'value', '');
+		$multi = array_get_index($rule_data, 'multiplier', '');
+
+		$multiplier_map = Array(
+							''		=> translate('bytes'),
+							'KB'	=> translate('KB'),
+							'MB'	=> translate('MB'),
+							'GB'	=> translate('GB'),
+						  );
+
+		$description_text = Array(
+			'<='     => translate('File uploaded at question "%1$s" must be no larger than %2$s %3$s'),
+			'<=_acc' => translate('File uploaded must be no larger than %2$s %3$s.'),
+			'>='     => translate('File uploaded at question "%1$s" must be no smaller than %2$s %3$s'),
+			'>=_acc' => translate('File uploaded must be no smaller than %2$s %3$s.'),
+		);
 
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
-		if($use_accessible_string)
-		    $error_str = translate('core_form_rule_file_size_desc_'.$operator.'_accessible', $comparison);
-		else
-		    $error_str = translate('core_form_rule_file_size_desc_'.$operator, $q_asset->attr('name'), $comparison);
+
+		if ($use_accessible_string) {
+			$operator .= '_acc';
+		}
+
+		$error_str = sprintf(
+			$description_text[$operator],
+			$q_asset->attr('name'),
+			$value,
+			$multiplier_map[$multi]
+		);
 
 		return $error_str;
 

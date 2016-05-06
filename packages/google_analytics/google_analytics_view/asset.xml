@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>google_analytics</package>
 	<type_code>google_analytics_view</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Google Analytics View</name>
 	<description>Asset representing the reports of a single View (previously known as "Profile") underneath a Google Analytics Bridge.</description>
 	<instantiable>yes</instantiable>

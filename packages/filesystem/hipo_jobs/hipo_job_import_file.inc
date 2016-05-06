@@ -57,12 +57,12 @@ class HIPO_Job_Import_File extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$o->openField(translate('Importing File Threshold'));
+		$o->openField(translate('File Bridge Import Threshold'));
 
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_IMPORT_FILE_THRESHOLD]', SQ_HIPO_IMPORT_FILE_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_IMPORT_FILE_THRESHOLD]', SQ_HIPO_IMPORT_FILE_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_IMPORT_FILE_THRESHOLD;
 		}

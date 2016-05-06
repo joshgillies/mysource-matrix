@@ -69,13 +69,13 @@ class Form_Management extends Asset_Management
 						'submit_button'				=> Array(
 														'added'		=> '0.0.1',
 														'type'		=> 'text',
-														'default'	=> '',
+														'default'	=> 'Submit',
 														'is_contextable'	=> TRUE,
 													   ),
 						'reset_button'				=> Array(
 														'added'		=> '0.0.1',
 														'type'		=> 'text',
-														'default'	=> '',
+														'default'	=> 'Reset',
 														'is_contextable'	=> TRUE,
 													   ),
 						'question_col_width'		=> Array(
@@ -449,13 +449,13 @@ class Form_Management extends Asset_Management
 						'mollom_spam_submission_text' 	=> Array(
 															'added'			=> '0.15',
 															'type'			=> 'text',
-															'default'		=> 'This submission looks like a spam. Cannot accept this submission',
+															'default'		=> 'This submission looks like a spam. Cannot accept this submission.',
 															'description'	=> 'Mollom error message text for spam submission',
 														),
 						'mollom_captcha_incorrect_text' => Array(
 															'added'			=> '0.15',
 															'type'			=> 'text',
-															'default'		=> 'Incorrect security key. Please try again',
+															'default'		=> 'Incorrect security key. Please try again.',
 															'description'	=> 'Mollom error message text for incorrect captcha',
 														),										   
 						'mollom_captcha_regen_link_text' => Array(
@@ -488,7 +488,7 @@ class Form_Management extends Asset_Management
 						'submission_limit_reached_text'	=> Array(
 															'added'			=> '0.16',
 															'type'			=> 'text',
-															'default'		=> 'Submission limit has been reached on this form. No more submission will be accepted',
+															'default'		=> 'Submission limit has been reached on this form. No more submission will be accepted.',
 															'is_contextable'=> TRUE,
 										   ),
 						'use_accessible_format'					=>	Array(

@@ -44,34 +44,8 @@ function get_import_actions($import_file)
 	// use DOMDocument::load() to see if there is any entity  reference loop
 	// which may exhaust us of the memory limit, if not then continue as normal
 	$xml = new DOMDocument();
-	// bug fix #5410 "Import Assets from XML Tool" running out of memory
-	// if we are on command line then dont worry about memory exhaustion
-	// issue do the whole XML file altogether if the request is coming from
-	// the web interface as mentioned on the bug report then execute the
-	// code block in else statment
-	if (!$xml->load($import_file, LIBXML_NOENT)) {
+	if (!$xml->load(str_replace(chr(0), '', $import_file), LIBXML_NOENT)) {
 		exit();
-	} else if ((php_sapi_name() == 'cli')) {
-		$index				= Array();
-		$xml_import_vals	= Array();
-		$import_actions		= Array();
-		$p					= xml_parser_create();
-
-		xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
-		xml_parser_set_option($p, XML_OPTION_SKIP_WHITE, 1);
-
-		$xml_file = file_to_string($import_file);
-		xml_parse_into_struct($p, $xml_file, $xml_import_vals, $index);
-
-		// print an error if one occured
-		if ($error_code = xml_get_error_code($p)) {
-			echo 'XML Error: '.xml_error_string($error_code).' Line:'.xml_get_current_line_number($p).' Col:'.xml_get_current_column_number($p)."\n";
-			exit();
-		}
-
-		reset($xml_import_vals);
-		populate_import_action_array($import_actions, $xml_import_vals);
-
 	} else {
 		// get few actions at a time from the XML so that while perforing
 		// populate_import_action_array() on it we dont run out of memory
@@ -93,6 +67,8 @@ function get_import_actions($import_file)
 			$index = Array();
 			$content = '<actions>';
 			$count = 0;
+			$num_open_action_tags = 0;
+			$num_close_action_tags = 0;
 
 			// make Matrix read atleast 500 lines and the last line read must
 			// always be end tag </action> so that the xml constructed is valid
@@ -103,29 +79,34 @@ function get_import_actions($import_file)
 				// but if we are on the </actions> that means we are done with file
 				// break out or else there will be a infinite looping in this do...while
 				if (trim($line) == '') continue;
-				if (preg_match('/(<actions>)$/', trim($line))) continue;
+
+				// remove the starting actions and end actions tag
+				if (preg_match('/(<actions>)/', trim($line))) {
+					$line = preg_replace('/<actions>/', '', $line);
+				}
+				if (preg_match('/(<\/actions>)/', trim($line))) {
+					$line = preg_replace('/<\/actions>/', '', $line);
+					$content .= $line;
+					break;
+				}
+
 				if (preg_match('/(^<\?xml version)/', trim($line))) {
 					$xml_header = $line;
 					continue;
 				}
-				if (preg_match('/(<\/actions>)$/', trim($line))) {
-					// bug fix #6075 Import from XML Tool reports erroneous XML
-					// if the XML content doesn't have proper line breaks.
-					// first check to see if the line only contains </actions> tag
-					// or does it have some tags that we need to make our XML valid
-					// something like <granted>1</granted></action></actions>
-					if (trim($line) != '</actions>') {
-						$line = preg_replace('/(<\/actions>)$/', '',trim($line));
-						if (trim($line) != '') {
-							$content .= $line;
-						}
-					}
-					break;
+
+				// count how many opening action tags in this line
+				if (preg_match('/(<action>)/', trim($line), $matches)) {
+					$num_open_action_tags += substr_count($line, '<action>');
+				}
+				// count closing tags
+				if (preg_match('/(<\/action>)/', trim($line), $matches)) {
+					$num_close_action_tags += substr_count($line, '</action>');
 				}
 
 				$content = $content.$line;
 				$count++;
-			} while (!preg_match('/(<\/action>)$/', $content) || $count < 500);
+			} while ($num_open_action_tags != $num_close_action_tags || $count < 500);
 			$content .= '</actions>';
 
 			if ($content != '<actions></actions>') {
@@ -142,7 +123,7 @@ function get_import_actions($import_file)
 
 			reset($xml_import_vals);
 			populate_import_action_array($chunk_import_action, $xml_import_vals);
-			if (!empty($chunk_import_action)) $actions = array_merge($actions, $chunk_import_action['actions'][0]['action']);
+			if (!empty($chunk_import_action) && !empty($chunk_import_action['actions'][0])) $actions = array_merge($actions, $chunk_import_action['actions'][0]['action']);
 		}
 
 		// restore the original max execution time
@@ -252,6 +233,20 @@ function execute_import_action($action, &$outputs, $input_values=array())
 	// we call execute as a static method, but instantiate for method_exists
 	$class_instance = new $action_class;
 
+
+	// design parse file needs to be replaced with new asset id
+	// let's run get_import_action_input_value on it
+	if ($action_class == 'trigger_action_set_design_parse_file' && isset($action['file_path'][0]) && is_file($action['file_path'][0])){
+		$parse_file_content = file_get_contents($action['file_path'][0]);
+		$temp_array['parse_file'] = Array($parse_file_content);
+		$parse_file_content = get_import_action_input_value($temp_array, 'parse_file', $outputs, $input_values);
+		$temp_file = tempnam(SQ_TEMP_PATH.'/import_assets', "import_from_xml_design_parse");
+		if(!empty($temp_file)) {
+			file_put_contents($temp_file, $parse_file_content);
+			$action['file_path'][0] = $temp_file;
+		}
+	}
+
 	// gather settings required for the action
 	foreach ($action as $key => $value) {
 		// skip action metadata
@@ -300,10 +295,20 @@ function execute_import_action($action, &$outputs, $input_values=array())
 
 	}
 
+
+
 	$output = call_user_func_array(Array($action_class, 'execute'), Array($settings, &$state));
+
+	// remove the temp design parse file
+	if(isset($temp_file) && !empty($temp_file)) {
+		unlink($temp_file);
+	}
+
 	if ($output === FALSE) return FALSE;
 
 	$outputs[$action['action_id'][0]] = $output;
+
+
 
 	if ($action_class == 'trigger_action_set_attribute_value' && isset($output['attribute']) && $output['attribute'] == 'varieties'){
 		if (isset($output['assetid'])) {

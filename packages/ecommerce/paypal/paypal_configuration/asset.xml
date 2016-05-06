@@ -22,7 +22,7 @@
 	<package>ecommerce</package>
 	<type_code>paypal_configuration</type_code>
 	<version>0.1</version>
-	<name>Paypal Configuration</name>
+	<name>PayPal Configuration</name>
 	<description>This asset provides all the configuration fields needed for Paypal assets</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>

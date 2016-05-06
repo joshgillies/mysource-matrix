@@ -33,6 +33,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 		<title>Insert Image</title>
 
 		<script type="text/javascript" src="../../core/popup.js"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('data').'/matrix.min.js' ?>"></script>
 
 		<script type="text/javascript">
 			var preview_window = null;
@@ -80,11 +81,10 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 			};
 
 			function onPreview() {
-				alert(js_translate('preview_needs_rewritten'));
 				var f_url = document.getElementById("f_url");
 				var url = f_url.value;
 				if (!url) {
-					alert("You have to enter an URL first");
+					alert(js_translate("You have to enter an URL first"));
 					f_url.focus();
 					return false;
 				}

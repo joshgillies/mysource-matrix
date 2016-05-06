@@ -1,0 +1,91 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ABN 77 084 670 600                                                 |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<text width="25" height="1" />
+			<note />
+		</field>
+	</section>
+	<section name="Git Repository" write_access="write:attributes">
+		<field>
+			<display_name>Git URL</display_name>
+				<function_call>
+					<paint_function name="paintGitUrl" />
+					<process_function name="processGitUrl" />
+				</function_call>
+			<note>Remote Git HTTPS or SSH URL to clone the repository from. If using SSH URL, the deploy key of the repository must be stored in the server to access private repository.</note>
+		</field>
+		<field attribute="username" show_if="usingHttpsUrl">
+			<display_name>Username</display_name>
+			<text width="30" height="1" />
+			<note>Username to access the Git HTTPS clone URL.</note>
+		</field>
+		<field attribute="password" show_if="usingHttpsUrl">
+			<display_name>Password</display_name>
+			<password width="20" />
+			<note>Password to access the Git HTTPS clone URL.</note>
+		</field>
+		<field>
+			<display_name>Sub Directories</display_name>
+				<function_call>
+					<paint_function name="paintSubDirectories" />
+					<process_function name="processSubDirectories" />
+				</function_call>
+			<note>Comma seperated list of sub directories to checkout. If no sub directories are specified, whole repository is checked out.</note>
+		</field>
+		<field attribute="secret_key">
+			<display_name>Secret Key</display_name>
+			<password width="30" />
+			<note>Webhook secret key set at the Git hosting service for the given repository.</note>
+		</field>
+	</section>
+	<section name="Current Repository" write_access="write:attributes" show_if="repoAvailable">
+		<field>
+			<display_name>Branch</display_name>
+				<function_call>
+					<paint_function name="paintSelectBranch" />
+					<process_function name="processSelectBranch" />
+				</function_call>
+			<note>Select the branch to switch the repository to.</note>
+		</field>
+		<field>
+			<display_name>Remote Git URL</display_name>
+				<function_call>
+					<paint_function name="paintRepoName" />
+				</function_call>
+			<note>The remote git URL of the current respository.</note>
+		</field>
+		<field>
+			<display_name>Update Repository</display_name>
+				<function_call>
+					<paint_function name="paintUpdateRepo" />
+				</function_call>
+			<note />
+		</field>
+	</section>
+	<section name="Repository Locked" write_access="write:attributes" show_if="repoLocked">
+		<field>
+			<display_name>Unlock Repository</display_name>
+				<function_call>
+					<paint_function name="paintRepoLocked" />
+					<process_function name="processRepoLocked" />
+				</function_call>
+			<note/>
+		</field>
+	</section>
+</contents>

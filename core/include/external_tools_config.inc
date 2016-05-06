@@ -80,6 +80,20 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_RECAPTCHA_PRIVATE_KEY'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_CLOSURE_COMPILER_PATH'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_AUTHORISED_PATHS'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_AUTHORISED_FILE_WRITE_PATHS'	=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_DATACASH_API_PATH'				=> Array('editable' => 1, 'default' => '/usr/share/php/datacash/DataCash.php'),
+						'SQ_TOOL_DATACASH_CARDINFO_DIR_PATH'	=> Array('editable' => 1, 'default' => '/usr/share/php/datacash/CardInfoBins'),
+						'SQ_TOOL_IPB_SDK_PATH'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_JAVA_PATH'						=> Array('editable' => 1, 'default' => '/usr/bin/java'),
+						'SQ_TOOL_TIKA_PATH'						=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_TIKA_ENABLED'					=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_GIT_PATH'						=> Array('editable' => 1, 'default' => '/usr/bin/git'),
+						'SQ_TOOL_BRAINTREE_LIB_PATH'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SSH_KEYSCAN_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/ssh-keyscan'),
+						'SQ_TOOL_SSH_ADD_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/ssh-add'),
+						'SQ_TOOL_SSH_AGENT_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/ssh-agent'),
+						'SQ_TOOL_SSH_KEYGEN_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/ssh-keygen'),
+						'SQ_TOOL_SSH_KEY_PATH'					=> Array('editable' => 1, 'default' => ''),
 				);
 
 
@@ -233,6 +247,20 @@ class External_Tools_Config extends Config
 
 			}
 
+			$o->openField(translate('Enable Apache Tika'), '', '');
+
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_TIKA_ENABLED]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_TOOL_TIKA_ENABLED);
+
+
+			} else {
+				echo (SQ_TOOL_TIKA_ENABLED) ? translate('Yes') : translate('No');
+
+
+			}
+
+			$o->note(translate('If Apache Tika is enabled, the pdftohtml and Antiword external tools will not be used.'));
+
 			$o->openField(translate('Enable pdftohtml'), '', '');
 
 			if ($write_access && $is_root) {
@@ -257,7 +285,7 @@ class External_Tools_Config extends Config
 
 			}
 
-			$o->openField(translate('Enable Photoshop Metadata Extraction'));
+			$o->openField(translate('Enable Image Metadata Extraction'));
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_TOOL_JPEG_TOOLKIT_ENABLED]', Array('1' => translate('Yes'), '0' => translate('No')), FALSE, SQ_TOOL_JPEG_TOOLKIT_ENABLED);
 
@@ -374,6 +402,7 @@ class External_Tools_Config extends Config
 		$o->openSection(translate('Keyword Extraction Tools'));
 
 
+			$o->openSection('pdftohtml');
 			$o->openField(translate('Path to pdftohtml'));
 
 			echo SQ_TOOL_PDFTOHTML_PATH;
@@ -386,6 +415,9 @@ class External_Tools_Config extends Config
 				?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not executable'), 'PDFTOHTML'); ?></span><?php
 
 			}
+			$o->closeSection();
+
+			$o->openSection(translate('Antiword'));
 
 			$o->openField(translate('Path to Antiword'));
 
@@ -408,17 +440,41 @@ class External_Tools_Config extends Config
 				?><br /><span class="sq-backend-warning"><?php echo translate('The path to Antiword Mappings is not valid') ?></span><?php
 			}
 
+			$o->closeSection();
+
+			$o->openSection(translate('Apache Tika'));
+			$o->openField(translate('Path to Java Runtime'));
+
+			echo SQ_TOOL_JAVA_PATH;
+
+
+			if (!is_file(SQ_TOOL_JAVA_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('The path to the Java runtime is not valid');?></span><?php
+
+			} else if (!is_executable(SQ_TOOL_JAVA_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('The path to the Java runtime is not executable'); ?></span><?php
+
+			}
+
+			$o->openField(translate('Path to Apache Tika JAR'));
+			echo SQ_TOOL_TIKA_PATH;
+
+			if (!is_file(SQ_TOOL_TIKA_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('The path to the Apache Tika JAR file is not valid') ?></span><?php
+			}
+			$o->closeSection();
+
 		$o->closeSection();
 
 
-		$o->openSection(translate('Photoshop Image Metadata Extraction'));
+		$o->openSection(translate('Image Metadata Extraction'));
 
-			$o->openField(translate('Path to PHP JPEG Metadata Toolkit'));
+			$o->openField(translate('Path to the image metadata extration tool ExifTool'));
 			echo SQ_TOOL_JPEG_TOOLKIT_PATH;
 
 
-			if (!is_dir(SQ_TOOL_JPEG_TOOLKIT_PATH)) {
-				?><br /><span class="sq-backend-warning"><?php echo translate('Supplied path is not valid') ?></span><?php
+			if (!is_file(SQ_TOOL_JPEG_TOOLKIT_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('Supplied path to ExifTool is not valid') ?></span><?php
 			}
 
 		$o->closeSection();
@@ -542,14 +598,6 @@ class External_Tools_Config extends Config
 
 				?><br /><?php
 				echo $o->note(translate('To include E4X support in Spidermonkey, use /usr/bin/js -x'));
-
-				if (!is_file(SQ_TOOL_JS_PATH)) {
-					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not valid'), 'JavaScript'); ?></span><?php
-
-				} else if (!is_executable(SQ_TOOL_JS_PATH)) {
-					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not executable'), 'JavaScript'); ?></span><?php
-
-				}//end if
 		$o->closeSection();
 
 		$o->openSection(translate('Mollom Spam Detector'));
@@ -680,7 +728,7 @@ class External_Tools_Config extends Config
 							 );
 				combo_box($class.'[SQ_TOOL_SQUID_CACHE_SLASH]', $selection, FALSE, $val);
 				} else {
-					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $val ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $val ? 'tick' : 'cross'; ?>.png" width="15" height="15" /><?php
 				}
 			$o->closeField();
 			$o->openField(translate('Add Port to URL'));
@@ -793,6 +841,127 @@ class External_Tools_Config extends Config
 			echo $o->note(translate('Authorised locations to source the files from for backend operations, like \'Create File Asset\' trigger action.'));
 
 			$o->closeField();
+		$o->closeSection();
+
+		$o->openSection(translate('Authorised File Write Paths'));
+
+		$o->openField(translate('File Write Paths'));
+
+
+		$writePaths = explode("\n", SQ_TOOL_AUTHORISED_FILE_WRITE_PATHS);
+		foreach($writePaths as $index => $val) {
+			$writePaths[$index] = trim($writePaths[$index]);
+			if (empty($writePaths[$index])) {
+				unset($writePaths[$index]);
+				continue;
+			}
+			if (!empty($writePaths[$index]) && !is_file($writePaths[$index])) {
+				$writePaths[$index] = rtrim($writePaths[$index], '/').'/';
+			}
+		}//end foreach
+
+
+		$writePaths = array_unique($writePaths);
+		foreach($writePaths as $path) {
+			echo $path.'<br />';
+		}
+
+		echo $o->note(translate('Authorised locations to write files to for backend operations.'));
+
+		$o->closeField();
+		$o->closeSection();
+
+		$o->openSection(translate('Datacash Payment Gateway API'));
+			$o->openField(translate('Datacash API Path'));
+				$current_path = trim(SQ_TOOL_DATACASH_API_PATH);
+
+				echo $current_path;
+				if (!is_file($current_path)) {
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not valid'), 'Datacash PHP API'); ?></span><?php
+				}
+
+				echo $o->note(translate('The path to the Datacash PHP API\'s DataCash.php file.'));
+			$o->closeField();
+
+			$o->openField(translate('CardInfo Directory Path'));
+				$current_path = trim(SQ_TOOL_DATACASH_CARDINFO_DIR_PATH);
+
+				echo $current_path;
+				if (!is_dir($current_path)) {
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not valid'), 'Datacash CardInfo Directory'); ?></span><?php
+				} else if (!is_file($current_path.'/CardInfo1.bin') || !is_file($current_path.'/CardInfo2.bin')) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('The Datacash CardInfo Directory does not contain CardInfo1.bin or CardInfo2.bin file.'); ?></span><?php
+				}
+
+				echo $o->note(translate('The path to the directory that keeps the CardInfo Files.'));
+			$o->closeField();
+		$o->closeSection();
+
+		$o->openSection(translate('IPB SDK'));
+			$o->openField(translate('Path'));
+				$current_path = trim(SQ_TOOL_IPB_SDK_PATH);
+
+				echo $current_path;
+				if (!is_dir($current_path)) {
+					?><br /><span class="sq-backend-warning"><?php sprintf(translate('The path to %s is not valid'), 'IPB SDK Installation'); ?></span><?php
+				}
+
+				echo $o->note(translate('The path to the IPB (Invision Power Board) SDK installation. Please make sure the IPB SDK version is compatible with the installed IPB. For more information, please visit <a href="http://ipbsdk.sourceforge.net/" target="_blank">the IPBSDK website</a>.'));
+			$o->closeField();
+
+		$o->closeSection();
+
+		$o->openSection(translate('Git Bridge'));
+
+			$o->openField(translate('Git Path'));
+			echo SQ_TOOL_GIT_PATH;
+
+
+			if (!is_file(SQ_TOOL_GIT_PATH) || !is_executable(SQ_TOOL_GIT_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('Supplied path to Git binary is not valid') ?></span><?php
+			}
+			echo $o->note(translate('The path to the Git binary.'));
+
+		$o->closeSection();
+
+		$o->openSection(translate('Braintree Payment Gateway'));
+			$o->openField(translate('Braintree PHP Lib Path'));
+				$current_path = trim(SQ_TOOL_BRAINTREE_LIB_PATH);
+
+				echo $current_path;
+				$braintree_lib_file = rtrim($current_path, '/').'/lib/Braintree.php';
+				$valid = FALSE;
+				if (is_file($braintree_lib_file)) {
+					require_once $braintree_lib_file;
+					$valid = class_exists('Braintree_Configuration');
+				}
+				if (!$valid) {
+					?><br /><span class="sq-backend-warning"><?php echo sprintf(translate('The path to %s is not valid'), 'Braintree PHP Lib'); ?></span><?php
+				}
+
+				echo $o->note(translate('The path to the Braintree PHP Lib\'s Braintree.php file.'));
+			$o->closeField();
+		$o->closeSection();
+
+		$o->openSection(translate('SSH RSA Key'));
+			$ssh_key_file = SQ_TOOL_SSH_KEY_PATH && is_file(SQ_TOOL_SSH_KEY_PATH) ? SQ_TOOL_SSH_KEY_PATH.'.pub' : '';
+			$o->openField(translate('Public Key'));
+				if ($ssh_key_file) {
+					echo '<pre style="width:740px;overflow:auto;">'.file_get_contents($ssh_key_file).'</pre>';
+					$o->note('The SSH key generated for this Matrix instance can be used for accessing the Matrix supported third party service that allows the SSH key based authentication. Please add this public SSH key to your account settings at the third party service.');
+					$o->note('Please use generate_ssh_key.php script to regenerate the SSH RSA public/private key pair.');
+				} else {
+					$o->note(translate('SSH key not generated. Please use generate_ssh_key.php script to generate the SSH RSA public/private key pair.'));
+				}
+			$o->closeField();
+			if ($ssh_key_file) {
+				$o->openField(translate('Fingerprint'));
+					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+					echo is_executable(SQ_TOOL_SSH_KEYGEN_PATH) ? executeShellCommand(SQ_TOOL_SSH_KEYGEN_PATH.' -lf '.escapeshellarg($ssh_key_file)) : '';
+					$o->note(sprintf(translate('SSH key file last modified on %s'), date("Y-m-d H:i:s.", filemtime($ssh_key_file))));
+				$o->closeField();
+			}
+
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('', TRUE);

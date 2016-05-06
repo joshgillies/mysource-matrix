@@ -32,7 +32,8 @@
             </function_call>
         </field>
         <field>
-            <display_name>System URL</display_name>
+            <display_name>WSDL URL</display_name>
+            <note>The WSDL URL of the Sharepoint List Web Service. Example: http://webURL/_vti_bin/Lists.asmx?wsdl</note>
             <function_call>
                 <paint_function name="paintSystemUrl" />
                 <process_function name="processSystemUrl" />
@@ -47,6 +48,18 @@
             <display_name>Password</display_name>
             <note />
             <password width="35" height="1" />
+        </field>
+        <field attribute="authentication_type">
+            <display_name>Authentication Method</display_name>
+            <selection/>
+        </field>
+        <field>
+            <display_name>Sharepoint Connector Asset</display_name>
+            <note>If a Sharepoint connector is selected, the settings in the 'Connection Setup' section (above) have no effect. Sharepoint Connector allows the Sharepoint settings to be reused on other Sharepoint assets.</note>
+            <function_call>
+                <paint_function name="paintConnectorLink" />
+                <process_function name="processConnectorLink" />
+            </function_call>
         </field>
     </section>
     <section name="Synchronize Options" write_access="write:attributes">
@@ -70,16 +83,6 @@
             <function_call>
                 <paint_function name="paintDownloadFile"/>
                 <process_function name="processDownloadFile"/>
-            </function_call>
-        </field>
-    </section>
-    <section name="Use a Connector Asset" write_access="write:attributes">
-        <field>
-            <display_name>Sharepoint Connector Asset</display_name>
-            <note>If a Sharepoint connector is selected, the settings in the 'Connection Setup' section (above) have no effect. Sharepoint Connector allows the Sharepoint settings to be reused on other Sharepoint assets.</note>
-            <function_call>
-                <paint_function name="paintConnectorLink" />
-                <process_function name="processConnectorLink" />
             </function_call>
         </field>
     </section>

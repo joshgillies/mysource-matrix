@@ -306,7 +306,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 							<td class="sq-backend-table-header" style="width: 10ex">Icon</td>
 							<td class="sq-backend-table-header" style="width: 10ex">Count</td>
 							<td class="sq-backend-table-header">Code</td>
-							<td class="sq-backend-table-header" width="70%">Type</td>
+							<td class="sq-backend-table-header" width="70%%">Type</td>
 						</tr>
 						%s
 					</table>

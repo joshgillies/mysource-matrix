@@ -60,7 +60,7 @@
 <string source="cms_asset_builder_keyword_create_error">Create Asset Error Message</string>
 <string source="cms_asset_builder_keyword_logout_form">Logout Form</string>
 <string source="cms_asset_builder_do_not_change_status">Do not change status</string>
-<string source="cms_asset_builder_default_created_message">Asset created&lt;br /&gt;See it &lt;a href="%%created_asset_url%%"&gt;here&lt;/a&gt;</string>
+<string source="cms_asset_builder_default_created_message">Asset created&lt;br /&gt;See it &lt;a href="%created_asset_url%"&gt;here&lt;/a&gt;</string>
 <string source="cms_asset_builder_create_form_layout_for_type">%s Create Form Layout</string>
 <string source="cms_asset_builder_keyword_form_captcha">Display Captcha Form</string>
 <string source="cms_asset_builder_keyword_form_captcha_image">Display Captcha Image</string>

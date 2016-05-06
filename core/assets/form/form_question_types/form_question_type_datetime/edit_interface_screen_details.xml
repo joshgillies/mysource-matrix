@@ -36,7 +36,7 @@
 		</field>
 		<field>
 			<display_name>Options</display_name>
-			<note>If &quot;Display as Text Box ?&quot; is not checked, fields will be displayed as a drop-down list</note>
+			<note>If &quot;Display as Text Box?&quot; is not checked, fields will be displayed as a drop-down list</note>
 			<function_call>
 				<paint_function   name="paintInterface"   />
 				<process_function name="processInterface" />
@@ -92,7 +92,7 @@
 		<field attribute="tabindex">
 			<display_name>Tab Index</display_name>
 			<note>If a tab index is supplied it will be added to the input tag</note>
-			<int width="5" />
+			<int width="5" empty_text="No tab index provided" />
 		</field>
 		<field>
 			<display_name>Extras</display_name>
@@ -110,7 +110,7 @@
 		<field attribute="cust_required_error">
 			<display_name>Custom Error Message</display_name>
 			<note>Error message that will be displayed if the entered date/time is invalid</note>
-			<text width="60" />
+			<text width="60" empty_text="No error message provided" />
 		</field>
 		<field attribute="use_js">
 			<display_name>JS assistance</display_name>

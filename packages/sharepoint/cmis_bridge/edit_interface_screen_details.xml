@@ -26,7 +26,7 @@
     <section name="Connection Setup" write_access="write:attributes">
         <field>
             <display_name>WSDL URLs</display_name>
-            <note>Example: http://webURL/_vti_bin/cmis/soap/ObjectService.svc?wsdl </note>
+            <note>Example: http://webURL/_vti_bin/cmis/soap/ObjectService.svc?wsdl (prior to Sharepoint 2013) or http://webURL/_vti_bin/cmis/soap/ObjectService.svc/mex?wsdl (Sharepoint 2013)</note>
             <function_call>
                 <paint_function name="paintWsdlUrl" />
                 <process_function name="processWsdlUrl" />
@@ -41,6 +41,10 @@
             <display_name>Password</display_name>
             <note />
             <password width="35" height="1" />
+        </field>
+        <field attribute="authentication_type">
+            <display_name>Authentication Method</display_name>
+            <selection/>
         </field>
         <field attribute="ws_security">
             <display_name>WS-Security Header</display_name>
@@ -60,7 +64,7 @@
         </field>
         <field attribute="repository_name">
             <display_name>Repository Name</display_name>
-            <note>The root folder name. E.g. the Document Library name (case sensitive). All files must be located under this root folder and not under any sub-folders.</note>
+            <note>The root folder name. Example: My Document Library, Photos (case sensitive). All files must be located under this root folder and not under any sub-folders.</note>
             <text width="35" height="1" />
         </field>
         <field show_if="isConnected">

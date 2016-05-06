@@ -37,7 +37,7 @@ class Asset_Edit_Fns extends MySource_Object
 	var $static_screens = Array(
 							'details'			=> Array(
 													'name'			=> 'Details',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'menu',
 												   ),
 							'permissions'		=> Array(
@@ -47,52 +47,52 @@ class Asset_Edit_Fns extends MySource_Object
 												   ),
 							'workflow'			=> Array(
 													'name'			=> 'Workflow',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'workflow',
 												   ),
 							'roles'				=> Array(
 													'name'			=> 'Roles',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'roles',
 												   ),
 							'metadataSchemas'	=> Array(
 													'name'			=> 'Metadata Schemas',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'metadata',
 												   ),
 							'metadata'			=> Array(
 													'name'			=> 'Metadata',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'metadata',
 												   ),
 							'dependants'		=> Array(
 													'name'			=> 'Dependants',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'none',
 												   ),
 							'linking'			=> Array(
 													'name'			=> 'Linking',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'links',
 												   ),
 							'settings'			=> Array(
 													'name'			=> 'Settings',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'all',
 												   ),
 							'history'			=> Array(
 													'name'			=> 'History',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'none',
 												   ),
 							'logs'				=> Array(
 													'name'			=> 'Logs',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'none',
 												   ),
 							'preview'			=> Array(
 													'name'			=> 'Preview',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'none',
 												   ),
 							'lookupValues'		=> Array(
@@ -102,7 +102,7 @@ class Asset_Edit_Fns extends MySource_Object
 												   ),
 							'tagging'			=> Array(
 													'name'			=> 'Tagging',
-													'force_unlock'	=> TRUE,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'menu',
 												   ),
 							'layouts'			=> Array(
@@ -294,7 +294,7 @@ class Asset_Edit_Fns extends MySource_Object
 						}
 					?>
 
-					<td class="sq-backend-table-cell" align="center"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.gif" : "cross.gif"); ?>" width="15" height="15" /></td>
+					<td class="sq-backend-table-cell" align="center"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.png" : "cross.png"); ?>" width="15" height="15" /></td>
 				</tr>
 				<?php
 				}//end foreach

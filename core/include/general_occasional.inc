@@ -594,6 +594,7 @@ function open_socket_connection($url_parts, &$errno, &$errstr, $force_fsockopen=
 {
 	include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
 	$page_url = '';
+	$url_scheme = '';
 	if (is_array($url_parts)) {
 		if (!empty($url_parts['query']) && $url_parts['query'][0] != '?') {
 			$url_parts['query'] = '?'.$url_parts['query'];
@@ -606,10 +607,16 @@ function open_socket_connection($url_parts, &$errno, &$errstr, $force_fsockopen=
 		$page_url = $url_parts;
 	}
 
+	// If OpenSSL is installed, use SSL connection for HTTPs urls
+	if (isset($url_parts['scheme']) && $url_parts['scheme'] == 'https' && extension_loaded('openssl')) {
+		$url_scheme = 'ssl://';
+		$url_parts['port'] = '443';
+	}
+
 	if (SQ_PA_ENABLED) {
 		$proxy = get_proxy_info_for_url($page_url);
 
-		$con = @fsockopen($proxy['host'], $proxy['port'], $errno, $errstr);
+		$con = @fsockopen($url_scheme.$proxy['host'], $proxy['port'], $errno, $errstr);
 		if (!$con) return FALSE;
 
 		$matches = array();
@@ -625,7 +632,7 @@ function open_socket_connection($url_parts, &$errno, &$errstr, $force_fsockopen=
 
 	} else {
 		if ($force_fsockopen && is_array($url_parts)) {
-			$con = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, $timeout);
+			$con = @fsockopen($url_scheme.$url_parts['host'], $url_parts['port'], $errno, $errstr, $timeout);
 		} else {
 			$con = @fopen($page_url, 'r');
 		}//end if
@@ -762,5 +769,86 @@ function mod10($input)
 	return $input.$check_digit;
 
 }//end mod10()
+
+
+/**
+* Generate the command to include the set Matrix SSH RSA key 
+*
+* @param string $command
+*
+* @return string
+* @access public
+*/
+function includeMatrixSshKey($command)
+{
+	if (is_executable(SQ_TOOL_SSH_AGENT_PATH) && is_executable(SQ_TOOL_SSH_ADD_PATH) && is_file(SQ_TOOL_SSH_KEY_PATH)) {
+		$command = SQ_TOOL_SSH_AGENT_PATH.' bash -c "'.SQ_TOOL_SSH_ADD_PATH.' '.SQ_TOOL_SSH_KEY_PATH.'; '.$command.'"';
+	}
+
+	return $command;
+
+}//end includeMatrixSshKey()
+
+
+/**
+* Execute the given command
+*
+* NOTE: When applicable, the command arguments in the command MUST be escaped appropriately
+* by the caller using escapeshellarg()
+*
+* @param string  $command    Command string to execute
+* @param boolean $mute_error Whether to mute any errors occured when executing the command
+* @param boolean $escape_cmd Whether to use escapeshellcmd() on the specified command string
+*
+* @return boolean|string
+* @access public
+*/
+function executeShellCommand($command, $mute_error=TRUE, $escape_cmd=TRUE)
+{
+	$output = '';
+	if (empty($command)) {
+		return $output;
+	}
+
+	// Pipes are defined in the way the child will use them. So Java/Tika will
+	// read from stdin (0) and write to stdout (1) and stderr (2).
+	$spec = Array(
+				0 => Array('pipe', 'r'),
+				1 =>  Array('pipe', 'w'),
+				2 =>  Array('pipe', 'w'),
+			);
+
+	$cwd = NULL;
+	$env = Array();
+	$process = proc_open($escape_cmd ? escapeshellcmd($command) : $command, $spec, $pipes, $cwd, $env);
+
+	$retval = 1;
+	if (is_resource($process) === TRUE) {
+		fclose($pipes[0]);
+
+		$errors = stream_get_contents($pipes[2]);
+		fclose($pipes[2]);
+
+		// Get the content from stdout after getting the content from stderr
+		do {
+			$data = fread($pipes[1], 8092);
+			$output .= $data;
+		} while (strlen($data) > 0);
+
+		fclose($pipes[1]);
+
+		$retval = proc_close($process);
+
+		if ($retval !== 0 && !empty($errors)) {
+			$cmd_error = trim(implode(', ', array_unique(explode(PHP_EOL, $errors))), ', ');
+			if (!$mute_error) {
+				trigger_error(sprintf(translate('Error occurred when executing the command "%1$s": %2$s'), $command, $cmd_error), E_USER_WARNING);
+			}
+		}//end if
+	}//end if
+
+	return $retval === 0 ? $output : FALSE;
+
+}//end executeShellCommand()
 
 ?>

@@ -29,6 +29,16 @@
 
 
 /**
+* Maximum filename length size in bytes supported by Matrix
+* Filename length size supported by the most of the filesystems is 255 bytes
+* The extra 15 bytes (255-240) is for Matrix appending ',ffv[0-9]+' to the filename in the file repository
+*/
+if (!defined('SQ_FILENAME_MAX_LENGTH')) {
+	define('SQ_FILENAME_MAX_LENGTH', 240);
+}
+
+
+/**
 * Takes a filename and extracts the extension
 * If the parameter passed is not a string then it returns an empty string
 *

@@ -71,6 +71,14 @@
             <int width="3" />
         </field>
     </section>
+    <section name="Additional SOAP Headers" write_access="write:attributes">
+        <field>
+            <function_call>
+                <paint_function name="paintAdditionalSoapHeader" />
+                <process_function name="processAdditionalSoapHeader" />
+            </function_call>
+        </field>
+    </section>
     <section name="SOAP Request Configuration" write_access="write:attributes">
         <field>
             <display_name>Service Address</display_name>
@@ -109,6 +117,11 @@
             <display_name>Data Delimiter</display_name>
             <note>Delimiter to separate data from xml elements with same name</note>
             <text width="10" height="1" />
+        </field>
+		<field attribute="parse_response">
+			<display_name>Parse Response</display_name>
+			<note>If set to "Yes", the valid XML data in the SOAP response field, if any, will be parsed as XML along with the rest of the SOAP response.</note>
+			<boolean true_text="Yes" false_text="No" />
         </field>
     </section>
     <section name="Transformations" write_access="write:links">

@@ -34,7 +34,7 @@ function update_colour(colour,id) {
 function show_colour_change(name) {
 	if (document.getElementById) {
 		var changed_image = document.getElementById('colour_change_' + name);
-		if (changed_image) { changed_image.src = colour_change_image_dir + 'tick.gif'; }
+		if (changed_image) { changed_image.src = colour_change_image_dir + 'tick.png'; }
 		var changed_span = document.getElementById('colour_span_' + name);
 		if (changed_span) {
 			colour_box = document.getElementById('colour_box_' + name);
@@ -42,7 +42,7 @@ function show_colour_change(name) {
 		}
 	} else {
 		var changed_image = document['colour_change_' + name];
-		if (changed_image) { changed_image.src = colour_change_image_dir + 'tick.gif'; }
+		if (changed_image) { changed_image.src = colour_change_image_dir + 'tick.png'; }
 	}
 }
 

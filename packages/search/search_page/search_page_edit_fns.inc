@@ -162,7 +162,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$query_types = Array(
 						'none'			=> '-- '.ucfirst(translate('Add Data Source').' --'),
 
-						'Include All'	=> ucfirst(translate('Include All')),
+						'include_all'	=> ucfirst(translate('Include All')),
 
 						'standard'		=> ucfirst(translate('Standard Asset Field')),
 
@@ -534,9 +534,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!empty($_POST[$prefix.'_new_field_name'])) {
 			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_field_name']));
 
+			// NOTE: '.' chars are allowed for search field name, however they are treated as '_' for all other purposes
+			// So ensure we dont have duplicate field names like 'details.name' and 'details_name', as both will refer to same name
+			$check_name_wd = str_replace('.', '_', $safe_name);
+			$check_name_wu = str_replace('_', '.', $safe_name);
+
 			// If field already, don't overwrite it
-			if (!isset($old_fields[$safe_name])) {
-				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];
+			if (!isset($old_fields[$check_name_wd]) && !isset($old_fields[$check_name_wu])) {
+				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];				
 				$new_fields[$safe_name]['data_sources'] = Array();
 				$new_fields[$safe_name]['exclude_field'] = FALSE;
 			}
@@ -570,7 +575,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$query_types = Array(
 						'none'			=> '-- '.ucfirst(translate('Add Data Source').' --'),
 
-						'Include All'	=> ucfirst(translate('Include All')),
+						'include_all'	=> ucfirst(translate('Include All')),
 
 						'standard'		=> ucfirst(translate('Standard Asset Field')),
 
@@ -934,9 +939,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		if (!empty($_POST[$prefix.'_new_exclude_field_name'])) {
 			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_exclude_field_name']));
+
+			// NOTE: '.' chars are allowed for search field name, however they are treated as '_' for all other purposes
+			// So ensure we dont have duplicate field names like 'details.name' and 'details_name', as both will refer to same name
+			$check_name_wd = str_replace('.', '_', $safe_name);
+			$check_name_wu = str_replace('_', '.', $safe_name);
+
 			// If field already, don't overwrite it
-			if (!isset($old_fields[$safe_name])) {
-				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field_name'];
+			if (!isset($old_fields[$check_name_wd]) && !isset($old_fields[$check_name_wu])) {
+				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field_name'];				
 				$new_fields[$safe_name]['data_sources'] = Array();
 				$new_fields[$safe_name]['exclude_field'] = TRUE;
 			}
@@ -1223,7 +1234,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						check_box($prefix.'_'.$code_name.'_statuses_default', '1', !$customised, 'handleDefaultStatusClick(this)');
 						label('Use Default', $prefix.'_'.$code_name.'_statuses_default');
 					} else {
-						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.gif" />';
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.png" />';
 						echo translate('Use default');
 
 					}
@@ -1243,7 +1254,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						check_box($prefix.'_'.$code_name.'_root_default', '1', !$customised, 'handleDefaultRootClick(this)');
 						label('Use Default', $prefix.'_'.$code_name.'_root_default');
 					} else {
-						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.gif" />';
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.png" />';
 						echo translate('Use default');
 
 					}
@@ -1617,7 +1628,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		if (!$write_access) {
 			?>
-			<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($search_customised) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
+			<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($search_customised) ? 'cross' : 'tick'; ?>.png" width="15" height="15" />
 			<?php
 		} else {
 			check_box($prefix.'_search_form', 1, $search_customised);
@@ -1629,7 +1640,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		if (!$write_access) {
 			?>
-			<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($sis_customised) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
+			<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($sis_customised) ? 'cross' : 'tick'; ?>.png" width="15" height="15" />
 			<?php
 		} else {
 			check_box($prefix.'_sis_form', 1, $sis_customised);
@@ -1989,7 +2000,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				echo translate('Enable Multi-Word Synonym Lookups');
 
 		} else {
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.(empty($enable_multi_words) ? 'cross' : 'tick').'.gif" />';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.(empty($enable_multi_words) ? 'cross' : 'tick').'.png" />';
 		}
 		echo '<br />';
 		echo translate('This option will iterate through the supplied search string and search the Thesaurus for groups of words. If these grouped words have synonyms in the Thesaurus then the <em>synonyms</em> will be appended to the search string.<br />For example, a search for \'fred flute player\' will result in a Thesaurus lookup of synonyms for \'fred flute\', \'flute player\' (matches \'flautist\') and \'fred flute player\'. The search string in this case will be modified on-the-fly to read \'fred flute player flautist\'.');
@@ -2073,7 +2084,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 			} else {
 				$filename = $rel_enabled ? 'tick' : 'cross';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.png" /> ';
 				echo translate('Enable "Sort by Relevance" option');
 
 			}

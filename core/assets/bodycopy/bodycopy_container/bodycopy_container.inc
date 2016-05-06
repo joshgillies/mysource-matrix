@@ -31,6 +31,11 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Bodycopy_Container extends Asset
 {
 
+	/**
+	* An array of keywords and their replacements
+	* @var array
+	*/
+	public $keyword_replacements = Array();
 
 	/**
 	* Constructor
@@ -335,12 +340,19 @@ class Bodycopy_Container extends Asset
 	{
 		if (!$this->readAccess()) return;
 
+		// if conditional keyword is used, merge those keywords replacement with passed ones
+		if(empty($keyword_replacements)) $keyword_replacements = array();
+		if (isset($GLOBALS['SQ_CONDITION']['conditional_keywords']))
+			$keyword_replacements = array_merge ($keyword_replacements, $GLOBALS['SQ_CONDITION']['conditional_keywords']);
+
+		$keyword_replacements = array_merge($keyword_replacements, $this->keyword_replacements);
+		
 		// if we don't have any keyword replacements passed as an argument,
 		// check if we really don't have any keywords in the contents because in some rare cases,
 		// such as an asset listing that lists bodycopies and use %asset_contents% in the type format,
 		// this function is called without an array that contains keyword replacements which makes all the
 		// keywords disappear from the contents printed on the frontend
-		if (is_null($keyword_replacements)) {
+		if (empty($keyword_replacements) === TRUE) {
 			$keyword_replacements = Array();
 			// find if we have any keywords in the content
 			ob_start();
@@ -380,6 +392,22 @@ class Bodycopy_Container extends Asset
 			if ($safe_keyword != $keyword) {
 				$keyword_replacements[$safe_keyword] = $val;
 				unset($keyword_replacements[$keyword]);
+			}
+		}
+				
+		// because we won't wait until mysource.inc to kick in to replace our global
+		// keywords and because the conditions keywords will be evaluated  based  on
+		// what we currently have on our keyword_replacements array, we will need to
+		// make sure the globals  keyword if   any in the conditions  are  evaluated
+		// before we try to include the content file further down Fixes bug RM #5774
+		// Conditional  keywords  within  asset  listing    type  formats  evaluates
+		// globals_asset_metadata_X when empty as true
+		$pattern = '(begin_|end_|else_)';
+		foreach ($keyword_replacements as $keyword => $replacement) {
+			if (strpos($keyword, 'globals_') !== FALSE && preg_match($pattern, $keyword)) {
+				$global_keyword_in_cond_replacement = '%'.preg_replace($pattern, '', $keyword).'%';
+				replace_global_keywords($global_keyword_in_cond_replacement);
+				$keyword_replacements[preg_replace($pattern, '', $keyword)] = $global_keyword_in_cond_replacement;
 			}
 		}
 
@@ -492,22 +520,6 @@ class Bodycopy_Container extends Asset
 				trigger_localised_error('CORE0009', sprintf(translate('Content file failed to generate for bodycopy container %s'), $this->name), E_USER_WARNING);
 			} else {
 
-				// because we won't wait until mysource.inc to kick in to replace our global
-				// keywords and because the conditions keywords will be evaluated  based  on
-				// what we currently have on our keyword_replacements array, we will need to
-				// make sure the globals  keyword if   any in the conditions  are  evaluated
-				// before we try to include the content file further down Fixes bug RM #5774
-				// Conditional  keywords  within  asset  listing    type  formats  evaluates
-				// globals_asset_metadata_X when empty as true
-				$pattern = '(begin_|end_|else_)';
-				foreach ($keyword_replacements as $keyword => $replacement) {
-					if (strpos($keyword, 'globals_') !== FALSE && preg_match($pattern, $keyword)) {
-						$global_keyword_in_cond_replacement = '%'.preg_replace($pattern, '', $keyword).'%';
-						replace_global_keywords($global_keyword_in_cond_replacement);
-						$keyword_replacements[preg_replace($pattern, '', $keyword)] = $global_keyword_in_cond_replacement;
-					}
-				}
-
 				// Include the nested content file dynamically if the content is getting included in the upper level content file
 				if ($generating) {
 					$content_type = $this->getContentType();
@@ -582,6 +594,99 @@ class Bodycopy_Container extends Asset
 
 	}//end isEmpty()
 
+
+	/**
+	* Sets the Array of keywords with their replacements
+	*
+	* @param array	$replacements	an array with the keyword as the key and the replacement as the value
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function setKeywordReplacements($replacements=Array())
+	{
+		if (!is_array($replacements)) return FALSE;
+		if (empty($replacements)) return FALSE;
+
+		$this->keyword_replacements = $replacements;
+		return TRUE;
+
+	}//end setKeywordReplacements()
+
+	
+	/**
+	* the comments attribute needs some special treatment
+	*
+	* @param string $keywords
+	*
+	* @return string
+	* @access public
+	*/
+	public function getKeywordReplacement($keyword, $additional_replacements=Array())
+	{
+		if (strpos($keyword, 'asset_attribute_comments') !== FALSE) {
+			$keyword = parse_keyword($keyword, $modifiers);
+			$contextid = extract_context_modifier($modifiers);
+			$replacement	= urldecode($this->attr('comments'));
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id, 'replacements' => $additional_replacements), $keyword);
+			return ($replacement);
+		}
+		else {
+			return parent::getKeywordReplacement($keyword);
+		}
+	}
+
+
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*							'attributes',
+	*							'metadata_schemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data',
+	*							);
+	*							or alternately
+	*							Array('all');
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponentsAdditional()
+	*/
+	function cloneComponentsAdditional(&$clone, $components)
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+
+			$template_applied = $this->attr('template_applied');
+
+			if($template_applied) {
+				$template_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'container_template');
+				if(isset($template_links[0]['majorid'])) {
+					$template = $GLOBALS['SQ_SYSTEM']->am->getAsset($template_links[0]['majorid']);
+					// now, create template link
+					if (!$template->createLink($clone, SQ_LINK_NOTICE, 'container_template')) {
+						return FALSE;
+					}
+				}
+			}//end if asset grouping
+
+		}//end if components
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
+
+	}//end cloneComponentsAdditional()
 
 }//end class
 

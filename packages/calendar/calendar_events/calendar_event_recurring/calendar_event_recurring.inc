@@ -746,7 +746,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			return $res.', '.translate('until further notice');
 
 		} else {
-			return $res.', '.sprintf(translate('until %1$s%'), date('jS M Y', $stop_timestamp));
+			return $res.', '.sprintf(translate('until %1$s'), date('jS M Y', $stop_timestamp));
 
 		}
 
@@ -1532,13 +1532,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Cache the calendar data's stuff
 	*
-	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
-	*								(FALSE - set only in create() call)
-	*
 	* @return boolean
 	* @access private
 	*/
-	function cacheCalendarData($updating=TRUE)
+	function cacheCalendarData()
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
@@ -1559,6 +1556,17 @@ class Calendar_Event_Recurring extends Calendar_Event
 		// stop date
 		if (strtotime(substr($this->attr('stop_date'),0,10)) != -1) {
 			$date_values['stop_date'] = substr($this->attr('stop_date'),0,10);
+		}
+
+		// If we are updating or inserting a new date cache entry for the event
+		$updating = TRUE;
+
+		// Create the event date cache entry if there is not already one
+		$sql = 'SELECT assetid FROM sq_cal_date_val WHERE assetid='.MatrixDAL::quote($this->id);
+		$entry_exists = MatrixDAL::executeSqlOne($sql);
+		if (!$entry_exists) {
+			// There is no cache date entry of this event, so add new one
+			$updating = FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');

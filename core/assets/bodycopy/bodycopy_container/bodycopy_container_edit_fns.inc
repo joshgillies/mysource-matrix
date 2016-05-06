@@ -41,8 +41,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
-		unset($this->static_screens['metadataSchemas']);
-		unset($this->static_screens['metadata']);
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['tagging']);
 
@@ -132,6 +130,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function paintContainer(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
+		$content_type = $asset->getContentType();
+		$prefix = $content_type->getPrefix();
+
 		if (!$asset->writeAccess('content')) {
 
 			if ($asset->readAccess()) {
@@ -141,7 +142,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 									'<input',
 									'<option',
 									'<select',
-									'<textarea',
 									'<button',
 									'<optgroup',
 									'<label',
@@ -150,6 +150,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 									'<style',
 									'<script',
 									'<iframe',
+									'<meta',
 								 );
 				$conflict_tag_search_string = '~('.implode(')|(', $conflict_tags).')~i';
 
@@ -157,39 +158,88 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$this->paint($asset, TRUE);
 				$container_content = ob_get_clean();
 
-				if (preg_match($conflict_tag_search_string, $container_content)) {
+				if (preg_match($conflict_tag_search_string, $container_content) || strpos($container_content, '&lt;textarea') !== FALSE) {
 					// Aww damn, the content conflicts...
 					// So regenerate the content without the editing interface
 					ob_start();
 						$this->paint($asset, FALSE);
 					$container_content = ob_get_clean();
-					$container_content = ''
-						.'<div class="sq-source-mode-forced" title="'.translate('HTML contents of this container interfere with the edit interface. HTML parsing has been disabled for this container. Below is the raw HTML content.').'">'
+
+					$greyIcon = 
+					'<div class="sq-source-mode-forced" title="'.translate('HTML contents of this container interfere with the edit interface. HTML parsing has been disabled for this container. Below is the raw HTML content.').'">'
 
 							.'<img align="absmiddle" src="'.sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode_grey.png" title="'.translate('HTML contents of this container interfere with the edit interface. HTML parsing has been disabled for this container. Below is the raw HTML content.').'" width="16" height="16" />'
 
-						.'</div>'
-						.'<pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre>'
-						.'';
+						.'</div>';
+
+
+					// if Ace editor is available, use it
+					if($o && $o->isViperAceAvailable())
+					{
+						if (!is_null($content_type)) {
+							$content_edit = $content_type->getEditFns();
+							ob_start();
+							$content_edit->paint($content_type);
+							$container_content = ob_get_clean();
+						}
+						
+						ob_start();
+						echo '<div id="'.$prefix.'_source" class="sq-source-view sq-backend-code-editing">';
+						text_area($prefix.'_textarea', $container_content, '', '', 0, 'class="sq-backend-code-editing sq-viper-ace-editor-textarea sq-viper-ace-editor-textarea-mode-html sq-viper-ace-editor-textarea-readonly"');
+						echo '</div>';
+						$container_content = ob_get_clean();
+						$container_content = $greyIcon.$container_content;
+
+					}
+					else {
+						$new_container_content = '<div id="'.$prefix.'_source" class="sq-source-view sq-backend-code-editing">';
+						$new_container_content .= $greyIcon.'<pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre>';
+						$new_container_content .= '</div>';
+						$container_content = $new_container_content;
+					}
 				}
 
-				$content_type = $asset->getContentType();
 				$content_type_name = '';
 				if(!empty($content_type) && is_object($content_type)) {
 				    $content_type = $content_type->type();
 				    $content_type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($content_type, 'name');
 				}
+
+				// work out applied container template
+				$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'container_template');
+				$applied_template = '';
+				$applied_template_name = '';
+				if(!empty($root_links[0]['majorid'])) {
+					$applied_template = $root_links[0]['majorid'];
+					$applied_template_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($applied_template);
+					$applied_template_name = $applied_template_asset->attr('name');
+				}
+				if(!empty($applied_template_name)) {
+					$applied_template_name = ' - '.$applied_template_name;
+				}
+
 				//Create a friendly name for the content type name
 				$content_type_name = str_replace('Type', '', $content_type_name);
 				$content_type_name = str_replace('Nest Content', 'Nested', $content_type_name);
 				//print a div wrapper around the content so we can style the container properly
-				echo '<div class="sq-locked-content-block-wrapper status-after-'.str_replace(' ', '-', strtolower(get_status_description($asset->status))).'" data-id"'.$asset->id.'" data-status-code="'.$asset->status.'" data-status="'.get_status_description($asset->status).'" data-title="'.$asset->name.' - '.$content_type_name.'" title="'.$asset->name.' #'.$asset->id.' ('.get_status_description($asset->status).') - '.$content_type_name.'">';
-					echo $container_content;
+				echo '<div class="sq-locked-content-block-wrapper status-after-'.str_replace(' ', '-', strtolower(get_status_description($asset->status))).'" data-id"'.$asset->id.'" data-status-code="'.$asset->status.'" data-status="'.get_status_description($asset->status).'" data-title="'.$asset->name.' - '.$content_type_name.$applied_template_name.'" title="'.$asset->name.' #'.$asset->id.' ('.get_status_description($asset->status).') - '.$content_type_name.$applied_template_name.'">';
+
+					// print template
+					$use_template = $this->paintCustomLayoutInterface($asset, $applied_template, FALSE);
+					// if template is used, we will print template, no need to print rest of stuff
+					if(!$use_template) {
+						// no template is used, just print the content
+						echo '<div class="sq-locked-content-block-wrapper-inner">';
+						echo $container_content;
+						echo '</div>';
+					}
 				echo '</div>';
 
 			} else {
 				echo '<div class="sq-locked-content-block-wrapper no-access">';
+				echo '<div class="sq-locked-content-block-wrapper-inner">';
 					echo '<span class="sq-backend-warning">You do not have access to view the contents of this container</span>';
+				echo '</div>';
 				echo '</div>';
 			}
 
@@ -260,6 +310,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 							$attributes_updated = TRUE;
 						}
 					}
+					// if it's a template change, it requires notice link changes
+					if ($name == 'template') {
+						if ($value != '' && $asset->writeAccess('links')) {
+							$this->processTemplateNoticeLink($value, $asset);
+							$updated = TRUE;
+						}
+					}
+
 				}
 			}
 			if ($attributes_updated) {
@@ -267,6 +325,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$updated = TRUE;
 			}
 		}//end if - there are any attributes to be saved
+
+		// process container comments
+		if(!empty($_POST['container_comments_'.$asset->id])) {
+			$asset->setAttrValue('comments', $_POST['container_comments_'.$asset->id]);
+			$updated = TRUE;
+		}
+
 
 		return $updated;
 
@@ -301,38 +366,44 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// but rather at global level, hence not breaking the keywords having matrix assetid URLs (bug #5906)
 		$matrix_url_keywords = Array();
 		$condition_keywords_used = FALSE;
-		foreach($keywords as $keyword) {
-			if (strpos($keyword, './?a=') !== FALSE) {
-				$hash = md5($keyword);
-				$matrix_url_keywords[$hash] = $keyword;
-				$output = preg_replace('|%((<([^>]+?)>)+)?'.escape_regex_chars($keyword).'((<([^>]+?)>)+)?%|', '%${1}'.$hash.'$4%', $output);
-			}//end
+		$attributes = $asset->attr('attributes');
 
-			// replace condition keywords with PHP code
+		// turn our conditional keywords to PHP code for conditional evaluation 
+		// only if the disable keywords isn't set to TRUE for this container
+		if (empty($attributes['disable_keywords'])) {
+			foreach($keywords as $keyword) {
+				if (strpos($keyword, './?a=') !== FALSE) {
+					$hash = md5($keyword);
+					$matrix_url_keywords[$hash] = $keyword;
+					$output = preg_replace('|%((<([^>]+?)>)+)?'.escape_regex_chars($keyword).'((<([^>]+?)>)+)?%|', '%${1}'.$hash.'$4%', $output);
+				}//end
 
-			if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts) && count($condition_parts) ==3) {
-				$test_keyword = $condition_parts[2];
-				switch ($condition_parts[1]) {
-					case 'begin' :
-						$value = 'if (!empty($keyword_replacements[\''.$test_keyword.'\']) && trim($keyword_replacements[\''.$test_keyword.'\']) != \'\') {';
-					break;
-					case 'else' :
-						$value = '} else {';
-					break;
-					case 'end' :
-						$value = '} // end '.$test_keyword;
-					break;
+				// replace condition keywords with PHP code
+
+				if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts) && count($condition_parts) ==3) {
+					$test_keyword = $condition_parts[2];
+					switch ($condition_parts[1]) {
+						case 'begin' :
+							$value = 'if (!empty($keyword_replacements[\''.$test_keyword.'\']) && trim($keyword_replacements[\''.$test_keyword.'\']) != \'\') {';
+						break;
+						case 'else' :
+							$value = '} else {';
+						break;
+						case 'end' :
+							$value = '} // end '.$test_keyword;
+						break;
+					}
+
+					if (!empty($value)) {
+						$php_begin = '<'.'?'.'php ';
+						$php_end = ' ?'.'>';
+						$value = $php_begin.$value.$php_end;
+						$output = preg_replace('|%'.escape_regex_chars($keyword).'%|', $value, $output);
+						$condition_keywords_used = TRUE;
+					}
 				}
-
-				if (!empty($value)) {
-					$php_begin = '<'.'?'.'php ';
-					$php_end = ' ?'.'>';
-					$value = $php_begin.$value.$php_end;
-					$output = preg_replace('|%'.escape_regex_chars($keyword).'%|', $value, $output);
-					$condition_keywords_used = TRUE;
-				}
-			}
-		}//end foreach
+			}//end foreach
+		}
 
 		// Leave "./?a=xxx" links untranslated if the content generating is being cached
 		if (!$generating) {
@@ -341,14 +412,15 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$r = '<'.'?php echo array_get_index($sq_asset_url_list, $1, "./?a=$1"); ?'.'>$2';
 			$output = preg_replace($e, $r, $output);
 			// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
-			$e = '|\\./\\?a=([0-9]+:[0-9A-Za-z]*)\\$?|';
+			$e = '|\\./\\?a=([0-9]+:[^$\s\"\'><]+)\\$?|';
 			$matches = Array();
 			if (preg_match_all($e, $output, $matches, PREG_PATTERN_ORDER)) {
 
 				$replacements = Array();
 				foreach ($matches[1] as $shadow_assetid) {
+					$index = var_export($shadow_assetid, 1);
 					// if this is a shadow asset, then we need to escape the shadow part (as it is plain text)
-					$replacements[] = '<'.'?php echo $sq_asset_url_list['.var_export($shadow_assetid, 1).']; ?'.'>';
+					$replacements[] = '<'.'?php echo array_get_index($sq_asset_url_list, '.$index.', \'./?a=\'.'.$index.'); ?'.'>';
 				}
 
 				$output = str_replace($matches[0], $replacements, $output);
@@ -361,7 +433,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			}
 		}//end if $generating
 
-		$attributes = $asset->attr('attributes');
 		if (empty($attributes['disable_keywords'])) {
 			foreach ($keywords as $keyword) {
 				// Escape the regex characters in the keyword
@@ -381,6 +452,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				// the caret in the keyword with modifier is acting as a special character
 				// when doing preg_replace so for this we need to excape it to fix the bug
 				$keyword_escaped = str_replace('^', '\^', $keyword);
+
+				// if the user has used any quotes in the keyword (modifier) escape them
+				// see RM #6237 Follow up: Disable keywords option not working with modifiers
+				$keyword = str_replace('"', '\"', $keyword);
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword_escaped.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo "&#37;'.$keyword.'&#37;"; ?'.'>\\4', $output);
 			}
 		}
@@ -389,7 +464,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// add another new line character at the end of the line if line ends with php closing tag
 		$output = str_replace("\r\n","\n", $output);
 		$output = str_replace("\r","\n", $output);
-		$output = preg_replace("/\\?>\n/m", '?'.'>'."\n\n", $output);
+		$output = preg_replace("/\\?".">\n/m", '?'.'>'."\n\n", $output);
 
 		// Line endings should really be \r\n; when sent to a browser, MIME type
 		// standards require \r\n line endings for all text/* types
@@ -462,7 +537,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// not only matches './?a=(normal or shadow id)'
 		// but also %globals_asset_attribute_link_url:XXX%
 		// and %globals_asset_attribute_redirect_url:XXX%
-		$shadow_reg  = '|\./\?a=(\d+:[0-9a-zA-Z]*)\$?|';
+		$shadow_reg  = '|\./\?a=(\d+:[^$\n\"\'><]+)\$?|';
 		$normal_reg  = '|\./\?a=(\d+)|';
 		$keyword_reg = '/(%globals_asset_attribute_(redirect|link)_url:)([0-9]*)%/';
 		$shadow_matches = Array();
@@ -534,19 +609,15 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			$shadow_links = array_values(array_intersect($asset->attr('shadow_links'), $replace_assetids));
 			foreach ($replace_assetids as $assetid) {
-				if (!assert_valid_assetid($assetid, '', FALSE, FALSE)) {
-					continue;
-				}
 				if (in_array($assetid, $existing_links)) continue;
 
 				$ereg_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($ereg_asset)) continue;
 
-				if (strpos($ereg_asset->id, ':') !== FALSE) {
+				if (strpos($ereg_asset->id, ':') !== FALSE && !$GLOBALS['SQ_SYSTEM']->am->allowShadowNoticeLink($ereg_asset->id)) {
 					$shadow_links[] = $ereg_asset->id;
 
 				} else {
-
 					// dont show errors here if the link already exists
 					// as we rely on the fact that this ereg_asset cant be notice linked
 					// to asset mutiple times to stop redunant links from
@@ -596,46 +667,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		return $em->broadcastEvent($asset, 'contentsUpdated', Array());
 
 	}//end _contentsUpdated()
-
-
-	/**
-	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
-	*
-	* @param Backend_Outputter	$o	the Backend_Outputter class
-	*
-	* @return mixed array|NULL
-	* @access private
-	*/
-	protected function _saveCssIds(Backend_Outputter $o)
-	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-
-		$url = $GLOBALS['sq_preview_url'];
-		$url = preg_replace('|^http[s]?://|', '', $url);
-
-		$designid = $am->getValueFromURL($url, 'design::%', TRUE);
-
-		if ($designid) {
-			if (!SQ_IN_LIMBO) {
-				$design = $am->getAsset($designid);
-				$stylesheets = $design->getStylesheets();
-
-				// save the ids of all the css files into a global var so the wysiwyg style
-				// drop down plugin can access this information without another querey
-				// we can also limit the stylesheets that are available to it here if we want
-				$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
-
-				$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
-
-				$am->forgetAsset($design);
-				unset($design);
-
-				return $css_urls;
-			}
-		}
-		return NULL;
-
-	}//end _saveCssIds()
 
 
 	/**
@@ -864,6 +895,22 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		</script>
 
 		<?php
+		// work out available div templates
+		$available_templates = $GLOBALS['SQ_SYSTEM']->am->getAvailableContainerTemplates($asset->id);
+		// Build condition JS if there are conditions to use.
+		$available_templates_js = '';
+		if (!empty($available_templates)) {
+			$available_templates_js = json_encode_array($available_templates);
+		}
+
+		// if there is available container templates
+		// the JS var is for the backend div property popup to consume
+		if(!empty($available_templates_js)) {
+				?><script language="JavaScript" type="text/javascript">bodycopy_available_templates = <?php echo $available_templates_js; ?>; </script><?php
+		}
+
+
+
 		// print JS functions for each of the container types we have installed
 		$container_types = $am->getAssetTypeHierarchy('bodycopy_container');
 		foreach ($container_types as $type => $type_data) {
@@ -890,6 +937,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td>
 					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $asset->id?>]" value="">
+					<input type="hidden" id="container_comments_<?php echo $asset->id?>" name="container_comments_<?php echo $asset->id?>" value="">
 					<?php $this->paintContainer($asset, $o, $prefix); ?>
 				</td>
 			</tr>
@@ -913,9 +961,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processBodycopyContainer(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
-		// save css ids into global var
-		// we don't care about the return value here
-		$this->_saveCssIds($o);
+		// Load the design attributes - stylesheet assetids and design styles
+		require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
+		Asset_Attribute_WYSIWYG::getDesignAttributes();
 
 		$updated = FALSE;
 		$bc_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
@@ -1000,6 +1048,178 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processDescription()
+
+
+
+	/**
+	* Paint the description attribute as a text area on the details screen
+	*
+	* @param Bodycopy_Container	$asset	the container whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	function paintTemplate(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
+	{
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'container_template');
+		$available_templates = $GLOBALS['SQ_SYSTEM']->am->getAvailableContainerTemplates($asset->id);
+		if(empty($available_templates)) {
+			echo translate('There is no available template');
+			return TRUE;
+		}
+
+
+		$available_templates_optons = Array('--' => '--');
+		foreach($available_templates as $link) {
+			$available_templates_optons[$link['assetid']] = $link['name'].' (#'.$link['assetid'].')';
+		}
+
+		$applied_template = '';
+		$applied_template_name = '';
+		if(!empty($root_links[0]['majorid'])) {
+			$applied_template = $root_links[0]['majorid'];
+			$applied_template_name = isset($available_templates_optons[$applied_template]) ? $available_templates_optons[$applied_template] : '';
+		}
+		
+		
+		if ($asset->writeAccess('links')) {
+			combo_box($prefix.'_template', $available_templates_optons, FALSE, $applied_template);
+
+		} else {
+			// read only
+			if(empty($applied_template)) {
+				echo translate('There is no applied template');
+			}
+			else {
+				echo $applied_template_name;
+			}
+		}
+		return TRUE;
+
+	}//end paintTemplate()
+
+
+	/**
+	* Process the description text area attribute on the details screen
+	*
+	* @param Bodycopy_Container	$asset	the container whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	public function processTemplate(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_template']) && !empty($_POST[$prefix.'_template'])) {
+			if ($asset->writeAccess('links')) {
+				$value = $_REQUEST[$prefix.'_template'];
+				$this->processTemplateNoticeLink($value, $asset);
+			} else {
+				return FALSE;
+			}
+		}
+		return TRUE;
+
+	}//end processTemplate()
+
+	/**
+	* Process the changes of notice links when template changes take place
+	*
+	* @param String	$value		the new template asset id
+	* @param Asset	$asset		the container asset
+	*
+	* @return void
+	* @access public
+	*/
+	public function processTemplateNoticeLink($value, $asset) {
+		// get existing root links
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'container_template');
+		if(!empty($root_links[0]['majorid'])) {
+			// lets delete the root nodes that have been removed
+			foreach ($root_links as $root_link) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+						$ok = FALSE;
+					}
+			}
+		}
+
+		// if we just need to remove template, that's it
+		if($value == '--') {
+			$asset->setAttrValue('template_applied', FALSE);
+			$asset->saveAttributes();
+			return TRUE;
+		}
+		// let's mark this container as template applied
+		$asset->setAttrValue('template_applied', TRUE);
+		$asset->saveAttributes();
+
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$ok = TRUE;
+
+
+		// now, create the new node links
+		$template = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
+		if (!$template->createLink($asset, SQ_LINK_NOTICE, 'container_template')) {
+			$ok = FALSE;
+			trigger_localised_error('CMS0016', sprintf(translate('Failed adding new root node [#%2$s]'), $value), E_USER_WARNING);
+			break;
+		}
+
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+
+		// now have to apply metadata schema
+		$schema_vars = Array();
+
+		// first delete all existing schemas
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$deleted_schema = $mm->getSchemas($asset->id, TRUE);
+
+		foreach ($deleted_schema as $schemaid) {
+			$schema_vars[] = Array(
+						'assetids'			=> Array($asset->id),
+						'granted'			=> -1,
+						'cascades'			=> TRUE,
+						'schemaid'			=> $schemaid,
+						'previous_access'	=> NULL,
+						'delete_values'		=> FALSE,
+					 );
+		}
+
+
+		// get containers that have this templated applied
+		$metadata_schemas = $template->getMetadataSchemaLinks();
+
+
+		foreach ($metadata_schemas as $schema_link) {
+			$schemaid = $schema_link['minorid'];
+			$schema_vars[] = Array(
+							'assetids'			=> Array($asset->id),
+							'granted'			=> 1,
+							'cascades'			=> TRUE,
+							'schemaid'			=> $schemaid,
+							'previous_access'	=> NULL,
+						 );
+		}
+
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		
+		if(!empty($schema_vars)) {
+			$vars = Array('schema_changes' => $schema_vars);
+			$hh->queueHipo('hipo_job_edit_metadata_schemas', $vars);
+		}
+	}//end processTemplateNoticeLink
 
 
 }//end class

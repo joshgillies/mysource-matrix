@@ -16,44 +16,49 @@
 -->
 
 <contents>
-	<section name="Top 20 Countries" write_access="root:none">
+    <section name="View Not Connected" write_access="root:none" show_if="showIfNotConnected">
+        <function_call>
+            <paint_function name="paintViewNotConnected" />
+        </function_call>
+    </section>
+	<section name="Top 20 Countries" write_access="root:none" show_if="showIfConnected">
 	    <function_call>
 	        <paint_function name="paintGeoCountryReport" />
 	    </function_call>
 	</section>
-	<section name="Top 50 Cities" write_access="root:none">
+	<section name="Top 50 Cities" write_access="root:none" show_if="showIfConnected">
 	    <function_call>
 	        <paint_function name="paintGeoCityReport" />
 	    </function_call>
 	</section>
-	<section name="Operating Systems (Desktop)" write_access="root:none">
+	<section name="Operating Systems (Desktop)" write_access="root:none" show_if="showIfConnected">
 	    <function_call>
 	        <paint_function name="paintTechnologiesOSesReportDesktop" />
 	    </function_call>
 	</section>
-    <section name="Browsers (Desktop)" write_access="root:none">
+    <section name="Browsers (Desktop)" write_access="root:none" show_if="showIfConnected">
         <function_call>
             <paint_function name="paintTechnologiesBrowsersReportDesktop" />
         </function_call>
     </section>
 
-    <section name="Operating Systems (Mobile)" write_access="root:none">
+    <section name="Operating Systems (Mobile)" write_access="root:none" show_if="showIfConnected">
         <function_call>
             <paint_function name="paintTechnologiesOSesReportMobile" />
         </function_call>
     </section>
-    <section name="Browsers (Mobile)" write_access="root:none">
+    <section name="Browsers (Mobile)" write_access="root:none" show_if="showIfConnected">
         <function_call>
             <paint_function name="paintTechnologiesBrowsersReportMobile" />
         </function_call>
     </section>
 
-    <section name="Operating Systems (Tablet)" write_access="root:none">
+    <section name="Operating Systems (Tablet)" write_access="root:none" show_if="showIfConnected">
 	    <function_call>
 	        <paint_function name="paintTechnologiesOSesReportTablet" />
 	    </function_call>
 	</section>
-    <section name="Browsers (Tablet)" write_access="root:none">
+    <section name="Browsers (Tablet)" write_access="root:none" show_if="showIfConnected">
         <function_call>
             <paint_function name="paintTechnologiesBrowsersReportTablet" />
         </function_call>

@@ -56,7 +56,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 	// whether or not to print the checkbox
 	$print_cascade_values_option = TRUE;
 
-	if ((!SQ_IN_BACKEND) && (isset($layout_options['show_cascade_metadata_field']))) {
+	if (isset($layout_options['show_cascade_metadata_field'])) {
 		$print_cascade_values_option = $layout_options['show_cascade_metadata_field'];
 	}
 
@@ -102,41 +102,12 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 				case 'metadata_current' :
 
 					$o->openField('', 'wide_col');
-						echo '<div class="sq-source-view sq-dashed-border-container">';
+						echo '<div class="sq-source-view sq-dashed-border-container sq-backend-code-editing">';
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) {
 							ob_start();
 						}
 
-						if ($contextid === 0) {
-							$metadata_basename = 'metadata.php';
-						} else {
-							$metadata_basename = 'metadata.'.$contextid.'.php';
-						}
-						$metadata_default_name = 'metadata.php';
-						$metadata = NULL;
-
-						if (empty($schemas)) {
-							echo translate('There are no metadata schemas applied to this asset.');
-
-						} else if (file_exists($owner->data_path.'/'.$metadata_basename)) {
-							ob_start();
-								require($owner->data_path.'/'.$metadata_basename);
-								$metadata = ob_get_contents();
-							ob_end_clean();
-						} else if (file_exists($owner->data_path.'/'.$metadata_default_name)) {
-							// No generated metadata for this context yet. We can assume
-							// that until it is generated, it's using the same defaults
-							ob_start();
-								require($owner->data_path.'/'.$metadata_default_name);
-								$metadata = ob_get_contents();
-							ob_end_clean();
-						}
-
-						// If metadata was filled, clean it and print it
-						// for the user's edification
-						if ($metadata !== NULL) {
-							echo nl2br(htmlspecialchars(trim($metadata)));
-						}
+						$mm->printFrontendMetadata($owner, $contextid, $metadata_values, $metadata_value_components, $metadata_warnings);
 
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) {
@@ -242,7 +213,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
 							// Wrap this keyword's contents in table tags because it is printing out the contents of nested sections,
 							// but the top level section (opened earlier in this file) is not printed along with it.
-							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['metadata_values']] = '<table>'.ob_get_contents().'</table>';
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['metadata_values']] = '<table class="metadata_value_table">'.ob_get_contents().'</table>';
 							ob_end_flush();
 						}
 					}

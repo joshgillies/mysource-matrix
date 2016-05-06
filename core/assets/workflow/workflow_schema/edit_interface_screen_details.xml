@@ -20,7 +20,7 @@
         <field attribute="name">
             <display_name>Schema Name</display_name>
             <note />
-            <text width="20" height="1" />
+            <text width="30" height="1" />
         </field>
         <field attribute="allow_comment_on_request">
             <display_name>Allow Comments When Requesting Approval?</display_name>

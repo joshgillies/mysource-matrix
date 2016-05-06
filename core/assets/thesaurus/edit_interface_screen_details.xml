@@ -23,15 +23,6 @@
 			<text width="30" height="1" />
 		</field>
 	</section>
-	<section name="Status">
-		<field>
-			<display_name>Thesaurus Status</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintStatus" />
-			</function_call>
-		</field>
-	</section>
 	<section name="Import XML" write_access="write:attributes">
 		<field>
 			<display_name>Upload File</display_name>
@@ -51,10 +42,17 @@
 	</section>
 	<section name="Export XML" write_access="write:attributes">
 		<field>
-			<display_name>XML format</display_name>
+			<display_name>Export XML</display_name>
 			<function_call>
 				<paint_function		name="paintExportXMLfile" />
 				<process_function	name="processExportXMLfile" />
+			</function_call>
+		</field>
+		<field read_access="write:attributes">
+			<display_name></display_name>
+			<function_call>
+				<paint_function		name="paintGenerateXMLfile" />
+				<process_function	name="processGenerateXMLfile" />
 			</function_call>
 		</field>
 	</section>

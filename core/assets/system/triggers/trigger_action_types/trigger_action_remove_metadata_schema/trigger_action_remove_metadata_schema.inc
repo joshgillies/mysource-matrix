@@ -217,13 +217,13 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 
 				}
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_all ? 'tick' : 'cross').'.gif" alt="'.($remove_all ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_all ? 'tick' : 'cross').'.png" alt="'.($remove_all ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Remove all metadata schemas');
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.png" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Cascade the removal of metadata schema to all children');

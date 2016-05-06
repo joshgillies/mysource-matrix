@@ -17,7 +17,7 @@
 
 <strings>
 	<string source="ecom_promotional_rule_type_quantity_discount_type">Discount Type</string>
-	<string source="ecom_promotional_rule_type_quantity_discount_type_note">The discount type of this promotional rule. Do not use the percent symbol (%%) for the percentage discount type, e.g. use 50 for 50%% discount amount.</string>
+	<string source="ecom_promotional_rule_type_quantity_discount_type_note">The discount type of this promotional rule. Do not use the percent symbol (%) for the percentage discount type, e.g. use 50 for 50% discount amount.</string>
 	<string source="ecom_promotional_rule_type_quantity_new_discount_option">New Discount Option</string>
 	<string source="ecom_promotional_rule_type_quantity_asset_quantity">Asset Quantity</string>
 	<string source="ecom_promotional_rule_type_quantity_discount_amount">Discount Amount</string>

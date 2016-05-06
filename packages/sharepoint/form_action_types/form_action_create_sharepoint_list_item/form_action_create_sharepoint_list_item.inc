@@ -60,6 +60,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 		$sharepoint_url		= array_get_index($settings, 'url', '');
 		$username			= array_get_index($settings, 'username', '');
 		$password			= array_get_index($settings, 'password', '');
+		$method				= array_get_index($settings, 'method', 'HTTP_BASIC');
 		$has_connection		= FALSE;
 
 		require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
@@ -76,6 +77,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 			$sharepoint_url			= $sharepoint_connector->attr('url');
 			$username				= $sharepoint_connector->attr('username');
 			$password				= $sharepoint_connector->attr('password');
+			$method					= $sharepoint_connector->attr('authentication_type');
 
 		}//end if
 
@@ -90,6 +92,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 													'trace'		=> TRUE,
 													'exception'	=> TRUE,
 												  ),
+							'method'			=> $method,
 						  );
 
 			$valid = Sharepoint_Common::test_sharepoint_connection($connection);
@@ -147,7 +150,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 				if (id == 'None') {
 					desc = '';
 				} else {
-					desc = 'Description: '+description_list[id];
+					desc = '<?php echo translate("Description"); ?>: '+description_list[id];
 				}//end else
 
 				document.getElementById('list_description').innerHTML	= desc;
@@ -203,7 +206,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 					new_tr		= document.createElement("tr");
 					new_td_1	= document.createElement("td");
 
-					new_td_1.innerHTML	= '<strong>No List Selected</strong>';
+					new_td_1.innerHTML	= '<strong><?php echo translate("No List Selected"); ?></strong>';
 					new_tr.appendChild(new_td_1);
 					new_tbody.appendChild(new_tr);
 				}//end else
@@ -222,7 +225,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 						new_tr		= document.createElement("tr");
 						new_td_1	= document.createElement("td");
 
-						var new_text		= document.createTextNode('Attachment Question Asset ID');
+						var new_text		= document.createTextNode('<?php echo translate("Attachment Question Asset ID"); ?>');
 						new_td_1.className	= 'sq-backend-table-cell';
 						new_td_1.style.width	= '180px';
 						new_td_1.style.padding	= '8 0 0 15px';
@@ -244,7 +247,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 					new_tr		= document.createElement("tr");
 					new_td_1	= document.createElement("td");
 
-					new_td_1.innerHTML	= '<strong>File attachment not available.</strong>';
+					new_td_1.innerHTML	= '<strong><?php echo translate("File attachment not available"); ?></strong>';
 					new_tr.appendChild(new_td_1);
 					new_tbody.appendChild(new_tr);
 				}//end else
@@ -254,84 +257,63 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 
 		</script>
 
-		<p class="sq-backend-section-subheading">Connection Details</p>
+		<p class="sq-backend-section-subheading"><?php echo translate('Connection Details'); ?></p>
 
-		<div id="<?php echo $prefix ?>_connector_div" style="padding: 0.5em 0px 2em 30px;">
-			<table class="sq-backend-table" style="width:auto">
+
+			<table class="sq-backend-table">
+
 				<tr>
-					<td width="100"><p>System URL</p></td>
-					<td><p><?php text_box($prefix.'_url', array_get_index($settings, 'url', ''), 120, '', FALSE, $wsdl_disabled); ?></p></td>
+					<th ><div style="min-width: 200px" class="sq-backend-field-wsdl"><?php echo translate('WSDL URL'); ?></div></th>
+					<td><?php text_box($prefix.'_url', array_get_index($settings, 'url', ''), 120, '', FALSE, $wsdl_disabled); ?></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('Username'); ?></td>
+					<th><?php echo translate('Username'); ?></th>
 
-					<td><p><?php text_box($prefix.'_username', array_get_index($settings, 'username', ''), 35, '', FALSE, $wsdl_disabled); ?><br />
-					</p></td>
+					<td><?php text_box($prefix.'_username', array_get_index($settings, 'username', ''), 35, '', FALSE, $wsdl_disabled); ?><br />
+					</td>
 				</tr>
 				<tr>
-					<td><?php echo translate('Password'); ?></td>
+					<th><?php echo translate('Password'); ?></th>
 
-					<td><p><?php password_box($prefix.'_password', array_get_index($settings, 'password', ''), 35, '', $wsdl_disabled); ?></p></td>
+					<td><?php password_box($prefix.'_password', '', 35, '', $wsdl_disabled); ?></td>
 				</tr>
+				<tr>
+					<th><?php echo translate('Authentication Method'); ?></th>
+
+					<td><?php combo_box($prefix.'_method', Array('HTTP_BASIC' => 'HTTP Basic', 'NTLM' => 'NTLM'), FALSE, array_get_index($settings, 'method', 'HTTP_BASIC')); ?></td>
+				</tr>
+				<tr> 
+					<th><p><?php echo translate('Sharepoint Connector Asset'); ?></p></th>
+					<td><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('sharepoint_connector'=>'D')); ?>
+					</td>
+				</tr>				
+
 			</table>
-		</div>
-
-		<div id="<?php echo $prefix ?>_connector_div" style="padding: 0.5em 0px 2em 30px;">
-			<table class="sq-backend-table" style="width:auto">
-				<tr>
-					<td><p>Sharepoint Connector Asset</p></td>
-					<td><p><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('sharepoint_connector'=>'D')); ?><br/>
-					Note: If a Sharepoint connector is selected, the settings in the 'Connection Setup' section (above) have no effect. <br />Sharepoint Connector allows the Sharepoint connection settings to be reused on other Sharepoint assets..</p></td>
-				</tr>
-			</table>
-		</div>
-
-		<p class="sq-backend-section-subheading">Create Record Settings</p>
-
-		<div id="<?php echo $prefix ?>_record_type_selection" style="padding: 0.5em 0px 2em 30px;">
-			<table style="width:auto;padding-left: 30px;">
-				<tr>
-					<td valign="top" width="75"><strong><?php echo 'Select List&nbsp;&nbsp;&nbsp;&nbsp;';?></strong><br /><br /></td>
+		
+<p class="sq-backend-section-subheading"><?php echo translate('Create Record Settings'); ?></p>
+		<div id="<?php echo $prefix ?>_record_type_selection">
+			<table class="sq-backend-table">
+				<tbody><tr>
+					<th><div style="min-width: 102px"><strong><?php echo translate('Select List'); ?></strong></div></th>
 					<td>
-						<?php
-							combo_box($prefix.'_create_list', $list_names, FALSE, $create_list, 0, ' onChange="replace_description(this.value);paintAttachmentMapping(this.value, \'\');updateListAvailableFields(this.value);document.getElementById(\'selected_list\').value=(this.options[this.selectedIndex].text);"');
-							hidden_field('selected_list', '');
-						?>
-						<br /><br />
+						<select name="form_email_241_create_list" onchange="replace_description(this.value);paintAttachmentMapping(this.value, '');updateListAvailableFields(this.value);document.getElementById('selected_list').value=(this.options[this.selectedIndex].text);" class="sq-form-field" id="form_email_241_create_list"><option value="None" selected="selected">None</option></select><input type="hidden" name="selected_list" value="" class="sq-form-field" id="selected_list">						
 						<span id="list_description"></span>
 					</td>
 				</tr>
-
-				<tr>
+				<tr></tr>
+					<th><?php echo translate('Available Fields'); ?></div></th>
+					<td><strong><?php echo translate('No Lists Selected'); ?></strong><br>
+					<?php echo translate('Form keywords and Global Keywords are supported. Example: %response_123_q1%'); ?>
+					</td>
 				</tr>
-			</table>
-		</div>
-
-		<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 2em 30px;">
-
-			<p class="sq-backend-section-subheading">Available Fields</p>
-
-			<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 2em 30px;">
-				<table id="field_input_table" name="field_input_table" style="width:auto;padding-left: 30px;">
-					<tr>
-						<td style="width:180px;"><strong>No List Selected</strong></td>
-					</tr>
-				</table>
-			</div>
-
-			<p class="sq-backend-section-subheading">Attachment</p>
-			<p class="sq-backend-smallprint" style="padding-left:60px;">Only entry created in a Sharepoint custom list can have file attached.</p>
-
-			<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 2em 30px;">
-				<table id="attachment_input_table" name="attachment_input_table" style="width:auto;padding-left: 30px;">
-					<tr>
-						<td style="width:180px;"><strong>File attachment not available</strong></td>
-					</tr>
-				</table>
-			</div>
-
-		</div>
-
+				<tr>
+					<th><?php echo translate('Attachment'); ?></th>
+					<td><strong><?php echo translate('File attachment not available'); ?></strong><br>
+					<?php echo translate('Only entry created in a Sharepoint custom list can have file attached.'); ?></td>
+					
+				</tr>
+		</tbody></table>
+				
 		<?php if ($create_list != 'None' && $has_connection) { ?>
 		<script type="text/javascript">
 			replace_description('<?php echo $create_list; ?>');
@@ -392,6 +374,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 		$new_password					= array_get_index($_POST, $prefix.'_password', NULL);
 		$creator_username				= array_get_index($_POST, $prefix.'_creator_username', NULL);
 		$session_creator_username		= array_get_index($_POST, $prefix.'_session_creator_username', FALSE);
+		$method							= array_get_index($_POST, $prefix.'_method', 'HTTP_BASIC');
 
 		if (!is_null($new_url)) {
 			$settings['url']		= $new_url;
@@ -399,7 +382,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 		if (!is_null($new_username)) {
 			$settings['username']	= $new_username;
 		}//end if
-		if (!is_null($new_password)) {
+		if (!empty($new_password)) {
 			$settings['password']	= $new_password;
 		}//end if
 		if (!is_null($creator_username)) {
@@ -408,6 +391,8 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 		if (!is_null($session_creator_username)) {
 			$settings['session_creator_username']	= $session_creator_username;
 		}//end if
+
+		$settings['method']	= $method;
 
 		return TRUE;
 
@@ -533,6 +518,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 												'trace'		=> TRUE,
 												'exception'	=> TRUE,
 											  );
+			$connection['method']			= $trim_connector->attr('authentication_type');
 		} else {
 			$connection['url']				= $settings['url'];
 			$connection['authentication']	= Array (
@@ -541,6 +527,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 												'trace'		=> TRUE,
 												'exception'	=> TRUE,
 											  );
+			$connection['method']			= isset($settings['method']) ? $settings['method'] : 'HTTP_BASIC';
 		}//end if
 
 		$ows_ID	= Sharepoint_Common::addListItem($connection, $settings['create_list'], $sharepoint_fields);
@@ -582,6 +569,10 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 				$replacement[$field_name]	= $field_content;
 			} while ($count > 0);
 		}//end foreach
+
+		// replace global keywords
+		$field_content = $replacement[$field_name];
+		$replacement[$field_name]	= replace_global_keywords($field_content);
 	}//end getKeywordReplacementsForForm()
 
 

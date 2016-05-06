@@ -79,7 +79,7 @@ class File_Prefs extends Prefs
 		$this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['name'] = translate('Pre-uploaded Max File Size');
 		$this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['desc'] = translate('The maximum file size can be created from the pre-uploaded files. This can be entered in shorthand notation: \'K\' for kilobytes, \'M\' for megabytes. When the value is zero, this option will be ignored.');
 
-		$this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['name'] = translate('Allow File with No Extension');
+		$this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['name'] = translate('Allow Files with No Extension?');
 
 		$this->pref_vars['SQ_FILE_ALLOWED_TYPES']['name'] = translate('Allowed File Extensions to Upload');
 		$this->pref_vars['SQ_FILE_ALLOWED_TYPES']['desc'] = translate('Type the allowed file extensions, separated by commas. For example: jpg,png,txt,mov');
@@ -203,8 +203,8 @@ class File_Prefs extends Prefs
 
         // Allow File assets with no extension?
         $options = Array(
-                       1 => translate('Files may have no extension'),
-                       0 => translate('Files must have an extension'),
+                       1 => translate('Yes'),
+                       0 => translate('No'),
                    );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_FILE_ALLOW_NO_EXTENSION', $options);
 
@@ -386,55 +386,58 @@ class File_Prefs extends Prefs
 				$merged_prefs[$var_name] = $prefs2[$var_name];
 			} else if (isset($prefs1[$var_name]) && isset($prefs2[$var_name])) {
 				// this is set in both prefs
+				if (is_array($prefs1[$var_name]) && isset($prefs1[$var_name]['default'])) {
+					$pref1_def_value = $prefs1[$var_name]['default'];
+				} else {
+					$pref1_def_value = $prefs1[$var_name];
+				}
+				if (is_array($prefs2[$var_name]) && isset($prefs2[$var_name]['default'])) {
+					$pref2_def_value = $prefs2[$var_name]['default'];
+				} else {
+					$pref2_def_value = $prefs2[$var_name];
+				}
+
 				switch ($var_name) {
 					case 'SQ_FILE_MAX_SIZE' :
 					case 'SQ_FILE_PREUPLOADED_MAX_SIZE' :
 						// use the maximum allowed file size
-						$pref_1_size = strtolower($prefs1[$var_name]['default']);
+						$pref_1_size = strtolower($pref1_def_value);
+
 						if (substr($pref_1_size, -1) == 'k') {
 							$pref_1_size = $pref_1_size * 1024;
 						} else if (substr($pref_1_size, -1) == 'm') {
 							$pref_1_size = $pref_1_size * 1024 * 1024;
 						}
 
-						$pref_2_size = strtolower($prefs2[$var_name]['default']);
-						if (substr($pref_1_size, -1) == 'k') {
-							$pref_1_size = $pref_1_size * 1024;
-						} else if (substr($pref_1_size, -1) == 'm') {
-							$pref_1_size = $pref_1_size * 1024 * 1024;
+						$pref_2_size = strtolower($pref2_def_value);
+						if (substr($pref_2_size, -1) == 'k') {
+							$pref_2_size = $pref_2_size * 1024;
+						} else if (substr($pref_2_size, -1) == 'm') {
+							$pref_2_size = $pref_2_size * 1024 * 1024;
 						}
 
 						// Go for smaller size
 						if ($pref_1_size > $pref_2_size) {
-							$merged_prefs[$var_name] = $prefs1[$var_name];
+							$merged_prefs[$var_name]['default'] = $prefs1[$var_name];
 						} else {
-							$merged_prefs[$var_name] = $prefs2[$var_name];
+							$merged_prefs[$var_name]['default'] = $prefs2[$var_name];
 						}
 					break;
 					case 'SQ_FILE_ALLOW_NO_EXTENSION' :
-						$pref_1_val = $prefs1[$var_name]['default'];
-						$pref_2_val = $prefs2[$var_name]['default'];
-						$merged_prefs[$var_name]['default'] = ($pref_1_val || $pref_2_val);
+						$merged_prefs[$var_name]['default'] = ($pref1_def_value || $pref1_def_value);
 					break;
 					case 'SQ_FILE_ALLOWED_TYPES' :
 					case 'SQ_FILE_ALLOWED_PREUPLOADED_TYPES' :
-						if (is_array($prefs1[$var_name]) && isset($prefs1[$var_name]['default'])) {
-							$pref_1_exts_str = $prefs1[$var_name]['default'];
-						} else {
-							$pref_1_exts_str = $prefs1[$var_name];
-						}
-						if (is_array($prefs2[$var_name]) && isset($prefs2[$var_name]['default'])) {
-							$pref_2_exts_str = $prefs2[$var_name]['default'];
-						} else {
-							$pref_2_exts_str = $prefs2[$var_name];
-						}
+						$pref_1_exts_str = $pref1_def_value;
+						$pref_2_exts_str = $pref2_def_value;
+
 						$pref_merge_str = $pref_1_exts_str.','.$pref_2_exts_str;
 						$merged_prefs[$var_name]['default'] = implode(',', array_unique(explode(',', $pref_merge_str)));
 					break;
 				}//end switch
 
 				$merged_prefs[$var_name]['name']        = $prefs1[$var_name]['name'];
-				$merged_prefs[$var_name]['description'] = $prefs1[$var_name]['description'];
+				$merged_prefs[$var_name]['description'] = isset($prefs1[$var_name]['description']) ? $prefs1[$var_name]['description'] : '';
 
 				if (isset($prefs2[$var_name]['protected'])) {
 					$merged_prefs[$var_name]['protected'] = ($prefs1[$var_name]['protected'] || $prefs2[$var_name]['protected']);

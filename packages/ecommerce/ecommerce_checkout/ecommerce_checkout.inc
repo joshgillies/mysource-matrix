@@ -369,7 +369,10 @@ class Ecommerce_Checkout extends Page
 				// Apply promotion to the items in the cart
 				$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 				if ($cart->applyPromotionalCode($promo_code, $order, $this->attr('taxation_rate')/100, $remove_tax)) {
+					// Store the successful promotional code in the session
 					$_SESSION['sq_local_cart_contents']['promotion_code'] = $promo_code;
+				} else {
+					$_SESSION['sq_local_cart_contents']['promotion_code'] = FALSE;
 				}
 
 				// Update global cart in the session
@@ -791,6 +794,8 @@ class Ecommerce_Checkout extends Page
 					$order_asset->setAttrValue('billing_addr', array_get_index($payment_response, 'BILLING_ADDR', ''));
 					$order_asset->setAttrValue('delivery_name', array_get_index($payment_response, 'DELIVERY_NAME', ''));
 					$order_asset->setAttrValue('delivery_addr', array_get_index($payment_response, 'DELIVERY_ADDR', ''));
+					$xml = '<RESPONSE>'.array_to_xml($payment_response).'</RESPONSE>';
+					$order_asset->setAttrValue('transaction_response', $xml);
 					$payment_gateway_xml = array_get_index($payment_response, 'PAYMENT_GATEWAY_XML', '');
 				}
 
@@ -1758,11 +1763,13 @@ class Ecommerce_Checkout extends Page
 
 		$keywords['item_tax']				= translate('Individual Item Tax Amount');
 
+		$keywords['item_price_excl_tax']		= translate('Individual Item Price Excluding Tax');
+
+		$keywords['total_item_price_excl_tax']	= translate('Item Price Total Excluding Tax');
 
 		$keywords['total_item_price']		= translate('Item Price Total');
 
 		$keywords['total_item_tax']			= translate('Item Tax Total');
-
 
 		return $keywords;
 
@@ -1782,7 +1789,7 @@ class Ecommerce_Checkout extends Page
 
 		$keywords['total_tax']			= translate('Total Tax');
 
-		$keyowrds['tax_name']			= translate('Tax Name');
+		$keywords['tax_name']			= translate('Tax Name');
 
 
 		$keywords['flat_fees_table']	= translate('All Flat Fees Listed');
@@ -2134,6 +2141,25 @@ class Ecommerce_Checkout extends Page
 	}//end getOrderXmlKeywordReplacement()
 
 
+
+	/**
+	* Transaction Response keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionResponseKeywordReplacement()
+	{
+		$order = NULL;
+		if (isset($_SESSION['sq_local_cart_contents']['success_order_id'])) {
+			$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['success_order_id']);
+		}
+
+		return is_null($order)? '' : $order->attr('transaction_response');
+
+	}//end getTransactionResponseKeywordReplacement()
+
+	
 	/**
 	* Get Keyword Replacement for 'error_messages' keyword
 	*
@@ -2483,8 +2509,8 @@ class Ecommerce_Checkout extends Page
 
 		$total_cost = $this->_getCartTotal(FALSE);
 
-		$order_asset->setAttrValue('summary',			$order_summary);
-		$order_asset->setAttrValue('order_xml',			$order_xml);
+		$order_asset->setAttrValue('summary',			$order_summary, FALSE);
+		$order_asset->setAttrValue('order_xml',			$order_xml, FALSE);
 		$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
 		$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
 		$order_asset->setAttrValue('order_grand_total', $total_cost);

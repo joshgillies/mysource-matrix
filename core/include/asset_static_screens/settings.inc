@@ -124,9 +124,17 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 				break;
 
 				case 'date_created_date' :
+				case 'date_updated_date' :
 				case 'date_published_date' :
 
-					$date_type = (strtolower((string) $field['code']) === 'date_created_date') ? 'created' : 'published';
+					if (strtolower((string) $field['code']) === 'date_created_date') {
+						$date_type = 'created';
+					} else if (strtolower((string) $field['code']) === 'date_updated_date') {
+						$date_type = 'updated';
+					} else {
+						$date_type = 'published';
+					}
+
 					require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 					$parameters = Array(
 									'min'			=> '0000-00-00 00:00:00',
@@ -148,6 +156,9 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					if ($date_type == 'created') {
 						$value  = (!empty($owner->created)) ? ts_iso8601($owner->created) : '---------- --:--:--';
 						$userid = $owner->created_userid;
+					} else if ($date_type == 'updated') {
+						$value  = (!empty($owner->updated)) ? ts_iso8601($owner->updated) : '---------- --:--:--';
+						$userid = $owner->updated_userid;
 					} else {
 						$value  = (!empty($owner->published)) ? ts_iso8601($owner->published) : '---------- --:--:--';
 						$userid = $owner->published_userid;
@@ -155,9 +166,11 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 					if ((string) $field['children'][0]['name'] !== 'display_name') {
 					    if (strtolower((string) $field['code']) === 'date_created_date') {
-					        $display_name = translate('Created Date');
+							$display_name = translate('Created Date');
+						} else if (strtolower((string) $field['code']) === 'date_updated_date') {
+							$display_name = translate('Last Updated Date');
 						} else {
-					        $display_name = translate('Last Published Date');
+							$display_name = translate('Last Published Date');
 						}
 					} else {
 						$display_name = (string) $field['children'][0]['content'];
@@ -235,6 +248,12 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 									htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
 									date('d M Y H:i:s', strtotime($date_field->value))
 								);
+							} else if ($date_type === 'updated') {
+								echo sprintf(
+									translate('Updated by %s on %s'),
+									htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
+									date('d M Y H:i:s', strtotime($date_field->value))
+								);
 							} else if ($date_type === 'published') {
 								echo sprintf(
 									translate('Published by %s on %s'),
@@ -277,7 +296,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					} else {
 						echo $options[$owner->force_secure];
 					/* ?>
-						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($owner->force_secure) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($owner->force_secure) ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 					<?php */
 					}
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
@@ -741,7 +760,7 @@ function processSettings(&$owner, &$o, &$ei)
 	if ($owner->adminAccess('all')) {
 		require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 
-		foreach (Array('created', 'published') as $date_type) {
+		foreach (Array('created', 'updated', 'published') as $date_type) {
 
 			// check to see if a user was selected for this particular date,
 			// otherwise use the current logged in user
@@ -785,6 +804,14 @@ function processSettings(&$owner, &$o, &$ei)
 				}
 				$current_date   = $owner->created;
 				$current_userid = $owner->created_userid;
+			} else if ($date_type == 'updated') {
+				// make sure that the date that is specified is not null for the created date
+				if ($date_field->isEmpty()) {
+					trigger_localised_error('SYS0212', translate('The last updated date cannot be empty'), E_USER_WARNING);
+					continue;
+				}
+				$current_date   = $owner->updated;
+				$current_userid = $owner->updated_userid;
 			} else {
 				$current_date   = $owner->published;
 				$current_userid = $owner->published_userid;

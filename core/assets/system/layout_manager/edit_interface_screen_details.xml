@@ -18,7 +18,7 @@
     <section name="CSS Settings" write_access="write:attributes">
         <field attribute="edit_css">
             <display_name>Output Edit CSS file?</display_name>
-            <note>If this option is disabled, no Simple Edit formatting will be provided by MySource Matrix.</note>
+            <note>If this option is disabled, no Simple Edit formatting will be provided by Squiz Matrix.</note>
             <boolean true_text="Yes" false_text="No" />
         </field>
     </section>

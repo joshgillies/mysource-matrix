@@ -62,7 +62,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_REGENERATE_METADATA_THRESHOLD]', SQ_HIPO_REGENERATE_METADATA_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_REGENERATE_METADATA_THRESHOLD]', SQ_HIPO_REGENERATE_METADATA_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_REGENERATE_METADATA_THRESHOLD;
 		}
@@ -226,6 +226,16 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		if (empty($this->_running_vars['todo_assetids'])) {
 			return FALSE;
 		}
+		
+		// If we have any bridge asset in the todo assetid list, include its shadow children in the list as well
+		foreach($this->_running_vars['todo_assetids'] as $assetid) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (!is_null($asset) && method_exists($asset, 'allowShadowMetadata') && $asset->allowShadowMetadata() && in_array('Bridge', class_implements($asset))) {
+				$bridge_shadow_assets = array_keys($asset->getChildren($asset->id));
+				$this->_running_vars['todo_assetids'] = array_merge($this->_running_vars['todo_assetids'], $bridge_shadow_assets);
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		}//end foreach
 
 		return parent::prepare();
 

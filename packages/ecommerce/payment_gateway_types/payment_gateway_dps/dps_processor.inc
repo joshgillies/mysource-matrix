@@ -172,7 +172,21 @@ class Dps_Processor
 						'4999999999999202'		=> 'VISA(Declined)',
 					);
 	
-	
+
+	/**
+	 * The list of extra parameters to pass to payment server
+	 * @var array
+	 */
+	private $_extra_options = Array();	
+
+
+	/**
+	 * The type of transaction
+	 * @var array
+	 */
+	private $_transaction_type = 'Purchase';	
+
+
 	/**
 	 * Constructor
 	 * 
@@ -181,15 +195,19 @@ class Dps_Processor
 	 * @param string	$datacash_api_path	the path to the DPS PHP API's DataCash.php file
 	 * @param string	$cardinfo_dir_path	the path to the directory that holds the DPS CardInfo files
 	 * @param int		$timeout			the time to wait for a response from DPS Payment Gateway
-	 * @param boolean	$test_mode			specify if this processor is in live or test mode; default is test mode
+	 * @param boolean	$test_mode			specify if this processor is in live or test mode; default is
+	 * @param array		$extra_options		extra params to pass to payment server
+	 * @param string	$transaction_type	Purchase / Validate / Refund etc
 	 * 
 	 */
-	function __construct($client, $password, $test_mode = TRUE)
+	function __construct($client, $password, $test_mode = TRUE, $extra_options, $transaction_type)
 	{
 		$this->_client = $client;
 		$this->_password = $password;
 		$this->_test_mode = $test_mode;
 		$this->_log_file_name = DPS_LOG_FILE_PREFIX.$this->_client.($test_mode? '_test' : '_live');
+		$this->_extra_options = $extra_options;
+		$this->_transaction_type = $transaction_type;
 		
 	}//end constructor
 	
@@ -422,11 +440,20 @@ class Dps_Processor
 		$cmdDoTxnTransaction .= "<CardHolderName>$this->_card_name</CardHolderName>";
 		$cmdDoTxnTransaction .= "<CardNumber>$this->_card_number</CardNumber>";
 		$cmdDoTxnTransaction .= "<DateExpiry>$this->_card_expiry_date</DateExpiry>";
-		$cmdDoTxnTransaction .= "<TxnType>Purchase</TxnType>";
-		$cmdDoTxnTransaction .= "<MerchantReference></MerchantReference>";
+		$cmdDoTxnTransaction .= "<TxnType>$this->_transaction_type</TxnType>";
 		$cmdDoTxnTransaction .= "<Cvc2>$this->_card_cv2</Cvc2>";
 		$cmdDoTxnTransaction .= "<EnableAvsData>".$enableAvs."</EnableAvsData>";
 		$cmdDoTxnTransaction .= "<AvsAction>$this->_standard_policy</AvsAction>";
+
+		// add extra parameters
+		if(!empty($this->_extra_options) && is_array($this->_extra_options)) {
+			foreach ($this->_extra_options as $name => $value) {
+				$name = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+				$value = htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+				$cmdDoTxnTransaction .= "<$name>$value</$name>";
+			}
+		}
+
 		$cmdDoTxnTransaction .= "</Txn>";
 		
 		$options = array(
@@ -435,7 +462,6 @@ class Dps_Processor
 				 'RETURNTRANSFER' => 1,
 				 'SSL_VERIFYPEER' => 1,//Needs to be included if no *.crt is available to verify SSL certificates
 				 'SSL_VERIFYHOST' => 2,
-				 'SSLVERSION'     => 3,
 				 'TIMEOUT'			=> 30,
 				 'CONNECTTIMEOUT'	=> 10,
 				);
@@ -492,12 +518,13 @@ class Dps_Processor
 			
 		$success = isset($params['TXN']['SUCCESS']) ? $params['TXN']['SUCCESS'] : FALSE;
 		$responseTxt = isset($params['TXN']['RESPONSETEXT']) ? $params['TXN']['RESPONSETEXT'] : 'DECLINED';
-		$DPSTxnRef = isset($params['TXN']['DPSTXNREF']) ? $params['TXN']['DPSTXNREF'] : '';			
+		$DPSTxnRef = isset($params['TXN']['DPSTXNREF']) ? $params['TXN']['DPSTXNREF'] : '';	
 		$this->_success = $success == 1 ? 1 : FALSE;
 		
 		$this->_response['TRANSACTION'] = $DPSTxnRef;
 		$this->_response['TIME'] = time();
 		$this->_response['STATUS'] = $responseTxt;
+		$this->_response['TXN'] = isset($params['TXN']) ? $params['TXN'] : '';
 		
 	}
 

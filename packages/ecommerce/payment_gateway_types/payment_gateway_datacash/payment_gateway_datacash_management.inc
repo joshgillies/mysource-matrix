@@ -50,18 +50,6 @@ class Payment_Gateway_Datacash_Management extends Asset_Management
 													'default'		=> '',
 													'description'	=> 'The password of the Datacash Account used for the e-commerce transaction',
 												   ),
-						'datacash_api_path'		=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'text',
-													'default'		=> '/usr/bin/DataCash.php',
-											    	'description'	=> 'The path to the Datacash PHP API',
-												   ),
-						'cardinfo_dir_path'		=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'text',
-													'default'		=> '/usr/bin/CardInfoBins',
-											    	'description'	=> 'The path to the directory of CardInfo files',
-												   ),
 						'timeout'				=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
@@ -206,22 +194,6 @@ class Payment_Gateway_Datacash_Management extends Asset_Management
 
 
 	/**
-	* Gets a list of all files
-	*
-	* @return array
-	* @access private
-	*/
-	function _getFileList()
-	{
-		return Array(
-				'files/loader.js',
-				'files/loader.gif',
-			   );
-
-	}//end _getFileList()
-
-
-	/**
 	* Return an array with information about the events that this page is listening for
 	*
 	* @return boolean
@@ -246,7 +218,6 @@ class Payment_Gateway_Datacash_Management extends Asset_Management
 			   );
 
 	}//end getEventList()
-
 
 }//end class
 

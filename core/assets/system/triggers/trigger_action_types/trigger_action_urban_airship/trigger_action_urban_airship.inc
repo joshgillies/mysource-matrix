@@ -18,7 +18,6 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/option_list/option_list.inc';
-require_once dirname(__FILE__).'/lib/urbanairship.php';
 
 /**
 * Trigger_Action_Urban_Airship
@@ -26,7 +25,7 @@ require_once dirname(__FILE__).'/lib/urbanairship.php';
 * A trigger action that sends a redirect header with a user-configurable URL
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.1.1 $
+* @version $Revision: 1.1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage zed_said
 */
@@ -38,7 +37,7 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 	* Execute this action
 	*
 	* Returns an array of data about what it did, or false on error
-	*
+	* 
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
@@ -47,7 +46,7 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
-
+		
 		// Static values
 		$static_app_key = $settings['airship_app_key'];
 		$static_app_token = $settings['airship_device_token'];
@@ -61,7 +60,8 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		$static_push_value1 = $settings['airship_value1'];
 		$static_push_value2 = $settings['airship_value2'];
 		$static_push_value3 = $settings['airship_value3'];
-
+		$static_push_type = $settings['airship_app_type'];
+		
 		// check required settings
 		if (!isset($static_app_key) || empty($static_app_key)) {
 			return FALSE;
@@ -72,13 +72,13 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		if (!isset($static_push_message) || empty($static_push_message)) {
 			return FALSE;
 		}
-
+		
 		// Make sure we either have a device token or we are broadcasting
 		$should_broadcast = array_get_index($settings, 'airship_broadcast', 0) ? TRUE : FALSE;
 		if ((!isset($static_app_token) || empty($static_app_token)) && !$should_broadcast) {
 			return FALSE;
 		}
-
+		
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
@@ -88,7 +88,7 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 			}
 		}
 		if (is_null($state['asset'])) return FALSE;
-
+						
 		// Param Map
 		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
@@ -96,7 +96,7 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		$param_map_badge = $atr_parameter_map->getParameterValue('value_map_badge');
 		$param_map_sound = $atr_parameter_map->getParameterValue('value_map_sound');
 		$param_map_message = $atr_parameter_map->getParameterValue('value_map_message');
-
+		
 		// Dynamic Replacements
 		if (!empty($param_map_token)) {
 			$static_app_token = $param_map_token;
@@ -115,60 +115,100 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		$static_push_badge_replaced = $state['asset']->replaceKeywordsInString($static_push_badge);
 		$static_push_sound_replaced = $state['asset']->replaceKeywordsInString($static_push_sound);
 		$static_push_message_replaced = $state['asset']->replaceKeywordsInString($static_push_message);
-
+		
 		// Only values should be replaced, not keys
 		$static_push_value1_replaced = $state['asset']->replaceKeywordsInString($static_push_value1);
 		$static_push_value2_replaced = $state['asset']->replaceKeywordsInString($static_push_value2);
 		$static_push_value3_replaced = $state['asset']->replaceKeywordsInString($static_push_value3);
-
+				
 
 		if (!empty($static_push_message_replaced)) {
-
-			// Create Airship object
-			$airship = new Airship($static_app_key, $static_app_master_secret);
-
+			
 			// Message
-			$message_data = array('alert'=> $static_push_message_replaced);
+			$message['alert'] = $static_push_message_replaced;
+			
+			// Sound
 			if (!empty($static_push_sound_replaced)) {
-				$message_data['sound'] = $static_push_sound_replaced;
+				$message['sound'] = $static_push_sound_replaced;
 			}
+			
+			// Badge
 			if (!empty($static_push_badge_replaced)) {
-				$message_data['badge'] = intval($static_push_badge_replaced);
+				$message['badge'] = intval($static_push_badge_replaced);
 			}
-			$message = array('aps' => $message_data);
 
+			
 			// Custom payload
+			$custom_payload = array();
 			if (!empty($static_push_key1) && !empty($static_push_value1_replaced)) {
-				$message[$static_push_key1] = $static_push_value1_replaced;
+				$custom_payload[$static_push_key1] = $static_push_value1_replaced;
 			}
 			if (!empty($static_push_key2) && !empty($static_push_value2_replaced)) {
-				$message[$static_push_key2] = $static_push_value2_replaced;
+				$custom_payload[$static_push_key2] = $static_push_value2_replaced;
 			}
 			if (!empty($static_push_key3) && !empty($static_push_value3_replaced)) {
-				$message[$static_push_key3] = $static_push_value3_replaced;
+				$custom_payload[$static_push_key3] = $static_push_value3_replaced;
 			}
-
-			// If we should push or broadcast
-			if ($should_broadcast) {
-				$airship->broadcast($message);
-			} else {
-				// Check to see if we have multiple device tokens
-				if (strpos($static_app_token, ',')) {
-					$static_app_token = explode(',', $static_app_token);
-				}
-				error_log(print_r($message, TRUE), 0);
-				$airship->push($message, $static_app_token);
-			}//end
-
-			return Array(
-					'assetid'	=> $state['asset']->id,
-				   );
-		} else {
-			return FALSE;
+			if (count($custom_payload) > 0) {
+				$message['extra'] = $custom_payload;
+			}
+						
 		}
+		
+		// Setup the push
+		$push_url = 'https://go.urbanairship.com/api/push/';
+		$app_type = array_get_index($settings, 'airship_app_type', '');
+		$app_type_value = $options[$app_type];
+		
+		// Build the notification
+		$notification = array();
+		$notification[$app_type] = $message;
+		$platform = array();
+		array_push($platform, $app_type);
+		
+		// Device Tokens
+		$tokens = array();
+		$device_token = array();
+		if (strpos($static_app_token, ',')) {
+			$static_app_token = explode(',', $static_app_token);
+		} else {
+			$static_app_token = array($static_app_token);
+		}
+		foreach ($static_app_token as $token) {
+			$tokens['OR'][] = array(
+				"device_token" => $token,
+			);
+		}
+		
+		// Build the JSON Push
+		$audience = $should_broadcast ? 'all' : $tokens;
+		$push = array("audience"=>$audience, "notification"=>$notification, "device_types"=>$platform);
+		$json = json_encode($push);
+		
+		// Make the curl request
+		$session = curl_init($push_url);
+		curl_setopt($session, CURLOPT_USERPWD, $static_app_key . ':' . $static_app_master_secret);
+		curl_setopt($session, CURLOPT_POST, True);
+		curl_setopt($session, CURLOPT_POSTFIELDS, $json);
+		curl_setopt($session, CURLOPT_HEADER, False);
+		curl_setopt($session, CURLOPT_RETURNTRANSFER, True);
+		curl_setopt($session, CURLOPT_HTTPHEADER, array('Content-Type:application/json', 'Accept: application/vnd.urbanairship+json; version=3;'));
+		$content = curl_exec($session);
+		 
+		// Check if any error occured
+		$response = curl_getinfo($session);
+		curl_close($session);
+		if ($response['http_code'] != 202) {
+			 error_log("Urban Airship Error: ".$content." Error Code: ".$response['http_code'], 0);
+			 return FALSE;
+		}
+		
+		return Array(
+			'assetid'	=> $state['asset']->id,
+		);
 
 	}//end execute()
-
+	
 
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
@@ -184,16 +224,35 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 	{
 		ob_start();
 		?>
-
+                
 		<p class="sq-backend-section-subheading"><?php echo translate('Urbain Airship API Details').' '; ?></p>
-
 
 			<table class="sq-backend-table" >
 				<tr>
-					<td width="100"><p><?php echo translate('App Key').' '; ?></p></td>
-
+					<td width="100"><p><?php echo translate('Application Type').' '; ?></p></td>
 					<td><p>
-					<?php
+					<?php 
+						$app_type = array_get_index($settings, 'airship_app_type', '');
+						$options = Array(
+												'ios'			=> 'iOS',
+												'android'		=> 'Android',
+												'amazon'		=> 'Amazon',
+												'wns'			=> 'Windows',
+												'mpns'			=> 'Windows Phone',
+												'blackberry'	=> 'Blackberry',
+												'all'			=> 'All',
+											 );
+						if ($write_access) {
+							combo_box($prefix.'[airship_app_type]', $options, FALSE, $app_type);
+						} else {
+							echo '<b>'.$options[$app_type].'</b>';
+						}
+					?></p></td>
+				</tr>
+				<tr>
+					<td width="100"><p><?php echo translate('App Key').' '; ?></p></td>
+					<td><p>
+					<?php 
 						$app_key = array_get_index($settings, 'airship_app_key', '');
 						if ($write_access) {
 							text_box($prefix.'[airship_app_key]', $app_key, 45);
@@ -204,9 +263,8 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 				</tr>
 				<tr>
 					<td width="100"><p><?php echo translate('Master Secret').' '; ?></p></td>
-
 					<td><p>
-					<?php
+					<?php 
 						$app_master_secret = array_get_index($settings, 'airship_app_master_secret', '');
 						if ($write_access) {
 							text_box($prefix.'[airship_app_master_secret]', $app_master_secret, 45);
@@ -217,9 +275,8 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 				</tr>
 				<tr>
 					<td width="100"><p><?php echo translate('Device Tokens').' '; ?></p></td>
-
 					<td>
-					<?php
+					<?php 
 						$device_token = array_get_index($settings, 'airship_device_token', '');
 						if ($write_access) {
 							echo '<p>';
@@ -228,47 +285,41 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 							$option_list->paint('airship_device_token');
 							echo '</p>';
 							echo '<p>'.translate('The token of the devices as generated by the Urban Airship API.').'</p>';
-
 						} else {
 							echo '<p>'.str_replace(',', '<br />', $device_token).'</p>';
 						}
 					?></td>
 				<tr>
 					<td width="100"><p><?php echo translate('Broadcast').' '; ?></p></td>
-
 					<td>
-					<?php
+					<?php 
 						$airship_broadcast = array_get_index($settings, 'airship_broadcast', 0);
 						if ($write_access) {
 							echo '<p>';
 							check_box($prefix.'[airship_broadcast]', 1, $airship_broadcast);
 							echo '</p>';
 							echo '<p class="sq-backend-warning">'.translate('This option will broadcast the push notification to ALL users associated with the App Key. If this option is used device token will be ignored.').'</p>';
-
 						} else {
 							$tick_type = ($airship_broadcast == '1') ? 'tick' : 'cross';
 							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$tick_type.'.gif" alt="" style="border: 0;" />';
 						}
 					?></td>
 				</tr>
-
+                
 			</table><br />
-
+            
 			<p class="sq-backend-section-subheading"><?php echo translate('Push Notification Details').' '; ?></p>
-
 			<table class="sq-backend-table" >
 				<tr>
 					<td width="100"><p><?php echo translate('Badge').' '; ?></p></td>
-
 					<td><p>
-					<?php
+					<?php 
 						$airship_badge = array_get_index($settings, 'airship_badge', '');
 						if ($write_access) {
 							echo '<p>';
 							text_box($prefix.'[airship_badge]', $airship_badge,  5);
 							echo '</p>';
-							echo '<p>'.translate('A number to set as the app icon badge number. Keywords are supported.').'</p>';
-
+							echo '<p>'.translate('A number to set as the app icon badge number. Keywords are supported. ').'</p>';
 						} else {
 							echo '<p>'.$airship_badge.'</p>';
 						}
@@ -276,16 +327,14 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 				</tr>
 				<tr>
 					<td width="100"><p><?php echo translate('Sound').' '; ?></p></td>
-
 					<td><p>
-					<?php
+					<?php 
 						$airship_sound = array_get_index($settings, 'airship_sound', '');
 						if ($write_access) {
 							echo '<p>';
 							text_box($prefix.'[airship_sound]', $airship_sound, 25);
 							echo '</p>';
-							echo '<p>'.translate('The name of the sound to be played when the notification is recieved. Use the word <b>default</b> for the default message sound. <br />You can specify a custom sound that iOS plays when it presents the remote notification for an application. The sound files must be in the main bundle of the client application. Keywords are supported.').'</p>';
-
+							echo '<p>'.translate('The name of the sound to be played when the notification is recieved. Use the word &lt;b&gt;default&lt;/b&gt; for the default message sound. &lt;br /&gt;You can specify a custom sound that iOS plays when it presents the remote notification for an application. The sound files must be in the main bundle of the client application. Keywords are supported. ').'</p>';
 						} else {
 							echo '<p>'.$airship_sound.'</p>';
 						}
@@ -293,25 +342,22 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 				</tr>
 				<tr>
 					<td width="100"><p><?php echo translate('Alert').' '; ?></p></td>
-
 					<td><p>
-					<?php
+					<?php 
 						$airship_message = array_get_index($settings, 'airship_message', '');
 						if ($write_access) {
 							echo '<p>';
 							text_box($prefix.'[airship_message]', $airship_message, 95);
 							echo '</p>';
-							echo '<p>'.translate('The maximum size allowed for a notification payload is 256 bytes. Message will be automatically trimmed if too long. Keywords are supported.').'</p>';
-
+							echo '<p>'.translate('The maximum size allowed for a notification payload is 256 bytes. Message will be automatically trimmed if too long. Keywords are supported. ').'</p>';
 						} else {
 							echo '<p>'.$airship_message.'</p>';
 						}
 					?></p></td>
 				<tr>
 					<td width="100"><p><?php echo translate('Custom parameters'); ?></p></td>
-
 					<td><p>
-					<?php
+					<?php 
 						$airship_key1 = array_get_index($settings, 'airship_key1', '');
 						$airship_key2 = array_get_index($settings, 'airship_key2', '');
 						$airship_key3 = array_get_index($settings, 'airship_key3', '');
@@ -335,7 +381,6 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 							text_box($prefix.'[airship_value3]', $airship_value3, 65);
 							echo '</p>';
 							echo '<p>'.translate('Additional key value pairs that will be sent as part of the payload. Keywords are supported for values.').'</p>';
-
 						} else {
 							echo '<p><ul>';
 							echo '<li>Key: '.$airship_key1.' Value: '.$airship_value1.'</li>';
@@ -346,19 +391,19 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 					?></p></td>
 				</tr>
 			</table>
-
+            
          <?php
-
+		 
 		// Print the parameter map
 		if ($write_access) {
-
+			
 			echo '<br /><div>';
 			$new_prefix = str_replace(array('[',']'), '_', $prefix);
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
-
+			
 			$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
 			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
-
+			
 			// Param Map
 			$atr_parameter_map->setParameter('value_map_token', 'Device Token');
 			$atr_parameter_map->setParameter('value_map_badge', 'Badge');
@@ -367,7 +412,7 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 			echo $atr_parameter_map->paint($new_prefix.'_parameter_map');
 			echo '</div>';
 		}//end
-
+		
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -398,7 +443,8 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		$settings['airship_value1'] = trim(array_get_index($request_data, 'airship_value1', 0));
 		$settings['airship_value2'] = trim(array_get_index($request_data, 'airship_value2', 0));
 		$settings['airship_value3'] = trim(array_get_index($request_data, 'airship_value3', 0));
-
+		$settings['airship_app_type'] = trim(array_get_index($request_data, 'airship_app_type', 0));
+		
 		$settings['value_map'] = '';
 		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		if ($new_prefix) {
@@ -406,11 +452,11 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 			$atr_parameter_map->process($new_prefix.'_parameter_map');
 			$settings['value_map'] = $atr_parameter_map->value;
 		}
-
+		
 		$option_list = new Asset_Attribute_Option_List(0, NULL, ',');
 		$option_list->process('airship_device_token');
 		$settings['airship_device_token'] = $option_list->value;
-
+		
 		return FALSE;
 
 	}//end processInterface()

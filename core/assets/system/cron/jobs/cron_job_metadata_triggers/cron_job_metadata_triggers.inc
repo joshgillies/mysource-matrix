@@ -236,7 +236,7 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 			// Note that this query doesn't catch default metadata values
 			$result = Array();
 			$db = MatrixDAL::getDb();
-			$sql = 'SELECT
+			$sql = 'SELECT DISTINCT
 						mv.assetid, mv.fieldid
 					FROM
 						sq_ast_mdata_val mv

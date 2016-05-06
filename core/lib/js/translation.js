@@ -33,6 +33,10 @@ var translated_strings = new Array();
 */
 function get_locale_parts(locale)
 {
+	if (!locale) {
+		return [];
+	}
+
 	var locale_parts = new Array();
 
 	// split language from the rest
@@ -42,17 +46,17 @@ function get_locale_parts(locale)
 		locale_parts[0] = locale;
 		return locale_parts;
 	}
-	locale_parts[0] = locale.substring(0, lang_pos - 1);
+	locale_parts[0] = locale.substr(0, lang_pos);
 
-	locale = locale.substring(lang_pos + 1, locale.length);
+	locale = locale.substr(lang_pos + 1, locale.length);
 
 	// split variant away from the rest
 	var variant_pos = locale.indexOf('@');
 	if (variant_pos == -1) {
 		locale_parts[1] = locale;
 	} else {
-		locale_parts[1] = locale.substring(0, variant_pos - 1);
-		locale_parts[2] = locale.substring(variant_pos + 1, locale.length);
+		locale_parts[1] = locale.substr(0, variant_pos);
+		locale_parts[2] = locale.substr(variant_pos + 1, locale.length);
 	}
 	return locale_parts;
 
@@ -75,7 +79,10 @@ function get_cumulative_locale_parts(locale)
 {
 	var locale_parts = get_locale_parts(locale);
 	var cum_locale_parts = Array();
-	cum_locale_parts.push(locale_parts[0]);
+
+	if (locale_parts.length >= 1) {
+		cum_locale_parts.push(locale_parts[0]);
+	}
 
 	if (locale_parts.length >= 2) {
 		cum_locale_parts.push(cum_locale_parts[0] + '_' + locale_parts[1]);

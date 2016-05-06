@@ -1,0 +1,804 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.6.10\n"
+
+msgid "Search Manager NOT CREATED"
+msgstr "NIE UTWORZONO menedżera wyszukiwania"
+
+#, fuzzy
+msgid "Bulkmail User Import Threshold"
+msgstr "XXXX Wartość progowa importu adresatów wiadomości masowych"
+
+msgid "Import Bulkmail User"
+msgstr "Import adresatów wiadomości masowych"
+
+msgid "Importing Bulkmail Users"
+msgstr "Importowanie adresatów wiadomości masowych"
+
+msgid "Importing %s"
+msgstr "Importowanie %s"
+
+msgid "Delete Bulkmail User"
+msgstr "Usuń adresata wiadomości masowych"
+
+msgid "Deleting Bulkmail Users"
+msgstr "Usuwanie adresatów wiadomości masowych"
+
+msgid "Deleting %s"
+msgstr "Usuwanie %s"
+
+msgid "Bulkmail Job Cancelled"
+msgstr "Zadanie wysyłania wiadomości masowych anulowane"
+
+msgid "Job was cancelled by <SQ_MSG_TAGLINE>%user_id%</SQ_MSG_TAGLINE>"
+msgstr ""
+"Zadanie zostało anulowane przez <SQ_MSG_TAGLINE>%user_id%</SQ_MSG_TAGLINE>"
+
+msgid "ID"
+msgstr "Nr ID"
+
+msgid "Post Office"
+msgstr "Poczta"
+
+msgid "State"
+msgstr "Stan"
+
+msgid "Progress"
+msgstr "Postęp"
+
+msgid "Control"
+msgstr "Kontrola"
+
+msgid "Ad-Hoc Job"
+msgstr "Zadanie ad hoc"
+
+msgid "N/A"
+msgstr "Nie dotyczy"
+
+msgid "%1$s of %2$s (%3$s)"
+msgstr "%1$s z %2$s (%3$s)"
+
+msgid "Waiting To Run"
+msgstr "Oczekiwanie na uruchomienie"
+
+msgid "Paused"
+msgstr "Wstrzymane"
+
+msgid "Sleeping"
+msgstr "Uśpienie"
+
+msgid "Pause"
+msgstr "Pauza"
+
+msgid "Problematic recipient id found: %s."
+msgstr "Oznaleziono problemowy nr ID adresata: %s."
+
+msgid "Invalid job. %s"
+msgstr "Nieprawidłowe zadanie. %s"
+
+msgid "File \"%s\" is not writable."
+msgstr "Plik \"%s\" nie ma możliwości zapisu."
+
+msgid "Unable to create file: %s."
+msgstr "Nie można utworzyć pliku: %s."
+
+msgid "Server Details: \"%s\""
+msgstr "Szczegóły serwera: \"%s\""
+
+msgid "Recipients: Recipients not set."
+msgstr "Adresaci: adresaci nieustawieni."
+
+msgid "Content: 'Asset to Send' not set."
+msgstr "Treść: 'Element do wysłania' nieustawiony."
+
+msgid "Content: \"Asset to Send\", %1$s (Id #%2$s), is not live."
+msgstr "Treść: \"Asset to Send\", %1$s (nr ID #%2$s) nie jest opublikowany."
+
+msgid "Content: 'Generate As' not set."
+msgstr "Treść: 'Wygeneruj jako' nieustawione."
+
+msgid ""
+"Content: Unable to generate content as %1$s (Id #%2$s), user is either in "
+"trash or not live."
+msgstr ""
+"Treść: nie można wygenerować treści jako %1$s (Id #%2$s), użytkownik został "
+"usunięty do kosza albo nie został opublikowany."
+
+msgid ""
+"Content: %1$s (Id #%2$s) does not have Read Access to 'Asset to Send' - %3$s "
+"(Id #%4$s)."
+msgstr ""
+"Treść: %1$s (Id #%2$s) nie ma dostępu do odczytu 'Elementu do wysłania' - "
+"%3$s (nr ID #%4$s)."
+
+msgid ""
+"Content: The following recipients do not have Read Access to \"%1$s\" (ID #"
+"%2$s): %3$s."
+msgstr ""
+"Treść: adresaci poniżej nie mają dostępu do odczytu \"%1$s\" (nr ID #%2$s): "
+"%3$s."
+
+msgid ""
+"Content: %1$s (Id #%2$s) does not have public user read access. Check the "
+"status and permissions."
+msgstr ""
+"Treść: %1$s (Id #%2$s) nie ma dostępu do odczytu użytkownika publicznego. "
+"Sprawdź status i uprawnienia."
+
+msgid "Header Details: Missing 'From' field."
+msgstr "Szczegóły nagłówka: brak pola 'Od'"
+
+msgid "Header Details: Email address provided in 'From' field is invalid."
+msgstr "Szczegóły nagłówka: adres e-mail wpisany w polu 'Od' jest niepoprawny."
+
+msgid "Header Details: Missing 'Subject' field"
+msgstr "Szczegóły nagłówka: brak pola 'Temat'"
+
+msgid "Post Office Server Details Error: Unable to send preview mail, %s."
+msgstr ""
+"Błąd w szczegółach serwera poczty: nie można wysłać podglądu e-maila, %s."
+
+msgid "Validate Job"
+msgstr "Sprawdź poprawność zadania"
+
+msgid "Press the Validate Job button to check for setting errors"
+msgstr ""
+"Kliknij przycisk Sprawdź poprawność zadania, aby zweryfikować błędy ustawień"
+
+msgid "Result"
+msgstr "Wynik"
+
+msgid "Job is valid."
+msgstr "Zadanie jest poprawne."
+
+msgid "Configuration"
+msgstr "Konfiguracja"
+
+msgid ""
+"This job has already been started. Configuration changes will not affect the "
+"current mailout unless the job is cancelled and restarted"
+msgstr ""
+"To zadanie zostało już rozpoczęce. Zmiany w konfiguracji nie wpłyną na "
+"aktualną wysłkę, o ile zadanie nie zostanie anulowane i zrestartowane"
+
+msgid "Invalid email address '%s'."
+msgstr "Nieprawidłowy adres e-mail '%s'."
+
+msgid "Bulkmail Previewed"
+msgstr "Pogląd wiadomości masowych"
+
+msgid ""
+"<SQ_MSG_TAGLINE>%assetid%</SQ_MSG_TAGLINE> has sent a preview email to "
+"%email_addr%"
+msgstr ""
+"<SQ_MSG_TAGLINE>%assetid%</SQ_MSG_TAGLINE> wysłał podgląd e-maila do "
+"%email_addr%"
+
+msgid "This email has never been previewed"
+msgstr "Nigdy nie wyświetlono podglądu tego e-maila"
+
+msgid "Matches"
+msgstr "Odpowiada"
+
+msgid "Does Not Match"
+msgstr "Nie odpowiada"
+
+msgid ""
+"Emails will be sent if the filter is enabled, and the body text of each "
+"bulkmail:"
+msgstr ""
+"E-maile zostaną wysłane, jeśli filtr będzie włączony, a treść podstawowa "
+"wszystkich wiadomości masowych:"
+
+msgid "Matches: %s"
+msgstr "Odpowiada: %s"
+
+msgid "Does Not Match: %s"
+msgstr "Nie odpowiada: %S"
+
+msgid "Enabled, but not valid"
+msgstr "Włączone, ale niepoprawne"
+
+msgid ""
+"The body filter is set to be enabled, however it cannot run without text to "
+"match against."
+msgstr ""
+"Filtr treści podstawowej ustawiono jako włączony, ale nie zadziała on bez "
+"tekstu odniesienia."
+
+msgid "Categories"
+msgstr "Kategorie"
+
+msgid "New Category"
+msgstr "Nowa kategoria"
+
+msgid "Start Date"
+msgstr "Data rozpoczęcia"
+
+msgid "Bulkmail Jobs can only be linked under one Bulkmail Post Office"
+msgstr ""
+"Zadania wysyłania wiadomości masowych można przyporządkować tylko jednej "
+"poczcie wysyłania wiadomości masowych"
+
+#, fuzzy
+msgid "Error retrieving group asset."
+msgstr "XXX Błąd podczas pobierania elementów z grupy."
+
+msgid "Mail Method"
+msgstr "Metoda wysyłania e-maili"
+
+msgid "Host"
+msgstr "Host"
+
+msgid "Auth"
+msgstr "Auth"
+
+#, fuzzy
+msgid "Field Body"
+msgstr "XXX Treść pola"
+
+msgid "There are no additional headers set."
+msgstr "Brak ustawienia dodatkowych nagłówków"
+
+msgid "Allow Multiple ?"
+msgstr "Zezwól na wiele?"
+
+msgid "Excluded Time"
+msgstr "Wykluczone godziny "
+
+msgid "Send Rate"
+msgstr "Częstość wysyłki"
+
+#, fuzzy
+msgid "Using Default Post Office's threshold settings in %s"
+msgstr "XXXX Używanie domyślnych ustawień wartości progrowej poczty w %s"
+
+msgid ""
+"Please select one of the available threshold rules, and fill in appropriate "
+"value(s)"
+msgstr ""
+"Wybierz jedną z dostępnych reguł wartości progowej i wpisz odpowiednie "
+"wartości"
+
+msgid "Exclude FROM and TO times cannot be equal."
+msgstr "Godzina wykluczenia OD nie może być taka sama jak DO."
+
+msgid "No days were selected."
+msgstr "Nie wybrano żadnych dni."
+
+msgid "Send %1$s emails every %2$s"
+msgstr "Wysyłaj %1$s e-maili co %2$s"
+
+msgid "Warning: Minimum send rate is %1$s emails every minute"
+msgstr "Ostrzeżenie: najmniejsza częstość wysyłki to %1$s e-maili co minutę"
+
+msgid "Warning: Maximum send rate is %1$s emails every minute"
+msgstr "Ostrzeżenie: największa częstość wysyłki to %1$s co minutę"
+
+#, fuzzy
+msgid "Unable to set %1$s (Id #%2$s) as the current user."
+msgstr "XXXX Nie można ustawić %1$s (nr ID #%2$s) jako bieżący użytkownik."
+
+#, fuzzy
+msgid "Failed to fork."
+msgstr "XXXX Rozgałęzienie nie powiodło się."
+
+msgid "File \"%s\" is not readable."
+msgstr "Nie można odczytać pliku \"%s\"."
+
+#, fuzzy
+msgid ""
+"Asset to send is configured as a Search Page but the User subscription for "
+"the bulkmail Job is disabled."
+msgstr ""
+"XXXX Element do wysłania skonfigurowano jako Stronę wyszukiwania, ale "
+"subskrypcja otrzymywania wiadomości masowych przez użytkownika jest "
+"wyłączona."
+
+msgid ""
+"User subscription for the Bulkmail Job is enabled but the asset to send "
+"isn't set to a Search Page Asset."
+msgstr ""
+"Subskrypcja otrzymywania wiadomości masowych przez użytkownika jest "
+"włączona, ale element do wysłania nie jest ustawiony jako element Strony "
+"wyszukiwania."
+
+msgid "No dynamic Subscription configured for the Bulkmail Job"
+msgstr ""
+"Nie skonfigurowano dynamicznej subskrypcji dla zadania masowego wysyłania e-"
+"maili"
+
+msgid "Bulkmail Test Mode"
+msgstr "Tryb testowy masowego wysyłania e-maili"
+
+msgid "Mail request for %to% with a subject of '%subject%'"
+msgstr "XXXX Żądanie wysłania e-maila do %to% o temacie '%subject%'"
+
+msgid "Bulkmail Test Mode Completed"
+msgstr "Ukończono tryb testowy wysyłania wiadomości masowych"
+
+msgid ""
+"Bulkmail Test mode was completed. Mail was requested for %num_recip% "
+"recipients."
+msgstr ""
+"Ukończono tryb testowy wysyłania wiadomości masowych. Zażądano wysłania e-"
+"maila do %num_recip% adresatów."
+
+msgid "Bulkmail Job Completed"
+msgstr "Ukończono zadanie wysyłania wiadomości masowych"
+
+msgid "<strong>Mail successfully sent to %num_recip% recipients.</strong>"
+msgstr "<strong>Pomyślnie wysłano e-maile do %num_recip% adresatów.</strong>"
+
+msgid "Bulkmail Job Completed with Error"
+msgstr "Ukończono z błędem zadanie wysyłania wiadomości masowych"
+
+msgid "%num_problem% recipients were skipped due to problems in generation."
+msgstr "Pominięto %num_problem% adresatów z uwagi na problemy z generowaniem."
+
+msgid ""
+"%num_filtered% recipients were also skipped as their bulkmail's contents "
+"failed to match the enabled Body filter."
+msgstr ""
+"Pominięto %num_filtered% adresatów, ponieważ treść wysyłanego do nich masowo "
+"e-maila nie odpowiadała włączonemu filtrowi treści podstawowej."
+
+#, fuzzy
+msgid "Bulkmail Job Completed, some Filtered"
+msgstr ""
+"XXXX Ukończono zadanie wysyłania e-maili masowych, niektóre przefiltrowano"
+
+#, fuzzy
+msgid "Bulkmail Job Completed with Error and some Filtered"
+msgstr ""
+"XXXX Ukończono z błędem zadanie wysyłania wiadomości masowych i niektóre "
+"przefiltrowano"
+
+msgid "Please check the Bulkmail Error log for details."
+msgstr "Sprawdź szczegóły w rejestrze błędów wysyłania wiadomości masowych."
+
+#, fuzzy
+msgid "Could not change to the correct user for content generation"
+msgstr ""
+"XXXX Nie udało się zmienić na poprawnego użytkownika, aby wygenerować treść"
+
+msgid "Import CSV File"
+msgstr "Zaimportuj plik CSV"
+
+msgid ""
+"The format for each line must be: \"Bulkmail User name, Bulkmail User email "
+"address\""
+msgstr ""
+"Obowiązkowy format każdego wiersza: \"Bulkmail User name, Bulkmail User "
+"email address\""
+
+msgid "Create Users in"
+msgstr "Utwórz użytkowników w"
+
+msgid "Select the User Group to create Bulkmail Users in"
+msgstr ""
+"Wybierz grupę użytkowników, w której chcesz utworzyć adresatów e-maili "
+"wysyłanych masowo"
+
+msgid "Import file not selected."
+msgstr "Nie wybrano pliku do zaimportowania."
+
+msgid "User group not selected."
+msgstr "Nie wybrano grupy użytkowników."
+
+msgid "Text File of Email Addresses to remove"
+msgstr "Plik tekstowy z adresami e-mail do usunięcia"
+
+msgid "Each line must contain one email address only"
+msgstr "Każdy wiersz może zawierać tylko jeden adres e-mail"
+
+msgid ""
+"Select a root node(s) to delete the bulkmail users from only the specified "
+"root node(s). Leave blank to delete bulkmail users from the whole system"
+msgstr ""
+"Wybierz główne węzły, aby usunąć użytkowników wiadomości masowych tylko z "
+"wybranych węzłów. Pozostaw puste, aby usunąć tych użytkowników z całego "
+"systemu."
+
+msgid "Confirm deletion of bulkmail users"
+msgstr "Potwierdź usunięcie użytkowników wiadomości masowych"
+
+msgid "All matching bulkmail users will be deleted, when Yes is selected"
+msgstr "Po wybraniu opcji TAK wszyscy pasujący użytkownicy zostaną usunięci"
+
+msgid "Move Under Asset"
+msgstr "Przenieś pod element"
+
+msgid "Select the asset where you want bulkmail users to move"
+msgstr ""
+"Wybierz element, pod który chcesz przenieść użytkowników wiadomości masowych"
+
+#, fuzzy
+msgid "Using the Link Type"
+msgstr "XXXX Używając rodzaju łącza"
+
+msgid ""
+"Select the type of link to use for linking bulkmail users to the asset where "
+"they are moved"
+msgstr ""
+"Wybierz rodzaj łącza, jaki ma zostać użyty do podlinkowania użytkowników "
+"wiadomości masowych do elementu, pod który zostaną przeniesione"
+
+msgid "Delete bulkmail users under the root node %1$s"
+msgstr "Usuń użytkowników wiadomości masowych pod węzłem %1$s"
+
+msgid "that match the following emails %1$s"
+msgstr "którzy odpowiadają poniższym e-mailom %1$s"
+
+msgid "Move them under the specified asset %1$s using a %2$s link"
+msgstr "Przenieś ich pod określony element %1$s, używając łącza %2$s"
+
+msgid "Use Current Asset"
+msgstr "Użyj bieżącego elementu"
+
+msgid "Bulkmail Job"
+msgstr "Zadanie wysyłania e-maili masowych"
+
+msgid "Recipients"
+msgstr "Adresaci"
+
+msgid "Enable Subscription Filter"
+msgstr "Włącz filtr subskrypcji"
+
+msgid "Filters"
+msgstr "FIltry"
+
+msgid "No subscription/unsubscription selected"
+msgstr "Nie wybrano subskrypcji/rezygnacji z subskrypcji"
+
+msgid ""
+"You have attempted to subscribe to lists that are unavailable to you - these "
+"lists will be skipped."
+msgstr ""
+"Próbowałeś zasubskrybować listy, które są dla ciebie niedostępne - zostaną "
+"one pominięte."
+
+msgid ""
+"You have attempted to unsubscribe from lists that are unavailable to you - "
+"these lists will be skipped."
+msgstr ""
+"Próbowałeś zrezygnować z subskrypcji list, które są dla ciebie niedostępne - "
+"zostaną one pominięte."
+
+msgid "None of the subscriptions/unsubscriptions specified are valid."
+msgstr ""
+"Żadne z podanych subskrypcji/rezygnacji z subskrypcji nie są prawidłowe."
+
+msgid "Email address was not provided"
+msgstr "Nie podano adresu e-mail"
+
+msgid "Cannot send the verification email"
+msgstr "Nie można wysłać e-maila weryfikującego"
+
+msgid ""
+"A verification email has been sent to %s. When you receive the email, please "
+"follow the instructions carefully."
+msgstr ""
+"E-mail weryfikujący został wysłany do %s. Po jego otrzymaniu postępuj "
+"dokładnie według wskazówek."
+
+msgid "Email address provided is invalid"
+msgstr "Podany adres e-mail jest nieprawidłowy"
+
+msgid "Username provided is invalid"
+msgstr "Podana nazwa użytkownika jest nieprawidłowa"
+
+msgid "You do not currently have an email address configured for your user."
+msgstr ""
+"Aktualnie nie masz skonfigurowanego adresu e-mail dla swojego użytkownika."
+
+msgid "Unable to subscribe you to the following mailing lists:"
+msgstr "Nie możesz zasubskrybować poniższych list wysyłkowych:"
+
+msgid "You have been subscribed to the following mailing lists:"
+msgstr "Zasubskrybowałeś następujące listy mailingowe:"
+
+msgid "Unable to unsubscribe you from the following mailing lists:"
+msgstr "Nie można zrezygnować z subskrypcji następujących list mailingowych:"
+
+msgid "You have been unsubscribed from the following mailing lists:"
+msgstr "Zrezygnowałeś z następujących list mailingowych:"
+
+msgid "Please confirm your subscription / unsubscription request"
+msgstr "Potwiedź żądanie subskrypcji/rezygnacji z subskrypcji"
+
+msgid "Thank you for subscribing to %s."
+msgstr "Dziękujemy za zasubskrybowanie %s."
+
+msgid "You have requested to unsubscribe from %s."
+msgstr "Wysłałeś żądanie rezygnacji z subskrypcji %s."
+
+msgid ""
+"If you have received this email in error, please take no further action or "
+"contact %s."
+msgstr ""
+"Jeśli otrzymałeś tego e-maila przez pomyłkę, zignoruj go lub skontaktuj się "
+"z %s."
+
+msgid "Unable to send verification email. Please contact your administrator."
+msgstr ""
+"Nie można wysłać e-maila weryfikującego. Skontaktuj się z administratorem."
+
+msgid "Editing list subscriptions for %s"
+msgstr "Edytowanie subskrypcji listy dla %S"
+
+msgid "Current Subscriptions"
+msgstr "Aktualne subskrypcje"
+
+msgid "Subscribe to new list"
+msgstr "Subskrybuj nową listę"
+
+msgid "Unsubscribe from list"
+msgstr "Zrezygnuj z subskrypcji listy"
+
+msgid "Edit List Subscriptions"
+msgstr "Edytuj subskrpycje listy"
+
+msgid "This field is required, and should be unique"
+msgstr "To pole jest obowiązkowe i powinno być unikalne"
+
+msgid "Job Progress"
+msgstr "Postęp zadania"
+
+msgid "Headers"
+msgstr "Nagłówki"
+
+msgid "Add New Header"
+msgstr "Dodaj nowy nagłówek"
+
+msgid "Force Defaults?"
+msgstr "Wymuś domyślne?"
+
+msgid "Chunk Size"
+msgstr "Wielkość zbioru"
+
+msgid "Bulkmail Mode"
+msgstr "Tryb wysyłania wiadomości masowych"
+
+msgid "From field is required."
+msgstr "Pole Nadawca jest wymagane."
+
+msgid ""
+"Subject field is required. The normal asset keywords are available to use, "
+"eg. \"%asset_name% - %asset_created%\""
+msgstr ""
+"Pole Temat jest wymagane. Można używać standardowych słów kluczowych "
+"elementu np.\"%asset_name% - %asset_created%\""
+
+msgid "Eg. Key = \"Content-Type\", Value = \"text/html\""
+msgstr "Np. Słowo kluczowe = \"Content-Type\", Wartość = \"text/html\""
+
+msgid ""
+"If yes, the threshold rules on this page will override the settings in all "
+"post offices / jobs in the system"
+msgstr ""
+"Jeśli tak, reguły progów na tej stronie zastąpią ustawienia we wszystkich "
+"pocztach/zadaniach w systemie."
+
+msgid ""
+"If there are no thresholding values for send rate, the recipients will be "
+"grouped together into chunks of this size. Jobs can only be paused / "
+"cancelled when a \"chunk\" is finished, so this value shouldn't be set too "
+"high."
+msgstr ""
+"Jeśli w polu częstości wysyłki nie podano wartości progowych, adresaci "
+"zostaną pogrupowani w zbiory o tej wielkości. Zadania można wstrzymać/"
+"anulować, tylko po zakończeniu wysyłki do danego \"zbioru\", dlatego nie "
+"należy ustawiać zbyt dużej wartości."
+
+msgid ""
+"Live mode sends out bulkmail normally, Test mode does not send out bulkmail "
+"and logs it"
+msgstr ""
+"Tryb Live wysyła e-maile masowe normalnie, tryb Test nie wysyła e-maili "
+"masowych i zapisuje to zdarzenie w logu"
+
+msgid "Job Progress and History"
+msgstr "Postęp i historia zadań"
+
+msgid "Asset to Send"
+msgstr "Element do wysłania"
+
+msgid "Generation Method"
+msgstr "Metoda generowania"
+
+msgid "Email Type"
+msgstr "Rodzaj e-maila"
+
+msgid "Generate As"
+msgstr "Wygeneruj jako"
+
+msgid "Body Text Filter"
+msgstr "Filtr treści podstawowej"
+
+#, fuzzy
+msgid "Use Post Office Header Details"
+msgstr "XXXX Użyj szczegółów nagłówka poczty"
+
+msgid "The content you would like sent in the emails"
+msgstr "Treść, którą chcesz wysłać w e-mailach"
+
+msgid ""
+"Unique content per user, or generic content for all users (with keyword "
+"replacements). Generating unique content for thousands of users will be "
+"quite slow.<br /><b>NOTE:</b> This option needs to be set to 'Generate as "
+"recipient' if 'User Subscription' Filter is enabled."
+msgstr ""
+"XXXX Unikatowa treść dla każdego użytkownika lub ogólna treść dla wszystkich "
+"użytkowników (z zastąpieniem słów kluczowych). Generowanie unikatowej treści "
+"dla tysięcy użytkowników będzie dość wolne. <br /><b>UWAGA:</b> tę opcję "
+"należy ustawić jako 'Wygeneruj jako adresat', jeśli  filtr 'Subskrypcji "
+"użytkownika' jest włączony."
+
+msgid ""
+"If this option is set to \"Text Only\", the design and paint layout "
+"specified below will be ignored. The asset contents will be sent in a text-"
+"only email, with tags stripped."
+msgstr ""
+"Jeśli ta opcja jest ustawiona na \"Text Only\", grafika i schematy graficzne "
+"określone poniżej zostaną zignorowane. Treść tego elementu zostanie wysłana "
+"jako e-mail tekstowy bez znaczników."
+
+msgid ""
+"This user is used to generate the content for all Bulkmail Users, and also "
+"all other users if \"Generate as recipient\" generation method is selected "
+"above"
+msgstr ""
+"Ten użytkownik jest używany do wygenerowania treści dla wszystkich "
+"użytkowników wiadomości masowych, a także dla wszystkich pozostałych "
+"użytkownikó, jeśli powyżej jako metodę generowania wybrano \"Generate as "
+"recipient\""
+
+msgid ""
+"If this filter is enabled, only those bulkmails where the body meets the "
+"criteria below will be sent. The version of the bulkmail used (text-only or "
+"HTML) will depend on the email type set above - HTML emails will enable "
+"matching on a tag. This is typically most useful when the <strong>Generation "
+"Method</strong> setting is set to <em>Generate as Recipient</em>, where each "
+"user's content may differ depending on the type of page being used."
+msgstr ""
+"Jeśli ten filtr jest włączony, zostaną wysłane tylko te wiadomości masowe, "
+"których treść podstawowa spełnia poniższe kryteria. Wersja użytej wiadomości "
+"masowej (tekstowej lub HTML) będzie zależeć od wyżej wybranego rodzaju e-"
+"maila - e-maile HTML umożliwą dopasowanie wg znacznika. Jest to zazwyczaj "
+"najbardziej przydatne, gdy <strong>Metoda generowania</strong> została "
+"ustawiona jako <em>Generuj jako adresat</em>, gdzie treść każdego "
+"użytkownika może być różna w zależności od rodzaju używanej strony."
+
+msgid ""
+"If you use Post Office header details, you must commit before the changes "
+"will take effect"
+msgstr ""
+"Jeśli używasz szczegółów nagłówka poczty, musisz zapisać zmiany, aby weszły "
+"w życie."
+
+msgid "Subject field is required."
+msgstr "Pole Temat jest wymagane."
+
+msgid "Enabled?"
+msgstr "Włączone?"
+
+msgid ""
+"When enabled, the below configured categories will be used to determine "
+"which of the subscribed users will be mailed."
+msgstr ""
+"Gdy włączone, kategorie skonfigurowane poniżej zostaną użyte do określenia "
+"subskrybentów, którzy otrzymają e-maila."
+
+msgid "Scheduling Details"
+msgstr "Szczegóły planowania"
+
+msgid "Recipient"
+msgstr "Adresat"
+
+msgid "Bulkmail User Link Type"
+msgstr "XXXX Rodzaj łącza użytkownika wiadomości masowych"
+
+msgid "Location Selector Width"
+msgstr "Szerokość selektora lokalizacji"
+
+msgid "Location Selector Height"
+msgstr "Wysokość selektora lokalizacji"
+
+msgid "Maximum Depth"
+msgstr "Maksymalna głębokość"
+
+msgid "Separator"
+msgstr "Separator"
+
+msgid "Show Root Node"
+msgstr "Pokaż węzeł główny"
+
+msgid "Allow Multiple Selections"
+msgstr "Zezwalaj na wiele zaznaczeń"
+
+msgid "Listing Style"
+msgstr "Styl wyświetlania"
+
+msgid "From Address"
+msgstr "Adres Od"
+
+msgid "Verify Email Subject"
+msgstr "Temat e-maila weryfikującego"
+
+msgid "Logged In Users"
+msgstr "Zalogowani użytkownicy"
+
+msgid "Public Users"
+msgstr "Użytkownicy publiczni"
+
+msgid "Text for the submit button"
+msgstr "Tekst przycisku Wyślij"
+
+msgid ""
+"Users will be able to subscribe to / unsubscribe from groups linked "
+"underneath this asset"
+msgstr ""
+"Użytkownicy będą mogli zapisać się do/wypisać się z grup, do których łącza "
+"znajdują się pod tym elementem"
+
+msgid "Bulkmail Users will be created using this link type."
+msgstr ""
+"Użytkownicy wiadomości masowych zostaną utworzeni z przy użyciu tego rodzaju "
+"łącza."
+
+msgid "Width in Pixels. 0 width will size the selector based on contents."
+msgstr ""
+"Szerokość w pikselach. Szerokość 0 dopasuje rozmiar selektora w zależności "
+"od treści."
+
+msgid "In entries. 0 height will result in a standard dropdown selector."
+msgstr ""
+"XXXX We wpisach. Wysokość 0 sprawi, że pojawi się standardowy, rozwijany "
+"selektor."
+
+msgid "Maximum number of levels to display in the location selector."
+msgstr "Maksymalna liczba wyświetlanych poziomów w selektorze lokalizacji."
+
+msgid "This text will be displayed between levels in the selector."
+msgstr "Ten tekst pojawi się pomiędzy poziomami w selektorze."
+
+msgid "Show the top level asset in the selector"
+msgstr "Pokaż najwyżej umieszony element w selektorze"
+
+msgid "Allow the selection of multiple new links at once"
+msgstr "Zezwalaj na zaznaczenie wielu nowych łączy jednocześnie"
+
+msgid "Style to display for selections"
+msgstr "XXXX Styl do wyświetlenia dla zaznaczeń"
+
+msgid ""
+"If verification is enabled, the user will receive a confirmation email. "
+"Clicking on the URL in the email will complete the subscription / "
+"unsubscriptions process."
+msgstr ""
+"Jesli weryfikacja jest włączona, użytkownik otrzyma e-maila z "
+"potwierdzeniem. Kliknięcie adresu URL z e-maila zakończy proces subskrypcji/"
+"rezygnacji z subskrypcji."
+
+msgid "Verification emails will be sent out using this as the from address."
+msgstr ""
+"E-maile weryfikujące będą wysyłane z użyciem tych danych jako adresu Od."
+
+msgid ""
+"If set this subject header will be used for emails sent out for verification "
+"or else the default , 'Please confirm your subscription / unsubscription "
+"request', will be used."
+msgstr ""
+"Jeśli ustawiony, ten nagłówek tematu zostanie użyty w e-mailach wysyłanych w "
+"celu weryfikacji, w innym razie użyty zostanie nagłówek domyślny 'Proszę "
+"potwierdzić subskrypcję/rezygnację z subskrypcji'."

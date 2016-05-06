@@ -105,7 +105,7 @@ class Form_Ecommerce_Management extends Asset_Management
 						'asset_price_source'		=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
-														'default'	=> '',
+														'default'	=> '%asset_attribute_price%',
 													   ),
 						'asset_taxable_source'		=> Array(
 														'added'		=> '0.2',

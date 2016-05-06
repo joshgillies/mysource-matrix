@@ -71,6 +71,7 @@ class Page_Hit_Count_Listing extends Listing_Engine
 
 		// get the root nodes
 		$root_asset_ids = $this->getRootNodes();
+		if(empty($root_asset_ids)) return $assets_to_list;
 		$group_by = $this->attr('group_by');
 		$wanted_types = $this->attr('types');
 		$sort_info = $this->getSortInfo();
@@ -108,9 +109,6 @@ class Page_Hit_Count_Listing extends Listing_Engine
 			$min_depth = 1;
 			$max_depth = 1;
 		}
-
-		$assets_to_list = Array();
-
 		// will contain all the link info
 		$links = Array();
 
@@ -276,6 +274,13 @@ class Page_Hit_Count_Listing extends Listing_Engine
 		if ($group_by == 'number') {
 			$assets_to_list = $this->sortAssetList($assets_to_list, $sort_info);
 		}
+
+		// if the min set to 0, show asset list with root nodes
+		if ($min_depth === '0') {
+			$assets_to_list = ($max_depth === '0') ? Array() : $assets_to_list;
+			$assets_to_list = $this->_combineRootNodes($assets_to_list, $root_asset_ids, $wanted_types);
+		}
+
 		return $assets_to_list;
 
 	}//end getAssetList()
@@ -342,10 +347,12 @@ class Page_Hit_Count_Listing extends Listing_Engine
 	/**
 	* Return an array with the extended keyword asset_hitcount
 	*
+	* @param string $assetid    Asset ID of the asset being listed
+	*
 	* @return array
 	* @access private
 	*/
-	function getExtendedAssetKeywordReplacements()
+	function getExtendedAssetKeywordReplacements($assetid='')
 	{
 		return Array('asset_hitcount' => '%asset_hitcount%');
 

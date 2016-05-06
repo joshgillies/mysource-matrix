@@ -175,7 +175,7 @@ class Messaging_Service_Config extends Config
 			$o->closeField();
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', TRUE);
+		if ($write_access) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 

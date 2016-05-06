@@ -161,5 +161,38 @@ class Folder extends Asset
 	}//end _getAllowedLinks()
 
 
+	/**
+	* Returns TRUE if we can delete the passed link, or a string with the error msg
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return mixed boolean|string
+	* @access public
+	*/
+	function isDeletableLink($linkid)
+	{
+		if ($GLOBALS['SQ_PURGING_TRASH']) {
+			return TRUE;
+		}
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		$is_exclusive = array_get_index($link, 'is_exclusive', FALSE);
+		$link_value = array_get_index($link, 'value', FALSE);
+		$minor_type_code = array_get_index($link, 'minor_type_code', '');
+
+		// Any exclusivly linked "Default Format" bodycopy asset to the Folder cannot be deleted
+		if ($is_exclusive && $link_value == 'default_format' && !empty($minor_type_code) && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($minor_type_code, 'bodycopy')) {
+
+			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('Unknown Asset Type');
+			$minor_type_code = isset($link['minor_type_code']) ? ucwords(str_replace('_', ' ', $link['minor_type_code'])) : translate('Unknown Asset Type');
+
+			return sprintf(translate('Cannot delete exclusive link between %1$s and %2$s'), $major_type_code, $minor_type_code);
+		}
+
+		return parent::isDeletableLink($linkid);
+
+	}//end isDeletableLink()
+
+
 }//end class
 ?>

@@ -63,17 +63,21 @@ class Form_Action_SOAP_Call extends Form_Action
 
 		$auth_paint_fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($selected_auth_type)))).'Fields';
 		?>
-
+		
 		<p class="sq-backend-section-subheading">Connection Details</p>
-		<div id="<?php echo $prefix ?>_connection_div" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_connection_div">
 			<table class="sq-backend-table" >
+				<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+				</colgroup>
 				<tr>
-					<td width="120"><p>WSDL</p></td>
-					<td><p><?php text_box($prefix.'_wsdl', array_get_index($settings, 'wsdl', ''), 120); ?></p></td>
+					<th><div style="min-width:200px"><?php echo translate('WSDL'); ?></div></th>
+					<td><?php text_box($prefix.'_wsdl', array_get_index($settings, 'wsdl', ''), 120,'',FALSE, ' style="width: 100%;box-sizing: border-box;height: 24px;"'); ?> </td>
 				</tr>
 				<tr>
-					<td width="120"><p>Auth Type</p></td>
-					<td><p><?php combo_box($prefix.'_auth_type', $auth_types, FALSE, $selected_auth_type); ?></p></td>
+					<th><?php echo translate('Auth Type'); ?></p></th>
+					<td><?php combo_box($prefix.'_auth_type', $auth_types, FALSE, $selected_auth_type); ?></td>
 				</tr>
 				<?php
 					// Paint function authentication fields
@@ -82,17 +86,21 @@ class Form_Action_SOAP_Call extends Form_Action
 			</table>
 		</div>
 
-		<div id="<?php echo $prefix ?>_https_div" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_https_div">
 			<table class="sq-backend-table" >
+				<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+				</colgroup>
 				<tr>
-					<td><p><?php echo translate('Local Certificate'); ?></p></td>
+					<th style='min-width:200'><?php echo translate('Local Certificate'); ?></th>
 
-					<td><p><?php asset_finder($prefix.'_local_cert', array_get_index($settings, 'local_cert', ''), Array('file'=>'D')); ?><br/>
+					<td><?php asset_finder($prefix.'_local_cert', array_get_index($settings, 'local_cert', ''), Array('file'=>'D')); ?>
 				</tr>
 				<tr>
-					<td><p><?php echo translate('Passphrase'); ?></p></td>
+					<th><p><?php echo translate('Passphrase'); ?></p></th>
 
-					<td><p><?php password_box($prefix.'_passphrase', array_get_index($settings, 'passphrase', ''), 35); ?></p></td>
+					<td><?php password_box($prefix.'_passphrase', '', 35); ?></td>
 				</tr>
 				<tr>
 					<td colspan="2"><?php echo translate('For HTTPS client certificate authentication use local certificate and passphrase options.'); ?></td>
@@ -101,46 +109,61 @@ class Form_Action_SOAP_Call extends Form_Action
 			</table>
 		</div>
 
-		<p class="sq-backend-section-subheading">SOAP Options</p>
-		<div id="<?php echo $prefix ?>_https_div" style="padding: 0.5em 0px 2em 30px;">
-			<table class="sq-backend-table" >
+		<p class="sq-backend-section-subheading"><?php echo translate('Additional SOAP Headers'); ?></p>
+		<div id="<?php echo $prefix ?>_additional_soap_header">
+			<?php Soap_Common::paintAdditionalSOAPHeader($prefix.'_additional_soap_headers', $settings,true, $o, true)?>
+		</div>
+
+		<p class="sq-backend-section-subheading"><?php echo translate('SOAP Options'); ?></p>
+		<div id="<?php echo $prefix ?>_https_div" >
+			<table class="sq-backend-table">
+			<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+			</colgroup>
 				<tr>
-					<td width="120"><p>Cache WSDL</p></td>
-					<td><p><?php combo_box($prefix.'_cache_wsdl', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type); ?></p></td>
+					<th style='min-width=200px'><?php echo translate('Cache WSDL'); ?></div></th>
+					<td><?php combo_box($prefix.'_cache_wsdl', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type); ?></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('Mute SOAP Exceptions'); ?></td>
+					<th><?php echo translate('Mute SOAP Exceptions'); ?></th>
 
-					<td><p><?php check_box($prefix.'_mute_exceptions', 1, array_get_index($settings, 'mute_exceptions', 0)); ?></p></td>
+					<td><?php check_box($prefix.'_mute_exceptions', 1, array_get_index($settings, 'mute_exceptions', 0)); ?></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('Service Address'); ?></td>
+					<th><?php echo translate('Service Address'); ?></th>
 
-					<td><p><?php combo_box($prefix.'_service_address', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></p></td>
+					<td><?php combo_box($prefix.'_service_address', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></td>
 				</tr>
 			</table>
 		</div>
 
 
 		<p class="sq-backend-section-subheading">Test Response</p>
-		<div id="<?php echo $prefix ?>_test_request_response" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_test_request_response" >
 			<table class="sq-backend-table" >
+			<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+			</colgroup>
 				<tr>
-					<td width="120">Run Test</td>
-					<td><p>
+					<th style='min-width:200px'><?php echo translate('Run Test'); ?></th>
+					<td>
 					<?php
 						$run_test = array_get_index($settings, 'run_test', 0);
 						check_box($prefix.'_run_test', 1, $run_test);
 					?>
-					</p></td>
+					</td>
 				</tr>
 				<tr>
-					<td colspan="2">The test will be based on the request content in the "SOAP Request Message" below</td>
+					<td colspan="2">
+					<?php echo translate('The test will be based on the request content in the "SOAP Request Message" below'); ?>
+					</td>
 				</tr>
 			</table>
 		</div>
 
-		<div width="120">
+		<div>
 			<?php
 				if ($run_test && !empty($settings['test_results'])) {
 					foreach($settings['test_results'] as $soap_func => $info) {
@@ -163,13 +186,14 @@ class Form_Action_SOAP_Call extends Form_Action
 		<p class="sq-backend-section-subheading"><?php echo translate('SOAP Request Message'); ?></p>
 
 
-		<div id="<?php echo $prefix ?>_action_selection" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_action_selection" >
 			<table class="sq-backend-table" >
 				<tr>
 					<td><strong><?php echo translate('Action');?></strong><br /><br /></td>
 
 					<td>
 						<?php
+							ksort($settings['actions']);
 							foreach ($settings['actions'] as $name => $detail) {
 								$action_list[$name] = $name;
 							}
@@ -205,7 +229,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		<p class="sq-backend-section-subheading"><?php echo translate('SOAP Response Message'); ?></p>
 
 
-		<div id="<?php echo $prefix ?>_response" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_response" >
 			<table class="sq-backend-table" >
 				<tr>
 					<td>
@@ -232,7 +256,7 @@ class Form_Action_SOAP_Call extends Form_Action
 
 		<p class="sq-backend-section-subheading">Check Response</p>
 
-		<div id="<?php echo $prefix ?>_response_error" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_response_error" >
 			<table class="sq-backend-table" >
 				<tr width="120">
 					<td>
@@ -301,7 +325,7 @@ class Form_Action_SOAP_Call extends Form_Action
 								foreach($response_keywords as $val) {
 									$val = trim($val, '%');
 									$val = substr_replace($val, '', 0,  strlen('globals_session_soap_'));
-
+									if(empty($val)) $val = 'Response';
 									if ($val) {
 										$response_fields[$val] = $val;
 									}
@@ -322,7 +346,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		<p class="sq-backend-section-subheading"><?php echo translate('Keywords Available'); ?></p>
 
 
-		<div id="<?php echo $prefix ?>_response_keywords" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_response_keywords" >
 			<table class="sq-backend-table" >
 				<tr>
 					<td>
@@ -380,6 +404,89 @@ class Form_Action_SOAP_Call extends Form_Action
 			</table>
 		</div>
 
+		<p class="sq-backend-section-subheading">Log</p>
+		<div id="<?php echo $prefix ?>_log" >
+			<table class="sq-backend-table" >
+				<tr>
+					<td width="120"><?php echo translate('Enable Log');?></td>
+					<td><p>
+							<?php
+							$run_test = array_get_index($settings, 'log_required', 0);
+							check_box($prefix.'_log_required', 1, $run_test);
+							?>
+						</p></td>
+				</tr>
+				<tr>
+					<td><?php echo translate('Location');?></td>
+					<td>
+						<?php
+							$location = array_get_index($settings, 'log_location', '');
+							text_box($prefix.'_log_location', $location, 120);
+
+							if(strpos($location, '/') !== 0 && !empty($location)) {
+								$location = SQ_SYSTEM_ROOT.'/'.$location;
+							}
+							if ($run_test)
+							{
+								if (empty($location)) {
+									?><br />
+									<span class="sq-backend-warning"><?php echo translate('Location is required'); ?></span>
+
+									<?php
+								} else if (!is_dir($location)) {
+									?><br />
+									<span class="sq-backend-warning"><?php echo translate('Location does not exist or is not a valid directory.'); ?></span>
+
+									<?php
+								} else if (!authorised_file_write_path($location)) {
+									?><br />
+									<span class="sq-backend-warning"><?php echo translate('Location is not allowed. Please check Authorised File Write Paths setting in External Tools Configuration (i.e SQ_TOOL_AUTHORISED_FILE_WRITE_PATHS).'); ?></span>
+
+									<?php
+
+								} else if (!is_writable($location)) {
+									?><br />
+									<span class="sq-backend-warning"><?php echo translate('Location is not writable'); ?></span>
+
+									<?php
+								}
+							}//end if
+							?>
+						<div class="sq-backend-smallprint"><?php echo translate('Path is relative to Matrix installation location unless prefixed with \'/\'. Path must be allowed in Authorised File Write Paths setting in External Tools Configuration(i.e SQ_TOOL_AUTHORISED_FILE_WRITE_PATHS)');?></div>
+
+					</td>
+
+				</tr>
+				<tr>
+					<td><?php echo translate('Log Name');?></td>
+					<td>
+
+						<?php
+							$log_name = array_get_index($settings, 'log_name', '');
+							text_box($prefix.'_log_name', $log_name, 120);
+
+							if ($run_test && empty($log_name)) {
+								?><br/>
+								<span class="sq-backend-warning"><?php echo translate('Log Name is required'); ?></span>
+								<?php
+							}
+						?>
+
+						<div class="sq-backend-smallprint"><?php echo translate('Global Keywords are supported.');?></div>
+
+
+					</td>
+				</tr>
+				<tr>
+					<td><?php echo translate('Log Format');?></td>
+					<td>
+						<?php text_box($prefix.'_log_format', array_get_index($settings, 'log_format', ''), 120); ?>
+						<div class="sq-backend-smallprint"><?php echo translate('Global Keywords and Question Keywords are supported, for example, &#37;response_100_q1&#37;, &#37;question_name_100_q1&#37;.');?></div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
 		<?php
 
 	}//end paintInlineInterface()
@@ -397,23 +504,32 @@ class Form_Action_SOAP_Call extends Form_Action
 		$settings['wsdl']					= array_get_index($_POST, $prefix.'_wsdl', NULL);
 		$settings['mute_exceptions']		= array_get_index($_POST, $prefix.'_mute_exceptions', NULL);
 		$settings['run_test'] 				= array_get_index($_POST, $prefix.'_run_test', NULL);
-		$settings['passphrase']				= array_get_index($_POST, $prefix.'_passphrase', NULL);
+		if(isset($_POST[$prefix.'_passphrase']) && !empty($_POST[$prefix.'_passphrase'])) {
+			$settings['passphrase']				= array_get_index($_POST, $prefix.'_passphrase', NULL);
+		}
 		$settings['action']					= array_get_index($_POST, $prefix.'_action', NULL);
 		$settings['auth_type']				= array_get_index($_POST, $prefix.'_auth_type', NULL);
 		$settings['cache_wsdl']				= array_get_index($_POST, $prefix.'_cache_wsdl', NULL);
 		$settings['service_address']		= array_get_index($_POST, $prefix.'_service_address', NULL);
+		$settings['log_required']			= array_get_index($_POST, $prefix.'_log_required', 0);
+		$settings['log_location']			= trim(array_get_index($_POST, $prefix.'_log_location', NULL));
+		$settings['log_name']				= trim(array_get_index($_POST, $prefix.'_log_name', NULL));
+		$settings['log_format']				= trim(array_get_index($_POST, $prefix.'_log_format', NULL));
+
 
 		// Process function authentication fields
 		Soap_Common::processSoapAuthenticationFields($prefix, $settings, $o);
 
+		SOAP_Common::processAdditionalSOAPHeader($prefix, $settings, $o);
+
 		// This submission needs to be executed before form get submitted
-		$settings['before_create']			= TRUE;
+		$settings['before_create']	= TRUE;
 
 		if(isset ($settings['wsdl']) && !empty($settings['wsdl'])) {
 
 			$options = SOAP_Common::_getSoapOptions($settings, $form);
 			try {
-				$client = SOAP_Common::getSoapClient($settings, $options);
+				$client = SOAP_Common::getSoapClient($settings, $options, $form);
 				if (!is_null($client)) {
 					$functions = $client->__getFunctions();
 					$types = $client->__getTypes();
@@ -448,7 +564,7 @@ class Form_Action_SOAP_Call extends Form_Action
 					// Issue in parse type
 					if ($xml_response === TRUE || $xml_response === FALSE) {
 						$response_list[$function_name] = SOAP_Common::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");
-						$keywords = 'globals_session_soap'.($xml_response ? '0' : '');
+						$keywords = '%globals_session_soap'.($xml_response ? '_0' : '').'%';
 					} else {
 						$response_list[$function_name] = SOAP_Common::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
 						$keywords = SOAP_Common::_parse_response_keywords ($xml_response, 'globals_session_soap_');
@@ -463,7 +579,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		}
 
 		// grab the specified address from WSDL
-		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], $settings['password']);
+		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], empty($settings['password']) ? '' : $settings['password']);
 
 
 		// Currently selected "Check response" fields
@@ -480,7 +596,7 @@ class Form_Action_SOAP_Call extends Form_Action
 			$sf_prefix = $prefix.'_'.$settings['action'].'_'.$selected_field;
 
 			// If the field is deleted or dosen't exists in SOAP response anymore
-			if ((!isset($_POST[$sf_prefix.'_delete_field'][$selected_field]) || !$_POST[$sf_prefix.'_delete_field'][$selected_field]) && strpos($keywords_string, '%globals_session_soap_'.$selected_field.'%') !== FALSE) {
+			if ((!isset($_POST[$sf_prefix.'_delete_field'][$selected_field]) || !$_POST[$sf_prefix.'_delete_field'][$selected_field])) {
 				if (isset($_POST[$sf_prefix.'_error_msg'])) {
 					$field_rule[$selected_field] = Array(
 													'type'	=> $_POST[$sf_prefix.'_type'],
@@ -621,7 +737,7 @@ class Form_Action_SOAP_Call extends Form_Action
 				$dom = new DOMDocument();
 				// use DOMDocument::loadXML() to see if there is any entity  reference loop
 				// which may exhaust us of the memory limit, if not then continue as normal
-				if ($dom->loadXML($soap_message, LIBXML_NOENT)) {
+				if ($dom->loadXML($soap_message, LIBXML_NOENT|LIBXML_PARSEHUGE)) {
 					$object = @simplexml_import_dom($dom);
 				} else {
 					// don't worry about any warning, if we are here then PHP has already raised the warning for us
@@ -657,7 +773,7 @@ class Form_Action_SOAP_Call extends Form_Action
 
 		// Make SOAP call
 		try {
-			$client = SOAP_Common::getSoapClient($settings, $options);
+			$client = SOAP_Common::getSoapClient($settings, $options, $form);
 			eval('$data = $client->$function('.$eval_string.');');
 		}
 		catch (Exception $e) {
@@ -674,7 +790,7 @@ class Form_Action_SOAP_Call extends Form_Action
 				$dom = new DOMDocument();
 				// use DOMDocument::loadXML() to see if there is any entity  reference loop
 				// which may exhaust us of the memory limit, if not then continue as normal
-				if ($dom->loadXML($match[2], LIBXML_NOENT)) {
+				if ($dom->loadXML($match[2], LIBXML_NOENT|LIBXML_PARSEHUGE)) {
 					$data = simplexml_import_dom($dom);
 				} else {
 					// don't worry about any warning, if we are here then PHP has already raised the warning for us
@@ -690,7 +806,11 @@ class Form_Action_SOAP_Call extends Form_Action
 
 		// Remove prefix from response keywords
 		foreach($soap_response_keywords as $key => $val) {
-			$soap_response_keywords[substr_replace($key, '', 0,  5)] = $val;
+			$new_key = substr_replace($key, '', 0,  5);
+			if(empty($new_key)) {
+				$new_key = 'Response';
+			}
+			$soap_response_keywords[$new_key] = $val;
 			unset($soap_response_keywords[$key]);
 		}
 		// If the SOAP response has one of the non-empty "Check Response" fields, return error
@@ -701,6 +821,32 @@ class Form_Action_SOAP_Call extends Form_Action
 					$success = FALSE;
 				}
 			}//end foreach
+		}//end if
+
+
+		if (isset($settings['log_required']) && $settings['log_required'])
+		{
+			$location = array_get_index($settings, 'log_location', '');
+			if(strpos($location, '/') !== 0 && !empty($location)) {
+				$location = SQ_SYSTEM_ROOT.'/'.$location;
+			}//end if
+
+			if (authorised_file_write_path($location) && is_writable($location))
+				if (!empty($settings['log_name']))
+				{
+					$logFile = rtrim($location,'/') .'/'.basename(replace_global_keywords($settings['log_name']));
+
+					if (!empty($settings['log_format']))
+					{
+						$handle = fopen($logFile, 'a');
+						$message = replace_global_keywords(SOAP_Form_Based_Common::getKeywordReplacementsFromForm($settings['log_format'], $form))."\r\n";
+
+						if (!fwrite($handle, $message))
+							trigger_localised_error('SYS0051', sprintf(translate('Unable to Write to log file %s with message %s'), $logFile, $message), E_USER_WARNING);
+
+						fclose($handle);
+					}//end if
+				}//end if
 		}//end if
 
 		return $success;

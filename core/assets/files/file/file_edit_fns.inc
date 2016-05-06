@@ -256,12 +256,11 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @param string				$prefix				prefix for form elements
 	* @param array				$info				info about the uploaded file
 	* @param boolean			$redirect_in_limbo	redirect when the file name changes in limbo
-	* @param boolean			$asset_cloned		to check if we creating a new asset or just cloning
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function processFileUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE, $asset_cloned=FALSE)
+	public function processFileUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {
@@ -271,13 +270,21 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// assetid will not be set if we are creating
 		if (!$asset->id) return TRUE;
 
+		// TRUE if the file upload form was submitted with new file
+		$new_file = FALSE;
+
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
 			// return on failed or no upload
 			if ($info === FALSE || empty($info)) {
 				return FALSE;
 			}//end if
-		}//end if
+			$new_file = TRUE;
+		} else {
+			$new_file = empty($info['non_uploaded_file']);
+		}
+
+		$existing_name = $asset->name;
 
 		// make the info array look like a result from getExistingFile()
 		if (!isset($info['path'])) {
@@ -368,20 +375,22 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// set the name of the file to the newly uploaded one
 		$asset->_tmp['uploading_file'] = TRUE;
 		$name_changed = $asset->setAttrValue('name', $name);
-		if (!$asset->saveAttributes()) {
+		if (!$asset->saveAttributes(TRUE)) {
 			trigger_localised_error('CORE0052', translate('Failed saving attributes for file'), E_USER_WARNING);
 			return FALSE;
 		}//end if
 		$asset->_tmp['uploading_file'] = FALSE;
 
-		// bug fix for # 3625. If we cloning an asset then we need not call saveWebPaths now
-		// hipo_job_clone_asset will call saveWebPaths after it is sure the links have been established
-		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
-		if (!defined('SQ_IN_IMPORT') && !($asset_cloned) && !($asset->saveWebPaths(Array($name),$auto_add_remaps))) {
-			trigger_localised_error('CORE0054', translate('Failed saving web paths'), E_USER_WARNING);
-			return FALSE;
-		}//end if
+		// Change the file name needs to be reflected in the file's webpath
+		// Unless the asset is being cloned (bug #3625) or being imported (bug #5454)
+		$cloning_asset = isset($GLOBALS['SQ_CLONE_COMPONENTS']) && $GLOBALS['SQ_CLONE_COMPONENTS'];
+		if (!$cloning_asset && !defined('SQ_IN_IMPORT')) {
+			$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+			if (!$asset->saveWebPaths(Array($name), $rm->attr('remap_upon_webpath_change'))) {
+				trigger_localised_error('CORE0054', translate('Failed saving web paths'), E_USER_WARNING);
+				return FALSE;
+			}
+		}
 
 		if (SQ_IN_LIMBO && $name_changed && $redirect_in_limbo) {
 			// if we are in limbo and the name of the file has changed, the URL will also change
@@ -393,6 +402,32 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'ContentsUpdated');
+
+
+		// Generate the message body info for the file update
+		$file_path = $asset->data_path.'/'.$asset->attr('name');
+		$file_sha1 = is_file($file_path) ? sha1_file($file_path) : '';
+		$file_download_link = '<a href=".?a='.$asset->id.'&file_ts='.time().'&file_hash='.$file_sha1.'&filename='.$name.'">Download file.</a>';
+		if (!empty($info['setting_filename']))  {
+			$body = sprintf(translate('Filename changed from "%1$s" to "%2$s". %3$s'), htmlspecialchars($existing_name), htmlspecialchars($name), $file_download_link);
+			$subject = translate('Filename Updated');
+		} else if ($new_file) {
+			$body = sprintf(translate('File "%1$s" uploaded successfully. %2$s'), htmlspecialchars($name), $file_download_link);
+			$subject = translate('File Uploaded');
+		} else {
+			$body = sprintf(translate('File "%1$s" updated successfully. %2$s'), htmlspecialchars($name), $file_download_link);
+			$subject = translate('File Updated');
+		}
+
+		// Log the internal message regarding the file contents update
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message = $ms->newMessage(Array(), 'file.updated', Array());
+		$message->subject = $new_file ? translate('File Uploaded') : translate('File Updated');
+		$message->body = $body;
+		$message->subject = $subject;
+		$message->parameters['assetid'] = $asset->id;
+		$message->send();
 
 		return $asset->_updated();
 

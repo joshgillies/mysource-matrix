@@ -59,7 +59,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-				text_box($class.'[SQ_DUPE_ASSET_THRESHOLD]',SQ_DUPE_ASSET_THRESHOLD, 1);
+				text_box($class.'[SQ_DUPE_ASSET_THRESHOLD]',SQ_DUPE_ASSET_THRESHOLD, 4);
 		} else {
 				echo SQ_DUPE_ASSET_THRESHOLD;
 		}

@@ -222,11 +222,11 @@ class System_Config_Edit_Interface extends MySource_Object
 						echo '<div class="sq-locks-button-wrapper">';
 							if (!empty($lock)) {
 								if ($have_lock) {
-									submit_button('sq_lock_release_manual', translate('Release Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+									submit_button('sq_lock_release_manual', translate('Release Locks'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-lock-button release"');
 
 								}
 							} else {
-								submit_button('sq_lock_acquire', translate('Acquire Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+								submit_button('sq_lock_acquire', translate('Acquire Locks'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
 
 							}
 						echo '</div>';
@@ -244,7 +244,7 @@ class System_Config_Edit_Interface extends MySource_Object
 								$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
 
 								if ($have_lock) {
-									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), translate('User Preferences'));
+									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Locks'), translate('User Preferences'));
 
 
 
@@ -256,7 +256,7 @@ class System_Config_Edit_Interface extends MySource_Object
 								echo ' '.$expires_in.'.';
 
 							} else {
-								echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), translate('User Preferences'));
+								echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Locks'), translate('User Preferences'));
 
 
 
@@ -291,7 +291,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			$o->closeSection();
 		}
 
-		if ($have_lock) $o->commitButton('', true);
+		if ($have_lock) $o->commitButton('', FALSE);
 
 	}//end paintUserPrefs()
 

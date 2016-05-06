@@ -61,6 +61,18 @@ var JS_Asset_Map = new function() {
 		EditingApproved:   0x100 // Safe Edit Approved
 	};
 
+	var StatusNames = {
+		Archived:          js_translate('Archived'),
+		UnderConstruction: js_translate('Under Construction'),
+		PendingApproval:   js_translate('Pending Approval'),
+		Approved:          js_translate('Approved To Go Live'),
+		Live:              js_translate('Live'),
+		LiveApproval:      js_translate('Up For Review'),
+		Editing:           js_translate('Safe Editing'),
+		EditingApproval:   js_translate('Safe Editing Pending Approval'),
+		EditingApproved:   js_translate('Safe Edit Approved To Go Live')
+	};
+
 	/**
 	 * Enumerated list of link types
 	 * @var {Object}
@@ -114,6 +126,11 @@ var JS_Asset_Map = new function() {
 	var currentUser = '';
 
 
+	/**
+	 * The scroll position for last div
+	 * @var (Number)
+	 */
+	var previousDivScrollPos = 0;
 
 	/**
 	 * If we are calling asset map from a pop up new window, set the source window here
@@ -121,6 +138,16 @@ var JS_Asset_Map = new function() {
 	 */
 	var currentNewWindow = null;
 
+	/**
+	 * Busy flag.
+	 *
+	 * Increases by one for each request sent, and reduces by one each time a
+	 * request completes.
+	 *
+	 * The map is considered "busy" when the number of outstanding requests
+	 * reduces to zero. When busy, locates and refreshes won't work.
+	 */
+	this.busy = 0;
 
 	/**
 	 * The trash folder assetid.
@@ -441,9 +468,9 @@ var JS_Asset_Map = new function() {
 		assetLine.setAttribute('data-typecode', typeCode);
 
 		if (assetTypeCache[typeCode]) {
-			assetLine.setAttribute('title', js_translate('asset_type_id', assetTypeCache[typeCode].name, assetid));
+			assetLine.setAttribute('title', js_translate('%s [%s]', assetTypeCache[typeCode].name, assetid));
 		} else {
-			assetLine.setAttribute('title', js_translate('asset_type_id', js_translate('Unknown Asset Type'), assetid));
+			assetLine.setAttribute('title', js_translate('%s [%s]', js_translate('Unknown Asset Type'), assetid));
 
 		}
 
@@ -900,6 +927,7 @@ var JS_Asset_Map = new function() {
 		var document = assetMapContainer.ownerDocument;
 		var trees    = dfx.getClass('tree', assetMapContainer);
 		var self     = this;
+		var deletePopupOpen = false;
 
 		timeouts.refreshQueue = setInterval(function() {
 			if (refreshQueue.length > 0) {
@@ -924,12 +952,14 @@ var JS_Asset_Map = new function() {
 			// If a custom root is set and we're already on that root, we go
 			// back to the Root Folder (#1). Clicking again will restore the
 			// custom root.
-			var tree        = self.getCurrentTreeElement();
-			var currentRoot = tree.getAttribute('data-parentid');
-			if (String(options.teleportRoot) === String(currentRoot)) {
-				self.teleport(1, 1);
-			} else {
-				self.teleport(options.teleportRoot, options.teleportLink);
+			if (self.isBusy() === false) {
+				var tree        = self.getCurrentTreeElement();
+				var currentRoot = tree.getAttribute('data-parentid');
+				if (String(options.teleportRoot) === String(currentRoot)) {
+					self.teleport(1, 1);
+				} else {
+					self.teleport(options.teleportRoot, options.teleportLink);
+				}
 			}
 		});
 
@@ -938,13 +968,15 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(dfx.getId('asset_map_button_collapse'), 'click', function() {
-			var tree = self.getCurrentTreeElement();
+			if (self.isBusy() === false) {
+				var tree = self.getCurrentTreeElement();
 
-			var childIndents  = dfx.getClass('childIndent', tree);
-			var branchButtons = dfx.getClass('branch-status', tree);
+				var childIndents  = dfx.getClass('childIndent', tree);
+				var branchButtons = dfx.getClass('branch-status', tree);
 
-			dfx.addClass(childIndents, 'collapsed');
-			dfx.removeClass(branchButtons, 'expanded');
+				dfx.addClass(childIndents, 'collapsed');
+				dfx.removeClass(branchButtons, 'expanded');
+			}
 		});
 
 		dfx.addEvent(assetMapContainer, 'contextmenu', function(e) {
@@ -956,7 +988,7 @@ var JS_Asset_Map = new function() {
 			var code = e.keyCode ? e.keyCode : e.which;
 			if ((code === KeyCode.Spacebar) ||
 				((code >= KeyCode.LetterA) && (code <= KeyCode.LetterZ)) ||
-				((code >= KeyCode.NumberZero) && (code >= KeyCode.NumberNine))) {
+				((code >= KeyCode.NumberZero) && (code <= KeyCode.NumberNine))) {
 				if (self.isModalActive() === false) {
 					textSearch += String.fromCharCode(code);
 					self.search(textSearch);
@@ -1189,25 +1221,29 @@ var JS_Asset_Map = new function() {
 					preShift = null;
 				break;
 				case KeyCode.Delete:
-					if (options.simple === false) {
+					if ((options.simple === false) && (deletePopupOpen === false)) {
 						var msg       = '';
 						var title     = '';
 						var selection = self.currentSelection();
 
 						if (selection.length !== 0) {
 							if (selection.length > 1) {
-								msg   = js_translate('asset_map_confirm_move_children', selection.length);
+								msg   = js_translate('Are you sure you want to move %s assets to the trash?', selection.length);
 								title = js_translate('Trash Assets');
 
 							} else if (selection.length === 1) {
-								msg   = js_translate('asset_map_confirm_move_child', dfx.getNodeTextContent(dfx.getClass('assetName', selection[0])[0]));
+								msg   = js_translate('Are you sure you want to move the asset "%s" to the Trash?', dfx.getNodeTextContent(dfx.getClass('assetName', selection[0])[0]));
 								title = js_translate('Trash Asset');
 
 							}
 
+							deletePopupOpen = true;
 							self.confirmPopup(msg, title, function() {
 								// Moving to trash.
+								deletePopupOpen = false;
 								self.moveAsset(AssetActions.Move, selection, trashFolder, -1);
+							}, function() {
+								deletePopupOpen = false;
 							});
 						}//end if
 					}
@@ -1565,7 +1601,7 @@ var JS_Asset_Map = new function() {
 								// _formatAsset with base asset icon and "2 assets", eg.
 								var assetAttrs = {
 									assetid: 0,
-									name: js_translate('%s_assets', selection.length),
+									name: js_translate('%s assets', selection.length),
 									type_code: '',
 									status: 0
 
@@ -1883,7 +1919,7 @@ var JS_Asset_Map = new function() {
 				var assets = response['asset'][0];
 
 				if (!assets.asset) {
-					self.message(js_translate('asset_map_status_bar_loaded_children', 0), false, 2000);
+					self.message(js_translate('Loaded %s children', 0), false, 2000);
 					dfx.remove(container);
 					dfx.remove(dfx.getClass('branch-status', branchTarget));
 				} else {
@@ -1903,7 +1939,7 @@ var JS_Asset_Map = new function() {
 
 						default:
 							self.message(
-								js_translate('asset_map_status_bar_loaded_children', assetCount),
+								js_translate('Loaded %s children', assetCount),
 								false,
 								2000
 							);
@@ -2171,9 +2207,22 @@ var JS_Asset_Map = new function() {
 	 * @param {Number} treeid The tree ID (zero-indexed; use 0 for Tree One).
 	 */
 	this.selectTree = function(treeid) {
+		var currentTree = self.getCurrentTreeElement();
+		if (currentTree !== null) {
+			var tempScrollPosition = currentTree.scrollTop;
+		}
+
 		var trees = dfx.getClass('tree', assetMapContainer);
 		dfx.removeClass(trees, 'selected');
 		dfx.addClass(trees[treeid], 'selected');
+
+		if (previousDivScrollPos !== 0) {
+			trees[treeid].scrollTop = previousDivScrollPos;
+		}
+
+		if (currentTree !== null) {
+			previousDivScrollPos  = tempScrollPosition;
+		}
 
 		var treeList = dfx.getClass('tree-list', assetMapContainer)[0];
 		var tabs     = dfx.getClass('tab', assetMapContainer);
@@ -2410,12 +2459,18 @@ var JS_Asset_Map = new function() {
 					}
 				]
 			}, function(response) {
+
+				if (response._rootTag === 'error') {
+					self.raiseError(response._content);
+					return;
+				}
+
 				// Cache all the asset types.
 				//dfx.removeClass(tree, 'loading');
 				var rootAsset = response['asset'][0];
 
 				if (!rootAsset.asset) {
-					self.message(js_translate('asset_map_status_bar_loaded_children', 0), false, 2000);
+					self.message(js_translate('Loaded %s children', 0), false, 2000);
 					dfx.remove(container);
 					dfx.remove(branchTarget);
 				} else {
@@ -2466,7 +2521,7 @@ var JS_Asset_Map = new function() {
 
 						default:
 							self.message(
-								js_translate('asset_map_status_bar_loaded_children', assetCount),
+								js_translate('Loaded %s children', assetCount),
 								false,
 								2000
 							);
@@ -2774,7 +2829,7 @@ var JS_Asset_Map = new function() {
 
 		if (codeRegexp.test(message) === true) {
 			var matches = codeRegexp.exec(message);
-			title   = js_translate('asset_map_matrix_error', matches[1]);
+			title   = js_translate('Matrix Error [%s]', matches[1]);
 			message = message.replace(codeRegexp, '');
 		}
 
@@ -2910,7 +2965,9 @@ var JS_Asset_Map = new function() {
 
 		tbButtons.appendChild(tbButton);
 		dfx.addEvent(tbButton, 'click', function(e) {
-			self.refreshTree();
+			if (self.isBusy() === false) {
+				self.refreshTree();
+			}
 		});
 
 		var tbButton = _createEl('span');
@@ -2979,16 +3036,16 @@ var JS_Asset_Map = new function() {
 			lastAsset     = Math.min(lastAsset, totalAssets);
 
 			phrases = [
-				js_translate('asset_map_expanding_node_one', firstAsset, lastAsset, totalAssets), // Viewing 1-50 of 75
-				js_translate('asset_map_expanding_node_two', setNumber, totalSets),               // Set 1 of 2
-				js_translate('asset_map_expanding_node_three', totalAssets),                      // Total assets: 75
-				js_translate('asset_map_expanding_node_four', (totalAssets - lastAsset))          // Remaining: 25
+				js_translate('Viewing %s-%s of %s', firstAsset, lastAsset, totalAssets), // Viewing 1-50 of 75
+				js_translate('Set %s of %s', setNumber, totalSets),                      // Set 1 of 2
+				js_translate('Total assets: %s', totalAssets),                           // Total assets: 75
+				js_translate('Remaining: %s', (totalAssets - lastAsset))                 // Remaining: 25
 			];
 		} else {
 			// Shadow asset versions that don't provide totals.
 			phrases = [
-				js_translate('asset_map_expanding_node_one_shadow', firstAsset, lastAsset, totalAssets), // Viewing 1-50
-				js_translate('asset_map_expanding_node_two_shadow', setNumber)                           // Set 1
+				js_translate('Viewing %s-%s', firstAsset, lastAsset, totalAssets), // Viewing 1-50
+				js_translate('Set %s', setNumber)                                  // Set 1
 			];
 		}
 
@@ -3092,8 +3149,7 @@ var JS_Asset_Map = new function() {
 		container.appendChild(containerInner);
 
 		for (var x in Status) {
-			var displayName = js_translate('status_' + x.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase());
-
+			var displayName = StatusNames[x];
 			var assetLine = _createEl('div');
 			dfx.addClass(assetLine, 'fakeAsset');
 
@@ -3308,38 +3364,40 @@ var JS_Asset_Map = new function() {
 			if (response.asset) {
 				for (var i = 0; i < response.asset.length; i++) {
 					var thisAsset  = response.asset[i];
-					thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
-					thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
-					thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
-					thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
+					if (thisAsset._attributes.assetid) {
+						thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
+						thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
+						thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
+						thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
 
-					var assetid = thisAsset._attributes.assetid;
-					var linkid  = thisAsset._attributes.linkid;
-					if (String(assetid) === '1') {
-						hasRootFolder = true;
-					} else {
-						var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-linkid="' + linkid  + '"]');
-						for (var j = 0; j < assetNodes.length; j++) {
-							var assetNode     = assetNodes[j];
-							var newNode       = _formatAsset(thisAsset._attributes);
-							newNode.className = assetNode.className;
+						var assetid = thisAsset._attributes.assetid;
+						var linkid  = thisAsset._attributes.linkid;
+						if (String(assetid) === '1') {
+							hasRootFolder = true;
+						} else {
+							var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-linkid="' + linkid  + '"]');
+							for (var j = 0; j < assetNodes.length; j++) {
+								var assetNode     = assetNodes[j];
+								var newNode       = _formatAsset(thisAsset._attributes);
+								newNode.className = assetNode.className;
 
-							newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
-							newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
-							newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
+								newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
+								newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
+								newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
 
-							assetNode.parentNode.replaceChild(newNode, assetNode);
-						}//end for
-
-						var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
-						if (expansions.length > 0) {
-							treeRefresh.push(assetid);
-							for (var j = 0; j < expansions.length; j++) {
-								var parentid = expansions[j].getAttribute('data-parentid');
-								if (treeRefresh.inArray(parentid) === false) {
-									treeRefresh.push(parentid);
-								}
+								assetNode.parentNode.replaceChild(newNode, assetNode);
 							}//end for
+
+							var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
+							if (expansions.length > 0) {
+								treeRefresh.push(assetid);
+								for (var j = 0; j < expansions.length; j++) {
+									var parentid = expansions[j].getAttribute('data-parentid');
+									if (treeRefresh.inArray(parentid) === false) {
+										treeRefresh.push(parentid);
+									}
+								}//end for
+							}//end if
 						}//end if
 					}//end if
 				}//end for
@@ -3521,35 +3579,43 @@ var JS_Asset_Map = new function() {
 				for (linkPath in assetLinkPaths) {
 					var reqIndex  = assetLinkPaths[linkPath];
 					var thisAsset = response.asset[reqIndex];
-					var assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
+					if (thisAsset._attributes.assetid) {
+						var assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
 
-					if (String(assetid) === '1') {
-						container = tree;
-					} else {
-						assetNode = dfx.find(tree, 'div.asset[data-link-path="' + linkPath + '"]')[0];
-						container = assetNode;
+						if (String(assetid) === '1') {
+							container = tree;
+						} else {
+							assetNode = dfx.find(tree, 'div.asset[data-link-path="' + linkPath + '"]')[0];
+							if (assetNode) {
+								container = assetNode;
 
-						var branchButton = dfx.getClass('branch-status', assetNode);
-						dfx.addClass(branchButton, 'expanded');
+								var branchButton = dfx.getClass('branch-status', assetNode);
+								dfx.addClass(branchButton, 'expanded');
 
-						container = assetNode.nextSibling;
-						if (!container || (dfx.hasClass(container, 'childIndent') === false)) {
-							container = _createChildContainer(assetid);
-							assetNode.parentNode.insertBefore(container, assetNode.nextSibling);
-						}//end if
+								container = assetNode.nextSibling;
+								if (!container || (dfx.hasClass(container, 'childIndent') === false)) {
+									container = _createChildContainer(assetid);
+									assetNode.parentNode.insertBefore(container, assetNode.nextSibling);
+								}//end if
 
-						container.setAttribute('data-offset', assetRequests[reqIndex]._attributes.start);
-						container.setAttribute('data-total', thisAsset._attributes.num_kids);
+								container.setAttribute('data-offset', assetRequests[reqIndex]._attributes.start);
+								container.setAttribute('data-total', thisAsset._attributes.num_kids);
 
-						if ((thisAsset._attributes.num_kids > 0) && (assetRequests[reqIndex]._attributes.start >= thisAsset._attributes.num_kids)) {
-							container.setAttribute('data-offset', assetRequests[reqIndex]._attributes.start - options.assetsPerPage);
-							self.addToRefreshQueue([assetid]);
-							self.processRefreshQueue();
+								if ((thisAsset._attributes.num_kids > 0) && (assetRequests[reqIndex]._attributes.start >= thisAsset._attributes.num_kids)) {
+									container.setAttribute('data-offset', assetRequests[reqIndex]._attributes.start - options.assetsPerPage);
+									self.addToRefreshQueue([assetid]);
+									self.processRefreshQueue();
+								}
+							} else {
+								container = null;
+							}
 						}
-					}
 
-					container.innerHTML = '';
-					self.drawTree(assetNode, thisAsset, container, assetRequests[reqIndex]._attributes.start, Number(thisAsset._attributes.num_kids));
+						if (container) {
+							container.innerHTML = '';
+							self.drawTree(assetNode, thisAsset, container, assetRequests[reqIndex]._attributes.start, Number(thisAsset._attributes.num_kids));
+						}
+					}//end if
 				}//end for
 
 				self.message(js_translate('Success!'), false, 2000);
@@ -3578,7 +3644,15 @@ var JS_Asset_Map = new function() {
 		var savedSorts   = sortOrders.concat([]);
 		var tree         = this.getCurrentTreeElement();
 		var container    = tree;
+		
+		var topDocument  = self.getDefaultView(document).top.document;
+ 		var minimise     = dfx.hasClass(topDocument.body, 'sidenav-minimised');
+ 		if(minimise){
+			var $resizerButton = dfxjQuery(topDocument).find('a.sq-resizer-button');
+			$resizerButton.get(0).click();
+ 		}
 
+		
 		dfx.removeClass(dfx.getClass('asset', tree), 'located selected');
 		while (assetids.length > 0) {
 			var assetid    = assetids.shift();
@@ -3595,7 +3669,7 @@ var JS_Asset_Map = new function() {
 						self.locateAsset(savedAssets, savedSorts);
 					});
 				} else {
-					this.raiseError(js_translate('asset_map_error_locate_asset', savedAssets.pop()));
+					this.raiseError(js_translate('Could not locate asset (#%s)', savedAssets.pop()));
 				}
 				return;
 			} else {
@@ -4143,6 +4217,7 @@ var JS_Asset_Map = new function() {
 		var self    = this;
 		var assetid = assetNode.getAttribute('data-assetid');
 		var linkid  = assetNode.getAttribute('data-linkid');
+		var typecode = assetNode.getAttribute('data-typecode');
 		this.clearMenus();
 
 		var container = _createEl('div');
@@ -4213,14 +4288,14 @@ var JS_Asset_Map = new function() {
 						}
 					]
 				}, function(response) {
-				var data = {'assetid' : assetid, 'attributes' : response['asset'][0]['_attributes']};
+				var data = {'assetid' : assetid, 'typecode' : typecode,  'attributes' : response['asset'][0]['_attributes']};
 				if (dfx.isFn(attributesCallback)) {
 					attributesCallback(data);
 				}
 				});
 			}
 			else {
-				var data = {'assetid' : assetid};
+				var data = {'assetid' : assetid, 'typecode' : typecode};
 					if (dfx.isFn(useMeStatus.doneCallback)) {
 					useMeStatus.doneCallback(data);
 				}
@@ -4336,7 +4411,7 @@ var JS_Asset_Map = new function() {
 		    // If we don't have any allowed links, don't post these.
 		    // Apparently empty lists are being sent as arrays as opposed to objects,
 		    // so the logic here is a little odd.
-			if (!(assetTypeCache[assetType]['allowed_links'].length === 0)) {
+			if (this.getAddableAssets(assetType).length > 0) {
                 if (lastCreatedType === null) {
                     var menuItem = this.drawMenuItem(js_translate('No Previous Child'), null);
                     dfx.addClass(menuItem, 'disabled');
@@ -4579,6 +4654,36 @@ var JS_Asset_Map = new function() {
 		container.appendChild(menuItem);
 
 		return container;
+	};
+
+	this.getAddableAssets = function(parentType) {
+		// Load up the asset category names so we can sort them.
+		var addableAssets = [];
+
+        var links = assetTypeCache[parentType].allowed_links;
+        for (typeCode in assetTypeCache) {
+            var found = false;
+            if ((Number(assetTypeCache[typeCode].instantiable) === 1) && (assetTypeCache[typeCode].allowed_access !== 'system')) {
+                for (linktype in links) {
+                    for (linktypeAsset in links[linktype]) {
+                        if ((typeCode === linktypeAsset) || (_isAncestorType(typeCode, linktypeAsset))) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found === true) {
+                        break;
+                    }
+                }//end for
+            }//end if
+
+            if (found === true) {
+                addableAssets.push(typeCode);
+            }
+        }
+
+        return addableAssets;
 	};
 
 
@@ -4911,7 +5016,6 @@ var JS_Asset_Map = new function() {
 	 */
 	this.doRequest = function(command, callback, failedCallback) {
 		url = options.rootEditUrl + '/?SQ_BACKEND_PAGE=asset_map_request&json=1';
-		//url = '.' + '?SQ_BACKEND_PAGE=asset_map_request&json=1';
 		var xhr = new XMLHttpRequest();
 		var str = JSON.stringify(command);
 		var self = this;
@@ -4929,6 +5033,7 @@ var JS_Asset_Map = new function() {
 						self.message(js_translate('Error While Requesting'), false, 2000);
 
 						if (dfx.isFn(failedCallback) === true) {
+							self.setBusy(false);
 							failedCallback(ex);
 						} else {
 							self.raiseError(ex.message);
@@ -4937,10 +5042,13 @@ var JS_Asset_Map = new function() {
 						return;
 					}
 
+					self.setBusy(false);
 					callback(response);
 				}
 			}
 		}
+
+		self.setBusy(true);
 
 		xhr.open(
 		   'POST',
@@ -4949,10 +5057,39 @@ var JS_Asset_Map = new function() {
 
 		self.message(js_translate('Requesting...'), true);
 
-
 		xhr.setRequestHeader('Content-type', 'application/json');
 		xhr.onreadystatechange = readyStateCb;
 		xhr.send(str);
+	};
+
+	this.setBusy = function(newValue) {
+		if (newValue === true) {
+			this.busy++;
+		} else {
+			this.busy--;
+		}
+		var refreshBtn = document.getElementById('asset_map_button_refresh');
+		var restoreBtn = document.getElementById('asset_map_button_restore');
+				
+		if (this.busy > 0) {
+			if (refreshBtn) {
+				refreshBtn.className = refreshBtn.className.replace(/ disabled/, '') + ' disabled';
+			}
+			if (restoreBtn) {
+				restoreBtn.className = restoreBtn.className.replace(/ disabled/, '') + ' disabled';
+			}
+		} else {
+			if (refreshBtn) {
+				refreshBtn.className = refreshBtn.className.replace(/ disabled/, '');
+			}
+			if (restoreBtn) {
+				restoreBtn.className = restoreBtn.className.replace(/ disabled/, '');
+			}
+		}
+	};
+
+	this.isBusy = function() {
+		return (this.busy > 0);
 	};
 
 
@@ -4975,7 +5112,7 @@ var JS_Asset_Map = new function() {
 	this.openHipoWindow = function(url) {
 		var window = this.getDefaultView(assetMapContainer).top;
 		window.focus();
-		var popup = window.open(url, 'hipo_job', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');
+		var popup = window.open(url, 'hipo_job', 'width=710,height=500,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');
 		popup.focus();
 
 	};

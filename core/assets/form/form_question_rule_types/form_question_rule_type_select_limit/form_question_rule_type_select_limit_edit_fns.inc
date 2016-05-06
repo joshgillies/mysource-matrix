@@ -47,12 +47,26 @@ class Form_Question_Rule_Type_Select_Limit_Edit_Fns extends Form_Question_Rule_E
 	{
 		$operator_list = $asset->getOperators();
 
+		$op    = array_get_index($rule_data, 'operator', '==');
+		$value = array_get_index($rule_data, 'value', '');
+
+		$comparison_text = Array(
+			'==' => translate('Exactly %s options must be selected'),
+			'!=' => translate('Any number of options other than %s must be selected'),
+			'>'  => translate('More than %s options must be selected'),
+			'<'  => translate('Less than %s options must be selected'),
+			'>=' => translate('At least %s options must be selected'),
+			'<=' => translate('No more than %s options must be selected'),
+		);
+
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
 
-			echo 'Response '.strtolower($operator_list[array_get_index($rule_data, 'operator', '==')]);
-
-			echo ' "'.array_get_index($rule_data, 'value', '').'"';
+			echo sprintf(
+				$comparison_text[$op],
+				$value
+			);
+			
 			$o->closeField();
 
 		} else {
@@ -60,13 +74,13 @@ class Form_Question_Rule_Type_Select_Limit_Edit_Fns extends Form_Question_Rule_E
 			$o->openField(translate('Operator'));
 
 			// list of operators
-			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '=='));
+			combo_box($prefix.'[operator]', $operator_list, false, $op);
 			$o->closeField();
 
 			$o->openField(translate('Number of Options'));
 
 			// give a text box to write the comparison value in
-			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
+			int_text_box($prefix.'[value]', $value, false, 3);
 			echo ' option(s)';
 			$o->closeField();
 

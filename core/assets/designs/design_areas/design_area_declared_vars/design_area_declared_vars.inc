@@ -58,7 +58,10 @@ class Design_Area_Declared_Vars extends Design_Area
 		if (empty($this->vars['declared_vars']['value'][$name])) {
 			return parent::attr($name);
 		} else {
-			return str_replace(Array('<'.'?php', '<'.'?', '?'.'>'), '', $this->vars['declared_vars']['value'][$name]['value']);
+			$value = $this->vars['declared_vars']['value'][$name]['value'];
+			$value = str_replace('<'.'?', '&lt;?', $value); 
+			$value = str_replace('?'.'>', '?&gt;', $value); 
+			return $value;
 		}
 
 	}//end attr()

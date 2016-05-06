@@ -109,12 +109,13 @@ class FLV_File extends File
 	* The keywords begin with dynamic_flv_metadata_ always return fresh metadata from the FLV file.
 	*
 	* @param string	$keyword	Keyword to find a replacement for
+	* @param string $additional_replacements    Additional keyword replacements for 'replace_keywords' modifier
 	*
 	* @return string
 	* @access public
 	* @see _getKeywordReplacement
 	*/
-	public function getKeywordReplacement($keyword)
+	public function getKeywordReplacement($keyword, $additional_replacements=Array())
 	{
 		$replacement = NULL;
 

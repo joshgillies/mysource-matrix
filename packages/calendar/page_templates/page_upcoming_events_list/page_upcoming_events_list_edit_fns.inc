@@ -82,16 +82,21 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processEventSources(&$asset, &$o, $prefix)
 	{
+		$success = FALSE;
 		if (isset($_POST[$prefix.'_event_sources'])) {
 			$root_nodes = Array();
 			foreach ($_POST[$prefix.'_event_sources'] as $source) {
 				if (!empty($source['assetid'])) {
-					$root_nodes[$source['assetid']] = 1;
+					if (!is_numeric($source['assetid']) || count($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($source['assetid'])) === 0) {
+						trigger_error(sprintf(translate('Failed adding Event Source root node. This #%1$s asset id is not a valid asset id.'), $source['assetid']), E_USER_WARNING);
+					} else {
+						$root_nodes[$source['assetid']] = 1;
+					}
 				}
 			}
-			return $asset->setAttrValue('root_nodes', $root_nodes);
+			$success = $asset->setAttrValue('root_nodes', $root_nodes);
 		}
-		return FALSE;
+		return $success;
 
 	}//end processEventSources()
 

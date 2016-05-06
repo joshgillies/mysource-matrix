@@ -17,6 +17,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 
 /**
 * Page_Password_Reset
@@ -276,6 +277,39 @@ class Page_Password_Reset extends Page
 	function _printRequestReceiptAction()
 	{
 		$replacements = Array();
+
+		// verify captcha
+		if ($this->attr('require_captcha')) {
+			if (!validate_security_key()) {
+				$error_text = $this->attr('captcha_invalid_error_message');
+				$replacements['password_reset_error'] = $error_text;
+				return $this->_buildContents('request', $replacements);
+			}
+		}
+
+		// reCAPTCHA check
+		if ($this->attr('use_recaptcha')) {
+			$recaptcha_response = Recaptcha::verifyRecaptcha();
+			if (!$recaptcha_response->is_valid) {
+				$error_msg = $this->attr('recaptcha_error_message');
+				if (empty($error_msg)) {
+					$error_msg = array_shift($recaptcha_response->error);
+				}
+				$replacements['password_reset_error'] = $error_msg;
+				return $this->_buildContents('request', $replacements);
+			}
+		}//end if
+
+		// Honeypot question validation
+		$name = $this->attr('honeypot_name');
+		if (empty($name)) {
+			$name = 'q'.$this->id.':comment';
+		}
+		if (!empty($_POST[$name])) {
+			$replacements['password_reset_error'] = $this->attr('honeypot_error_message');
+			return $this->_buildContents('request', $replacements);
+		}//end if
+
 		if (!isset($_POST['username']) || empty($_POST['username'])) {
 			$replacements['password_reset_error'] = translate('You must specify a username.');
 
@@ -321,7 +355,7 @@ class Page_Password_Reset extends Page
 			}
 
 			// make sure user opens reset link in the same session in which he requested reset
-			$_SESSION['SQ_PASSWORD_RESET_HASH'] = $user_hash;
+			$_SESSION['SQ_PASSWORD_RESET_HASH'] = isset($user_hash) ? $user_hash : '';
 
 			// Do not attempt to send mail to anyone if we're not going to go ahead with this, especially
 			// if we did't create any link!
@@ -689,6 +723,23 @@ class Page_Password_Reset extends Page
 
 		$keywords['username_input'] = 'The input field for username';
 
+		if ($this->attr('require_captcha')) {
+			$keywords['form_captcha'] = translate('Display Captcha Form');
+
+			$keywords['form_captcha_image'] = translate('Display Captcha Image');
+
+			$keywords['form_captcha_field'] = translate('Display Captcha Field');
+
+			$keywords['form_captcha_link'] = translate('Display Captcha Link');
+
+		}
+ 
+		if ($this->attr('use_recaptcha')) {
+			$keywords['form_recaptcha'] = translate('Display reCAPTCHA Form');
+
+		}
+		$keywords['form_honeypot_field'] = translate('Display Honeypot question');
+
 		return $keywords;
 
 	}//end _getRequestKeywords()
@@ -893,5 +944,185 @@ class Page_Password_Reset extends Page
 
 	}//end _getBodycopies()
 
+	/**
+	* Form Captcha keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaKeywordReplacement()
+	{
+		if (!$this->attr('captcha_ttf') == '') {
+			$font = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('captcha_ttf'));
+			$file_path = $font->data_path.'/'.$font->attr('name');
+		} else {
+			$file_path = '';
+		}
+
+		ob_start();
+			security_key(
+				$this->attr('captcha_length'),
+				$this->attr('captcha_length'),
+				$this->attr('captcha_zoom'),
+				FALSE,
+				trim($this->attr('captcha_bgcolour'), '#'),
+				trim($this->attr('captcha_textcolour'), '#'),
+				trim($this->attr('captcha_bordercolour'), '#'),
+				$this->attr('captcha_use_colours'),
+				$this->attr('captcha_usefont'),
+				$file_path,
+				$this->attr('captcha_font_size'),
+				$this->attr('captcha_min_angle'),
+				$this->attr('captcha_max_angle'),
+				$this->attr('captcha_x_start'),
+				$this->attr('captcha_min_distance'),
+				$this->attr('captcha_max_distance'),
+				$this->attr('captcha_width'),
+				$this->attr('captcha_height'),
+				$this->attr('captcha_arc'),
+				trim($this->attr('captcha_arc_colour'), '#'),
+				$this->attr('captcha_include_uppercase'),
+				$this->attr('captcha_include_numbers'),
+				$this->attr('provide_accessible_captcha'),
+				FALSE,
+				$this->attr('captcha_label_text')
+			);
+		return ob_get_clean();
+
+	}//end getFormCaptchaKeywordReplacement()
+
+
+	/**
+	* Form Captcha Image keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaImageKeywordReplacement()
+	{
+		if (!$this->attr('captcha_ttf') == '') {
+			$font = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('captcha_ttf'));
+			$file_path = $font->data_path.'/'.$font->attr('name');
+		} else {
+			$file_path = '';
+		}
+
+		ob_start();
+			security_key_image_box(
+				$this->attr('captcha_length'),
+				$this->attr('captcha_zoom'),
+				trim($this->attr('captcha_bgcolour'), '#'),
+				trim($this->attr('captcha_textcolour'), '#'),
+				trim($this->attr('captcha_bordercolour'), '#'),
+				$this->attr('captcha_use_colours'),
+				$this->attr('captcha_usefont'),
+				$file_path,
+				$this->attr('captcha_font_size'),
+				$this->attr('captcha_min_angle'),
+				$this->attr('captcha_max_angle'),
+				$this->attr('captcha_x_start'),
+				$this->attr('captcha_min_distance'),
+				$this->attr('captcha_max_distance'),
+				$this->attr('captcha_width'),
+				$this->attr('captcha_height'),
+				$this->attr('captcha_arc'),
+				trim($this->attr('captcha_arc_colour'), '#'),
+				$this->attr('captcha_include_uppercase'),
+				$this->attr('captcha_include_numbers'),
+				$this->attr('provide_accessible_captcha')
+			);
+		return ob_get_clean();
+
+	}//end getFormCaptchaImageKeywordReplacement()
+
+
+	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaFieldKeywordReplacement()
+	{
+		ob_start();
+			security_key_field($this->attr('captcha_length'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaFieldKeywordReplacement()
+
+
+	/**
+	* Form Captcha Link keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLinkKeywordReplacement()
+	{
+		ob_start();
+			security_key_image_link($this->attr('captcha_link_text'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaLinkKeywordReplacement()
+
+
+	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLabelKeywordReplacement()
+	{
+		return $this->attr('captcha_label_text');
+
+	}//end getFormCaptchaLabelTextKeywordReplacement()
+
+	/**
+	* Get reCAPTCHA replcement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormRecaptchaKeywordReplacement()
+	{
+		$replacement = '';
+		if ($this->attr('use_recaptcha')) {
+			$replacement =  Recaptcha::getRecaptcha(Array(), $this->attr('recaptcha_theme'));
+		}
+
+		return $replacement;
+
+	}//end getFormRecaptchaKeywordReplacement()
+
+
+	/**
+	* Get the Honeypot field
+	* This field must not be visible to the user
+	*
+	* @return boolean
+	* @access private
+	*/
+	function getFormHoneypotFieldKeywordReplacement()
+	{
+		$name = $this->attr('honeypot_name');
+		$id = $this->attr('honeypot_id');
+		$class = $this->attr('honeypot_class');
+
+		if (empty($name)) {
+			$name = 'q'.$this->id.':comment';
+		}
+		if (empty($id)) {
+			$id = 'q'.$this->id.'_comment';
+		}
+
+		$extras = 'class="'.$class.'"';
+		$extras = $extras.' id="'.$id.'"';
+		ob_start();
+			text_box($name, '', 10, 10, FALSE, $extras);
+
+		return ob_get_clean();
+
+	}//end getFormHoneypotFieldKeywordReplacement()
 
 }//end class

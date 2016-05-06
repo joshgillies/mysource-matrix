@@ -154,8 +154,8 @@ class Design_Area_Searchbox extends Design_Area
 				<?php
 					$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
 
-					$field_name = "'.$this->attr('field_name').'";
-					$box_width  = '.$this->attr('querybox_width').';
+					$field_name = \''.$this->attr('field_name').'\';
+					$box_width  = \''.$this->attr('querybox_width').'\';
 					if (!empty($field_name)) {
 						$form_field_name = "queries_".$field_name."_query";
 						$field_value     = $asset->getQueryFieldValue($field_name);

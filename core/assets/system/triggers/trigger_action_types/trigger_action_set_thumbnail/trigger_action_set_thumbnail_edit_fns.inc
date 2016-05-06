@@ -14,6 +14,7 @@
 *
 */
 
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action_edit_fns.inc';
 
 /**
 * Trigger_Condition_Set_Thumbnail_Edit_Fns

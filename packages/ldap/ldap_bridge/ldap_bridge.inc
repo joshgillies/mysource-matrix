@@ -134,6 +134,10 @@ class LDAP_Bridge extends Asset implements Bridge
 	function connectToLdap()
 	{
 		if (isset($this->_tmp['connectToLdap'])) return $this->_tmp['connectToLdap'];
+		
+		if(defined('SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS') && !SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS) {
+			return NULL;
+		}
 
 		// If the bridge is archived, make no attempt to connect
 		if ($this->status == SQ_STATUS_ARCHIVED) {
@@ -237,7 +241,8 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 
 		$asset = NULL;
-		$id_parts = explode(':', $assetid);
+		// Expand into 2 parts only as the LDAP DN can contain ':' char
+		$id_parts = explode(':', $assetid, 2);
 
 		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
@@ -247,10 +252,10 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 
 		// Setup user's inbox
-		if (isset($id_parts[2]) && $id_parts[2] == 'inbox') {
+		if (isset($id_parts[1]) && substr($id_parts[1], -6) == ':inbox') {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
 			$inbox_asset = new Inbox();
-			$inbox_asset->id = $this->id.':'.$shadowid.':inbox';
+			$inbox_asset->id = $this->id.':'.$shadowid;
 			$inbox_asset->name = 'Inbox';
 			$inbox_asset->status = $this->status;
 			$this->_tmp[$local_cache_key] = $inbox_asset;
@@ -430,8 +435,12 @@ class LDAP_Bridge extends Asset implements Bridge
 			return Array();
 		}
 
-		$id_parts = explode(':', $assetid);
-		if (isset($id_parts[1])) $assetid = $id_parts[1];
+		// Expand into 2 parts only as the LDAP DN can contain ':' char
+		$id_parts = explode(':', $assetid, 2);
+		if (isset($id_parts[1])) {
+			// Since we have exploded the shadow assetid into just two parts, trim out the "inbox" suffix bit if there
+			$assetid = substr($id_parts[1], -6) == ':inbox' ? substr($id_parts[1], 0, -6) : $id_parts[1];
+		}
 
 		if (!is_array($type_code)) {
 			if (empty($type_code)) {
@@ -529,6 +538,12 @@ class LDAP_Bridge extends Asset implements Bridge
 			if (($this->attr('system_type') == 'activedirectory') && empty($attr['gm'])) {
 				$attr['gm'] = 'member';
 			}
+			if (!empty($attr['uid'])) {
+				$attr['uid'] = strtolower($attr['uid']);
+			}
+			if (!empty($attr['gm'])) {
+				$attr['gm'] = strtolower($attr['gm']);
+			}
 			if ($assetid != $this->id) {
 				$asset = $this->getAsset($this->id.':'.$assetid);
 				if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']]) && !empty($attr['uid'])) {
@@ -540,7 +555,15 @@ class LDAP_Bridge extends Asset implements Bridge
 						if ($attr['gm'] == 'member') {
 							$user = $this->getAsset($this->id.':'.$member, '', FALSE, TRUE);
 							// Get the memeber's uid
-							$user_uid = !is_null($user) && !empty($user->vars[$attr['uid']]) ? $user->vars[$attr['uid']]['value'] : '';
+							$user_uid = '';
+							if (!is_null($user)) {
+								if ($user->type() == 'ldap_user_group') {
+									// Attribute values are stored in different format in groups
+									$user_uid = !empty($user->vars[$attr['uid']]) && isset($user->vars[$attr['uid']][0]) ? $user->vars[$attr['uid']][0] : '';
+								} else {
+									$user_uid = !empty($user->vars[$attr['uid']]) && isset($user->vars[$attr['uid']]['value']) ? $user->vars[$attr['uid']]['value'] : '';
+								}
+							}
 						} else {
 							// Otherwise if its stored as "memberUid" then we have the uid
 							$user_uid = $member;
@@ -773,8 +796,12 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
-		$id_parts = explode(':', $assetid);
-		if (isset($id_parts[1])) $assetid = $id_parts[1];
+		// Expand into 2 parts only as the LDAP DN can contain ':' char
+		$id_parts = explode(':', $assetid, 2);
+		if (isset($id_parts[1])) {
+			// Since we have exploded the shadow assetid into just two parts, trim out the "inbox" suffix bit if there
+			$assetid = substr($id_parts[1], -6) == ':inbox' ? substr($id_parts[1], 0, -6) : $id_parts[1];
+		}
 
 		if (!is_array($type_code)) {
 			if (empty($type_code)) {
@@ -848,8 +875,10 @@ class LDAP_Bridge extends Asset implements Bridge
 
 		// also add in groups based on our DN
 		$ou_groups = Array();
-		$matches = Array();
-		$reg_expression = '|ou=([^,]+),(.*)|i';
+		$matches   = Array();
+		$ou_value  = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
+
+		$reg_expression = '|'.preg_quote($ou_value).'=([^,]+),(.*)|i';
 		$reg_string = substr($assetid, strpos($assetid, ',') + 1);
 
 		$matching = TRUE;
@@ -873,8 +902,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 
 		foreach ($ou_groups as $group_name => $group_dn) {
-			$group_name = $this->decodeString($group_name);
-			$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
+			$group_name = $this->decodeString($group_name);			
 			$group_data= $ldap->searchEntries($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, Array('objectclass'));
 
 			if (isset($group_data['count']) && $group_data['count'] > 0) {
@@ -965,8 +993,12 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
-		$id_parts = explode(':', $assetid);
-		if (isset($id_parts[1])) $assetid = $id_parts[1];
+		// Expand into 2 parts only as the LDAP DN can contain ':' char
+		$id_parts = explode(':', $assetid, 2);
+		if (isset($id_parts[1])) {
+			// Since we have exploded the shadow assetid into just two parts, trim out the "inbox" suffix bit if there
+			$assetid = substr($id_parts[1], -6) == ':inbox' ? substr($id_parts[1], 0, -6) : $id_parts[1];
+		}
 
 		if (!is_array($type_code)) {
 			if (empty($type_code)) {
@@ -1022,9 +1054,15 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 		unset($entries['count']);
 
+		if (!empty($attrs['uid'])) {
+			$attrs['uid'] = strtolower($attrs['uid']);
+		}
+		if (!empty($attrs['gm'])) {
+			$attrs['gm'] = strtolower($attrs['gm']);
+		}
 		// Go through each linked entry, if its a user group see if has its members defined
 		foreach($entries as $data) {
-			if (empty($data['dn'])) {
+			if (empty($data['dn']) || empty($data['objectclass'])) {
 				continue;
 			}
 			unset($data['objectclass']['count']);
@@ -1044,7 +1082,15 @@ class LDAP_Bridge extends Asset implements Bridge
 							// If members are stored as "memeber" then it represnts member's dn
 							if ($attrs['gm'] == 'member') {
 								$user = $this->getAsset($this->id.':'.$member, '', FALSE, TRUE);
-								$user_uid = !is_null($user) && !empty($user->vars[$attrs['uid']]) ? $user->vars[$attrs['uid']]['value'] : '';
+								$user_uid = '';
+								if (!is_null($user)) {
+									if ($user->type() == 'ldap_user_group') {
+										// Attribute values are stored in different format in groups
+										$user_uid = !empty($user->vars[$attrs['uid']]) && isset($user->vars[$attrs['uid']][0])  ? $user->vars[$attrs['uid']][0] : '';
+									} else {
+										$user_uid = !empty($user->vars[$attrs['uid']]) && isset($user->vars[$attrs['uid']]['value']) ? $user->vars[$attrs['uid']]['value'] : '';
+									}
+								}
 							} else {
 								// Otherwise if its stored as "memberUid" then we have the uid
 								$user_uid = $member;
@@ -1091,6 +1137,9 @@ class LDAP_Bridge extends Asset implements Bridge
 			// we need to sort the entries by name
 			$sorted_array = Array();
 			foreach ($entries as $data) {
+				if (empty($data['objectclass'])) {
+					continue;
+				}
 
 				$attr = '';
 
@@ -1147,7 +1196,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		$found_ug = array_intersect($user_groups, $type_code);
 
 		foreach ($entries as $data) {
-			if ($data['dn'] == $assetid) continue;
+			if (empty($data['objectclass']) || $data['dn'] == $assetid) continue;
 
 			if (isset($data['objectclass']['count'])) {
 				unset($data['objectclass']['count']);
@@ -1359,7 +1408,8 @@ class LDAP_Bridge extends Asset implements Bridge
 	/**
 	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
 	*
-	* Note that this will always return FALSE if you pass it a shadow asset
+	* Note that there may be performance issues if using this function to fetch shadow
+	* assets and caching is not enabled.
 	*
 	* @param mixed	$assetids	the ID of the asset we are going to the check for existence
 	*							or an array of assetids we want to check
@@ -1369,6 +1419,26 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function assetExists($assetids)
 	{
+		if (!empty($assetids)) {
+			// if single assetid supplied as string
+			if (!is_array($assetids)) {
+				$asset = $this->getAsset($assetids, '', FALSE, TRUE);
+
+				return !is_null($asset);
+			}
+
+			// if array of assetids supplied
+			$existing_assetids = Array();
+			foreach($assetids as $assetid) {
+				$asset = $this->getAsset($assetid, '', FALSE, TRUE);
+				if (!is_null($asset)) {
+					$existing_assetids[] = $assetid;
+				}
+			}//end foreach
+
+			return $existing_assetids;
+		}//end if
+
 		return FALSE;
 
 	}//end assetExists()
@@ -1411,11 +1481,13 @@ class LDAP_Bridge extends Asset implements Bridge
 								'locked'			=> 0,
 							);
 		} else if ($type_code == 'user' && $side_of_link == 'minor') {
-			$id_parts = explode(':', $assetid);
-			if (isset($id_parts[2]) && $id_parts[2] == 'inbox') {
+			// Expand into 2 parts only as the LDAP DN can contain ':' char
+			$id_parts = explode(':', $assetid, 2);
+			if (isset($id_parts[1]) && substr($id_parts[1], -6) == ':inbox') {
+				// Since we have exploded the shadow assetid into just two parts, trim out the "inbox" suffix bit if there
 				return $links = Array(
 									'linkid'			=> 0,
-									'majorid'			=> $id_parts[0].':'.$id_parts[1],
+									'majorid'			=> $id_parts[0].':'.substr($id_parts[1], 0, -6),
 									'major_type_code'	=> $this->attr('user_type'),
 									'minorid'			=> $assetid,
 									'value'				=> '',
@@ -1931,6 +2003,19 @@ class LDAP_Bridge extends Asset implements Bridge
 
 
 	/**
+	* Wether the bridge supports metadata for its shadow assets
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function allowShadowMetadata()
+	{
+		return TRUE;
+
+	}//end allowShadowMetadata()
+
+
+	/**
 	* Load the LDAP result from the Matrix cache
 	*
 	* @param string  $cache_key
@@ -1994,7 +2079,24 @@ class LDAP_Bridge extends Asset implements Bridge
 		return $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($data), FALSE, $cache_expiry, TRUE);
 
 	}//end _saveToCache()
+	
 
+	/**
+ 	* Returns an array of all the permitted link types, the asset type and the cardinality
+ 	*
+ 	* @return array
+ 	* @access protected
+ 	*/
+ 	function _getAllowedLinks()
+ 	{
+ 		$page_links = parent::_getAllowedLinks();
+ 		
+ 		// Allow for SAML linking
+ 		$page_links[SQ_LINK_NOTICE]['saml_account_manager'] = Array('card' => 'M', 'exclusive' => FALSE);
+ 	
+ 		return $page_links;
+ 	
+ 	}//end _getAllowedLinks()
 
 }//end class
 

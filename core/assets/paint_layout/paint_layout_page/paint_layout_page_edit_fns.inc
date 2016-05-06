@@ -187,8 +187,16 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	{
 		if (!$asset->writeAccess('content')) return FALSE;
 
-		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+		$types = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypes(NULL, TRUE));
 		$types = array_diff($types, $asset->attr('types'));
+
+		// Filter our irrelevant asset type codes
+		foreach($types as $index => $type_code) {
+			$edit_fns = $GLOBALS['SQ_SYSTEM']->am->getEditFns(0, $type_code);
+			if (!isset($edit_fns->static_screens['layouts']) && !isset($edit_fns->static_screens['lookupValues'])) {		
+				unset($types[$index]);		
+			}
+		}
 
 		$type_options = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
 		asort($type_options);

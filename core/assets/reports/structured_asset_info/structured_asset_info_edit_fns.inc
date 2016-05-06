@@ -88,7 +88,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
-					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.png';
 					$inherit_alt = $inherit ? translate('Yes') : translate('No');
 
 

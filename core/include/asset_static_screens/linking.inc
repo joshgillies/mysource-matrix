@@ -56,9 +56,9 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 
 
 	$display_types = Array(
-							'Linked Parents'	=> translate('Linked Parents'),
+							'display_linked_parents'	=> translate('Linked Parents'),
 
-							'Linked Children'	=> translate('Linked Children'),
+							'display_linked_children'	=> translate('Linked Children'),
 
 							);
 	$current_display_type = isset($_POST[$prefix.'_display_type']) ? $_POST[$prefix.'_display_type'] : 'display_linked_parents';
@@ -97,7 +97,7 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 		$assetid_keys = array_slice($assetid_keys, $link_offset, $num_per_page);
 		// Chunk Norris this query because the IN part will bomb with >1000
 		// assets on Oracle
-		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, cl.linkid, pt.treeid as parent_treeid, a.name, a.assetid, cl.value
+		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, cl.linkid, pt.treeid as parent_treeid, a.name, a.assetid, cl.value, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
 					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
@@ -137,7 +137,6 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 	foreach ($asset_links as $link_data) {
 		$link_info[$link_data[$display_reverse ? 'minorid' : 'majorid']][] =$link_data;
 	}
-
 
 	$output_lineages = Array();
 	$editing_linkids = Array();
@@ -651,10 +650,12 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 
 			$asset_lineage = '';
 			$asset_lineage_ids = Array();
+			$asset_lineage_types = Array();
 			foreach ($link_tree as $tree_data) {
 				$asset_lineage_ids[] = $tree_data['assetid'];
 				if ($tree_data['assetid'] == $majorid) continue;
 				$asset_lineage .= htmlspecialchars($tree_data['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' &gt; ';
+				$asset_lineage_types[] = $tree_data['type_code'];
 			}
 
 			if(!$display_reverse)
@@ -662,6 +663,7 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 
 			if (!empty($parent_data)) {
 				$asset_lineage .= '<b>'.htmlspecialchars($parent_data['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</b>';
+				$asset_lineage_types[] = $parent_data['type_code'];
 			}
 			if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
 				return '';
@@ -710,12 +712,12 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 							if ($can_edit) {
 								check_box($prefix.'_link_locked['.$linkid.']', '1', (($link_locking == '1') ? TRUE : FALSE));
 							} else {
-								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$lock_status.'.gif" alt="'.$lock_status_desc.'" style="border: 0;" />';
+								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$lock_status.'.png" alt="'.$lock_status_desc.'" style="border: 0;" />';
 							}//end if
 						}//end if
 						?>
 					</td>
-					<td><?php echo  $asset_lineage; ?></td>
+					<td data-lineage_type_codes="<?php echo implode('|', $asset_lineage_types); ?>"><?php echo  $asset_lineage; ?></td>
 				</tr>
 				<?php
 				$output = ob_get_contents();

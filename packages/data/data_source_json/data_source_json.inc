@@ -129,6 +129,11 @@ class Data_Source_Json extends Data_Source
 	/**
 	* Fetchs the data from an asset ID's contents or local path/URI.
 	*
+	* If the data is not UTF-8, it is converted to UTF-8 in the return, so
+	* long as the response included an appropriate charset setting in the
+	* Content-Type header. Some sniffing is done for problematic UTF-16
+	* that don't specify endianness properly.
+	*
 	* @param string	$path	the path to the Json feed
 	*
 	* @return string
@@ -156,14 +161,56 @@ class Data_Source_Json extends Data_Source
 						'SSL_VERIFYPEER' => 0,
 					   );
 
-			$responseDetails = fetch_url($source, $options);
+			$responseDetails = fetch_url($source, $options, Array(), TRUE, TRUE);
 
 			if ($responseDetails['errornumber'] != 0) {
 				trigger_localised_error('CMS0063', sprintf(translate('Cannot connect to server while attempting to access "%1$s" - %2$s'), $source, $responseDetails['errorstring']), E_USER_WARNING);
 				return FALSE;
 			}
 
+			// Now convert the data to UTF-8, if the content-type returned is not
+			// UTF-8 (eg. some might return UTF-16).
+			$content_type = 'UTF-8';
+			$curlinfo = $responseDetails['curlinfo'];
+			if (array_key_exists('content_type', $curlinfo) === TRUE) {
+				$type_parts = explode(';', $curlinfo['content_type']);
+				foreach ($type_parts as $type_part) {
+					$type_part = trim($type_part);
+					if (strtolower(substr($type_part, 0, 8)) === 'charset=') {
+						$content_type = trim(substr($type_part, 8));
+						break;
+					}
+				}
+			}
+
 			$data = $responseDetails['response'];
+
+			if (strtoupper($content_type) === 'UTF-16') {
+				// UTF-16 isn't good enough unless we have a byte order mark or
+				// can sniff out through the first two bytes for endianness.
+				// (By default, mb_convert_encoding() will use UTF-16BE, but many
+				// requests set to charset=UTF-16 actually use UTF-16LE.)
+				if ((strlen($data) > 2) && (($data{0} === chr(255) && $data{1} === chr(254)) || ($data{0} === chr(254) && $data{1} === chr(255)))) {
+					// We have a byte order mark (U+FEFF), just do a no-op as
+					// "UTF-16" encoding.
+					$content_type = 'UTF-16';
+				} else if ($data{0} !== chr(0) && $data{1} === chr(0)) {
+					// Sniffed as little endian. We can do this because JSON Data Sources
+					// should be either arrays or 
+					$content_type = 'UTF-16LE';
+				} else if ($data{0} === chr(0) && $data{1} !== chr(0)) {
+					// Sniffed as big endian.
+					$content_type = 'UTF-16BE';
+				} else {
+					// Use default as per mime type in RFC 2781.
+					$content_type = 'UTF-16BE';
+				}
+			}//end if content_type is UTF-16
+
+			// Now finally convert the data if it's not UTF-8.
+			if (strtoupper($content_type) !== 'UTF-8') {
+				$data = mb_convert_encoding($data, 'UTF-8', $content_type);
+			}
 		}
 
 		return $data;
@@ -198,10 +245,14 @@ class Data_Source_Json extends Data_Source
 					$this->_tmp[$cache_key] = $result;
 				} else {
 					$this->_tmp[$cache_key] = $this->getItems();
-					parent::setResultSet($this->_tmp[$cache_key], $cache_key);
 				}
 			}
 		}
+
+		if (isset($this->_tmp[$cache_key])) {
+			parent::setResultSet($this->_tmp[$cache_key], $cache_key);
+		}
+
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return (!empty($source)) ? $this->_tmp[$cache_key] : Array();
 

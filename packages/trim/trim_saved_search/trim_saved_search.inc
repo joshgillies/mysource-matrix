@@ -36,21 +36,50 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 class TRIM_Saved_Search extends Data_Source
 {
 
+	/**
+	* TRIM library class name
+	* 
+	* @var string
+	*/
+	private $_lib_class = '';
+
 
 	/**
 	* Constructor
 	*
-	* @param int	$assetid		assetid for the asset
+	* @param int	$assetid	Asset id for the asset
+	* @param string	$lib_class	TRIM library class name
 	*
 	*/
-	function __construct($assetid=0)
+	function __construct($assetid=0, $lib_class='')
 	{
 		parent::__construct($assetid);
 
 		$this->_ser_attrs = TRUE;
 		$this->search_clauses = NULL;
 
+		$this->_lib_class = !empty($lib_class) && class_exists($lib_class) ? $lib_class : 'TRIM_Common';
+
 	}//end constructor
+
+
+	/**
+	* Call the specified library function using the appropriate lib class
+	* All the library function used should be called via this method
+	*
+	* @param string $function
+	* @param array  $arguments
+	*
+	* @return mixed
+	* @access public
+	*/
+	public function lib($function, $arguments=Array())
+	{
+		$arguments[] = $this;
+
+		return call_user_func_array(Array($this->_lib_class, $function), $arguments);
+
+	}//end lib()
 
 
     /**
@@ -67,7 +96,7 @@ class TRIM_Saved_Search extends Data_Source
     {
 
     	if (!parent::_createAdditional($link)) return FALSE;
-		$this->setAttrValue('shadow_name', '%ds__recTitle%');
+		parent::setAttrValue('shadow_name', '%ds__recTitle%');
 
 		return TRUE;
 
@@ -138,7 +167,7 @@ class TRIM_Saved_Search extends Data_Source
 		$cached_result[$hash_key]	= $result;
 
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes');
-		if ($this->setAttrValue('cached_result', $cached_result) && $this->saveAttributes()) {
+		if (parent::setAttrValue('cached_result', $cached_result) && $this->saveAttributes()) {
 			return TRUE;
 		}//end if
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
@@ -221,7 +250,8 @@ class TRIM_Saved_Search extends Data_Source
 						if ($old_version !== $new_version || $forced) {
 							// UPDATE Check
 							if ($this->attr('download_files')) {
-								$this->storeDocumentList($connection, $new_record_info);
+								$res = $this->storeDocumentList($connection, $new_record_info);
+								if(!$res) continue;
 							}//end if
 							$ordered_result[$new_index]	= $new_record_info;
 						} else {
@@ -234,9 +264,10 @@ class TRIM_Saved_Search extends Data_Source
 								$final_file_path	= $this->data_path.'/'.$new_record_info['Uri'];
 								$files_stored		= glob($final_file_path.'/*');
 
-								// If there is no file in there
-								if (empty($files_stored)) {
-									$this->storeDocumentList($connection, $new_record_info);
+								// If there is no file in there or there is multiple rogue files there
+								if (empty($files_stored) || count($files_stored) > 1) {	
+									$res = $this->storeDocumentList($connection, $new_record_info);
+									if(!$res) continue;
 									$ordered_result[$new_index]	= $new_record_info;
 								} else if (!isset($record_info['download_url'])) {
 
@@ -259,7 +290,8 @@ class TRIM_Saved_Search extends Data_Source
 					if (in_array($new_record_info['Uri'], $uris_to_add)) {
 						// We are taking it out again so we can modify it by reference
 						if ($this->attr('download_files')) {
-							$this->storeDocumentList($connection, $new_record_info);
+							$res = $this->storeDocumentList($connection, $new_record_info);
+							if(!$res) continue;
 						}//end if
 						$ordered_result[$index]	=	$new_record_info;
 						$updated = TRUE;
@@ -290,7 +322,8 @@ class TRIM_Saved_Search extends Data_Source
 				// Only download files if we are asked to
 				if ($this->attr('download_files')) {
 					foreach ($object_list as &$record_info) {
-						$this->storeDocumentList($connection, $record_info);
+						$res = $this->storeDocumentList($connection, $record_info);
+						if(!$res) continue;
 					}//end foreach
 				}//end if
 				unset($record_info);
@@ -440,7 +473,7 @@ class TRIM_Saved_Search extends Data_Source
 		// Get classification and sub-classification structure
 		$classifications = Array();
 		if(!empty($classification_title)) {
-			$classification_uris = TRIM_Common::getURIsFromClassification($connection, trim($classification_title));
+			$classification_uris = $this->lib('getURIsFromClassification', Array($connection, trim($classification_title)));
 
 			foreach ($classification_uris as $classification) {
 				// filter out inrelevent classifications
@@ -462,12 +495,12 @@ class TRIM_Saved_Search extends Data_Source
 
 		// Search clauses will be directly inserted to xml request
 		// Because TRIM convertToXml will mess up the order
-		$search_clauses_xml = TRIM_Common::constructRecordSearchClauseGroupedXml($string_search_clause, $classifications);
+		$search_clauses_xml = $this->lib('constructRecordSearchClauseGroupedXml', Array($string_search_clause, $classifications));
 
 		$search_clauses = Array();
 		if (!empty($parent_container_record_number)) {
-			$parent_container_uri	= TRIM_Common::getURIFromRecordNumber($connection, $parent_container_record_number);
-			$search_clauses['RecordContainerAltClause']	= TRIM_Common::constructRecordContainerAltClause($parent_container_uri);
+			$parent_container_uri	= $this->lib('getURIFromRecordNumber', Array($connection, $parent_container_record_number));
+			$search_clauses['RecordContainerAltClause']	= $this->lib('constructRecordContainerAltClause', Array($parent_container_uri));
 		}//end if
 
 		// if no search clause is provided, do not send request, otherwise TRIM 7.3 will be angry
@@ -477,13 +510,13 @@ class TRIM_Saved_Search extends Data_Source
 		$record_search_options	= $this->getRecordSearchOptions();
 
 		$operations = Array (
-						'Fetch'						=> TRIM_Common::constructFetch($record_properties, $search_limit),
-						'RecordSearch'				=> TRIM_Common::constructRecordSearch($search_clauses, $record_search_options),
+						'Fetch'						=> $this->lib('constructFetch', Array($record_properties, $search_limit)),
+						'RecordSearch'				=> $this->lib('constructRecordSearch', Array($search_clauses, $record_search_options)),
 					  );
 
 		$file_path = NULL;
 
-		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch', $search_clauses_xml);
+		$object_list = $this->lib('executeRequest', Array($connection, $operations, 'Fetch', $search_clauses_xml));
 
 		// inserting classification grouping keywords
 		if(!empty($classification_title)) {
@@ -537,7 +570,7 @@ class TRIM_Saved_Search extends Data_Source
 				$record_names_data = $retrieved_info['record_types'];
 			}
 			else {
-				$record_names_data = TRIM_Common::getRecordTypeNamesFromUris($connection, $record_type_uris);
+				$record_names_data = $this->lib('getRecordTypeNamesFromUris', Array($connection, $record_type_uris));
 			}
 
 			foreach ($object_list as $index => $record_info) {
@@ -555,7 +588,7 @@ class TRIM_Saved_Search extends Data_Source
 			foreach ($object_list as $index => $record_info) {
 				if($record_info['recContainer']!='') {
 					if(!array_key_exists($record_info['recContainer'], $containers)) {
-						$results = TRIM_Common::getRecordPropertiesFromUri($connection, $record_info['recContainer'], $record_properties);
+						$results = $this->lib('getRecordPropertiesFromUri', Array($connection, $record_info['recContainer'], $record_properties));
 						foreach($results as $r) {
 							$containers[$record_info['recContainer']] = $r['recTitle'];
 						}
@@ -583,11 +616,13 @@ class TRIM_Saved_Search extends Data_Source
 		}
 		// now do the replacement
 		if(!empty($uris)) {
-		    $location_titles = TRIM_Common::getLocationTitleFromUris($connection, $uris);
+		    $location_titles = $this->lib('getLocationTitleFromUris', Array($connection, $uris));
 		    foreach ($object_to_fix as $index => $name_value) {
 			foreach ($name_value as $name => $value) {
-			    $title = $location_titles[$value];
-			    $object_list[$index][$name] = $title;
+				if(isset($location_titles[$value])) {
+			    	$title = $location_titles[$value];
+			    	$object_list[$index][$name] = $title;
+				}
 			}
 		    }
 		}
@@ -652,6 +687,7 @@ class TRIM_Saved_Search extends Data_Source
 											'trace'		=> TRUE,
 											'exceptions'	=> TRUE,
 										  );
+		$connection['method']           = $connector->attr('authentication_type');
 		// add proxy
 		if(method_exists($connector, 'getProxy')) {
 			$proxy = $connector->getProxy();
@@ -696,7 +732,7 @@ class TRIM_Saved_Search extends Data_Source
 	function storeDocumentList($connection, &$record_info)
 	{
 
-		if (isset($record_info['Uri']) && $record_info['Uri'] != 0 && (!isset($record_info['error']))) {
+		if (isset($record_info['Uri']) && $record_info['Uri'] != 0) {
 		    	// Set a socket timeout limit
 			$default_socket_timeout = ini_get('default_socket_timeout');
 			ini_set('default_socket_timeout', $this->attr('download_time_limit'));
@@ -705,8 +741,8 @@ class TRIM_Saved_Search extends Data_Source
 			if (isset($record_info['recDocumentType']) && $record_info['recDocumentType']	!= 'Record has no document attached.') {
 				// We got a file here.
 				$operations = Array (
-								'Download'					=> TRIM_Common::constructDownload($this->attr('download_limit')),
-								'ShortcutRecordUri'			=> TRIM_Common::constructShortcutRecordUri($record_info['Uri']),
+								'Download'					=> $this->lib('constructDownload', Array($this->attr('download_limit'))),
+								'ShortcutRecordUri'			=> $this->lib('constructShortcutRecordUri', Array($record_info['Uri'])),
 							  );
 
 				$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
@@ -719,7 +755,7 @@ class TRIM_Saved_Search extends Data_Source
 					$filename = array_get_index($record_info, $filename_field, '');
 				}
 
-				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', '',  $filename, $final_file_path);
+				$res = $this->lib('executeRequest', Array($connection, $operations, 'Download', '',  $filename, $final_file_path));
 
 				// use RecordNumber as id of downloaded file because it makes sense to user. Uri is only internal to developer
 				$record_info['document_url'] = isset($record_info['recNumber']) ? './?a='.$this->id.'?RecordNumber='.urlencode($record_info['recNumber'])  : './?a='.$this->id.'?Uri='.$record_info['Uri'];
@@ -729,6 +765,17 @@ class TRIM_Saved_Search extends Data_Source
 			ini_set('default_socket_timeout', $default_socket_timeout);
 		}//end if
 
+		if(isset($record_info['error']) && isset($record_info['Uri'])) {
+               trigger_error($record_info['error'].' TRIM URI #'.$record_info['Uri']);
+               return FALSE;
+        }
+
+		if(!empty($res) && $res) {
+			return TRUE;
+		}
+		else {
+			return FALSE;
+		}
 	}//end storeDocumentList()
 
 
@@ -854,26 +901,6 @@ class TRIM_Saved_Search extends Data_Source
 		}
 	}//end printFrontend()
 
-
-    /**
-    * Queue the setting of the value of an attribute
-    *
-    * This function sets the value of the attribute locally, but does not database updating.
-    * The change is queued awaiting the call of saveAttributes()
-    *
-    * @param string $name   the name of the attribute
-    * @param string $value  the new value of the attribute
-    *
-    * @return boolean
-    * @access public
-    * @see saveAttributes()
-    */
-	public function setAttrValue($name, $value)
-	{
-		return parent::setAttrValue($name, $value);
-	}//end setAttrValue()
-
-
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
@@ -919,6 +946,10 @@ class TRIM_Saved_Search extends Data_Source
 		$fields = $this->attr('retrieved_fields');
 		if(empty($fields)) return Array();
 
+		if (isset($fields[$type])) {
+			return $fields[$type];
+		}
+
 		if ($type == 'additional') {
 			return $fields['additional_fields'];
 		}
@@ -945,6 +976,22 @@ class TRIM_Saved_Search extends Data_Source
 		$field_types = $fields['field_types'];
 		return (isset($field_types[$field]) ? $field_types[$field] : '');
 	}
+
+
+	/**
+	* If the given TRIM property name is standard field
+	*
+	* @param string $name
+	*
+	* @return boolean
+	* @access protected
+	*/
+	public function isStandardField($name)
+	{
+		return !preg_match('/^udf:/', $name);
+
+	}//end isStandardField()
+
 
 }//end class
 ?>

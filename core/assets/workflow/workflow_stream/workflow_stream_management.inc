@@ -101,12 +101,13 @@ class Workflow_Stream_Management extends Asset_Management
 		// Create a new "default" workflow stream underneath each
 		// Workflow Schema asset
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('workflow_schema') === TRUE) {
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$schemaids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('workflow_schema');
 
 			if (count($schemaids) > 0) {
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				
 				pre_echo('Upgrading '.count($schemaids).' Workflow Schema asset(s) to use Workflow Stream...');
 
 				foreach ($schemaids as $schemaid) {
@@ -151,16 +152,20 @@ class Workflow_Stream_Management extends Asset_Management
 					unset($schema);
 				}
 
+				if ($ok === TRUE) {
+					pre_echo('Finished upgrading '.count($schemaids).' Workflow Schema asset(s)');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} else {
+					pre_echo('FAILED upgrading '.count($schemaids).' Workflow Schema asset(s) - failure at schema "'.$failed_schemaid.'" (Id: #'.$failed_schemaid.')');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				}
+
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			}//end if there are workflow schemas abounding
 
-			if ($ok === TRUE) {
-				pre_echo('Finished upgrading '.count($schemaids).' Workflow Schema asset(s)');
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			} else {
-				pre_echo('FAILED upgrading '.count($schemaids).' Workflow Schema asset(s) - failure at schema "'.$failed_schemaid.'" (Id: #'.$failed_schemaid.')');
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			}
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+			
 		}
 
 		return $ok;

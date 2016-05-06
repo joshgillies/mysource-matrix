@@ -57,7 +57,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_TAG_THRESHOLD]', SQ_HIPO_TAG_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_TAG_THRESHOLD]', SQ_HIPO_TAG_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_TAG_THRESHOLD;
 		}

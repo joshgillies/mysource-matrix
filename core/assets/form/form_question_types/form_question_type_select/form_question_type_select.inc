@@ -146,7 +146,7 @@ class Form_Question_Type_Select extends Form_Question
 			}
 			$options = $decoded_options;
 
-			// if allow empty is true, add the '-- Leave Empty --' as the first option
+			// if allow empty is true, add the empty key as the first option
 			if ($this->attr('allow_empty')) {
 				if(array_key_exists(html_entity_decode($this->attr('empty_key'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $options)) {
 					trigger_localised_error('CORE0302', translate('Cannot use \'Empty Text Key\' provided. It is duplicate to one of the keys in provided Options'), E_USER_NOTICE);
@@ -177,7 +177,7 @@ class Form_Question_Type_Select extends Form_Question
 		if (is_array($answer)) {
 			$ans_str = Array();
 			foreach ($answer as $a) {
-				// if the option is '-- Leave Empty --', we should return empty string
+				// if the option is the empty key, we should return empty string
 				$answer_by_offset = $this->getAnswerByOffset($a);
 				if ($answer_by_offset != $this->attr('empty_text')) {
 					$ans_str[] = $this->getAnswerByOffset($a);
@@ -188,7 +188,7 @@ class Form_Question_Type_Select extends Form_Question
 			return implode(', ', $ans_str);
 		}
 
-		// if the option is '-- Leave Empty --', we should return empty string
+		// if the option is the empty key, we should return empty string
 		$answer_by_offset = $this->getAnswerByOffset($answer);
 		if ($answer_by_offset != $this->attr('empty_text')) {
 			return $this->getAnswerByOffset($answer);

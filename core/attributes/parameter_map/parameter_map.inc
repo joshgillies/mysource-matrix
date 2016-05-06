@@ -394,11 +394,12 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	* Get the runtime value for the specified parameter, returns NULL is no value found
 	*
 	* @param string	$parameter	The code of the parameter we want the value for
+	* @param array $additional_replacements	Additional keyword replacements for 'SET_VALUE' value
 	*
 	* @return mixed NULL|object
 	* @access public
 	*/
-	function getParameterValue($parameter)
+	function getParameterValue($parameter, $additional_replacements=Array())
 	{
 		// TODO: Check why we need to unserialize every time (see constructor)
 		$value = unserialize($this->value);
@@ -440,6 +441,9 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 				case 'SET_VALUE':
 					if (isset($rule['value'])) {
+						if (!empty($additional_replacements)) {
+							replace_keywords($rule['value'], $additional_replacements);
+						}
 						return replace_global_keywords($rule['value']);
 					}//end if
 				break;
@@ -495,11 +499,15 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				if (SQ_IN_LIMBO) {
 					return $_REQUEST['limbo_assetid'];
 				} else {
-					if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset->id) && !empty($GLOBALS['SQ_SYSTEM']->frontend_asset->id)) {
+					$curr_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+
+					// if the CURRENT_ASSET is set then it should take precedence over the current
+					// frontend asset as it's been explicitly set that way probably from trigger
+					if (!is_null($curr_asset)) {
+						return $curr_asset->id;
+					} else if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset->id) && !empty($GLOBALS['SQ_SYSTEM']->frontend_asset->id)) {
 						return $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
 					} else {
-						$curr_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
-						if (!is_null($curr_asset)) return $curr_asset->id;
 						return $default;
 					}
 				}

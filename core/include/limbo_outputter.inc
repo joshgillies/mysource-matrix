@@ -163,6 +163,11 @@ class Limbo_Outputter extends Backend_Outputter
 			$this->addCssInclude($this->filesPath('css/limbo.css'));
 		}
 
+		//check to see if viper is available
+		if ($this->isViperAvailable()){
+			$this->enableViperEditor();
+		}
+
 		$this->loadViperEditor();
 
 		foreach ($this->_css_includes as $file) {
@@ -195,8 +200,14 @@ class Limbo_Outputter extends Backend_Outputter
 				}
 			}
 		}
-
+		// do not print jQuery lib to conflict with the one used in EES
+		$ees_used = FALSE;
+		$buffer_content = ob_get_contents ();
+		if(strpos($buffer_content, 'easyedit.min.js' ) !== FALSE) {
+			$ees_used = TRUE;
+		}
 		foreach ($this->_js_includes as $file) {
+			if($ees_used && strpos($file, 'jquery.js') !== FALSE) continue;
 			$this->_paintJsInclude($file);
 		}
 

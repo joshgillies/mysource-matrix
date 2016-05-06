@@ -53,7 +53,7 @@ class Cache_Manager_Management extends Asset_Management
 						'public_caching'		=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> FALSE,
+													'default'		=> TRUE,
 													'description'	=> 'Turns caching on or off for not logged in users',
 													'parameters'	=> Array('allow_empty'	=> FALSE),
 												   ),

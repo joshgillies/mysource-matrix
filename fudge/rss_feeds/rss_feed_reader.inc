@@ -175,8 +175,19 @@ class RSS_Feed_Reader
 					trigger_error('Remote Files Cannot Be Parsed', E_USER_WARNING);
 					return FALSE;
 				}
-				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
-				$this->fp = open_socket_connection($file, $errno, $errstr);
+				$user_agent = array_get_index($_SERVER, 'HTTP_USER_AGENT', 'Windows NT 6.1; WOW64) Chrome/43.0.2357.65 Safari/537.36');
+				$curl_options = Array(
+                                'FOLLOWLOCATION' => 1,
+                                'MAXREDIRS' => 10,
+                                'HEADER' => 0,
+                                'NOBODY' => 0,
+                                'RETURNTRANSFER' => 1,
+                                'CONNECTTIMEOUT' => 15,
+                                'TIMEOUT' => 15,
+                                'USERAGENT' => $user_agent,
+							);
+				$response = fetch_url($file, $curl_options);
+				$this->fp = !empty($response['response']) ? $response['response'] : '';
 			} else {
 				$this->fp = fopen($file, 'r');
 			}
@@ -243,7 +254,7 @@ class RSS_Feed_Reader
 			return 'Invalid file pointer';
 		} else {
 			$this->parsed = TRUE;
-			if (!is_string($this->fp)) {
+			if (is_resource($this->fp)) {
 				$found_xml = FALSE;
 				// Read the XML file 4KB at a time
 				while (!feof($fp)) {
@@ -281,10 +292,12 @@ class RSS_Feed_Reader
 					return 'Error in the feed';
 				}
 
-			} else {
+			} else if (is_string($this->fp)) {
 				if (!xml_parse($this->parser, $this->fp)) {
 					return 'Error in the feed';
 				}
+			} else {
+				return FALSE;
 			}
 		}
 

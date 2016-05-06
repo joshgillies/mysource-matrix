@@ -33,32 +33,32 @@
         <field attribute="client_id">
             <display_name>Client ID</display_name>
             <note />
-            <text width="60" height="1" />
+            <text width="80" height="1" />
         </field>
         <field attribute="client_secret">
             <display_name>Client Secret</display_name>
             <note />
-            <text width="60" height="1" />
+            <text width="80" height="1" />
         </field>
         <field attribute="authorization_endpoint">
             <display_name>Authorization Endpoint</display_name>
             <note />
-            <text width="60" height="1" />
+            <text width="80" height="1" />
         </field>
         <field attribute="token_endpoint">
             <display_name>Token Endpoint</display_name>
             <note />
-            <text width="60" height="1" />
+            <text width="80" height="1" />
         </field>
         <field attribute="scope">
             <display_name>Scope</display_name>
             <note />
-            <text width="60" height="1" />
+            <text width="80" height="1" />
         </field>
         <field attribute="redirect_uri">
             <display_name>Redirect URI</display_name>
             <note>Leave blank to use current frontend URI. The URI must be allowed on service provider.</note>
-            <text width="60" height="1" />
+            <text width="80" height="1" />
         </field>
     </section>
     <section name="Advanced Settings" write_access="write:attributes">

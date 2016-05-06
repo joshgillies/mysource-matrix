@@ -53,8 +53,17 @@ class Trigger_Action_Set_Design_Parse_File extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
+		if (empty($settings['file_path'])) {
+			return FALSE;
+		}
+
+		if (!authorised_file_path($settings['file_path'])) {
+			trigger_localised_error('CORE0328', sprintf(translate('Access to the file "%s" is not authorised for this operation.'), htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
+			return FALSE;
+		}
+
 		// check settings, state
-		if (empty($settings['file_path']) || !file_exists($settings['file_path'])) {
+		if (!file_exists($settings['file_path'])) {
 			// if no settings, fail
 			return FALSE;
 		}
@@ -180,6 +189,11 @@ class Trigger_Action_Set_Design_Parse_File extends Trigger_Action
 		$file_path = trim($file_path);
 		if ($file_path == '') {
 			return 'file path is not specified.';
+		}
+
+		if (!authorised_file_path($file_path)) {
+			trigger_localised_error('CORE0328', sprintf(translate('Access to the file "%s" is not authorised for this operation.'), htmlentities($file_path, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
+			$file_path = '';
 		}
 		$settings['file_path'] = $file_path;
 

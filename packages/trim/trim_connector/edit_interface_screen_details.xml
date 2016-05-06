@@ -42,6 +42,10 @@
 			<note>The password used to connect to TRIM</note>
 			<password width="35" height="1"/>
 		</field>
+		<field attribute="authentication_type">
+            <display_name>Authentication Method</display_name>
+            <selection/>
+        </field>
 	</section>
 	<section name="Proxy" write_access="write:attributes" limbo_access="1">
 		<field attribute="use_proxy">

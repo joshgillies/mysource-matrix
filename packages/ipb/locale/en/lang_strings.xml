@@ -62,5 +62,6 @@
 
 	<!-- IPB SDK Triggers -->
 	<string source="ipb_path_to_ipbsdk">Path to the IPB SDK Installation</string>
+	<string source="ipb_path_note"><![CDATA[<strong>Note:</strong> IPB SDK path needs to be configured from the External Tool Configuration.]]></string>
 
 </strings>

@@ -70,7 +70,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 		}
 
 		if ($asset->writeAccess('attributes')) {
-			combo_box($prefix.'_status', $descs, FALSE, $asset->attr('status'), NULL, $form_extra_elements.' onchange="checkStatusDisplayWarningFutureStatus"');
+			combo_box($prefix.'_status', $descs, FALSE, $asset->attr('status'), NULL, $form_extra_elements.' onchange="checkStatusDisplayWarningFutureStatus()"');
 		} else {
 			echo $descs[$asset->attr('status')];
 		}
@@ -81,14 +81,19 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 
 		echo '&nbsp;';
 			echo '<span class="sq-keep-inline">';
-				check_box($prefix.'_change_status_all_children', '1', $cascade, 'checkStatusDisplayWarningFutureStatus');
+				check_box($prefix.'_change_status_all_children', '1', $cascade, 'checkStatusDisplayWarningFutureStatus()');
 				label(translate('Cascade Status Change'), $prefix.'_change_status_all_children');
 
 			echo '</span>';
 		echo '</span>';
 
-		echo '<div id="warning_message_for_live_plus_cascade_fs" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.').'</div>';
+		echo '<div id="warning_message_for_live_plus_cascade_fs" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading a Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.').'</div>';
 
+		echo '<div id="warning_message_for_uc_or_archive_fs" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> You are about to change the status to a non-Live status. This will make the asset inaccessible to users with read access to it.').'</div>';
+
+		echo '<div id="warning_message_for_non_live_plus_cascade_fs" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading a non-Live status to child assets may result in unintended un-publishing of those children.').'</div>';
+
+		echo '<div id="warning_message_for_stream_cascade_fs" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading this workflow initiation status to child assets will initiate the workflow for all children that are in a workflow ready state. The chosen workflow stream will also be cascaded if applicable.').'</div>';
 
 		return TRUE;
 

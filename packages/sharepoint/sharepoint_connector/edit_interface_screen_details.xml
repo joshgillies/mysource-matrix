@@ -19,7 +19,7 @@
         <field attribute="name">
             <display_name>Name</display_name>
             <note />
-            <text width="35" height="1" />
+            <text width="100" height="1" />
         </field>
 		<field>
 			<function_call>
@@ -29,18 +29,22 @@
 		</field>
 		<field attribute="url">
 			<display_name>URL</display_name>
-			<note>The System URL of the Sharepoint system.</note>
-			<text width="35" height="1"/>
+			<note>The WSDL URL of the Sharepoint List Web Service. Example: http://webURL/_vti_bin/Lists.asmx?wsdl</note>
+			<text width="100" height="1"/>
 		</field>
 		<field attribute="username">
 			<display_name>Username</display_name>
 			<note>The username used to connect to Sharepoint</note>
-			<text width="35" height="1"/>
+			<text width="100" height="1"/>
 		</field>
 		<field attribute="password">
 			<display_name>Password</display_name>
 			<note>The password used to connect to Sharepoint</note>
-			<password width="35" height="1"/>
+			<password width="100" height="1"/>
+		</field>
+		<field attribute="authentication_type">
+			<display_name>Authentication Method</display_name>
+			<selection/>
 		</field>
 	</section>
 </contents>

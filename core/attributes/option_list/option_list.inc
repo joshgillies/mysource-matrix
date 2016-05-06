@@ -217,7 +217,11 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			<?php
 		} else {
 			if (!empty($value)) {
-				echo '<ul><li>'.implode('</li><li>', $value).'</li></ul>';
+				$list_str = '';
+				foreach($value as $item) {
+					$list_str .= '<li>'.htmlspecialchars($item, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</li>';
+				}
+				echo '<ul>'.$list_str.'</ul>';
 			} else {
 				echo translate('Not Set');
 

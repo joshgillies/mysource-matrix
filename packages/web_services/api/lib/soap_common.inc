@@ -17,6 +17,7 @@
 
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once 'soap_form_based_common.inc';
+require_once SQ_FUDGE_PATH.'/ntlm/ntlm_soap_client.inc';
 
 
 // WSDL sometime defines a complex type in a loop, we need to get out of this loop if it repeats too many times while parsing
@@ -55,6 +56,7 @@ class SOAP_Common
 									'WSS_USERNAME_TOKEN'	=> 'WSS Username Token',
 									'WSS_PASSWORD_DIGEST'	=> 'WSS Password Digest',
 									'MARKETO_SIGNATURE'		=> 'Marketo Signature',
+									'NTLM'					=>	'NTLM',
 								);
 
 
@@ -67,6 +69,17 @@ class SOAP_Common
 	*/
 	public static function _store_results($object, $prefix = 'soap_', &$soap_response_keywords=Array(), $file_keywords)
 	{
+		// if the soap response is a straight value, we still store it
+		if(is_scalar($object)) {
+			$prefix = 'soap';
+			if (in_array('%globals_session_'.$prefix.'%', $file_keywords)) {
+				$object = self::_save_file($object);
+			}
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX][$prefix] = $object;
+			$soap_response_keywords[$prefix] = $object;
+			return;
+		}
+
 		if (empty($object)) return;
 
 		$vars = is_object($object) ? get_object_vars($object) : $object;
@@ -373,7 +386,7 @@ class SOAP_Common
 				$dom = new DOMDocument();
 				// use DOMDocument::loadXML() to see if there is any entity  reference loop
 				// which may exhaust us of the memory limit, if not then continue as normal
-				if ($dom->loadXML($soap_message, LIBXML_NOENT)) {
+				if ($dom->loadXML($soap_message, LIBXML_NOENT|LIBXML_PARSEHUGE)) {
 					$object = @simplexml_import_dom($dom);
 				} else {
 					// don't worry about any warning, if we are here then PHP has already raised the warning for us
@@ -406,6 +419,10 @@ class SOAP_Common
 
 		} catch (Exception $e) {
 			trigger_error($e->getMessage());
+			$soap_request = $client->__getLastRequest();
+			$soap_response = $client->__getLastResponse();
+			log_dump($soap_request);
+			log_dump($soap_response);
 			return FALSE;
 		}
 
@@ -445,6 +462,8 @@ class SOAP_Common
 	}//end _save_file()
 
 
+
+
 	/**
 	* Converts xml object to array
 	* Replace file content keyword
@@ -452,24 +471,77 @@ class SOAP_Common
 	* @return array
 	* @access public
 	*/
-	public static function toArray($data)
+	public static function toArray($data, &$form = null, $ns = null)
 	{
-		if (is_object($data)) $data = get_object_vars($data);
+		
 
-		// Don't play with empty object
-		if (empty($data) && (is_array($data) || is_object($data))) return '';
+		// if it's empty node just make it an empty string
+		if(empty($data)) return '';
 
-		if(is_array($data)) {
-			$result = Array();
-			foreach ($data as $index => $element) {
-				$result[$index] = self::toArray($element);
+		$children_data = array();
+		$children_data_ns = array();
+
+		if($data instanceof SimpleXMLElement) {
+
+			// get children elements with namespace
+			$namespaces = $data->getNamespaces(true);
+			if(!empty($namespaces)) {
+				//extract children that has namespace prefix
+				foreach ($namespaces as $prefix => $namespace) {
+					$children = $data->children($namespace);
+					$children_data_ns[$namespace] = get_object_vars($children);
+				}
 			}
-			return $result;
-		} else {
-			return $data;
+
+
+			// get children without namespace
+			$children = $data->children();
+			$children_data = get_object_vars($children);
+		}
+		else if (is_array($data)) {
+			$children_data = $data;
 		}
 
+	
+
+
+		$result = Array();
+		// process those elements that does not have special namespace defined
+		foreach ($children_data as $index => $element) {
+			if(is_scalar($element)) {
+				$value = $element;
+				if(!empty($form)) {
+					$value = SOAP_Form_Based_Common::getFileContentReplacementsFromForm($element, $form);
+				}
+				$result[$index] = $value;
+			}
+			else {
+				$result[$index] = self::toArray($element, $form);
+			}
+		}
+
+		// process those with special name spaces
+		foreach ($children_data_ns as $ns => $element_array) {
+			foreach($element_array as $index => $element) {
+				if(is_scalar($element)) {
+					$value = $element;
+					if(!empty($form)) {
+						$value = SOAP_Form_Based_Common::getFileContentReplacementsFromForm($element, $form);
+					}
+					$soap_var = new SoapVar($value, XSD_STRING, null, null, $index, $ns);
+					$result[$index] = $soap_var;
+				}
+				else {
+					$result[$index] = self::toArray($element, $form);
+				}
+			}
+		}
+
+		return $result;
+
 	}//end toArray
+
+
 
 
 	/**
@@ -477,11 +549,12 @@ class SOAP_Common
 	*
 	* @param array  $settings	SOAP request settings
 	* @param array 	$options	SOAP options
+	* @param object $form
 	*
 	* @return null|object
 	* @access public
 	*/
-	public static function &getSoapClient($settings, $options)
+	public static function &getSoapClient($settings, $options, $form = NULL)
 	{
 		$soap_client = NULL;
 
@@ -502,6 +575,8 @@ class SOAP_Common
 			$username = array_get_index($settings, 'login', '');
 			$password = array_get_index($settings, 'password', '');
 			$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+			$additional_headers = array_get_index($settings, 'additional_headers', Array());
+
 
 			// Add authentication header, based on the settings
 			switch($auth_type) {
@@ -510,21 +585,35 @@ class SOAP_Common
 					 if (!self::setJSessionCookie($soap_client, $username, $password, $login_url)) {
 						 throw new Exception('Error occured when setting the JSESSIONID cookie');
 					 }
+					self::setAdditionalSOAPHeader($soap_client,$additional_headers, $form);
 				break;
 
 
 				case 'WSS_USERNAME_TOKEN':
 				case 'WSS_PASSWORD_DIGEST':
-					self::setWsseSoapHeader($soap_client, $username, $password, $auth_type == 'WSS_PASSWORD_DIGEST');
+					self::setWsseSoapHeader($soap_client, $username, $password, $auth_type == 'WSS_PASSWORD_DIGEST', $additional_headers, $form);
 				break;
 
 				case 'MARKETO_SIGNATURE':
-					self::setMarketoSignature($soap_client, $username, $password);
+					self::setMarketoSignature($soap_client, $username, $password, $additional_headers, $form);
+				break;
+
+				case 'NTLM':
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('NTLM_SOAP_USERNAME', $username);
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('NTLM_SOAP_PASSWORD', $password);
+					stream_wrapper_unregister('http');
+					stream_wrapper_unregister('https');
+					stream_wrapper_register('http', 'NTLMStream') or die ("Failed to register NTLM protocol.\n");
+					stream_wrapper_register('https', 'NTLMStream') or die ("Failed to register NTLM protocol.\n");
+					$soap_client = new NTLMSoapClient($wsdl, $options);
+					stream_wrapper_restore('http'); 
+					stream_wrapper_restore('https');
+					self::setAdditionalSOAPHeader($soap_client,$additional_headers, $form);
 				break;
 
 				case 'HTTP_BASIC':
 				default:
-					// No header required here
+                    self::setAdditionalSOAPHeader($soap_client,$additional_headers, $form);
 				break;
 
 			}//end switch
@@ -545,11 +634,12 @@ class SOAP_Common
 	* @param object	$soap_client
 	* @param string	$userid
 	* @param string	$secret_key
+	* @param object $form
 	*
 	* @return boolean
 	* @access public
 	*/
-	public static function setMarketoSignature(&$soap_client, $userid, $secret_key)
+	public static function setMarketoSignature(&$soap_client, $userid, $secret_key ,$additional_headers=Array(), $form = NULL)
 	{
 		if (is_null($soap_client)) {
 			return FALSE;
@@ -565,7 +655,8 @@ class SOAP_Common
 							'requestTimestamp'	=> $timestamp,
 						);
 		try {
-			$auth_header = new SoapHeader($marketo_namespace, 'AuthenticationHeader', $header_attrs);
+			$auth_header[] = new SoapHeader($marketo_namespace, 'AuthenticationHeader', $header_attrs);
+            $auth_header = array_merge($auth_header, self::additionalSOAPHeaders($additional_headers, $form));
 			$soap_client->__setSoapHeaders($auth_header);
 		}catch (Exception $e) {
 			trigger_error('Error occured when setting the Marketo signature: '.htmlentities($e->getMessage()));
@@ -583,7 +674,7 @@ class SOAP_Common
 	* @return boolean
 	* @access public
 	*/
-	public static function setWsseSoapHeader(&$soap_client, $ws_username, $ws_password, $ws_passwordDigest = FALSE)
+	public static function setWsseSoapHeader(&$soap_client, $ws_username, $ws_password, $ws_passwordDigest = FALSE, $additional_headers = Array(), $form = NULL)
 	{
 		if (empty($ws_username) || empty($ws_password)) {
 			return FALSE;
@@ -622,7 +713,9 @@ class SOAP_Common
 			try {
 				$ws_header_var = new SoapVar($ws_header, XSD_ANYXML);
 				$ws_header = new SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', "Security", $ws_header_var);
-				$soap_client->__setSoapHeaders($ws_header);
+                $ws_headers[] = $ws_header;
+                $ws_headers = array_merge($ws_headers,self::additionalSOAPHeaders($additional_headers, $form));
+				$soap_client->__setSoapHeaders($ws_headers);
 			}catch (Exception $e) {
 				trigger_error('Error occured when setting the WSSE SOAP header: '.htmlentities($e->getMessage()));
 				return FALSE;
@@ -856,7 +949,7 @@ class SOAP_Common
 	*
 	* @param string|array 	$prefix
 	* @param array  		$settings
-	* @param object 		$o
+	* @param Backend_Outputter		$o
 	*
 	* @return void
 	* @access public
@@ -1067,7 +1160,7 @@ class SOAP_Common
 
 				$o->openField($password_label);
 				if ($write_access) {
-					password_box($password_field_name, array_get_index($settings, 'password', ''), 35);
+					password_box($password_field_name, '', 35);
 				} else {
 					echo translate('Password not shown');
 
@@ -1094,7 +1187,7 @@ class SOAP_Common
 					<th><?php echo $password_label; ?></th>
 					<td><?php
 						if ($write_access) {
-							password_box($password_field_name, array_get_index($settings, 'password', ''), 35);
+							password_box($password_field_name, '', 35);
 						} else {
 							echo translate('Password not shown');
 
@@ -1127,15 +1220,360 @@ class SOAP_Common
 		// If array, the POST data has been already processed in the var
 		if (is_array($prefix)) {
 			$settings['login'] = array_get_index($prefix, 'login', NULL);
-			$settings['password'] = array_get_index($prefix, 'password', NULL);
+			if(isset($prefix['password']) && !empty($prefix['password'])) {
+				$settings['password'] = array_get_index($prefix, 'password', NULL);
+			}
 		} else {
 			$settings['login'] = array_get_index($_POST, $prefix.'_login', NULL);
-			$settings['password'] = array_get_index($_POST, $prefix.'_password', NULL);
+			if(isset($_POST[$prefix.'_password']) && !empty($_POST[$prefix.'_password'])) {
+				$settings['password'] = array_get_index($_POST, $prefix.'_password', NULL);
+			}
 		}
 
 		return TRUE;
 
 	}//end processUsernamePasswordFields()
+
+
+
+	/**
+	 * Paint additional SOAP Header table interface
+	 *
+	 * @param string|array $prefix
+	 * @param array $settings
+	 * @param bool $isForm
+	 * @param Backend_Outputter $o
+	 * @param bool $write_access
+	 * @param bool $paint_o
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public static function paintAdditionalSOAPHeader($prefix, $settings, $isForm,  Backend_Outputter $o, $write_access=FALSE, $paint_o=FALSE)
+	{
+		if (!isset($settings['additional_headers'])||empty($settings['additional_headers'])) {
+			$additional_header = Array();
+		} else {
+			$additional_header = $settings['additional_headers'];
+		}
+		$select_text = '-- '.translate('Select').' --';
+		$options = array(
+			''  => $select_text,
+			101 => 'XSD_STRING',
+			102 => 'XSD_BOOLEAN',
+			103 => 'XSD_DECIMAL',
+			104 => 'XSD_FLOAT',
+			105 => 'XSD_DOUBLE',
+			106 => 'XSD_DURATION',
+			107 => 'XSD_DATETIME',
+			108 => 'XSD_TIME',
+			109 => 'XSD_DATE',
+			110 => 'XSD_GYEARMONTH',
+			111 => 'XSD_GYEAR',
+			112 => 'XSD_GMONTHDAY',
+			113 => 'XSD_GDAY',
+			114 => 'XSD_GMONTH',
+			115 => 'XSD_HEXBINARY',
+			116 => 'XSD_BASE64BINARY',
+			117 => 'XSD_ANYURI',
+			118 => 'XSD_QNAME',
+			119 => 'XSD_NOTATION',
+			120 => 'XSD_NORMALIZEDSTRING',
+			121 => 'XSD_TOKEN',
+			122 => 'XSD_LANGUAGE',
+			123 => 'XSD_NMTOKEN',
+			124 => 'XSD_NAME',
+			125 => 'XSD_NCNAME',
+			126 => 'XSD_ID',
+			127 => 'XSD_IDREF',
+			128 => 'XSD_IDREFS',
+			129 => 'XSD_ENTITY',
+			130 => 'XSD_ENTITIES',
+			131 => 'XSD_INTEGER',
+			132 => 'XSD_NONPOSITIVEINTEGER',
+			133 => 'XSD_NEGATIVEINTEGER',
+			134 => 'XSD_LONG',
+			135 => 'XSD_INT',
+			136 => 'XSD_SHORT',
+			137 => 'XSD_BYTE',
+			138 => 'XSD_NONNEGATIVEINTEGER',
+			139 => 'XSD_UNSIGNEDLONG',
+			140 => 'XSD_UNSIGNEDINT',
+			141 => 'XSD_UNSIGNEDSHORT',
+			142 => 'XSD_UNSIGNEDBYTE',
+			143 => 'XSD_POSITIVEINTEGER',
+			144 => 'XSD_NMTOKENS',
+			145 => 'XSD_ANYTYPE',
+			147 => 'XSD_ANYXML',
+		);
+		?>
+		<table class="sq-backend-table with-bottom-margin" >
+			<thead>
+			<tr>
+				<th><?php echo translate('Node Name'); ?></th>
+				<th><?php echo translate('Node Value'); ?></th>
+				<th><?php echo translate('Encoding'); ?></th>
+				<th><?php echo translate('Namespace'); ?></th>
+				<th><?php echo translate('Type Name'); ?></th>
+				<th><?php echo translate('Type Namespace'); ?></th>
+				<th><?php echo translate('Must Understand'); ?></th>
+				<?php if ($write_access) {?><th><?php echo translate('Delete'); ?></th><?php } ?>
+			</tr>
+			</thead>
+
+		<?php
+		if ($write_access)
+		{
+			$count  = 0 ;
+
+			?>
+			<tbody>
+
+			<?php
+			foreach ($additional_header as $header)
+			{
+				?>
+				<tr>
+					<td>
+						<?php text_box($prefix . '['.$count.'][name]', $header['name']);?>
+					</td>
+					<td>
+						<?php text_box($prefix . '['.$count.'][value]', $header['value']);?>
+					</td>
+					<td>
+						<?php combo_box($prefix . '['.$count.'][encoding]',$options, false,$header['encoding']);?>
+					</td>
+					<td>
+						<?php text_box($prefix . '['.$count.'][namespace]', $header['namespace']);?>
+					</td>
+					<td>
+						<?php text_box($prefix . '['.$count.'][type_name]', $header['type_name']);?>
+					</td>
+					<td>
+						<?php text_box($prefix . '['.$count.'][type_namespace]', $header['type_namespace']);?>
+					</td>
+					<td style="text-align: center;"><?php check_box($prefix.'['.$count.'][must_understand]', 1, isset($header['must_understand'])); ?></td>
+					<td style="text-align: center;"><button class="delete-button" title="Delete" tabindex="99999" type="button" onclick="this.parentNode.parentNode.remove();"> </button></td>
+				</tr>
+				<?php
+				$count++;
+			}
+
+			for($i = $count ; $i <$count+ 2; $i++) {
+				?>
+				<tr>
+					<td>
+						<?php text_box($prefix . '['.$i.'][name]');?>
+					</td>
+					<td>
+						<?php text_box($prefix . '['.$i.'][value]');?>
+					</td>
+					<td>
+						<?php combo_box($prefix . '['.$i.'][encoding]',$options);?>
+					</td>
+					<td>
+						<?php text_box($prefix . '['.$i.'][namespace]');?>
+					</td>
+					<td>
+						<?php text_box($prefix . '['.$i.'][type_name]');?>
+					</td>
+					<td>
+						<?php text_box($prefix . '['.$i.'][type_namespace]');?>
+					</td>
+					<td style="text-align: center;"><?php check_box($prefix.'['.$i.'][must_understand]'); ?></td>
+					<td style="text-align: center;"><button class="delete-button" title="Delete" tabindex="99999" type="button" onclick="this.parentNode.parentNode.remove();"> </button></td>
+				</tr>
+				<?php
+			}
+			?>
+			</tbody>
+			<?php
+
+		} else {
+			foreach ($additional_header as $header)
+			{
+				?>
+				<tr>
+					<td>
+						<?php echo($header['name']);?>
+					</td>
+					<td>
+						<?php echo($header['value']);?>
+					</td>
+					<td>
+						<?php echo($options[$header['encoding']]);?>
+					</td>
+					<td>
+						<?php echo($header['namespace']);?>
+					</td>
+					<td>
+						<?php echo($header['type_name']);?>
+					</td>
+					<td>
+						<?php echo($header['type_namespace']);?>
+					</td>
+					<td><?php check_box('', 1, isset($header['must_understand']), '', 'disabled="disabled'); ?></td>
+				</tr>
+				<?php
+			}
+		}
+		?>
+			<tfoot>
+			<tr>
+				<td colspan="<?php if ($write_access) { ?>8<?php } else { ?>7<?php }?> "><?php if ($isForm) echo translate('Global Keywords and Form Question Keywords are supported in above fields. For example, &#37;response_100_q1&#37; and &#37;question_name_100_q1&#37;.'); else  echo translate('Global Keywords are supported in above fields.');?></td>
+			</tr>
+			</tfoot>
+		</table>
+		<?php
+
+	}//end paintAdditionalSOAPHeader()
+
+
+	/*
+	* Process Additional SOAP Header interface
+	*
+	* @param string|array 	$prefix
+	* @param array  		$settings
+	* @param object 		$o
+	*
+	* @return void
+	* @access public
+	*
+	*/
+	public static function processAdditionalSOAPHeader($prefix, &$settings, Backend_Outputter $o) {
+
+		$additional_headers = array();
+		$result = true;
+
+		// If array, the POST data has been already processed in the var
+		if (is_array($prefix))
+			$postHeaders =  array_get_index($prefix, 'additional_soap_headers', Array());
+		 else
+			$postHeaders =  array_get_index($_POST, $prefix.'_additional_soap_headers', Array());
+
+		foreach ($postHeaders as $header)
+		{
+			$h = array_filter($header);
+			if (!empty($h)) {
+
+				$header =  array_map('trim', $header);
+				if (empty($header['name'])||empty($header['value'])||empty($header['namespace'])||empty($header['encoding']))
+				{
+					$result = false;
+					if (empty($header['name']))
+						trigger_error(translate('Please specify SOAP Additional Header Node Name.'));
+					if (empty($header['value']))
+						trigger_error(translate('Please specify SOAP Additional Header Node Value.'));
+					if (empty($header['namespace']))
+						trigger_error(translate('Please specify SOAP Additional Header Node Namespace.'));
+					if (empty($header['encoding']))
+						trigger_error(translate('Please specify SOAP Additional Header Node Encoding.'));
+				}
+
+				array_push($additional_headers, $header);
+			}
+		}
+
+		$settings['additional_headers'] = empty($additional_headers)?NULL:$additional_headers;
+
+		return $result;
+
+
+	}//end processAdditionalSOAPHeader()
+
+
+	/**
+	 * Setting the additional SOAP Header
+	 *
+	 * @param object $soap_client
+	 * @param array $additional_headers
+	 * @param object $form
+	 *
+	 * @return bool
+	 * @access public
+	 */
+	public static function setAdditionalSOAPHeader(&$soap_client, $additional_headers, $form = NULL)
+	{
+		if (empty($additional_headers))
+			return TRUE;
+
+		try {
+
+			$soap_headers = self::additionalSOAPHeaders($additional_headers, $form);
+
+			if (empty($soap_headers))
+				return TRUE;
+			else
+				$soap_client->__setSoapHeaders($soap_headers);
+		} catch (Exception $e) {
+			trigger_error('Error occurred when setting the Additional SOAP header: ' . htmlentities($e->getMessage()));
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end setAdditionalSOAPHeader()
+
+
+	/**
+	 * Return the user defined SOAP Additional Header
+	 *
+	 * @param array $additional_headers
+	 * @param object $form
+	 *
+	 * @return array
+	 * @access public
+	 */
+	public static function additionalSOAPHeaders($additional_headers, $form = NULL)
+	{
+		if (empty($additional_headers))
+			return Array();
+
+		$soap_headers = array();
+
+		foreach ($additional_headers as $header) {
+			if (empty($header['type_name']))
+				$header['type_name'] = null;
+
+			if (empty($header['type_namespace']))
+				$header['type_namespace'] = null;
+
+			if ($header['encoding'] == XSD_ANYXML)
+			{
+				$opentag = "<".$header['name'];
+				
+				if(is_null($form))
+				{
+					$ns = replace_global_keywords($header['namespace']);
+				} else {
+					$ns = trim(SOAP_Form_Based_Common::getKeywordReplacementsFromForm($header['namespace'],$form));
+				}
+
+				if (empty($ns))
+					$opentag .= ">";
+				else
+					$opentag.= ' xmlns="'.$header['namespace'].'">';
+
+				$closetag= "</".$header['name'].">";
+
+				$header['value']=$opentag.$header['value'].$closetag;
+			}
+
+			if (is_null($form))
+			{
+				$soap_var = new SoapVar(replace_global_keywords($header['value']), (int) $header['encoding'], replace_global_keywords($header['type_name']), replace_global_keywords($header['type_namespace']));
+				$soap_header = new SoapHeader(replace_global_keywords($header['namespace']), replace_global_keywords($header['name']), $soap_var, isset($header['must_understand']));
+				$soap_headers[] = $soap_header;
+			} else {
+				$soap_var = new SoapVar(replace_global_keywords(SOAP_Form_Based_Common::getKeywordReplacementsFromForm($header['value'],$form)),(int)  $header['encoding'], replace_global_keywords(SOAP_Form_Based_Common::getKeywordReplacementsFromForm($header['type_name'],$form)), replace_global_keywords(SOAP_Form_Based_Common::getKeywordReplacementsFromForm($header['type_namespace'],$form)));
+				$soap_header = new SoapHeader(replace_global_keywords(SOAP_Form_Based_Common::getKeywordReplacementsFromForm($header['namespace'],$form)), replace_global_keywords(SOAP_Form_Based_Common::getKeywordReplacementsFromForm($header['name'],$form)), $soap_var, isset($header['must_understand']));
+				$soap_headers[] = $soap_header;
+			} //end if
+		}
+
+		return $soap_headers;
+	}
+
 
 
 }//end class

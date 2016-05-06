@@ -97,7 +97,7 @@ class Soap_Server_Edit_Fns extends Page_Edit_Fns
 										check_box($prefix.'_enable['.$api_id.']', $api_value[0]['type_code'], $current_value);
 									} else {
 										?>&nbsp;
-										<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($current_value) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($current_value) ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 										<?php
 									}
 								?>

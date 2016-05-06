@@ -466,10 +466,8 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				// We have the lock, so we can use the normal commit button. Just print a dropdown box
 				$options = Array(
-							'Yes'	=> translate('Yes'),
-
-							'No'	=> translate('No'),
-
+							'yes'	=> translate('Yes'),
+							'no'	=> translate('No'),
 						   );
 				combo_box($prefix.'_release_all_locks_dropdown', $options, FALSE, 'no');
 			}
@@ -503,6 +501,137 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processLockDetails()
+
+
+
+	/**
+	* Paints the Sugar integration details
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSugarDetails(&$asset, &$o, $prefix)
+	{
+
+		// root user or sysadmin user
+		$can_edit = $asset->adminAccess('attributes') && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		// do we have existing link?
+		$bind_vars = Array(
+						'matrix_userid'      => $asset->id
+					    );
+		$results = MatrixDAL::executeAll('sugar_package', 'getAllLinks', $bind_vars);
+		if(!empty($results)) {
+			foreach ($results as $index => $result) {
+				$module = array_get_index($result, 'module', '');
+				$sugar_id = array_get_index($result, 'sugar_record_id', '');
+
+				$o->openField(sprintf(translate('Sugar %s ID'), htmlspecialchars($module, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+					if($can_edit) {
+						text_box($prefix.'_sugar_id_'.$module, $sugar_id, 40);
+					}
+					else {
+						echo htmlspecialchars($sugar_id, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+					}
+
+				$o->closeField();
+			}
+		}
+		
+		return FALSE;
+
+	}//end paintSugarDetails()
+
+
+
+	/**
+	* Process the Sugar integration details
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSugarDetails(&$asset, &$o, $prefix)
+	{
+
+		// root user or sysadmin user
+		$can_edit = $asset->adminAccess('attributes') && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+
+		// do we have existing link?
+		$bind_vars = Array(
+						'matrix_userid'      => $asset->id
+					    );
+		$results = MatrixDAL::executeAll('sugar_package', 'getAllLinks', $bind_vars);
+		if(!empty($results)) {
+			foreach ($results as $index => $result) {
+				$module = array_get_index($result, 'module', '');
+				$sugar_id = array_get_index($result, 'sugar_record_id', '');
+
+				if(isset($_POST[$prefix.'_sugar_id_'.$module])) {
+					$new_record_id = $_POST[$prefix.'_sugar_id_'.$module];
+					// Update record id
+					$sql = 'UPDATE
+								sq_sugar_lnk
+							SET
+								sugar_record_id = :new_record_id
+							WHERE
+									sugar_record_id	=  :old_record_id
+									AND	module	= :module';
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'new_record_id', $new_record_id);
+						MatrixDAL::bindValueToPdo($query, 'old_record_id', $sugar_id);
+						MatrixDAL::bindValueToPdo($query, 'module', $module);
+						MatrixDAL::execPdoQuery($query);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update sugar record ID "'.$sugar_id.' to new ID '.$new_record_id.', due to database error: '.$e->getMessage());
+					}
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				}
+			}
+		}
+		
+		return TRUE;
+
+	}//end processSugarDetails()
+
+
+	/**
+	* Is this user linked to a Sugar record
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isSugarRecord(&$asset, &$o)
+	{
+
+		// do we have existing link?
+		$bind_vars = Array(
+						'matrix_userid'      => $asset->id
+					    );
+		$results = MatrixDAL::executeAll('sugar_package', 'getAllLinks', $bind_vars);
+		if(!empty($results)) {
+			return TRUE;
+		}		
+		return FALSE;
+	}//end isSugarRecord()
+
 
 
 }//end class

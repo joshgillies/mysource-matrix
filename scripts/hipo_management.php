@@ -113,7 +113,7 @@ foreach ($results as $result) {
 }//end foreach
 
 if (empty($source_jobs)) {
-	echo translate('hipo_currently_no_jobs')."\n";
+	echo translate('There are currently no HIPO Jobs on the system')."\n";
 	exit;
 }//end if
 

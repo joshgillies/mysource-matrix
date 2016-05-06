@@ -121,10 +121,10 @@ class Page_Calendar extends Page
 
 			// if the user is trying to delete the bodycopy or the no results body copy return an error message
 			if ((!empty($bodycopy_link)) && ($bodycopy_link[0]['linkid'] == $linkid)) {
-				return translate('You are now allow to delete this page contents');
+				return translate('You are not allowed to delete the Page Contents bodycopy');
 
 			} else if ((!empty($bodycopy_no_results_link) && ($bodycopy_no_results_link[0]['linkid'] == $linkid))) {
-				return translate('You are now allow to delete this page contents (no results)');
+				return translate('You are now allowed to delete the Page Contents (No Results) bodycopy');
 
 			}
 		}
@@ -248,10 +248,12 @@ class Page_Calendar extends Page
 	*/
 	function printHead()
 	{
-		if (!isset($this->_tmp['valid_request'])) {
-			$this->_tmp['valid_request'] = $this->_validateRequest();
+		if (!$this->_validateRequest()) {
+			return;
 		}
-		if (!$this->_tmp['valid_request']) return;
+
+		$_REQUEST['SQ_CALENDAR_VIEW'] = $this->_tmp['validated_calendar_view'];
+		$_REQUEST['SQ_CALENDAR_DATE'] = $this->_tmp['validated_calendar_date'];
 
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$format = array_get_index($this->attr('enabled_views'), $view, '');
@@ -297,11 +299,40 @@ class Page_Calendar extends Page
 
 	/**
 	* Called by the design to print the body of this asset
-	*
+	* 
 	* @return boolean
 	* @access public
 	*/
 	function printBody()
+	{
+		if (!empty($this->_tmp['__creating__'])) {
+			// If the Calendar Page is not done being created then it won't have its asset id yet
+			// which means, it will not have its default root node as itself
+			return TRUE;
+		} 
+
+		// We will be manipulating global $_REQUEST var while printing the asset output
+		// Keep a copy of the var so that it can restored once we are done printing
+		$global_request_var = $_REQUEST;
+
+		$ret = $this->_printBody();
+
+		// Restore the global $_REQUEST var
+		$_REQUEST = $global_request_var;
+
+		return $ret;
+
+	}//end printBody()
+
+
+	/**
+	* Print the body of the asset
+	* Needs to be called via the wrapper function self::printBody()
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _printBody()
 	{
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
@@ -327,10 +358,12 @@ class Page_Calendar extends Page
 
 		if (!$res) {
 
-			if (!isset($this->_tmp['valid_request'])) {
-				$this->_tmp['valid_request'] = $this->_validateRequest();
+			if (!$this->_validateRequest()) {
+				return;
 			}
-			if (!$this->_tmp['valid_request']) return;
+
+			$_REQUEST['SQ_CALENDAR_VIEW'] = $this->_tmp['validated_calendar_view'];
+			$_REQUEST['SQ_CALENDAR_DATE'] = $this->_tmp['validated_calendar_date'];
 
 			// Try to get from cache
 			$cache_key = $this->_getCacheKey();
@@ -394,7 +427,6 @@ class Page_Calendar extends Page
 
 
 				ob_start();
-					echo '<script type="text/javascript">if (typeof cal != "undefined") cal.setDate(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\')</script>';
 					// print the contents of page - replacing the global keywords
 					$calendar_replacements = $replacements;
 					$keywords = $contents_bodycopy->getKeywords();
@@ -420,7 +452,8 @@ class Page_Calendar extends Page
 		}//end if
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
-	}//end printBody()
+
+	}//end _printBody()
 
 
 	/**
@@ -452,11 +485,18 @@ class Page_Calendar extends Page
 	* check they are valid and tweak them if necessary
 	* It returns false if a non-recoverable problem was encountered
 	*
-	* @return boolean
+	* @return boolean|array
 	* @access private
 	*/
 	function _validateRequest()
 	{
+		$current_req = array_get_index($_REQUEST, 'SQ_CALENDAR_DATE', date('Y-m-d')).array_get_index($_REQUEST, 'SQ_CALENDAR_VIEW', '');
+		$existing_req = isset($this->_tmp) && isset($this->_tmp['validated_calendar_view']) ? $this->_tmp['validated_calendar_date'].$this->_tmp['validated_calendar_view'] : '';
+		if (isset($this->_tmp['valid_request']) && $current_req == $existing_req) {
+			// If we have already validated this request vars
+			return $this->_tmp['valid_request'];
+		}
+
 		// Validate View:
 		// If we get a valid and available view type in the request, use it;
 		// otherwise use the initial view attribute.
@@ -503,16 +543,23 @@ class Page_Calendar extends Page
 		if (($cal_view == 'event') || ($cal_view == 'edit')) {
 			if (!isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
 				trigger_localised_error('CAL0023', sprintf(translate('%s View requested but no Event ID supplied'), ucfirst($cal_view)), E_USER_WARNING);
+				$this->_tmp['valid_request'] = FALSE;
 				return FALSE;
 			}
 			if (!assert_valid_assetid($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
+				$this->_tmp['valid_request'] = FALSE;
 				return FALSE;
 			}
 		}
 
-		// Store validated values in globals for future reference
-		$_REQUEST['SQ_CALENDAR_VIEW'] = $cal_view;
-		$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
+		// Request values are also validated when getting the asset's cache key, which can be triggered from outside this asset
+		// For such scenario we cannot restore the global _REQUEST var to the original value, hence we also store in the asset object
+		// See: self::_getCacheKey()
+		$this->_tmp['validated_calendar_view'] = $cal_view;
+		$this->_tmp['validated_calendar_date'] = $cal_date;
+
+		$this->_tmp['valid_request'] = TRUE;
+
 		return TRUE;
 
 	}//end _validateRequest()
@@ -529,15 +576,11 @@ class Page_Calendar extends Page
 		$cache_key = '';
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
-		if (!isset($this->_tmp['valid_request'])) {
-			$this->_tmp['valid_request'] = $this->_validateRequest();
-		}
-
-		if ($this->_tmp['valid_request']) {
+		if ($this->_validateRequest()) {
 			// Cache key will be a letter representing the view type (Y, M, W, D)
 			// followed by as precise an iso-date as necessary (2004, 2004-02, 2004-04-01)
-			list($year, $month, $day) = explode('-', $_REQUEST['SQ_CALENDAR_DATE']);
-			switch ($_REQUEST['SQ_CALENDAR_VIEW']) {
+			list($year, $month, $day) = explode('-', $this->_tmp['validated_calendar_date']);
+			switch ($this->_tmp['validated_calendar_view']) {
 				case 'year':
 					$cache_key = 'Y'.$year;
 				case 'month':
@@ -988,6 +1031,8 @@ class Page_Calendar extends Page
 		while (empty($enabled_views[$drill_down_view]) && ($drill_down_view !== FALSE)) {
 			$drill_down_view = next($drill_down_views);
 		}
+		$click_js_enabled = $this->attr('enable_click_js');
+		$onclick_string = $click_js_enabled ? 'onclick="clickChild(this)' : '';
 
 		ob_start();
 		if ($format == 'list_without_headings') {
@@ -1103,7 +1148,7 @@ class Page_Calendar extends Page
 						}
 						$first_week_link_date = iso8601_date_component(ts_iso8601(iso8601_ts($current_date) - ($offset * $day_in_seconds)));
 						?>
-						<th class="weekLink" onclick="clickChild(this)"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$first_week_link_date ?>">&raquo;</a></th>
+						<th class="weekLink" <?php echo $onclick_string; ?>"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$first_week_link_date ?>">&raquo;</a></th>
 						<?php
 					}
 
@@ -1152,7 +1197,7 @@ class Page_Calendar extends Page
 					<?php
 					if ($this->attr('month_links_to_week')) {
 						?>
-						<th class="weekLink" onclick="clickChild(this)"><a class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th>
+						<th class="weekLink" <?php echo $onclick_string; ?>"><a class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th>
 						<?php
 					}
 					for ($i=0; $i < $week_length; $i++) {
@@ -1194,7 +1239,7 @@ class Page_Calendar extends Page
 					<?php
 					if ($this->attr('month_links_to_week')) {
 						?>
-						<th class="weekLink" onclick="clickChild(this)"><a class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$current_date ?>">&raquo;</a></th>
+						<th class="weekLink" <?php echo $onclick_string; ?>"><a class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$current_date ?>">&raquo;</a></th>
 						<?php
 					}
 					while ($current_day <= $month_length) {
@@ -1637,11 +1682,12 @@ class Page_Calendar extends Page
 					$event_href = $this->_getEventLinkHref($assetid, $event_link_date);
 					$event_classes = $this->_getClasses($event['treeid']);
 					$event_classes[] = 'event';
-					$onclick_code = $event_href ? ' onclick="sq_cal_redirect(this)"' : '';
-					$cursor_code = $event_href ? ' cursor: pointer; cursor: hand' : '';
+					$click_js_enabled = $this->attr('enable_click_js');
+					$onclick_code = $event_href && $click_js_enabled ? ' onclick="sq_cal_redirect(this)"' : '';
+					$cursor_code = $event_href && $click_js_enabled ? ' cursor: pointer; cursor: hand' : '';
 					$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 					if (!empty($mousedown_code) && (($event['type_code'] == 'calendar_event_recurring') || (isset($event['expanded'])))) {
-						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('Recurring, multi-day and trimmed events cannot be dragged').'\')" onmouseup="statusBarMsg(\'\');"';
+						$current_mouse_up_down_code = '';
 
 					}
 					$current_mouse_over_out_code = '';
@@ -1796,10 +1842,11 @@ class Page_Calendar extends Page
 			$event_classes[] = 'event';
 
 			// mouse action handlers
-			$onclick_code = $event_href ? 'onclick="sq_cal_redirect(this)"' : '';
+			$click_js_enabled = $this->attr('enable_click_js');
+			$onclick_code = $event_href && $click_js_enabled ? 'onclick="sq_cal_redirect(this)"' : '';
 			$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 			if (!empty($mousedown_code) && (($details['type_code'] == 'calendar_event_recurring') || (isset($details['expanded'])))) {
-				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('Recurring, multi-day and trimmed events cannot be dragged').'\')" onmouseup="statusBarMsg(\'\');"';
+				$current_mouse_up_down_code = '';
 
 			}
 			$current_mouse_over_out_code = '';
@@ -1814,7 +1861,7 @@ class Page_Calendar extends Page
 
 			// other special CSS for cursors and zero-length events
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-bottom: 0px; border-left: 0px; border-right: 0px; padding-top: 0px; background-color: transparent;';
-			$cursor_code = $event_href ? 'cursor: pointer; cursor: hand;' : '';
+			$cursor_code = $event_href && $click_js_enabled ? 'cursor: pointer; cursor: hand;' : '';
 
 			// showtime!
 			$res .= '<div id="event_'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.implode(' ', $event_classes).' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
@@ -1863,8 +1910,9 @@ class Page_Calendar extends Page
 			$event_url = htmlentities($this->_getEventLinkHref($assetid, $event_link_date));
 			$event_classes = $this->_getClasses($details['treeid']);
 			$event_classes[] = 'event';
-			$onclick_code =$event_url ? ' onclick="clickChild(this); "' : '';
-			$cursor_code = $event_url ? 'cursor: pointer; cursor: hand;' : '';
+			$click_js_enabled = $this->attr('enable_click_js');
+			$onclick_code =$event_url && $click_js_enabled ? ' onclick="clickChild(this); "' : '';
+			$cursor_code = $event_url && $click_js_enabled ? 'cursor: pointer; cursor: hand;' : '';
 
 			$current_mouse_over_out_code = '';
 
@@ -1898,45 +1946,23 @@ class Page_Calendar extends Page
 	*/
 	function _getGeneralScript()
 	{
-		$res = '<script type="text/javascript" src="'.sq_web_path('lib').'/js/general.js"></script>';
-		foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
-			$res .= '<script type="text/javascript" src="'.$js_include.'"></script>';
+		$res = '';
+		$dragging_enabled = $this->attr('enable_event_dragging');
+		$js_drag_included = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CALENDAR_PAGE_JS_DRAG_N_DROP');
+		$js_click_included = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CALENDAR_PAGE_JS_CLICK');
+		if($dragging_enabled && !$js_drag_included) {
+			$res .= '<script type="text/javascript" src="'.sq_web_path('lib').'/js/general.js"></script>';
+			foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
+				$res .= '<script type="text/javascript" src="'.$js_include.'"></script>';
+			}
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CALENDAR_PAGE_JS_DRAG_N_DROP', 1);
 		}
-		$res .= '
 
-		<!-- GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
-			<script type="text/javascript">
-			<!--
-			var formSubmitted = false;
-
-			function clickChild(elt) {
-				 if (formSubmitted) {
-					 return;
-				 }
-				 formSubmitted = true;
-				 linkChildren = elt.getElementsByTagName("A");
-				 if (linkChildren.length > 0) {
-					linkChildren.item(0).click();
-				 }
-			}
-			function sq_cal_redirect(url) {
-				if (url.getElementsByTagName) {
-					url = url.getElementsByTagName("A")[0].href;
-				}
-				if ((typeof moved == "undefined") || !moved) {
-					document.location.href = url;
-					formSubmitted = true;
-				}
-			}
-			function statusBarMsg(m) {
-				window.status = m;
-				setTimeout(\'window.status=""\', 2000);
-			}
-			//-->
-			</script>
-		<!-- /GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
-
-		';
+		$click_js_enabled = $this->attr('enable_click_js');
+		if($click_js_enabled && !$js_click_included) {
+			$res .= '<script type="text/javascript" src="'.sq_web_path('data').'/asset_types/page_calendar/js/click.js"></script>';
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CALENDAR_PAGE_JS_CLICK', 1);
+		}
 		return $res;
 
 	}//end _getGeneralScript()
@@ -2029,6 +2055,8 @@ class Page_Calendar extends Page
 	*/
 	function _printPopupsScript()
 	{
+		$js_popup_included = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CALENDAR_PAGE_JS_POP_UP');
+		if($js_popup_included) return;
 		?>
 
 		<!-- DESCRIPTION POPUPS SUPPORT -->
@@ -2036,6 +2064,7 @@ class Page_Calendar extends Page
 		<!-- /DESCRIPTION POPUPS SUPPORT -->
 
 		<?php
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CALENDAR_PAGE_JS_POP_UP', 1);
 
 	}//end _printPopupsScript()
 
@@ -2269,7 +2298,7 @@ class Page_Calendar extends Page
 					}
 				}
 				if (!$found_bodycopy) {
-					trigger_localised_error('CAL0061', sprintf(translate('Suitable bodycopy not fournt to print the event of %s'), $assetid), E_USER_WARNING);
+					trigger_localised_error('CAL0061', sprintf(translate('Suitable bodycopy not found to print the event of %s'), $assetid), E_USER_WARNING);
 					continue;
 				}
 			}

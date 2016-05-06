@@ -181,7 +181,7 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 						if ($write_access) {
 							check_box($prefix.'[use_current]', '1', $use_current, '', ($write_access ? '' : 'disabled="disabled"'));
 						} else {
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.($use_current ? 'tick' : 'cross').'.gif" alt="'.($use_current ? translate('Yes') : translate('No')).'" /> ';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.($use_current ? 'tick' : 'cross').'.png" alt="'.($use_current ? translate('Yes') : translate('No')).'" /> ';
 
 
 						}
@@ -210,7 +210,7 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 						if ($write_access) {
 							check_box($prefix.'[delete_all]', '1', $delete_all, '', ($write_access ? '' : 'disabled="disabled"'));
 						} else {
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all ? 'tick' : 'cross').'.gif" alt="'.($delete_all ? translate('Yes') : translate('No')).'" /> ';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all ? 'tick' : 'cross').'.png" alt="'.($delete_all ? translate('Yes') : translate('No')).'" /> ';
 
 
 						}

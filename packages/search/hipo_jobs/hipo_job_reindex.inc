@@ -63,7 +63,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_REINDEX_THRESHOLD]', SQ_HIPO_REINDEX_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_REINDEX_THRESHOLD]', SQ_HIPO_REINDEX_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_REINDEX_THRESHOLD;
 		}

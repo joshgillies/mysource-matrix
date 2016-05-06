@@ -1088,12 +1088,12 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 					}
 					?><td class="sq-backend-table-cell"><p><strong><?php echo $action['name'] ?></strong><br/>(<?php echo $type_name ?>)</p></td><?php
 					?><td class="sq-backend-table-cell"><?php echo call_user_func(Array($action_type, 'paintSummary'), $asset, $settings, $o, $prefix) ?></td><?php
-					?><td class="sq-backend-table-cell"><p><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo call_user_func(Array($action_type, 'isValid'), $asset, $settings) ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></p></td><?php
+					?><td class="sq-backend-table-cell"><p><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo call_user_func(Array($action_type, 'isValid'), $asset, $settings) ? 'tick' : 'cross' ?>.png" width="15" height="15" border="0" /></p></td><?php
 					if ($write_access) {
 						?><td class="sq-backend-table-cell"><p><?php check_box($prefix.'_rules[active]['.$key.']', '1', $action['active']) ?></p></td><?php
 						?><td class="sq-backend-table-cell"><p><?php check_box($prefix.'_rules[delete]['.$key.']', '1', FALSE) ?></p></td><?php
 					} else {
-						?><td class="sq-backend-table-cell"><p><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $action['active'] ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></p></td><?php
+						?><td class="sq-backend-table-cell"><p><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $action['active'] ? 'tick' : 'cross' ?>.png" width="15" height="15" border="0" /></p></td><?php
 						?><td class="sq-backend-table-cell">&nbsp;</td><?php
 					}
 					?></tr><?php
@@ -1184,6 +1184,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('checkout_action');
 		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
+		asort($names);
 
 		$o->openField('');
 			if ($write_access) {

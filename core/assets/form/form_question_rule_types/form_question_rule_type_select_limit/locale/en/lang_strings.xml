@@ -21,32 +21,32 @@
 <string source="core_form_rule_select_limit_==">Must select this many options</string>
 <string source="core_form_rule_select_limit_!=">Must NOT select this many options</string>
 <string source="core_form_rule_select_limit_&gt;">Must select more than this many options</string>
-<string source="core_form_rule_select_limit_&lt;">Must select less than this many options</string>
+<string source="core_form_rule_select_limit_&lt;">Must select fewer than this many options</string>
 <string source="core_form_rule_select_limit_&gt;=">Must select at least this many options</string>
 <string source="core_form_rule_select_limit_&lt;=">Must select at most this many options</string>
 <string source="core_form_rule_select_limit_desc_==">Must select %1$s option(s) at question "%2$s"</string>
 <string source="core_form_rule_select_limit_desc_!=">Must NOT select %1$s option(s) at question "%2$s"</string>
 <string source="core_form_rule_select_limit_desc_&gt;">Must select more than %1$s option(s) at question "%2$s"</string>
-<string source="core_form_rule_select_limit_desc_&lt;">Must select less than %1$s option(s) at question "%2$s"</string>
+<string source="core_form_rule_select_limit_desc_&lt;">Must select fewer than %1$s option(s) at question "%2$s"</string>
 <string source="core_form_rule_select_limit_desc_&gt;=">Must select at least %1$s option(s) at question "%2$s"</string>
 <string source="core_form_rule_select_limit_desc_&lt;=">Must select at most %1$s option(s) at question "%2$s"</string>
 <string source="core_form_rule_select_limit_edit_==">Must select %s option(s)</string>
 <string source="core_form_rule_select_limit_edit_!=">Must NOT select %s option(s)</string>
 <string source="core_form_rule_select_limit_edit_&gt;">Must select more than %s option(s)</string>
-<string source="core_form_rule_select_limit_edit_&lt;">Must select less than %s option(s)</string>
+<string source="core_form_rule_select_limit_edit_&lt;">Must select fewer than %s option(s)</string>
 <string source="core_form_rule_select_limit_edit_&gt;=">Must select at least %s option(s)</string>
 <string source="core_form_rule_select_limit_edit_&lt;=">Must select at most %s option(s)</string>
 <string source="core_form_rule_select_limit_error_==">You have selected %1$s option(s) at question "%2$s" - you must select %3$s</string>
 <string source="core_form_rule_select_limit_error_!=">You have selected %1$s option(s) at question "%2$s" - you must NOT select this many</string>
 <string source="core_form_rule_select_limit_error_&gt;">You have selected %1$s option(s) at question "%2$s" - you must select more than %3$s</string>
-<string source="core_form_rule_select_limit_error_&lt;">You have selected %1$s option(s) at question "%2$s" - you must select less than %3$s</string>
+<string source="core_form_rule_select_limit_error_&lt;">You have selected %1$s option(s) at question "%2$s" - you must select fewer than %3$s</string>
 <string source="core_form_rule_select_limit_error_&gt;=">You have selected %1$s option(s) at question "%2$s" - you must select at least %3$s</string>
 <string source="core_form_rule_select_limit_error_&lt;=">You have selected %1$s option(s) at question "%2$s" - you must select no more than %3$s</string>
 
 <string source="core_form_rule_select_limit_error_==_accessible">You have selected %1$s option(s). You must select %2$s.</string>
 <string source="core_form_rule_select_limit_error_!=_accessible">You have selected %1$s option(s). You must NOT select this many.</string>
 <string source="core_form_rule_select_limit_error_&gt;_accessible">You have selected %1$s option(s). You must select more than %2$s.</string>
-<string source="core_form_rule_select_limit_error_&lt;_accessible">You have selected %1$s option(s). You must select less than %2$s.</string>
+<string source="core_form_rule_select_limit_error_&lt;_accessible">You have selected %1$s option(s). You must select fewer than %2$s.</string>
 <string source="core_form_rule_select_limit_error_&gt;=_accessible">You have selected %1$s option(s). You must select at least %2$s.</string>
 <string source="core_form_rule_select_limit_error_&lt;=_accessible">You have selected %1$s option(s). You must select no more than %2$s.</string>
 

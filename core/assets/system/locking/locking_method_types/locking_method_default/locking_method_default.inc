@@ -208,9 +208,6 @@ class Locking_Method_Default extends Locking_Method
 		$sql = 'DELETE FROM sq_lock
 			WHERE source_lockid IN (SELECT source_lockid FROM sq_lock '.$where.')';
 
-log_write($sql);
-log_write(print_r($locks_passed, TRUE));
-
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($locks_passed as $bind_var => $bind_val) {
@@ -256,7 +253,7 @@ log_write(print_r($locks_passed, TRUE));
 		$locks_passed = Array();
 		if (is_array($lockid)) {
 			$where = ' WHERE lockid IN (';
-			foreach ($lockid as $lock_key => $lock_value) {
+			foreach (array_values($lockid) as $lock_key => $lock_value) {
 				$where .= ':lockid'.$lock_key.',';
 				$locks_passed['lockid'.$lock_key] = $lock_value;
 			}
@@ -295,21 +292,8 @@ log_write(print_r($locks_passed, TRUE));
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 
 		// Did I get a string or an array?
-		$where = '';
-		$locks_passed = Array();
-		if (is_array($lockid)) {
-			$where = ' WHERE lockid IN (';
-			foreach ($lockid as $lock_key => $lock_value) {
-				$where .= ':lockid'.$lock_key.',';
-				$locks_passed['lockid'.$lock_key] = $lock_value;
-			}
-			$where = rtrim($where, ',');
-			$where .= ')';
-		} else {
-			$where = ' WHERE lockid = :lockid';
-			$locks_passed['lockid'] = $lockid;
-		}
-
+		list($where, $locks_passed) = self::_expandLockForSql($lockid);
+		
 		$sql = 'SELECT lockid, source_lockid, userid, expires
 				FROM sq_lock'.$where;
 

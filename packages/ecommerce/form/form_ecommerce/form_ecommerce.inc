@@ -1072,6 +1072,9 @@ class Form_Ecommerce extends Form_Email
 		$order->setAttrValue('delivery_name', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_NAME', ''));
 		$order->setAttrValue('delivery_addr', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_ADDR', ''));
 
+		$xml = '<RESPONSE>'.array_to_xml($this->_tmp['GATEWAY_RESPONSE']).'</RESPONSE>';
+		$order->setAttrValue('transaction_response', $xml);
+
 		$order->saveAttributes();
 
 		// Link the applied promotions to the asset
@@ -2140,6 +2143,22 @@ class Form_Ecommerce extends Form_Email
 		return $order->id;
 
 	}//end getOrderNumberKeywordReplacement()
+
+
+
+
+	/**
+	* Transaction Response keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionResponseKeywordReplacement()
+	{
+		$xml = '<RESPONSE>'.array_to_xml($this->_tmp['GATEWAY_RESPONSE']).'</RESPONSE>';
+		return $xml;
+
+	}//end getTransactionResponseKeywordReplacement()
 
 
 	/**

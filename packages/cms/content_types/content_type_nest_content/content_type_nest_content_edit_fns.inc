@@ -89,252 +89,253 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				if (empty($asset_link)) {
 					$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 				}
+				$hide_for_new = TRUE;
+			} else {
+				$additional_get_vars = Array();
+				$paint_layout_id = 0;
+				$paint_with = 'raw';
+				$hide_for_new = FALSE;
+			}
 
-				if ($asset->attr('dynamic_nest_get') !== '' || !empty($additional_get_vars) || ($paint_layout_id !== 0 || $paint_with != 'raw')) {
-					$display_table_rows = 'table-row';
-				} else {
-					$display_table_rows = 'none';
-				}
+			if ($hide_for_new && ($asset->attr('dynamic_nest_get') !== '' || !empty($additional_get_vars) || ($paint_layout_id !== 0 || $paint_with != 'raw'))) {
+				$display_table_rows = 'table-row';
+			} else {
+				$display_table_rows = 'none';
+			}
 
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-cell-alt" style="width:120px">
-							<?php 
-								echo translate('Nested Content');
-							?> 
-						</td>
-						<td class="sq-backend-table-cell">
-							<?php 
+			?>
+			<table class="sq-backend-table sq-backend-nest-content-table">
+				<tr>
+					<td class="sq-backend-table-cell-alt" style="width:120px">
+						<?php 
+							echo translate('Nested Content');
+						?> 
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php 
+							if (!is_null($nested_asset)) {
 								asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('asset' => 'D'));
 								require_once SQ_INCLUDE_PATH.'/general.inc'; 
 								echo ' '.get_asset_tag_line($nested_asset->id);
-							?>
-							<a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo "&nbsp;".translate('Preview') ?></a>
-							<?php 
-								$show_warning = FALSE;
-								foreach ($this->_warnings_for as $asset_type) {
-									if ($nested_asset instanceof $asset_type) {
-										$show_warning = TRUE;
-										break;
-									}
-								}
-								if ($show_warning === TRUE) {
-							?>
-							<div id="warning_nesting_form_type_asset" class="sq-warning-message top-margin"><?php echo translate('<strong>Warning:</strong> You are nesting in a form based asset. This can cause issues if caching is enabled. Please ensure caching settings are properly configured.'); ?></div>
-							<?php
-								}
-							?>
-							</td>
-					</tr>
-					<tr id = "<?php echo $prefix; ?>_dynamic_options_<?php echo $nested_asset->id; ?>" style="display:<?php echo $display_table_rows; ?>;">
-						<td class="sq-backend-table-cell-alt" style="width:120px;"><b>Dynamic Options</b></td>
-						<td class="sq-backend-table-cell">
-						<table>
-							<colgroup>
-								<col width="50%" />
-								<col width="50%" />
-							</colgroup>
-							<thead>
-								<tr>
-									<th>Parameter</th>
-									<th>GET Variable Name</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Asset ID to nest the contents of:</td>
-									<td><?php text_box($prefix.'_dynamic_nest_get', $asset->attr('dynamic_nest_get'), 30) ?></td>
-								</tr>
-							</tbody>
-							</table>
-						</td>
-					</tr>
-					<tr id = "<?php echo $prefix; ?>_paint_layout_config_<?php echo $nested_asset->id?>" style="display:<?php echo $display_table_rows; ?>;">
-						<td class="sq-backend-table-cell-alt" style="width:120px"><b>Paint Layouts</b></td>
-						<td class="sq-backend-table-cell">
-							<?php
-							radio_button($prefix.'_paint_with', 'raw', ($paint_with == 'raw' ? 1 : 0));
-							label('Raw (no Paint Layout)', $prefix.'_paint_with_raw');
-							?><br/>
-							<?php
-							radio_button($prefix.'_paint_with', 'default', ($paint_with == 'default' ? 1 : 0));
-							label('Using default Paint Layout (based on lookup rules)', $prefix.'_paint_with_default');
-							?><br/>
-							<?php
-							radio_button($prefix.'_paint_with', 'arbitrary', ($paint_with == 'arbitrary' ? 1 : 0));
-							label('Using an arbitrary Paint Layout: ', $prefix.'_paint_with_arbitrary');
-							asset_finder($prefix.'_paint_with_layout', $paint_layout_id, Array('paint_layout_page' => 'D'));
-							?>
-						</td>
-					</tr>
-					<tr id = "<?php echo $prefix; ?>_additional_get_param_<?php echo $nested_asset->id?>" style="display:<?php echo $display_table_rows; ?>;">
-						<td class="sq-backend-table-cell-alt" style="width:120px"><b>Additional GET Parameters</b></td>
-						<td class="sq-backend-table-cell">
-						<?php
-							// get delete icon, with new lines replaced
-							ob_start();
-							sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('Delete'), translate('Delete'), ' style="border:none"');
-
-							$delete_icon = ob_get_clean();
-							$delete_icon = str_replace("\n", ' ', $delete_icon);
-
-							if (empty($additional_get_vars)) {
-								// max() won't work on an empty array
-								$last_key = -1;
 							} else {
-								$last_key = max(array_keys($additional_get_vars));
+								asset_finder($prefix.'_nested_assetid', '', Array('asset' => 'D'));
+							}
+							if (!empty($asset_link)) {
+						?>
+						<a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo "&nbsp;".translate('Preview') ?></a>
+						<?php
+							}
+							$show_warning = FALSE;
+							foreach ($this->_warnings_for as $asset_type) {
+								if ($nested_asset instanceof $asset_type) {
+									$show_warning = TRUE;
+									break;
+								}
+							}
+							if ($show_warning === TRUE) {
+						?>
+						<div id="warning_nesting_form_type_asset" class="sq-warning-message top-margin"><?php echo translate('<strong>Warning:</strong> You are nesting in a form based asset. This can cause issues if caching is enabled. Please ensure caching settings are properly configured.'); ?></div>
+						<?php
 							}
 						?>
-						<script type="text/javascript">
-							if (typeof <?php echo $asset->type() ?> == 'undefined') {
-								<?php echo $asset->type() ?> = {
-									nextIndex: [],
-
-									/**
-									 * Adds a new row.
-									 */
-									addGetRow: function(prefix) {
-										node = document.getElementById(prefix + '_additional_get_body');
-										index = this.nextIndex[prefix];
-
-										// create a new row
-										tr = document.createElement('tr');
-										tr.id = prefix + '_additional_get_row_' + index;
-
-										// build the cells
-										td1 = document.createElement('td');
-										td1.innerHTML = '<?php text_box("' + prefix + '_additional_get[' + index + '][name]", '', 20) ?>';
-										td2 = document.createElement('td');
-										td2.innerHTML = '<?php text_box("' + prefix + '_additional_get[' + index + '][value]", '', 30) ?>'
-										td3 = document.createElement('td');
-										td3.innerHTML = '<a href="" onclick="<?php echo $asset->type() ?>.removeGetRow(\'' + prefix +'\', \'' + index + '\'); return false;"><?php echo $delete_icon; ?></a>';
-
-										// Now put them all together
-										tr.appendChild(td1);
-										tr.appendChild(td2);
-										tr.appendChild(td3);
-										node.appendChild(tr);
-
-										// Go to next index
-										this.nextIndex[prefix]++;
-
-										// Update display of "no variable" status
-										this.updateNoVarStatus(prefix);
-									},
-
-									/*
-									 * Removes a row.
-									 */
-									removeGetRow: function(prefix, index) {
-									 	node = document.getElementById(prefix + '_additional_get_row_' + index);
-									 	node.parentNode.removeChild(node);
-										this.updateNoVarStatus(prefix);
-									},
-
-									/*
-									 * Updates display of the "no variable" body.
-									 */
-									updateNoVarStatus: function(prefix) {
-										node = document.getElementById(prefix + '_additional_get_body');
-										var noVarBody = document.getElementById(prefix + '_additional_get_none');
-										noVarBody.style.display = (node.getElementsByTagName('tr').length > 0) ? 'none' : 'block';
-									}
-								};
-							}//end if
-
-							// Set the first new index for newly created rows
-							<?php echo $asset->type(); ?>.nextIndex['<?php echo $prefix; ?>'] = <?php echo ($last_key + 1); ?>;
-						</script>
-						<table>
-							<colgroup>
-								<col width="40%" />
-								<col width="60%" />
-								<col />
-							</colgroup>
-							<thead>
-								<tr>
-									<th>Variable Name</th>
-									<th>Variable Value</th>
-									<th><span style="white-space: nowrap"><?php echo translate('Delete?') ?></span></th>
-
-								</tr>
-							</thead>
-							<tfoot>
-								<tr>
-									<td colspan="3"><a href="" onclick="<?php echo $asset->type() ?>.addGetRow('<?php echo $prefix ?>'); return false;" id="<?php echo $prefix ?>_additional_get_new_row"><?php echo translate('Add a new variable...'); ?></a></td>
-
-								</tr>
-								<tr>
-									<td colspan="3">You can use keywords of the form <strong>%nested_*%</strong> (e.g %nested_asset_name%) to refer to any of the keywords of the asset being nested. <br/>You can also use global keywords (<strong>%globals_*%</strong>). These will be evaluated upon asset load.
-									<br/>You can use keywords of the form <strong>%list_current_*%</strong> (e.g %list_current_asset_name%) to refer to the current asset being listed by listing page or search page.
-									</td>
-								</tr>
-							</tfoot>
-							<tbody id="<?php echo $prefix ?>_additional_get_none" style="display: <?php echo empty($additional_get_vars) ? 'table-row-group' : 'none' ?>">
-								<tr>
-									<td colspan="3"><em><?php echo translate('No variables are set.'); ?></em></td>
-
-								</tr>
-							</tbody>
-							<tbody id="<?php echo $prefix ?>_additional_get_body">
-							<?php
-							foreach ($additional_get_vars as $key => $var_info) {
-								?>
-								<tr id="<?php echo $prefix; ?>_additional_get_row_<?php echo $key; ?>">
-									<td><?php text_box($prefix.'_additional_get['.$key.'][name]', $var_info['name'], 20) ?></td>
-									<td><?php text_box($prefix.'_additional_get['.$key.'][value]', $var_info['value'], 30) ?></td>
-									<td align="center"><a href="" onclick="<?php echo $asset->type() ?>.removeGetRow('<?php echo $prefix; ?>','<?php echo $key; ?>'); return false;"><?php echo $delete_icon; ?></a></td>
-								</tr>
-								<?php
-							}
-							?>
-							</tbody>
-							</table>
 						</td>
-					</tr>
-				</table>
-				<script type="text/javascript">
-				//<![CDATA[
-					function toggleNestedContents<?php echo $asset->id; ?>()
-					{
-						var prefix = "<?php echo $prefix; ?>";
-						var nested_assetid = "<?php echo $nested_asset->id; ?>";
-						// check if we are display warning for status change or new future status change
+				</tr>
+				<tr id = "<?php echo $prefix; ?>_dynamic_options_<?php echo is_null($nested_asset) ? $asset->id : $nested_asset->id; ?>" style="display:<?php echo $display_table_rows; ?>;">
+					<td class="sq-backend-table-cell-alt" style="width:120px;"><b>Dynamic Options</b></td>
+					<td class="sq-backend-table-cell">
+					<table>
+						<colgroup>
+							<col width="50%" />
+							<col width="50%" />
+						</colgroup>
+						<thead>
+							<tr>
+								<th>Parameter</th>
+								<th>GET Variable Name</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Asset ID to nest the contents of:</td>
+								<td><?php text_box($prefix.'_dynamic_nest_get', $asset->attr('dynamic_nest_get'), 30) ?></td>
+							</tr>
+						</tbody>
+						</table>
+					</td>
+				</tr>
+				<tr id = "<?php echo $prefix; ?>_paint_layout_config_<?php echo is_null($nested_asset) ? $asset->id : $nested_asset->id; ?>" style="display:<?php echo $display_table_rows; ?>;">
+					<td class="sq-backend-table-cell-alt" style="width:120px"><b>Paint Layouts</b></td>
+					<td class="sq-backend-table-cell">
+						<?php
+						radio_button($prefix.'_paint_with', 'raw', ($paint_with == 'raw' ? 1 : 0));
+						label('Raw (no Paint Layout)', $prefix.'_paint_with_raw');
+						?><br/>
+						<?php
+						radio_button($prefix.'_paint_with', 'default', ($paint_with == 'default' ? 1 : 0));
+						label('Using default Paint Layout (based on lookup rules)', $prefix.'_paint_with_default');
+						?><br/>
+						<?php
+						radio_button($prefix.'_paint_with', 'arbitrary', ($paint_with == 'arbitrary' ? 1 : 0));
+						label('Using an arbitrary Paint Layout: ', $prefix.'_paint_with_arbitrary');
+						asset_finder($prefix.'_paint_with_layout', $paint_layout_id, Array('paint_layout_page' => 'D'));
+						?>
+					</td>
+				</tr>
+				<tr id = "<?php echo $prefix; ?>_additional_get_param_<?php echo is_null($nested_asset) ? $asset->id : $nested_asset->id; ?>" style="display:<?php echo $display_table_rows; ?>;">
+					<td class="sq-backend-table-cell-alt" style="width:120px"><b>Additional GET Parameters</b></td>
+					<td class="sq-backend-table-cell">
+					<?php
+						// get delete icon, with new lines replaced
+						ob_start();
+						sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('Delete'), translate('Delete'), ' style="border:none"');
 
-						var tr_dynamic = document.getElementById(prefix + '_dynamic_options_' + nested_assetid);
-						var tr_paint_layout = document.getElementById(prefix + '_paint_layout_config_' + nested_assetid);
-						var tr_additional_get = document.getElementById(prefix + '_additional_get_param_' + nested_assetid);
+						$delete_icon = ob_get_clean();
+						$delete_icon = str_replace("\n", ' ', $delete_icon);
 
-
-						if (tr_dynamic.style.display === 'none' || tr_paint_layout.style.display === 'none' || tr_additional_get.style.display === 'none') {
-							tr_dynamic.style.display="table-row";
-							tr_paint_layout.style.display="table-row";
-							tr_additional_get.style.display="table-row";
+						if (empty($additional_get_vars)) {
+							// max() won't work on an empty array
+							$last_key = -1;
 						} else {
-							tr_dynamic.style.display="none";
-							tr_paint_layout.style.display="none";
-							tr_additional_get.style.display="none";
+							$last_key = max(array_keys($additional_get_vars));
 						}
+					?>
+					<script type="text/javascript">
+						if (typeof <?php echo $asset->type() ?> == 'undefined') {
+							<?php echo $asset->type() ?> = {
+								nextIndex: [],
 
+								/**
+								 * Adds a new row.
+								 */
+								addGetRow: function(prefix) {
+									node = document.getElementById(prefix + '_additional_get_body');
+									index = this.nextIndex[prefix];
+
+									// create a new row
+									tr = document.createElement('tr');
+									tr.id = prefix + '_additional_get_row_' + index;
+
+									// build the cells
+									td1 = document.createElement('td');
+									td1.innerHTML = '<?php text_box("' + prefix + '_additional_get[' + index + '][name]", '', 20) ?>';
+									td2 = document.createElement('td');
+									td2.innerHTML = '<?php text_box("' + prefix + '_additional_get[' + index + '][value]", '', 30) ?>'
+									td3 = document.createElement('td');
+									td3.innerHTML = '<a href="" onclick="<?php echo $asset->type() ?>.removeGetRow(\'' + prefix +'\', \'' + index + '\'); return false;"><?php echo $delete_icon; ?></a>';
+
+									// Now put them all together
+									tr.appendChild(td1);
+									tr.appendChild(td2);
+									tr.appendChild(td3);
+									node.appendChild(tr);
+
+									// Go to next index
+									this.nextIndex[prefix]++;
+
+									// Update display of "no variable" status
+									this.updateNoVarStatus(prefix);
+								},
+
+								/*
+								 * Removes a row.
+								 */
+								removeGetRow: function(prefix, index) {
+									node = document.getElementById(prefix + '_additional_get_row_' + index);
+									node.parentNode.removeChild(node);
+									this.updateNoVarStatus(prefix);
+								},
+
+								/*
+								 * Updates display of the "no variable" body.
+								 */
+								updateNoVarStatus: function(prefix) {
+									node = document.getElementById(prefix + '_additional_get_body');
+									var noVarBody = document.getElementById(prefix + '_additional_get_none');
+									noVarBody.style.display = (node.getElementsByTagName('tr').length > 0) ? 'none' : 'block';
+								}
+							};
+						}//end if
+
+						// Set the first new index for newly created rows
+						<?php echo $asset->type(); ?>.nextIndex['<?php echo $prefix; ?>'] = <?php echo ($last_key + 1); ?>;
+					</script>
+					<table>
+						<colgroup>
+							<col width="40%" />
+							<col width="60%" />
+							<col />
+						</colgroup>
+						<thead>
+							<tr>
+								<th>Variable Name</th>
+								<th>Variable Value</th>
+								<th><span style="white-space: nowrap"><?php echo translate('Delete?') ?></span></th>
+
+							</tr>
+						</thead>
+						<tfoot>
+							<tr>
+								<td colspan="3"><a href="" onclick="<?php echo $asset->type() ?>.addGetRow('<?php echo $prefix ?>'); return false;" id="<?php echo $prefix ?>_additional_get_new_row"><?php echo translate('Add a new variable...'); ?></a></td>
+
+							</tr>
+							<tr>
+								<td colspan="3">You can use keywords of the form <strong>%nested_*%</strong> (e.g %nested_asset_name%) to refer to any of the keywords of the asset being nested. <br/>You can also use global keywords (<strong>%globals_*%</strong>). These will be evaluated upon asset load.
+								<br/>You can use keywords of the form <strong>%list_current_*%</strong> (e.g %list_current_asset_name%) to refer to the current asset being listed by listing page or search page.
+								<br/>You can use keywords of the form <strong>%nested_get_*%</strong> (e.g %nested_get_var%) to refer to the passed GET parameters in the nested asset content.
+								</td>
+							</tr>
+						</tfoot>
+						<tbody id="<?php echo $prefix ?>_additional_get_none" style="display: <?php echo empty($additional_get_vars) ? 'table-row-group' : 'none' ?>">
+							<tr>
+								<td colspan="3"><em><?php echo translate('No variables are set.'); ?></em></td>
+
+							</tr>
+						</tbody>
+						<tbody id="<?php echo $prefix ?>_additional_get_body">
+						<?php
+						foreach ($additional_get_vars as $key => $var_info) {
+							?>
+							<tr id="<?php echo $prefix; ?>_additional_get_row_<?php echo $key; ?>">
+								<td><?php text_box($prefix.'_additional_get['.$key.'][name]', $var_info['name'], 20) ?></td>
+								<td><?php text_box($prefix.'_additional_get['.$key.'][value]', $var_info['value'], 30) ?></td>
+								<td align="center"><a href="" onclick="<?php echo $asset->type() ?>.removeGetRow('<?php echo $prefix; ?>','<?php echo $key; ?>'); return false;"><?php echo $delete_icon; ?></a></td>
+							</tr>
+							<?php
+						}
+						?>
+						</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+			<script type="text/javascript">
+			//<![CDATA[
+				function toggleNestedContents<?php echo $asset->id; ?>()
+				{
+					var prefix = "<?php echo $prefix; ?>";
+					var nested_assetid = "<?php echo is_null($nested_asset) ? $asset->id : $nested_asset->id; ?>";
+					// check if we are display warning for status change or new future status change
+
+					var tr_dynamic = document.getElementById(prefix + '_dynamic_options_' + nested_assetid);
+					var tr_paint_layout = document.getElementById(prefix + '_paint_layout_config_' + nested_assetid);
+					var tr_additional_get = document.getElementById(prefix + '_additional_get_param_' + nested_assetid);
+
+
+					if (tr_dynamic.style.display === 'none' || tr_paint_layout.style.display === 'none' || tr_additional_get.style.display === 'none') {
+						tr_dynamic.style.display="table-row";
+						tr_paint_layout.style.display="table-row";
+						tr_additional_get.style.display="table-row";
+					} else {
+						tr_dynamic.style.display="none";
+						tr_paint_layout.style.display="none";
+						tr_additional_get.style.display="none";
 					}
-				//]]>
-				</script>
-				<?php
-			} else {
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-cell-alt" style="width:120px"><b><?php echo translate('No page has been selected'); ?></b></td>
 
-					</tr>
-					<tr>
-						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', '', Array('asset' => 'D')); ?></td>
-					</tr>
-				</table>
-				<?php
-			}
-		}//end if
+				}
+			//]]>
+			</script>
+			<?php
+		} 
 
 		return TRUE;
 
@@ -380,7 +381,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							<strong><?php echo translate('Nested Content'); ?></strong>
 						</td>
 						<td class="sq-backend-table-cell">
-							<?php 
+						<?php
+							if (!is_null($nested_asset)) {
 			  					echo '<span class="sq-info-type-icon">'.get_asset_type_icon($nested_asset->type()).'</span>';
 			    				echo '<span class="sq-info-type-name" data-type-code="'.$nested_asset->type().'">'.$type_name.'</span>&nbsp;&nbsp;&nbsp;';
 							?>
@@ -399,6 +401,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							<div id="warning_nesting_form_type_asset" class="sq-warning-message top-margin"><?php echo translate('<strong>Warning:</strong> You are nesting in a form based asset. This can cause issues if caching is enabled. Please ensure caching settings are properly configured.'); ?></div>
 							<?php
 								}
+							}
 							?>
 						</td>
 					</tr>
@@ -550,16 +553,6 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$asset_contents = ob_get_contents();
 			ob_end_clean();
 
-			$keywords = extract_keywords($asset_contents);
-			$replacements = Array();
-			foreach ($keywords as $idx => $keyword) {
-				if (strpos($keyword, 'nested_get_') === 0) {
-					$sub_keyword = substr($keyword, 11);
-					$replacements[$keyword] = array_get_index($_GET, $sub_keyword, '');
-				}
-			}
-
-			replace_keywords($asset_contents, $replacements);
 
 			$_GET = $old_get;
 
@@ -674,7 +667,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						$array_els[] = addslashes($base_name[1]);
 					}
 
-					$eval_str = '$processed_get_vars[\''.addslashes($base_name[1]).'\'][\''.implode('\'][\'', $array_els).'\'] = '.addslashes($get_value);
+					$eval_str = '$processed_get_vars[\''.addslashes($base_name[1]).'\'][\''.implode('\'][\'', $array_els).'\'] = \''.addslashes($get_value).'\';';
 					eval($eval_str);
 				}
 			}
@@ -833,7 +826,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					$array_els[] = addslashes($base_name[1]);
 				}
 
-				$eval_str = '$processed_get_vars[\''.addslashes($base_name[1]).'\'][\''.implode('\'][\'', $array_els).'\'] = '.addslashes($get_value);
+				$eval_str = '$processed_get_vars[\''.addslashes($base_name[1]).'\'][\''.implode('\'][\'', $array_els).'\'] = \''.addslashes($get_value).'\';';
 				eval($eval_str);
 			}//end else
 		}//end foreach
@@ -876,7 +869,20 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$paint_with = array_get_index($_POST, $prefix.'_paint_with', 'raw');
 		$paint_with_assetid = (isset($_POST[$prefix.'_paint_with_layout']['assetid'])) ? $_POST[$prefix.'_paint_with_layout']['assetid'] : 0;
 
+		// rm7713 -- If arbitrary paint layout is not selected, then we want to remove the arbitrary layout link.    
 		$to_update_links = FALSE;
+		if ($paint_with !== 'arbitrary') {
+			if ($current_apl_assetid) {
+				$paint_layout_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'paint_with_layout');
+				if (!$asset->deleteLink($paint_layout_link['linkid'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return FALSE;
+				}//end if 
+			}//end if 
+
+		$to_update_links = TRUE;
+		}// end if 
+
 		if ($paint_with == 'arbitrary') {
 			if ($current_apl_assetid && $current_apl_assetid != $paint_with_assetid) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'paint_with_layout');
@@ -906,6 +912,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			if ($to_update_links) $asset->linksUpdated();
 		}//end if
 
+		$regenerate_content = FALSE;
+
 		if (($dynamic_nest_get != $asset->attr('dynamic_nest_get')) || ($paint_with != $asset->attr('paint_with')) || ($additional_get != $asset->attr('additional_get')) || ($paint_with_assetid != $current_apl_assetid)) {
 			$asset->setAttrValue('paint_with', $paint_with);
 			$asset->setAttrValue('additional_get', $additional_get);
@@ -917,6 +925,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			}
 
 			$ok = TRUE;
+			$regenerate_content = TRUE;
 		}
 
 		if ($assetid) {
@@ -943,21 +952,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					return FALSE;
 				}
 
-				// get the html contents of the nested asset so
-				// we change the type of the cell later - other content
-				// types can use the html
-
-				// if we dont have the frontend asset set just buffer nothing
-				if (SQ_IN_LIMBO && !isset($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
-					$html = '';
-				} else {
-					ob_start();
-						$this->paint($asset, $prefix);
-						$html = ob_get_contents();
-					ob_end_clean();
+				// Blank out any html attribute value from previous content type morph from, if any
+				if (trim($asset->attr('html'))) {
+					$asset->setAttrValue('html', '');
 				}
-
-				$asset->setAttrValue('html', $html);
 
 				// Bug Fix 1541
 				if (!$current_assetid && $assetid) {
@@ -970,7 +968,11 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				$ok = TRUE;
+				$regenerate_content = TRUE;
 
+			}//end if
+
+			if ($regenerate_content === TRUE) {
 				// Fix to Bug #5055	Nested content divs don't save properly across contexts
 				// refresh the content_file.php for all the context here. This content_type(_nest_asset)
 				// is different to any other content types. This is more so based on what asset is linked
@@ -987,8 +989,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						$GLOBALS['SQ_SYSTEM']->restoreContext();
 					}
 				}
-
-			}//end if
+			}
 
 		} else if ($current_assetid) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'nested_asset');

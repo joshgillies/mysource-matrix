@@ -43,8 +43,21 @@
     <section name="Configuration" write_access="write:attributes">
         <field attribute="currency">
             <display_name>Currency</display_name>
-            <note>The currency used in all the e-commerce transactions. If blank, currency will be determined by the bank account used which is selected using the Username/Password details</note>
+            <note>The currency used in all the e-commerce transactions. If blank, currency will be determined by the bank account used which is selected using the Username/Password details.</note>
             <selection style="list" />
+        </field>
+        <field attribute="transaction_type">
+            <display_name>Transaction Type (TxnType)</display_name>
+            <selection style="list" />
+            <note>Choose Auth / Validate to setup a recurring bill.</note>
+        </field>
+        <field>
+            <display_name>Extra Parameters</display_name>
+            <function_call>
+                <paint_function name="paintOptions" />
+                <process_function name="processOptions" />
+            </function_call>
+            <note>Pass extra parameters to payment server to enable special features. Global keywords are supported. To use a pass through variable "test", insert keyword %pass_through_test%</note>
         </field>
     </section>
     <section name="Address Verification System property(AVS)" write_access="write:attributes">

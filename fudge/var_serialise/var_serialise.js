@@ -70,7 +70,7 @@ function _var_serialise(value, indent)
 		case "string"  :
 
 			if (VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP.test(value)) {
-				alert(js_translate('data_contains_escape_character', VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0)));
+				alert(js_translate('Your data contained the escape character (ASCII Code %s), this has been removed', VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0)));
 				value = value.replace(VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP, '');
 			}
 
@@ -103,7 +103,7 @@ function _var_serialise(value, indent)
 				    if (sub_str == false) return false;
 
 				    if (VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP.test(k)) {
-					    alert(js_translate('data_contains_escape_character', VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0)));
+					    alert(js_translate('Your data contained the escape character (ASCII Code %s), this has been removed', VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0)));
 					    k = k.replace(VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP, '');
 				    }
 

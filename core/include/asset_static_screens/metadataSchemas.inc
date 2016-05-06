@@ -186,7 +186,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 								check_box($prefix.'_metadata[cascades]['.$schemaid.']', 1, $schema_detail['cascades']);
 							} else {
 							?>
-								<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
+								<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.png" width="15" height="15" />
 							<?php
 							}
 							?>

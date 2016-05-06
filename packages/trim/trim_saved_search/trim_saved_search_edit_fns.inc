@@ -124,9 +124,9 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 				if (strpos(urlencode($var), 'search_sort') !== FALSE) {
 					$search_sort = TRUE;
 					$list['None']	= 'None';
-					$list += TRIM_Common::getRecordSortProperties();
+					$list += $asset->lib('getRecordSortProperties');
 				} else if (urlencode($var) == 'search_date_range_type') {
-					$list = TRIM_Common::getRecordDateRangeSearchClauseType();
+					$list = $asset->lib('getRecordDateRangeSearchClauseType');
 				}//end if
 
 				if ($write_access) {
@@ -554,7 +554,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
-	* paint function for retrieving fields from TRIM server
+	* Paint function for retrieving fields from TRIM server
 	*
 	* @param object	&$asset	asset being painted
 	* @param object	&$o		backend outputter
@@ -567,27 +567,52 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$wa	= $asset->writeAccess('attributes');
 		$fields = $asset->attr('retrieved_fields');
-		$standard_fields = isset ($fields['standard_fields']) ? count($fields['standard_fields']) : 0;
-		$additional_fields = isset ($fields['additional_fields']) ? count($fields['additional_fields']) : 0;
-		$record_types = isset ($fields['record_types']) ? count($fields['record_types']) : 0;
+
+		if (!isset($fields['standard_fields'])) {
+			$fields['standard_fields'] = Array();
+		}
+		if (!isset($fields['additional_fields'])) {
+			$fields['additional_fields'] = Array();
+		}
+		if (!isset($fields['record_types'])) {
+			$fields['record_types'] = Array();
+		}
+
+		// Generate the retrive fields info message dynamically based on the number of 'fields' types extracted
+		// NOTE: Fields types extracted can be more the above three
+		$retrive_str = 'Retrived ';
+		$count = 0;
+		$field_types_count = count($fields);
+		foreach($fields as $field_name => $field_items) {
+			if ($count++ == $field_types_count-1 && $field_types_count > 1) {
+				$retrive_str .= ' and ';
+			}
+			$retrive_str .= count($field_items).' '.str_replace('_', ' ', $field_name).', ';
+		}
+		$retrive_str = rtrim($retrive_str, ', ').' retrived.';
 		?>
 		<table>
-		<tr>
-		<td>
-		<?php
-		if (!empty($_POST[$prefix.'_retrieve'])) echo '<span style="color:green;">';
-		echo (empty($fields) ? 'Empty' : $standard_fields.' standard fields, '.$additional_fields.' additional fields and '.$record_types.' record types retrieved');
-		if (!empty($_POST[$prefix.'_retrieve'])) echo '</span>';
-		?>
-		</td>
-		<td>
-		<?php
-		if ($wa) submit_button($prefix.'_retrieve', 'Retrieve Now', '');
-		?>
-		</td>
-		</tr>
+			<tr>
+				<td>
+					<?php
+					if (!empty($_POST[$prefix.'_retrieve'])) {
+						echo '<span style="color:green;">';
+						echo $retrive_str;
+						echo '</span>&nbsp;';
+					}
+					?>
+				</td>
+				<td>
+				<?php
+					if ($wa) {
+						submit_button($prefix.'_retrieve', 'Retrieve Now', '');
+					}
+				?>
+				</td>
+			</tr>
 		</table>
 		<?php
+
 		return $wa;
 
 	}//end paintSynchCheck()
@@ -614,7 +639,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 			$udf_fields = Array();
 			$fields_type = Array();
 			try {
-				$client = new SoapClient($connection['wsdl'], $connection['authentication']);
+				$client = $asset->lib('getSoapClient', Array($connection));
 				$data = $client->ListProperties(Array('ObjectName'	=> 'Record'));
 				foreach ($data->ListPropertiesResult->PropertyDescription as $field) {
 					if (preg_match('/^udf:/', (String) $field->Name)) {
@@ -637,7 +662,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 
 
 			//retrieve record types info
-			$record_types = TRIM_Common::getAllRecordTypes($connection);
+			$record_types = $asset->lib('getAllRecordTypes', Array($connection));
 			$asset->setAttrValue('retrieved_fields', Array('standard_fields' => $st_fields, 'additional_fields' => $udf_fields, 'field_types' => $fields_type, 'record_types' => $record_types));
 
 		}
@@ -666,7 +691,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('Add search field').' --'));
 
 		$list = $asset->getRetrievedFields('additional');
-		$available_fields += TRIM_Common::getRecordStringSearchClauseType() + $list;
+		$available_fields += $asset->lib('getRecordStringSearchClauseType') + $list;
 
 		//work out total rows
 		$total_rows = 0;
@@ -852,7 +877,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 
 		$available_fields = Array();
 		$list = $asset->getRetrievedFields('additional');
-		$available_fields = TRIM_Common::getRecordStringSearchClauseType() + $list;
+		$available_fields = $asset->lib('getRecordStringSearchClauseType') + $list;
 
 		if (isset($_POST[$prefix.'_fields'])) {
 			// set global logic
@@ -942,7 +967,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('Add result field').' --'));
 
 		$list = $asset->getRetrievedFields('all');
-		$available_fields += !empty($list) ? $list : TRIM_Common::getRecordProperties();
+		$available_fields += !empty($list) ? $list : $asset->lib('getRecordProperties');
 
 
 		?>
@@ -981,9 +1006,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 						</td>
 						<td>
 							<?php
-								echo(preg_match('/^udf:/', $name) ? translate('Additional Field') : translate('Standard Field'));
-
-
+								echo $asset->isStandardField($name) ? translate('Standard Field') : translate('Additional Field');
 							?>
 						</td>
 						<?php
@@ -1035,11 +1058,11 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 
 		//get possible search fields
 		$list = $asset->getRetrievedFields('all');
-		$available_fields = !empty($list) ? $list : TRIM_Common::getRecordProperties();
+		$available_fields = !empty($list) ? $list : $asset->lib('getRecordProperties');
 
 		if (isset($_POST[$prefix.'_result_fields'])) {
 			foreach ($_POST[$prefix.'_result_fields'] as $field => $value) {
-				if (isset($field['delete']) && isset($result_fields[$field])) {
+				if (isset($value['delete']) && isset($result_fields[$field])) {
 					unset($result_fields[$field]);
 				}
 			}

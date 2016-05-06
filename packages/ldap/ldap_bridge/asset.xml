@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>ldap</package>
 	<type_code>ldap_bridge</type_code>
-	<version>0.5</version>
+	<version>0.6</version>
 	<name>LDAP Bridge</name>
 	<description>Provides a bridge between the MySource system and an LDAP directory</description>
 	<instantiable>yes</instantiable>

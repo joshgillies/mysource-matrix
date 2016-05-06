@@ -187,6 +187,8 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				$datetime->_edit_params['use_picker'] = TRUE;
 				$datetime->_edit_params['show'] = Array('y','m','d','h','i','s');
 				$datetime->_edit_params['null'] = Array('y','m','d','h','i','s');
+				$datetime->_edit_params['min']  = '1970-01-01 00:00:00';
+				$datetime->_edit_params['max']  = '2030-12-31 23:59:59';
 
 				foreach ($datetime->_edit_params['show'] as $u) {
 					$datetime->_edit_params['style'][$u] = 's';
@@ -333,10 +335,13 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				$datetime->_edit_params['use_picker'] = TRUE;
 				$datetime->_edit_params['show'] = Array('y','m','d','h','i','s');
 				$datetime->_edit_params['null'] = Array('y','m','d','h','i','s');
+				$datetime->_edit_params['min']  = '1970-01-01 00:00:00';
+				$datetime->_edit_params['max']  = '2030-12-31 23:59:59';
 
 				foreach ($datetime->_edit_params['show'] as $u) {
 					$datetime->_edit_params['style'][$u] = 's';
 				}
+				$datetime->_edit_params['style']['y'] = 't';
 				$datetime->value = $$type;
 
 				$datetime->paint($prefix.'_'.$type, !$write_access);

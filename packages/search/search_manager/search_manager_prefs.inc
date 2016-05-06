@@ -77,12 +77,16 @@ class Search_Manager_Prefs extends Prefs
 
 	    // Assets per page.
 		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_SEARCH_BACKEND_PAGE_SIZE', 5, translate('%s asset(s)'), 0);
-		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_SEARCH_BACKEND_RESULT_LIMIT', 5, function($value) {
-		     if ((int) $value === 0) {
-		         return translate('Unlimited');
-		     } else {
-		         return sprintf(translate('%s asset(s)', $value));
-		     }
+		$this->paintIntTextField($o, $have_lock, $pref, 'SQ_SEARCH_BACKEND_RESULT_LIMIT', 5, function($value) use ($have_lock)  {
+			if ($have_lock) {
+				return $value;
+			} else {
+				if ((int) $value === 0) {
+					return translate('Unlimited');
+				} else {
+					return sprintf(translate('%s asset(s)'), $value);
+				}
+			}
 		}, 0);
 
 		return TRUE;

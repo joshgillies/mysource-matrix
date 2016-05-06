@@ -1,0 +1,24 @@
+/*
+####################################################################################################################
+ Matrix Ace Source Theme
+####################################################################################################################
+*/
+.sq-viper-ace-editor-textarea {
+    display: none;
+}
+.sq-viper-ace-editor {
+    width: 100%;
+    min-height: 300px;
+    border-radius: 4px;
+}
+.sq-viper-ace-editor.sq-viper-ace-editor-large {
+    height: 1200px;
+}
+.sq-toggle-option-wrapper.sq-viper-ace-editor-switch {
+    margin-bottom: 6px;
+    margin-left: 0px;
+}
+
+.sq-viper-ace-editor.sq-viper-ace-editor-textarea-readonly {
+    min-height: inherit;
+}

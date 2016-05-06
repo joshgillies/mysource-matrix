@@ -74,9 +74,9 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	* @param string	$default_content	default content to put into the bodycopy
 	*
 	* @return string
-	* @access private
+	* @access protected
 	*/
-	function _createBodycopy($default_content=NULL)
+	protected function _createBodycopy($default_content=NULL)
 	{
 		if (is_null($default_content)) {
 			$default_content = translate('%processing_error%
@@ -127,22 +127,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 
 	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowedLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => TRUE);
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-	/**
 	* Return the available keywords from the parents
 	*
 	* The return value is in the form:
@@ -174,24 +158,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		return $keywords;
 
 	}//end getAvailableKeywords()
-
-
-	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param object	&$broadcaster	the asset that triggered the event
-	* @param array	$vars			the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		$keywords = $this->getAvailableKeywords();
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
-	}//end onRequestKeywords()
 
 
 	/**
@@ -254,43 +220,15 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		}
 		$bodycopy->setKeywordReplacements($replacements);
 
-		// OUTPUT HERE
-		$datapath = sq_web_path('data').'/asset_types/payment_gateway_esec/files';
-		$card = $this->getPrefix().'_card';
-
-		if ($this->attr('test_mode')) {
-			echo '<h2 class="gateway-test-mode" style="color: white; background-color: #C00; padding: 5px">TEST MODE</h2>';
-		}
-
+		// Load the JS 'Loader' object to print the overlay when payment form is submitted
+		$this->includeLoaderJsObject($this->getPrefix().'_card');
 		?>
-		<script src="<?php echo $datapath; ?>/loader.js"></script>
-		<script>
-			var Loader = new Loader('<?php echo $card; ?>','#FFFFFF','Processing Transaction...','<?php echo $datapath; ?>/loader.gif');
-			Loader.print();
-		</script>
 		<form method="post" action="<?php echo $this->getURL(); ?>" onsubmit="Loader.show();">
 		<?php
 		$bodycopy->printBody();
 		echo '</form>';
 
 	}//end printBodycopy()
-
-
-	/**
-	* Return the bodycopy linked to this page
-	*
-	* @return object
-	* @access public
-	*/
-	function &getBodycopy()
-	{
-		$null = NULL;
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, '', 'major');
-		if (empty($link)) return $null;
-		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-		return $bodycopy;
-
-	}//end getBodycopy()
 
 
 	/**
@@ -320,20 +258,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$form_contents_select .= '<option value="'.$type.'>'.$type.'</option>';
 		}
 
-		// set variables for test mode
-		if ($this->attr('test_mode')) {
-
-			$form_contents .= '<h2 style="color: white; background-color: grey; padding: 5px">TEST MODE</h2>';
-
-			$test_card_numbers = $Esec->getTestCardNumbers();
-			$card_number = '<select name="'.$card.'[number]">';
-			foreach ($test_card_numbers as $number => $label) {
-				$card_number .= '<option value="'.$number.'>'.$number.'</option>';
-			}
-			$card_number .= '</select>';
-		} else {
-			$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
-		}
+		$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
 
 		// check for errors
 		if (array_get_index($this->_tmp, 'is_error', FALSE)) {
@@ -342,17 +267,12 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 		$message = $this->attr('message');
 
-		$datapath = sq_web_path('data').'/asset_types/payment_gateway_esec/files';
-
 		$own_url = $this->getURL();
 
 		ob_start();
+			// Load the JS 'Loader' class to print the overlay when payment form is submitted
+			$this->includeLoaderJsObject($card);
 		?>
-		<script src="<?php echo $datapath; ?>/loader.js"></script>
-		<script>
-			var Loader = new Loader('<?php echo $card; ?>','#FFFFFF','Processing Transaction...','<?php echo $datapath; ?>/loader.gif');
-			Loader.print();
-		</script>
 		<form method="post" action="<?php echo $own_url; ?>" onsubmit="Loader.show();">
 			<div><?php echo $message; ?></div>
 			<div style="background-color: #CCC; padding: 5px"><strong>$<?php echo $amount; ?></strong> Australian Dollars are about to be debited from your credit card</div>
@@ -429,8 +349,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$Esec->setCardExpiryYear($card_info['year']);
 		$Esec->setCardName($card_info['name']);
 
-		if ($this->attr('test_mode')) $Esec->setTest();
-
 		$success = $Esec->process();
 
 		// process response
@@ -444,9 +362,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$this->_tmp['error_message']    = $response['MESSAGE_CODE'].' '.$response['MESSAGE'];
 		} else {
 			$status = $Esec->explainStatus();
-			if ($this->attr('test_mode')) {
-				$status = '!!!ATTENTION!!! TEST MODE (transaction not performed) -- '.$status;
-			}
 
 			$response['STATUS'] = $status;
 			// preparing card number; should contain only 4 last digits
@@ -515,17 +430,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$prefix = $this->getPrefix();
 		$card = $prefix.'_card';
 
-		// set variables for test mode
-		if ($this->attr('test_mode')) {
-			$test_card_numbers = $this->_esec->getTestCardNumbers();
-			$card_number = '<select name="'.$card.'[number]">';
-			foreach ($test_card_numbers as $number => $label) {
-				$card_number .= '<option value="'.$number.'" >'.$number.'</option>';
-			}
-			$card_number .= '</select>';
-		} else {
-			$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
-		}
+		$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
 
 		return $card_number;
 

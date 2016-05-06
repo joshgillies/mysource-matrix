@@ -64,6 +64,222 @@ class Page_Password_Reset_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												  );
+		$this->vars['require_captcha'] = Array(
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'parameters'	=> Array(
+																'allow_empty'	=> FALSE,
+															   ),
+										 );
+		$this->vars['captcha_length'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'int',
+											'default'	=> 4,
+										);
+		$this->vars['captcha_zoom'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'int',
+										'default'	=> 1,
+									  );
+		$this->vars['captcha_link_text'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'text',
+											'default'	=> 'Regenerate security key',
+										   );
+
+		$this->vars['captcha_bgcolour']	= Array(
+											'added'		=> '0.9',
+											'type'		=> 'colour',
+											'default'	=> 'FFFFFF',
+										  );
+
+		$this->vars['captcha_textcolour']	= Array(
+												'added'		=> '0.9',
+												'type'		=> 'colour',
+												'default'	=> '000000',
+											  );
+
+		$this->vars['captcha_bordercolour'] = Array(
+												'added'		=> '0.9',
+												'type'		=> 'colour',
+												'default'	=> '000000',
+											  );
+
+		$this->vars['captcha_use_colours']	= Array(
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											  );
+
+		$this->vars['captcha_usefont']	= Array(
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'parameters'	=> Array(
+																'allow_empty'=> FALSE,
+															   ),
+										  );
+
+		$this->vars['captcha_ttf']	= Array(
+										'added'			=> '0.9',
+										'type'			=> 'assetid',
+										'default'		=> '',
+										'description'	=> 'The asset id of the font file.',
+									  );
+
+		$this->vars['captcha_font_size'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'int',
+											'default'	=> 20,
+										   );
+
+		$this->vars['captcha_min_angle'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'int',
+											'default'	=> -20,
+										   );
+
+		$this->vars['captcha_max_angle'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'int',
+											'default'	=> 20,
+										   );
+
+		$this->vars['captcha_x_start'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'int',
+											'default'	=> 10,
+										 );
+
+		$this->vars['captcha_min_distance'] = Array(
+												'added'		=> '0.9',
+												'type'		=> 'int',
+												'default'	=> 10,
+											  );
+
+		$this->vars['captcha_max_distance'] = Array(
+												'added'		=> '0.9',
+												'type'		=> 'int',
+												'default'	=> 20,
+											  );
+
+		$this->vars['captcha_width'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'int',
+										'default'	=> 200,
+									   );
+
+		$this->vars['captcha_height'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'int',
+											'default'	=> 36,
+										);
+
+		$this->vars['captcha_arc'] = Array(
+										'type'=> 'boolean',
+										'default'=> FALSE,
+										'parameters'=> Array(
+														'allow_empty'=> FALSE,
+													   ),
+									 );
+
+		$this->vars['captcha_arc_colour'] = Array(
+												'added'=> '0.9',
+												'type'=> 'colour',
+												'default'=> 'D20A0A',
+											);
+
+		$this->vars['captcha_include_uppercase'] = Array(
+													'type'=> 'boolean',
+													'default'=> FALSE,
+													'parameters'=> Array(
+																	'allow_empty'=> FALSE,
+																   ),
+												   );
+
+		$this->vars['captcha_include_numbers'] = Array(
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												 );
+
+		$this->vars['provide_accessible_captcha'] = Array(
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													 );
+
+		$this->vars['captcha_invalid_error_message']		= Array(
+																'added'			=> '0.9',
+																'type'			=> 'text',
+																'default'		=> 'Security Key Incorrect',
+																'is_contextable'=> TRUE,
+															  );
+
+		$this->vars['captcha_label_text']					= Array(
+																'added'			=> '0.9',
+																'type'			=> 'text',
+																'default'		=> 'Type the characters you see in the picture above: ',
+																'is_contextable'=> TRUE,
+															  );
+		$this->vars['use_recaptcha'] = 				Array(
+														'added'			=> '0.9',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																				),
+													);
+		$this->vars['recaptcha_theme'] = 			Array(
+														'added'			=> '0.9',
+														'type'			=> 'selection',
+														'default'		=> 'red',
+														'parameters'	=> Array(
+																			'multiple'		=> FALSE,
+																			'allow_empty'   => FALSE,
+																			'options'       => Array(
+																								'red'	=> 'Red',
+																								'white' => 'White',
+																								'blackglass' => 'Black Glass',
+																								'clean'	=> 'Clean',
+																								),
+																				),
+													);
+		$this->vars['recaptcha_error_message'] = 	Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Error message when Recaptcha validation fails',
+													);
+		$this->vars['honeypot_name'] = 				Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Honeypot input field name',
+													);
+		$this->vars['honeypot_id']	= 				Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Honeypot input field id',
+													);
+		$this->vars['honeypot_class'] =				Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Honeypot input field class name',
+													);
+		$this->vars['honeypot_error_message'] = 	Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Error message when Honeypot validation fails',
+													);
 											  
 
 	}//end constructor

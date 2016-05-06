@@ -59,13 +59,10 @@
 				<process_function name="processMinifyOption" />
 			</function_call>
 		</field>
-		<field>
-			<display_name>Minify</display_name>
-			<note>Whether to minify the content when merging the files</note>
-			<function_call>
-				<paint_function   name="paintMinifyOption" />
-				<process_function name="processMinifyOption" />
-			</function_call>
+		<field attribute="auto_regen">
+			<display_name>Auto Regenerate File</display_name>
+			<note>If set to Yes, the merged file will automatically be regenerated when any of the linked files are updated.</note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Renegerate File</display_name>

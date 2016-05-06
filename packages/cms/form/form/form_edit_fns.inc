@@ -601,7 +601,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 			$am->includeAsset('form_section');
 			$section[$i] = new Form_Section();
-			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 0, 'is_exclusive' => 0);
+			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0);
 
 			$section[$i]->setAttrValue('name', $section_name);
 
@@ -611,18 +611,17 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				return FALSE;
 			}
 
-			// Our form section depends on form_email it is linked under although the
-			// is_dependent flag on the link isn't set we still have to make sure the
-			// status of the section is in sync with the Custom form
-			if ($section[$i]->status != $asset->status && in_array($asset->status, array_keys($section[$i]->getAvailableStatii()))) {
-				$section[$i]->processStatusChange($asset->status, FALSE, FALSE);
-			}
-
 		}//end for
 		if (count($sections) > 0) $asset->_updated();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// If in safe edit, save the current section links
+		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+			$section_links = $asset->getSectionLinks();
+			file_put_contents($asset->data_path.'/.sq_system/after_section_links', serialize($section_links));
+		}//end if
 
 		return TRUE;
 
@@ -1164,34 +1163,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		if ($write_access && ($submission_limit != $new_value) && $asset->attr('log_submissions')) {
 			$asset->setAttrValue('submission_limit', $new_value);
 			$asset->saveAttributes();
-
-			// now if the previous value was zero and has
-			// been changed to non-zero or vice versa
-			// we need to show hide the bodycopy for it
-			if ($submission_limit == 0 || $new_value == 0) {
-				$bc_name = 'Submission Limit Reached';
-				if ($submission_limit == 0) {
-					// show bodycopy
-					$bodycopy = $asset->getBodycopy($bc_name, SQ_LINK_TYPE_2);
-					if (is_null($bodycopy))  $bodycopy = $asset->getBodycopy($bc_name, SQ_LINK_NOTICE);
-					if (is_null($bodycopy)) {
-						$asset->createBodycopy($bc_name, Array('content' => 'Number of submissions allowed for this form has reached. No more submissions are allowed.'));
-					} else {
-						// bodycopy already exists but must be type 3 linked, convert
-						// the link to type 2 so that it is visible in the asset map
-						$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_NOTICE, 'folder', TRUE, NULL, 'minor');
-						$GLOBALS['SQ_SYSTEM']->am->moveLink($bodycopy_link['linkid'], $bodycopy_link['majorid'], SQ_LINK_TYPE_2, $bodycopy_link['sort_order'], $bodycopy_link['value']);
-					}
-				} else if ($new_value == 0) {
-					// hide bodycopy?
-					// simply convert the link type to type 3 so the bodycop is hidden
-					$bodycopy = $asset->getBodycopy($bc_name, SQ_LINK_TYPE_2);
-					if (!is_null($bodycopy)) {
-						$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'folder', TRUE, NULL, 'minor');
-						$GLOBALS['SQ_SYSTEM']->am->moveLink($bodycopy_link['linkid'], $bodycopy_link['majorid'], SQ_LINK_NOTICE, $bodycopy_link['sort_order'], $bodycopy_link['value']);
-					}
-				}
-			}
 		}
 
 		return FALSE;

@@ -678,6 +678,10 @@ class Page_Decision_Tree extends Page
 					if ($question_asset->type() != 'decision_tree_question_type_numeric') break;
 					$replacement = $question_asset->getHtmlButton();
 				break;
+
+				case 'destinations' :
+					$replacement = json_encode($question_asset->attr('question_destinations'));
+				break;
 			}//end switch
 		}
 

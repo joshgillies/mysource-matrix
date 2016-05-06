@@ -68,6 +68,15 @@ class CSS_File_Edit_Fns extends File_Edit_Fns
 			$parse_file = $asset->data_path.'/'.$asset->name;
 			$str = file_to_string($parse_file);
 		}
+		
+		// enable the Ace editor to edit backend code (if available)
+		if($o->isViperAceAvailable()) {
+			$o->enableViperAceEditor();
+			$read_only = '';
+			if(!$asset->writeAccess('attributes')) $read_only = 'sq-viper-ace-editor-textarea-readonly';
+			text_area($prefix.'_new_file', $str, 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre-wrap; width: 99%; height: 480px" class="sq-viper-ace-editor-textarea '.$read_only.' sq-viper-ace-editor-textarea-mode-css sq-viper-ace-editor-textarea-large"');
+			return TRUE;
+		}
 
 		if ($asset->writeAccess('attributes')) {
 			text_area($prefix.'_new_file', $str, 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre-wrap; width: 99%; height: 480px"');

@@ -94,20 +94,37 @@ class Form_Email extends Form
 	function saveSystemVersion()
 	{
 		// let parents do the copying of the files first
-		parent::saveSystemVersion();
+		if (!parent::saveSystemVersion() || !is_file($this->data_path.'/.sq_system/content_file.php')) {
+			return FALSE;
+		}
 
-		// bug fix #6553 Custom form and safe editing do not play well
-		// the .sq_system/content_file.php is still pointing to the
-		// content_file_questions.php for the logged in users. lets
-		// fix that first and then save the content again for the file
+		// Save the sections linked directly to this form, if any
+		$section_links = $this->getSectionLinks();
+		$links_data = is_array($section_links) ? serialize($section_links) : serialize(Array());
+		if (file_put_contents($this->data_path.'/.sq_system/before_section_links', $links_data) === FALSE) {
+			return FALSE;
+		}
+		if (file_put_contents($this->data_path.'/.sq_system/after_section_links', $links_data) === FALSE) {
+			return FALSE;
+		}
+
+		// We need to fix file links to questions and sections content file that still points to safe edit version
 		$content = file_to_string($this->data_path.'/.sq_system/content_file.php');
 
-		$pattern = '|'.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $this->data_path).'/content_file_questions.php"|';
-		$replacement = str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $this->data_path).'/.sq_system/content_file_questions.php"';
+		// Change the form questions content file path to point to system version file
+		$raw_data_path = str_replace(SQ_DATA_PATH.'/', 'SQ_DATA_PATH."/', $this->data_path);
+		$content = str_replace($raw_data_path.'/content_file_questions.php"', $raw_data_path.'/.sq_system/content_file_questions.php"', $content);
 
-		$content = preg_replace($pattern, $replacement, $content);
+		// Change the form sections content file path to their respective system versions
+		$sections = $this->getSections();
+		foreach($sections as $section) {
+			if (!is_null($section)) {
+				$raw_data_path = str_replace(SQ_DATA_PATH.'/', 'SQ_DATA_PATH."/', $section->data_path);
+				$content = str_replace($raw_data_path.'/content_file.php"', $raw_data_path.'/.sq_system/content_file.php"', $content);
+			}
+		}//end foreach
 
-		return string_to_file($content, $this->data_path.'/.sq_system/content_file.php');
+		return file_put_contents($this->data_path.'/.sq_system/content_file.php', $content) !== FALSE;
 
 	}//end saveSystemVersion()
 
@@ -116,12 +133,54 @@ class Form_Email extends Form
 	* Let the parent replace the editing version with the system (live) version
 	* and then updates the .sq_system reference within the file
 	*
-	*
 	* @return boolean
 	* @access public
 	*/
 	public function revertToSystemVersion()
 	{
+		// Revert the sections added to the form in safe edit
+		if (is_file($this->data_path.'/.sq_system/before_section_links') && is_file($this->data_path.'/.sq_system/after_section_links')) {
+			// Validate the system version files
+			$after_links = @unserialize(file_get_contents($this->data_path.'/.sq_system/after_section_links'));
+			if (!is_array($after_links)) {
+				trigger_error(sprintf(translate('System version file %1$s for Form asset #%2$s holding the "after" section links info does not contains expected data.'), $this->data_path.'/.sq_system/after_section_links',  $this->id), E_USER_WARNING);
+			}
+			$before_links = @unserialize(file_get_contents($this->data_path.'/.sq_system/before_section_links'));
+			if (!is_array($before_links)) {
+				trigger_error(sprintf(translate('System version file %1$s for Form asset #%2$s holding the "before" section links info does not contains expected data.'), $this->data_path.'/.sq_system/before_section_links',  $this->id), E_USER_WARNING);
+			}
+
+			// NOTE: Sections can be added in safe edit mode, but cannot be deleted
+			if (is_array($after_links) && is_array($before_links)) {
+				foreach($after_links as $after_link) {
+					if (isset($after_link['minorid']) && isset($after_link['minorid'])) {
+						$live_version_link = FALSE;
+						foreach($before_links as $before_link) {
+							if (isset($before_link['minorid']) && isset($before_link['minorid'])) {
+								if ($after_link['minorid'] == $before_link['minorid']) {
+									// The section was there before we went safe edit
+									$live_version_link = TRUE;
+									break;
+								}
+							}//end if
+						}//end foreach before_links
+
+						// This link was added in safe edit, hence needs to go
+						if (!$live_version_link) {
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+								$this->deleteLink($after_link['linkid']);
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						}
+
+					}//end if
+				}//end foreach after links
+			}//end if
+		}//end if
+
+		// Clear the links info files
+		unlink($this->data_path.'/.sq_system/before_section_links');
+		unlink($this->data_path.'/.sq_system/after_section_links');
+
 		// let asset.inc copy across the file back from .sq_system dir
 		parent::revertToSystemVersion();
 
@@ -731,10 +790,41 @@ class Form_Email extends Form
 		// add attachments to emails
 		$current_value['attachments'] = Array();
 		$filenames = Array();
+		$dynamic_attachments_attr = NULL;
 		if (array_get_index($current_value, 'inc_attachments', FALSE)) {
 			$attachments = $this->_getAttachments();
 			$current_value['attachments'] = $attachments['assets'];
 			$filenames = $attachments['filenames'];
+
+			// Include dynamic file attachments for the given email format attribute
+			$dynamic_attachments_attr = NULL;
+			switch($email_format_attr->name) {
+				case 'recipient_emails_format':
+					$dynamic_attachments_attr = $this->getAttribute('recipient_email_attachments');
+				break;
+				case 'receipt_emails_format':
+					$dynamic_attachments_attr = $this->getAttribute('receipt_email_attachments');
+				break;
+				case 'staf_format':
+					$dynamic_attachments_attr = $this->getAttribute('staf_email_attachments');
+				break;
+			}//end switch
+
+			if (!is_null($dynamic_attachments_attr)) {
+				// Get the form specific keyword replacments for keywords in dynamic file attribute settings, if any
+				$attr_keywords = $dynamic_attachments_attr->getKeywords();
+				$attr_replacements = Array();
+				foreach ($attr_keywords as $keyword) {
+					if (!isset($attr_replacements[$keyword])) {
+						$attr_replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+					}
+				}
+
+				$additional_attachments = $dynamic_attachments_attr->generateFiles($attr_replacements);
+				if (!empty($additional_attachments)) {
+					$filenames = array_merge($filenames, $additional_attachments);
+				}
+			}
 		}
 
 		$all_text = $current_value['html_format']
@@ -755,6 +845,10 @@ class Form_Email extends Form
 
 		$email_format_attr->value = serialize($current_value);
 		$email_format_attr->sendMail($replacements, $filenames);
+
+		if (!is_null($dynamic_attachments_attr)) {
+			$dynamic_attachments_attr->cleanUpGeneratedFiles();
+		}
 
 	}//end sendEmail()
 

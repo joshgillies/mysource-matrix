@@ -66,6 +66,7 @@ class Trim_Connector_Edit_Fns extends Asset_Edit_Fns
 													'trace'		=> TRUE,
 													'exception'	=> TRUE,
 												   ),
+                            'method'            => $asset->attr('authentication_type'),
 						  );
 
 			// add proxy 

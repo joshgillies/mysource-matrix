@@ -130,7 +130,7 @@ class Tools extends MySource_Object
             $o->setPageTitle('System Tools: '.$tool_info['name']);
 			call_user_func_array(Array($type_code, 'paintTool'), Array(&$o, $type_code));
 			$o->addHiddenField('committed_tool_type_code', $type_code);
-			$o->commitButton();
+			$o->commitButton('', FALSE);
 		}
 
 	}//end _paintTool()

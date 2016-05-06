@@ -13,12 +13,11 @@
 * $Id: trim_common.inc,v 1.38 2013/09/11 08:37:34 cupreti Exp $
 *
 */
-
+require_once SQ_FUDGE_PATH.'/ntlm/ntlm_soap_client.inc';
 /*
 * TRIM Package Library Functions
 *
-* This file contains global functions that are useful throughout the TRIM module
-*
+* This file contains global functions that are useful throughout the SOAP based TRIM service module
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
@@ -883,16 +882,23 @@ class TRIM_Common
 			}
 			// Replace the invalid chars from the filename by '_'
 			$file_name = preg_replace('@['.preg_quote('\/:*?"<>|').']+@', '_', $file_name);
-			$file_name .= '.'.strtolower($object_list['FileType']);
-			if(strlen($file_name) > 100 ) {
-				$file_name = substr($file_name, 0, 100) . '...';
+			if(strlen($file_name) > 245 ) {
+				$file_name = substr($file_name, 0, 245) . '...';
 			}
+			$file_name .= '.'.strtolower($object_list['FileType']);
 
 			$file_path 		= $final_file_path.'/'.$file_name;
 			if (file_exists($file_path)) {
 				// Try to unlink it
 				unlink($file_path);
 			}//end if
+			// still have files there? must be rogue files, remove them
+			$files_stored		= glob($final_file_path.'/*');
+			if(!empty($files_stored)) {
+				foreach ($files_stored as $file_name) {
+					unlink($file_name);
+				}//end foreach
+			}
 			if (!$handle = fopen($file_path, 'w')) {
 				log_dump('Could not open file '.$file_path);
 			}//end if
@@ -930,7 +936,7 @@ class TRIM_Common
 			$object_list = Array();		// Result List
 		
 			// Get the soapclient object.
-			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
+			$client = TRIM_Common::getSoapClient($connection);
 
 			// We need to convert the TRIM Execute object to XML, so we can swap the elements.
 
@@ -996,6 +1002,7 @@ class TRIM_Common
 				return $object_list;
 			} else if (isset($operations['Download'])) {
 				$res = self::getPackagedFiles($object_list, $file_name, $final_file_path);
+				return $res;
 			} else if (isset($operations['Upload'])) {
 				if ($object_list['UploadId'] != $up_id) {
 					echo 'Upload Successful, new UploadId: '.$object_list['UploadId'];
@@ -1043,7 +1050,7 @@ class TRIM_Common
 		$Execute['req']['FetchInjectionUri']		= $FetchInjectionUriLocationId;
 		$Execute['req']['LocationStringSelect']		= $LocationStringSelect;
 
-        $client = new SoapClient($connection['wsdl'], $connection['authentication']);
+        $client = TRIM_Common::getSoapClient($connection);
 
 		try {
 			$xml = $client->ConvertToXml($Execute);
@@ -1153,7 +1160,7 @@ class TRIM_Common
 			$Execute['req']['RecordTypeStringSelect']	= $RecordTypeStringSelect;
 			$Execute['req']['FetchInjectionUri']		= $FetchInjectionUriRecordType;
 
-			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
+			$client = TRIM_Common::getSoapClient($connection);
 
 			$xml = $client->ConvertToXml($Execute);
 			$xml = self::SwapElement($xml->ConvertToXmlResult, 'RecordTypeStringSelect', 'Create');
@@ -1197,49 +1204,6 @@ class TRIM_Common
 
 	}//end executeCreateRequest
 
-
-	/**
-	* this function send a header to let File be streamed via browser
-	*
-	* @param array $object_list	The array contain the information about the file and its content.
-	*
-	* @return void
-	* @access public
-	*/
-	private static function downloadFile($object_list)
-	{
-		if (!isset($object_list['error'])) {
-			$file_content	= base64_decode($object_list['Base64Payload']);
-			$file_name		= $object_list['AttachmentId'].'.'.strtolower($object_list['FileType']);
-			$file_path		= '/home/hnguyen/matrix_installs/matrix_dev/data/temp/'.$file_name;
-
-			if (!$handle	= fopen($file_path, 'w')) {
-				log_dump('Could not open file '.$file_path);
-				exit;
-			}//end if
-			if (fwrite($handle, $file_content) === FALSE) {
-				log_dump('Could not write to file '.$file_path);
-				exit;
-			}//end if
-			fclose($handle);
-
-			// We'll be outputting a file
-			header('Content-type: application/'.strtolower($object_list['FileType']));
-
-			// Set the name of the file
-			header("Content-Disposition: attachment; filename=$file_name");
-
-			// Get the source file
-			readfile($file_path);
-
-			// Then remove the source file.
-			unlink($file_path);
-
-		} else {
-			log_dump($object_list['error']);
-		}//end if else
-
-	}//end downloadFile()
 
 
 	/**
@@ -1291,6 +1255,8 @@ class TRIM_Common
 	{
 		$object_list = Array();
 		try {
+			// there is some trim record can contain those invalid chars like this in xml
+			$data = preg_replace('/&#x?[0-9]+/', '', $data);
 			$xml = new SimpleXMLElement($data);
 		} catch (Exception $e){
 			trigger_error("Unable to parse the XML result: ".$e->getMessage(), E_USER_WARNING);
@@ -1365,6 +1331,7 @@ class TRIM_Common
 	public static function test_trim_connection($connection)
 	{
 
+		$auth_type = array_get_index($connection, 'method', 'HTTP_BASIC');
 		//test a cURL connection first otherwise the Soap constructor will crash and leave edit interfaces inaccessible or cause Cron deadlocks.
 		if (!isset($connection['authentication']['proxy_login'])){ //TODO: test cURL with proxies involved
 			$options = array(
@@ -1372,7 +1339,8 @@ class TRIM_Common
 						'RETURNTRANSFER' => 1,
 						'TIMEOUT'        => 5,
 						'SSL_VERIFYPEER' => 0,
-						'http_authentication' => Array('username' => $connection['authentication']['login'], 'password' => $connection['authentication']['password'])
+						'HTTPAUTH'	=> $auth_type == 'NTLM' ? CURLAUTH_NTLM : CURLAUTH_BASIC,
+						'USERPWD'	=> $connection['authentication']['login'].':'.$connection['authentication']['password']
 					   );
 			$details  = fetch_url($connection['wsdl'], $options);
 			$contents = $details['response'];
@@ -1381,7 +1349,7 @@ class TRIM_Common
 		
 		//check if recTitle property is set
 		try {
-			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
+			$client = TRIM_Common::getSoapClient($connection);
 
 			$data = $client->ListProperty(Array('PropertyName'	=> 'recTitle'));
 
@@ -1473,5 +1441,69 @@ class TRIM_Common
 
 	}//end getLocationTitleFromUris()
 	
+
+	/**
+	* Returns the SOAP client object with the WSSE header set, if applicable
+	*
+	* @param array  $settings	SOAP request settings
+	* @param array 	$options	SOAP options
+	*
+	* @return null|object
+	* @access public
+	*/
+	public static function &getSoapClient($settings)
+	{
+		$soap_client = NULL;
+
+		$wsdl = array_get_index($settings, 'wsdl', '');
+		if (empty($wsdl)) {
+			return $soap_client;
+		}
+
+		$authentication = array_get_index($settings, 'authentication', '');
+		// Don't pass these parameters if login is not required
+		if (empty($authentication['login']) && empty($authentication['password'])) {
+			unset($authentication['login']);
+			unset($authentication['password']);
+		}
+
+		try {
+			
+			$username = array_get_index($authentication, 'login', '');
+			$password = array_get_index($authentication, 'password', '');
+			$auth_type = array_get_index($settings, 'method', 'HTTP_BASIC');
+
+			// Add authentication header, based on the settings
+			switch($auth_type) {
+				case 'NTLM':
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('NTLM_SOAP_USERNAME', $username);
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('NTLM_SOAP_PASSWORD', $password);
+					unset($authentication['login']);
+					unset($authentication['password']);
+					stream_wrapper_unregister('http');
+					stream_wrapper_unregister('https');
+					stream_wrapper_register('http', 'NTLMStream') or die ("Failed to register NTLM protocol.\n");
+					stream_wrapper_register('https', 'NTLMStream') or die ("Failed to register NTLM protocol.\n");
+					$soap_client = new NTLMSoapClient($wsdl, $authentication);
+					stream_wrapper_restore('http'); 
+					stream_wrapper_restore('https'); 
+				break;
+
+				case 'HTTP_BASIC':
+				default:
+					$soap_client = new SoapClient($wsdl, $authentication);
+					// No header required here
+				break;
+
+			}//end switch
+
+		} catch (Exception $e) {
+			trigger_error('Error occured when trying to access the SOAP service: '.htmlentities($e->getMessage()));
+			return $null;
+		}
+
+		return $soap_client;
+
+	}//end getSoapClient()
 	
 }//end class

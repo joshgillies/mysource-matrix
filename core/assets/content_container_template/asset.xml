@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
+	<package>__core__</package>
+	<type_code>content_container_template</type_code>
+	<version>0.1</version>
+	<name>Content Container Template</name>
+	<description>The template that controls the Paint Layout, Simple Edit Layout and Metadata to be applied to a Content Container</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>system_user</allowed_access>
+	<parent_type>asset</parent_type>
+	<requirements />
+	<flash_menu_path>Layouts</flash_menu_path>
+</asset_info>

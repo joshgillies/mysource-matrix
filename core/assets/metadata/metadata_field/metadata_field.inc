@@ -143,7 +143,10 @@ class Metadata_Field extends Asset
 		// if there are no components that we know about and we are not being displayed on the frontend,
 		// then just unescape the value string and return that
 		if (!$this->attr('value_components') && $this->attr('frontend') == 'hide') {
-			Metadata_Field::decodeValueString($value_str, $value='', $components=Array());
+			$value = '';
+			$components=Array();
+			call_user_func_array(Array(get_class($asset), 'decodeValueString'), Array($value_str, &$value, &$value_components));
+
 			return $value;
 		}
 
@@ -300,7 +303,7 @@ class Metadata_Field extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$default_val = self::encodeValueString($this->attr('default'), $this->attr('value_components'));
+		$default_val = call_user_func_array(Array(get_class($this), 'encodeValueString'), Array($this->attr('default'), $this->attr('value_components')));
 
 		// Only re-save the default value in the default metadata table if
 		// the default value has actually changed
@@ -354,7 +357,7 @@ class Metadata_Field extends Asset
 
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'fieldid', $this->id);
-				MatrixDAL::executePdoOne($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete metadata value for fieldid #'.$this->id.' due to the following database error:'.$e->getMessage());
 			}//end try catch
@@ -367,7 +370,7 @@ class Metadata_Field extends Asset
 
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
-				MatrixDAL::executePdoOne($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete metadata default value for assetid #'.$this->id.' due to the following database error:'.$e->getMessage());
 			}//end try catch
@@ -475,6 +478,111 @@ class Metadata_Field extends Asset
 		}
 
 	}//end _printUntickUseDefaultCheckboxJs()
+
+
+	/**
+	* Check to see if this field is linked to multiple sections
+	* and if any of those secitons have restrictions on the asset we
+	* and painting the edit interface for
+	*
+	* @param string	$type_code 	the type code of owner asset we are painting interface for
+	* @return boolean
+	* @access public
+	*
+	*/
+	public function isFieldOnRestrictedSection($type_code)
+	{
+		// Check the local cache first
+		if (!isset($this->_tmp['restriced_type_code-'.$type_code])) {
+			// get all the sections that this metadata field is linked to
+			$sections = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
+
+			$field_restricted = FALSE;
+			foreach ($sections as $section) {
+				$section_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section['majorid'], $section['major_type_code']);
+				$restrictions = $section_asset->attr('restrict');
+
+				if (!empty($restrictions)) {
+					$field_restricted = TRUE;
+					foreach ($restrictions as $type_code_restricted => $inherit_it) {
+						if ($inherit_it) {
+							$asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+							foreach($asset_type_with_parents as $index => $asset_type) {
+								if ($type_code_restricted == $type_code || $asset_type == $type_code_restricted) {
+									$field_restricted = FALSE;
+									break 2;
+								}
+							}//end foreach
+						} else if (array_key_exists($type_code, $restrictions)) {
+							$field_restricted = FALSE;
+							break;
+						}
+					}//end foreach
+				}// end if
+
+				if ($field_restricted) {
+					break;
+				}
+
+			}//end foreach
+
+			$this->_tmp['restriced_type_code-'.$type_code] = $field_restricted;
+		}
+
+		return $this->_tmp['restriced_type_code-'.$type_code];
+
+	}//end isFieldOnRestrictedSection()
+
+
+
+	/**
+	* Generate a prefix to be used by paint() and process()
+	*
+	* @return string
+	* @access public
+	*/
+	public function getPrefix()
+	{
+		$bodycopy_container_metadata_prefx = '';	
+		if(isset($GLOBALS['SQ_CURRENT_BODYCOPY_CONTAINER'])) {
+			$bodycopy_container_metadata_prefx = 'container_'.$GLOBALS['SQ_CURRENT_BODYCOPY_CONTAINER'].'_';
+		}
+		$prefix = str_replace(':', '_', str_replace(' ', '_', $this->type().'_'.$this->id));
+		$prefix = $bodycopy_container_metadata_prefx.$prefix;
+		return $prefix;
+
+	}//end getPrefix()
+
+
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes().
+	*
+	* If $filter is omitted or NULL, the default front-end filter setting is used.
+	*
+	* @param string	 $name   the name of the attribute
+	* @param string	 $value  the new value of the attribute
+	* @param boolean $filter whether to filter the value content.
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+
+	function setAttrValue($name, $value, $filter=NULL) 
+ 	{
+ 		if ($name === 'name' && $this->attr('name') !== $value) {
+ 			if (preg_match('/[^a-z0-9\-\_\.]/i', $value)){
+ 				trigger_error(sprintf(translate('Failed adding metadata name field. "%1$s" is not valid value for the name field.'), $value), E_USER_WARNING);
+ 				return FALSE;
+ 			}
+ 		}
+
+		return parent::setAttrValue($name, $value, $filter);
+ 	
+ 	} //end setAttrValue()
 
 }//end class
 

@@ -67,6 +67,23 @@ class Bodycopy_Container_Management extends Asset_Management
 											'description'	=> 'Array holding the assetids belonging to shadow assets that are used within the content. Needed because they cannot be notice linked like normal assets can.',
 											'is_contextable' => FALSE,
 										   ),
+						'template_applied'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'    => Array (
+                                                                    'allow_empty'   => FALSE,
+                                                                   ),
+												'description'	=> 'This serves a flag to mark this container as custom template applied.',
+											   ),
+						'comments'	=> Array(
+											'added'			=> '0.6',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'WYSIWYG comments stored',
+											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
+										   ),
 					  );
 
 	}//end constructor

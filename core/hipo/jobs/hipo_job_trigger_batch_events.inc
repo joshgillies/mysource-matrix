@@ -67,7 +67,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD]', SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD]', SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD;
 		}

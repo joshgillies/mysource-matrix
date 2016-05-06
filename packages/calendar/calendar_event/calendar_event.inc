@@ -87,7 +87,7 @@ class Calendar_Event extends Asset
 	function _createAdditional(&$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
-		$result = $this->cacheCalendarData(FALSE);
+		$result = $this->cacheCalendarData();
 		// set an initial web path
 		$initial_path = strtolower($this->attr('name'));
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -225,6 +225,10 @@ class Calendar_Event extends Asset
 
 		$keywords['event_calendar_date_']       = translate('Event Calendar Date with PHP date format after the last underscore character.'); // = dynamic keyword to print calendar date
 
+		$keywords['instance_start_datetime']    = translate('Event instance start date/time in Y-m-d H:i:s format');
+		$keywords['instance_end_datetime']      = translate('Event instance end date/time in Y-m-d H:i:s format');
+		$keywords['instance_start_datetime_']   = translate('Event instance start date/time with PHP date format which follow the last underscore character of the keyword');
+		$keywords['instance_end_datetime_']     = translate('Event instance end date/time with PHP date format which follow the last underscore character of the keyword');
 
 		return $keywords;
 
@@ -248,12 +252,16 @@ class Calendar_Event extends Asset
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(
-									'file'	=> Array('card' => 'M', 'exclusive' => FALSE),
-									'page'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'file'			=> Array('card' => 'M', 'exclusive' => FALSE),
+									'page'			=> Array('card' => 'M', 'exclusive' => FALSE),
+									'data_record'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'folder'		=> Array('card' => 'M', 'exclusive' => FALSE),
 								   ),
 				SQ_LINK_TYPE_2	=> Array(
-									'file'	=> Array('card' => 'M', 'exclusive' => FALSE),
-									'page'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'file'			=> Array('card' => 'M', 'exclusive' => FALSE),
+									'page'			=> Array('card' => 'M', 'exclusive' => FALSE),
+									'data_record'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'folder'		=> Array('card' => 'M', 'exclusive' => FALSE),
 								   ),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(
@@ -279,7 +287,7 @@ class Calendar_Event extends Asset
 			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 				$res .= '&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'];
 			}
-			$res .= '" onclick="return confirm(js_translate(\'confirm_delete_event\'));">'.translate('Delete').'</a>';
+			$res .= '" onclick="return confirm(\''.translate('Are you sure you want to delete this event altogether?').'\');">'.translate('Delete').'</a>';
 
 			return $res;
 		} else {
@@ -446,7 +454,7 @@ class Calendar_Event extends Asset
 		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
 
 		if (in_array('all', $components) || in_array('attributes', $components)) {
-			if (!$clone->cacheCalendarData(FALSE)) {
+			if (!$clone->cacheCalendarData()) {
 				$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -774,13 +782,10 @@ class Calendar_Event extends Asset
 	*
 	* The return value indicates the success
 	*
-	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
-	*								(FALSE - set only in create() call)
-	*
 	* @return boolean
 	* @access public
 	*/
-	function cacheCalendarData($updating=TRUE)
+	function cacheCalendarData()
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDal::getDb();
@@ -806,6 +811,17 @@ class Calendar_Event extends Asset
 
 		// frequency field => blank for standard events, overridden in recurring
 		$date_values['frequency'] = '';
+
+		// If we are updating or inserting a new date cache entry for the event
+		$updating = TRUE;
+
+		// Create the event date cache entry if there is not already one
+		$sql = 'SELECT assetid FROM sq_cal_date_val WHERE assetid='.MatrixDAL::quote($this->id);
+		$entry_exists = MatrixDAL::executeSqlOne($sql);
+		if (!$entry_exists) {
+			// There is no cache date entry of this event, so add new one
+			$updating = FALSE;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1000,7 +1016,9 @@ class Calendar_Event extends Asset
 				break;
 
 			case 'edit_link':
-				$replacement = $this->writeAccess('') ? '<a href="'.htmlentities(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('Edit').'</a>' : '';
+				// loads Edit+ instead of the old screen to edit the calendar event
+				$event_edit_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id).'/_edit';
+				$replacement = $this->writeAccess('') ? '<a href="'.$event_edit_url.'">'.translate('Edit').'</a>' : '';
 
 				break;
 
@@ -1013,6 +1031,13 @@ class Calendar_Event extends Asset
 				$start_ts = isset($this->vars['start_date_ts']) ? $this->attr('start_date_ts') : '';
 				if (!empty($start_ts)) {
 					$replacement = date('Y-m-d H:i', $start_ts);
+				} else {
+					// Since this is not a event instance, get the instance date relative to the server time
+					$date_instance = $this->getInstanceDates(date('Y-m-d'));
+					if (!empty($date_instance['start'])) {
+						$start_ts = iso8601_ts($date_instance['start']);
+						$replacement = $start_ts > 0 ? date('Y-m-d H:i', $start_ts) : '';
+					}
 				}
 				break;
 
@@ -1020,6 +1045,13 @@ class Calendar_Event extends Asset
 				$end_ts = isset($this->vars['end_date_ts']) ? $this->attr('end_date_ts') : '';
 				if (!empty($end_ts)) {
 					$replacement = empty($end_ts) ? '' : date('Y-m-d H:i', $end_ts);
+				} else {
+					// Since this is not a event instance, get the instance date relative to the server time
+					$date_instance = $this->getInstanceDates(date('Y-m-d'));
+					if (!empty($date_instance['end'])) {
+						$end_ts = iso8601_ts($date_instance['end']);
+						$replacement = $end_ts > 0 ? date('Y-m-d H:i', $end_ts) : '';
+					}
 				}
 				break;
 
@@ -1041,54 +1073,62 @@ class Calendar_Event extends Asset
 				}
 
 				// Event instance keywords
-				if (isset($this->vars['start_date_ts'])) {
-					$start_ts = $this->attr('start_date_ts');
-					preg_match('/^instance_start_(.+)/', $keyword, $matches);
-					if (!empty($matches)) {
+				if (preg_match('/^instance_start_(.+)/', $keyword, $matches)) {
+					if (isset($this->vars['start_date_ts'])) {
+						$start_ts = $this->attr('start_date_ts');
+					} else {
+						// Since this is not a event instance, get the instance date relative to the server time
+						$date_instance = $this->getInstanceDates(date('Y-m-d'));
+						$start_ts = !empty($date_instance['start']) ? iso8601_ts($date_instance['start']) : 0;
+					}
+					if (!empty($matches) && $start_ts > 0) {
 						if ($matches[1] == 'datetime_ical') {
 							$replacement = empty($start_ts) ? '' : date('Ymd\THis', $start_ts);
 						} else if (strpos($matches[1], 'datetime_') !== FALSE) {
 							$replacement = empty($start_ts) ? '' : date(str_replace('datetime_', '', $matches[1]), $start_ts);
 						} else if ($matches[1] == 'date') {
-							$replacement = empty($start_ts) ? '' : date('jS M Y', iso8601_ts($start_ts));
+							$replacement = empty($start_ts) ? '' : date('jS M Y', $start_ts);
 						} else if ($matches[1] == 'time') {
-							$iso_formated = iso8601_ts($start_ts);
-							$mins = date('i', $iso_formated);
+							$mins = date('i', $start_ts);
 							if ($mins == '00') {
-								$replacement = date('ga', $iso_formated);
+								$replacement = date('ga', $start_ts);
 							} else {
-								$replacement = date('g:ia', $iso_formated);
+								$replacement = date('g:ia', $start_ts);
 							}
 						} else if ($matches[1] == 'time_12h') {
-							$replacement = empty($start_ts) ? '' : date('h:i a', iso8601_ts($start_ts));
+							$replacement = empty($start_ts) ? '' : date('h:i a', $start_ts);
 						} else if ($matches[1] == 'time_24h') {
-							$replacement = empty($start_ts) ? '' : date('H:i', iso8601_ts($start_ts));
+							$replacement = empty($start_ts) ? '' : date('H:i', $start_ts);
 						}
 					}//end if
 				}
 
-				if (isset($this->vars['end_date_ts'])) {
-					$end_ts = $this->attr('end_date_ts');
-					preg_match('/^instance_end_(.+)/', $keyword, $matches);
-					if (!empty($matches)) {
+				if (preg_match('/^instance_end_(.+)/', $keyword, $matches)) {
+					if (isset($this->vars['end_date_ts'])) {
+						$end_ts = $this->attr('end_date_ts');
+					} else {
+						// Since this is not a event instance, get the instance date relative to the server time
+						$date_instance = $this->getInstanceDates(date('Y-m-d'));
+						$end_ts = !empty($date_instance['end']) ? iso8601_ts($date_instance['end']) : 0;
+					}
+					if (!empty($matches) && $end_ts > 0) {
 						if ($matches[1] == 'datetime_ical') {
 							$replacement = empty($end_ts) ? '' : date('Ymd\THis', $end_ts);
 						} else if (strpos($matches[1], 'datetime_') !== FALSE){
 							$replacement = empty($end_ts) ? '' : date(str_replace('datetime_', '', $matches[1]), $end_ts);
 						} else if ($matches[1] == 'date') {
-							$replacement = empty($end_ts) ? '' : date('jS M Y', iso8601_ts($end_ts));
+							$replacement = empty($end_ts) ? '' : date('jS M Y', $end_ts);
 						} else if ($matches[1] == 'time') {
-							$iso_formated = iso8601_ts($end_ts);
-							$mins = date('i', $iso_formated);
+							$mins = date('i', $end_ts);
 							if ($mins == '00') {
-								$replacement = date('ga', $iso_formated);
+								$replacement = date('ga', $end_ts);
 							} else {
-								$replacement = date('g:ia', $iso_formated);
+								$replacement = date('g:ia', $end_ts);
 							}
 						} else if ($matches[1] == 'time_12h') {
-							$replacement = empty($end_ts) ? '' : date('h:i a', iso8601_ts($end_ts));
+							$replacement = empty($end_ts) ? '' : date('h:i a', $end_ts);
 						} else if ($matches[1] == 'time_24h') {
-							$replacement = empty($end_ts) ? '' : date('H:i', iso8601_ts($end_ts));
+							$replacement = empty($end_ts) ? '' : date('H:i', $end_ts);
 						}
 					}//end if
 				}
@@ -1096,7 +1136,7 @@ class Calendar_Event extends Asset
 				if (empty($replacement)) {
 					// For an event instance (shadow asset), get the replacement from the event asset (bridge)
 					$assetid_parts = explode(':', $this->id);
-					if (!empty($assetid_parts[0]) && !empty($assetid_parts[1]) && $keyword != 'asset_assetid') {
+					if (!empty($assetid_parts[0]) && !empty($assetid_parts[1])) {
 						$event_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid_parts[0]);
 						$replacement = $event_asset->getKeywordReplacement($keyword);
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event_asset);
@@ -1120,6 +1160,34 @@ class Calendar_Event extends Asset
 		return $replacement;
 
 	}//end getKeywordReplacement()
+
+
+	/**
+	* Returns the start and end dates/times of the instance containing a specified ISO date
+	*
+	* @param string $date   The date to find an instance with
+	*
+	* @return array
+	* @access public
+	*/
+	function getInstanceDates($date)
+	{
+		$start_date = $this->attr('start_date');
+		$end_date = $this->attr('end_date');
+		if (iso8601_ts($end_date) <= 0) {
+			//End date is not specified
+			$end_date = $this->getStartDate().' 00:00';
+		}
+
+		// We just have a single instance
+		$instance = Array(
+					'start' => $start_date,
+					'end' => $end_date,
+				);
+
+		return $instance;
+
+	}//end getInstanceDates()
 
 
 	/**

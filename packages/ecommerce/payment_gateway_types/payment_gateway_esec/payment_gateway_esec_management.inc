@@ -44,15 +44,6 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'Gateway Merchant ID for the e-commerce transaction',
 										   ),
-						'test_mode'		=> Array(
-											'added'			=> '0.1',
-											'type'			=> 'boolean',
-											'default'		=> FALSE,
-											'description'	=> 'Turn this ON for test mode',
-											'parameters'	=> Array(
-																'allow_empty'	=> FALSE,
-															   ),
-										   ),
 						'message'		=> Array(
 											'added'		=> '0.1',
 											'type'		=> 'wysiwyg',
@@ -157,25 +148,25 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 		}
 
 
+		if (version_compare($current_version, '0.5', '<')) {
+			pre_echo('Upgrading SecurePay eSec payment gateway assets to v0.5');
+			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('payment_gateway_esec', FALSE);
+			$test_mode_enabled_assetids = Array();
+			foreach ($assetid_list as $assetid) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if ($asset->attr('test_mode')) {
+					$test_mode_enabled_assetids[] = $assetid;
+					$asset->setAttrValue('test_mode', 0);
+					$asset->saveAttributes();
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			pre_echo('Note: Disabled depreciated test mode feature on SecurePay eSec payment gateway assets '.implode(',', $test_mode_enabled_assetids).'.');
+		}
+
 		return $res;
 
 	}//end _upgrade()
-
-
-	/**
-	* Gets a list of all files
-	*
-	* @return array
-	* @access private
-	*/
-	function _getFileList()
-	{
-		return Array(
-				'files/loader.js',
-				'files/loader.gif',
-			   );
-
-	}//end _getFileList()
 
 
 	/**

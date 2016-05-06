@@ -636,7 +636,7 @@
 }
 
 #asset_map_container .tree {
-	overflow: scroll;
+	overflow: auto;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	background-color: white;
@@ -658,6 +658,10 @@
 
 #asset_map_container .tree.selected {
 	display: block;
+}
+
+#asset_map_container .tree > div:last-child {
+	margin-bottom: 15px;
 }
 
 #asset_map_container .childIndent {
@@ -944,6 +948,11 @@
 
 #asset_map_container .tbButton.restore {
 	background: url(../../web/images/icons/asset_map/teleport_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButton.refresh.disabled,
+#asset_map_container .tbButton.restore.disabled {
+	opacity: 0.2;
 }
 
 #asset_map_container .tbButton.collapse {

@@ -13,6 +13,7 @@
 *
 */
 
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action_edit_fns.inc';
 
 /**
 * Trigger_Action_Leave_User_Group_For_Session_Edit_Fns

@@ -1106,6 +1106,7 @@ class User extends Asset
 
 		$keywords = parent::getAvailableKeywords();
 		$keywords['asset_attribute_email_image'] = translate('User Email Image');
+		$keywords['asset_member_groups'] = translate('List of all User Groups the User is a member of');
 
 		// right now we have totaly of 56 keywords that are being returned by this function
 		// if we have more keywords added later , assertion in will need to be changed for
@@ -1120,12 +1121,13 @@ class User extends Asset
 	* Get bodycopy keyword replacement
 	*
 	* @param string	$keyword	Keyword to find a replacement for
+	* @param string $additional_replacements    Additional keyword replacements for 'replace_keywords' modifier
 	*
 	* @return string
 	* @access public
 	* @see _getKeywordReplacement
 	*/
-	public function getKeywordReplacement($keyword)
+	public function getKeywordReplacement($keyword, $additional_replacements=Array())
 	{
 		$replacement = NULL;
 
@@ -1157,6 +1159,10 @@ class User extends Asset
 
 		}//end if contextid is not NULL
 
+	if ($keyword === 'asset_member_groups') {   
+	 	//gets an array of user groups based on the current user    
+	    $replacement = $this->getUserGroups();
+		}
 
 		if ($keyword == 'asset_attribute_email_image') {
 			$email = $this->attr('email');
@@ -1166,6 +1172,25 @@ class User extends Asset
 				$email_image_link = '<img id="email_'.$this->id.'" src="'.$img_url.'" />';
 			}//end if
 			$replacement = $email_image_link;
+		}
+
+		// get assigned Sugar record ID if available
+		if (strpos($keyword, 'asset_sugar_') === 0 || strpos($keyword, 'asset_attribute_sugar_') === 0) {
+			if(preg_match('/asset_(attribute_)?sugar_([a-z]+)_id/', $keyword, $matches)) {
+				$module = $matches[2];
+				// do we have existing link?
+				$bind_vars = Array(
+								'matrix_userid'      => $this->id,
+								'module'      => ucfirst($module),
+							    );
+				$result = MatrixDAL::executeAll('sugar_package', 'getLinks', $bind_vars);
+				if(isset($result[0]['sugar_record_id'])) {
+					$replacement = $result[0]['sugar_record_id'];
+				}
+				else {
+					$replacement = '';
+				}				
+			}
 		}
 
 		if ($replacement !== NULL) {

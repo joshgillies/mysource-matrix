@@ -425,9 +425,37 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	protected function _printPaintingCode()
 	{
+		// Do not print the sub-menu block if it has nothing to print
+		echo '<'.'?php $empty_menu_item = FALSE; ?'.'>';
+		$unwanted_types = $this->attr('unwanted_asset_types');
+		if (!empty($unwanted_types)) {
+			$all_type_codes = Array();
+			foreach ($unwanted_types as $type) {
+				if (!empty($type)) {
+					$all_type_codes = array_merge($all_type_codes, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE));
+				}
+			}//end foreach
+			$unwanted_types_literal_array = 'Array("'.implode('", "', $all_type_codes).'")';
+
+			if (!empty($unwanted_types_literal_array)) {
+				echo '<?php
+					if (isset('.$this->_tmp['parent_assetid_name'].') && !empty($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].'])) {
+						foreach ($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].'] as $'.$this->attr('id_name').'_row) {
+							if (!in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) {
+								$empty_menu_item = FALSE;
+								break;
+							} else {
+								$empty_menu_item = TRUE;
+							}
+						}//end foreach
+					}//end if
+				?>';
+			}
+		}//end if
+
 		echo '
 			<?php
-			if (isset('.$this->_tmp['parent_assetid_name'].') && !empty($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].'])) {
+			if (!$empty_menu_item && isset('.$this->_tmp['parent_assetid_name'].') && !empty($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].'])) {
 				?', '>
 		';
 
@@ -694,7 +722,7 @@ class Design_Area_Menu_Type extends Design_Area
 						if(preg_match('/^asset_attribute_(short_)?name/i', $var)) {
 						    echo '$need_brackets = $ROW_ASSET->status & SQ_SC_STATUS_NOT_LIVE;';
 						}
-						echo '$replacement = '.$this->_escapeVar('$ROW_ASSET->getKeywordReplacement($keyword)', $args).';';
+						echo '$replacement = $ROW_ASSET->readAccess() ? '.$this->_escapeVar('$ROW_ASSET->getKeywordReplacement($keyword)', $args).' : "";';
 						echo 'if ($replacement == $keyword) {';
 						echo '	echo \'\';';
 						echo '} else {';
@@ -921,36 +949,22 @@ class Design_Area_Menu_Type extends Design_Area
 				if (is_null($sub)) return TRUE;
 
 				// See if this menu has a customisation underneath it
-				// If does, use the customised settings in this asset
-				$current_designs = $sub->getDesigns();
-				foreach ($current_designs as $current_design) {
-
-					if (is_null($current_design)) continue;
-
-					// Find the current customisations
-					$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($current_design->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
-					$am =& $GLOBALS['SQ_SYSTEM']->am;
-					foreach ($customisation_links as $link) {
-						$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
-						if (is_null($customisation)) continue;
-
-						// Do something
-						$custom_das = $customisation->getCustomisedAreas();
-						foreach ($custom_das as $custom_da) {
-							if ($custom_da['minorid'] != $sub->id) {
-								$new_da = $am->getAsset($custom_da['minorid'], $custom_da['minor_type_code']);
-								if (is_null($new_da)) continue;
-								if ($new_da->name == $sub->name) {
+				// If does, use the customised DA
+				if(isset($GLOBALS['DESIGN_BEING_GENERATED']) && method_exists($GLOBALS['DESIGN_BEING_GENERATED'], 'getCustomisedAreas')) {
+					$customisation = $GLOBALS['DESIGN_BEING_GENERATED'];
+					$custom_das = $customisation->getCustomisedAreas();
+					foreach ($custom_das as $custom_da) {
+						if ($custom_da['minorid'] != $sub->id) {
+							$new_da = $GLOBALS['SQ_SYSTEM']->am->getAsset($custom_da['minorid'], $custom_da['minor_type_code']);
+							if (is_null($new_da)) continue;
+							if ($new_da->name == $sub->name) {
 									foreach ($new_da->vars as $name => $details) {
-										if (in_array($name, Array('unwanted_asset_types', 'self_link', 'wanted_asset_types'))) {
-											$sub->vars[$name] = $new_da->vars[$name];
-										}
+										$sub->vars[$name] = $new_da->vars[$name];
 									}
-								}//end if
 							}//end if
-						}//end foreach
+						}//end if
 					}//end foreach
-				}//end foreach
+				}
 				return $sub->printAreaCode();
 
 			default :

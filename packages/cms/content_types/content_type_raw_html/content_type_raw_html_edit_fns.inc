@@ -52,7 +52,7 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$asset, $prefix)
+	function paintBackend(&$asset, $prefix, $o)
 	{
 		if ($asset->writeAccess('attributes')) {
 			$size = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_RAW_HTML_SIZE');
@@ -69,8 +69,13 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 				}
 				keyword_selector($prepared_keywords, $prefix.'_html');
 			}
-			text_area($prefix.'_html', $html, '', '', 0, 'style="width: '.$size['width'].'; height: '.$size['height'].'; font-family: \'Courier New\', Courier, monospace; display: block"');
+			// enable the Ace editor to edit backend code (if available)
+			if($o->isViperAceAvailable()) {
+				$o->enableViperAceEditor();
+			}
+			text_area($prefix.'_html', $html, '', '', 0, 'style="width: '.$size['width'].'; height: '.$size['height'].';" class="sq-backend-code-editing sq-viper-ace-editor-textarea sq-viper-ace-editor-textarea-mode-html"');
 		}
+
 		return TRUE;
 
 	}//end paintBackend()

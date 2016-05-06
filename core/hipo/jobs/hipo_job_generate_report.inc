@@ -62,7 +62,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_REGENERATE_REPORT_THRESHOLD]', SQ_HIPO_REGENERATE_REPORT_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_REGENERATE_REPORT_THRESHOLD]', SQ_HIPO_REGENERATE_REPORT_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_REGENERATE_REPORT_THRESHOLD;
 		}

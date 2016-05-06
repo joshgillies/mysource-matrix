@@ -119,12 +119,12 @@ class Replace_Text extends WYSIWYG_Plugin
 									break;
 								}
 								case 4	: {
-									reg = new RegExp("<p[^>]*>("+bullet+"|&middot\;)(.*?)<\/p>", "gi");
-									rep = "<li>$2";
+									reg = new RegExp("(<p[^>]*>)?(<!--\[if !supportLists\]-->)?(<span[^>]*>)*("+bullet+"|\u00c2\u00b7|&middot\;)(<\/span>|<span[^>]*>(\s|&nbsp\;)*<\/span>)*(<!--\[endif\]-->)?(.*?)(<o\:p>.*?<\/o\:p>)?(<\/p>)?", "gi");
+									rep = "<li>$8";
 									break;
 								}
 								case 5	: {
-									reg = new RegExp("(&shy;?|"+shy+")", "gi");
+									reg = new RegExp("(&shy;?|\u00c2\u00ad|"+shy+")", "gi");
 									rep = "";
 									break;
 								}
@@ -172,7 +172,7 @@ class Replace_Text extends WYSIWYG_Plugin
 									rep2 = "$1matrix_anchor_tmp$3"
 									curHTML = curHTML.replace(reg2, rep2);
 							}
-							curHTML = curHTML.replace(reg, rep); 							
+							curHTML = curHTML.replace(reg, rep); 		
 							if (i == 10) {
 									reg3 = new RegExp("(<A NAME[^>]*?>)matrix_anchor_tmp(</A>)", "gi");
 									rep3 = "$1$2"

@@ -137,7 +137,7 @@ class Comment_Prefs extends Prefs
 		$this->pref_vars['SQ_COMMENT_MAX_LENGTH']['name'] = translate('Maximum Comment Length');
 		$this->pref_vars['SQ_COMMENT_MAX_LENGTH']['desc'] = translate('This setting limits the number of characters that may be entered in the comment input box. When the value is zero, this option will be ignored.');
 
-		$this->pref_vars['SQ_COMMENT_HTML_CONF']['name']  = translate('HTML in comments');
+		$this->pref_vars['SQ_COMMENT_HTML_CONF']['name']  = translate('HTML in Comments');
 		$this->pref_vars['SQ_COMMENT_HTML_CONF']['desc']  = translate('Determines whether HTML is allowed, escaped or removed.');
 
 		$this->pref_vars['SQ_COMMENT_MAX_RATING']['name'] = translate('Maximum Rating');
@@ -152,7 +152,7 @@ class Comment_Prefs extends Prefs
 		$this->pref_vars['SQ_COMMENT_IMG_BLANK']['desc']  = translate('Image to be used for the "unfilled" portion of a comment rating. (For instance, if a rating is 3 out of 5, this will be used for the two remaining "unfilled" rating images.)').' '.
 		    translate('If left empty, the default image is used.');
 
-		$this->pref_vars['SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS']['name'] = translate('Disable Keyword Replacements');
+		$this->pref_vars['SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS']['name'] = translate('Disable Keyword Replacements?');
 
 		// we'll use these attributes to print the inputs for SQ_COMMENT_INPUT_SIZE
 		$this->css_dimension_width = new Asset_Attribute_CSS_Dimension();
@@ -240,7 +240,7 @@ class Comment_Prefs extends Prefs
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock) {
-						$css_dimension_width->paint($pref.'_width', $have_lock, $comment_size['width']);
+						$css_dimension_width->paint('SQ_COMMENT_INPUT_SIZE'.'_width', $have_lock, $comment_size['width']);
 					} else {
 						echo $comment_size['width'];
 					}
@@ -253,7 +253,7 @@ class Comment_Prefs extends Prefs
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock) {
-						$css_dimension_height->paint($pref.'_height', $have_lock, $comment_size['height']);
+						$css_dimension_height->paint('SQ_COMMENT_INPUT_SIZE'.'_height', $have_lock, $comment_size['height']);
 					} else {
 						echo $comment_size['height'];
 					}
@@ -279,12 +279,16 @@ class Comment_Prefs extends Prefs
 	*/
 	function paintSqCommentMaxLengthBackend(&$o, $have_lock, $pref)
 	{
-	    $this->paintIntTextField($o, $have_lock, $pref, 'SQ_COMMENT_MAX_LENGTH', 10, function($value) {
-		     if ((int) $value === 0) {
-		         return translate('Unlimited');
-		     } else {
-		         return sprintf(translate('%s character(s)', $value));
-		     }
+	    $this->paintIntTextField($o, $have_lock, $pref, 'SQ_COMMENT_MAX_LENGTH', 10, function($value) use ($have_lock) {
+			if ($have_lock) {
+				return $value;
+			} else {
+				if ((int) $value === 0) {
+					return translate('Unlimited');
+				} else {
+					return sprintf(translate('%s character(s)'), $value);
+				}
+			}
 		}, 0);
 
 	}//end paintSqCommentMaxLengthBackend()
@@ -303,9 +307,9 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref)
 	{
 	    $options = Array(
-                       0 => translate('Allow HTML in comments'),
-                       1 => translate('Escape HTML in comments'),
-                       2 => translate('Strip HTML from comments'),
+                       0 => translate('Allow HTML'),
+                       1 => translate('Escape HTML'),
+                       2 => translate('Remove (strip) HTML'),
                    );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_COMMENT_HTML_CONF', $options);
 
@@ -325,8 +329,8 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentDisableKeywordReplacementsBackend(&$o, $have_lock, $pref)
 	{
 	    $options = Array(
-                       1 => translate('Disable keyword replacements'),
-                       0 => translate('Allow keyword replacements'),
+                       1 => translate('Yes'),
+                       0 => translate('No'),
                    );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS', $options);
 
@@ -403,8 +407,7 @@ class Comment_Prefs extends Prefs
 	*/
 	function processSqCommentInputSizeBackend(&$o, $have_lock, $pref)
 	{
-
-		if (isset($_POST[$pref.'_width']) && isset($_POST[$pref.'_height'])) {
+		if (isset($_POST['SQ_COMMENT_INPUT_SIZE'.'_width']) && isset($_POST['SQ_COMMENT_INPUT_SIZE'.'_height'])) {
 			// process css attributes
 			$this->css_dimension_width->process($pref.'_width');
 			$this->css_dimension_height->process($pref.'_height');

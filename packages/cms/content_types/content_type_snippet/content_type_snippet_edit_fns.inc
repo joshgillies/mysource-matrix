@@ -226,13 +226,19 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 			}
 			$current_snippet = $asset->getCurrentSnippet();
 			$current_id = (is_null($current_snippet)) ? 0 : $current_snippet->id;
-			$new_id = (isset($_POST[$prefix.'_dropdown'])) ? $_POST[$prefix.'_dropdown'] : 0;
+			$new_id = (isset($_POST[$prefix.'_dropdown'])) ? $_POST[$prefix.'_dropdown'] : FALSE;
 
+			// if new id is not set we should not make any changes
+			if($new_id === FALSE) {
+				return FALSE;
+			}
 			if (!$new_id && (!$current_id || !$current_snippet->readAccess())) {
 				// no new id set, and does not have access to current snippet
 				// prevent accidental overwrite
 				return FALSE;
 			}
+
+
 
 			if ($new_id) {
 				// user selected a different snippet

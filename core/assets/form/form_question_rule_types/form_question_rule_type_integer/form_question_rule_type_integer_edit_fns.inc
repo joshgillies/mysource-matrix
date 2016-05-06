@@ -49,8 +49,13 @@ class Form_Question_Rule_Type_Integer_Edit_Fns extends Form_Question_Rule_Edit_F
 
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
-
-			echo translate('core_form_rule_integer_edit_'.array_get_index($rule_data, 'operator', 1) ? 'true' : 'false');
+			$operator = array_get_index($rule_data, 'operator', 1);
+			if($operator) {
+				echo translate('Response must be a valid integer value');
+			}
+			else {
+				echo translate('Response must NOT be a valid integer value');
+			}
 			$o->closeField();
 
 		} else {

@@ -44,10 +44,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		// disable all static screens
 		$this->static_screens = Array();
 
-		// enable just the details
+		// enable the details and logs screens
 		$this->static_screens['details']['name'] = translate('Details');
-
 		$this->static_screens['details']['force_unlock'] = FALSE;
+
+		$this->static_screens['logs']['name'] = translate('Logs');
+		$this->static_screens['logs']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -130,7 +132,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				var result = true;
 
 				if (deleteCheckedCount > 0) {
-					result = confirm (js_translate('confirm_delete_trigger', deleteCheckedCount));
+					result = confirm(js_translate('Are you sure you want to delete the selected triggers?'));
 				}
 
 				return result;

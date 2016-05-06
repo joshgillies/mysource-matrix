@@ -778,8 +778,51 @@ function generate_security_key($key_len, $include_uppercase=FALSE, $include_numb
 * @return void
 * @access public
 */
-function security_key_image($key_len, $word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1, $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_color='D20A0A')
+function security_key_image(&$vars)
 {
+	$errors = FALSE;
+
+	if (!isset($vars['key'])) {
+		$errors = TRUE;
+	} else {
+		$word = $vars['key'];
+	}
+	if (!isset($vars['width'])) {
+		$errors = TRUE;
+	} else {
+		$w = $vars['width'];
+	}
+	if (!isset($vars['height'])) {
+		$errors = TRUE;
+	} else {
+		$h = $vars['height'];
+	}
+	// display one error message for all missing values not 23 individual Squizmap #6899
+	if ($errors) {
+		trigger_error('No security key information exists in the current session', E_USER_NOTICE);
+		return FALSE;
+	}
+
+	// our default values
+	$bg 			= (isset($vars['bg_colour'])) ? $vars['bg_colour'] : 'FFFFFF';
+	$text			= (isset($vars['text_colour'])) ? $vars['text_colour'] : '000000';
+	$border			= (isset($vars['border_colour'])) ? $vars['border_colour'] : '000000';
+	$zoom			= (isset($vars['zoom'])) ? $vars['zoom'] : 1;
+	$use_colours	= (isset($vars['use_colours'])) ? $vars['use_colours'] : FALSE;
+	$use_font 		= (isset($vars['use_font'])) ? $vars['use_font'] : FALSE;
+	$font 			= (isset($vars['font'])) ? $vars['font'] : '';
+	$font_size		= (isset($vars['font_size'])) ? $vars['font_size'] : 20;
+	$min_angle		= (isset($vars['min_angle'])) ? $vars['min_angle'] : 10;
+	$max_angle		= (isset($vars['max_angle'])) ? $vars['max_angle'] : 20;
+	$x_start		= (isset($vars['x_start'])) ? $vars['x_start'] : 20;
+	$min_dist		= (isset($vars['min_dist'])) ? $vars['min_dist'] : 20;
+	$max_dist		= (isset($vars['max_dist'])) ? $vars['max_dist'] : 20;
+	$ttf_width		= (isset($vars['ttf_width'])) ? $vars['ttf_width'] : 200;
+	$ttf_height		= (isset($vars['ttf_height'])) ? $vars['ttf_height'] : 36;
+	$use_arc		= (isset($vars['use_arc'])) ? $vars['use_arc'] : FALSE;	
+	$arc_color		= (isset($vars['arc_colour'])) ? $vars['arc_colour'] : 'D20A0A';
+
+	
 	if (!empty($word)) {
 		// Reset colours to defaults if we are not using them
 		if (!$use_colours) {
@@ -1212,5 +1255,75 @@ function array_diff_assoc_recursive($array1, $array2)
     }
     return !isset($difference) ? FALSE : $difference;
 } //end array_diff_assoc_recursive
+
+/**
+* array intersect assoc on 2 arrays with nested elements
+*
+* @param string $array1	PHP Array
+* @param string $array2	PHP Array
+* @return FALSE | array return the intersect between array 1 and array 2
+*/
+function array_intersect_assoc_recursive($arr1, $arr2) {
+    $ret = Array();
+    foreach ($arr1 as $key => $value) {
+        if (isset($arr2[$key]) && ($arr2[$key] == $value)) {
+            $ret[$key] = $value;
+        }
+    }
+
+    return $ret;
+} //end array_diff_assoc_recursive
+
+
+
+/**
+* tranverse every array element recursively and escape the array index for keywords friendly format
+*
+* @param string $array	PHP Array
+*/
+function escape_array_index_for_keywords_recursive(&$arr) {
+    if(!is_array($arr) || empty($arr)) return;
+
+    foreach ($arr as $index => $value) {
+    	if(is_array($value)) {
+    		escape_array_index_for_keywords_recursive($value);
+    	}
+    	if(is_string($index)) {
+    		$escaped_index = preg_replace('/[^0-9a-zA-Z_\-\.]/', '_', $index);
+    		if($escaped_index !== $index) {
+    			$arr[$escaped_index] = $value;
+    			unset($arr[$index]);
+    		}
+    		else {
+    			$arr[$index] = $value;
+    		}
+    	}
+    }
+} //end escape_array_index_for_keywords_recursive
+
+
+/**
+* mask any password array elements in a serialized string via regular expression match
+*
+* @param string $string	the serialized string
+*/
+function mask_password_in_serialized_string ($string) {
+	if (is_scalar($string) && (strpos((string)$string, '"password"') !== FALSE || strpos((string)$string, '"passphrase"') !== FALSE)){
+		$string = preg_replace('/s:(8|10):"(password|passphrase)";s:([0-9]+:".*?");/', 's:$1:"$2";s:5:"*****";', $string);
+	}
+	return $string;
+}
+
+/**
+* mask any password array elements in a var_exported string via regular expression match
+*
+* @param string $string	the serialized string
+*/
+function mask_password_in_var_export_string ($string) {
+	if (is_scalar($string) && (strpos((string)$string, '\'password\'') !== FALSE || strpos((string)$string, '\'passphrase\'') !== FALSE)){
+		$string = preg_replace('/\'(password|passphrase)\'\s+=>\s\'(.*?)\'/', '\'$1\' => \'*****\'', $string);
+	}
+	return $string;
+}
 
 ?>

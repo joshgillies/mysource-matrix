@@ -119,6 +119,18 @@ class Asset_Status extends MySource_Object
 		// do we need to check if the new status is valid?
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_STATUS_INTEGRITY)) {
 
+			// If the asset does not allows system version, make sure we dont allow change to safe edit status
+			if (($new_status & SQ_SC_STATUS_SAFE_EDITING) && !$this->owner->supportsSystemVersion()) {
+				// Get the new status description for the error notice message
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				$new_status_code = 'asset_status_'.strtolower(get_bit_names('SQ_STATUS_', $new_status));
+				require_once SQ_INCLUDE_PATH.'/asset_status/'.$new_status_code.'.inc';
+
+				trigger_error(sprintf(translate('Cannot change asset #%1$s status to "%2$s". Asset type "%3$s" does not supports safe edit mode.'), $this->owner->id, $new_status_code::getDescription(), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name')), E_USER_NOTICE);
+
+				return FALSE;
+			}
+
 			// make sure we can actually set this status
 			$valid_statii = $this->getAvailableStatii();
 			if (!isset($valid_statii[$new_status])) {

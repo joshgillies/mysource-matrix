@@ -268,6 +268,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		// an array of assetids that are not supposed to be trashed when Safe-Trash = Yes
 		$this->_running_vars['do_not_trash'] = Array();
 
+		// Array of content container assetids which can't be trashed.
+		$this->_running_vars['safe_edit_bc_restricted'] = Array();
+
 		// for the sake of backwards compatibility, allow for a single link to be specified for an asset instead of an array of links
 		// transform any asset link info given in the old format
 		for (reset($this->_running_vars['assets']); NULL !== ($assetid = key($this->_running_vars['assets'])); next($this->_running_vars['assets'])) {
@@ -299,21 +302,24 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 			$assets = $this->_running_vars['assets'];
 			$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-			// Check if the assets have been moved to the trash. If there are any, warn about which links will be affected
-			if ($new_parent->id == $trash_folder->id) {
-				// if we are moving to the trash folder, we need to check if the Safe-Trash pref has been enabled
-				$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
+			// if we are moving to the trash folder, we need to check if the Safe-Trash pref has been enabled
+			$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
 
-				// when checking for the number of links left in the system, make sure we disregard
-				// any link to the trash folder because even if this asset is already in the trash,
-				// we should warn about deleting it
-				for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
-					$links = current($assets);
+			// when checking for the number of links left in the system, make sure we disregard
+			// any link to the trash folder because even if this asset is already in the trash,
+			// we should warn about deleting it
+			for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
+				$links = current($assets);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-					for (reset($links); NULL !== ($link_idx = key($links)); next($links)) {
-						$current = current($links);
+				for (reset($links); NULL !== ($link_idx = key($links)); next($links)) {
+					// Check if the assets have been moved to the trash. If there are any, warn about which links will be affected
+					$current  = current($links);
+					$linkid   = $current['linkid'];
+					$parentid = $current['parentid'];
+					
+					if ($new_parent->id == $trash_folder->id) {
 						$ignore_link_id = isset($current['linkid']) ? $current['linkid'] : 0;
-						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, '', TRUE, $ignore_link_id);
 
@@ -362,10 +368,27 @@ class HIPO_Job_Create_Links extends HIPO_Job
 								$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
 							}
 						}
-					}//end for ($links)
-				}//end for ($assets)
 
-			}//end if the assets have been moved to the trash
+					}//end if trashing
+
+					if (((boolean) $safe_trash === FALSE) || ($new_parent->id != $trash_folder->id)) {
+						// (SM#6761) Work out whether our parent page is in a Safe Editing state, and if we are,
+						// block the moving of this link. This occurs even if not moving to trash.
+						if ($asset instanceof Bodycopy_Container) {
+							$parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($parentid);
+							if (($parent_info[$parentid]['status'] & SQ_SC_STATUS_SAFE_EDITING) > 0) {
+								$this->_running_vars['safe_edit_bc_restricted'][$assetid][] = Array(
+								    'linkid'   => $linkid,
+									'parentid' => $parentid,
+								);
+
+								// Takes priority over safe trash.
+								unset($this->_running_vars['do_not_trash'][$assetid]);
+							}
+						}
+					}//end if not trashing, OR trashing without safe trash
+				}//end for ($links)
+			}//end for ($assets)
 		}//end if action = move
 
 		$this->_running_vars['can_skip_cascade'] = TRUE;
@@ -463,25 +486,96 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$this->_paintMoveToTrashConfirmation($o, $prefix);
 
 				} else {
+					$to_move   = count($assets);
+					$cant_move = count($this->_running_vars['safe_edit_bc_restricted']);
 
 					// We are moving somewhere else
 					$o->openField('');
-					echo '<p>'.sprintf(translate('Please confirm that you are moving the following asset(s) to under "%s":'), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</p>';
+					if ($cant_move === $to_move) {
+						?><p><strong class="sq-backend-warning"><?php echo translate('None of the selected assets can be moved from their original parents. See below for details.');?></strong></p><?php
+						$this->_hipo_vars['no_next'] = TRUE;
+					} else {
+						if ($cant_move > 0) {
+							// There shouldn't be a situation where the singular form of this is used - because
+							// if 0/1 assets can be trashed then you'd get the "none trashable" message above.
+							// But with multiple plural forms possible, translate_plural() is still required.
+						?><p><strong class="sq-backend-warning"><?php echo sprintf(translate_plural(
+								'You have selected to trash %1$s asset but it cannot be moved to the trash. See below for details.',
+								'You have selected to trash %1$s assets but %2$s of these assets cannot be moved to the trash. See below for details.',
+								$to_move
+							), $to_move, $cant_move);?></strong></p><?php
+						}
 
-					echo '<ul>';
+						echo '<p>'.sprintf(translate('Please confirm that you are moving the following asset(s) to under "%s":'), htmlentities($new_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</p>';
+						echo '<ul>';
+					}
+
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$current = current($assets);
 						foreach ($current as $link) {
 							$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
-							echo '<li>'.sprintf(translate('"%1$s" from under "%2$s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</li>';
 
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+							$restricted = FALSE;
+							if (array_key_exists($asset->id, $this->_running_vars['safe_edit_bc_restricted']) === TRUE) {
+								foreach ($this->_running_vars['safe_edit_bc_restricted'][$asset->id] as $restricted_link) {
+									if ($link['parentid'] === $restricted_link['parentid']) {
+										$restricted = TRUE;
+										break;
+									}
+								}
+							}
+
+							if ($restricted === FALSE) {
+								$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
+								echo '<li>'.sprintf(translate('"%1$s" from under "%2$s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</li>';
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+							}
 						}
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					}
-					echo '</ul>';
+
+					if ($cant_move < $to_move) {
+						echo '</ul>';
+					}
+
+					if (isset($this->_hipo_vars['no_next']) && $this->_hipo_vars['no_next']) {
+						// if no next button printed, modify the confirm message a little
+						echo '<p>'.translate('Press the <b>Cancel</b> button to abort.').'</p>';
+
+					} else {
+						echo '<p>'.translate('Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.').'</p>';
+
+					}
+
 					$o->closeField();
+
+					if ($cant_move > 0) {
+						$o->openField(translate('Restricted Due To Parent Bodycopy in Safe Edit'), 'new_line');
+						echo '<p>'.translate('The following assets cannot be moved away from their current parent bodycopy while the parent is in a Safe Editing status:').'</p>';
+					
+						echo '<ul>';
+						$cant_move_assets = $this->_running_vars['safe_edit_bc_restricted'];
+						for (reset($cant_move_assets); NULL !== ($assetid = key($cant_move_assets)); next($cant_move_assets)) {
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							$current = current($cant_move_assets);
+							foreach ($current as $link) {
+								$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
+								echo '<li>'.sprintf(translate('"%1$s" [#%3$s] from under "%2$s" [#%4$s]'),
+									htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), 
+									htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
+									$asset->id,
+									$parent->id
+								).'</li>';
+
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+							}
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						}
+
+						echo '</ul>';
+						$o->closeField();
+					}
 
 				}//end else
 
@@ -521,38 +615,56 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// If we have nothing to trash, we no longer take out the "next"
 			// button because of the possibility for marking for Safe-Trash
 			$nothing_to_trash = FALSE;
-			$not_to_trash = 0;
+			$not_to_trash = count($this->_running_vars['safe_edit_bc_restricted']);
+			$to_trash     = count($assets);
+
 			if ($safe_trash) {
-				$to_trash = count($assets);
-				$not_to_trash = count($this->_running_vars['do_not_trash']);
-				$nothing_to_trash = ($not_to_trash == $to_trash);
+				$not_to_trash += count($this->_running_vars['do_not_trash']);
+			}
+			
+			$nothing_to_trash = ($not_to_trash == $to_trash);
+
+			if (count($assets) === count($this->_running_vars['safe_edit_bc_restricted'])) {
+				$this->_hipo_vars['no_next'] = TRUE;
 			}
 
 			$o->openField('');
 
 			// Ask them to confirm that they want to trash all these assets
 			if (count($assets) - $not_to_trash > 0) {
-				echo sprintf(translate('Please confirm that you are moving %s asset(s) to the trash.'), count($assets) - $not_to_trash).'</p>';
+				echo sprintf(translate_plural(
+					'Please confirm that you are moving %s asset to the trash.',
+					'Please confirm that you are moving %s assets to the trash.',
+					(count($assets) - $not_to_trash)
+				), (count($assets) - $not_to_trash)).'</p>';
+			}
 
-				if (isset($this->_hipo_vars['no_next']) && $this->_hipo_vars['no_next']) {
-					// if no next button printed, modify the confirm message a little
-					echo '<p>'.translate('Press the <b>Cancel</b> button to abort.').'</p>';
+			// Print Safe-Trash notices
+			if ($not_to_trash > 0) {
+				if (count($assets) === $not_to_trash) {
+					?><p><strong class="sq-backend-warning"><?php echo translate('None of the selected assets can be moved to the trash. See below for details.');?></strong></p><?php
 
 				} else {
-					echo '<p>'.translate('Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.').'</p>';
+					// There shouldn't be a situation where the singular form of this is used - because
+					// if 0/1 assets can be trashed then you'd get the "none trashable" message above.
+					// But with multiple plural forms possible, translate_plural() is still required.
+					?><p><strong class="sq-backend-warning"><?php echo sprintf(
+						translate_plural(
+							'You have selected to trash %1$s asset but it cannot be moved to the trash. See below for details.',
+							'You have selected to trash %1$s assets but %2$s of these assets cannot be moved to the trash. See below for details.',
+							count($assets)
+						), count($assets), $not_to_trash);?></strong></p><?php
 
 				}
 			}
 
-			// Print Safe-Trash notices
-			if ($safe_trash && $not_to_trash > 0) {
-				if (count($assets)== $not_to_trash) {
-					?><p><strong class="sq-backend-warning"><?php echo translate('None of the selected assets can be moved to the trash. See below for details.');?></strong></p><?php
+			if (isset($this->_hipo_vars['no_next']) && $this->_hipo_vars['no_next']) {
+				// if no next button printed, modify the confirm message a little
+				echo '<p>'.translate('Press the <b>Cancel</b> button to abort.').'</p>';
 
-				} else {
-					?><p><strong class="sq-backend-warning"><?php echo sprintf(translate('You have selected to trash %1$s assets but %2$s of these assets cannot be moved to the trash. See below for details.'), count($assets), $not_to_trash);?></strong></p><?php
+			} else {
+				echo '<p>'.translate('Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.').'</p>';
 
-				}
 			}
 
 			// Warn that shadow assets will not be trashed
@@ -592,6 +704,36 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// Paint other safe-trash sections
 				$this->_paintSafeTrashStatusWarning($o);
 				$this->_paintSafeTrashChildrenWarning($o);
+			}
+
+			if (empty($this->_running_vars['safe_edit_bc_restricted']) === FALSE) {
+				$o->openField(translate('Restricted Due To Parent Bodycopy in Safe Edit'), 'new_line');
+				echo '<p>'.translate('The following assets cannot be moved away from their current parent bodycopy while the parent is in a Safe Editing status:').'</p>';
+			
+				echo '<ul>';
+				$cant_move_assets = $this->_running_vars['safe_edit_bc_restricted'];
+				for (reset($cant_move_assets); NULL !== ($assetid = key($cant_move_assets)); next($cant_move_assets)) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$current = current($cant_move_assets);
+					foreach ($current as $link) {
+						$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
+						echo '<li>'.sprintf(translate('"%1$s" [#%3$s] from under "%2$s" [#%4$s]'),
+							htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), 
+							htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
+							$asset->id,
+							$parent->id
+						).'</li>';
+
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+					}
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				}
+
+				echo '</ul>';
+				$o->closeField();
+			}
+
+			if ($safe_trash && !empty($this->_running_vars['do_not_trash'])) {
 				$this->_paintMarkForDeletionList($o, $prefix);
 			}
 
@@ -1053,7 +1195,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				return FALSE;
 			}
 
-			$this->_running_vars['to_parent_pos']++;
+			if ($this->_running_vars['to_parent_pos'] != -1) {
+				$this->_running_vars['to_parent_pos']++;
+			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_parent);
@@ -1074,6 +1218,18 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
+			}//end if
+
+			// Work out whether we should be restricting this link.
+			$restricted_links = $this->_running_vars['safe_edit_bc_restricted'];
+			$do_not_move      = FALSE;
+			if (array_key_exists($assetid, $restricted_links) === TRUE) {
+				foreach ($restricted_links[$assetid] as $restricted_link) {
+					if ((string) $restricted_link['linkid'] === (string) $value['linkid']) {
+						$do_not_move = TRUE;
+						break;
+					}
+				}//end foreach
 			}//end if
 
 			// if we are moving to the trash, we want to skip all the steps that ask us if we want
@@ -1097,12 +1253,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$id_parts = explode(':', $assetid);
 				if (isset($id_parts[1])) $bridge_id = $id_parts[0];
 
-				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
-
 				// If we aren't allowed to trash this, then it's not going
 				// anywhere, so there's no point running update lookups over
 				// the children
-				if (!isset($this->_running_vars['do_not_trash'][$assetid])) {
+				if (($do_not_move === TRUE) || (isset($this->_running_vars['do_not_trash'][$assetid]) === FALSE)) {
+					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 					$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
 				}
 
@@ -1157,10 +1312,14 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			} else {
 
 				$not_to_trash = !$moving_to_trash;
-				$safe_to_trash = $moving_to_trash && (!$safe_trash || ($safe_trash && !in_array($assetid, array_keys($this->_running_vars['do_not_trash']))));
+				$safe_to_move = !$do_not_move;
 
-				// if we are not moving to trash, or this asset is safe to trash, proceed
-				if ($not_to_trash || $safe_to_trash) {
+				if ($moving_to_trash) {
+					$safe_to_move = $safe_to_move && (!$safe_trash || ($safe_trash && !in_array($assetid, array_keys($this->_running_vars['do_not_trash']))));
+				}
+
+				// If this asset is safe to move, proceed
+				if ($safe_to_move === TRUE) {
 
 					$link            = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 					$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
@@ -1205,12 +1364,14 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$step_data['message'] = sprintf(translate('Moving "%1$s" to "%2$s"'), htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($new_parent_info[$this->_running_vars['to_parent_assetid']]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 
 
-					$this->_running_vars['to_parent_pos']++;
+					if ($this->_running_vars['to_parent_pos'] != -1) {
+						$this->_running_vars['to_parent_pos']++;
+					}
 
 				} else {
 
 					// If we are marking for deletion, then do so
-					if (!$safe_to_trash) {
+					if (($moving_to_trash === TRUE) && ($safe_to_move === FALSE)) {
 						$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 						$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_attempt_safe_trash');
 
@@ -1468,7 +1629,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		// Workflow Schemas
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$schemas = $wfm->getSchemas($assetid, NULL, NULL);
-		$pschemas = $wfm->getSchemas($parentid, NULL, TRUE);
+		$pschemas = $wfm->getSchemas($parentid, NULL, FALSE, TRUE);
 		$diff = array_diff_assoc_recursive($pschemas, $schemas);
 		if (!empty($diff)) return FALSE;
 

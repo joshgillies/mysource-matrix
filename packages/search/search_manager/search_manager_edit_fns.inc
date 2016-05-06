@@ -719,6 +719,13 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 									// highlight the current table row begin customised
 									$css_class = 'sq-backend-table-cell';
 									if ($key == $current_key) $css_class .= '-alt';
+									// don't show those non-exist assets
+									if(is_numeric($key)) {
+										$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($key), Array(), TRUE);
+										if(empty($asset_info)) {
+											continue;
+										}
+									}
 
 									// when we click on a customisation, set a hidden field to the
 									// key that we are customising and submit the screen to save any options
@@ -783,7 +790,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if ($screen != 'asset_type') {
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($key), Array(), TRUE);
-			$type_name = $info[$key]['name'];
+			$type_name = empty($info) ? '' : $info[$key]['name'];
 		} else {
 			// if the key is 'asset' then we are processing all asset types
 			if ($key != 'asset') {

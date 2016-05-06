@@ -89,7 +89,7 @@ include(dirname(__FILE__).'/header.php');
 	    var fieldset = document.createElement('fieldset');
 	    var h2 = document.createElement('h2');
 	    var b = document.createElement('b');
-	    var name = document.createTextNode('Condition Group');
+	    var name = document.createTextNode('<?php echo translate('Group'); ?>');
 	    b.appendChild(name);
 	    h2.appendChild(b);
 	    td.appendChild(h2);
@@ -109,9 +109,10 @@ include(dirname(__FILE__).'/header.php');
 	    var add_link = document.createElement('a');
 	    add_link.href = '#';
 	    add_link.innerHTML = '<img src="<?php echo sq_web_path('lib')?>/web/images/icons/add.png" alt="Add" title="Add condition group " class="sq-icon sq-link-icon small">';
-	    add_link.appendChild(document.createTextNode('Add condition'));
+	    add_link.appendChild(document.createTextNode('<?php echo translate('Add condition'); ?>'));
 	    add_link.onclick = function () {
-		add_condition(tbdy, null);
+			add_condition(tbdy, null);
+			return false;
 	    };
 	    div.appendChild(add_link);
 	    fieldset.appendChild(div);
@@ -121,7 +122,8 @@ include(dirname(__FILE__).'/header.php');
 	    var td_label = document.createElement('td');
 	    var td_input = document.createElement('td');
 	    td_label.className = 'label';
-	    td_label.appendChild(document.createTextNode('Logical grouping:'));
+	    td_label.appendChild(document.createTextNode('<?php echo translate('Logic'); ?>'));
+		td_label.setAttribute("style","width:25%");
 	    tr.appendChild(td_label);
 	    tr.appendChild(td_input);
 
@@ -130,21 +132,32 @@ include(dirname(__FILE__).'/header.php');
 	    select.setAttribute("class", "logical_op_conditions");
 	    var option_1 = document.createElement("option");
 	    option_1.setAttribute('value', 'all_match');
-	    option_1.innerHTML = 'All conditions must match';
+	    option_1.innerHTML = 'All conditions are True';
 	    select.appendChild(option_1);
 	    var option_2 = document.createElement("option");
 	    option_2.setAttribute('value', 'one_match');
-	    option_2.innerHTML = 'At least 1 condition must match';
+	    option_2.innerHTML = '<?php echo translate('At least 1 condition is True'); ?>';
 	    select.appendChild(option_2);
+	    var option_3 = document.createElement("option");
+	    option_3.setAttribute('value', 'none_match');
+	    option_3.innerHTML = '<?php echo translate('All conditions are False'); ?>';
+	    select.appendChild(option_3);
+	    var option_4 = document.createElement("option");
+	    option_4.setAttribute('value', 'one_mismatch');
+	    option_4.innerHTML = '<?php echo translate('At least 1 condition is False'); ?>';
+	    select.appendChild(option_4);
 
 	    // if there is pre-set logical op, set it
 	    if(data !== null && typeof data.logical_op != 'undefined') {
-		if(data.logical_op === 'all_match') {
-		    option_1.setAttribute('selected', 'selected');
-		}
-		else {
-		    option_2.setAttribute('selected', 'selected');
-		}
+			if(data.logical_op === 'all_match') {
+			    option_1.setAttribute('selected', 'selected');
+			} else if(data.logical_op === 'one_match') {
+		    	option_2.setAttribute('selected', 'selected');
+			} else if(data.logical_op === 'none_match') {
+		    	option_3.setAttribute('selected', 'selected');
+			} else {
+		    	option_4.setAttribute('selected', 'selected');
+			}
 	    }
 
 	    td_input.appendChild(select);
@@ -173,8 +186,8 @@ include(dirname(__FILE__).'/header.php');
 	    // print delete group icon
 	    var deleteIcon=document.createElement('img');
 	    deleteIcon.src = "<?php echo(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png'); ?>";
-	    deleteIcon.alt = 'Delete this group';
-	    deleteIcon.title = 'Delete this group';
+	    deleteIcon.alt = '<?php echo translate('Delete this group'); ?>';
+	    deleteIcon.title = '<?php echo translate('Delete this group'); ?>';
 	    deleteIcon.className = 'sq-popup-btn';
 	    deleteIcon.onclick = function () {
 		this.parentNode.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode.parentNode);
@@ -192,7 +205,8 @@ include(dirname(__FILE__).'/header.php');
 	    var td_input = document.createElement('td');
 	    td_label.className = 'label';
 	    td_input.className = 'condition';
-	    td_label.appendChild(document.createTextNode('Condition:'));
+	    td_label.appendChild(document.createTextNode('<?php echo translate('Condition'); ?>'));
+		td_label.setAttribute("style","width:25%");
 	    tr.appendChild(td_label);
 	    tr.appendChild(td_input);
 	    parent.appendChild(tr);
@@ -201,6 +215,7 @@ include(dirname(__FILE__).'/header.php');
 	    var conditions =owner.bodycopy_current_edit["available_conditions"];
 	    var select = document.createElement("select");
 	    select.setAttribute("class", "selected_condition");
+	    select.setAttribute("style", "width:92%;");
 
 	    for (var i = 0; i < conditions.length; i++) {
 		var option = document.createElement("option");
@@ -221,8 +236,8 @@ include(dirname(__FILE__).'/header.php');
 	    var deleteIcon=document.createElement('img');
 	    deleteIcon.src = "<?php echo(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png'); ?>";
 	    deleteIcon.className = 'sq-popup-btn small';
-	    deleteIcon.alt = 'Delete this condition';
-	    deleteIcon.title = 'Delete this condition';
+	    deleteIcon.alt = '<?php echo translate('Delete this condition'); ?>';
+	    deleteIcon.title = '<?php echo translate('Delete this condition'); ?>';
 	    deleteIcon.style.cursor = 'pointer';
 	    deleteIcon.onclick = function () {
 		this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
@@ -237,34 +252,34 @@ include(dirname(__FILE__).'/header.php');
 
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
-		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('Cancel');?>" class="sq-icon">
 	</a>
-	Edit Container Display Conditions
+	<?php echo translate('Edit Container Display Conditions'); ?>
 </h1>
 <form id="main_form" name="main_form"  style="height:410px;overflow: auto;">
 <input type="hidden" name="bodycopy_name" value="">
 <input type="hidden" name="divid" value="">
 <table width="100%" border="0" >
 	<tr>
-		<td colspan="2">
-		<h2>Condition Settings</h2>
+		<td>
+		<h2><?php echo translate('Settings'); ?></h2>
 		<fieldset>
 			<table style="width:100%">
 				<tr>
-					<td class="label">Display conditions:</td>
+					<td class="label" style="width:25%;"><?php echo translate('Conditions'); ?></td>
 					<td>
 					    <select name="condition_rules_status">
-							<option value="enable" selected ><?php echo translate('enabled'); ?></option>
-							<option value="disable"><?php echo translate('disabled'); ?></option>
+							<option value="enable" selected ><?php echo translate('Enabled'); ?></option>
+							<option value="disable"><?php echo translate('Disabled'); ?></option>
 						</select>
 					</td>
 				</tr>
 				<tr>
-					<td class="label">Logical grouping:</td>
+					<td class="label" style="width:25%;"><?php echo translate('Group Logic'); ?></td>
 					<td>
 					    <select name="logical_op_groups" id="logical_op_groups">
-							<option value="all_match"selected >All groups must match</option>
-							<option value="one_match">At least 1 group must match</option>
+							<option value="all_match"selected ><?php echo translate('All groups must match'); ?></option>
+							<option value="one_match"><?php echo translate('At least 1 group must match'); ?></option>
 						</select>
 					</td>
 				</tr>
@@ -273,28 +288,33 @@ include(dirname(__FILE__).'/header.php');
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2">
+		<td>
 		    <table style="width:100%" id="condition_groups_table" class="sq-conditions-group-table">
 		    </table>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2">
+		<td>
 			<h2 style="text-align: center; border-bottom: none;">
 			    <a href="#" onClick="add_group(null); return false;" class="sq-full-width-btn sq-add-condition-group-link">
-			    	<img src="<?php echo sq_web_path('lib')?>/web/images/icons/add.png" alt="Add" title="Add condition group " class="sq-icon sq-link-icon">Add condition group
-			    </a>
+			    	<img src="<?php echo sq_web_path('lib')?>/web/images/icons/add.png" alt="Add" title="Add group " class="sq-icon sq-link-icon"><?php echo translate('Add group'); ?></a>
 			</h2>
 		</td>
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" class="" name="cancel" onClick="javascript: popup_close(); return false;" value="<?php echo translate('cancel'); ?>"/>
-		</td>
-		<td align="right">
+			<span style="float:left">
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close(); return false;" value="<?php echo translate('Cancel'); ?>"/>
+			</span>
+			<span style="float:right">
 			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form); return false;" value="<?php echo translate('Apply Changes'); ?>"/>
+			</span>
 		</td>
 	</tr>
 </table>
 </form>
+<script type="text/javascript">
+	var parentDiv = document.getElementById("main_form").parentNode;
+	parentDiv.setAttribute("style","width:338px");
+</script>
 <?php include(dirname(__FILE__).'/footer.php'); ?>

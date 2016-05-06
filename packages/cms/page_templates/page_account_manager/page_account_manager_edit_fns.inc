@@ -366,7 +366,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 		} else {
 			$fn = !empty($customised_types) ? 'tick' : 'cross';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.png" />';
 			echo translate('Customise Account Manager Form');
 
 		}
@@ -475,7 +475,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 		} else {
 			$fn = !empty($customised_types) ? 'tick' : 'cross';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.png" />';
 			echo translate('Customise Account Manager Logged In Form');
 
 		}

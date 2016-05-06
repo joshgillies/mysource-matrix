@@ -92,8 +92,8 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 	            'insert'      => translate('Insert'),
 	            'connections' => translate('Connections'),
 	        );
-            $tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
-            $cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="No" />';
+            $tick = '<img src="'.sq_web_path('lib').'/web/images/tick.png" alt="Yes" style="position: relative; right: 0px;"/>';
+            $cross = '<img src="'.sq_web_path('lib').'/web/images/cross.png" alt="No" />';
             ?>
             <table class="sq-backend-table" style="width: 350px">
                 <col width="80%" />

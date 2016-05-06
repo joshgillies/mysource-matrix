@@ -505,13 +505,13 @@ class Messaging_Service extends MySource_Object
 		if (!empty($statii)) {
 			$statii_strs = Array();
 			for ($i = 0; $i < count($statii); $i++) {
-				$statii[$i] = '\''.$statii[$i].'\'';
+				$statii[$i] = MatrixDAL::quote($statii[$i]);
 			}
 			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
 		if (!empty($messageids)) {
 			for ($i = 0; $i < count($messageids); $i++) {
-				$messageids[$i] = '\''.$messageids[$i].'\'';
+				$messageids[$i] = MatrixDAL::quote($messageids[$i]);
 			}
 			$where .= ' AND m.msgid IN ('.implode(', ', $messageids).')';
 		}
@@ -948,13 +948,13 @@ class Messaging_Service extends MySource_Object
 		if (!empty($statii)) {
 			$statii_strs = Array();
 			for ($i = 0; $i < count($statii); $i++) {
-				$statii[$i] = '\''.$statii[$i].'\'';
+				$statii[$i] = MatrixDAL::quote($statii[$i]);
 			}
 			$where .= ' AND status IN ('.implode(', ', $statii).')';
 		}
 		if (!empty($messageids)) {
 			for ($i = 0; $i < count($messageids); $i++) {
-				$messageids[$i] = '\''.$messageids[$i].'\'';
+				$messageids[$i] = MatrixDAL::quote($messageids[$i]);
 			}
 			$where .= ' AND msgid IN ('.implode(', ', $messageids).')';
 		}

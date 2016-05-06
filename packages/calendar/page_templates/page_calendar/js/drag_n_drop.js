@@ -300,16 +300,16 @@ function confirmDrag(movingElt, newCell)
 	toggleFlashing(movingElt.id);
 	if (new_loc == '') {
 		if (new_time == 'allday') {
-			var msg = js_translate('confirm_move_event_to_date', new_date);
+			var msg = js_translate('Move this event to %s?', new_date);
 		} else {
-			var msg = js_translate('confirm_move_event_to_datetime', new_date, new_time);
+			var msg = js_translate('Move this event to %1$s at %2$s?', new_date, new_time);
 		}
 	} else {
 		var location_name = columnNames[String(new_loc)];
 		if (new_time == 'allday') {
-			var msg = js_translate('confirm_move_event_to_place_date', location_name, new_date);
+			var msg = js_translate('Move this event to %1$s on %2$s?', location_name, new_date);
 		} else {
-			var msg = js_translate('confirm_move_event_to_place_datetime', location_name, new_date, new_time);
+			var msg = js_translate('Move this event to %1$s on %2$s at %3$s?', location_name, new_date, new_time);
 		}
 	}
 	if (!confirm(msg)) {

@@ -124,8 +124,10 @@ Please return to the form to generate a new key.</p>
 */
 
 // Ensure that the request originated from *this* Matrix system, otherwise drop the request like some sort of heavy feather
-if (!isset($_SESSION['SQ_ACCESSIBLE_CAPTCHA_GENERATED'])) exit;
-
+if (!isset($_SESSION['SQ_ACCESSIBLE_CAPTCHA_GENERATED'])) { 
+	echo translate('This Accessible CAPTCHA key is invalid or has expired for this session.<br />Please return to the form to generate a new key.'); 
+	exit;
+}
 // Generate an Accessible CAPTCHA Key
 if (isset($_GET['email'])) {
 

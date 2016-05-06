@@ -40,7 +40,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'submit' as the form field, because it clashes
 	// with the submit() fn that the form has
 	if ($name == 'submit') {
-		trigger_localised_error('SYS0019', translate('Cannot use "submit" as the name of the Submit button'), E_USER_ERROR);
+		trigger_localised_error('SYS0019', E_USER_ERROR);
 	}
 
 	if ($on_click) {
@@ -75,7 +75,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'reset' as the form field, because it clashes
 	// with the reset() fn that the form has
 	if ($name == 'reset') {
-		trigger_localised_error('SYS0018', translate('Cannot use "reset" as the name of your Reset button'), E_USER_ERROR);
+		trigger_localised_error('SYS0018', E_USER_ERROR);
 	}
 
 	if ($on_click) {
@@ -151,11 +151,12 @@ function hidden_field($name, $value='', $extras='')
 *								if needed) - useful if you want to use it as instructional text (as required by priority
 *								level 3 accessability standards)
 * @param string		$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string		$placeholder additional hint to this input field
 *
 * @return void
 * @access public
 */
-function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extras='', $text_field_type='text')
+function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extras='', $text_field_type='text', $placeholder='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
@@ -180,11 +181,17 @@ function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extra
 		}
 	}
 
+	$placeholder_string = '';
+	if(!empty($placeholder)) {
+		$placeholder_string = ' placeholder="'.htmlspecialchars($placeholder, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" ';
+	}
+
 	echo	'<input type="'.$text_field_type.'" ',
 			'name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			'value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
+			$placeholder_string,
 			$extras,
 			' />';
 
@@ -253,6 +260,40 @@ function int_text_box($name, $value, $allow_negative=TRUE, $size='', $range_min=
 }//end int_text_box()
 
 
+
+/**
+* Prints a single line text box that only accepts user defined Regex matches
+*
+* @param string		$name			the form name to use for the text box
+* @param string		$value			the text that should be pre-entered in the text box
+* @param int		$size			the width of the text box
+* @param string		$preg			Regex defined bu user
+* @param int		$max_chars		the maximum number of characters allowed in the text box
+* @param boolean	$hide_value		hide value is always false
+* @param boolean	$include_js		include js file
+* @param boolean	$use_js			use js validation
+*
+* @return void
+* @access public
+*/
+function preg_text_box($name, $value, $size, $preg, $hide_value=false, $max_chars='', $include_js=TRUE, $use_js=TRUE, $extras='')
+{
+
+	if (empty($preg)) return FALSE;
+
+	if ($use_js && $include_js) {
+	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
+	}
+	$javascript = '';
+	if ($use_js) {
+		$javascript = 'onkeyup="validate_preg_text_field(this,'.$preg.',event)"';
+		$javascript .= 'onblur="validate_preg_text_field(this,'.$preg.',event)"';
+	}
+
+	text_box($name, $value, $size, $max_chars, $hide_value, $javascript.$extras);
+}
+
+
 /**
 * Prints a password box
 *
@@ -275,6 +316,9 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 	if (!stristr($extras, 'id=')) {
 		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
+	if (!stristr($extras, 'autocomplete=')) {
+		$extras .= ' autocomplete="off"';
+	}
 	echo	'<input type="password" ',
 			'name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			'value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
@@ -295,11 +339,12 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 * @param int	$rows		the height (in lines) of the text area
 * @param int	$max		the maximum number of characters allowed in the text area
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string		$placeholder additional hint to this input field
 *
 * @return void
 * @access public
 */
-function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
+function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='', $placeholder='')
 {
 	$cols = (int) $cols;
 	$rows = (int) $rows;
@@ -313,10 +358,16 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 
 	$js = 'if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}';
 
+	$placeholder_string = '';
+	if(!empty($placeholder)) {
+		$placeholder_string = ' placeholder="'.htmlspecialchars($placeholder, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" ';
+	}
+
 	echo 	'<textarea name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			'cols="'.$cols.'" ',
 			'rows="'.$rows.'" ',
-			(($max)   ? 'onkeyup="'.$js.'" onblur="'.$js.'"' : ''),
+			(($max)   ? 'onkeyup="'.$js.'" onblur="'.$js.'" ' : ''),
+			$placeholder_string,
 			$extras,
 			'>',
 			htmlspecialchars($contents, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
@@ -524,7 +575,7 @@ function colour_box($name, $default='000000', $allow_blanks=FALSE, $button_text=
 
 	if ($show_change_colour) {
 		?>
-		<img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom" />
+		<img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo sq_web_path('lib'); ?>/web/images/cross.png" width="15" height="15" border="0" align="bottom" />
 		<?php
 	}
 
@@ -601,34 +652,34 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 		break;
 
 		case UPLOAD_ERR_INI_SIZE  :
-			trigger_localised_error('SYS0022', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, strtoupper(easy_filesize($max_allowed_size))), E_USER_WARNING);
+			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, strtoupper(easy_filesize($max_allowed_size)));
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_FORM_SIZE :
-			trigger_localised_error('SYS0021', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, strtoupper(easy_filesize($max_allowed_size))), E_USER_WARNING);
+			trigger_localised_error('SYS0021', E_USER_WARNING, $nice_name, strtoupper(easy_filesize($max_allowed_size)));
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_PARTIAL :
-			trigger_localised_error('SYS0023', sprintf(translate('The uploaded file "%s" was only partially uploaded.'), $nice_name), E_USER_WARNING);
+			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_NO_TMP_DIR :
-			trigger_localised_error('SYS0350', sprintf(translate('Upload error for "%s" file: Missing a temporary folder to upload the file to.'), $nice_name), E_USER_WARNING);
+			trigger_localised_error('SYS0350', E_USER_WARNING, $nice_name);
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_CANT_WRITE :
-			trigger_localised_error('SYS0351', sprintf(translate('Upload error for "%s" file: Failed to write file to disk. Please check the permission or the space on tmp directory.'), $nice_name), E_USER_WARNING);
+			trigger_localised_error('SYS0351', E_USER_WARNING, $nice_name);
 			return FALSE;
 		break;
 
 		case 8 :
 			// this was introduced in PHP 5.2
 			if (PHP_VERSION_ID > 50200) {
-				trigger_localised_error('SYS0352', sprintf(translate('Upload error for "%s" file: A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.'), $nice_name), E_USER_WARNING);
+				trigger_localised_error('SYS0352', E_USER_WARNING, $nice_name);
 				return FALSE;
 			}
 		break;
@@ -672,7 +723,7 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 	$nice_name = str_replace('_', ' ', $name);
 
 	if ($max_size > 0 && $max_size < $info['size']) {
-		trigger_localised_error('SYS0020', sprintf(translate('File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s'), $nice_name, easy_filesize($max_size)), E_USER_WARNING);
+		trigger_localised_error('SYS0020', E_USER_WARNING, $nice_name, easy_filesize($max_size));
 		return FALSE;
 	}
 
@@ -689,7 +740,7 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 
 		// see $restrict_exts documentation in function header
 		if (($restrict_exts && !$in_arr) || (!$restrict_exts && $in_arr)) {
-			trigger_localised_error('SYS0002', sprintf(translate('%1$s files are not allowed for "%2$s"'), $ext, $nice_name), E_USER_WARNING);
+			trigger_localised_error('SYS0002', E_USER_WARNING, $ext, $nice_name);
 			return FALSE;
 		}//end if
 	}//end if
@@ -699,7 +750,7 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 	// Doe dest exist and is it a directory ?
 	if (is_dir($dest)) {
 		if (!is_writable($dest)) {
-			trigger_localised_error('SYS0007', sprintf(translate('Destination Directory "%s" is not writable'), $dest), E_USER_WARNING);
+			trigger_localised_error('SYS0007', E_USER_WARNING, $dest);
 			return FALSE;
 		}
 		$dest .= '/'.$info['name'];
@@ -708,11 +759,11 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 	// Now we know we have a proper filename, if it exists are we allowed to write over it
 	if (file_exists($dest)) {
 		if (!$overwrite) {
-			trigger_localised_error('SYS0027', sprintf(translate('Unable to upload file "%s", filename already in use'), $info['name']), E_USER_WARNING);
+			trigger_localised_error('SYS0027', E_USER_WARNING, $info['name']);
 			return FALSE;
 		}
 		if (!is_writable($dest)) {
-			trigger_localised_error('SYS0008', sprintf(translate('Destination File "%s" is not writable'), $dest), E_USER_WARNING);
+			trigger_localised_error('SYS0008', E_USER_WARNING, $dest);
 			return FALSE;
 		}
 
@@ -722,17 +773,17 @@ function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restri
 		$parent = dirname($dest);
 		// if the parent isn't a directory, can we create it ?
 		if (!is_dir($parent) && !create_directory($parent)) {
-			trigger_localised_error('SYS0015', sprintf(translate('Parent Directory "%s" does not exist'), $parent), E_USER_WARNING);
+			trigger_localised_error('SYS0015', E_USER_WARNING, $parent);
 			return FALSE;
 		} else if (!is_writable($parent)) {
-			trigger_localised_error('SYS0016', sprintf(translate('Parent Directory "%s" is not writable'), $parent), E_USER_WARNING);
+			trigger_localised_error('SYS0016', E_USER_WARNING, $parent);
 			return FALSE;
 		}
 	}//end dest exists
 
 	// Move file over
 	if (!move_uploaded_file($info['tmp_name'], $dest)) {
-		trigger_localised_error('SYS0025', sprintf(translate('Unable to create file: %s'), $dest), E_USER_WARNING);
+		trigger_localised_error('SYS0025', E_USER_WARNING, $dest);
 		return FALSE;
 	}
 
@@ -849,8 +900,8 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	text_box($safe_name.'_label', $label, 20, 0, FALSE, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 	// only print the buttons if in the backend (where there's an asset map frame available)
 	if (SQ_IN_BACKEND || SQ_IN_LIMBO || defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
-		?><span class="sq-asset-finder-id-label"><?php echo translate('Id') ?> : #</span><?php
-		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'onchange="this.value=this.value.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, \'$1\');'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
+		?><span class="sq-asset-finder-id-label">Id : #</span><?php
+		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, ' class="sq-form-asset-finder-text-box" onchange="this.value=this.value.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, \'$1\');'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
 		?> <?php
 		$new_window_source = '';
 		if($new_window) {
@@ -858,14 +909,11 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		    $new_window_source = $map_frame.'.JS_Asset_Map.currentNewWindow=window;';
 		}
 		normal_button($safe_name.'_change_btn', translate('Change'), $new_window_source.$map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.', window);');
-
 		if (in_array('clear', $buttons)) {
 			normal_button($safe_name.'_clear_btn', translate('Clear'), $new_window_source.$map_frame.'.asset_finder_clear_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\');');
-
 		}
 		if (in_array('reset', $buttons)) {
 			normal_button($safe_name.'_reset_btn', translate('Reset'), $new_window_source.$map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
-
 		}
 	}
 
@@ -886,11 +934,12 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 * @param string		$done_fn	a javascript function to call when the asset finder is finished
 * @param array		$buttons	an array of which additional buttons to print (clear and/or reset)
 * @param boolean	$allow_sorting	whether to allow user to sort the asset list (ordering info is posted to "_order" array var)
+* @param int		$max_selection	Maximum number of allowed Asset Finder input fields
 *
 * @return void
 * @access public
 */
-function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear'), $allow_sorting=FALSE)
+function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear'), $allow_sorting=FALSE, $max_selections=0)
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
@@ -919,8 +968,9 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 	}
 
 	$index = count($assetids);
-	asset_finder($name.'['.$index.']', 0, $type_codes, $map_frame, $new_window, $done_fn, Array('clear'));
-	$index++;
+	if (!$max_selections || $index < $max_selections) {
+		asset_finder($name.'['.$index.']', 0, $type_codes, $map_frame, $new_window, $done_fn, Array('clear'));
+	}
 
 	if (!empty($map_frame)) {
 		$map_frame_exp = trim('parent.frames["'.$map_frame.'"]', '.');
@@ -930,8 +980,9 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 	$type_codes_string = get_type_codes_string($type_codes);
-	echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" id="'.htmlspecialchars($safe_name.'_more_btn', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" value="'.translate('More').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
-
+	if (!$max_selections || $index+1 < $max_selections) {
+		echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" id="'.htmlspecialchars($safe_name.'_more_btn', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" value="'.translate('More').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').($max_selections ? ','.$max_selections : '').')" />';
+	}
 	echo '<br />';
 
 	echo '</div>';
@@ -961,10 +1012,7 @@ function multiple_root_nodes_selector ($name, $root_nodes, $wa)
 				<tbody>
 					<tr>
 						<th><?php echo translate('Root Node'); ?></th>
-
-						<th title="<?php echo translate('Include all assets underneath this root node'); ?>?" style="width:340px;" ><?php echo translate('Cascade'); ?>?</th>
-
-
+						<th title="<?php echo translate('Include all assets underneath this root node?'); ?>" style="width:340px;" ><?php echo translate('Cascade?'); ?></th>
 					</tr>
 					<?php
 					foreach ($root_nodes as $assetid => $data) {
@@ -986,23 +1034,17 @@ function multiple_root_nodes_selector ($name, $root_nodes, $wa)
 									if ($wa) {
 										$options = Array(
 														0	=> translate('No'),
-
 														1	=> translate('Yes'),
-
 												   );
 										$combo_name = $prefix.'_all_underneath['.$key.']';
 										combo_box($combo_name, $options, FALSE, $data['all_underneath']);
 									} else {
 										if ($data['all_underneath']) {
-											echo '<img src="'.sq_web_path('lib').'/web/images/tick.gif" /> ';
+											echo '<img src="'.sq_web_path('lib').'/web/images/tick.png" /> ';
 											echo '<strong>'.translate('Yes').'</strong> ('.translate('Assets underneath this root node <u>ARE</u> affected').')';
-
-
 										} else {
-											echo '<img src="'.sq_web_path('lib').'/web/images/cross.gif" /> ';
+											echo '<img src="'.sq_web_path('lib').'/web/images/cross.png" /> ';
 											echo '<strong>'.translate('No').'</strong> ('.translate('Assets underneath this root node are <u>NOT</u> affected').')';
-
-
 										}
 									}
 								?>
@@ -1016,7 +1058,6 @@ function multiple_root_nodes_selector ($name, $root_nodes, $wa)
 									<?php
 										$more_button_name = $prefix.'_root_node_more_button['.$key.']';
 										normal_button($more_button_name, translate('Add Root Node'), 'var table = prependLastRow(this); resetLastRowFields(table, false)');
-
 									?>
 								</td>
 							</tr>
@@ -1110,7 +1151,7 @@ function multiple_root_nodes_selector ($name, $root_nodes, $wa)
 						}
 					}
 				</script>
-			<?php
+			<?php	
 
 }//end multiple_root_nodes_selector()
 
@@ -1208,9 +1249,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 		print_accessible_captcha_interface();
 		}
 		$replacements_link = '<a href="#" onclick="var img = document.getElementById(\'sq_security_key\'); img.src = \''.$img_url.'&amp;regen_key=1&amp;t=\' + new Date().getTime(); return false;">'.translate('Click here to get a new key').'</a>';
-
-		echo '<span id="sq_regen_captcha"><br /><i>'. sprintf(translate('Can\'t read the security key? %s'), $replacements_link).'</i></span>';
-
+		echo '<span id="sq_regen_captcha"><br /><i>'. translate('Can\'t read the security key?').' '.$replacements_link.'</i></span>';
 
 	}
 	else {
@@ -1239,12 +1278,10 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 		<?php
 			ob_start();
 				?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&amp;regen_key=1&amp;t=' + new Date().getTime(); return false;"><?php echo translate('Click here to get a new key'); ?></a><?php
-
 				$replacements_link = ob_get_contents();
 			ob_end_clean()
 		?>
-			<td class="sq-backend-data" id="sq_regen_captcha" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i><?php echo sprintf(translate('Can\'t read the security key? %s'), $replacements_link); ?></i></td>
-
+			<td class="sq-backend-data" id="sq_regen_captcha" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i><?php echo translate('Can\'t read the security key?').' '.$replacements_link; ?></i></td>
 		</tr>
 	</table>
 	<?php
@@ -1506,38 +1543,30 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 					if (empty($type_code)) continue;
 					combo_box($name.'[type_code][]', $types, FALSE, $type_code);
 					hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
-					check_box('asset_type_chooser_inherit_check_box_'.$i, 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
-					label(translate('Inherit').' &nbsp;', 'asset_type_chooser_inherit_check_box_'.$i);
-
+					check_box('asset_type_chooser_inherit_check_box_'.$i.'_'.$name, 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
+					label(translate('Inherit').' &nbsp;', 'asset_type_chooser_inherit_check_box_'.$i.'_'.$name);
 					normal_button('', translate('Clear'), 'resetLastSelect(this)', 'style="margin-bottom:3px;"');
-
 					echo '<br />';
 				}
 			}
 			$i++;
 			combo_box($name.'[type_code][]', $types, FALSE, '');
 			hidden_field($name.'[inherit][]', 0);
-			check_box('asset_type_chooser_inherit_check_box_'.$i, 1, FALSE, 'toggleLastHiddenField(this)');
-			label(translate('Inherit').' &nbsp;', 'asset_type_chooser_inherit_check_box_'.$i);
-
+			check_box('asset_type_chooser_inherit_check_box_'.$i.'_'.$name, 1, FALSE, 'toggleLastHiddenField(this)');
+			label(translate('Inherit').' &nbsp;', 'asset_type_chooser_inherit_check_box_'.$i.'_'.$name);
 			normal_button('', translate('Clear'), 'resetLastSelect(this); clearLastCheckbox(this);', 'style="margin-bottom:3px;"');
-
-			normal_button('', translate('More').'...', 'prependTypeSelector(this); prependInheritSelector(this); prependClearButton(this, true)');
-
+			normal_button('', translate('More').'...', 'prependTypeSelector(this); prependInheritSelector(this); prependClearButton(this, true)', 'style="margin-bottom:3px;"');
 		} else {
 			foreach ($defaults as $default) {
 				if (!empty($default)) {
 					combo_box($name.'[]', $types, FALSE, $default);
 					normal_button('', translate('Clear'), 'resetLastSelect(this)');
-
 					echo '<br />';
 				}
 			}
 			combo_box($name.'[]', $types, FALSE, '');
 			normal_button('', translate('Clear'), 'resetLastSelect(this)', 'style="margin-bottom:3px;"');
-
-			normal_button('', translate('More').'...', 'prependTypeSelector(this); prependClearButton(this, false)');
-
+			normal_button('', translate('More').'...', 'prependTypeSelector(this); prependClearButton(this, false)', 'style="margin-bottom:3px;"');
 		}
 		echo '<br />';
 	} else {
@@ -1546,7 +1575,6 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 			hidden_field($name.'[inherit]', array_get_index($defaults, 'inherit', '0'));
 			check_box('', 1, array_get_index($defaults, 'inherit', '0'), 'toggleLastHiddenField(this)');
 			label(translate('Inherit').' &nbsp;', $name.'[inherit]');
-
 		} else {
 			combo_box($name, $types, FALSE, $defaults);
 		}
@@ -1585,15 +1613,12 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 			switch (responseState) {
 				case "0":
 					responseText = js_translate('The URL you have entered points to a non-existent page');
-
 				break;
 				case "1":
 					responseText = js_translate('Valid URL');
-
 				break;
 				default:
 					responseText = js_translate('Unknown State');
-
 			}
 
 			document.getElementById('<?php echo $name.'_status_text'; ?>').innerHTML = responseText;
@@ -1602,8 +1627,7 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 
 		function checkUrlExists(id_name)
 		{
-			document.getElementById(id_name + "_status_text").innerHTML = js_translate('Testing...');
-
+			document.getElementById(id_name + "_status_text").innerHTML = js_translate('Testing');
 			var testUrl = "<?php echo sq_web_path('lib').'/web/connectivity.php'; ?>" + "?connect_url=" + getFullUrl(id_name);
 			JsHttpConnector.submitRequest(testUrl, eval(id_name + "changeStatusText"));
 
@@ -1940,8 +1964,7 @@ function keyword_selector($keywords, $target_id, $self_id=NULL, $prompt=NULL)
 	}
 
 	if (empty($prompt)) {
-		$prompt = '-- '.translate('Insert Keyword').' --';
-
+		$prompt = '-- '.translate('Insert keyword').' --';
 	}
 
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script>

@@ -27,12 +27,12 @@
 ?>
 <html>
 	<head>
-		<title>MySource Matrix Change User Password</title>
+		<title>Squiz Matrix Change User Password</title>
 	</head>
 	<body bgcolor="#FFFFFF">
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_ACTION=password_change&FORCE_BACKUP_PASSWORD_CHANGE=1" name="password_change_prompt" method="post">
 			<p>
-				Old Password:
+				Current Password:
 				<input type="password" name="SQ_PASSWORD_CHANGE_OLD" value="" size="10" maxlength="64" onfocus="javascript: this.select();" />
 			</p>
 			<p>

@@ -698,7 +698,7 @@ function sq_pager_jump(page_field, val)
 */
 function sq_pager_prompt(min, max)
 {
-	var pageNo = prompt(js_translate('sq_pager_prompt_js', min, max));
+	var pageNo = prompt(js_translate('Enter a page number between %1$s and %2$s:', min, max));
 	pageNo = parseInt(pageNo, 10);
 	if (isNaN(pageNo) == false) {
 		if ((pageNo >= min) && (pageNo <= max)) {

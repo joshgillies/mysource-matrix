@@ -224,14 +224,18 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		$settings['text_value'] = $value;
 
 		// handle serialised attributes
-		if (!empty($settings['asset_type']) && !empty($settings['attribute'])) {
+		if (trim($value) && !empty($settings['asset_type']) && !empty($settings['attribute'])) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
 			$fake_asset = new $settings['asset_type'];
 			$attr = $fake_asset->getAttribute($settings['attribute'], TRUE);
 			if (!is_null($attr)) {
 				if ($attr instanceof Asset_Attribute_Serialise) {
-					$value = str_replace(';', '', $value); // avoid code injection
-					eval('$value = '.$value.';');
+					include_once SQ_FUDGE_PATH.'/general/text.inc';
+					if (!safe_array_literal($value) || @eval('$value = '.$value.';') === FALSE) {
+						trigger_localised_error('TRIG0002', translate('You have chosen to set the value of a non-scalar attribute, but the value you have supplied does not qualify to be evaluated as a PHP expression.  The only allowable components for these expressions are the \'array\' keyword, single- and double-quoted strings, digits and necessary punctuation.  The value has not been saved.'), E_USER_NOTICE);
+						$value = '';
+						$settings['text_value'] = '';
+					}
 				}
 			}
 		}
@@ -240,6 +244,21 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		return FALSE;
 
 	}//end processInterface()
+
+
+	/**
+	* Determines whether a condition is allowed to be used multiple times in a trigger
+	* Default to false, children can override if necessary
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function allowMultiple()
+	{
+		// default to to disallow
+		return TRUE;
+
+	}//end allowMultiple()
 
 
 }//end class

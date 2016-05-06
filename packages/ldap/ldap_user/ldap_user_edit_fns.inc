@@ -46,6 +46,11 @@ class Ldap_User_Edit_Fns extends User_Edit_Fns
 														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
+									'metadata'		=> Array(
+														'name'			=> 'Metadata',
+														'force_unlock'	=> TRUE,
+														'lock_type'		=> 'metadata',
+														),
 									'dependants'	=> Array(
 														'name'			=> 'Dependants',
 														'force_unlock'	=> TRUE,
@@ -56,6 +61,11 @@ class Ldap_User_Edit_Fns extends User_Edit_Fns
 														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'links',
 													   ),
+									'logs'          => Array(
+														'name'          => 'Logs',
+														'force_unlock'  => TRUE,
+														'lock_type'     => 'none',
+														),
 								);
 
 	}//end constructor

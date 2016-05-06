@@ -100,28 +100,16 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				if ($mm->allowsMetadata($this->owner->id)) {
-					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-					$is_dependant =  $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
-
-					if ($wf_complete && (($m_complete && !$is_dependant) || $is_dependant)) {
-						$statii[SQ_STATUS_APPROVED] = translate('Approve');
-
-					} else if (in_array($userid, $publishers)) {
-						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Approve Changes');
-
-					}
-				} else {
-					// this asset needs to allow both statuses because it cant check metadata requirements
-					// due to it not allowing metadata, but only if workflow is complete
+				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+				if($m_complete) {
 					if ($wf_complete) {
 						$statii[SQ_STATUS_APPROVED] = translate('Approve');
 
+					}
+					if ((!$wf_complete) && in_array($userid, $publishers)) {
 						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Approve Changes');
-
 					}
 				}
-
 				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('Reject Changes');
 
 			}

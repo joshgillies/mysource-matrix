@@ -40,6 +40,7 @@ class Page_REST_Resource extends Page
 		'Last-Modified',
 		'Cache-Control',
 		'Expires',
+		'Content-Disposition',
 	);
 
 	// For storing extra param replacements for use in the HTTP request attribute.
@@ -125,22 +126,7 @@ class Page_REST_Resource extends Page
 			$http_attr = $this->getAttribute('http_request');
 			$http_attr->setKeywordReplacements($this->_extra_replacements);
 
-			// all the available keywords need to be passed to the attribute to have keyword set in the attribute to be replaced
-			$available_keywords = parent::getAvailableKeywords();
-			foreach ($available_keywords as $keyword => $val) {
-				$available_keywords[$keyword] = $this->getKeywordReplacement($keyword);
-			}
-
-			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$metadata_fields = $mm->getMetadata($this->id);
-			foreach($metadata_fields as $schema_fieldid => $field_data) {
-				foreach ($field_data as $item) {
-					$available_keywords['asset_metadata_'.$item['name']] = $item['value'];
-				}
-			}
-
-			$http_attr->setKeywordReplacements($available_keywords);
-
+			$http_attr->setOwnerAsset($this);
 			$this->_res =& $http_attr->run();
 
 			// trigger the event with this REST asset as a triggering asset and a response received

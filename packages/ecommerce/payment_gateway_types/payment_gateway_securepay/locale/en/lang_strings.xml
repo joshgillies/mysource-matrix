@@ -17,7 +17,7 @@
 <strings>
 <string source="default_bodycopy_content_pg_securepay"><![CDATA[
 %%processing_error%%
-<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> (%%transaction_gst%% percent GST)  dollars are about to be debited from your card</div>
+<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> dollars are about to be debited from your card</div>
 <table cellpadding="5">
 	<tr>
 		<td align="right">Card Number</td>

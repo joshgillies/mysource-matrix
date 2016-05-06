@@ -86,6 +86,18 @@ class Css_File_Folder extends File_Folder
 	}//end getFileAssetTypes()
 
 
+	/**
+	* Returns the tag name to wrap the file contents when outputtiing  '%file_list% keyword replacement
+	*
+	* @return string
+	* @access protected
+	*/
+	protected function _contentTypeTagName()
+	{
+		return 'style';
+
+	}//end _contentTypeTagName()
+
 }//end class
 
 ?>

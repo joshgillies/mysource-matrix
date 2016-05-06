@@ -496,7 +496,7 @@ function disable_missing_packages()
 	// Don't uninstall the missing packages, leave them as-is
 	// so step_3 can keep reporting them as missing.
 	foreach ($missing_packages as $package_name => $package_code) {
-		uninstall_package($package_code, FALSE);
+		uninstall_package($package_code, TRUE);
 	}
 
 
@@ -1208,6 +1208,10 @@ function build_string_file($package, $locale=NULL) {
         $target_filename = SQ_DATA_PATH.'/private/packages/'.$package.'/strings.'.$locale;
         $lines = file($source_filename);
 
+		if (!file_exists(SQ_DATA_PATH.'/private/packages/'.$package)) {
+			mkdir(SQ_DATA_PATH.'/private/packages/'.$package);
+		}
+		
         $strings = Array();
         $current    = NULL;
         $line_index = NULL;
@@ -1216,8 +1220,10 @@ function build_string_file($package, $locale=NULL) {
         $msgstr     = NULL;
 
         // Create closure to build the strings file.
-        $add_to_strings = function($msgid, $msgstr) use ($strings) {
-            $strings[$msgid] = $msgstr;
+        $add_to_strings = function($msgid, $msgstr) use (&$strings) {
+        	if (($msgstr !== '') && ($msgid !== '')) {
+            	$strings[$msgid] = $msgstr;
+        	}
         };
 
         foreach ($lines as $i => $line) {
@@ -1234,7 +1240,7 @@ function build_string_file($package, $locale=NULL) {
                 $this_str = substr($line, strlen('msgid "'), -1);
             } else if (strpos($line, 'msgstr[') === 0) {
                 // Plural option.
-                list($line_index, $this_str) = sscanf('msgstr[%d] %s', $line);
+                list($line_index, $this_str) = sscanf($line, 'msgstr[%d] %s');
                 $current = 'msgstr_plural';
                 $msgstr  = Array();
                 $this_str = substr(trim($this_str), -1, 1);
@@ -1266,6 +1272,9 @@ function build_string_file($package, $locale=NULL) {
                 break;
 
                 case 'msgstr_plural':
+		    if (array_key_exists($line_index, $msgstr) === FALSE) {
+			$msgstr[$line_index] = '';
+		    }
                     $msgstr[$line_index] .= $this_str;
                 break;
             }//end switch
@@ -1355,7 +1364,7 @@ function build_js_string_files() {
                 $this_str = substr($line, strlen('msgid "'), -1);
             } else if (strpos($line, 'msgstr[') === 0) {
                 // Plural option.
-                list($line_index, $this_str) = sscanf('msgstr[%d] %s', $line);
+                list($line_index, $this_str) = sscanf($line, 'msgstr[%d] %s');
                 $current = 'msgstr_plural';
                 $msgstr  = Array();
                 $this_str = substr(trim($this_str), -1, 1);
@@ -1387,6 +1396,9 @@ function build_js_string_files() {
                 break;
 
                 case 'msgstr_plural':
+		    if (array_key_exists($line_index, $msgstr) === FALSE) {
+			$msgstr[$line_index] = '';
+		    }
                     $msgstr[$line_index] .= $this_str;
                 break;
             }//end switch
@@ -1408,6 +1420,7 @@ function build_js_string_files() {
             $js_file = str_replace(','."\n".'}', "\n".'}', $js_file);
 
             $target_filename = SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js';
+            create_directory(dirname($target_filename));
             file_put_contents($target_filename, $js_file);
         }
     }

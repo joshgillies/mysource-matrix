@@ -463,7 +463,7 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['dynamic_root_option'] = Array(
 										'added'			=> '0.16',
 										'type'			=> 'selection',
-										'default'		=> 'static_root',
+										'default'		=> 'empty_result',
 										'parameters'	=> Array(
 															'multiple'		=> FALSE,
 															'allow_empty'	=> FALSE,
@@ -525,7 +525,74 @@ class Listing_Engine_Management extends Asset_Management
 
 	}//end _getFileList()
 
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.17', '<')) {
+			echo('UPGRADING LISTING ENGINE PAGE FROM '.$current_version."\n");
+
+			$count = 0;
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			pre_echo('Updating Listing Engine Pages...');
+
+			// Get all Listing Engine Page assets
+			$listing_engine_pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('listing_engine', FALSE, TRUE);
+
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
+
+			foreach ($listing_engine_pages as $id => $type) {
+				$listing_engine_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$get_attr_details = $listing_engine_page->getAttribute('dynamic_root_option');
+				$attr_id = $get_attr_details->id;
+				$sql = 'SELECT custom_val FROM sq_ast_attr_val';
+				$where = ' WHERE assetid = '.MatrixDAL::quote($id);
+				$where .= ' AND attrid = '.MatrixDAL::quote($attr_id);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
+				$result = DAL::executePdoAll($query);
+
+				if(empty($result)) {
+					$listing_engine_page->setAttrValue('dynamic_root_option', 'static_root');
+					if (!$listing_engine_page->saveAttributes()) {
+
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+						pre_echo('UPGRADE FAILED - Could not save attribute of asset #'.$id);
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						return FALSE;
+					}//end if
+
+					$count++;
+				}
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($listing_engine_page, TRUE);
+		        unset($listing_engine_pages);
+			}
+			pre_echo('Updated - '.$count.' listing engine page(s)...');
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+			pre_echo('LISTING ENGINE PAGES SUCCESSFULLY UPGRADED TO VERSION 0.17');
+			
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		}
+
+
+		return TRUE;
+	
+	}//end _upgrade()
 
 }//end class
-
-?>

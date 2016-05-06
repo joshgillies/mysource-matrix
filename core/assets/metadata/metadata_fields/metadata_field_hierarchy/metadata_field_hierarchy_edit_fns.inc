@@ -94,7 +94,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		$hierarchy_options = $hierarchy->_params['options'];
 		if ($write_access) {
 
-			echo '<span class="sq-metadata-settings-wrapper">';
+			if($enable_default || $print_cascade_values_option) echo '<span class="sq-metadata-settings-wrapper">';
 				if ($enable_default) {
 					echo '<span class="sq-metadata-default-wrapper">';
 					// Work out which options we have to set if we have to
@@ -123,14 +123,16 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo '</span>';
 				}
 
-				if ($print_cascade_values_option) {
+
+ 				$allow_cascading = $asset->attr('allow_cascading');
+				if ($print_cascade_values_option && $allow_cascading) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
 						label(translate('Cascade value'), $prefix.'_cascade_value');
 
 					echo '</span>';
 				}
-			echo '</span>';
+			if($enable_default || $print_cascade_values_option) echo '</span>';
 
 			if (!$display_type) {
 				// flat view
@@ -881,11 +883,12 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	*												NULL means that there is no current value set
 	* @param array						&$tag_value	the metadata tag value
 	* @param array						&$keywords	an array we can put keywords in that need replacing
+	* @param boolean        			$content_file   Whether the generated metadata will be included in a metadata content file
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Field_Hierarchy $asset, $value_str, &$tag_value, Array &$keywords)
+	public function generateMetadata(Metadata_Field_Hierarchy $asset, $value_str, &$tag_value, Array &$keywords, $content_file=TRUE)
 	{
 		if (is_null($value_str)) {
 			$value_str = Metadata_Field::encodeValueString($asset->attr('default'), Array());
@@ -896,7 +899,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			$value_str = $asset->getValueFromKey($value_str);
 		}
 
-		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
+		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords, $content_file);
 
 	}//end generateMetadata()
 

@@ -317,14 +317,17 @@ class Authentication_LDAP extends Authentication
 		$username = $ldap->escape_filter_value($username);
 		// Check for extra LDAP filtering
 		$auth_filter = trim($bridge->attr('auth_filter'));
-		if (!empty($auth_filter)) {
+		$auth_filter_status = $bridge->attr('auth_filter_status');
+		if (!empty($auth_filter) && !$auth_filter_status) {
 			// Add surrounding parentheses only if the filter does not have them.
 			// If the filter already have surrounding parentheses, adding them will
 			// cause invalid filter, e.g. ((o=Squiz)) is an invalid filter
 			if ($auth_filter[0] != '(') {
 				$auth_filter = '('.$auth_filter.')';
 			}
-			$filter = '(&'.$auth_filter.'('.$attrs['uid'].'='.$username.'))';
+
+			//also replace any %username% placeholders
+			$filter = preg_replace('|%username%|', $username, $auth_filter);
 		} else {
 			$filter = '('.$attrs['uid'].'='.$username.')';
 		}//end if

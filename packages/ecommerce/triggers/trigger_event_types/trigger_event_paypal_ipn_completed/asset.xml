@@ -21,7 +21,7 @@
 	<package>ecommerce</package>
 	<type_code>trigger_event_paypal_ipn_completed</type_code>
 	<version>0.1</version>
-	<name>Paypal IPN Completed</name>
+	<name>PayPal IPN Completed</name>
 	<description>Event broadcasts when an IPN Receiver accepts an Instant Payment Notification (IPN) from Paypal after a completed transaction.</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>

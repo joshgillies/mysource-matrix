@@ -45,6 +45,11 @@
 				<process_function name="processCreateStatus" />
 			</function_call>
 		</field>
+		<field attribute="auto_login">
+			<display_name>Automatically Log User In?</display_name>
+			<note>If set to Yes, the user will be made Live and logged in automatically after creation. This will also overwrite the "Create Status" setting and will disable the email validation function.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
 		<field>
 			<display_name>Metadata Schemas to Apply</display_name>
 			<note>These metadata schemas will be applied to created user assets.  Values for these schemas' fields may be supplied by the user when creating the asset.  By default, the complete interface for these schemas, exactly as it would appear in the administration interface, will be printed above the default create form for the selected user asset type.  It is recommended that the create form be customised (see below) to lay out the metadata fields more appropriately within the form.</note>

@@ -776,6 +776,16 @@ class MatrixDALBaker extends DALBaker
                         $condNode->setAttribute('table', $rbTableName);
                     }
                 }
+
+                // Replace join attributes
+                $condNodes = $xpath->query('//query//select/joins/join/field');
+                foreach ($condNodes as $condNode) {
+                    $table = $condNode->getAttribute('table');
+                    if (self::_tableRequiresRollback($table)) {
+                        $rbTableName = substr_replace($table, 'sq_rb_', 0, 3);
+                        $condNode->setAttribute('table', $rbTableName);
+                    }
+                }
                 
 				// Replace order-by attributes
                 $orderByNodes = $xpath->query('//query//select/order-by//*');

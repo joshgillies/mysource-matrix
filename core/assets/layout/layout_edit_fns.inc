@@ -140,7 +140,7 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 
 		} else {
 			?>
-				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($show_cascade_metadata_field ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($show_cascade_metadata_field ? 'tick' : 'cross'); ?>.png" width="15" height="15" />
 			<?php
 			echo translate('Show "Cascade Metadata" field');
 

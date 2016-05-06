@@ -22,7 +22,7 @@
 	<package>cms</package>
 	<type_code>form_email</type_code>
 	<version>0.3</version>
-	<name>Form</name>
+	<name>Form Contents</name>
 	<description>Form Email - Form with Email Functionality</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

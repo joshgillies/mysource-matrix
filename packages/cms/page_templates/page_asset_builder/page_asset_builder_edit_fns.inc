@@ -105,6 +105,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				if (!empty($type)) $types[$type] = 1;
 			}
 			$asset->setAttrValue('create_type', $types);
+			$asset->setAttrValue('edit_type', $types);
 			return TRUE;
 		}
 		return FALSE;
@@ -226,7 +227,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			hidden_field($prefix.'_customise_form_submitted', 1);
 		}
 		?>
-		<table class="sq-backend-table">
+		<table class="sq-backend-table asset-builder-customisation-table">
 			<thead>
 				<tr>
 					<th>Asset Type</th>
@@ -245,7 +246,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							echo check_box($prefix.'_customise_form[]', $code, in_array($code, $customised_types));
 						} else {
 							$fn = in_array($code, $customised_types) ? 'tick' : 'cross';
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.png" />';
 						}
 						?>
 					</td>
@@ -276,6 +277,82 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			$customised_types = array_get_index($_POST, $prefix.'_customise_form', Array());
 			$customised_types = array_intersect($customised_types, array_keys($asset->attr('create_type')));
 			return $asset->setAttrValue('create_form_customisations', $customised_types);
+		}
+		return FALSE;
+
+	}//end processCreateFormCustomisation()
+
+	// -- Edit Form Customisations -- //
+	/**
+	* Paints the interface for choosing create types whose form should be customised
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintEditFormCustomisation(&$asset, &$o, $prefix)
+	{
+		$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($asset->attr('edit_type')), 'name');
+		$customised_types = $asset->attr('edit_form_customisations');
+		
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			hidden_field($prefix.'_edit_form_submitted', 1);
+		}
+		?>
+		<table class="sq-backend-table asset-builder-customisation-table">
+			<thead>
+				<tr>
+					<th>Asset Type</th>
+					<th>Customise Edit Form?</th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+			foreach ($type_names as $code => $name) {
+				?>
+				<tr>
+					<td><?php echo $type_names[$code]; ?></td>
+					<td>
+						<?php
+						if ($wa) {
+							echo check_box($prefix.'_customise_edit_form[]', $code, in_array($code, $customised_types));
+						} else {
+							$fn = in_array($code, $customised_types) ? 'tick' : 'cross';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.png" />';
+						}
+						?>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+
+	}//end paintCreateFormCustomisation()
+
+
+	/**
+	* Processes the interface for choosing create types whose form should be customised
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processEditFormCustomisation(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes') && isset($_POST[$prefix.'_edit_form_submitted'])) {
+			$customised_types = array_get_index($_POST, $prefix.'_customise_edit_form', Array());
+			$customised_types = array_intersect($customised_types, array_keys($asset->attr('edit_type')));
+			return $asset->setAttrValue('edit_form_customisations', $customised_types);
 		}
 		return FALSE;
 
@@ -512,7 +589,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								<?php
 									} else {
 								?>
-									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $data['allow_empty'] ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $data['allow_empty'] ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 								<?php
 									}
 								?>
@@ -528,7 +605,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								<?php
 									} else {
 								?>
-									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $data['allow_multiple'] ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $data['allow_multiple'] ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 								<?php
 									}
 								?>
@@ -1253,7 +1330,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 									<?php
 								} else {
 									?>
-									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $selected_allow_empty ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $selected_allow_empty ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 									<?php
 								}
 								?> <?php echo translate('Allow No Selection') ?> &nbsp;&nbsp;&nbsp;&nbsp;
@@ -1269,7 +1346,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 									<?php
 								} else {
 									?>
-									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $selected_allow_multiple ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $selected_allow_multiple ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 									<?php
 								}
 								?> <?php echo translate('Allow Multiple Selections') ?> &nbsp;&nbsp;&nbsp;&nbsp;
@@ -1562,7 +1639,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 				echo '<br/><b>'.translate('New required attribute ?').' </b>';
 
-				combo_box($type_prefix.'_new_required', $new_required, FALSE, '');
+				combo_box($type_prefix.'_new_required', $new_required, FALSE, '', 0, 'class="sq-form-field asset-builder-required-attributes"');
 			}
 
 			$o->closeRaw();
@@ -1924,6 +2001,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('mollom_attributes_to_check', $content_types);
 
 	}//end processMollomAttributeToCheck()
+
 
 }//end class
 

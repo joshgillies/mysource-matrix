@@ -3,7 +3,7 @@ var dfxLoadedCallback = null;
 // Defines which files will be included. These must be in the same directory as
 (function() {
     var jQueryFilesString = 'jquery.js|jquery.ui.js';
-    var dfxLibraryString  = 'event.js|dom.js|css.js|general.js|arrays.js|effects.js|ajax.js|util.js|json.js|date.js|xpath.js';
+    var dfxLibraryString  = 'event.js|dom.js|css.js|general.js|arrays.js|effects.js|ajax.js|util.js|json.js|date.js|xpath.js|sorting.js';
     var dfxScripts        = document.getElementsByTagName('script');
     var path              = null;
 
@@ -75,14 +75,26 @@ var dfxLoadedCallback = null;
        // Load DfxJSLib files.
        _loadScripts(dfxLibraryFiles, function() {
            if (dfxLoadedCallback) {
-               dfxLoadedCallback.call(window);
+               if (dfxLoadedCallback.constructor === Array) {
+                   for(i=0; i<dfxLoadedCallback.length; i++) {
+                      dfxLoadedCallback[i].call(window);
+                   }
+               } else {
+                   dfxLoadedCallback.call(window);
+               }
            } else {
                 var maxTry   = 10;
                 var interval = setInterval(function() {
                     maxTry--;
                     if (dfxLoadedCallback) {
-                        dfxLoadedCallback.call(window);
-                        clearInterval(interval);
+                        if (dfxLoadedCallback.constructor === Array) {
+                           for(i=0; i<dfxLoadedCallback.length; i++) {
+                              dfxLoadedCallback[i].call(window);
+                           }
+                       } else {
+                           dfxLoadedCallback.call(window);
+                       }        
+                       clearInterval(interval);
                     } else if (maxTry === 0) {
                         clearInterval(interval);
                     }

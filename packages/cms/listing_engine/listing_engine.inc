@@ -254,46 +254,18 @@ class Listing_Engine extends Page
 	*/
 	function isDeletableLink($linkid)
 	{
-		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
-		if (!empty($folder_link)) {
-			if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('You cannot delete the link between the type formats folder and the %s page'), str_replace('_',' ', $this->type()));
+		if ($GLOBALS['SQ_PURGING_TRASH']) {
+			return TRUE;
+        }
 
-			}
-		}
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
-		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'position_formats');
-		if (!empty($asset_folder_link)) {
-			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('You cannot delete the link between the position formats folder and the %s page'), str_replace('_',' ', $this->type()));
+		// Any exclusive type link to this asset cannot be deleted
+		if (array_get_index($link, 'is_exclusive', FALSE)) {
+			$major_type_code = isset($link['major_type_code']) ? ucwords(str_replace('_', ' ', $link['major_type_code'])) : translate('Unknown Asset Type');
+			$minor_type_code = isset($link['minor_type_code']) ? ucwords(str_replace('_', ' ', $link['minor_type_code'])) : translate('Unknown Asset Type');
 
-			}
-		}
-
-		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'group_formats');
-		if (!empty($asset_folder_link)) {
-			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('You cannot delete the link between the group formats folder and the %s page'), str_replace('_',' ', $this->type()));
-
-			}
-		}
-
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
-		if (!empty($bodycopy_link)) {
-			if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-				return sprintf(translate('You cannot delete the link between the page contents and the %s page'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-
-			}
-		}
-
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'no_results');
-		if (empty($bodycopy_link)) {
-			// No Results bodycopy is obviously hidden, so we should be getting TYPE_3 link instead
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'bodycopy', TRUE, 'no_results');
-		}
-		if (!empty($bodycopy_link) && $bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return sprintf(translate('You cannot delete the link between the page contents and the %s page'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-
+			return sprintf(translate('Cannot delete exclusive link between %1$s and %2$s'), $major_type_code, $minor_type_code);
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -758,7 +730,7 @@ class Listing_Engine extends Page
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'chunkAssets');
 
 		// Which position in the list to start from
-		$start_pos = $this->attr('start_position') - 1;
+		$start_pos = $this->replaceAllKeywords($this->attr('start_position'),'integer') - 1;
 		if ($start_pos > 0) {
 			if ($this->attr('group_by') != 'grouped') {
 				$children = $start_pos < count($children) ? array_slice($children, $start_pos, count($children) - $start_pos , TRUE) : Array();
@@ -1013,20 +985,7 @@ class Listing_Engine extends Page
 	*/
 	function _getNumPerPage()
 	{
-		$num_per_page = $this->attr('num_per_page');
-
-		// Check for keywords in the num_per_page attribute
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		replace_global_keywords($num_per_page);
-		$num_per_page_keywords = retrieve_keywords_replacements($num_per_page);
-		$replacements = Array();
-		foreach ($num_per_page_keywords as $keyword) {
-			$replacements[$keyword] = $this->getKeywordReplacement($keyword);
-		}//end foreach
-		replace_keywords($num_per_page, $replacements);
-		settype($num_per_page, 'integer');
-
-		return $num_per_page;
+		return $this->replaceAllKeywords($this->attr('num_per_page'), 'integer');
 
 	}//end _getNumPerPage()
 
@@ -1162,47 +1121,46 @@ class Listing_Engine extends Page
 			}//end foreach
 		} else if ($is_sort_by_metadata) {
 			// Sort by Metadata field
-			$sort_numeric = FALSE;
-			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$fieldid = $sort_info['field'];
+			if (empty($sort_info['field']) || !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($sort_info['field'], 'metadata_field', FALSE)) {
+				// Metadata field is empty or invalid or does not exist, return the asset list
+				return $reverse_sort ? array_reverse($asset_list, TRUE) : $asset_list;
 
-			if (isset($sort_info['field'])) {
-				$fieldid = $sort_info['field'];
-			}
-			if ($fieldid) {
-				$field_default_val = $mm->getMetadataFieldDefaultValue($fieldid);
 			} else {
-				$field_default_val = '';
-			}
+				$sort_numeric = FALSE;
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$fieldid = $sort_info['field'];
 
-			$presentation_value = FALSE;
-			if ($this->attr('metadata_sort_type') == 'presentation') {
-				$presentation_value = TRUE;
-			}
+				$field_default_val = $mm->getMetadataFieldDefaultValue($fieldid);
 
-			foreach ($asset_list as $assetid => $type) {
-				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,$presentation_value);
-				$meta_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
-				$field_type = $meta_field->type();
-				// get value of selection if raw display is required
-				if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value)  {
-				    $meta_field_val= preg_replace('/\\\;/', ';',  $meta_field->getValueFromKey($meta_field_val));
+				$presentation_value = FALSE;
+				if ($this->attr('metadata_sort_type') == 'presentation') {
+					$presentation_value = TRUE;
 				}
-				$field_value = $field_default_val;
-				if (isset($meta_field_val)) {
-					$field_value = $meta_field_val;
 
-					// get keyword replacements
-					if (preg_match('/^%(.*)%$/',$field_value,$matches)) {
-						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						if ($asset->id) {
-							$field_value = $asset->getKeywordReplacement($matches[1]);
-						}
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				foreach ($asset_list as $assetid => $type) {
+					$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,$presentation_value);
+					$meta_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+					$field_type = $meta_field->type();
+					// get value of selection if raw display is required
+					if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value && $meta_field->attr('visible_part') == 'key')  {
+					    $meta_field_val= preg_replace('/\\\;/', ';',  $meta_field->getValueFromKey($meta_field_val));
 					}
+					$field_value = $field_default_val;
+					if (isset($meta_field_val)) {
+						$field_value = $meta_field_val;
+
+						// get keyword replacements
+						if (preg_match('/^%(.*)%$/',$field_value,$matches)) {
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							if ($asset->id) {
+								$field_value = $asset->getKeywordReplacement($matches[1]);
+							}
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						}
+					}
+					$sort_assets[$assetid] = strtolower($field_value);
 				}
-				$sort_assets[$assetid] = strtolower($field_value);
-			}
+			}//end else
 
 		} else if ($is_sort_by_keyword) {
 			foreach ($asset_list as $assetid => $type) {
@@ -2920,6 +2878,12 @@ class Listing_Engine extends Page
 					break;
 				}//end switch
 
+				// keyword replacement to html5 textbox
+				$html5_textbox = in_array($selection_prefix.'_asset_selection_input', $bc_keywords);
+				if($html5_textbox) {
+					$html5_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
+					$keywords[$selection_prefix.'_asset_selection_input'] = '<input type="numeric" name="'.$selection_prefix.'['.$assetid.']'.'" value="0" size="3" min="'.$selection_restrict_min.'" max="'.$selection_restrict_max.'" step="1" id="'.$html5_id.'" class="sq-form-field" />';
+				}
 				// set selection and its ids keywords
 				if ($buffering) {
 					$keywords[$selection_name.'_asset_selection'] = ob_get_clean();
@@ -2930,13 +2894,15 @@ class Listing_Engine extends Page
 		}//end if
 
 		// print asset ID always
-		$keywords['asset_assetid'] = $assetid;
+		if (empty($keywords['asset_assetid'])) {
+			$keywords['asset_assetid'] = $assetid;
+		}
 
 		// kept for backwards compatibility
 		$keywords['result_no']	=& $keywords['asset_position'];
 		$keywords['root_nodes'] = $this->getRootNodesKeywordReplacement();
 
-		$keywords += $this->getExtendedAssetKeywordReplacements();
+		$keywords = $this->getExtendedAssetKeywordReplacements($assetid) + $keywords;
 
 		// Apply keyword modifiers
 		$this->applyKeywordModifier($keywords, $assetid);
@@ -3239,10 +3205,12 @@ class Listing_Engine extends Page
 	* score fields so they don't blank out when keywords are replaced in listing
 	* engine. Return data format: Array(string => string)	keyword name => replacement
 	*
+	* @param string $assetid	Asset ID of the asset being listed
+	*
 	* @return array
 	* @access public
 	*/
-	function getExtendedAssetKeywordReplacements()
+	function getExtendedAssetKeywordReplacements($assetid='')
 	{
 		return Array();
 
@@ -3510,7 +3478,7 @@ class Listing_Engine extends Page
 							// port the feature added #4039, although not perfectly sensible but still have to keep it
 							// if using raw value, always use the value of select field, because the value is always dispalyed in backend interface
 							// if using presentation value, that's whatever is displayed in frontend (key or value depends on schema setting)
-							if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value)  {
+							if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value && $metadata_field->attr('visible_part') == 'key')  {
 							    $new_value= preg_replace('/\\\;/', ';',  $metadata_field->getValueFromKey($new_value));
 							}
 
@@ -3929,7 +3897,7 @@ class Listing_Engine extends Page
 						foreach ($results as $key => $arrayInfo) {
 							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE, $presentation_value);
 							// use value of selection if raw display is required
-							if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value)  {
+							if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value && $sorting_metadata_field->attr('visible_part') == 'key')  {
 							    $group_order[$key] = preg_replace('/\\\;/', ';',  $sorting_metadata_field->getValueFromKey($group_order[$key]));
 							}
 						}//end foreach
@@ -4274,6 +4242,8 @@ class Listing_Engine extends Page
 			foreach ($selections as $name => $settings) {
 				$keywords[$name.'_asset_selection'] = sprintf(translate('Asset Selection (%s)'), $name);
 
+				// for Html5 Input Box
+				$keywords[$name.'_asset_selection_input'] = sprintf(translate('Asset Selection HTML5 Input(%s)'), $name);
 			}
 		}
 
@@ -4493,12 +4463,13 @@ class Listing_Engine extends Page
 	* Overridden in listing_engine to handle dynamic keywords in the page
 	* contents, such as Asset Targets
 	*
-	* @param string	$keyword	Keyword to find a replacement for
+	* @param string	$keyword					Keyword to find a replacement for
+	* @param string $additional_replacements    Additional keyword replacements for 'replace_keywords' modifier
 	*
 	* @return string
 	* @access public
 	*/
-	function getKeywordReplacement($original_keyword)
+	function getKeywordReplacement($original_keyword, $additional_replacements=Array())
 	{
 		if (empty($original_keyword)) return '';
 		$keyword = parse_keyword($original_keyword, $modifiers);
@@ -4517,12 +4488,12 @@ class Listing_Engine extends Page
 			$func_name = 'get'.ucwords_no_space($keyword_stem).'KeywordReplacement';
 			if (method_exists($this, $func_name)) {
 				$replacement = $this->$func_name($args);
-				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id, 'replacements' => $additional_replacements));
 				return $replacement;
 			}
 		}
 		// otherwise, fall back to the parent
-		$replacement = parent::getKeywordReplacement($keyword);
+		$replacement = parent::getKeywordReplacement($keyword, $additional_replacements);
 
 		if ($replacement == '%'.$keyword.'%' && empty($modifiers)) {
 			return $replacement;
@@ -4531,7 +4502,7 @@ class Listing_Engine extends Page
 		}
 
 		if (!is_null($replacement)) {
-			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id, 'replacements' => $additional_replacements));
 		}
 		return $replacement;
 
@@ -5106,9 +5077,49 @@ class Listing_Engine extends Page
 					    apply_keyword_modifiers($replacements[$kw], $modifiers,  Array('assetid' => $assetid, 'replacements' => $replacements));
 				    }
 				}
+				else
+				{
+					 apply_keyword_modifiers($replacements[$kw], $modifiers,  Array('assetid' => $assetid, 'replacements' => $replacements));
+				}
 		}
 
 	}//end applyKeywordModifier()
+
+
+	/**
+	* Combines assets and root nodes together
+	*
+	* @param array	$assets		Set of assets
+	* @param array	$root_nodes	Set of root nodes
+	* @param array	$types		List of the wanted types
+	*
+	* @return array
+	* @access private
+	*/
+	function _combineRootNodes($assets=Array(), $root_nodes=Array(), $types=Array())
+	{
+		foreach ($root_nodes as $root_node) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node);
+			if (!is_null($asset)) {
+				foreach ($types as $wanted_type => $include) {
+					if ($asset instanceof $wanted_type) {
+						$assets[$root_node] = Array(
+												Array(
+													'type_code'	=> $asset->type(),
+													'sort_value'=> $asset->short_name,
+													'first_letter'=> substr($asset->short_name, 0 , 1),
+												),
+											  );
+					}//end if
+				}//end foreach
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}//end if
+		}//end foreach
+
+		return $assets;
+
+	}//end _combineRootNodes()
+
 
 
 }//end class

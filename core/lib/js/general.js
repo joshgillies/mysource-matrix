@@ -444,15 +444,17 @@ function sq_handle_toggle(the_toggler) {
 /**
 * Make an AJAX request to the server
 *
-* @param url		URL to make the request to
-* @param callback	Callback function to execute when response is ready
-* @param method		Request method, 'GET' or 'POST'
-* @param data		POST data string to send
-* @param async		Whether to make asynchronous or synchronous request
+* @param url				URL to make the request to
+* @param callback			Callback function to execute when response is ready
+* @param method				Request method, 'GET' or 'POST'
+* @param data				POST data string to send
+* @param async				Whether to make asynchronous or synchronous request
+* @param timeout			Timeout value in milliseconds
+* @param timeout_callback	Callback function to execute on the timeout
 *
 * @return void
 */
-function ajax_request(url, callback, method, data, async)
+function ajax_request(url, callback, method, data, async, timeout, timeout_callback)
 {
 	if (url == null) {
 		return;
@@ -468,9 +470,11 @@ function ajax_request(url, callback, method, data, async)
 
 	var xhr = new XMLHttpRequest();
 	xhr.open(method, url, async);
-	if (method == 'POST' && data) {        
+	if (method == 'POST' && data) {
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 	}
+
+	var timeoutSet = null;
 
 	// Asynchronous request
 	if (async && typeof(callback) == 'function') {
@@ -479,10 +483,25 @@ function ajax_request(url, callback, method, data, async)
 				var response = xhr.responseText;
 				callback(response);
 			}
+			// Clear the timeout if set
+			if (timeoutSet) {
+				clearTimeout(timeoutSet);
+			}
 		}
 	}
 
 	xhr.send(data);
+
+	if (timeout != null) {
+		timeoutSet = setTimeout(function() {
+				xhr.abort();
+				if (typeof(timeout_callback) == 'function') {
+					timeout_callback();
+				}
+			},
+			timeout
+		);
+	}
 
 	// Synchronous request
 	if (!async && callback != null && typeof(callback) == 'function') {
@@ -491,3 +510,89 @@ function ajax_request(url, callback, method, data, async)
 	}
 
 }//end ajax_request()
+
+
+/**
+ * Class BrowserUserPref
+ * Save the user preferences in the browser's local storage
+ *
+ * NOTE: This is a singeleton class. Its instance should be obtained as:
+ * 	var instance = BrowserUserPref.load(<userid>);
+ * 	where <userid> is asset id of the currently logged in user
+ *
+ * @access public
+ * @return object
+ */
+var BrowserUserPref = (function() {
+
+	var instance;
+
+	function initInstance(id) {
+		var userid = encodeURI(id);
+		return {
+			/**
+			 * Set the preference 'name' to the 'value'
+			 *
+			 * @param string  name    Preference name
+			 * @param string  value   Preference value
+			 * @param boolean session If TRUE, save the value in 'session' storage, otherwise in 'local' stroage
+			 *
+			 * @return void
+			 * @access public
+			 */
+			setUserPref: function(name, value, session) {
+				var storage = eval(session !== 'undefined' && session ? 'sessionStorage' : 'localStorage');
+				// Existing user preferences
+				var prefs = JSON.parse(storage.getItem(userid));
+				if (!prefs) {
+					prefs = {};
+				}
+
+				// Add the item to the prefs and save
+				prefs[name] = value;
+				storage.setItem(userid, JSON.stringify(prefs));
+			},//end setUserPref()
+
+			/**
+			 * Get the preference 'name' value
+			 *
+			 * @param string  name    Preference name
+			 * @param boolean session If TRUE, get the value from 'session' storage, otherwise from 'local' stroage
+			 *
+			 * @return string
+			 * @access public
+			 */
+			getUserPref: function(name, session) {
+				var storage = eval(session !== 'undefined' && session ? 'sessionStorage' : 'localStorage');
+				// Existing user preferences
+				var prefs = JSON.parse(storage.getItem(userid));
+				if (!prefs) {
+					prefs = {};
+				}
+
+				return prefs[name];
+			}//end getUserPref()
+		};
+	}//end initInstance()
+
+	return {
+		/**
+		 * Returns the singeleton class's instance
+		 *
+		 * @param string id	Currently logged in user asset id
+		 *
+		 * @return object
+		 * @access public
+		 */
+		load: function(id) {
+			if (typeof(Storage) !== 'undefined') {
+				if (!instance) {
+					instance = new initInstance(id);
+					instance.constructor = null;
+				}
+				return instance;
+			}
+		}//end load()
+
+	};
+})(); //end BrowserUserPref class

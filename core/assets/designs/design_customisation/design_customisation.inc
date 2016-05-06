@@ -455,10 +455,11 @@ class Design_Customisation extends Design
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
 
+		$system_root_url = sq_web_path('root_url');
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') {
-				$file_url = "Javascript: alert(js_translate('no_url_found', '".addslashes($file_info['name'])."', '".addslashes($this->attr('id_name'))."'));";
+				$file_url = $system_root_url.'/?a='.$minorid;
 			} else if ($this->attr('static_url_versioning')){
 				$served_by_apache = strpos($file_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
 				if ($served_by_apache) $file_url .= '?v='.$file_info['version'];
@@ -490,6 +491,62 @@ class Design_Customisation extends Design
 		return parent::paint($ASSET, $FILE_URLS, $CSS_URLS);
 
 	}//end paint()
+
+
+	/**
+	* Get the value of an attribute
+	*
+	*
+	* @param string $name   the name of the attribute whose value you want to get
+	*
+	* @return mixed|NULL
+	* @access public
+	*/
+	function attr($name)
+	{
+		if ($name == 'wysiwyg_classes' || $name == 'div_classes') {
+			// @see Design_Edit_Fns::_[paint|process]Selection()
+			// Return the WYSIWYG/Content Container Styles definations set on the customisation
+			// Styles definition on the parent customisation(s)/design(s) are marked as 'inherited'
+			$styles = parent::attr($name);
+
+			// Get the inherited styles defination from parent design/customisation
+			$parent = $this->getParentDesign();
+			$inherited_styles = Array();
+			if (is_object($parent)) {
+				$inherited_styles = $parent->attr($name);
+				foreach($inherited_styles as $key => $val) {
+					$inherited_styles[$key]['inherited'] = TRUE;
+				}
+			}
+
+			// Filter out the styles are that are overriden
+			$non_overriding_styles = Array();
+			foreach($inherited_styles as $key => $inherited_style) {
+				if (!isset($styles[$key])) {
+					$non_overriding_styles[$key] = $inherited_style;
+				}
+
+				// If attribute already has the inherited attribute, update it from the parent
+				if (isset($styles[$key]) && !empty($styles[$key]['inherited'])) {
+					$styles[$key] = $inherited_style;
+				}
+			}
+
+			// Filter out styles flagged as inherited which is not defined in the parent
+			foreach($styles as $key => $style) {
+				if (!empty($styles[$key]['inherited']) && !isset($inherited_styles[$key])) {
+					unset($styles[$key]);
+				}
+			}
+
+			// Add the non-overriden styles at the beginning
+			return $non_overriding_styles + $styles;
+		}
+
+		return parent::attr($name);
+
+	}//end getStylesDefination()
 
 
 }//end class

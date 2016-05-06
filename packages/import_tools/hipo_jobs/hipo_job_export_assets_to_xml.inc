@@ -311,15 +311,6 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
 		} else if ($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') {
 
-			// okie this part is a bit tricky
-			// we need to check if
-			//	- we are dealing with design
-			//	- if design has a parse file attached
-			//	- and the attribute name we are dealing is 'contents'
-			//	- last but not least the value isnt not empty
-			$parse_file = $asset->data_path.'/parse.txt';
-			if (is_file($parse_file)) $this->_updateParseFileForDesign($this->_running_vars['asset_id_map'][$asset_id], $parse_file);
-
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
 
 		} else if ($this->getAssetType($asset) == 'Design_Customisation') {
@@ -438,6 +429,31 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				$default_value = var_export(unserialize($default_value),TRUE).';';
 			}
 
+
+			// if there is a password in the attribute, we need to hash it
+			// no need to hash it if it's user asset (already a hased value)
+			// no need to do it in script mode
+			if(!SQ_PHP_CLI && !($asset instanceof User) && !empty($value) && ($value !== $default_value)) {
+				$found_password = FALSE;
+				if($attr_name == 'password' || $attr_name == 'passphrase') {
+					$new_value = '******';
+					$found_password = TRUE;
+					$value = $new_value;
+				}
+				else if(is_scalar($value)){
+					$new_value = mask_password_in_var_export_string($value);
+					if($new_value != $value) $found_password = TRUE;
+					$value = $new_value;
+					$new_value = mask_password_in_serialized_string($value);
+					if($new_value != $value) $found_password = TRUE;
+					$value = $new_value;
+				}
+				if ($found_password) {
+					trigger_error("Password value is hashed for protection in asset: #$asset->id. Use the export script if clear text password is required.\n", E_USER_WARNING);
+				}
+			}
+
+
 			// if the value is an assetid attribute, we should match it with asset_id_map first
 			if (preg_match("/assetid/",$attr_name) && isset($this->_running_vars['asset_id_map'][$value])){
 				$value =	"[[output://create_".$this->_running_vars['asset_id_map'][$value].".assetid]]";
@@ -481,6 +497,14 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			// Then, if it has dependant children, we add those too
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
 		} else if ($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') {
+			// okie this part is a bit tricky
+			// we need to check if
+			//	- we are dealing with design
+			//	- if design has a parse file attached
+			//	- and the attribute name we are dealing is 'contents'
+			//	- last but not least the value isnt not empty
+			$parse_file = $asset->data_path.'/parse.txt';
+			if (is_file($parse_file)) $this->_updateParseFileForDesign($this->_running_vars['asset_id_map'][$asset_id], $parse_file);
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
 		} else if ($this->getAssetType($asset) == 'Design_Customisation') {
 			// if we are dealing with customisations, then only deal with
@@ -885,7 +909,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 		$path = $this->_running_vars['export_path'];
-		$export_path = $path.'/export/'.$file_type.'/'.$file_info['filename'];
+		$export_path = $path.'/export/'.$file_type.'/'.$assetid.'/'.$file_info['filename'];
 
 		// check to see if an export/ directory exists. If not, create it.
 		if (!file_exists($path.'/export/')) {
@@ -905,7 +929,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 		// path that we return should be relative
-		return 'export/'.$file_type.'/'.$file_info['filename'];
+		return 'export/'.$file_type.'/'.$assetid.'/'.$file_info['filename'];
 	}//end _saveFileAsset()
 
 	/**
@@ -950,14 +974,14 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// or %asset_summary_xxx%
 		$re = '!
 			(?P<prefix>%(
-				globals_asset_[a-z]+:
+				globals_asset_[a-z_]+:
 				|asset_summary_
 				|begin_[a-z0-9_]+:
 				|else_[a-z0-9_]+:
 				|end_[a-z0-9_]+:
 			))
 			(?P<id>\d+(\:\w+)?)
-			(?P<suffix>%)
+			(?P<suffix>(\^[^%]+)?%)
 			!msixS';
 		preg_match_all($re, $value, $matches, PREG_SET_ORDER);
 
@@ -970,8 +994,25 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			    (?P<suffix>)
 			    !msixS';
 		    preg_match_all($re, $value, $condition_matches, PREG_SET_ORDER);
-		    $matches += $condition_matches;
+		    $matches = array_merge($matches, $condition_matches);
 
+		}
+
+		// paint layout / simple edit layout metadata keywords
+		if($attribute_name === 'html') {
+			$re = '!
+			(?P<prefix>%(
+				metadata\-F_section_
+				|metadata\-F_
+			))
+			(?P<id>\d+)
+			(?P<suffix>(
+				(_\w+)?
+				(\^[^%]+)?
+			)%)
+			!msixS';
+			preg_match_all($re, $value, $layout_matches, PREG_SET_ORDER);
+			$matches = array_merge($matches, $layout_matches);
 		}
 
 		$searches = array();
@@ -1037,7 +1078,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// check for the directly mentioned assetids
 		// do this only if we have NOT processed globals keywords
 		if (!$globals_processed && $attribute_name != 'html' && $attribute_name != 'quiz_answers' && $attribute_name != 'statuses') {
-			preg_match_all('/\'([0-9]+)\'/', $value, $assetid_match);
+			preg_match_all('/\'?([0-9]+)\'?/', $value, $assetid_match);
 			if (isset($assetid_match[1])) {
 				foreach (array_unique($assetid_match[1]) as $assetid) {
 					// check to see
@@ -1137,6 +1178,16 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	*/
 	function _updateParseFileForDesign($design_id, $parse_file_path)
 	{
+		// map asset links and keywords in the parse file
+		$file_content = file_get_contents($parse_file_path);
+		$file_content = $this->_parseValue($file_content, 'parse_file', "set_".$design_id."_parse_file", 'design');
+		$temp_file = tempnam("/tmp", "export_to_xml_design_parse");
+		if(!empty($temp_file)) {
+			file_put_contents($temp_file, $file_content);
+			$parse_file_path = $temp_file;
+		}
+
+
 		$file_info = Array(
 						'filename'	=> $design_id.'_parse.txt',
 						'path'		=> $parse_file_path,
@@ -1148,6 +1199,11 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// lets copy the parse file to a location and
 		// then add an action to add it to our new design asset
 		$new_file_path = $this->_saveFileAsset($null_asset, $file_info);
+
+		// remove the temp file
+		if(!empty($temp_file)) {
+			unlink($temp_file);
+		}
 
 		if ($new_file_path != '') {
 			echo "<action>\n";

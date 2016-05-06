@@ -184,7 +184,7 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			echo check_box($prefix.'_customise_form', 1, !empty($customised_types));
 		} else {
 			$fn = !empty($customised_types) ? 'tick' : 'cross';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.png" />';
 		}
 
 	}//end paintCreateFormCustomisation()
@@ -416,7 +416,7 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 							<?php
 							if ($write_access) {
 								?>
-								<td class="sq-backend-table-cell" " align="center">
+								<td class="sq-backend-table-cell" align="center">
 									<?php check_box($type_prefix.'_delete_prefilled['.$attr.']'); ?>
 								</td>
 								<?php
@@ -491,12 +491,20 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		$attr_name = $prefill ? 'prefilled_fields' : 'synced_fields';
 		$current = $asset->attr($attr_name);
+		// preserves the Populate and Sync User Attributes on change of create user type
+		$current_type = key($current);
+
 		$required_fields = Array();
 
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
 
 			if (!isset($current[$create_type])) {
-				$current[$create_type] = Array();
+				// preserves the Populate and Sync User Attributes on change of create user type
+				if (isset($current[$current_type])) {
+					$current[$create_type] = $current[$current_type];
+				} else {
+					$current[$create_type] = Array();
+				}
 			}
 			$type_prefix = $prefix.'_'.$create_type;
 

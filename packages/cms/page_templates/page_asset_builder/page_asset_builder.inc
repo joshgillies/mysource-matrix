@@ -102,6 +102,7 @@ class Page_Asset_Builder extends Page
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
 		foreach ($this->_getBodycopies() as $value => $details) {
@@ -144,7 +145,7 @@ class Page_Asset_Builder extends Page
 			$current_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout', TRUE);
 			$current_layouts = Array();
 			foreach ($current_layout_links as $link) {
-				if (strpos($link['value'], '_logged_in_customisation') !== FALSE) continue;
+				if ((strpos($link['value'], '_logged_in_customisation') !== FALSE) || (strpos($link['value'], '_edit_form_customisations') !== FALSE)) continue;
 				if (in_array($link['value'], $custom_types)) {
 					$current_layouts[] = $link['value'];
 				} else {
@@ -170,6 +171,81 @@ class Page_Asset_Builder extends Page
 				}
 			}
 		}
+		// Create / remove layouts for the edit customisations
+		if ($this->id && !$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE) && !$sq_in_import && $this->attr('edit_form_customisations') !== NULL) {
+			$custom_types = $this->attr('edit_form_customisations');
+
+			$current_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout', TRUE, 'major');
+			$current_layouts = Array();
+			foreach ($current_layout_links as $link) {
+				if ((strpos($link['value'], '_logged_in_customisation') !== FALSE) || (strpos($link['value'], '_edit_form_customisations') === FALSE) ) continue;
+
+				$link_value = str_replace('_edit_form_customisations', "", $link['value']);
+				if (in_array($link_value, $custom_types)) {			
+					$current_layouts[] = $link_value;
+				} else {
+					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+				}
+			}
+			$types_needing_layouts = array_diff($custom_types, $current_layouts);
+			if (!empty($types_needing_layouts)) {
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types_needing_layouts, 'name');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
+				foreach ($types_needing_layouts as $type_code) {
+					$layout = new Layout();
+					$layout->setAttrValue('name', sprintf(translate('%s Edit Form Layout'), $type_names[$type_code]));
+
+					$link = Array(
+								'asset'			=> &$this,
+								'link_type'		=> SQ_LINK_TYPE_2,
+								'is_dependant'	=> TRUE,
+								'is_exclusive'	=> TRUE,
+								'value'			=> $type_code.'_edit_form_customisations',
+							);
+					$layout->create($link);
+				}
+			}
+
+			// automatically add the edit keywords when an edit layout is created
+			$bodycopies = $this->_getBodycopies();
+			//unset the bodycopies we dont need
+			unset($bodycopies['created']);
+			unset($bodycopies['not_logged_in']);
+
+			foreach ($bodycopies as $bodycopy => $default_content) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $bodycopy);
+				if (!empty($link)) {
+					$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+					$page_data = $bodycopy_data->getContent();
+
+					if (!strpos($page_data, 'edit_form') && !empty($types_needing_layouts)) {
+						// create edit keywords div
+						$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_div');
+						$edit_div = new Bodycopy_Div();
+
+						$edit_data['content'] = '%edit_invite% %edit_error% %edit_form%';
+						
+						$div_link = Array(
+										'asset' => &$bodycopy_data,
+										'link_type' => SQ_LINK_TYPE_2,
+										'is_dependant' => 1,
+										'is_exclusive' => 0,
+										'value' => 'edit_div'
+									);
+						
+						$edit_div->setAttrValue('name', 'Edit Form');
+						$edit_div->create($div_link, $edit_data);
+					} elseif (strpos($page_data, 'edit_form') && empty($current_layouts)) {
+						// remove edit keywords div
+						$edit_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_data->id, SQ_LINK_TYPE_2, 'bodycopy_div', TRUE, 'edit_div');
+						if (!empty($edit_link)) {
+							$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($edit_link['linkid']);
+						}
+					}
+				}
+			}
+		}
+
 		return TRUE;
 
 	}//end saveAttributes()
@@ -272,9 +348,18 @@ class Page_Asset_Builder extends Page
 
 		$this->_current_state = '';
 		$current_user = $GLOBALS['SQ_SYSTEM']->user;
-		set_error_handler(Array(&$this, '_errorHandler'));
-			$success = $this->_processGlobalActions();
-		restore_error_handler();
+		$is_public_user = is_null($current_user) || ($current_user instanceof Public_User);
+		$enforce_login = $this->attr('enforce_user_login');
+		// do not process actions for public user if we enforce login
+		if ($enforce_login && $is_public_user) {
+			$success = FALSE;
+			$this->_errors[] = translate('You need to login to create asset.');
+		}
+		else {
+			set_error_handler(Array(&$this, '_errorHandler'));
+				$success = $this->_processGlobalActions();
+			restore_error_handler();
+		}
 
 		// create a friendly error message on error
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION']) && !$success) {
@@ -301,7 +386,7 @@ class Page_Asset_Builder extends Page
 		}
 
 		if (empty($this->_current_state)) {
-			if (is_null($current_user) || ($current_user instanceof Public_User)) {
+			if ($is_public_user) {
 				// this person is not logged in, so we should let them log in
 				$this->_current_state = 'not_logged_in';
 				$this->_replacements['login_invite'] = $this->getKeywordReplacement('login_invite');
@@ -314,6 +399,33 @@ class Page_Asset_Builder extends Page
 				$this->_current_state = 'logged_in';
 			}
 		}
+		
+		
+		// So that we can load the edit layout
+		$parameter_map = $this->getAttribute('edit_parameter_map');
+		$parameter_value = unserialize($parameter_map->value);
+		if((isset($_GET['edit']) || isset($_POST['edit'])) || !empty($parameter_value)) {
+			if (!empty($parameter_value)) {
+				foreach ($parameter_value as $value) {
+					foreach ($value as $key => $data) {
+						if($value[$key]['source'] === 'GET' || $value[$key]['source'] === 'POST' || $value[$key]['source'] === 'SESSION') {
+							if (isset($_GET[$value[$key]['index']]) || isset($_POST[$value[$key]['index']]) || isset($_SESSION[$value[$key]['index']])) {
+								$this->_default_state = 'edit';
+								$this->_current_state = 'created';
+							}
+						} else if (isset($_GET['edit'])) {
+							$this->_default_state = 'edit';
+							$this->_current_state = 'created';
+						} 
+					}
+					
+				}
+			} else {
+				$this->_default_state = 'edit';
+				$this->_current_state = 'created';
+			}
+		}
+
 
 		$fn = '_load'.$this->_default_state.'Replacements';
 		$this->$fn();
@@ -325,7 +437,6 @@ class Page_Asset_Builder extends Page
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
-
 	}//end printBody()
 
 
@@ -346,9 +457,9 @@ class Page_Asset_Builder extends Page
 			if (!isset($_SESSION['SQ_AB_'.$this->id.'_LOAD_TIME'])) {
 				$_SESSION['SQ_AB_'.$this->id.'_LOAD_TIME'] = time();
 			}
-
+			// needs the name element of the form to be set to main_form to allow for editing assets Squizmap #6623
 			?>
-			<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo htmlentities($submission_url); ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
+			<form id="<?php echo $this->getPrefix() ?>" name="main_form" method="post" action="<?php echo htmlentities($submission_url); ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
 				<?php
 				hidden_field('AB_'.$this->id.'_ASSET_BUILDER_ACTION', $this->_default_state);
 				$parameter_map = $this->getAttribute('parameter_map');
@@ -365,7 +476,6 @@ class Page_Asset_Builder extends Page
 		}
 
 	}//end _printBody()
-
 
 	/**
 	* Form Captcha keyword replacement
@@ -670,11 +780,10 @@ class Page_Asset_Builder extends Page
 								// do not show Matrix errors when processing attributes to frontend users, we will have custom error overiding it anyway
 								$this->_do_not_show_error = TRUE;
 
-
 								// take a copy of the attribute so we don't muck anything up for the processBackend() below
 								$attribute = clone $real_attribute;
 								$attribute->process($prefix.'_'.$attribute->id);
-
+								
 								// For attributes that use paint and process functions, they return an empty result
 								// So we should try again with a different param
 								// See Bug #3099
@@ -682,12 +791,11 @@ class Page_Asset_Builder extends Page
 									$attribute->process($prefix.'_'.$attribute->name);
 								}//end if
 
-
-
 								// now we can show Matrix errors if we care
 								$this->_do_not_show_error = FALSE;
 
-
+								// make sure that string with space or carriage return isn't treated as valid
+								$attribute_value = trim($attribute->value);
 								if (!$attribute->processed) {
 									if (empty($error_text)) {
 										$error_text = sprintf(translate('The value of %s is not valid'), $attribute->name);
@@ -695,7 +803,7 @@ class Page_Asset_Builder extends Page
 									}
 									trigger_error($error_text, E_USER_NOTICE);
 									$required_error = TRUE;
-								} else if (empty($attribute->value)) {
+								} else if (empty($attribute_value)) {
 									if (empty($error_text)) {
 										$error_text = sprintf(translate('Please enter a value for %s'), $attribute->name);
 
@@ -797,6 +905,7 @@ class Page_Asset_Builder extends Page
 											));
 
 					$create_success = $new_asset->processBackend($o, $link);
+
 					$new_asset_linkid = FALSE;
 					if ($create_success && ($_REQUEST['asset_action'] != 'create')) {
 						$new_asset_linkid = $new_asset->create($link);
@@ -805,6 +914,8 @@ class Page_Asset_Builder extends Page
 						$new_asset_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent->id, $new_asset->id);
 						$new_asset_linkid = array_get_index($new_asset_link, 'linkid', FALSE);
 					}
+
+
 
 					if (!$create_success) {
 						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;
@@ -1033,6 +1144,195 @@ class Page_Asset_Builder extends Page
 
 					if ($this->attr('allow_public_user')) {
 						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
+				break;
+
+				case 'edit' :
+					// updated the asset
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['edit']);
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id);
+					$create_type = $asset->type();
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
+					$prefix = $asset->getPrefix();
+					$required_error = FALSE;
+
+					//If there multiple create types, the field will have 'create type' suffix to make then unique
+					$field_suffix = count($this->attr('create_type')) > 1 ? TRUE : FALSE;
+
+					  ///////////////////////
+					 //  REQUIRED FIELDS  //
+					///////////////////////
+					// start performance mode timer
+					$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'checkRequiredFields');
+
+					$required_fields = $this->attr('required_fields');
+					if (!empty($required_fields[$asset->type()])) {
+
+						foreach ($required_fields[$asset->type()] as $attr => $error_text) {
+							$pos = strpos($attr, $this->getPrefix().'_metadata_');
+							if ($pos !== FALSE) {
+								// Process metadata
+								$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+								$am = $GLOBALS['SQ_SYSTEM']->am;
+
+
+							 	$metadata_schemas = Array();
+								$metadata_schema_list = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'schema_to_apply');
+								foreach ($metadata_schema_list as $metadata_schema) {
+									$metadata_schemas[] = $metadata_schema['minorid'];
+								}
+								if (!empty($metadata_schemas)) {
+							 		
+							 		
+							 		$metadata_field = substr($attr, strlen($this->getPrefix().'_metadata_'));
+									$mf_asset = $am->getAsset($metadata_field);
+							 		
+							 		$edit_fns = $mf_asset->getEditFns();
+							 		$cascade = TRUE;
+
+							 		$prefix = $mf_asset->type().'_'.$metadata_field.'_'.$create_type;
+							 		
+							 		if (!empty($_POST[$prefix.'_default'])) {
+							 			$result_value = NULL;
+							 		} elseif (!empty($_POST[$prefix.'_value'])) {
+							 			$result_value = $_POST[$prefix.'_value'];
+							 		}
+
+									
+							 		$valid_value = TRUE;
+									$empty_value = TRUE;
+
+									// Validate the metadata value
+									if (!is_null($mf_asset)) {
+										$edit_fns = $mf_asset->getEditFns();
+										$cascade = TRUE;
+										// do not show Matrix errors when processing attributes to frontend users, we will have custom error overiding it anyway
+										$this->_do_not_show_error = TRUE;
+										// Metadata field id prefix will have create asset type code only if there are multiple create types
+										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade, $field_suffix ? $create_type : '');
+
+										// now we can show Matrix errors if we care
+										$this->_do_not_show_error = FALSE;
+
+										// When date is not supplied for metadata date field
+										if ($mf_asset->type() == 'metadata_field_date' && $result_value == '---------- --:--:--') {
+											$result_value = '';
+										}
+
+										if (!$did_process) {
+											$valid_value = FALSE;
+										}//end if
+										if (empty($result_value)) {
+											// Maybe using default
+											if (!is_null($result_value)) {
+												$empty_value = FALSE;
+											}
+										}//end if;
+
+										if (!$valid_value) {
+											if (empty($error_text)) {
+												$error_text = sprintf(translate('The value of %s is not valid'), $mf_asset->name);
+
+											}
+											trigger_error($error_text, E_USER_NOTICE);
+											$required_error = TRUE;
+										} else if (!$empty_value) {
+											if (empty($error_text)) {
+												$error_text = sprintf(translate('Please enter a value for %s'), $mf_asset->name);
+
+											}
+											trigger_error($error_text, E_USER_NOTICE);
+											$required_error = TRUE;
+										}//end else
+
+										
+										// Forget a few things
+										$am->forgetAsset($schema);
+										$am->forgetAsset($mf_asset);
+										$am->forgetAsset($temp_asset);
+										unset($temp_asset);
+
+									}//end if
+								}
+							} else {
+								$prefix = $asset->getPrefix();
+								// Process attributes
+								// assets current attributes
+								$real_attribute = $asset->getAttribute($attr, TRUE);
+
+								if (is_null($real_attribute)) continue;
+
+								// do not show Matrix errors when processing attributes to frontend users, we will have custom error overiding it anyway
+								$this->_do_not_show_error = TRUE;
+
+								// entered attribute value
+								if (isset($_REQUEST[$prefix.'_'.$asset->getAttribute($attr)->id])) {
+									$attribute = $_REQUEST[$prefix.'_'.$asset->getAttribute($attr)->id];
+								} elseif (isset($_REQUEST[$prefix.'_'.$asset->getAttribute($attr)->id.'_contents_div_viper_input'])) {
+									$attribute = $_REQUEST[$prefix.'_'.$asset->getAttribute($attr)->id.'_contents_div_viper_input'];
+								}
+
+								if (empty($attribute) || $attribute === '') {
+									if (empty($error_text)) {
+										$error_text = sprintf(translate('The value of %s is not valid'), $attr);
+									}
+									trigger_error($error_text, E_USER_NOTICE);
+									$required_error = TRUE;
+									$this->_errors[] = $error_text;
+
+									// revert attribute to existing value
+									$asset->setAttrValue($attr, $real_attribute->value);
+									$asset->saveAttributes();
+								}
+								
+								unset($real_attribute);
+								unset($attribute);
+
+							}//end else
+						}//end foreach
+
+					}//end if
+
+					// stop performance mode timer
+					$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'checkRequiredFields');
+					if ($required_error) {
+						$success = FALSE;
+					} else {
+						// initialise the backend
+						require_once SQ_INCLUDE_PATH.'/backend.inc';
+						$backend = new Backend();
+						$GLOBALS['SQ_SYSTEM']->backend = &$backend;
+		
+						// we'll just use a limbo outputter to do the outputting for us
+						require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+						$o = new Limbo_Outputter();
+						$GLOBALS['SQ_SYSTEM']->backend->out = $o;
+
+
+						$type_code = $asset->type();
+						$layout = $this->_getEditFormLayout($type_code);
+						$ei = $asset->getEI();
+
+						$screens = Array();
+						$keywords = $layout->getLayoutKeywords();
+
+						if (isset($keywords['screens']) && !empty($keywords['screens'])) {
+							$screens = array_unique(array_merge(array_keys($keywords['screens']), $screens));
+						}
+
+						if (isset($keywords['entire_screens']) && !empty($keywords['entire_screens'])) {
+							$screens = array_unique(array_merge(array_keys($keywords['entire_screens']), $screens));
+						}
+
+						if (isset($keywords['custom']) && !empty($keywords['custom'])) {
+							$asset->processCustomKeywords($keywords['custom']);
+						}
+
+						foreach ($screens as $screen) {
+							$ei->processInline($asset,$o, FALSE, $screen);
+						}
+
+						$success = TRUE;
 					}
 
 				break;
@@ -1474,14 +1774,16 @@ class Page_Asset_Builder extends Page
 	/**
 	* Set the status of the newly created asset
 	*
-	* @param object	&$new_asset	the newly created asset
+	* @param object		$new_asset	The newly created asset
+	* @param boolean	$force_live	If TRUE the newly created asset will be set to Live status
+	*								overriding of 'Create Status' setting
 	*
 	* @return boolean
-	* @access private
+	* @access protected
 	*/
-	function _setCreateStatus(&$new_asset)
+	protected function _setCreateStatus($new_asset, $force_live=FALSE)
 	{
-		$create_status = $this->attr('create_status');
+		$create_status = $force_live ? SQ_STATUS_LIVE : $this->attr('create_status');
 		if ($create_status != 0) {
 			if ($new_asset->status != $create_status) {
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -1489,18 +1791,20 @@ class Page_Asset_Builder extends Page
 				$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 
 				//make sure the HIPO error message is in right format for asset builder
-				$message = Array();
+				$messages = Array();
 				foreach ($status_errors as $error) {
-					if(is_array($error) && array_key_exists('message',$error)) {
-						$message []= $error['message'];
+					if(is_array($error)) {
+						if (array_key_exists('message',$error) && !array_get_index($error, 'warning', FALSE)) {
+							$messages[]= $error['message'];
+						}
 					}
 					else {
-						$message = $error;
+						$messages[] = $error;
 					}
 				}
 
-				$this->_errors = array_merge($this->_errors, $message);
-				return empty($this->_errors);
+				$this->_errors = array_merge($this->_errors, $messages);
+				return empty($messages);
 			}
 		}
 		return TRUE;
@@ -1684,6 +1988,56 @@ class Page_Asset_Builder extends Page
 
 	}//end _loadCreateReplacements()
 
+	/**
+	* Loads keyword replacements for the edit asset interface, into the Asset Builder
+	*
+	* @return void
+	* @access private
+	*/
+	function _loadEditReplacements()
+	{
+
+		  ////////////////////////////
+		 // CREATE CAPTCHA KEYWORD //
+		////////////////////////////
+
+		// Moved to Page_Asset_Builder::_printContents() as per Bug #5518: CAPTCHA settings conflict.
+
+		  ////////////////////////////////
+		 // CREATE MOLLOM SPAM KEYWORD //
+		////////////////////////////////
+		$regen_link_text = $this->attr('mollom_captcha_regen_link_text');
+		if (empty($regen_link_text)) {
+			$regen_link_text = translate('Regenerate security key');
+
+		}
+		$this->_replacements['asset_builder_mollom_captcha'] = Mollom::getMollomCaptchaKeywordReplacement($this->id);
+		$this->_replacements['asset_builder_mollom_captcha_image'] = Mollom::getMollomCaptchaImageKeywordReplacement($this->id);
+		$this->_replacements['asset_builder_mollom_captcha_audio'] = Mollom::getMollomCaptchaAudioKeywordReplacement($this->id);
+		$this->_replacements['asset_builder_mollom_captcha_field'] = Mollom::getMollomCaptchaFieldKeywordReplacement($this->id);
+		$this->_replacements['asset_builder_mollom_captcha_regen_link'] = Mollom::getMollomCaptchaRegenLinkKeywordReplacement($this->id, $regen_link_text);
+
+		  ///////////////////////////
+		 // GOOGLE RECAPTCHA 	  //
+		///////////////////////////
+		$this->_replacements['form_recaptcha'] = $this->getKeywordReplacement('form_recaptcha');
+
+		  ///////////////////////////
+		 // HONEYPOT QUESTION	  //
+		///////////////////////////
+		$this->_replacements['form_honeypot_field'] = $this->_getHoneypotField();
+
+		  /////////////////////////////////
+		 // EDIT DETAILS INVITE KEYWORD //
+		/////////////////////////////////
+		$this->_replacements['edit_invite'] = $this->getKeywordReplacement('edit_invite');
+
+		  ///////////////////////////////
+		 // EDIT DETAILS FORM KEYWORD //
+		///////////////////////////////
+		$this->_replacements['edit_form'] = $this->getKeywordReplacement('edit_form');
+
+	}//end _loadEditReplacements
 
 	/**
 	* Print the contents of the Asset Builder page with replaced keywords
@@ -1698,8 +2052,10 @@ class Page_Asset_Builder extends Page
 		if (empty($bodycopy_data)) return;
 		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) return;
-
+		
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		$keywords = $bodycopy->getKeywords();
+
 		foreach($keywords as $word) {
 
 			// Bug #5518: CAPTCHA settings conflict. Only replace if keyword exists in the content.
@@ -1746,7 +2102,6 @@ class Page_Asset_Builder extends Page
 		$bodycopy->setKeywordReplacements($this->_replacements);
 
 		$bodycopy->printBody();
-
 	}//end _printContents()
 
 
@@ -1826,7 +2181,7 @@ class Page_Asset_Builder extends Page
 						   );
 		$res['created']= Array(
 							'name'		=> translate('Created'),
-							'content'	=> translate('Asset created<br />See it <a href="%created_asset_url%">here</a>'),
+							'content'	=> translate('<p>Asset created<br />See it <a href="%created_asset_url%">here</a> or <a href="?edit=%created_assetid%">edit your Asset</a></p>'),
 						 );
 		return $res;
 
@@ -1888,24 +2243,11 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 
-		$keywords['login_invite'] 	= translate('Login Invite');
-
-		$keywords['login_form'] 	= translate('Login Form');
-
-		$keywords['login_error'] 	= translate('Login Error Message');
-
 		$keywords['create_invite']	= translate('Create Asset Invite');
 
 		$keywords['create_form'] 	= translate('Create Asset Form');
 
 		$keywords['create_error'] 	= translate('Create Asset Error Message');
-
-		$keywords['login_form_username'] 	= translate('Login Form Username Field');
-
-		$keywords['login_form_password'] 	= translate('Login Form Password Field');
-
-		$keywords['login_form_submit_button'] 	= translate('Login Form Submit Button');
-
 
 		if ($this->attr('require_captcha')) {
 			$keywords['form_captcha'] = translate('Display Captcha Form');
@@ -1917,6 +2259,36 @@ class Page_Asset_Builder extends Page
 			$keywords['form_captcha_link'] = translate('Display Captcha Link');
 
 		}
+
+		if ($this->attr('use_recaptcha')) {
+			$keywords['form_recaptcha'] = translate('Display reCAPTCHA Form');
+
+		}
+		$keywords['form_honeypot_field'] = translate('Display Honeypot question');
+
+		// edit keywords
+		$keywords['edit_invite']		= translate('Edit Asset Invite');
+
+		$keywords['edit_error']			= translate('Edit Asset Error Message');
+
+		$keywords['edit_form']			= translate('Edit Asset Form');
+
+		$keywords['edit_success']		= translate('Edit Asset Success Message');
+
+
+		$keywords['login_error'] 	= translate('Login Error Message');
+
+		$keywords['login_form'] 	= translate('Login Form');
+
+		$keywords['login_form_username'] 	= translate('Login Form Username Field');
+
+		$keywords['login_form_password'] 	= translate('Login Form Password Field');
+
+		$keywords['login_form_submit_button'] 	= translate('Login Form Submit Button');
+
+		$keywords['login_invite'] 	= translate('Login Invite');
+
+		
 
 		if ($this->attr('use_mollom')) {
 			$keywords['asset_builder_mollom_captcha']       = translate('Mollom CAPTCHA');
@@ -1931,13 +2303,9 @@ class Page_Asset_Builder extends Page
 
 		}
 
-		if ($this->attr('use_recaptcha')) {
-			$keywords['form_recaptcha'] = translate('Display reCAPTCHA Form');
+		
 
-		}
-		$keywords['form_honeypot_field'] = translate('Display Honeypot question');
-
-
+		
 		return $keywords;
 
 	}//end _getNotLoggedInKeywords()
@@ -1970,6 +2338,21 @@ class Page_Asset_Builder extends Page
 
 		}
 
+		if ($this->attr('use_recaptcha')) {
+			$keywords['form_recaptcha'] = translate('Display reCAPTCHA Form');
+
+		}
+		$keywords['form_honeypot_field'] = translate('Display Honeypot question');
+
+		// edit keywords
+		$keywords['edit_invite']		= translate('Edit Asset Invite');
+
+		$keywords['edit_error']			= translate('Edit Asset Error Message');
+
+		$keywords['edit_form']			= translate('Edit Asset Form');
+
+		$keywords['edit_success']		= translate('Edit Asset Success Message');
+		
 		if ($this->attr('use_mollom')) {
 			$keywords['asset_builder_mollom_captcha']       = translate('Mollom CAPTCHA');
 
@@ -1982,13 +2365,6 @@ class Page_Asset_Builder extends Page
 			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('Mollom CAPTCHA Regeneration Link');
 
 		}
-
-		if ($this->attr('use_recaptcha')) {
-			$keywords['form_recaptcha'] = translate('Display reCAPTCHA Form');
-
-		}
-		$keywords['form_honeypot_field'] = translate('Display Honeypot question');
-
 
 		return $keywords;
 
@@ -2537,7 +2913,307 @@ class Page_Asset_Builder extends Page
 		return $create_form;
 
 	}//end getCreateFormKeywordReplacement()
+	
+	/**
+	* Get edit_invite keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getEditInviteKeywordReplacement()
+	{
+		return $this->attr('edit_invite');
 
+	}//end getCreateInviteKeywordReplacement()
+
+	/**
+	* Get edit_error keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getEditErrorKeywordReplacement()
+	{
+		return $this->attr('edit_error');
+
+	}//end getCreateInviteKeywordReplacement()
+
+	/**
+	* Get edit_form keyword replacement
+	* 
+	* @return $content string edit details form based on the layout provided.
+	* @access public
+	*/
+	public function getEditFormKeywordReplacement()
+	{
+		$this->_current_state = 'created';
+		$content = '';
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
+		
+		if (empty($this->_errors)) {
+			$this->_replacements['edit_error'] = '';	
+		}
+		
+
+		$parameter_map = $this->getAttribute('edit_parameter_map');
+		$parameter_value = unserialize($parameter_map->value);
+		
+		if(isset($_GET['edit']) || isset($_POST['edit']) || !empty($parameter_value)) {
+			
+			
+			// get the asset id of the asset we want to edit, either by
+			// a get or post variable or the dynamic parameters of the asset builder
+			if (isset($_GET['edit']) && $_GET['edit'] !== ''){
+				$assetid = $_GET['edit'];
+			} elseif (isset($_POST['edit']) && $_POST['edit'] !== '') {
+				$assetid = $_POST['edit'];
+			} elseif (!empty($parameter_value)) {
+				$assetid = $parameter_map->getParameterValue('edit');
+			} else {
+				// reload the asset builder in create mode
+				// no asset id supplied, so we can not edit an asset
+				$redirect_url = strip_url($GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id));
+				if (!empty($redirect_url)) {
+					header('Location: '.$redirect_url);
+					return;
+				}
+				return;
+			}
+			
+			// check if the asset id is valid and exists in the system
+			if (!preg_match('/^[1-9][0-9]*$/', $assetid)){
+				$this->_current_state = '';
+				$error_message = sprintf(translate('Supplied asset ID value is not a valid asset ID.'), $assetid);
+				ob_start();
+					echo '<p>'.$error_message.'</p>';
+					$content .= ob_get_contents();
+				ob_end_clean();
+
+				echo $content;
+				return;
+			} elseif (!$GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
+				$this->_current_state = '';
+				$error_message = sprintf(translate('Asset #%1$s does not exist'), $assetid);
+				ob_start();
+					echo '<p>'.$error_message.'</p>';
+					$content .= ob_get_contents();
+				ob_end_clean();
+
+				echo $content;
+				return;
+			}
+			
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			
+			if ($asset->writeAccess()) {
+				$this->_current_state = 'logged_in';
+				
+				$content = '';
+
+				// acuire locks of the asset we are trying to edit
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$vars = Array(
+						'assetids'			=> Array($asset->id,),
+						'lock_type'			=> 'all',
+						'forceably_acquire'	=> FALSE,
+					);
+				$lock_errors = $hh->freestyleHipo('hipo_job_acquire_locks', $vars);
+
+				$type_code = $asset->type();
+				$layout = $this->_getEditFormLayout($type_code);
+				
+				// Check if a layout exists, if not we cannot edit the asset using the asset builder
+				// Load edit plus or simple edit instead
+				if($layout === NULL){
+					$redirect_url = strip_url($GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id));
+					if (!empty($redirect_url)) {
+						header('Location: '.$redirect_url);
+						return;
+					}
+					return;
+				}
+				
+				$ei = $asset->getEI();
+
+				// initialise the backend
+				require_once SQ_INCLUDE_PATH.'/backend.inc';
+				$backend = new Backend();
+				$GLOBALS['SQ_SYSTEM']->backend = &$backend;
+
+				// we'll just use a limbo outputter to do the outputting for us
+				require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+	        	$o = new Limbo_Outputter();
+	        	
+	        	// Make sure our backend outputer is set to the one we just created
+	        	$GLOBALS['SQ_SYSTEM']->backend->out = $o;
+
+	        	$o->addFormActionGetVar('edit', $asset->id);
+
+	        	$errors = '';
+				if (array_get_index($_POST, 'form_submitted', FALSE)) {
+					$screens = Array();
+					$keywords = $layout->getLayoutKeywords();
+
+					if (isset($keywords['screens']) && !empty($keywords['screens'])) {
+						$screens = array_unique(array_merge(array_keys($keywords['screens']), $screens));
+					}
+
+					if (isset($keywords['entire_screens']) && !empty($keywords['entire_screens'])) {
+						$screens = array_unique(array_merge(array_keys($keywords['entire_screens']), $screens));
+					}
+
+					if (empty($this->_errors)) {
+						
+						set_error_handler(Array(&$this, '_errorHandler'));
+							foreach ($screens as $screen) {
+								if ($screen === 'metadata') {
+									$am = $GLOBALS['SQ_SYSTEM']->am;
+									$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+									$field_suffix = count($this->attr('create_type')) > 1 ? TRUE : FALSE;
+									$cascade = TRUE;
+
+									$schemas = $mm->getSchemas($assetid);
+									$metadata_fields = $mm->getMetadataFields($schemas);
+								 	
+								 	foreach ($metadata_fields as $field => $type) {
+								 		// current metadata field asset
+								 		$mf_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($field);
+								 		$edit_fns = $mf_asset->getEditFns();
+
+								 		$prefix = $mf_asset->type().'_'.$field.'_'.$type_code;
+								 		
+								 		if (!empty($_POST[$prefix.'_default'])) {
+								 			$new_value = NULL;
+								 		} elseif (!empty($_POST[$prefix.'_value'])) {
+								 			$new_value = $_POST[$prefix.'_value'];
+								 		}
+
+								 		// process our metadata fied to see if the value is ok
+								 		$processed = $edit_fns->processInlineValueInterface($mf_asset, $new_value, $cascade, $type_code);
+
+										if ($processed) {
+											// create our metadata field value
+											$metadata_field = Array (
+																	$field => Array(
+																					0 => Array(
+																								'value' => $new_value,
+																							),
+																					),
+																	);
+											// Set the metadata field value for the asset
+											$mm->setMetadata($assetid, $metadata_field);
+										}
+
+								 		// Forget a few things we no longer need, before looking at the next metadata field
+								 		$am->forgetAsset($mf_asset);
+								 		unset($new_value);
+								 		unset($field);
+								 		unset($metadata_field);
+								 	}
+								 	unset($metadata_fields);
+								} else {
+									$ei->processInline($asset,$o, FALSE, $screen);
+								}
+							}
+						restore_error_handler();
+					}
+
+					if (!empty($this->_errors)) {
+						foreach($this->_errors as $text) {
+							$errors .= '<li>'.$text.'</li>';
+						}//end foreach
+					}//end if
+				}
+
+				
+				if (!empty($lock_errors)) {
+					$error_message = sprintf(translate($this->attr('edit_lock_error')), $asset->id);
+					// users to see the error message for the lock acquiring failure
+					$this->_replacements['edit_error'] = '<p>'.$error_message.'</p>';
+					ob_start();
+						$asset->printBody();
+						$content .= ob_get_contents();
+					ob_end_clean();
+
+				} else {
+					ob_start();
+						// Pretened we are in limbo so we can load a simple edit layout for our asset
+						$o->force_viper = TRUE;
+
+						$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_PERMISSIONS);
+						
+						// add some more hidden fields to our form
+						// so we can edit our asset easily
+						$o->addHiddenField('AB_'.$this->id.'_ASSET_BUILDER_ACTION', 'edit');
+						$o->addHiddenField('asset_action', 'edit');
+						$o->addHiddenField('form_submitted', '1');	
+
+						// Stop Matrix from evaluating keywords in the contents of the asset we are editing
+						// Enables the ability to use keywords in the contents and other places in the asset
+						// we are editing
+						$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
+
+						// Paint edit interface so we can edit our asset
+						$ei->paintLayout($asset, $o, $layout, TRUE);
+						$o->_paintHeader();
+						$o->paint();
+						
+						// ie. they have permission to access the default screen for the asset
+						require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
+						$aei = new Asset_Edit_Interface($asset->type());
+						$allowed_screens = $aei->getAllowedScreens($asset);
+						$default_screen = $aei->_default_screen;
+						if (empty($default_screen)) {
+							$default_screen = 'details';
+						}
+
+						$check_screen_restrictions = (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
+						if ($check_screen_restrictions) {
+							if (empty($allowed_screens)) {
+								$check_screen_restrictions = FALSE;
+							}
+						}
+
+						if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
+							$this->_replacements['edit_error'] = '<p>'.translate('You do not have access to edit the asset.').'</p>';
+
+						} else {
+							$this->_replacements['edit_invite'] = $this->attr('edit_invite');
+						}
+						unset($aei);
+
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						$content .= ob_get_contents();
+					ob_end_clean();
+				}
+			
+				if (array_get_index($_POST, 'process_form', FALSE) && empty($lock_errors)){
+					$this->_replacements['edit_success'] = $this->attr('edit_success');
+				}
+				
+			} else {
+				// don't have write access to the asset? print error
+				$this->_current_state = 'logged_in';
+				$content = '';
+				ob_start();
+				
+					$error_message = sprintf(translate('You don not have permission to edit the asset #%1$s'), $asset->id);
+					
+					// make sure we have read access to the asset before we go ahead and print the contents
+					if ($asset->readAccess()){
+						$asset->printBody();
+					} else {
+						// if we dont have write or read access print an error
+						$error_message = translate('You don not have access to the asset');
+					}
+
+					$this->_replacements['edit_error'] = '<p>'.$error_message.'</p>';
+					$content .= ob_get_contents();
+				ob_end_clean();
+			}
+		}
+		return $content;
+	}//end getEditDetailsFormKeywordReplacement()
 
 	/**
 	* Get the create form layout, if available, for a certain create type
@@ -2559,6 +3235,24 @@ class Page_Asset_Builder extends Page
 
 	}//end _getCreateFormLayout()
 
+	/**
+	*
+	* Get the edit form layout, if available, for a certain create type
+	*
+	* @param $type_code	The type code of the asset to get the layout for
+	*
+	* @return $res 		Simple Edit Layout asset
+	* @access private
+	*/
+	private function &_getEditFormLayout($type_code)
+	{
+		$res = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'layout', TRUE, $type_code.'_edit_form_customisations');
+		if (!empty($link)) {
+			$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'layout');
+		}
+		return $res;
+	} // end _getEditFormLayout()
 
 	/**
 	* Get the Honeypot field

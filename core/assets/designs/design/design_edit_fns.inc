@@ -302,7 +302,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
-			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 5000, 20, 0, 'style="" class="sq-parse-file-textarea"');
 			?>
 			<script type="text/javascript">
 				function validate_parse_file()
@@ -322,6 +321,26 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			} else {
 				$onclick_js .= 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }';
 			}
+		}
+
+		// enable the Ace editor to edit backend code (if available)
+		if($o->isViperAceAvailable()) {
+			// enable the Ace editor to edit backend code (if available)
+			$o->enableViperAceEditor();
+			$mode = 'html';
+			if($asset->type() == 'design_css') {
+				$mode = 'css';
+			}
+			$read_only = '';
+			if(!$asset->writeAccess('attributes')) $read_only = 'sq-viper-ace-editor-textarea-readonly';
+
+			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 5000, 20, 0, 'style="" class="sq-parse-file-textarea sq-backend-code-editing sq-viper-ace-editor-textarea sq-viper-ace-editor-textarea-mode-'.$mode.' sq-viper-ace-editor-textarea-large '.$read_only.'"');
+			return TRUE;
+		}
+
+		
+		if ($asset->writeAccess('parsing')) {
+			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 5000, 20, 0, 'style="" class="sq-parse-file-textarea sq-backend-code-editing"');
 			return TRUE;
 
 		} else {
@@ -765,6 +784,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
+
+		// Revert these attriubte values as they are supposed to inherited from the parent
+		if (!$cloned->setAttrValue('wysiwyg_classes', Array()) || !$cloned->setAttrValue('div_classes', Array())) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
 		if (!($cloned->setAttrValue('id_name', $new_name) && $cloned->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1113,7 +1140,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if ($write_access) {
 				file_upload($prefix.'_import_file');
 			}
-			$o->note(translate('Select a file to import as a design file.'));
+			$o->note(translate('Select a .tar file to import as this design.'));
 
 		$o->closeField();
 		$o->openField(translate('Existing Asset'));
@@ -1722,78 +1749,178 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$select_options = $asset->attr($attribute);
 
-		if (!empty($select_options)) {
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('Class Name'); ?></td>
+		// Check if any of the style definitions are inherited one
+		$has_inherited_opt = FALSE;
+		foreach ($select_options as $option_key => $option_values) {
+			$has_inherited_opt = array_get_index($option_values, 'inherited', FALSE);
+			if ($has_inherited_opt) break;
+		}
 
-					<td class="sq-backend-table-header"><?php echo translate('Short Name'); ?></td>
-
-					<?php
-					if ($write_access) {
-						?><td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td><?php
-
-					}
-					?>
-				</tr>
+		$sortable_class_name = 'sq-sortable-table';
+		$table_id = $prefix.'_'.$attribute.'_table';
+		?>
+		<table id="<?php echo $table_id; ?>" class="sq-backend-table <?php echo $write_access ? $sortable_class_name : ''; ?>">
+			<thead>
+			<tr>
+				<th class="sq-backend-table-header"><?php echo translate('Friendly Name'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('Class Names'); ?></th>
 				<?php
-				$i = 0;
-				foreach ($select_options as $option_key => $option_value) {
-					?>
-					<tr>
-						<td class="sq-backend-table-cell">
-							<?php
-							if ($write_access) {
-								text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
+				if ($attribute == 'wysiwyg_classes') {
+				?>
+					<th class="sq-backend-table-header"><?php echo translate('Show For'); ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('Hide For'); ?></th>
+				<?php
+				}
+				if ($write_access || $has_inherited_opt) {
+					?><th class="sq-backend-table-header" style="text-align: center"><?php echo $write_access ? translate('Delete?') : ''; ?></th><?php
+				}
+				?>
+			</tr>
+			</thead>
+			<tbody>
+			<?php
+			$i = 0;
+			foreach ($select_options as $option_key => $option_values) {
+
+				$friendly_name = trim($option_key);
+				if (empty($friendly_name)) {
+					continue;
+				}
+				$class_name = array_get_index($option_values, 'classNames', '');
+				$show_for = array_get_index($option_values, 'showFor', '');
+				$hide_for = array_get_index($option_values, 'hideFor', '');
+				$inherited = array_get_index($option_values, 'inherited', FALSE);
+				?>
+				<tr title="<?php echo translate('Drag to Reorder');?>">
+					<td class="sq-backend-table-cell">
+						<?php
+						if ($write_access && !$inherited) {
+							text_box($prefix.'_options[friendlyName]['.$i.']', $friendly_name, 20, '', FALSE, 'class="sq-full-cell-width"');
+						} else {
+							echo $friendly_name;
+						}
+						?>
+					</td>
+					<td class="sq-backend-table-cell" align="left">
+						<?php
+						if ($write_access && !$inherited) {
+							text_box($prefix.'_options[classNames]['.$i.']', $class_name, 20, '', FALSE, 'class="sq-full-cell-width"');
+						} else {
+							echo $class_name;
+						}
+						?>
+					</td>
+					<?php
+					if ($attribute == 'wysiwyg_classes') {
+						echo '<td class="sq-backend-table-cell">';
+						if ($write_access && !$inherited) {
+							text_box($prefix.'_options[showFor]['.$i.']', $show_for, 20, '', FALSE, 'class="sq-full-cell-width"');
+						} else {
+							echo $show_for;
+						}
+						echo '</td>';
+
+						echo '<td class="sq-backend-table-cell">';
+						if ($write_access && !$inherited) {
+							text_box($prefix.'_options[hideFor]['.$i.']', $hide_for, 20, '', FALSE, 'class="sq-full-cell-width"');
+						} else {
+							echo $hide_for;
+						}
+						echo '</td>';
+					}
+					if ($write_access || $has_inherited_opt) {
+						?>
+						<td class="sq-backend-table-cell" style="text-align: center">
+							<?php 
+							if (!$inherited) {
+								if ($write_access) {
+									check_box($prefix.'_options[del]['.$i.']', '1');
+
+								}
 							} else {
-								echo $option_key;
-							}
-							?>
-						</td>
-						<td class="sq-backend-table-cell" align="left">
-							<?php
-							if ($write_access) {
-								text_box($prefix.'_options[val]['.$i.']', $option_value, 20);
-							} else {
-								echo $option_value;
+								echo '<em>'.translate('Inherited').'</em>';
+								if ($write_access) {
+									// Post inherited options to preserve sorting
+									hidden_field($prefix.'_options[friendlyName]['.$i.']', $friendly_name);
+									hidden_field($prefix.'_options[classNames]['.$i.']', $class_name);
+									hidden_field($prefix.'_options[showFor]['.$i.']', $show_for);
+									hidden_field($prefix.'_options[hideFor]['.$i.']', $hide_for);
+									hidden_field($prefix.'_options[inherited]['.$i.']', '1');
+								}
 							}
 							?>
 						</td>
 						<?php
-						if ($write_access) {
-							?>
-							<td class="sq-backend-table-cell">
-								<?php check_box($prefix.'_options[del]['.$i.']', $option_key); ?>
-							</td>
-							<?php
-						}
-						?>
-					</tr>
-					<?php
-					$i++;
-				}//end foreach select_options
-				?>
-			</table>
+					}
+					?>
+				</tr>
+				<?php
+				$i++;
+			}//end foreach select_options
+			?>
+			</tbody>
 			<?php
 
-		} else {
-			echo translate('There are currently no select box options');
+			if ($write_access) {
+			?>
+				<tfoot>
+				<tr>
+					<td class="sq-backend-table-cell" colspan="<?php echo $attribute == 'wysiwyg_classes' ? 5 : 3; ?>">
+					<?php normal_button($prefix.'_options_add_new', translate('Add Style'), 'add_new_option_'.$prefix.'(this.parentNode.parentNode)'); ?>
+					</td>
+				</tr>
+				</tfoot>
+			<?php
+			}
+			?>
+		</table>
+		<script>
+			function add_new_option_<?php echo $prefix; ?>(node) {
 
-		}//end if empty
+				var parent = node.parentNode.parentNode.getElementsByTagName('tbody')[0];
+				var index = parent.getElementsByTagName('tr').length;
 
-		// now adding two fields for new entry (key => value)
-		if ($write_access) {
-			$o->openField(translate('New Option'));
+				var tr = document.createElement('tr');
+				tr.title = '<?php echo translate('Drag to Reorder'); ?>';
+				<?php
+					$options = Array('friendlyName', 'classNames', 'showFor', 'hideFor');
+					foreach($options as $var_index => $option) {
+						if ($attribute != 'wysiwyg_classes' && $var_index > 1) {
+							// Container has first two options only, while WYSYWYG has all
+							continue;
+						}
+						echo "var td{$var_index} = document.createElement('td');\n";
+						echo "td{$var_index}.innerHTML = '<input type=\"text\" name={$prefix}_options[$option]['+index+'] id={$prefix}_options[$option]['+index+'] value=\"\" class=\"sq-full-cell-width\" size=\"20\" />';\n";
+						echo "tr.appendChild(td{$var_index});\n";
+					}
+				?>
+				var td_extra = document.createElement('td');
+				td_extra.style.textAlign = 'center';
+				td_extra.innerHTML = '<em>New</em>';
+				tr.appendChild(td_extra);
 
-				echo '<b>'.translate('Key').'</b> ';
+				parent.appendChild(tr);
 
-				text_box($prefix.'_new_key','');
-				echo ' <b>'.translate('Value').'</b> ';
+			}//end add_new_option_[PREFIX]()
+		</script>
+		<?php
+		$o->addJsInclude(sq_web_path('lib').'/web/dfx/dfx.js');
+		?>
+		<script>
+			(function() {
+			 	var callback = function() {
+					// Drag and drop sorting
+					dfx.tableSort('#<?php echo $table_id;  ?>', '.<?php echo $sortable_class_name; ?>', 'all');
+				}//end dfxLoadedCallback()
 
-				text_box($prefix.'_new_val','');
-			$o->closeField();
-		}
+				if (!dfxLoadedCallback) {
+					dfxLoadedCallback = [];
+				}
+				dfxLoadedCallback.push(callback);
+			 })();
+		</script>
+
+		<?php
 
 		return TRUE;
 
@@ -1819,17 +1946,37 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$select_options = Array();
 		if (isset($_POST[$prefix.'_options'])) {
 			$option_changes = $_POST[$prefix.'_options'];
-			foreach ($option_changes['key'] as $i => $key) {
-				if (isset($option_changes['del'][$i])) continue;
-				$select_options[trim($key)] = trim($option_changes['val'][$i]);
-			}
-		}
+			foreach ($option_changes['friendlyName'] as $i => $val) {
+				$select_option = Array();
+				$option_key = trim($option_changes['friendlyName'][$i]);
+				$class_names = trim($option_changes['classNames'][$i]);
 
-		// now get the new submitted values (if any) and add them to array
-		if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
-			$new_select_key  = trim($_POST[$prefix.'_new_key']);
-			$new_select_val  = trim($_POST[$prefix.'_new_val']);
-			$select_options[$new_select_key] = $new_select_val;
+				// If the "friendly name" or "class name" are empty, populate one based on the other
+				if (empty($option_key)) {
+					$option_key = ucwords(str_replace('-', ' ', $class_names));
+				}
+				if (empty($class_names)) {
+					$class_names = strtolower(str_replace(' ', '-', $option_key));
+				}
+
+				if (empty($option_key) || isset($option_changes['del'][$i]) || (isset($select_options[$option_key]) && empty($select_options[$option_key]['inherited']))) {
+					continue;
+				}
+
+				$select_option['classNames'] = $class_names;
+
+				// Flag the options posted as inherited
+				if (isset($option_changes['inherited']) && isset($option_changes['inherited'][$i])) {
+					$select_option['inherited'] = 1;
+				}
+
+				// These options applies to WYSIWYG styles only
+				if ($attribute == 'wysiwyg_classes') {
+					$select_option['showFor'] = trim($option_changes['showFor'][$i]);
+					$select_option['hideFor'] = trim($option_changes['hideFor'][$i]);
+				}
+				$select_options[$option_key] = $select_option;
+			}
 		}
 
 		// updating asset attribute value
@@ -1851,10 +1998,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	public function paintWysiwygClasses(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$this->_paintSelection($asset, $o, $prefix.'_wysiwyg', 'wysiwyg_classes');
-		$o->openField('');
-		$o->note(translate('Classes specified in this list will be available in WYSIWYG drop-down list for styles. If the list is empty, css file wil be parsed and all class definitions available.'));
-
-		$o->closeField();
 
 		return TRUE;
 
@@ -1889,10 +2032,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	public function paintDivClasses(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$this->_paintSelection($asset, $o, $prefix.'_div', 'div_classes');
-		$o->openField('');
-		$o->note(translate('Classes specified in this list will be available in the content container properties drop-down list for class. If the list is empty, only a text field will be used.'));
-
-		$o->closeField();
 
 		return TRUE;
 

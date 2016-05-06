@@ -90,8 +90,8 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 		$heading_defaults = $asset->attr('heading_defaults');
 		$o->openField('Heading Selection Defaults');
 		// Images for showing boolean values, when there is no
-		$tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
-		$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
+		$tick = '<img src="'.sq_web_path('lib').'/web/images/tick.png" alt="Yes" style="position: relative; right: 0px;"/>';
+		$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.png" alt="Yes" />';
 		?>
 		<table class="sq-backend-table" style="width: 300px;">
 			<tr>

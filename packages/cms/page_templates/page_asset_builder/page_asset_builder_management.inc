@@ -47,8 +47,18 @@ class Page_Asset_Builder_Management extends Asset_Management
 										'type'		=> 'serialise',
 										'default'	=> Array(),
 									 );
+		$this->vars['edit_type'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									 );
 
 		$this->vars['create_form_customisations'] = Array(
+														'added'		=> '0.8',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+													);
+		$this->vars['edit_form_customisations'] = Array(
 														'added'		=> '0.8',
 														'type'		=> 'serialise',
 														'default'	=> Array(),
@@ -173,7 +183,31 @@ class Page_Asset_Builder_Management extends Asset_Management
 										'default'	=> '<p>The new asset was not created. Ensure you have entered all required information and try again.</p>',
 										'is_contextable'	=> TRUE,
 									  );
-
+		/* Edit details attributes */
+		$this->vars['edit_invite']	= Array(
+											'added'		=> '0.1',
+											'type'		=> 'wysiwyg',
+											'default'	=> '<p>You are currently in edit mode.</p>',
+											'is_contextable'	=> TRUE,
+										);
+		$this->vars['edit_lock_error']	= Array(
+											'added'		=> '0.1',
+											'type'		=> 'wysiwyg',
+											'default'	=> '<p>Failed to acquire lock for editing #%1$s.</p>',
+											'is_contextable'	=> TRUE,
+										  );
+		$this->vars['edit_success']		= Array(
+											'added'		=> '0.1',
+											'type'		=> 'wysiwyg',
+											'default'	=> '<p>The asset has been updated.</p>',
+											'is_contextable'	=> TRUE,
+										  );
+		$this->vars['edit_error'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'wysiwyg',
+										'default'	=> '<p>The new asset was not updated. Ensure you have entered all required information and have permission to edit the asset before trying again.</p>',
+										'is_contextable'	=> TRUE,
+									  );
 		/* Additional (query-fed) create locations must be children of one of these */
 		$this->vars['additional_location_parents'] = Array(
 														'added'		=> '0.5',
@@ -212,6 +246,17 @@ class Page_Asset_Builder_Management extends Asset_Management
 										'parameters'	=> Array(
 															'parameters'	=> Array(
 																				'additional_locations'	=> 'Additional Create Locations',
+																			   ),
+														   ),
+										'default'		=> Array(),
+									   );
+		
+		$this->vars['edit_parameter_map'] = Array(
+										'added'			=> '0.6',
+										'type'			=> 'parameter_map',
+										'parameters'	=> Array(
+															'parameters'	=> Array(
+																				'edit'	=> 'Edit Asset',
 																			   ),
 														   ),
 										'default'		=> Array(),
@@ -429,19 +474,19 @@ class Page_Asset_Builder_Management extends Asset_Management
 		$this->vars['mollom_unsure_submission_text'] 	= Array(
 												'added'			=> '0.9',
 												'type'			=> 'text',
-												'default'		=> 'Please enter the characters in the image to verify your submission',
+												'default'		=> 'Please enter the characters in the image to verify your submission.',
 												'description'	=> 'Mollom error message text for unsure submission',
 											);
 		$this->vars['mollom_spam_submission_text'] 		= Array(
 												'added'			=> '0.9',
 												'type'			=> 'text',
-												'default'		=> 'This submission looks like a spam. Cannot accept this submission',
+												'default'		=> 'This submission looks like a spam. Cannot accept this submission.',
 												'description'	=> 'Mollom error message text for spam submission',
 											);
 		$this->vars['mollom_captcha_incorrect_text'] 		= Array(
 												'added'			=> '0.9',
 												'type'			=> 'text',
-												'default'		=> 'Incorrect security key. Please try again',
+												'default'		=> 'Incorrect security key. Please try again.',
 												'description'	=> 'Mollom error message text for incorrect captcha',
 											);
 		$this->vars['mollom_captcha_regen_link_text'] 	= Array(
@@ -523,6 +568,15 @@ class Page_Asset_Builder_Management extends Asset_Management
 																				'allow_empty'	=> FALSE,
 																			   ),
 														  );
+
+		$this->vars['enforce_user_login'] = Array(
+															'added'			=> '0.1',
+															'type'			=> 'boolean',
+															'default'		=> FALSE,
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+																			   ),
+														);
 
 	}//end constructor
 

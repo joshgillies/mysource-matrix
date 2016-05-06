@@ -75,6 +75,7 @@ class Form_Question_Type_Text extends Form_Question
 		$extras		= $this->attr('extra');
 		$input_type	= $this->attr('text_type');
 		$name   	= 'q'.$this->id;
+		$placeholder = $this->attr('placeholder');
 
 		// prepare a valid value for the field id
 		$extras = $extras.' id="'.str_replace(':', '_', $name).'"';
@@ -87,9 +88,9 @@ class Form_Question_Type_Text extends Form_Question
 
 		ob_start();
 		if ($height == 1) {
-			text_box($name, $value, $width, $max, FALSE, $extras, $input_type);
+			text_box($name, $value, $width, $max, FALSE, $extras, $input_type, $placeholder);
 		} else {
-			text_area($name, $value, $width, $height, $max, $extras, $input_type);
+			text_area($name, $value, $width, $height, $max, $extras, $placeholder);
 		}
 		$html = ob_get_contents();
 		ob_end_clean();

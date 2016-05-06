@@ -482,7 +482,28 @@ class Form_Submission extends Asset
 			}
 			return '';
 		}
+		// adding file asset id keyword for squizmap #7641
+		if (preg_match('/question\_answer\_(\d+[\_\:]q\d+)?(_file_id)/', $keyword, $matches)) {
+			$assetid = str_replace('_', ':', $matches[1]);
+			$file_id = (array_get_index($matches, 2, '') == '_file_id');
 
+			$attrs = $this->attr('attributes');
+			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			
+			//fix so that the keyword works in asset listings
+			if (isset($attrs['answers'])) {
+				$question_asset->value = $attrs['answers'][$assetid]['answer'];
+				$question_asset->extra_data = $attrs['answers'][$assetid]['extra_data'];
+			}
+
+			if($file_id && $question_asset instanceof Form_Question_Type_File_Upload) {
+				$replacement = $question_asset->getUploadedFileId();
+				return $replacement;
+			} else{
+				return '';
+			}
+			
+		}
 		if (preg_match('/question\_answer\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			if (!isset($attrs['summary'])) return '';
@@ -581,6 +602,47 @@ class Form_Submission extends Asset
 			return $elt['answer'];
 		}
 
+		// Submission submitted date and time keyword replacements
+		if (0 === strpos($keyword, 'submission_submitted_time')) {
+			$submitted_time = $this->attr('submitted');
+			
+			// if the submission is incomplete we will have all other attributes just not 
+			// the submitted time so we will return a message instead of the empty date
+			if ($submitted_time === '---------- --:--:--') {
+				return 'Incomplete Submission';
+			}
+
+			$format = substr($keyword, strlen('submission_submitted_time_'));
+			$date_formats = get_date_formats();
+			
+			if ($format === 'short') {
+				// Format yyyy-mm-dd
+				return date($date_formats['short'], strtotime($submitted_time));
+			} else if ($format === 'readable'){
+				// Format dd m yyyy h:mm[am pm]
+				return date($date_formats['readable'], strtotime($submitted_time));
+			} else if ($format === 'readabledate'){
+				// Format dd mm yyyy
+				return date($date_formats['readabledate'], strtotime($submitted_time));
+			} else if ($format === 'readabletime'){
+				// Format h:mm[am pm]
+				return date($date_formats['readabletime'], strtotime($submitted_time));
+			} else if ($format === 'iso8601'){
+				// Format ISO8601
+				return date($date_formats['iso8601'], strtotime($submitted_time));
+			} else if ($format === 'rfc2822'){
+				// Format RFC2822
+				return date($date_formats['rfc2822'], strtotime($submitted_time));
+			} else if ($format === 'ical'){
+				// Format ical
+				return date($date_formats['ical'], strtotime($submitted_time));
+			} else if ($format === 'relative') {
+				// Format X day/s ago
+				return format_date(strtotime($submitted_time), 'relative');
+			} else {
+				return $submitted_time;
+			}
+		}
 		// if we are falling back on parent to get the keyword replacement make
 		// sure we pass the whole keyword i.e. including the modifier(s) if any
 		return parent::getKeywordReplacement($original_keyword);
@@ -605,10 +667,26 @@ class Form_Submission extends Asset
 	function getAvailableKeywords()
 	{
 		$res = parent::getAvailableKeywords();
-		$res['question_name_X_qY'] = 'The name of the question with ID X:qY';
-		$res['question_answer_X_qY'] = 'The answer to the question with ID X:qY';
-		$res['question_answer_key_X_qY'] = 'The answer key to the question with ID X:qY';
+		$res['question_name_X_qY'] = 'Name of the question with ID X:qY';
+		$res['question_answer_X_qY'] = 'Answer to the question with ID X:qY';
+		$res['question_answer_key_X_qY'] = 'Answer key to the question with ID X:qY';
+		$res['question_answer_X_qY_file_id'] = 'Asset id of the file uploaded for question X:qY';
 		$res['submission_ip_address'] = 'IP address that created this submission';
+		// All submission attributes now have a keyword to access it - Squizmap #8136
+		$res['submission_attributes'] = 'Attributes of the submission "answers", "summary", "extra_data" etc.';
+		$res['submission_captcha_status'] = 'Value of the Captcha status for the submission (1 or 0)';
+		$res['submission_complete'] = 'Whether the submission is complete (1 or 0)';
+		$res['submission_submitted_time'] = 'Date the form submission was submitted (yyyy-mm-dd hh:mm:ss)';
+		$res['submission_submitted_time_short'] = 'Date the form submission was submitted (yyyy-mm-dd)';
+		$res['submission_submitted_time_readable'] = 'Date the form submission was submitted (dd m yyyy h:mm[am pm])';
+		$res['submission_submitted_time_readabledate'] = 'Date the form submission was submitted (date only - dd m yyyy)';
+		$res['submission_submitted_time_readabletime'] = 'Time the form submission was submitted (time only - h:mm[am pm])';
+		$res['submission_submitted_time_iso8601'] = 'Date the form submission was submitted (ISO8601 format)';
+		$res['submission_submitted_time_rfc2822'] = 'Date the form submission was submitted (RFC2822 format)';
+		$res['submission_submitted_time_ical'] = 'Date the form submission was submitted (iCalendar format)';
+		$res['submission_submitted_time_relative'] = 'Relative date the form submission was submitted (relative time e.g. "X days ago")';
+		$res['submission_xml'] = 'Xml text of the form submission';
+		
 		return $res;
 
 	}//end getAvailableKeywords()
@@ -665,6 +743,51 @@ class Form_Submission extends Asset
 
 	}//end getSubmissionIpAddressKeywordReplacement()
 
+	/**
+	* Get the submissions attributes
+	*
+	* @return Array
+	* @access public
+	*/
+	public function getSubmissionAttributesKeywordReplacement()
+	{
+		return $this->attr('attributes');
+	}//end getSubmissionAttributesKeywordReplacement()
+
+	
+	/**
+	* Get the submissions captcha_status
+	*
+	* @return string
+	* @access public
+	*/
+	public function getSubmissionCaptchaStatusKeywordReplacement()
+	{
+		return $this->attr('captcha_status');
+	}//end getSubmissionCaptchaStatusKeywordReplacement()
+
+	/**
+	* Get the complete status of the submissions
+	*
+	* @return string
+	* @access public
+	*/
+	public function getSubmissionCompleteKeywordReplacement()
+	{
+		return $this->attr('complete');
+	}//end getSubmissionCompleteKeywordReplacement()
+
+	/**
+	* Gets the xml text the form was submission
+	*
+	* @return date
+	* @access public
+	*/
+	public function getSubmissionXmlKeywordReplacement()
+	{
+		$xml = htmlentities($this->attr('xml'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		return '<code>'.$xml.'</code>';
+	}//end getSubmissionXmlKeywordReplacement()
 
 	/**
 	* Sets a random unqiue passcode to the submission asset

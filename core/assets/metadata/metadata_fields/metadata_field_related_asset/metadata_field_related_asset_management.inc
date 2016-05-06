@@ -51,6 +51,18 @@ class Metadata_Field_Related_Asset_Management extends Asset_Management
 											'default'		=> 'content',
 											'is_contextable'=> TRUE,
 										   );
+		$this->vars['restrict_asset_types'] = Array(
+											'added'			=> '0.1',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'is_contextable'=> TRUE,
+										   );
+		$this->vars['max_selections'] = Array(
+											'added'			=> '0.1',
+											'type'			=> 'int',
+											'default'		=> 1,
+											'is_contextable'=> TRUE,
+										   );
 	}//end constructor
 
 

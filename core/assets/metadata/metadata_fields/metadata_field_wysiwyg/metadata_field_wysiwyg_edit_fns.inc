@@ -77,18 +77,24 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		if ($write_access) {
-			echo '<div class="sq-metadata-settings-wrapper inline">';
-			check_box($prefix.'_default', '1', $is_default, 'handleMetadataWYSIWYGDefaultClickFor'.$prefix.'()');
-			label(translate('Use default'), $prefix.'_default');
-
-
-			if ($print_cascade_values_option) {
-				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-				check_box($prefix.'_cascade_value', '1', FALSE);
-				label(translate('Cascade value'), $prefix.'_cascade_value');
-
+			if($enable_default || $print_cascade_values_option) echo '<div class="sq-metadata-settings-wrapper inline">';
+			if($enable_default) {
+				echo '<span class="sq-metadata-default-wrapper">';	
+					check_box($prefix.'_default', '1', $is_default, 'handleMetadataWYSIWYGDefaultClickFor'.$prefix.'()');
+					label(translate('Use default'), $prefix.'_default');
+				echo '</span>';
 			}
-			echo '</div>';
+
+
+			$allow_cascading = $asset->attr('allow_cascading'); 
+			if ($print_cascade_values_option && $allow_cascading) {
+				echo '<span class="sq-metadata-cascade-wrapper">';
+					check_box($prefix.'_cascade_value', '1', FALSE);
+					label(translate('Cascade value'), $prefix.'_cascade_value');
+				echo '</span>';
+			}
+			
+			if($enable_default || $print_cascade_values_option) echo '</div>';
 		} else {
 			if ($is_default) {
 				echo '<div class="sq-metadata-settings-wrapper inline">';
@@ -103,15 +109,17 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 		$wysiwyg->value = $value;
 		$styles_common = '"';
-		$wysiwyg_container_styles = $is_default ? $styles_common.'display:none"' : $styles_common.'display:block"';
+		$wysiwyg_container_styles = $is_default && $enable_default ? $styles_common.'display:none"' : $styles_common.'display:block"';
 		$wysiwyg_preview_class = $write_access ? '' : 'sq-metadata-wysiwyg-preview';
 		echo '<div id="'.$prefix.'_wysiwyg_container'.'" style='.$wysiwyg_container_styles.' class="sq-metadata-wysiwyg-edit-wrapper '.$wysiwyg_preview_class.'">';
 			$wysiwyg->paint($prefix, !$write_access);
 		echo '</div>';
+
+		if($enable_default) {
 		$default_html_container_styles = $is_default ? $styles_common.'display:block"' : $styles_common.'display:none"';
-		echo '<div id="'.$prefix.'_default_html_container'.'" style='.$default_html_container_styles.' class="sq-metadata-wysiwyg-preview">';
-			echo $asset->attr('default_html');
-		echo '</div>';
+			echo '<div id="'.$prefix.'_default_html_container'.'" style='.$default_html_container_styles.' class="sq-metadata-wysiwyg-preview">';
+				echo $asset->attr('default_html');
+			echo '</div>';
 		?>
 			<script type="text/javascript"><!--
 			//<![CDATA[
@@ -129,7 +137,7 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 			// ]]> -->
 			</script>
 		<?php
-
+		}
 		return $write_access;
 
 	}//end paintValueInterface()
@@ -196,18 +204,19 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 	*											NULL means that there is no current value set
 	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param boolean        		$content_file   Whether the generated metadata will be included in a metadata content file
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Field_WYSIWYG $asset, $value_str, &$tag_value, Array &$keywords)
+	public function generateMetadata(Metadata_Field_WYSIWYG $asset, $value_str, &$tag_value, Array &$keywords, $content_file=TRUE)
 	{
 		// generate default value correctly
 		if (is_null($value_str)) {
 			$value_str = $asset->attr('default_html');
 		}
 
-		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
+		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords, $content_file);
 
 	}//end generateMetadata()
 

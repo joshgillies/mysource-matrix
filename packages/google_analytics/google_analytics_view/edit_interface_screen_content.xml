@@ -16,17 +16,22 @@
 -->
 
 <contents>
-	<section name="Most Viewed Content (Non-Mobile)" write_access="root:none">
+	<section name="View Not Connected" write_access="root:none" show_if="showIfNotConnected">
+	    <function_call>
+	        <paint_function name="paintViewNotConnected" />
+	    </function_call>
+	</section>
+	<section name="Most Viewed Content (Non-Mobile)" write_access="root:none" show_if="showIfConnected">
 	    <function_call>
 	        <paint_function name="paintContentMostViewedReportDesktop" />
 	    </function_call>
 	</section>
-	<section name="Most Viewed Content (Mobile)" write_access="root:none">
+	<section name="Most Viewed Content (Mobile)" write_access="root:none" show_if="showIfConnected">
 	    <function_call>
 	        <paint_function name="paintContentMostViewedReportMobile" />
 	    </function_call>
 	</section>
-	<section name="Most Viewed Content by Returning Users (All Platforms)" write_access="root:none">
+	<section name="Most Viewed Content by Returning Users (All Platforms)" write_access="root:none" show_if="showIfConnected">
 	    <function_call>
 	        <paint_function name="paintContentMostViewedReportReturningUsers" />
 	    </function_call>

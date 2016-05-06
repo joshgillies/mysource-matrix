@@ -144,13 +144,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if ($this->_edit_params['show_send_mail_to_type']) {
 		?>
 			<tr>
-				<th><?php echo 'Send Mail To'; ?></th>
+				<th><?php echo translate('Send Mail To'); ?></th>
 				<td>
 					<?php
 						$options = Array(
-									SQ_EMAIL_FORMAT_SEND_TO_EMAIL => "User's email",
-									SQ_EMAIL_FORMAT_SEND_TO_MATRIX_INBOX => "User's Matrix inbox",
-									SQ_EMAIL_FORMAT_SEND_TO_BOTH => "Both",
+									SQ_EMAIL_FORMAT_SEND_TO_EMAIL        => translate("User's email"),
+									SQ_EMAIL_FORMAT_SEND_TO_MATRIX_INBOX => translate("User's Matrix inbox"),
+									SQ_EMAIL_FORMAT_SEND_TO_BOTH         => translate("Both"),
 								);
 						$selected_value = array_get_index($current_value, 'send_mail_to_type', SQ_EMAIL_FORMAT_SEND_TO_EMAIL);
 						combo_box($prefix.'_send_mail_to_type', $options, FALSE,  $selected_value, 0, ($read_only ? ' disabled' : ''));
@@ -163,7 +163,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			<tr>
 				<th><?php echo translate('To'); ?></th>
 
-				<td>
+				<td class="sq-email-format-email-list">
 					<?php
 					$ol = new Asset_Attribute_Option_List();
 					$ol->value = implode("\r\n", $current_value['to']);
@@ -241,7 +241,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				<td>
 					<?php
 					if ($read_only) {
-						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_value['inc_attachments'] ? 'tick' : 'cross').'.gif" width="15" height="15" />&nbsp;';
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_value['inc_attachments'] ? 'tick' : 'cross').'.png" width="15" height="15" />&nbsp;';
 						echo translate('Include file attachments');
 
 					} else {
@@ -305,13 +305,23 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 									?>
 									<div id="<?php echo $prefix?>_html_body_div" class="sq-email-format-html-body-div">
 									<?php
+
+									// if Javascript is detected in the HTML, we can't print it as HTML, use raw input
+									$html = $current_value['html_format'];
+									if(isWYSIWYGJS($html, $prefix)) {
+										return FALSE;
+									}
+
 									$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 									if(!is_null($o) && $o->isViperAvailable()) {
 									    $o->enableViperEditor();
 									    // Clean the HTML before passing to the Matrix backend form
 									    $o->addOnSubmit('Matrix_Viper.viper.cleanDOM(document.getElementById("'.$prefix.'_contents_div_viper"));');
+									    // Check if there is temp image previews, you have to either remove them or upload to asset
+									    $o->addOnSubmit('if(!Matrix_Viper.checkImagePreview(document.getElementById("'.$prefix.'_contents_div_viper"), "'.translate('You have image previews in the content that are not yet uploaded. Saving without uploading them will remove them from the content. Are you sure you want to save?').'")) return false;');
 									    // Use a hidden input to pass the Viper edited content to Matrix backend form
-									    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
+									    $o->addOnSubmit('var element =  document.getElementById("'.$prefix.'_contents_div_viper_input"); if (typeof(element) != "undefined" && element != null) { document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML; }');
+									    $o->addOnSubmit('if(Matrix_Viper.checkSourceEditorPopup()) { return false;}');
 									    ?>
 									  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"><?php echo $current_value['html_format'];?></div>
 									  <textarea id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input"></textarea>
@@ -369,6 +379,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			<?php } ?>
 		</table>
 		<?php
+
+		if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !headers_sent()) {
+			// Without this header disabled, Chrome will not output the iframe's source in the editor
+			header('X-XSS-Protection: 0');
+		}
 
 	}//end paint()
 
@@ -706,7 +721,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				// Unset the $mime->_parts (which holds all the attachments for the email)
 				// This was not done before, causing an incremental attachment of files
 				// for multiple recipients (please see Bug #2897)
-				if (count($mime->_parts) > 0) unset($mime->_parts);
+				if (isset($mime->_parts) && (count($mime->_parts) > 0)) unset($mime->_parts);
 
 				foreach ($attachments as $file_path) {
 					if (file_exists($file_path)) {
@@ -722,6 +737,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 						@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning
 					}
 				}
+
 
 				// if it's email verification keyword replace it with a token
 				$keywords = retrieve_keywords_replacements($text_body);
@@ -743,8 +759,14 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				}
 
 				$mime->setTXTBody($text_body);
-				$mime->setHTMLBody($html_body);
-
+				// if the html body only contains empty paragraph (from viper default), don't use it.
+		            	if(preg_match('/^<p>[\s]*<\/p>$/', $html_body)) {
+		                  $html_body = '';
+            			}
+			        // do not use html body if it's empty
+		            	if(!empty($html_body)) {
+		                  $mime->setHTMLBody($html_body);
+            			}
 				// get() must be called before headers()
 				// set up the charsets, use matrix preferences
 				$params = Array(

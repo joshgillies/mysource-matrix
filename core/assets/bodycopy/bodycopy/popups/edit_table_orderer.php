@@ -85,9 +85,9 @@ include(dirname(__FILE__).'/header.php');
 </script>
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
-		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('Cancel');?>" class="sq-icon">
 	</a>
-	<?php echo translate('reorderer'); ?>
+	<?php echo translate('Reorderer'); ?>
 </h1>
 <form name="main_form">
 <table>
@@ -104,10 +104,10 @@ include(dirname(__FILE__).'/header.php');
 							</select>
 						</td>
 						<td>
-							<a href="#" onClick="javascript: popup_move_type(true); return false;" onMouseOver="window.status='Move the Selection Up'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/up_arrow.png" width="15" height="15" ></a><br>
+							<a href="#" onClick="javascript: popup_move_type(true); return false;" title="<?php echo translate('Move the Selection Up') ?>"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/up_arrow.png" width="15" height="15" ></a><br>
 							<br>
 							<br>
-							<a href="#" onClick="javascript: popup_move_type(false); return false;" onMouseOver="window.status='Move the Selection Down'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/down_arrow.png" width="15" height="15" ></a>
+							<a href="#" onClick="javascript: popup_move_type(false); return false;" title="<?php echo translate('Move the Selection Down') ?>"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/down_arrow.png" width="15" height="15" ></a>
 						</td>
 					</tr>
 				</table>
@@ -116,10 +116,10 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('Cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('Save'); ?>"/>
 		</td>
 	</tr>
 </table>

@@ -518,7 +518,7 @@ function security_get_password_info($hash)
  *
  * @return boolean
  */
-function security_regenerate_session_id($delete_old=FALSE)
+function security_regenerate_session_id($delete_old=TRUE)
 {
     $params  = session_get_cookie_params();
     $host    = array_get_index($_SERVER, 'HTTP_HOST', NULL);
@@ -576,7 +576,9 @@ function security_send_reset_cookies($path, $host)
         $path = '/';
     }
 
-    header('Set-Cookie: SQ_SYSTEM_SESSION=destroy; Expires='.$expiry.'; path='.$path, FALSE);
+	// NOTE: MySource::_updateSessionCookie() deletes and re-sends the "destory" session cookie headers sent here
+	// So its important that if the session value "destroy" set here is ever changed for some reason, this should be reflected in MySource::_updateSessionCookie()
+    header('Set-Cookie: '.session_name().'=destroy; expires='.$expiry.'; path='.$path, FALSE);
     if (empty($hostPts) === FALSE) {
         // Unfortunately, since IE and Chrome are lame browsers,
         // a DOS attack cookie could happen on qualified TLD domains.
@@ -584,7 +586,7 @@ function security_send_reset_cookies($path, $host)
         $hostLn = count($hostPts);
         while ($hostLn >= 2) {
             $hostname = implode('.', $hostPts);
-            header('Set-Cookie: SQ_SYSTEM_SESSION=destroy; expires='.$expiry.'; domain='.$hostname.'; path='.$path, FALSE);
+            header('Set-Cookie: '.session_name().'=destroy; expires='.$expiry.'; domain=.'.$hostname.'; path='.$path, FALSE);
 
             array_shift($hostPts);
             $hostLn = count($hostPts);

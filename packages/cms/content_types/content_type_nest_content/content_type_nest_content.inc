@@ -127,6 +127,32 @@ class Content_Type_Nest_Content extends Content_Type
 
 	}//end setContent()
 
+	/**
+	* Morph the asset to either one of its parent types or one of its children types
+	*
+	* Only succeeds if $type_code assets are allowed to link to all children that this asset has.
+	* Since 3.18, we cannot do $this = $morphed, so we return the morphed obj if successful
+	* We also call forgetAsset and getAsset again to refresh the cache.
+	*
+	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
+	*
+	* @return object|null
+	* @access public
+	*/
+	public function morph($new_type_code)
+	{
+		// if we're moving away from content_type_nest_content we will
+		// potentially need to clear up the notice link indicating
+		// which asset we were previously nesting.
+		if ($new_type_code == $this->type()) return;
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE);
+		if (!empty($link))
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+
+		return parent::morph($new_type_code);
+
+	}//end morph()
 
 	/**
 	* Allow any required processesing to occur when any link is updated for the asset
@@ -138,7 +164,7 @@ class Content_Type_Nest_Content extends Content_Type
 	public function linksUpdated()
 	{
 		// Only generate the parent bodycopy content if the asset is not being cloned
-		if (!isset($this->_tmp['edit_fns'])) {
+		if (!isset($GLOBALS['SQ_CLONE_ASSET'])) {
 			// this function is called, which mean the asset we are
 			// nesting is modified (deleted) update our content file
 			$bodycopy_div_id = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bodycopy_div', TRUE));
@@ -169,17 +195,15 @@ class Content_Type_Nest_Content extends Content_Type
 	{
 		$edit_fns = $this->getEditFns();
 		$nested_asset = $edit_fns->_getNestedAsset($this);
-		$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
-
-		if (empty($asset_link)) {
-			$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
+		if(!empty($nested_asset)) {
+			$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
+			
+			if (empty($asset_link)) {
+				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
+			}
+			$content = '<strong>'.sprintf(translate('Nested Content - %s'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('Click to preview in a new window').'</a>.';			
+			return $content;
 		}
-		$content = '<strong>'.sprintf(translate('Nested Content - %s'), get_asset_tag_line($nested_asset->id)).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('Click to preview in a new window').'</a>.';
-
-
-
-		return $content;
-
 	}//end getSnippetInterface()
 
 

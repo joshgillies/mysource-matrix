@@ -56,6 +56,7 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 
 		$assetid = $state['asset']->id;
 
+		if (!isset($settings['http_request'])) return FALSE;
 		$http_request_value = $settings['http_request'];
 
 		// create a new http request object
@@ -237,13 +238,16 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 					<td><?php
 						$supported_js_engines = Rest_Common::$supported_js_engines;
 						$default_js_engine = Rest_Common::$default_js_engine;
+						$selected_js_engine = array_get_index($settings, 'js_engine', $default_js_engine);
 						if ($write_access) {
-							combo_box($new_prefix.'_js_engine', $supported_js_engines, FALSE, array_get_index($settings, 'js_engine', $default_js_engine));
+							combo_box($new_prefix.'_js_engine', $supported_js_engines, FALSE, $selected_js_engine);
 						} else {
 							echo array_get_index($supported_js_engines, array_get_index($settings, 'js_engine', $default_js_engine), '');
 						}
 						echo '<div class="sq-backend-smallprint">'.translate('JavaScript enigne to process the JavaScript code.').'</div>';
-
+						if (!empty($selected_js_engine) && !Rest_Common::jsEngineInstalled($selected_js_engine)) {
+							echo '<div class="sq-warning-message top-margin">'.sprintf(translate('<strong>Warning: </strong> %1$s is not installed on the system. JavaScript processing will not work.'), $supported_js_engines[$selected_js_engine]).'</div>';
+						}
 						?>
 					</td>
 				</tr>
@@ -271,10 +275,23 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 
 					<td><?php
 						$js_code = array_get_index($settings, 'js_code', '');
-						if ($write_access) {
-							text_area($new_prefix.'_js_code', $js_code, 92, 10, 0, 'style="font-family: monospace;');
-						} else {
-							echo "<pre>".htmlspecialchars($js_code)."</pre>";
+
+						// enable the Ace editor to edit backend code (if available)
+						$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+						if($o->isViperAceAvailable()) {
+							// enable the Ace editor to edit backend code (if available)
+							$o->enableViperAceEditor();
+							$read_only = '';
+							if(!$write_access) $read_only = 'sq-viper-ace-editor-textarea-readonly';
+
+							text_area($new_prefix.'_js_code', $js_code, 92, 10, 0, 'style="" class="sq-parse-file-textarea sq-backend-code-editing sq-viper-ace-editor-textarea sq-viper-ace-editor-textarea-mode-js sq-viper-ace-editor-textarea-large '.$read_only.'"');
+						}
+						else {
+							if ($write_access) {
+								text_area($new_prefix.'_js_code', $js_code, 92, 10, 0, 'style="font-family: monospace;');
+							} else {
+								echo "<pre>".htmlspecialchars($js_code)."</pre>";
+							}
 						}
 						echo '<div class="sq-backend-smallprint">'.translate('The HTTP Request data is available as JSON data in the pre-defined variable "_REST". Use the "Run Test" feature to view this structure. For example "print(_REST.response.body);" will print the body of the first response. If you are using E4X to process an XML document, you will likely need to use "_REST.response.bodyx" to avoid the XML declaration choking the parser.<br/>NOTE: Any data printed via the JS "print();" function. will be stored into the Session Var configured above.').'</div>';
 

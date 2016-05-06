@@ -535,7 +535,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		// use  DOMDocument::load() to  see if there  is any entity  reference loop
 		// which may exhaust us of the memory limit, if not then continue as normal
 		$xml = new DOMDocument();
-		if (!$xml->load($th_asset->getXmlFilePath(), LIBXML_NOENT)) return FALSE;
+		if (!$xml->load(str_replace(chr(0), '', $th_asset->getXmlFilePath()), LIBXML_NOENT)) return FALSE;
 
 		$xml_parser = xml_parser_create();
 		// stop the parser ucasing everything

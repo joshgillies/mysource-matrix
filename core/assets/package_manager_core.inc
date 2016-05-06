@@ -135,6 +135,7 @@ class Package_Manager_Core extends Package_Manager
 				'cron_job_metadata_triggers',
 				'cron_job_expired_matrix_cache',
 				'cron_job_expired_matrix_locks',
+				'cron_job_purge_trash',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -849,6 +850,36 @@ class Package_Manager_Core extends Package_Manager
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_expired_matrix_locks', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobExpiredMatrixLocks()
+
+
+	/**
+	* Create the Purge Trash cron job
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobPurgeTrash()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Purge Trash cron job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_purge_trash');
+
+		$cron_job = new Cron_Job_Purge_Trash();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Purge Trash Cron Job NOT CREATED', E_USER_ERROR);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_purge_trash', $cron_job->id);
 
 		return $cron_job;
 

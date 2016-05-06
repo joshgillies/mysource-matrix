@@ -168,22 +168,6 @@ class Payment_Gateway_Paypal_Express_Management extends Asset_Management
 
 
 	/**
-	* Gets a list of all files
-	*
-	* @return array
-	* @access private
-	*/
-	function _getFileList()
-	{
-		return Array(
-				'files/loader.js',
-				'files/loader.gif',
-			   );
-
-	}//end _getFileList()
-
-
-	/**
 	* Return an array with information about the events that this page is listening for
 	*
 	* @return boolean

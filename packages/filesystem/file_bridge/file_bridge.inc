@@ -32,6 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 class File_Bridge extends Asset implements Bridge
 {
 
+	/**
+	* File bridge's filesystem location root
+	*
+	* @string
+	*/
+	var $_location_path = '';
+
 
 	/**
 	* Constructor
@@ -42,6 +49,12 @@ class File_Bridge extends Asset implements Bridge
 	function File_Bridge($assetid=0)
 	{
 		parent::__construct($assetid);
+
+		// Set the file bridge's filesystem root path
+		if (is_file(SQ_DATA_PATH.'/private/conf/file_bridge.inc')) {
+			require_once SQ_DATA_PATH.'/private/conf/file_bridge.inc';
+			$this->setLocationPath(FILE_BRIDGE_PATH);
+		}
 
 	}//end constructor
 
@@ -82,19 +95,52 @@ class File_Bridge extends Asset implements Bridge
 
 
 	/**
+	* Set file bridge's filesystem location
+	*
+	* @param string $path	Loation path
+	*
+	* @return void
+	* @access protected
+	*/
+	protected function setLocationPath($path)
+	{
+		$this->_location_path = $path;
+
+	}//end setLocationPath()
+
+
+	/**
+	* Get file bridge's filesystem location
+	*
+	* @return string
+	* @access public
+	*/
+	public function getLocationPath()
+	{
+		return $this->_location_path;
+
+	}//end getLocationPath()
+
+
+	/**
 	 * Returns the list of files and directories under a particular path
 	 *
-	 * @param string	$path	The full path to the file
+	 * @param string $path        The full path to the file
+	 * @param array	 $ignore_dirs Ignore these dirs when listing dirs
 	 *
 	 * @returns array
 	 * @access private
 	 */
-	private function _listFiles($path)
+	protected function _listFiles($path, $ignore_dirs=Array())
 	{
+
+		if (empty($ignore_dirs)) {
+			$ignore_dirs = Array('CVS', '.svn');
+		}
 
 		$list = Array();
 
-		$dirs  = list_dirs($path, TRUE, Array('CVS', '.svn'));
+		$dirs  = list_dirs($path, TRUE, $ignore_dirs);
 		$files = list_files($path, TRUE);
 
 		sort($dirs);
@@ -165,8 +211,7 @@ class File_Bridge extends Asset implements Bridge
 		}
 
 		// The shadow id is the path from the location of the bridge
-		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
-		$location = FILE_BRIDGE_PATH;
+		$location = $this->_location_path;
 		$location = rtrim($location, '/');
 		if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 
@@ -230,8 +275,7 @@ class File_Bridge extends Asset implements Bridge
 					trigger_localised_error('CORE0089', translate('Unable to get the links from the minor side to the major side when the assetid is not a shadow assets id'), E_USER_ERROR);
 
 				} else {
-					require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
-					$location = FILE_BRIDGE_PATH;
+					$location = $this->_location_path;
 					$location = rtrim($location, '/');
 					if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 
@@ -260,8 +304,7 @@ class File_Bridge extends Asset implements Bridge
 			// looking from shadow asset
 			} else {
 				list($bridgeid,$shadowid) = explode(':', $assetid);
-				require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
-				$location = FILE_BRIDGE_PATH;
+				$location = $this->_location_path;
 				$location = rtrim($location, '/');
 				if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 
@@ -279,7 +322,7 @@ class File_Bridge extends Asset implements Bridge
 								'major_type_code'	=> $this->type(),
 								'value'				=> '',
 								'link_type'			=> SQ_LINK_TYPE_2,
-								'is_dependant'		=> TRUE,
+								'is_dependant'		=> FALSE,
 								'is_exclusive'		=> TRUE,
 								'sort_order'		=> 0,
 							   );
@@ -298,7 +341,7 @@ class File_Bridge extends Asset implements Bridge
 										'majorid'			=> $this->id,
 										'value'				=> '',
 										'link_type'			=> SQ_LINK_TYPE_2,
-										'is_dependant'		=> TRUE,
+										'is_dependant'		=> FALSE,
 										'is_exclusive'		=> TRUE,
 										'sort_order'		=> $i,
 									   );
@@ -598,7 +641,7 @@ class File_Bridge extends Asset implements Bridge
 	*/
 	function assetExists($assetids)
 	{
-		return FALSE;
+		return TRUE;
 
 	}//end assetExists()
 

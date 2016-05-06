@@ -71,6 +71,7 @@ class Trigger_Action_Update_Link extends Trigger_Action
 		$linkid = array_get_index($settings, 'linkid', '');
 
 		$new_value = array_get_index($settings, 'new_value', NULL);
+		$new_value = self::replaceKeywords($new_value, $state['asset']);
 		$new_link_type = array_get_index($settings, 'new_link_type', NULL);
 
 		$result = TRUE;

@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../asset.xsd">
 	<package>ecommerce</package>
 	<type_code>payment_gateway_datacash</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Datacash Payment Gateway</name>
 	<description>Payment Gateway for Datacash payment system</description>
 	<instantiable>yes</instantiable>

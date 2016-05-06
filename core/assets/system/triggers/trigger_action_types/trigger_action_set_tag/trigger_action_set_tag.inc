@@ -297,7 +297,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 
 					check_box($prefix.'[action]', '1', $action_checked, 'toggleWeighting(!this.checked)');
 				} else {
-					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($action_checked ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($action_checked ? translate('Yes') : translate('No')); ?>"><?php
+					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($action_checked ? 'tick' : 'cross').'.png'; ?>" alt="<?php echo ($action_checked ? translate('Yes') : translate('No')); ?>"><?php
 
 
 				}
@@ -310,7 +310,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 				if ($write_access) {
 					check_box($prefix.'[cascade]', '1', $cascade, 'toggleExclusiveCheckboxes(\'cascade\')');
 				} else {
-					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($cascade ? translate('Yes') : translate('No')); ?>"><?php
+					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.png'; ?>" alt="<?php echo ($cascade ? translate('Yes') : translate('No')); ?>"><?php
 
 
 				}
@@ -323,7 +323,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 				if ($write_access) {
 					check_box($prefix.'[manual_cascade]', '1', $manual_cascade, 'toggleExclusiveCheckboxes(\'manual_cascade\')');
 				} else {
-					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($manual_cascade ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($manual_cascade ? translate('Yes') : translate('No')); ?>"><?php
+					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($manual_cascade ? 'tick' : 'cross').'.png'; ?>" alt="<?php echo ($manual_cascade ? translate('Yes') : translate('No')); ?>"><?php
 
 
 				}

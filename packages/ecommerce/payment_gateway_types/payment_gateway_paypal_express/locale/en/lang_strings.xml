@@ -18,7 +18,7 @@
 <strings>
 <string source="default_bodycopy_content_pg_paypal_express"><![CDATA[
 %%processing_error%%
-<div style="background-color: #CCC; padding: 5px">Confirm payment <strong>$%%transaction_amount%%</strong>(%%transaction_gst%% percent GST)</div>
+<div style="background-color: #CCC; padding: 5px">Confirm payment <strong>$%%transaction_amount%%</strong></div>
 <table cellpadding="5">
 	<tr>
 		<td>&nbsp;</td>

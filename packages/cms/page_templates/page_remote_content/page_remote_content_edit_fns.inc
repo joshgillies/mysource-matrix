@@ -188,6 +188,10 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRewritingRestrictions(&$asset, &$o, $prefix)
 	{
+		if (!isset($_POST[$prefix.'_rewrite_type'])) {
+			return FALSE;
+		}
+
 		if ($asset->writeAccess()) {
 			$options = $asset->attr('url_rewriting_options');
 			if (isset($_POST[$prefix.'_white_list'])) {
@@ -429,6 +433,10 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processReplaceTagList(&$asset, &$o, $prefix)
 	{
+		if (!isset($_POST[$prefix.'_tag_replacments'])) {
+			return FALSE;
+		}
+
 		$reps = $_POST[$prefix.'_tag_replacments']['reps'];
 
 		$replacements = Array();

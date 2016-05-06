@@ -25,12 +25,17 @@
 	require_once dirname(__FILE__).'/../../../../core/include/backend_outputter.inc';
 	$o = new Backend_Outputter();
 
-	$o->openSection(sprintf(translate('keyword_extraction_for'), sprintf(translate('asset_format'), $asset->attr('name'), $asset->id)));
+	$o->openSection(sprintf(translate('Keyword Extraction for %s'),
+		sprintf('"%1$s" [#%2$s]', $asset->attr('name'), $asset->id)
+	));
 	$o->openField('', 'wide_col');
 ?>
 
-		<p><?php echo sprintf(translate('kewords_for_asset'), sprintf(translate('asset_format'), $asset->attr('name'), $asset->id)); ?></p>
-		<p><?php echo translate('use_keywords_in_metadata_fields'); ?></p>
+		<p><?php echo sprintf(
+			translate('These keywords have been extracted from the Search Manager\'s index for %s and are listed in descending order of importance according to the weightings set. They do not include index entries for metadata fields.'),
+			sprintf('"%1$s" [#%2$s]', $asset->attr('name'), $asset->id)
+		); ?></p>
+		<p><?php echo translate('You may copy and paste the contents of the box below into a metadata field if you so wish.'); ?></p>
 
 		<p>
 		<fieldset>

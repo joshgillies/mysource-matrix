@@ -811,7 +811,7 @@ class Thesaurus extends Asset implements Bridge
 
 
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$major = $this->getAsset($majorid);
+		$major = $this->getAsset("{$this->id}:$majorid");
 		$em->broadcastEvent($major, 'CreateLink', Array());
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1525,7 +1525,7 @@ class Thesaurus extends Asset implements Bridge
 	/**
 	* Returns a reference to the asset represented by the passed assetid or NULL on error
 	*
-	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param int		$shadowid		the shadow asset id to be loaded
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type

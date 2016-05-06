@@ -48,7 +48,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		$options = Array(
 					'details'	=> translate('Database Details'),
 
-					'DSN'		=> translate('DSN'),
+					'dsn'		=> translate('DSN'),
 
 					'connector'	=> translate('DB Connector'),
 
@@ -235,7 +235,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		$options = Array(
 					'details'	=> translate('Database Details'),
 
-					'DSN'		=> translate('DSN'),
+					'dsn'		=> translate('DSN'),
 
 					'connector'	=> translate('DB Connector'),
 

@@ -41,6 +41,36 @@ class Metadata_Field_Related_Asset extends Metadata_Field
 
 	}//end constructor
 
+	
+	/**
+	* Takes a metadata value and value-components and returns a properly escaped string
+	* Since "value components" is not applicable to this metadata field, we don't need to encode/decode the value string
+	* 
+	* @return void
+	* @access public
+	* @see decodeValueString()
+	*/
+	public static function encodeValueString($value, $components)
+	{
+		return $value;
+
+	}//end encodeValueString()
+
+
+	/**
+	* Takes a full metadata string (i.e. value and value components) and returns the value and value components
+	* Since "value components" is not applicable to this metadata field, we don't need to encode/decode the value string
+	* 
+	* @return void
+	* @access public
+	* @see encodeValueString()
+	*/
+	public static function decodeValueString($str, &$value, &$components)
+	{
+		$value = $str;
+		$components = Array();
+
+	}//end decodeValueString()
 
 }//end class
 

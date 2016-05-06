@@ -118,11 +118,12 @@ class Metadata_Schema extends Folder
 	* Removes any reference to this schema from the 'sq_ast_mdata' table
 	*
 	* @param boolean	$release_lock	should we realease the lock after deleting
+	* @param boolean    $check_locked   Check if the link is locked or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE, $check_locked=TRUE)
 	{
 		if (parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -137,7 +138,7 @@ class Metadata_Schema extends Folder
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'schemaid', $this->id);
 
-				MatrixDAL::executePdoOne($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete metadata schema with schemaid #'.$this->id.' due to the following database error:'.$e->getMessage());
 			}//end try catch
@@ -156,15 +157,29 @@ class Metadata_Schema extends Folder
 	* Attempts to override all current paths for this asset with those passed in the array
 	*
 	* @param array	$paths	array of paths to give this asset
+	* @param boolean    $auto_add_remaps    whether or not to add remaps for the asset when updating lookups
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function saveWebPaths(Array $paths)
+	public function saveWebPaths($paths, $auto_add_remaps = TRUE)
 	{
 		return TRUE;
 
 	}//end saveWebPaths()
+
+
+	/**
+	* If the asset supports System Version mode (Safe Edit status)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function supportsSystemVersion()
+	{
+		return FALSE;
+
+	}//end supportsSystemVersion()
 
 
 }//end class

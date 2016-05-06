@@ -238,6 +238,11 @@ class Page_Calendar_Rolling extends Page
 	*/
 	function printBody()
 	{
+		// If we not finished being created, we will not have required dependent assets yet to generate the output
+		if (isset($this->_tmp['__creating__'])) {
+			return;
+		}
+
 		$cache_key = $this->_getCacheKey();
 		$cached_contents = '';
 

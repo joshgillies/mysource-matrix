@@ -111,7 +111,7 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['day_ends_at'] = Array(
 										'added'		=> '0.1',
 										'type'		=> 'text',
-										'default'	=> '00:00',
+										'default'	=> '24:00',
 									 );
 
 		// Time-length of vertical partitions in the week and day views
@@ -423,6 +423,13 @@ class Page_Calendar_Management extends Asset_Management
 										'is_contextable'	=> TRUE,
 								   );
 
+		$this->vars['enable_click_js'] = Array(
+										'added'			=> '0.9',
+										'type'			=> 'boolean',
+										'default'		=> 'true',
+										'parameters'	=> Array('allow_empty' => FALSE),
+								   );
+
 	}//end constructor
 
 
@@ -438,6 +445,7 @@ class Page_Calendar_Management extends Asset_Management
 				'css/calendar_default.css',
 				'js/drag_n_drop.js',
 				'js/popup.js',
+				'js/click.js',
 			   );
 
 	}//end _getFileList()

@@ -55,7 +55,19 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function paintInterface(&$asset, &$o, $prefix)
 	{
-		$elements = Array('d' => 'Day', 'm' => 'Month', 'y' => 'Year', 'h' => 'Hour', 'i' => 'Minute', 's' => 'Second', 'c' => 'Circa');
+		$elements = Array(
+			'c' => translate('Circa'),
+			'd' => translate('Day'),
+			'm' => translate('Month'),
+			'y' => translate('Year'),
+			'h' => translate('Hour'),
+			'i' => translate('Minute'),
+			's' => translate('Second'),
+			'a' => translate('12-hour'),
+		);
+
+		$tick_img  = trim(sq_get_icon(sq_web_path('lib').'/web/images/tick.png', 15, 15, translate('Yes'), NULL, ' border="0"'));
+		$cross_img = trim(sq_get_icon(sq_web_path('lib').'/web/images/cross.png', 15, 15, translate('No'), NULL, ' border="0"'));
 
 		$show_params = $asset->attr('show');
 		$text_params = $asset->attr('text');
@@ -70,38 +82,12 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 			<table class="sq-backend-table">
 			<tr>
 				<td width="12%" style="text-align:center;" class="sq-backend-table-header">&nbsp;</td>
-				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('Circa');
-
+				<?php
+				foreach ($elements as $element_name) {
+				?><td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
+					echo $element_name;
 				?></td>
-				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('day');
-
-				?></td>
-				<td width="11%" style="text-align:center;"class="sq-backend-table-header"><?php
-					echo translate('month'); ?>
-
-				</td>
-				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('year');
-
-				?></td>
-				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('hour');
-
-				?></td>
-				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('minute');
-
-				?></td>
-				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('second');
-
-				?></td>
-				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
-					echo translate('12 hour');
-
-				?></td>
+				<?php } ?>
 				</tr>
 				<tr>
 				<td class="sq-backend-table-cell"><?php
@@ -112,49 +98,49 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 					if ($edit) {
 						check_box($prefix.'_c', '1', $show_params['c']);
 					} else {
-						echo $show_params['c'] ? 'X' : '';
+						echo $show_params['c'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_d', '1', $show_params['d']);
 					} else {
-						echo $show_params['d'] ? 'X' : '';
+						echo $show_params['d'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_m', '1', $show_params['m']);
 					} else {
-						echo $show_params['m'] ? 'X' : '';
+						echo $show_params['m'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_y', '1', $show_params['y']);
 					} else {
-						echo $show_params['y'] ? 'X' : '';
+						echo $show_params['y'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_h', '1', $show_params['h']);
 					} else {
-						echo $show_params['h'] ? 'X' : '';
+						echo $show_params['h'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_i', '1', $show_params['i']);
 					} else {
-						echo $show_params['i'] ? 'X' : '';
+						echo $show_params['i'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_s', '1', $show_params['s']);
 					} else {
-						echo $show_params['s'] ? 'X' : '';
+						echo $show_params['s'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
@@ -162,7 +148,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 					if ($edit) {
 						check_box($prefix.'_a', '1', $show_params['a']);
 					} else {
-						echo $show_params['a'] ? 'X' : '';
+						echo $show_params['a'] ? $tick_img : $cross_img;
 					}
 				?></td>
 			</tr>
@@ -175,42 +161,42 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 					if ($edit) {
 						check_box($prefix.'_d_null', '1', $null_params['d']);
 					} else {
-						echo $null_params['d'] ? 'X' : '';
+						echo $null_params['d'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_m_null', '1', $null_params['m']);
 					} else {
-						echo $null_params['m'] ? 'X' : '';
+						echo $null_params['m'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_y_null', '1', $null_params['y']);
 					} else {
-						echo $null_params['y'] ? 'X' : '';
+						echo $null_params['y'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_h_null', '1', $null_params['h']);
 					} else {
-						echo $null_params['h'] ? 'X' : '';
+						echo $null_params['h'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_i_null', '1', $null_params['i']);
 					} else {
-						echo $null_params['i'] ? 'X' : '';
+						echo $null_params['i'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_s_null', '1', $null_params['s']);
 					} else {
-						echo $null_params['s'] ? 'X' : '';
+						echo $null_params['s'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell">&nbsp;</td>
@@ -224,42 +210,42 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 					if ($edit) {
 						check_box($prefix.'_d_text', '1', $text_params['d']);
 					} else {
-						echo $text_params['d'] ? 'X' : '';
+						echo $text_params['d'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_m_text', '1', $text_params['m']);
 					} else {
-						echo $text_params['m'] ? 'X' : '';
+						echo $text_params['m'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_y_text', '1', $text_params['y']);
 					} else {
-						echo $text_params['y'] ? 'X' : '';
+						echo $text_params['y'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_h_text', '1', $text_params['h']);
 					} else {
-						echo $text_params['h'] ? 'X' : '';
+						echo $text_params['h'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_i_text', '1', $text_params['i']);
 					} else {
-						echo $text_params['i'] ? 'X' : '';
+						echo $text_params['i'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {
 						check_box($prefix.'_s_text', '1', $text_params['s']);
 					} else {
-						echo $text_params['s'] ? 'X' : '';
+						echo $text_params['s'] ? $tick_img : $cross_img;
 					}
 				?></td>
 				<td align="center" class="sq-backend-table-cell">&nbsp;</td>
@@ -349,103 +335,38 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function paintExtras(&$asset, &$o, $prefix)
 	{
+		$elements = Array(
+			'd' => translate('Day'),
+			'm' => translate('Month'),
+			'y' => translate('Year'),
+			'h' => translate('Hour'),
+			'i' => translate('Minute'),
+			's' => translate('Second'),
+			'a' => translate('12-hour'),
+		);
+
 		$extra_params = $asset->attr('extras');
 		$edit = ($asset->writeAccess('attributes')) ? TRUE : FALSE;
 		?>
 			<table class="sq-backend-table">
+				<?php foreach ($elements as $elementid => $element_name) { ?>
 				<tr>
 				<td style="width: 50px;" class="sq-backend-table-header"><?php
-					echo translate('day');
-
+					echo $element_name;
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
-						text_box($prefix.'_d_extras', $extra_params['d'], 50);
+						text_box($prefix.'_'.$elementid.'_extras', $extra_params[$elementid], 50);
 					} else {
-						echo $extra_params['d'];
+						if (empty($extra_params[$elementid]) === TRUE) {
+							echo '<em>'.translate('No extra attributes').'</em>';
+						} else {
+							echo $extra_params[$elementid];
+						}
 					}
 				?></td>
 				</tr>
-
-				<tr>
-				<td class="sq-backend-table-header"><?php
-					echo translate('month'); ?>
-
-				</td>
-				<td class="sq-backend-table-cell"><?php
-					if ($edit) {
-						text_box($prefix.'_m_extras', $extra_params['m'], 50);
-					} else {
-						echo $extra_params['m'];
-					}
-				?></td>
-				</tr>
-				<tr>
-				<td class="sq-backend-table-header"><?php
-					echo translate('year');
-
-				?></td>
-				<td class="sq-backend-table-cell"><?php
-					if ($edit) {
-						text_box($prefix.'_y_extras', $extra_params['y'], 50);
-					} else {
-						echo $extra_params['y'];
-					}
-				?></td>
-				</tr>
-				<tr>
-				<td class="sq-backend-table-header"><?php
-					echo translate('hour');
-
-				?></td>
-				<td class="sq-backend-table-cell"><?php
-					if ($edit) {
-						text_box($prefix.'_h_extras', $extra_params['h'], 50);
-					} else {
-						echo $extra_params['h'];
-					}
-				?></td>
-				</tr>
-				<tr>
-				<td class="sq-backend-table-header"><?php
-					echo translate('minute');
-
-				?></td>
-				<td class="sq-backend-table-cell"><?php
-					if ($edit) {
-						text_box($prefix.'_i_extras', $extra_params['i'], 50);
-					} else {
-						echo $extra_params['i'];
-					}
-				?></td>
-				</tr>
-				<tr>
-				<td class="sq-backend-table-header"><?php
-					echo translate('second');
-
-				?></td>
-				<td class="sq-backend-table-cell"><?php
-					if ($edit) {
-						text_box($prefix.'_s_extras', $extra_params['s'], 50);
-					} else {
-						echo $extra_params['s'];
-					}
-				?></td>
-				</tr>
-				<tr>
-				<td class="sq-backend-table-header"><?php
-					echo translate('12 hour');
-
-				?></td>
-				<td class="sq-backend-table-cell"><?php
-					$extra_params['a'] = (isset($extra_params['a'])) ?  $extra_params['a'] : '';
-					if ($edit) {
-						text_box($prefix.'_a_extras', $extra_params['a'], 50);
-					} else {
-						echo $extra_params['a'];
-					}
-				?></td>
-				</tr>
+				<?php } ?>
 			</table>
 			<?php
 

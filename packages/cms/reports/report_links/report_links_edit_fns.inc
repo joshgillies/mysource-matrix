@@ -86,7 +86,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				trigger_localised_error('RPRT0000', translate('Could not open temporary file, report generation aborted'), E_USER_WARNING);
 				return FALSE;
 			}
-			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
+			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?'.'>'."\n");
 			fwrite($temp_file, "<links>\n");
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
@@ -142,7 +142,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							}
 						} else {
 							$results = '';
-							preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
+							preg_match('|^\./\?a=([0-9]+(?:\:[0-9a-z]+\$?)?)#?([^$]*)?|',$match, $results);
 
 							if (!empty($results)) {
 								$link_type = 'internal';
@@ -188,7 +188,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						$wysiwyg_html = $asset->attr('html');
 
 						$master_matches = Array();
-						preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
+						preg_match_all('%(href|src)=\s*[\'"]\s*([^\'\s"]*)%', $wysiwyg_html, $master_matches);
 						$matches = $master_matches[2];
 						foreach ($matches as $match) {
 							// skip keywords
@@ -202,7 +202,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							$link_description = '';
 							$link_type = '';
 							$results = Array();
-							preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
+							preg_match('|^\./\?a=([0-9]+(?:\:[0-9a-z]+\$?)?)#?([^$]*)?|',$match, $results);
 
 
 							$validated_results = FALSE;
@@ -331,8 +331,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function validateInternalLink($link)
 	{
+		
 		$asset = NULL;
-		$assetid = $link[1];
+		$assetid = rtrim($link[1], '$');
 		if ($assetid) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 		}
@@ -363,13 +364,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$anchorExists = TRUE;
 			} else {
 			// otherwise lets traul the contents for a matching anchor
-
 				foreach ($contents as $content) {
-					if (preg_match('/<a\s+(name|id)="#?'.$link[2].'"(\s+(name|id)="#?'.$link[2].'")?(\s+href="[^"]+")?>/', $content, $matches)) {
+					if (preg_match('/<[a-z]+[a-z0-9]*[^>]*?\s+(name|id)="#?'.$link[2].'"\s?[^>]*?>/i', $content, $matches)) {
 						$anchorExists = TRUE;
 						break;
-					}
-				}
+					} //endif
+				} //endforeach
 			}
 
 			if (!$anchorExists) {
@@ -403,6 +403,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function validateExternalLink($url)
 	{
+		$url = trim($url);
+
 		// ignore bookmarks
 		if (substr($url, 0, 1) == '#') return FALSE;
 
@@ -428,56 +430,27 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			$validated_results['valid'] = '0';
 		} else {
-			if (empty($url_parts['path'])) {
-				$url_parts['path'] = '/';
+			$user_agent = array_get_index($_SERVER, 'HTTP_USER_AGENT', 'Windows NT 6.1; WOW64) Chrome/43.0.2357.65 Safari/537.36');
+			$curl_options = Array(
+								'FOLLOWLOCATION' => 0,
+								'MAXREDIRS' => $this->max_redirect,
+								'HEADER' => 1,
+								'NOBODY' => 1,
+								'RETURNTRANSFER' => 1,
+								'CONNECTTIMEOUT' => 15,
+								'TIMEOUT' => 15,
+								'USERAGENT' => $user_agent,
+							);
+
+    		$curl_result = fetch_url($url, $curl_options);
+			$headers = isset($curl_result['response']) ? $curl_result['response'] : '';
+			$response = '';
+
+    		if (!empty($headers)) {
+		        $headers_array = explode("\r\n", $headers);
+        		$response = isset($headers_array[0]) ? $headers_array[0] : '';
 			}
-			if (empty($url_parts['port']) && !empty($url_parts['scheme']) && $url_parts['scheme'] == 'https') {
-				$url_parts['port'] = '443';
-			} else {
-				$url_parts['port'] = '80';
-			}
-
-			$url_path = $url_parts['path'];
-			if (!empty($url_parts['query'])) {
-				$url_path .= '?'.$url_parts['query'];
-			}
-
-			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
-			$socket = openSocketConnection($url_parts, $errno, $errstr, TRUE, 15);
-			if (!SQ_PA_ENABLED || !$socket) {
-				// if proxy authentication is not enabled, or fopen fails, do the old trick
-				$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
-			}
-			if ($socket) {
-				fwrite ($socket, 'GET '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
-			}
-			if (!$socket) {
-				$validated_results['description'] = translate('The host specified in this URL cannot be contacted, or is not responding on the specified port');
-
-				$validated_results['valid'] = '0';
-			} else {
-				stream_set_timeout($socket, 5);
-				$response = fgets($socket);
-				$headers = fgets($socket);
-				$response = trim($response);
-				$headers = trim($headers);
-				$finished = (empty($headers)) ? TRUE : FALSE;
-				while (!$finished) {
-					$next_header = fgets($socket);
-					$next_header = trim($next_header);
-					if (empty($next_header)) {
-						$finished = TRUE;
-					} else {
-						$headers .= $next_header."\r\n";
-					}//end if
-				}//end while
-
-				$info = stream_get_meta_data($socket);
-				$validated_results = $this->_checkResponse($headers, $response, $info, $url_parts);
-
-				fclose($socket);
-			}//end else
-
+			$validated_results = $this->_checkResponse($headers, $response, Array(), $url_parts);
 		}//end else
 
 		return $validated_results;
@@ -498,13 +471,16 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function _checkResponse($headers, $response, $info, $url_info)
 	{
-		if (preg_match('|30[127] |', $response)) {
+		if (preg_match('|30[1237] |', $response)) {
 		    if($this->follow_redirect && $this->redirect_counter < $this->max_redirect) {
 				preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 				$location = array_get_index($matches, 1, '');
 				if ($location) {
-					// if the "location" is not absolute URL
-					if (!preg_match('|^https?://|', $location)) {
+					if (strpos($location, '//') === 0) {
+						// If the location is scheme relative
+						$location = $url_info['scheme'].':'.$location;
+					} else if (!preg_match('|^https?://|', $location)) {
+						// if the "location" is not absolute URL
 						$location = $url_info['scheme'].'://'.$url_info['host'].'/'.ltrim($location, '/');
 					}
 				    // follow redirect link but limit recursive loop
@@ -516,24 +492,20 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		    }
 		}
 
-		if (preg_match('|200 ok|i', $response)) {
-			$description = '';
-			$valid = '1';
-		} else if (preg_match('|302 found|i', $response)) {
-			$description = '';
-			$valid = '1';
-		} else if (preg_match('|304 not modified|i', $response)) {
-			$description = '';
-			$valid = '1';
-		} else if (preg_match('|404 not found|i', $response)) {
-			$description = translate('The URL was not found');
+		// Extract response code from status line
+		preg_match('/HTTP\/\d\.\d (\d+)/i', $response, $match);
+		$response_code = isset($match[1]) ? $match[1] : '';
 
-			$valid = '0';
-		} else if (preg_match('|407 proxy authentication required|i', $response)) {
+		if ($response_code == '200') {
+			$description = '';
+			$valid = '1';
+		} else if ($response_code == '304') {
+			$description = '';
+			$valid = '1';
+		} else if ($response_code == '407') {
 			$description = translate('Proxy Authentication Required');
-
 			$valid = '0';
-		} else if (preg_match('|301 moved|i', $response)) {
+		} else if ($response_code == '301') {
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
@@ -543,8 +515,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$description = translate('The URL has been permanently moved');
 
 			}
-		} else if (preg_match('|302 moved|i', $response)) {
-			// should this
+		} else if ($response_code == '302') {
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
@@ -555,31 +526,10 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			}
 		// IIS Specific error codes
-		} else if (preg_match('|202 accepted|i', $response)) {
+		} else if ($response_code == '202') {
 			$description = '';
 			$valid = '1';
-		} else if (preg_match('|301 moved permanently|i', $response)) {
-			$valid = '1';
-			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-			if (isset($matches[1])) {
-				$description = sprintf(translate('The URL has been permanently moved to "%s"'), $matches[1]);
-
-			} else {
-				$description = translate('The URL has been permanently moved');
-
-			}
-		} else if (preg_match('|301 permanent redirect|i', $response)) {
-			$valid = '1';
-			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-			if (isset($matches[1])) {
-				$description = sprintf(translate('The URL has been permanently moved to "%s"'), $matches[1]);
-
-			} else {
-				$description = translate('The URL has been permanently moved');
-
-			}
-		} else if (preg_match('|302 object moved|i', $response)) {
-			// should this
+		} else if ($response_code == '307') {
 			$valid = '1';
 			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 			if (isset($matches[1])) {
@@ -589,53 +539,28 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$description = translate('The URL has been temporarily moved');
 
 			}
-		} else if (preg_match('|307 temporary redirect|i', $response)) {
-			$valid = '1';
-			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-			if (isset($matches[1])) {
-				$description = sprintf(translate('The URL has been temporarily moved to "%s"'), $matches[1]);
-
-			} else {
-				$description = translate('The URL has been temporarily moved');
-
-			}
-		} else if (preg_match('|400 bad request|i', $response)) {
+		} else if ($response_code == '400') {
 			$description = translate('The URL had a bad request');
-
 			$valid = '0';
-		} else if (preg_match('|401 access denied|i', $response)) {
+		} else if ($response_code == '401') {
 			$description = translate('Access was denied to this URL');
-
 			$valid = '0';
-		} else if (preg_match('|401 unauthorized|i', $response)) {
-			$description = translate('Access was denied to this URL');
-
+		} else if ($response_code == '403') {
+			 $description = translate('Access was forbidden to this URL');
 			$valid = '0';
-		} else if (preg_match('|403 forbidden|i', $response)) {
-			$description = translate('Access was forbidden to this URL');
-
+		} else if ($response_code == '404') {
+			 $description = translate('The URL was not found');
 			$valid = '0';
-		} else if (preg_match('|403 forbidden|i', $response)) {
-			$description = translate('Access was forbidden to this URL');
-
-			$valid = '0';
-		} else if (preg_match('|404 page not available|i', $response)) {
-			$description = translate('The URL was not found');
-
-			$valid = '0';
-		} else if (preg_match('|406 client browser does not|i', $response)) {
+		} else if ($response_code == '406') {
 			$description = translate('Client browser does not accept the MIME type of the requested page');
-
 			$valid = '0';
-		} else if (preg_match('|408 request timed out|i', $response)) {
-			$description = translate('Request timed out');
-
+		} else if ($response_code == '408') {
+			 $description = translate('Request timed out');
 			$valid = '0';
-		} else if (preg_match('|412 precondition failed|i', $response)) {
+		} else if ($response_code == '412') {
 			$description = translate('The URL had a precondition that failed');
-
 			$valid = '0';
-		} else if ($info['timed_out']) {
+		} else if (!empty($info['timed_out'])) {
 			$description = translate('Communication with server timed out');
 
 			$valid = '0';
@@ -714,10 +639,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						?>
 						<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
 							<tr>
-								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('Found In') ?></th>
-
-								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('Linking To') ?></th>
-
+								<th colspan="2" class="sq-backend-table-header"><?php echo translate('Found In') ?></th>
+								<th colspan="2" class="sq-backend-table-header"><?php echo translate('Linking To') ?></th>
 								<th class="sq-backend-table-header"><?php echo translate('Comments'); ?></th>
 
 							</tr>
@@ -740,46 +663,30 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									$to_name = '';
 								} else {
 									$to_type = $to->type();
-									$to_name = (strlen($to->name) < 40) ? $to->name : ellipsisize($to->name, 40);
-									$to_string = '<span title="'.$to->name.'"> [#'.$to->id.'] '.$to_name.'</span>';
-									$to_bg = get_asset_status_icon($to->status);
-									$to_status = get_status_description($to->status);
+									$to_string = get_asset_tag_line($to->id, 'details');
+									$to_bg     = get_asset_status_icon($to->status);
 								}
 
 								?>
 								<tr>
 									<!-- ASSET STATUS -->
-									<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
-										<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
-									</td>
-
-									<!-- ASSET ICON -->
-									<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
-										<?php
+									<td class="sq-backend-table-cell" style="width: 42px; white-space: nowrap">
+										<?php echo $from_info['bg'];
 										if (!empty($from_info['type'])) {
-											?>
-											<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-												<?php echo get_asset_type_icon($from_info['type']); ?>
-											</span>
-											<?php
+											echo get_asset_type_icon($from_info['type']);
 										}
 										?>
 									</td>
 
 									<!-- ASSET NAME -->
-									<td class="sq-backend-table-cell" style="width: 260px; padding-right: 1px; padding-top:6px; text-align: left;">
-										<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('Edit this asset'); ?>">[#<?php echo  $from_info['assetid']; ?>] <?php echo	$from_name ?></a>
+									<td class="sq-backend-table-cell" style="width: 253px;">
+										<?php echo get_asset_tag_line($from_info['assetid'], 'details'); ?>
 
 									</td>
 
 									<!-- LINKED STATUS -->
-									<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
-											<?php echo $to_bg; ?><?php echo $to_status; ?>
-									</td>
-
-									<!-- LINKED ICON -->
-									<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
-										<?php
+									<td class="sq-backend-table-cell" style="width: 42px; white-space: nowrap">
+										<?php echo $to_bg;
 										if (!empty($to_type)) {
 											echo get_asset_type_icon($to_type);
 										}
@@ -787,18 +694,14 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									</td>
 
 									<!-- LINKED NAME -->
-									<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+									<td class="sq-backend-table-cell" style="width: 253px;">
 										<?php echo $to_string; ?>
 									</td>
 
 									<!-- COMMENT -->
 									<td class="sq-backend-table-cell">
 										<?php
-											if (!$link['valid']) {
-												echo '<span style="color: #007EFA;"><b>';
-											}
-										echo $link['description'];
-										if (!$link['valid']) echo '</b></span>';
+											echo $link['description'];
 										?>
 									</td>
 								</tr>
@@ -825,10 +728,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('Found In'); ?></th>
-
-								<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('URL'); ?></th>
-
+								<th colspan="2" class="sq-backend-table-header"><?php echo translate('Found In'); ?></th>
+								<th class="sq-backend-table-header" style="width: 312px;"><?php echo translate('URL'); ?></th>
 								<th class="sq-backend-table-header"><?php echo translate('Comments'); ?></th>
 
 							</tr>
@@ -836,50 +737,34 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						foreach ($reported_links['external'] as $assetid => $links) {
 							foreach ($links as $link) {
 								$from_info = $this->_getAssetReportInfo($assetid);
-								$from_name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
-
 								$name = (strlen($link['data']) < 50) ? $link['data'] : ellipsisize($link['data'], 50);
 								$to_string = '<a href="'.$link['data'].'" target="_blank" title="'.$link['data'].'">'.$name.'</a>';
 								?>
 								<tr>
 									<!-- ASSET STATUS -->
-									<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
-										<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
-									</td>
-
-									<!-- ASSET ICON -->
-									<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
-										<?php
+									<td class="sq-backend-table-cell" style="width: 42px; white-space: nowrap">
+										<?php echo $from_info['bg'];
 										if (!empty($from_info['type'])) {
-											?>
-											<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-												<?php echo get_asset_type_icon($from_info['type']); ?>
-											</span>
-											<?php
+											?><span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>"><?php
+												echo get_asset_type_icon($from_info['type']);
+											?></span><?php
 										}
 										?>
 									</td>
 
 									<!-- ASSET NAME -->
-									<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
-										<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('Edit this asset') ?>">[#<?php echo (int) $from_info['assetid']; ?>] <?php echo $from_name; ?></a>
-
-									</td>
+									<td class="sq-backend-table-cell" style="width: 253px;"><?php
+										echo get_asset_tag_line($from_info['assetid'], 'details');
+									?></td>
 
 									<!-- URL -->
-									<td class="sq-backend-table-cell" style="width: 226px; padding-right: 1px; padding-top:6px; text-align:left;">
+									<td class="sq-backend-table-cell" style="width: 312px;">
 										<?php echo $to_string; ?>
 									</td>
 
 									<!-- COMMENTs -->
 									<td class="sq-backend-table-cell">
-										<?php
-											if (!$link['valid']) {
-												echo '<span style="color: #007EFA;"><b>';
-											}
-										echo $link['description'];
-										if (!$link['valid']) echo '</b></span>';
-										?>
+										<?php echo $link['description']; ?>
 									</td>
 								</tr>
 								<?php
@@ -904,48 +789,36 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('Found In'); ?></th>
-
-								<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('Email'); ?></th>
-
+								<th colspan="2" class="sq-backend-table-header"><?php echo translate('Found In'); ?></th>
+								<th class="sq-backend-table-header" style="width: 312px;"><?php echo translate('Email'); ?></th>
 								<th class="sq-backend-table-header"><?php echo translate('Comments'); ?></th>
-
 							</tr>
 						<?php
 						foreach ($reported_links['mailto'] as $assetid => $links) {
 							foreach ($links as $link) {
 								$from_info = $this->_getAssetReportInfo($assetid);
 								$to_string = $link['data'];
-								$name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
 								?>
 								<tr>
 
 									<!-- ASSET STATUS -->
-									<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
-										<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
-									</td>
-
-									<!-- ASSET ICON -->
-									<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
-										<?php
+									<td class="sq-backend-table-cell" style="width: 42px; white-space: nowrap">
+										<?php echo $from_info['bg'];
 										if (!empty($from_info['type'])) {
-											?>
-											<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-												<?php echo get_asset_type_icon($from_info['type']); ?>
-											</span>
-											<?php
+											?><span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>"><?php
+												echo get_asset_type_icon($from_info['type']);
+											?></span><?php
 										}
 										?>
 									</td>
 
 									<!-- ASSET NAME -->
-									<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
-										<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('Edit this asset'); ?>">[#<?php echo (int) $from_info['assetid']; ?>] <?php echo $name; ?></a>
-
+									<td class="sq-backend-table-cell" style="width: 253px;">
+										<?php echo get_asset_tag_line($from_info['assetid'], 'details'); ?>
 									</td>
 
 									<!-- ADDRESS -->
-									<td class="sq-backend-table-cell" style="width: 226px; padding-right: 1px; padding-top:6px;">
+									<td class="sq-backend-table-cell" style="width: 312px;">
 										<?php echo $to_string; ?>
 									</td>
 
@@ -1065,8 +938,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	function paintDisplayOptions(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$tick = sq_web_path('lib').'/web/images/tick.gif';
-		$cross = sq_web_path('lib').'/web/images/cross.gif';
+		$tick = sq_web_path('lib').'/web/images/tick.png';
+		$cross = sq_web_path('lib').'/web/images/cross.png';
 		$current_settings = $asset->attr('display_options');
 
 		?>

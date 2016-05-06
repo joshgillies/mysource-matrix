@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<package>__core__</package>
+	<type_code>trigger_event_after_condition_approved</type_code>
+	<version>0.1</version>
+	<name>After Workflow Condition Approval</name>
+	<description>Trigger after a workflow step condition is approved</description>
+	<instantiable>no</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>trigger_event</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>trigger_manager</code>
+			<version>0.4</version>
+		</requirement>
+		<requirement type="asset">
+			<code>trigger_event</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path/>
+</asset_info>

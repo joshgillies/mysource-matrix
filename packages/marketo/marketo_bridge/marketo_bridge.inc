@@ -154,7 +154,7 @@ class Marketo_Bridge extends Page
 				}
 			    }
 			    
-			    $data = $this->syncLead($user_identifier, $post_attributes);
+			    $data = $this->syncLead($user_identifier, $post_attributes, $this->attr('get_lead'));
 			    
 			    break;
 		    }
@@ -232,11 +232,12 @@ class Marketo_Bridge extends Page
 	 * 
 	 * @param array	$user_identifier	the user identifier to pass as argument, normally it's marketo cookie
 	 * @param array	$post_attributes	attributes to sync
+	 * @param array $returnLeadRecord	return the updated lead
 	 * 
 	 * @return array
 	 * @access public
 	 */
-	public function syncLead ($user_identifier, $post_attributes=Array())
+	public function syncLead ($user_identifier, $post_attributes=Array(), $returnLeadRecord=FALSE)
 	{    
 	    // start performance timer
 	    $GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'sync lead');
@@ -256,8 +257,16 @@ class Marketo_Bridge extends Page
 		$new_data->timestamp = time();
 		$_SESSION['SQ_MARKETO_LEAD'] = $new_data;
 		
-		// delete the lead record in response for security
-		unset($data->result->leadRecord);
+		// when required to return the updated lead date, get lead with filtering on
+		if($returnLeadRecord) {
+			$leadRecord = $this->getLead($user_identifier, FALSE, TRUE);
+			if(isset($leadRecord->result->leadRecordList->leadRecord))
+				$data->result->leadRecord = $leadRecord->result->leadRecordList->leadRecord;
+		}
+		else {
+			// otherwise don't leak the data, destroy it
+			unset($data->result->leadRecord);
+		}
 	    }
 	    
 	    // stop performance timer
@@ -344,11 +353,22 @@ class Marketo_Bridge extends Page
 		$allowed_attributes_array[$index] = trim($attribute);
 	    }
 		
-	    foreach ($new_data->result->leadRecordList->leadRecord->leadAttributeList->attribute as  $index => $attribute) {
-		if(!in_array($attribute->attrName, $allowed_attributes_array)) {
-		    unset($new_data->result->leadRecordList->leadRecord->leadAttributeList->attribute[$index]);
+		if(is_array($new_data->result->leadRecordList->leadRecord))	{
+			foreach ($new_data->result->leadRecordList->leadRecord as $index  => $record) {
+				foreach ($record->leadAttributeList->attribute as $second_index => $attribute) {
+						if(!in_array($attribute->attrName, $allowed_attributes_array)) {
+						    unset($new_data->result->leadRecordList->leadRecord[$index]->leadAttributeList->attribute[$index]);
+						}
+				}
+			}
 		}
-	    }
+		else {
+		    foreach ($new_data->result->leadRecordList->leadRecord->leadAttributeList->attribute as  $index => $attribute) {
+			if(!in_array($attribute->attrName, $allowed_attributes_array)) {
+			    unset($new_data->result->leadRecordList->leadRecord->leadAttributeList->attribute[$index]);
+			}
+		    }
+		}
 	    return $new_data;
 	}//end _filterGetLeadAttributes()
 	

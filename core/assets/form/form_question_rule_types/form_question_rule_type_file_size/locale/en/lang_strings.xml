@@ -23,7 +23,7 @@
 <string source="core_form_rule_file_size_desc_&gt;=">File uploaded at question "%1$s" must be no smaller than %2$s</string>
 <string source="core_form_rule_file_size_edit_&lt;=">Uploaded file must be no larger than %s</string>
 <string source="core_form_rule_file_size_edit_&gt;=">Uploaded file must be no smaller than %s</string>
-<string source="core_form_rule_file_size_config_note">Please note that your PHP configuration specifies a maximum file upload size of <![CDATA[<b>%s</b>]]>. If you enter a larger value than this then be aware that the configuration setting will override it. MySource Matrix regards each KB as 1024 bytes, each MB as 1024 KB.</string>
+<string source="core_form_rule_file_size_config_note">Please note that your PHP configuration specifies a maximum file upload size of <![CDATA[<b>%s</b>]]>. If you enter a larger value than this then be aware that the configuration setting will override it. Squiz Matrix regards each KB as 1024 bytes, each MB as 1024 KB.</string>
 
 <string source="core_form_rule_file_size_desc_&lt;=_accessible">File uploaded must be no larger than %1$s.</string>
 <string source="core_form_rule_file_size_desc_&gt;=_accessible">File uploaded must be no smaller than %1$s.</string>

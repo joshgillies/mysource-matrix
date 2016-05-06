@@ -47,7 +47,7 @@ class Metadata_Field_Text_Management extends Asset_Management
 											'default'		=> FALSE,
 											'parameters'	=> Array('allow_empty' => FALSE),
 										   ),
-					  );
+							);
 
 		$this->vars['char_limit'] 	= Array(
 										'added'				=> '0.2',

@@ -17,9 +17,15 @@
 
 <contents>
 	<section name="Purge Assets In Trash" write_access="write:" show_if="purgeAccess">
-			<function_call>
-				<paint_function   name="paintPurgeTrash"   />
-				<process_function name="processPurgeTrash" />
-			</function_call>
+		<function_call>
+			<paint_function   name="paintPurgeTrash"   />
+			<process_function name="processPurgeTrash" />
+		</function_call>
+	</section>
+	<section name="Purge Trash Job Scheduling" write_access="write:" show_if="purgeAccess">
+		<function_call>
+			<paint_function   name="paintPurgeTrashScheduling"   />
+			<process_function name="processPurgeTrashScheduling" />
+		</function_call>
 	</section>
 </contents>

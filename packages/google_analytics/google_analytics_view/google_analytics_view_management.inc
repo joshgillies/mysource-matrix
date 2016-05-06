@@ -60,6 +60,34 @@ class Google_Analytics_View_Management extends Asset_Management
 									'is_admin'		=> FALSE,
 									'is_contextable'=> TRUE,
 								   ),
+						'refresh_period' => Array(
+									'added'			=> '0.2',
+									'type'			=> 'selection',
+									'default'		=> '0',
+									'description'	=> 'When the canned queries in this view are re-generated.',
+									'update_fn'		=> '',
+									'parameters'	=> Array(
+										'multiple'		=> FALSE,
+										'allow_empty'	=> FALSE,
+										'options'		=> Array(
+															'0'		=> translate('Do not update'),
+															'14400'	=> translate('Every 4 hours'),
+															'28800'	=> translate('Every 8 hours'),
+															'86400' => translate('Every 24 hours'),
+														   ),
+									   ),
+									'is_admin'		=> FALSE,
+									'is_contextable'=> FALSE,
+								   ),
+						'last_generated' => Array(
+									'added'			=> '0.2',
+									'type'			=> 'int',
+									'default'		=> NULL,
+									'description'	=> 'When the canned queries in this view were last generated.',
+									'update_fn'		=> '',
+									'is_admin'		=> FALSE,
+									'is_contextable'=> FALSE,
+								   ),
 					  );
 
 	}//end constructor

@@ -45,6 +45,38 @@ class Content_Type_Raw_HTML extends Content_Type
 	}//end constructor
 
 
+	/**
+	* Check that HTML content has the matching opening and closing div tags whening changing the content type to WYSIWYG
+	* HTML content with non-matchting div tags will conflict with Viper functionalities
+	*
+	* @param string $new_content_type
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function validateContent($new_content_type)
+	{
+		// Only relevant when changing content type to WYSIWYG
+		if ($new_content_type != 'content_type_wysiwyg') {
+			return TRUE;
+		}
+
+		$content = $this->attr('html');
+		preg_match_all('/<div[^>]*>/msi', $content, $matches);
+		$opening_div_tags = count($matches[0]);
+		preg_match_all('/<\/div>/msi', $content, $matches);
+		$closing_div_tags = count($matches[0]);
+
+		if ($opening_div_tags != $closing_div_tags) {
+			trigger_localised_error('CMS0123', translate('Cannot change content type to WYSIWYG. The HTML content must contain matching opening and closing "div" tags.'), E_USER_WARNING);
+			return FALSE;
+		}
+
+		return TRUE;
+
+    }//end validateContent()
+
+
 }//end class
 
 ?>

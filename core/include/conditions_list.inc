@@ -424,12 +424,16 @@ class Conditions_List
 				if(!($asset instanceof Paint_Layout_Bodycopy)) {
 					$o->openField(translate('Force No Cache').'?');
 
-					$force_no_cache = isset($parameters['force_no_cache']) ? $parameters['force_no_cache'] : TRUE;
-					$force_no_cache_text = $force_no_cache ? 'Yes' : 'No';
+					$force_no_cache = isset($parameters['force_no_cache']) ? $parameters['force_no_cache'] : '1';
+					$fnc_options    = Array(
+					 					'1' => translate('Yes'), 
+					 					'0' => translate('No'),
+					 				  );
+					
 					if ($write_access) {
-						combo_box($condition_prefix.'_force_no_cache', Array('1' => 'Yes', '0' => 'No'), FALSE, $force_no_cache);
+						combo_box($condition_prefix.'_force_no_cache', $fnc_options, FALSE, $force_no_cache);
 					} else {
-						echo $force_no_cache_text;
+						echo $fnc_options[$force_no_cache];
 					}
 					$o->closeField();
 				}

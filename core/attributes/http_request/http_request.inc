@@ -36,7 +36,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		'POST'   => 'POST',
 		'HEAD'   => 'HEAD',
 		'PUT'    => 'PUT',
-		'DELETE' => 'DELETE'
+		'DELETE' => 'DELETE',
+		'PATCH'  => 'PATCH'
 	);
 
 	private $_authentication_types = Array(
@@ -68,6 +69,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		'Shift_JIS' => 'Shift_JIS',
 		'EUC-JP' => 'EUC-JP',
 		'UTF-8' => 'UTF-8',
+		'UTF-16' => 'UTF-16',
 	);
 
 
@@ -78,6 +80,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 	private $_urls_to_request = Array(); // The URLs that need fetching. Some indexes may be blank.
 	private $_headers = Array(); // The latest reponse headers (cURL callback).
 	private $_last_header = FALSE; // Flag to deal with separating sets of headers when following redirects.
+	private $_owner = null; // The owner of this attribute. Can be used for keywords replacement
 
 
 	/**
@@ -262,7 +265,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						if ($read_only) {
 							echo htmlspecialchars($current_value['ssl_cert']);
 						} else {
-							text_box($prefix.'_ssl_cert', $current_value['ssl_cert'], 60);
+							text_box($prefix.'_ssl_cert', $current_value['ssl_cert'], 70);
 						}
 					?>
 				</td>
@@ -275,7 +278,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						if ($read_only) {
 							echo htmlspecialchars($current_value['ssl_key']);
 						} else {
-							text_box($prefix.'_ssl_key', $current_value['ssl_key'], 60);
+							text_box($prefix.'_ssl_key', $current_value['ssl_key'], 70);
 						}
 					?>
 				</td>
@@ -288,7 +291,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						if ($read_only) {
 							echo htmlspecialchars($current_value['ca_file']);
 						} else {
-							text_box($prefix.'_ca_file', $current_value['ca_file'], 60);
+							text_box($prefix.'_ca_file', $current_value['ca_file'], 70);
 						}
 					?>
 				</td>
@@ -349,7 +352,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 										<td>
 											<?php
-												password_box($prefix.'_http_auth_pass', $current_value['http_auth_options']['password'], '', '', 'autocomplete="off"');
+												password_box($prefix.'_http_auth_pass', '', '', '', 'autocomplete="off"');
 											?>
 										</td>
 									</tr>
@@ -410,13 +413,13 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					<?php
 					$hl = new Asset_Attribute_Option_List();
 					$hl->value = implode($hl->delimiter, $current_value['request_headers']);
-					$hl->setEditParam('width', '60');
+					$hl->setEditParam('width', '70');
 					$hl->paint($prefix.'_request_headers', $read_only);
 					?>
 				</td>
 			</tr>
 			<?php
-			if (($current_value['method'] == 'POST') || ($current_value['method'] == 'PUT')) {
+			if (($current_value['method'] == 'POST') || ($current_value['method'] == 'PUT') || ($current_value['method'] == 'PATCH')) {
 			?>
 			<tr>
 				<th><?php echo translate('Request Body'); ?></th>
@@ -586,7 +589,13 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$value['forward_user_keys'] = (isset($_REQUEST[$prefix.'_forward_user_keys'])) ? $_REQUEST[$prefix.'_forward_user_keys'] : FALSE;
 		$value['document_encoding'] = (isset($_REQUEST[$prefix.'_document_encoding'])) ? $_REQUEST[$prefix.'_document_encoding'] : 'Auto';
 		$value['http_auth_options']['username'] = (isset($_REQUEST[$prefix.'_http_auth_user'])) ? $_REQUEST[$prefix.'_http_auth_user'] : '';
-		$value['http_auth_options']['password'] = (isset($_REQUEST[$prefix.'_http_auth_pass'])) ? $_REQUEST[$prefix.'_http_auth_pass'] : '';
+		if(isset($_REQUEST[$prefix.'_http_auth_pass']) && !empty($_REQUEST[$prefix.'_http_auth_pass'])) {
+			$value['http_auth_options']['password'] = $_REQUEST[$prefix.'_http_auth_pass'];
+		}
+		else {
+			$old_value = @unserialize($this->value);
+			$value['http_auth_options']['password'] = isset($old_value['http_auth_options']['password']) ? $old_value['http_auth_options']['password'] : '';
+		}
 
 		$value['oauth_asset'] = (isset($_REQUEST[$prefix.'_oauth_asset'])) ? $_REQUEST[$prefix.'_oauth_asset'] : '';
 
@@ -610,6 +619,20 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$this->_keyword_replacements = $replacements;
 
 	}//end setKeywordReplacements()
+
+	/**
+	* Sets owner asset
+	*
+	* @param Object	$owner the owner of this attribute
+	*
+	* @return void
+	* @access public
+	*/
+	public function setOwnerAsset($owner)
+	{
+		$this->_owner = $owner;
+
+	}//end setOwnerAsset()
 
 
 	/**
@@ -649,11 +672,11 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		}
 
 		if (array_get_index($this->_config, 'append_get_vars', FALSE)) {
-			$query_vars = $collection_var = '';
+			$query_vars = $collection_var = Array();
 			$query_str_vars = explode('&', $_SERVER['QUERY_STRING']);
 			foreach ($query_str_vars as $index => $param) {
 				$exploded = explode('=', $param);
-				if (isset($exploded[0]) && isset($exploded[1])) $query_str_vars[$exploded[0]] = $exploded[1];
+				if (isset($exploded[0]) && isset($exploded[1])) $query_str_vars[urldecode($exploded[0])] = urldecode($exploded[1]);
 				$exploded = Array();
 				unset($query_str_vars[$index]);
 			}
@@ -671,16 +694,17 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 				// try to get the value from QUERY_STRING first or fallback on the _GET
 				$param = isset($query_str_vars[$index]) ? $query_str_vars[$index] : $param;
-				$param = str_replace(' ', '+', $param);
-				$param = str_replace('%20', '+', $param);
+
 				if ($index == 'collection') {
-					$collection_var .= $index.'='.$param;
+					$collection_var[$index] = $param;
 					continue;
 				}
-				$prefix = empty($query_vars) ? '' : '&';
-				$query_vars .= $prefix.$index.'='.$param;
-
+				$query_vars[$index] = $param;
 			}
+
+			// Convert the GET var data into URL encoded query string
+			$query_vars = !empty($query_vars) ? http_build_query($query_vars) : '';
+			$collection_var = !empty($collection_var) ? http_build_query($collection_var) : '';
 
 			if(!empty($query_vars) || !empty($collection_var)) {
 			    foreach ($this->_res['request']['urls'] as $index => $url) {
@@ -789,8 +813,11 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						case  'bearer':
 							$this->_res['request']['headers'][] = 'Authorization: Bearer '.$access_token;
 							break;
-					    	case  'oauth':
+					    case  'oauth':
 							$this->_res['request']['headers'][] = 'Authorization: Oauth '.$access_token;
+							break;
+						case  'sugar':
+							$this->_res['request']['headers'][] = 'OAuth-Token: '.$access_token;
 							break;
 
 						}
@@ -853,7 +880,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			$content_type = $content_type_info[0];
 
 			// look for encoding only when the content type is text/html
-			if (strcasecmp($content_type, 'text/html') == 0) {
+			if (strcasecmp($content_type, 'text/html') == 0 || strcasecmp($content_type, 'application/json') == 0) {
 				// if the encoding is set in the header, great! let's use it!
 				if (isset($content_type_info[1]) && substr(trim($content_type_info[1]), 0, strlen('charset='))  == 'charset=') {
 					$charset = substr(trim($content_type_info[1]), strlen('charset='));
@@ -883,6 +910,9 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 	{
 		if (strlen($text)) {
 			replace_keywords($text, $this->_keyword_replacements);
+			if(!empty($this->_owner)) {
+				$text = $this->_owner->replaceKeywordsInString($text);
+			}
 			replace_global_keywords($text);
 		}
 
@@ -979,10 +1009,14 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 	{
 	  	$ch	= curl_init();
 
-	  	// oauth requires a unique auth header for each url
+	  	// OAuth 1 requires a unique Authorization header for each URL, because the
+	  	// signature and nonce token changes each time. So take the headers we already
+	  	// have, and add one especially for this URL.
+	  	$this_request_headers = $this->_res['request']['headers'];
+
 	  	if (isset($this->_res['request']['oauth_headers'])) {
 	  		if (isset($this->_res['request']['oauth_headers'][$url])) {
-	  			$this->_res['request']['headers'][] = $this->_res['request']['oauth_headers'][$url];
+	  			$this_request_headers[] = $this->_res['request']['oauth_headers'][$url];
 	  		}
 	  	}
 
@@ -991,7 +1025,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->_config['follow_redirect']);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->_config['timeout']);
 		curl_setopt($ch, CURLOPT_HEADERFUNCTION, Array($this, '_readCurlHeaders'));
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_res['request']['headers']);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $this_request_headers);
 		if (isset($this->_config['enable_compression']) && $this->_config['enable_compression']) {
 			curl_setopt($ch, CURLOPT_ENCODING, "");
 		}
@@ -1051,6 +1085,10 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		case 'DELETE':
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
 			break;
+ 		case 'PATCH':
+ 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+ 			curl_setopt($ch, CURLOPT_POSTFIELDS, $this->_res['request']['body']);
+ 			break;
 		}
 
 		// Set authentication if required.
@@ -1093,6 +1131,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		}
 
 		// Run the curl requests in parallel
+		$error = Array();
 		$running = NULL;
 		do {
 				// curl_multi_exec returns immediately,
@@ -1100,6 +1139,11 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				// there is still work to be done so call it again
 		    do {
 			$status = curl_multi_exec($mh, $running);
+			while($done = curl_multi_info_read($mh)) {
+				if($done['result']) {
+					$error[(string) $done['handle']] = $done['result'];
+				}
+			}
 		    } while ($status === CURLM_CALL_MULTI_PERFORM);
 
 		    // If we're still running then call curl_multi_select
@@ -1127,6 +1171,13 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			// Display/log warning message if request failed
 			if ($response['body'] === FALSE) {
 				trigger_error("cURL request failed: '" . $this->_urls_to_request[$key]['url'] . "': " . curl_error($this->_urls_to_request[$key]['handle']), E_USER_WARNING);
+			}
+
+			// send error response and error code #Squizmap #7374
+			if(array_key_exists((string) $this->_urls_to_request[$key]['handle'], $error)) {
+				$response['error'] = curl_error($this->_urls_to_request[$key]['handle']);
+				$response['error_code'] = $error[(string) $this->_urls_to_request[$key]['handle']];
+				trigger_localised_error('REST0001', sprintf(translate("Curl Error: '" . $this->_urls_to_request[$key]['url'] . "': " . curl_error($this->_urls_to_request[$key]['handle']))), E_USER_WARNING);
 			}
 
 			// Clean up.

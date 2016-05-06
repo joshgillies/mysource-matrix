@@ -56,48 +56,27 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
 	*
 	* @param Backend_Outputter	$o	the Backend_Outputter class
-	* @param Boolean  $mute_errors 	mutes error reported , default is false hence will report all the errors
 	*
 	* @return void
 	* @access private
 	*/
-	protected function _saveCssIds(Backend_Outputter $o, $mute_errors = FALSE)
+	private function _showPreviewUrlNote(Backend_Outputter $o)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
 			$designid = $am->getValueFromURL($url, 'design::%frontend%', TRUE);
-
 			if ($designid) {
-				$design = $am->getAsset($designid, '', TRUE);
-				if(empty($design)) return;
-				$stylesheets = $design->getStylesheets();
-
-				// save the ids of all the css files into a global var so the wysiwyg style
-				// drop down plugin can access this information without another querey
-				// we can also limit the stylesheets that are available to it here if we want
-				$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
-
-				$am->forgetAsset($design);
-				unset($design);
-
 			} else {
-				if (!$mute_errors) {
-					$o->note(sprintf(translate('<b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b>%s</b>]. No style information is available to use for content editing.'), $GLOBALS['sq_preview_url']));
-
-				}
+				$o->note(sprintf(translate('<b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b>%s</b>]. No style information is available to use for content editing.'), $GLOBALS['sq_preview_url']));
 			}
 		} else {
-			if (!$mute_errors) {
-				$o->note(translate('<b>NOTE:</b> This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.'));
-
-			}
+			$o->note(translate('<b>NOTE:</b> This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.'));
 		}
 
-	}//end _saveCssIds()
+	}//end _showPreviewUrlNote()
 
 
 	/**
@@ -112,13 +91,16 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function paintBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('content');
 		// variable to determine whether or not to allow commit
 		$print_commit_button = $write_access;
 
-		// save css ids into global var
-		$this->_saveCssIds($o);
+		$this->_showPreviewUrlNote($o);
+
+		// Load the design attributes - stylesheet assetids and design styles
+		require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
+		Asset_Attribute_WYSIWYG::getDesignAttributes();
 
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
@@ -184,6 +166,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
 			$type_asset = new $type();
 			$edit_fns = $type_asset->getEditFns();
+			$GLOBALS['SQ_CURRENT_BODYCOPY_PREFIX'] = $prefix;
 			$edit_fns->paintGenericBackend($asset, $o, $prefix);
 		}
 
@@ -276,9 +259,28 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			</style>
 		<?php
 		}
+
+		// work out available div templates
+		$available_templates = $GLOBALS['SQ_SYSTEM']->am->getAvailableContainerTemplates($asset->id);
+		// Build condition JS if there are conditions to use.
+		$available_templates_js = '';
+		if (!empty($available_templates)) {
+			$available_templates_js = json_encode_array($available_templates);
+		}
+
+		// if there is available container templates
+		// the JS var is for the backend div property popup to consume
+		// the data attribute is for Edit+ div property popup
+		$data_string = '';
+		if(!empty($available_templates_js)) {
+				?><script language="JavaScript" type="text/javascript">bodycopy_available_templates = <?php echo $available_templates_js; ?>; </script><?php
+				$data_string = ' data-available-templates="'.htmlspecialchars($available_templates_js).'"'; 
+		}
+
+
 		?>
 
-		<table class="sq-edit-bodycopy-table bodytext">
+		<table class="sq-edit-bodycopy-table bodytext" <?php echo $data_string;?> >
 
 		<?php
 
@@ -296,6 +298,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				<tr>
 					<td>
 						<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
+						<input type="hidden" id="container_comments_<?php echo $container->id?>" name="container_comments_<?php echo $container->id?>" value="">
 						<table class="sq-edit-bodycopy-section sq-edit-bodycopy-insert-container-table">
 							<tr>
 								<?php
@@ -398,13 +401,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function processBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$updated = FALSE;
 
-		// save css ids into global var
-		// we dont want note to be displayed so we mute errors
-		$this->_saveCssIds($o,TRUE);
+		// Load the design attributes - stylesheet assetids and design styles
+		require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
+		Asset_Attribute_WYSIWYG::getDesignAttributes();
+
 
 		// do some thing for the first time we process a bodycopy on this page
 		if (empty($this->_tmp['update_initialised'])) {
@@ -533,6 +537,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$new_container->setAttrValue('name', 'New '.$type_name.' '.$new_container->id);
 			$new_container->saveAttributes();
 		}
+
+		// apply template if specified
+		$new_container_edit_fns = $new_container->getEditFns();
+		if(!empty($bc_data['attributes']['template']) && $bc_data['attributes']['template'] !== '--') {
+			$new_container_edit_fns->processTemplateNoticeLink($bc_data['attributes']['template'], $new_container);
+		}
+
 
 		// Tweaking this asset is under safe edit and has a workflow on it
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {

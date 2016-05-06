@@ -25,11 +25,6 @@
 				<process_function name="processKeywordInstructions" />
 			</function_call>
 		</field>
-		<field attribute="name">
-			<display_name>Field Name</display_name>
-			<note />
-			<text width="30" height="1" />
-		</field>
 		<field attribute="friendly_name">
 			<display_name>Friendly Name</display_name>
 			<note>Friendly Name will be used as the caption for metadata fields in the edit interface. If it is left empty, Field Name will be used instead.</note>

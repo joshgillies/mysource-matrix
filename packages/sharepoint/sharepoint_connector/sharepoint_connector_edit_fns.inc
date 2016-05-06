@@ -64,6 +64,7 @@ class Sharepoint_Connector_Edit_Fns extends Asset_Edit_Fns
 													'login'		=> $asset->attr('username'),
 													'password'	=> $asset->attr('password'),
 												   ),
+                            'method'            => $asset->attr('authentication_type'),
 						  );
 
 			$valid = FALSE;

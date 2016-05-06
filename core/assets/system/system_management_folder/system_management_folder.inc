@@ -211,8 +211,10 @@ class System_Management_Folder extends Folder
 				require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
 				$class = 'package_manager_core';
 			} else {
-				require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
-				$class = 'package_manager_'.$package;
+				if(is_file(SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc')) {
+					require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
+					$class = 'package_manager_'.$package;
+				}
 			}
 
 			eval('$sys_asset_types = '.$class.'::getSystemAssetTypes();');
@@ -257,6 +259,20 @@ class System_Management_Folder extends Folder
 
 	}//end writeAccess()
 
+	/**
+	* Provides extra checking and disable invalid status change on errors
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	* @param boolean	$run_updated	specify it we want to run _upated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
+	{
+		// left blank to overide processStatusChange
+	}//end processStatusChange()
 
 }//end class
 ?>

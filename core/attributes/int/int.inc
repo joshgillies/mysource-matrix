@@ -67,6 +67,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 
 		// set default edit parameters
 		$this->_edit_params['width']  = 0;
+		$this->_edit_params['empty_text'] = '';
 
 	}//end constructor
 
@@ -84,7 +85,9 @@ class Asset_Attribute_Int extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return FALSE;
 		$this->_edit_params['width']  = (int) $node->attributes()->width;
-
+		if (isset($node->attributes()->empty_text)) {
+			$this->_edit_params['empty_text'] = (string) $node->attributes()->empty_text;
+		}
 		return TRUE;
 
 	}//end setEditParams()
@@ -110,7 +113,11 @@ class Asset_Attribute_Int extends Asset_Attribute
 		}
 
 		if ($read_only) {
-			echo $this->value;
+			if ((empty($this->_edit_params['empty_text']) === FALSE) && ($this->value === '')) {
+				echo '<em>'.$this->_edit_params['empty_text'].'</em>';
+			} else {
+				echo $this->value;
+			}
 			return;
 		}
 

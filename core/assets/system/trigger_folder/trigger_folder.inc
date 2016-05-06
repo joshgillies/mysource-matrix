@@ -92,6 +92,26 @@ class Trigger_Folder extends Folder
 		return FALSE;
 
 	}//end canDelete()
+
+
+	/**
+	* Return TRUE if this link is deletable
+	* Checks for the shadow asset is deletable or not
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isDeletableLink($linkid) 
+	{
+		if (strpos($linkid, ':') === FALSE) {
+			return translate('You can\'t delete the folder. To delete the folder, delete all the triggers under this folder.');
+		}
+
+		return parent::isDeletableLink($linkid);
+
+	} //end isDeletableLink()
+
 	
 	
 	

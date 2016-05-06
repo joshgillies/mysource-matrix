@@ -169,7 +169,10 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			$section_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($section_id);
 			if (!empty($section_info)) {
 				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
-				$o->openSection(translate('cms_form_submission_answers_for_section',$section->name));
+				$o->openSection(sprintf(
+					translate('Answers for Section "%s"'),
+					$section->name
+				));
 				foreach ($section->attr('sort_order') as $q_id) {
 					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
 					if ($q->isEditable() && !$is_editable_q) {

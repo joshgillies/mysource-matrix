@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
     <package>web_services</package>
     <type_code>js_api</type_code>
-    <version>0.8</version>
+    <version>0.13</version>
     <name>Javascript API</name>
     <description>The API contains a number of functions which is exposed to allow external system to do operations in Matrix</description>
     <instantiable>yes</instantiable>

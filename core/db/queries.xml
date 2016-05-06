@@ -1741,6 +1741,14 @@
 					<field table="sq_trig" column="description" />
 					<field table="sq_trig" column="category" />
 					<field table="sq_trig" column="active" />
+					<field table="sq_trig" column="created" />
+					<field table="sq_trig" column="created_userid" />
+					<field table="sq_trig" column="updated" />
+					<field table="sq_trig" column="updated_userid" />
+					<field table="sq_trig" column="published" />
+					<field table="sq_trig" column="published_userid" />
+					<field table="sq_trig" column="status_changed" />
+					<field table="sq_trig" column="status_changed_userid" />
 				</fields>
 				<from>
 					<table>sq_trig</table>

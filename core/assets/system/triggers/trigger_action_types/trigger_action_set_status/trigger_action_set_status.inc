@@ -170,7 +170,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 				label(translate('Set status of dependent parents instead'), $prefix.'[dependant_parents]');
 
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.png" alt="'.($dependant_parents ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Set status of dependent parents instead');

@@ -103,6 +103,11 @@ class Form_Question_Type_Text_Management extends Asset_Management
 																			   ),
 														   ),
 									   ),
+						'placeholder'	=> Array(
+										'added'			=> '0.5',
+										'type'			=> 'text',
+										'default'		=> '',
+									   ),
 					  );
 
 	}//end constructor

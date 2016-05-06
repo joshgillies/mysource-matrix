@@ -171,10 +171,11 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE, FALSE);
 		foreach ($current_links as $link_data) {
 			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$section_access = $section->writeAccess('links');
 			if (is_null($section)) continue;
 
 			$o->openSection($section->name);
-				if ($write_access) {
+				if ($write_access && $section_access) {
 					$o->openField(translate('Delete?'));
 
 						check_box($prefix.'_delete_sections['.$link_data['linkid'].']');
@@ -183,7 +184,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 					$o->closeField();
 				}
 				$edit_fns = $section->getEditFns();
-				if (!$edit_fns->paintInlineOptionInterface($section, $o)) {
+				if (!$edit_fns->paintInlineOptionInterface($section, $o, $write_access)) {
 					return FALSE;
 				}
 			$o->closeSection();
@@ -341,11 +342,13 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	* @param array				&$tag_values	the metadata tag values
 	* @param array				&$keywords		an array we can put keywords in that need replacing
 	* @param string				$type_code		The type_code of the asset that the metadata is being printed
+	* @param boolean			$content_file   Whether the generated metadata will be included in a metadata content file
+	* @param array              &$mfield_types  Type of the metadata fields
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Schema $asset, Array &$values, Array &$tag_values, Array &$keywords, $type_code=NULL)
+	public function generateMetadata(Metadata_Schema $asset, Array &$values, Array &$tag_values, Array &$keywords, $type_code=NULL, $content_file=TRUE, &$mfield_types=Array())
 	{
 		$frontend_option = $asset->attr('frontend');
 
@@ -365,7 +368,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 			$edit_fns = $section->getEditFns();
 
-			if (!$edit_fns->generateMetadata($section, $values, $tag_values, $keywords, $type_code)) {
+			if (!$edit_fns->generateMetadata($section, $values, $tag_values, $keywords, $type_code, $content_file, $mfield_types)) {
 				ob_end_clean();
 				return FALSE;
 			}
@@ -514,7 +517,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 						</td>
 						<td class="sq-backend-table-cell">
-							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo $cascades_str; ?>" />
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.png" width="15" height="15" style="vertical-align: middle;" alt="<?php echo $cascades_str; ?>" />
 						</td>
 					</tr>
 					<?php

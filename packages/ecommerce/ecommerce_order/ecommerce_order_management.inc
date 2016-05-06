@@ -130,6 +130,13 @@ class Ecommerce_Order_Management extends Asset_Management
 													'default'		=> 0.0,
 													'description'	=> 'The grand total price of this Order asset',
 												   ),
+						'transaction_response'			=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The response raw data from payment transaction',
+													'is_admin'		=> FALSE,
+												   ),
 					  );
 
 	}//end constructor

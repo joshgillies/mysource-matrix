@@ -484,14 +484,63 @@ class JS_Api_Management extends Asset_Management
 																			'allow_empty'=> FALSE,
 																		   ),
 														),
-						'get_system_information'  	=> Array(
-														'added'			=> '0.8',
+						'get_ga_experiments'	   	=> Array(
+														'added'			=> '0.9',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
 																			'allow_empty'=> FALSE,
 																		   ),
 														),
+						'get_ga_goals'	   			=> Array(
+														'added'			=> '0.10',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'=> FALSE,
+																		   ),
+														),
+						'get_system_information'  	=> Array(
+														'added'			=> '0.9',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'=> FALSE,
+																		   ),
+														),
+						'validate_user'  			=> Array(
+														'added'			=> '0.11',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'=> FALSE,
+																		   ),
+														),
+						'get_indexing_contents'  	=> Array(
+														'added'			=> '0.11',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'=> FALSE,
+																		   ),
+														),
+						'set_permission'			=> Array(
+														'added'			=> '0.12',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+											 			),
+
+                        'morph_asset'			=> Array(
+                                                'added'			=> '0.13',
+                                                'type'			=> 'boolean',
+                                                'default'		=> FALSE,
+                                                'parameters'	=> Array(
+                                                                    'allow_empty'	=> FALSE,
+                                                                   ),
+                                                ),
 					  );
 
 	}//end constructor
@@ -585,9 +634,44 @@ class JS_Api_Management extends Asset_Management
 
 		}//end if - upgrade to version 0.3
 
-		if (version_compare($current_version, '0.4', '<')) {
 
-			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.4');
+
+
+
+		// A common way to add new attributes (including endpoints), as that's all
+		// that's been done since 0.4. :) They'll get set to FALSE by default.
+		$new_attributes = Array(
+			'get_locks_info'            => '0.4',
+			'get_keywords_replacements' => '0.4',
+			'set_asset_status'          => '0.4',
+			'get_web_path'              => '0.5',
+			'force_simple_edit'         => '0.5',
+			'get_workflow_schema'       => '0.5',
+			'set_file_contents'         => '0.6',
+			'import_assets'             => '0.6',
+			'get_ga_statistics'         => '0.7',
+			'get_system_information'    => '0.8',
+			'get_ga_experiments'        => '0.9',
+			'get_ga_goals'              => '0.10',
+			'validate_user'             => '0.11',
+			'get_indexing_contents'     => '0.11',
+		);
+
+		// Work out the latest version from the new attributesm and use that
+		// as the basis for jumping into the next upgrade block.
+		$latest_version = array_reduce($new_attributes, function($value, $carry) {
+			if ($carry === NULL) {
+				return $value;
+			} else if (version_compare($value, $carry, '>') === TRUE) {
+				return $value;
+			} else {
+				return $carry;
+			}
+		});
+
+		if (version_compare($current_version, $latest_version, '<')) {
+
+			pre_echo('STARTING JS API UPGRADE - FROM VERSION '.$current_version.' TO '.$latest_version);
 				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 
@@ -597,155 +681,27 @@ class JS_Api_Management extends Asset_Management
 					if (is_null($asset)) continue;
 
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.2'), $asset->name, $asset->id), E_USER_WARNING);
+						trigger_localised_error('CMS0025', sprintf(translate('JS API Upgrade [to %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', $latest_version), $asset->name, $asset->id), E_USER_WARNING);
 						return FALSE;
 					}
 
-
-					$asset->setAttrValue('get_locks_info', FALSE);
-
-					$asset->setAttrValue('get_keywords_replacements', FALSE);
-
-					$asset->setAttrValue('set_asset_status', FALSE);
+					foreach ($new_attributes as $attr => $version) {
+						if (version_compare($current_version, $version, '<') === TRUE) {
+							$asset->setAttrValue($attr, FALSE);
+						}
+					}
 
 					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.2'), E_USER_WARNING);
+						trigger_localised_error('CMS0026', sprintf(translate('JS API Upgrade [to %s] FAILED'), $latest_version), E_USER_WARNING);
 						return FALSE;
 					}
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
-				}
-			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.4');
+				}//end foreach
 
-		}//end if - upgrade to version 0.4
+			pre_echo('UPGRADE JS API COMPLETE - FROM VERSION '.$current_version.' TO '.$latest_version);
 
-		if (version_compare($current_version, '0.5', '<')) {
-
-			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.5');
-				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
-
-				pre_echo('Upgrading '.count($children).' assets...');
-				foreach ($children as $assetid => $type) {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->getAssetType());
-					if (is_null($asset)) continue;
-
-					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.5'), $asset->name, $asset->id), E_USER_WARNING);
-						return FALSE;
-					}
-
-
-					$asset->setAttrValue('get_web_path', FALSE);
-
-					$asset->setAttrValue('get_web_path', FALSE);
-
-					$asset->setAttrValue('force_simple_edit', FALSE);
-
-					$asset->setAttrValue('get_workflow_schema', FALSE);
-
-
-					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.5'), E_USER_WARNING);
-						return FALSE;
-					}
-
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
-				}
-			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.5');
-
-		}//end if - upgrade to version 0.5
-
-		if (version_compare($current_version, '0.6', '<')) {
-
-			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.6');
-				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
-
-				pre_echo('Upgrading '.count($children).' assets...');
-				foreach ($children as $assetid => $type) {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->getAssetType());
-					if (is_null($asset)) continue;
-
-					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.6'), $asset->name, $asset->id), E_USER_WARNING);
-						return FALSE;
-					}
-
-					$asset->setAttrValue('set_file_content', FALSE);
-
-					$asset->setAttrValue('import_assets', FALSE);
-
-					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.6'), E_USER_WARNING);
-						return FALSE;
-					}
-
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
-				}
-			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
-
-		}//end if - upgrade to version 0.6
-
-
-		if (version_compare($current_version, '0.7', '<')) {
-
-			pre_echo('STARTING JS API UPGRADE - FROM VERSION '.$current_version.' TO 0.7');
-				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
-
-				pre_echo('Upgrading '.count($children).' assets...');
-				foreach ($children as $assetid => $type) {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->getAssetType());
-					if (is_null($asset)) continue;
-
-					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.7'), $asset->name, $asset->id), E_USER_WARNING);
-						return FALSE;
-					}
-
-					$asset->setAttrValue('get_ga_statistics', FALSE);
-
-					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.7'), E_USER_WARNING);
-						return FALSE;
-					}
-
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
-				}
-			pre_echo('UPGRADE JS API COMPLETE - FROM VERSION '.$current_version.' TO 0.7');
-
-		}//end if - upgrade to version 0.7
-
-
-		if (version_compare($current_version, '0.8', '<')) {
-
-			pre_echo('STARTING JS API UPGRADE - FROM VERSION '.$current_version.' TO 0.8');
-				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
-
-				pre_echo('Upgrading '.count($children).' assets...');
-				foreach ($children as $assetid => $type) {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->getAssetType());
-					if (is_null($asset)) continue;
-
-					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', sprintf(translate('Asset Builder Upgrade [from %1$s] FAILED - Unable to Acquire Lock on "%2$s" (#%3$s)', '0.8'), $asset->name, $asset->id), E_USER_WARNING);
-						return FALSE;
-					}
-
-					$asset->setAttrValue('get_system_information', FALSE);
-
-					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', sprintf(translate('Asset Builder Upgrade [from %s] FAILED'), '0.8'), E_USER_WARNING);
-						return FALSE;
-					}
-
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
-				}
-			pre_echo('UPGRADE JS API COMPLETE - FROM VERSION '.$current_version.' TO 0.8');
-
-		}//end if - upgrade to version 0.8
+		}//end if - upgrade to version 0.x
 
 		return TRUE;
 

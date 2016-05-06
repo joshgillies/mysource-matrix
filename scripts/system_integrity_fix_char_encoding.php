@@ -98,7 +98,7 @@ if (function_exists('iconv') == FALSE) {
 //
 // NOTE 1: 	If the value field holds serialised value then script must handle that field accourdingly.
 //			Currently "custom_val" field of "ast_attr_val" table of attribute types 'option_list','email_format','parameter_map','serialise',
-//			'http_request' and 'oauth', and	"data" field of "trig" are only ones that are treated as serialsed values by this script.
+//			'http_request' and 'oauth', 'dynamic_file', and	"data" field of "trig" are only ones that are treated as serialsed values by this script.
 // NOTE 2:	There are two entries for 'internal_msg' table below because one targets the messages that are assoicated with an asset,
 // 			while other targets non-asset specific messages (message that has empty assetid field, like internal message sent by user or trigger action).
 //
@@ -412,6 +412,7 @@ function fix_db($root_node, $tables, $rollback)
 							'serialise',
 							'http_request',
 							'oauth',
+							'dynamic_file',
 						);
 
 	// Get the list of attrids of the type 'serialise'
@@ -502,7 +503,11 @@ function fix_db($root_node, $tables, $rollback)
 			$sql  = 'SELECT '.implode(',', $select_fields).' FROM '.$table;
 			// For non-asset specific table, "where" condition not is required. We get the whole table in a single go
 			if ($asste_specific_table) {
-				$sql .= ' WHERE assetid IN (\''.implode('\',\'', $assetids).'\')';
+				// Escape assetids with quotes (LDAP user assetid)
+				foreach($assetids as $index => $raw_assetid) {
+					$assetids[$index] = MatrixDAL::quote($raw_assetid);
+				}
+				$sql .= ' WHERE assetid IN ('.implode(',', $assetids).')';
 			} else if ($table == 'sq_internal_msg') {
 				// Special case for non-asset specific records for 'interal_msg' table
 				// Internal message has 'assetid' field but messages not associated with the asset will have empty assetid
@@ -591,8 +596,19 @@ function fix_db($root_node, $tables, $rollback)
 								log_error_msg($msg);
 
 							} else if (is_array($us_value)) {
-								array_walk_recursive($us_value, 'fix_char');
-								$converted_value = serialize($us_value);
+								$us_value = fix_array($us_value);
+								if (is_array($us_value)) {
+									$converted_value = serialize($us_value);
+								} else {
+									// This means the array could not be fixed without creating conflicting array keys
+									$errors_count++;
+									$msg = 'Serialsed data field "'.$value_field.'" in the table "'.$table.'" (';
+									foreach($key_values as $field_name => $value) {
+										$msg .= $field_name.'='.$value.'; ';
+									}
+									$msg = rtrim($msg, '; ').') cannot be converted due to resulting conflicting array keys in serialised data after char conversion.';
+									log_error_msg($msg);
+								}
 							} else if (is_scalar($us_value)) {
 								$us_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $us_value);
 								$converted_value = serialize($us_value);
@@ -740,18 +756,66 @@ function fix_db($root_node, $tables, $rollback)
 
 }//end fix_db()
 
+/**
+* Recursively fixes the chars in the given array
+* If the fixing array keys creates duplicate keys then it will return boolean FALSE
+*
+* @param $array
+*
+* @return array|boolean
+*/
+function fix_array($array) 
+{
+	if (!is_array($array)) {
+		return $array;
+	}
+
+	$fixed_array = Array();
+	foreach ($array as $key => $val) {
+		// Fix the array key
+		$key = fix_char($key);
+		if (isset($fixed_array[$key])) {
+			// This array cannot be fixed as the key string char conversion will create duplicate key
+			log_error_msg('Charset conversion on array key "'.$key.'" will create a duplicate array key');
+			return FALSE;
+		}
+
+		// Fix the array value
+		if (is_scalar($val)) {
+			$val = fix_char($val);
+		} else {
+			$val = fix_array($val);
+			if ($val === FALSE) {
+				return FALSE;
+			}
+		}
+
+		$fixed_array[$key] = $val;
+	}//end foreach()
+
+	return $fixed_array;
+
+}//end fix_array_char()
+
 
 /**
-* Callback function for array_walk_recursive()
-* to fix the chars in the serialised value
+* Fix the chars based on the encoding set in the given value
 *
 * @param $val	Array value
-* @param $key	Array key
 *
 * @return void
 */
-function fix_char(&$val, $key)
+function fix_char($val)
 {
+	// If the string data is serialised array data then fixed accourdingly
+	$array_val = @unserialize($val);
+	if (is_array($array_val)) {
+		$fixed_array = fix_array($array_val);
+		if ($fixed_array !== FALSE) {
+			return serialize($fixed_array);
+		}
+	}
+
 	if (is_string($val)) {
 		$check = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $val);
 		// If it requires converting
@@ -759,6 +823,8 @@ function fix_char(&$val, $key)
 			$val = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $val);
 		}
 	}
+	
+	return $val;
 
 }//end fix_char
 

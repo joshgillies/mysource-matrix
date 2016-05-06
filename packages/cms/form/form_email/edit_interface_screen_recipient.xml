@@ -37,6 +37,11 @@
 			</note>
 			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
+		<field attribute="recipient_email_attachments">
+			<display_name>Custom File Attachments</display_name>
+			<note />
+			<dynamic_file show_design_to_apply="1" show_dynamic_params="1" show_additional_get_params="1" />
+		</field>
 	</section>
 	<section name="Receipt Email Options" limbo_access="1">
 		<field>
@@ -56,6 +61,11 @@
 			&lt;/ul&gt;
 			</note>
 			<email_format with_asset_finder="1" show_inc_attachments="1" />
+		</field>
+		<field attribute="receipt_email_attachments">
+			<display_name>Custom File Attachments</display_name>
+			<note />
+			<dynamic_file show_design_to_apply="1" show_dynamic_params="1" show_additional_get_params="1" />
 		</field>
 	</section>
 	<section name="Send To A Friend Email Options" limbo_access="1">
@@ -78,6 +88,11 @@
 			&lt;/ul&gt;
 			</note>
 			<email_format with_asset_finder="1" show_inc_attachments="1" />
+		</field>
+		<field attribute="staf_email_attachments">
+			<display_name>Custom File Attachments</display_name>
+			<note />
+			<dynamic_file show_design_to_apply="1" show_dynamic_params="1" show_additional_get_params="1" />
 		</field>
 	</section>
 </contents>

@@ -38,7 +38,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * Forms
 * 	- user_details
-
+*
 * General notes
 * 	- "question pool": the group of question assets that can be used in the quiz,
 * 					   determined by the type, status and root-node preferences
@@ -492,7 +492,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 
 	/**
-	Called by the design to print the body of this asset
+	* Called by the design to print the body of this asset
 	*
 	* @return boolean
 	* @access public
@@ -816,8 +816,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end printFrontend()
-
-
+	
 	/**
 	* Constructs the carts contents
 	*
@@ -896,6 +895,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$user_details_form_questions = $user_details_form->getQuestions();
 
 				$user_details = $this->getUserDetails();
+				$user_details_raw = $this->getUserDetails(True);
 				$quiz_results = $this->getResults();
 				$question_results = $quiz_results['questions'];
 
@@ -903,7 +903,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				foreach ($user_details as $question_id => $user_response) {
 					$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
 					$submission_asset->setUserDetailsQuestion($question_id, $question_asset->getVal('title'));
-					$submission_asset->setUserDetailsAnswer($question_id, $user_response);
+					if($user_response === $user_details_raw[$question_id]){
+						$submission_asset->setUserDetailsAnswer($question_id, $user_response);
+					}else{
+						$submission_asset->setUserDetailsAnswer($question_id, $user_response.' - '.$user_details_raw[$question_id]);
+					}
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question_asset);
 				}
 
@@ -1144,9 +1148,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				// while we are at it, lets make space for the assets from asset_positions. and from here we can pick number of questions apart from compulsory listing ones
 				$num_questions = $num_questions - count($mandatory_listing_assets);
 
-				$random_asset_list_keys = array_rand($assets_to_list, $num_questions);
-				if ($num_questions == 1) {
-					$random_asset_list_keys = Array($random_asset_list_keys);
+				$keys = array_keys($assets_to_list);
+				shuffle($keys);
+				$random_asset_list_keys = Array();
+				foreach($keys as $key => $val) {
+					if ($key > ($num_questions-1)) break;
+					$random_asset_list_keys[$key] = $val; 
 				}
 
 				foreach($mandatory_listing_assets as $index => $info) {
@@ -1225,11 +1232,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				}
 
 				//randomising
-				$keys = array_rand($questions, count($questions));
-				if (!is_array($keys)) $keys = Array($keys);
+				$keys = array_keys($questions);
+				shuffle($keys);
 				$randomised_questions = Array();
 				foreach ($keys as $key){
 					$randomised_questions[$key] = $questions[$key];
+					unset($questions[$key]);
 				}
 
 				if ($grouped){
@@ -1365,34 +1373,39 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 	/**
 	* Returns whatever details we have on the current user
+	* @param boolean	$values	determins whether to get the summary or the value
+	*					True for the "raw" value, False for the summary
 	*
 	* @return array
 	* @access public
 	*/
-	function getUserDetails()
+	function getUserDetails($values = False)
 	{
 		$details = Array();
-		if (!empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['user_details'])) {
+		if (!$values && !empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['user_details'])) {
 			$details = $_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['user_details'];
+		} else if ($values && !empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['user_details_raw'])) {
+			$details = $_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['user_details_raw'];
 		}
 
 		return $details;
 
 	}//end getUserDetails()
 
-
 	/**
 	* Sets the details we have of the user for later use
 	*
-	* @param array	$details	user details in the format: Array('assetid:questionid' => 'Answer Summary')
+	* @param array	$summary	user details in the format: Array('assetid:questionid' => 'Answer Summary')
+	* @param array	$raw_values	user details in the format: Array('assetid:questionid' => 'Answer Value')
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setUserDetails($details)
+	function setUserDetails($summary, $raw_values)
 	{
-		if (is_array($details)) {
-			$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['user_details'] = $details;
+		if (is_array($summary) && is_array($raw_values)) {
+			$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['user_details'] = $summary;
+			$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['user_details_raw'] = $raw_values;
 			return TRUE;
 		}
 
@@ -1428,7 +1441,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					// check to see if we need to process
 					if (array_get_index($_REQUEST, $this->id.'_formid') && $form->process()) {
 						// process, then let through to the rest of the function to print the questions, etc.
-						$this->setUserDetails($form->getAnswerSummaries());
+						// gets the summaries for the user details form questions
+						$summary = $form->getAnswerSummaries();
+						// gets the "raw" values for the user details form questions
+						$raw_values = $form->getAnswerValues();
+						$this->setUserDetails($summary, $raw_values);
 					} else {
 						// either not processed or details missing, so display the form again and bail out
 						$this->_tmp['form_errors'] = $form->getErrors();
@@ -1439,7 +1456,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				}
 			}
 		}
-
 		return TRUE;
 
 	}//end handleUserDetailsCollection()
@@ -2270,7 +2286,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$questions = $form->getQuestions(TRUE);
 			foreach ($questions as $assetid => $question_details) {
 				list($bridgeid, $shadowid) = explode(':', $assetid);
-				$keywords['user_details_form_'.$bridgeid.'-'.$shadowid] = 'Form Field: #'.$assetid.' ('.$question_details['name'].')';
+				$keywords['user_details_form_'.$bridgeid.'-'.$shadowid] = 'User Details Form Field: #'.$assetid.' ('.$question_details['name'].')';
+				$keywords['user_details_form_'.$bridgeid.'-'.$shadowid.'_raw'] = 'User Details Form Raw Value: #'.$assetid.' ('.$question_details['name'].')';
 			}
 		}
 
@@ -2352,9 +2369,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$format_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
 
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
-			$keywords = $format_bodycopy->getKeywords();
+			$content_keywords = $format_bodycopy->getKeywords();
 
-			if (!in_array('asset_listing', $keywords)) {
+			if (!in_array('asset_listing', $content_keywords)) {
 				$form = $this->getForm();
 				if (!is_null($form)) {
 					$questions = $form->getQuestions(TRUE);
@@ -2362,6 +2379,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			}
 		}
 
+		$keywords = Array();
 		// Obtain the available keywords for a quiz question
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('online_quiz_question');
 		$question = new Online_Quiz_Question();
@@ -2467,6 +2485,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getKeywordReplacement($keyword)
 	{
+
 		if (empty($keyword)) return '';
 
 		$keyword = parse_keyword($keyword, $modifiers);
@@ -2489,12 +2508,21 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// check the keyword against the dynamic keywords
 		// in this case - user details:
-
 		if (preg_match('/^(user_details_form)_([0-9]*-q[0-9]*)$/', $keyword, $matches)) {
 			if (isset($matches[1]) && isset($matches[2])) {
 				// arg = question assetid
 				$arg          = str_replace('-', ':', $matches[2]);
 				$keyword_stem = $matches[1];
+			}
+		}
+
+		// check the keyword against the dynamic keywords
+		// in this case - user details raw values:
+		if (preg_match('/^(user_details_form)_([0-9]*-q[0-9]*)_(raw)$/', $keyword, $matches)) {
+			if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
+				// arg = question assetid
+				$arg          = str_replace('-', ':', $matches[2]);
+				$keyword_stem = $matches[1].'_'.$matches[3];
 			}
 		}
 
@@ -2520,7 +2548,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 				// Grab the question keyword
 				if (!empty($keyword_stem) && !empty($asset_id) && !empty($attr)) {
-					return $this->getQuestionKeywordReplacement($asset_id, $attr);
+					$replacement = $this->getQuestionKeywordReplacement($asset_id, $attr);
+					apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+					return $replacement;
 				}
 			}
 		}
@@ -2532,10 +2562,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$keyword_stem = $matches[1];
 				$asset_id     = $matches[2];
 				$attr         = $matches[3];
-
 				// Grab the question result (answers etc.) keyword
 				if (!empty($keyword_stem) && !empty($asset_id) && !empty($attr)) {
-					return $this->getQuestionResultKeywordReplacement($asset_id, $attr);
+					$replacement = $this->getQuestionResultKeywordReplacement($asset_id, $attr);
+					apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+					return $replacement;
 				}
 			}
 		}
@@ -2549,7 +2580,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 				// Grab the question result (answers etc.) keyword
 				if (!empty($keyword_stem) && !empty($asset_id) && !empty($attr)) {
-					return $this->getQuestionGroupResultKeywordReplacement($asset_id, $attr);
+					$replacement = $this->getQuestionResultKeywordReplacement($asset_id, $attr);
+					apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+					return $replacement;
 				}
 			}
 		}
@@ -2715,7 +2748,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getUserDetailsFormKeywordReplacement($questionid)
 	{
-		$user_details = $this->getUserDetails();
+		$user_details = $this->getUserDetails(False);
 		$return = '';
 		if (!empty($user_details)) {
 			$return = array_get_index($user_details, $questionid, '');
@@ -2724,6 +2757,27 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return $return;
 
 	}//end getUserDetailsFormKeywordReplacement()
+
+	/**
+	* Returns the keyword replacements for any 'user_details_form_[##-q##]_raw' keywords
+	* (replaces keywords with the value attribute of the the form field not the summary)
+	*
+	* @param string	$questionid	the form question to get the answer from
+	*
+	* @return array
+	* @access public
+	*/
+	public function getUserDetailsFormRawKeywordReplacement($questionid)
+	{
+		$user_details = $this->getUserDetails(True);
+		$return = '';
+		if (!empty($user_details)) {
+			$return = array_get_index($user_details, $questionid, '');
+		}
+
+		return $return;
+
+	}//end getUserDetailsFormRawKeywordReplacement()
 
 
 	/**

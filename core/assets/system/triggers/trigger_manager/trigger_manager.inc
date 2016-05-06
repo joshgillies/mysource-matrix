@@ -247,11 +247,12 @@ class Trigger_Manager extends Asset implements Bridge
 				// attempt to get trigger asset
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger');
 				$asset = new Trigger($this->id, $id);
+				
 				//set up status and display name
 				$asset->short_name = ($asset->vars['active']['value'] == '1') ? $asset->vars['name']['value'] : $asset->vars['name']['value'].' (disabled)';
 				$asset->name = ($asset->vars['active']['value'] == '1') ? $asset->vars['name']['value'] : $asset->vars['name']['value'].' (disabled)';
 				$asset->status = ($asset->vars['active']['value'] == '1') ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
-
+				
 				// if no id, this trigger is bodge
 				if (empty($asset->id)) $asset = NULL;
 			}
@@ -723,16 +724,26 @@ class Trigger_Manager extends Asset implements Bridge
 				$trigger_info = $this->_loadTrigger($id_part);
 				if (empty($trigger_info)) continue;
 
-				$info_array[$id]['assetid']		= $id;
-				$info_array[$id]['name']		= $trigger_info['name'];
-				$info_array[$id]['short_name']	= $trigger_info['active'] ? $trigger_info['name'] : $trigger_info['name'].' (disabled)';
-				$info_array[$id]['version']		= $this->version;
-				$info_array[$id]['status']		= $this->status;
-				$info_array[$id]['type_code']	= 'trigger';
-				$info_array[$id]['num_kids']	= 0;
-				$info_array[$id]['accessible']	= 1;
-				$info_array[$id]['url']			= '';
-				$info_array[$id]['web_path']	= '';
+				$info_array[$id]['assetid']             = $id;
+				$info_array[$id]['name']                = $trigger_info['name'];
+				$info_array[$id]['short_name']          = $trigger_info['active'] ? $trigger_info['name'] : $trigger_info['name'].' (disabled)';
+				$info_array[$id]['version']             = $this->version;
+				$info_array[$id]['status']              = $this->status;
+				$info_array[$id]['type_code']           = 'trigger';
+				$info_array[$id]['num_kids']            = 0;
+				$info_array[$id]['accessible']          = 1;
+				$info_array[$id]['url']                 = '';
+				$info_array[$id]['web_path']            = '';
+
+				//user info
+				$info_array[$id]['created']             	= $trigger_info['created'];
+				$info_array[$id]['created_userid']      	= $trigger_info['created_userid'];
+				$info_array[$id]['updated']             	= $trigger_info['updated'];
+				$info_array[$id]['updated_userid']      	= $trigger_info['updated_userid'];
+				$info_array[$id]['published']          		= $trigger_info['published'];
+				$info_array[$id]['published_userid']    	= $trigger_info['published_userid'];
+				$info_array[$id]['status_changed']      	= $trigger_info['status_changed'];
+				$info_array[$id]['status_changed_userid']	= $trigger_info['status_changed_userid'];
 
 				if (!empty($field)) {
 					$info_array[$id] = array_get_index($info_array[$id], $field);
@@ -754,6 +765,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 			}//end else
 		}//end foreach
+		
 		return $info_array;
 
 	}//end getAssetInfo()
@@ -762,17 +774,54 @@ class Trigger_Manager extends Asset implements Bridge
 	/**
 	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
 	*
-	* Note that this will always return FALSE if you pass it a shadow asset
+	* Only returns assets that exist underneath this bridge. If a single asset ID is passed
+	* assetExists() will return true/false. If an array, returns an array of the assets that
+	* do exist.
 	*
-	* @param mixed	$assetids	the ID of the asset we are going to the check for existence
-	*							or an array of assetids we want to check
+	* @param mixed	$assetids	the ID(s) of the asset(s) we're testing for existence
 	*
 	* @return mixed boolean|array
 	* @access public
 	*/
 	function assetExists($assetids)
 	{
-		return FALSE;
+		$return_array = TRUE;
+		$exists       = Array();
+
+		// If straight assetid passed, change it to an array so we can
+		// handle both passed arguments the same way
+		if (is_array($assetids) === FALSE) {
+			$assetids     = Array($assetids);
+			$return_array = FALSE;
+		}
+
+		foreach ($assetids as $assetid) {
+			if ((string)$assetid === (string)$this->id) {
+				// That's us!
+				$exists[] = $assetid;
+			} else if (strpos($assetid, ':') !== FALSE) {
+				$id_parts = explode(':', $assetid, 2);
+				// Only return shadow assets beneath us.
+				if ((string)$id_parts[0] === (string)$this->id) {
+					$trigger = $this->_loadTrigger($id_parts[1]);
+					if (empty($trigger) === FALSE) {
+						$exists[] = $assetid;
+					}
+				}
+			}
+		}//end foreach
+
+		// If we were passed a straight assetid, change ther result back to
+		// true or false depending on whether that assetid existed.
+		if ($return_array === FALSE) {
+			if (empty($exists) === TRUE) {
+				$exists = FALSE;
+			} else {
+				$exists = TRUE;
+			}
+		}//end if
+
+		return $exists;
 
 	}//end assetExists()
 
@@ -989,7 +1038,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 
 		// delete folder, that is deleting all triggers under this folder, not permitted
-		trigger_localised_error('SYS0069', sprintf(translate('%s can not have its last significant link removed'), $trigger_id), E_USER_WARNING);
+		trigger_localised_error('SYS0069', sprintf(translate('%1$s can not be deleted. To delete this %2$s, delete all the triggers under this %3$s'), $trigger_id, $trigger_id, $trigger_id), E_USER_WARNING);
 
 		return FALSE;
 
@@ -1101,10 +1150,9 @@ class Trigger_Manager extends Asset implements Bridge
 			$trigger = $this->_loadTrigger($trigger_id);
 			// Timer!
 			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, $trigger['name']);
-			$status  = $this->_executeTrigger($trigger['data'], $state);
+			$status  = $this->_executeTrigger($trigger, $state);
 			// End timer
 			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, $trigger['name']);
-
 
 			// get settings
 			$trigger_settings =& $trigger['data']['settings'];
@@ -1130,20 +1178,23 @@ class Trigger_Manager extends Asset implements Bridge
 					} else {
 						trigger_localised_error('CORE0127', sprintf(translate('FAILURE: Trigger "%2$s" (Trigger# %1$s), Event "%3$s" broadcast by "%5$s" (Id# %4$s)'), $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name), E_USER_WARNING);
 					}
-
+					$msg_type    = 'trigger.failure_log';
+					$msg_subject = translate('Trigger Execution Failure');
+					$msg_body    = translate('FAILURE')."\n".
+					                translate('Trigger "%trigger_name%" (#%triggerid%), Event: "%event%" broadcast by Asset: "%asset_name%" (#%assetid%))');
 				break;
 
 				case SQ_TRIG_RESULT_SUCCESS:
-					$msg_type    = 'trigger.success';
-					$msg_subject = 'Trigger Execution Success';
+					$msg_type    = 'trigger.success_log';
+					$msg_subject = translate('Trigger Execution Success');
 					$msg_body    = translate('SUCCESS')."\n".
 					                translate('Trigger "%trigger_name%" (#%triggerid%), Event: "%event%" broadcast by Asset: "%asset_name%" (#%assetid%))');
 
 				break;
 
 				case SQ_TRIG_RESULT_INVALID:
-					$msg_type    = 'trigger.invalid';
-					$msg_subject = 'Trigger Execution FAILURE';
+					$msg_type    = 'trigger.invalid_log';
+					$msg_subject = translate('Trigger Execution FAILURE');
 					$msg_body    = translate('INVALID (Trigger components could not be loaded)')."\n".
 					                translate('Trigger "%trigger_name%" (#%triggerid%), Event: "%event%" broadcast by Asset: "%asset_name%" (#%assetid%))');
 				break;
@@ -1156,12 +1207,30 @@ class Trigger_Manager extends Asset implements Bridge
 				// log message using messaging service
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
+				// Trigger Status Log
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 				$message->subject = $msg_subject;
 				$message->body    = $msg_body;
+				$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+				$message->send();
+
+				// Trigger Event Log
+				$msg_type    = 'trigger.event_log';
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = $msg_subject;
+				$message->body    = $msg_body;
+				$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
 				$message->send();
 			}
-
+			
+			// Check if there are any actions we need to run after the trigger action has successfully completed Squizmap #5759
+			if (SQ_TRIG_RESULT_SUCCESS) {
+				foreach ($trigger['data']['actions'] as $action) {
+					if (method_exists($action['type'], 'afterTriggerActionComplete') && is_callable(Array($action['type'], 'afterTriggerActionComplete'))) {
+						call_user_func(Array($action['type'], 'afterTriggerActionComplete'));
+					}
+				}//end foreach
+			}//end if
 		}//end foreach
 
 		// clear out the record of running triggers
@@ -1488,8 +1557,10 @@ class Trigger_Manager extends Asset implements Bridge
 	* @return boolean
 	* @access private
 	*/
-	function _executeTrigger($trigger_data, &$state_data)
+	function _executeTrigger($trigger, &$state_data)
 	{
+		$trigger_data = $trigger['data'];
+
 		$status = SQ_TRIG_RESULT_SUCCESS;
 
 
@@ -1818,6 +1889,11 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function _saveTrigger($trigger)
 	{//TODO TOF: write unit tests
+
+		// open a queue for all messages we are going to be logging
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+		
 		// triggers do not work in ROLLBACK mode
 		if (SQ_ROLLBACK_VIEW) return TRUE;
 		if (empty($trigger)) return FALSE;
@@ -1839,7 +1915,6 @@ class Trigger_Manager extends Asset implements Bridge
 			}
 
 			if ($new) {
-
 				$sql = 'INSERT INTO
 							sq_trig
 							(
@@ -1848,7 +1923,13 @@ class Trigger_Manager extends Asset implements Bridge
 								active,
 								description,
 								category,
-								name
+								name,
+								created,
+								created_userid,
+								updated,
+								updated_userid,
+								status_changed,
+								status_changed_userid
 							)
 							VALUES
 							(
@@ -1857,7 +1938,13 @@ class Trigger_Manager extends Asset implements Bridge
 								:active,
 								:description,
 								:category,
-								:name
+								:name,
+								:created,
+								:created_userid,
+								:updated,
+								:updated_userid,
+								:status_changed,
+								:status_changed_userid
 							)';
 
 				$prepared = MatrixDAL::preparePdoQuery($sql);
@@ -1867,18 +1954,159 @@ class Trigger_Manager extends Asset implements Bridge
 				MatrixDAL::bindValueToPdo($prepared, 'description', $trigger['description']);
 				MatrixDAL::bindValueToPdo($prepared, 'category', $trigger['category']);
 				MatrixDAL::bindValueToPdo($prepared, 'name', $trigger['name']);
+				
+				// added user info to triger assets
+				MatrixDAL::bindValueToPdo($prepared, 'created', $trigger['created']);
+				MatrixDAL::bindValueToPdo($prepared, 'created_userid', $trigger['created_userid']);
+				MatrixDAL::bindValueToPdo($prepared, 'updated', $trigger['updated']);
+				MatrixDAL::bindValueToPdo($prepared, 'updated_userid', $trigger['updated_userid']);
+				MatrixDAL::bindValueToPdo($prepared, 'status_changed', $trigger['status_changed']);
+				MatrixDAL::bindValueToPdo($prepared, 'status_changed_userid', $trigger['status_changed_userid']);
 				$result = MatrixDAL::execPdoQuery($prepared);
 
+				// Add log details
+				$msg_reps = Array(
+								'type_code'		=> 'Trigger',
+								'asset_name'	=> $trigger['name'],
+							);
+				
+				$msg_type = 'trigger';
+				$msg_body = sprintf(translate('New %1$s "%2$s #%3$s" has been created'), $msg_reps['type_code'], $msg_reps['asset_name'], $this->id.':'.$trigger['id']);
+
+				$msg_subject = translate('Trigger Created');
+
+				$trigger_assetid = Array(
+											$this->id,
+											$this->id.':'.$trigger['id'],
+										);
+
+				foreach ($trigger_assetid as $id) {
+					$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+					$message->subject = $msg_subject;
+					$message->body    = $msg_body;
+					$message->parameters['assetid'] = $id;
+					$ms->logMessage($message);
+				}
+
+				// Log message for update of Trigger name
+				$msg_type = 'trigger.details_settings';
+				$msg_body = sprintf(translate('The %1$s "%2$s" was successfully named "%3$s"'), $msg_reps['type_code'], $msg_reps['asset_name'], $trigger['name']);
+				$subject = translate('Trigger Details Changed');
+
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = $subject;
+				$message->body    = $msg_body;
+				$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+				$ms->logMessage($message);
+
+				// Log message for update of Trigger descripton
+				$msg_body = sprintf(translate('The %1$s "%2$s" description was successfully added "%3$s"'), $msg_reps['type_code'], $msg_reps['asset_name'], $trigger['description']);
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = $subject;
+				$message->body    = $msg_body;
+				$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+				$ms->logMessage($message);
+
+				// Log message for update of Trigger status
+				$msg_body = sprintf(translate('The %1$s "%2$s" status was successfully set "%3$s"'), $msg_reps['type_code'], $msg_reps['asset_name'], $trigger['active']);
+
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = $subject;
+				$message->body    = $msg_body;
+				$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+				$ms->logMessage($message);
+
+				// Log message for update of Trigger category
+				$msg_body = sprintf(translate('The %1$s "%2$s" category successfully set to "%3$s"'), $msg_reps['type_code'], $msg_reps['asset_name'], $trigger['category']);
+
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->subject = $subject;
+				$message->body    = $msg_body;
+				$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+				$ms->logMessage($message);
+
+				// Log messages for update of Trigger data
+				if(array_key_exists('events', $trigger['data'])){
+					//checks the events on the trigger to see if they have been added
+					$msg_type = 'trigger.events_settings';
+					$msg_body = sprintf(translate('%1$s has been added'), serialize($trigger['data']['events']));
+					$subject = translate('Trigger Events Updated');
+
+					$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+					$message->subject = $subject;
+					$message->body    = $msg_body;
+					$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+					$ms->logMessage($message);
+				}
+
+				if(array_key_exists('conditions', $trigger['data'])){
+					//checks the conditions on the trigger to see if they have been added
+					$msg_type = 'trigger.conditions_settings';
+					$msg_body = sprintf(translate('%1$s has been added'), serialize($trigger['data']['conditions']));
+					$subject = translate('Trigger Conditions Updated');
+
+					$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+					$message->subject = $subject;
+					$message->body    = $msg_body;
+					$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+					$ms->logMessage($message);
+				}
+
+				if(array_key_exists('actions', $trigger['data'])){
+					//checks the actions on the trigger to see if they have been added
+					$msg_type = 'trigger.actions_settings';
+					$trigger_action_data = serialize($trigger['data']['actions']);
+					// filter out those serialised attribute that has "password" in it
+					$trigger_action_data = mask_password_in_serialized_string($trigger_action_data);
+					$msg_body = sprintf(translate('%1$s has been added'), $trigger_action_data);
+					$subject = translate('Trigger Actions Updated');
+
+					$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+					$message->subject = $subject;
+					$message->body    = $msg_body;
+					$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+					$ms->logMessage($message);
+				}
+
+				if(array_key_exists('settings', $trigger['data'])){
+					//check if the settings have been updated
+					$msg_type = 'trigger.details_settings';
+					$msg_body = sprintf(translate('Trigger settings blocking has been set: "%1$s"'), $trigger['data']['settings']['blocking']);
+					$subject = translate('Trigger Settings Updated');
+
+					$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+					$message->subject = $subject;
+					$message->body    = $msg_body;
+					$message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+					$ms->logMessage($message);
+				}
+
 			} else {
+				//old and new trigger vars
+				$old_trigger_vars = $this->getTrigger($trigger['id']);
+				$new_trigger_vars = $trigger;
+				
+				//unset the array variables we dont need in $new_trigger_vars
+				unset($new_trigger_vars['id']);
+				unset($new_trigger_vars['created']);
+				unset($new_trigger_vars['created_userid']);
+				unset($new_trigger_vars['updated']);
+				unset($new_trigger_vars['updated_userid']);
+				unset($new_trigger_vars['published']);
+				unset($new_trigger_vars['published_userid']);
+				unset($new_trigger_vars['status_changed']);
+				unset($new_trigger_vars['status_changed_userid']);
 
 				$sql = 'UPDATE
 							sq_trig
 						SET
-							data		= :data,
-							active		= :active,
-							description	= :description,
-							category	= :category,
-							name		= :name
+							data					= :data,
+							active					= :active,
+							description				= :description,
+							category				= :category,
+							name					= :name,
+							updated					= :updated,
+							updated_userid			= :updated_userid
 						WHERE
 						id = :id';
 
@@ -1889,7 +2117,267 @@ class Trigger_Manager extends Asset implements Bridge
 				MatrixDAL::bindValueToPdo($prepared, 'description', $trigger['description']);
 				MatrixDAL::bindValueToPdo($prepared, 'category', $trigger['category']);
 				MatrixDAL::bindValueToPdo($prepared, 'name', $trigger['name']);
+				
+				//user info on trigger assets
+				MatrixDAL::bindValueToPdo($prepared, 'updated', $trigger['updated']);
+				MatrixDAL::bindValueToPdo($prepared, 'updated_userid', $trigger['updated_userid']);
 				$result = MatrixDAL::execPdoQuery($prepared);
+
+				// Update the published user details on the trigger
+				if($trigger['active']){
+					$sql = 'UPDATE
+							sq_trig
+						SET
+							published			= :published,
+							published_userid	= :published_userid
+						WHERE
+						id = :id';
+						
+						$prepared = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($prepared, 'id', $trigger['id']);
+						MatrixDAL::bindValueToPdo($prepared, 'published', $trigger['published']);
+						MatrixDAL::bindValueToPdo($prepared, 'published_userid', $trigger['published_userid']);
+						$result = MatrixDAL::execPdoQuery($prepared);
+				}
+
+				// has the status been changed?
+				if ($trigger['active'] !== $old_trigger_vars['active']) {
+					$sql = 'UPDATE
+								sq_trig
+							SET
+								status_changed 			= :status_changed,
+								status_changed_userid 	= :status_changed_userid
+							WHERE
+								id = :id';
+
+					$prepared = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($prepared, 'id', $trigger['id']);
+					MatrixDAL::bindValueToPdo($prepared, 'status_changed', $trigger['status_changed']);
+					MatrixDAL::bindValueToPdo($prepared, 'status_changed_userid', $trigger['status_changed_userid']);
+					$result = MatrixDAL::execPdoQuery($prepared);
+				}
+
+				//do the logging of the updates
+				foreach (array_keys($new_trigger_vars) as $key) {
+					if((array_key_exists($key, $old_trigger_vars)) && ($new_trigger_vars[$key] !== $old_trigger_vars[$key])){
+						// Add log details
+						$msg_reps = Array(
+										'type_code'		=> 'Trigger',
+										'asset_name'	=> $old_trigger_vars['name'],
+									);
+						
+						switch ($key) {
+							case 'name':
+								// Log message for update of Trigger name
+								$msg_type = 'trigger.details_settings';
+								$msg_body = sprintf(translate('The %1$s "%2$s" was successfully renamed to "%3$s"'), $msg_reps['type_code'], $msg_reps['asset_name'], $new_trigger_vars['name']);
+								$subject = translate('Trigger Details Changed');
+								break; //end name
+
+							case 'description':
+								// Log message for update of Trigger descripton
+								$msg_type = 'trigger.details_settings';
+								$msg_body = sprintf(translate('The %1$s "%2$s" was successfully description was successfully changed from " "%3$s" to "%4$s"'), $msg_reps['type_code'], $msg_reps['asset_name'], $old_trigger_vars['description'], $new_trigger_vars['description']);
+								$subject = translate('Trigger Details Changed');
+								break; //end description
+
+							case 'active':
+								// Log message for update of Trigger status
+								$msg_type = 'trigger.details_settings';
+								$msg_body = sprintf(translate('The %1$s "%2$s" status was successfully changed from "%3$s" to "%4$s"'), $msg_reps['type_code'], $msg_reps['asset_name'], $old_trigger_vars['active'], $new_trigger_vars['active']);
+								$subject = translate('Trigger Details Changed');
+								break; //end active
+
+							case 'category':
+								// Log message for update of Trigger category
+								$msg_type = 'trigger.details_settings';
+								$msg_body = sprintf(translate('The %1$s "%2$s" category was was successfully changed from "%3$s" to "%4$s"'), $msg_reps['type_code'], $msg_reps['asset_name'], $old_trigger_vars['category'], $new_trigger_vars['category']);
+								$subject = translate('Trigger Details Changed');
+								break; //end category
+
+							case 'data':
+								// Log messages for update of Trigger data
+								//checks the events on the trigger to see if they have been added or removed
+								if($new_trigger_vars[$key]['events'] !== $old_trigger_vars[$key]['events']){
+									$msg_type = 'trigger.events_settings';
+
+									$subject = translate('Trigger Events Updated');
+									//for added loop through the new_trigger_vars
+									foreach (array_keys($new_trigger_vars[$key]['events']) as $event) {
+										//check if its not in the old_trigger_vars
+										if(!array_key_exists($event, $old_trigger_vars[$key]['events']) && array_key_exists($event, $new_trigger_vars[$key]['events'])){
+
+											$temp_str = str_replace('_', ' ', $new_trigger_vars[$key]['events'][$event]);
+											$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+											$trigger_message->subject = $subject;
+											$msg_body = sprintf(translate('%1$s has been added'), $temp_str);
+											$trigger_message->body    = $msg_body;
+											$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+											$ms->logMessage($trigger_message);
+										}
+									}
+									//for removed loop through the old_trigger_vars
+									foreach (array_keys($old_trigger_vars[$key]['events']) as $event) {
+										//check if its in the old_trigger_vars and not the new_trigger_vars
+										if(!array_key_exists($event, $new_trigger_vars[$key]['events']) && array_key_exists($event, $old_trigger_vars[$key]['events'])){
+											
+											$temp_str = str_replace('_', ' ', $old_trigger_vars[$key]['events'][$event]);
+
+											$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+											$trigger_message->subject = $subject;
+											$msg_body = sprintf(translate('%1$s has been removed'), $temp_str);
+											$trigger_message->body    = $msg_body;
+											$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+											$ms->logMessage($trigger_message);
+										}
+									}
+								} // end if for ['data']['events']
+
+								//checks the conditions on the trigger to see if they have been updated, added or removed
+								if($new_trigger_vars[$key]['conditions'] !== $old_trigger_vars[$key]['conditions']){
+									$msg_type = 'trigger.conditions_settings';
+									
+									$subject = translate('Trigger Conditions Updated');
+									//for updated and added loop through the new_trigger_vars
+									foreach (array_keys($new_trigger_vars[$key]['conditions']) as $condition) {
+										//check if its not in the old_trigger_vars
+										if(!array_key_exists($condition, $old_trigger_vars[$key]['conditions'])){
+											$temp_str = str_replace('_', ' ', $new_trigger_vars[$key]['conditions'][$condition]['type']);
+											
+											$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+											$trigger_message->subject = $subject;
+											$msg_body = sprintf(translate('%1$s has been added'), $temp_str);
+											$trigger_message->body    = $msg_body;
+											$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+											$ms->logMessage($trigger_message);
+										} elseif(serialize($condition) !== serialize($old_trigger_vars[$key]['conditions'][$condition])){
+											//check if the values in the old and new trigger aren't the same if they aren't then
+											//the trigger has been updated, log the update
+											$temp_str = str_replace('_', ' ', $new_trigger_vars[$key]['conditions'][$condition]['type']);
+											
+											$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+											$trigger_message->subject = $subject;
+											$msg_body = sprintf(translate('%1$s has been updated from "%2$s" to "%3$s"'), $temp_str, serialize($old_trigger_vars[$key]['conditions'][$condition]),serialize($condition));
+											$trigger_message->body    = $msg_body;
+											$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+											$ms->logMessage($trigger_message);
+										}
+									}
+									//for removed loop through the old_trigger_vars
+									foreach (array_keys($old_trigger_vars[$key]['conditions']) as $condition) {
+										if(!array_key_exists($condition, $new_trigger_vars[$key]['conditions']) && array_key_exists($condition, $old_trigger_vars[$key]['conditions'])){
+											//check if its in the old_trigger_vars and not the new_trigger_vars
+											$temp_str = str_replace('_', ' ', $old_trigger_vars[$key]['conditions'][$condition]['type']);
+											
+											$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+											$trigger_message->subject = $subject;
+											
+											$msg_body = sprintf(translate('%1$s has been removed'), $temp_str);
+											$trigger_message->body    = $msg_body;
+											$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+											$ms->logMessage($trigger_message);
+										}
+									}
+								} // end if for ['data']['conditions']
+
+								//checks the actions on the trigger to see if they have been updated, added or removed
+								if($new_trigger_vars[$key]['actions'] !== $old_trigger_vars[$key]['actions']){
+									$msg_type = 'trigger.actions_settings';
+									$subject = translate('Trigger Actions Updated');
+
+									//for updated and added loop through the new_trigger_vars
+									foreach (array_keys($new_trigger_vars[$key]['actions']) as $action) {
+										//check if its not in the old_trigger_vars
+										if(!array_key_exists($action, $old_trigger_vars[$key]['actions'])){
+											$temp_str = str_replace('_', ' ', $new_trigger_vars[$key]['actions'][$action]['type']);
+											
+											$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+											$trigger_message->subject = $subject;
+
+											$msg_body = sprintf(translate('%1$s has been added'), $temp_str);
+											$trigger_message->body    = $msg_body;
+											$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+											$ms->logMessage($trigger_message);
+										} elseif(serialize($action) !== serialize($old_trigger_vars[$key]['actions'][$action])){
+											//check if the values in the old and new trigger aren't the same if they aren't then
+											//the trigger has been updated, log the update
+											$temp_str = str_replace('_', ' ', $new_trigger_vars[$key]['actions'][$action]['type']);
+											
+											$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+											$trigger_message->subject = $subject;
+
+											// filter out those serialised attribute that has "password" in it
+											$old_trigger_action_data = mask_password_in_serialized_string(serialize($old_trigger_vars[$key]['actions'][$action]));
+											$new_trigger_action_data = mask_password_in_serialized_string(serialize($new_trigger_vars[$key]['actions'][$action]));
+
+											$msg_body = sprintf(translate('%1$s has been updated from "%2$s" to "%3$s"'), $temp_str, $old_trigger_action_data, $new_trigger_action_data);
+											$trigger_message->body    = $msg_body;
+											$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+											$ms->logMessage($trigger_message);
+										}
+									}
+									//for removed loop through the old_trigger_vars
+									foreach (array_keys($old_trigger_vars[$key]['actions']) as $action) {
+										//check if its in the old_trigger_vars and not the new_trigger_vars
+										if(!array_key_exists($action, $new_trigger_vars[$key]['actions']) && array_key_exists($action, $old_trigger_vars[$key]['actions'])){
+											
+											$temp_str = str_replace('_', ' ', $old_trigger_vars[$key]['actions'][$action]['type']);
+											
+											$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+											$trigger_message->subject = $subject;
+
+											$msg_body = sprintf(translate('%1$s has been removed'), $temp_str);
+											$trigger_message->body    = $msg_body;
+											$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+											$ms->logMessage($trigger_message);
+										}
+									}
+								} // end if for ['data']['actions']
+
+								//check if the settings have been updated
+								if(array_key_exists('settings', $new_trigger_vars[$key])){
+									$msg_type = 'trigger.details_settings';
+									$subject = translate('Trigger Settings Updated');
+
+									$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+									$trigger_message->subject = $subject;
+
+									$msg_body = sprintf(translate('Trigger settings blocking has been set to: "%1$s"'), $new_trigger_vars[$key]['settings']['blocking']);
+									$trigger_message->body    = $msg_body;
+									$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+									$ms->logMessage($trigger_message);
+								} elseif(!array_key_exists('settings', $new_trigger_vars[$key])){
+									$msg_type = 'trigger.details_settings';
+									$subject = translate('Trigger Settings Updated');
+
+									$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+									$trigger_message->subject = $subject;
+
+									$msg_body = translate('Trigger settings blocking has been unset');
+									$trigger_message->body    = $msg_body;
+									$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+									$ms->logMessage($trigger_message);
+								} // end if for ['data']['settings']
+								break; // end data
+
+							default:
+								$msg_type = 'trigger.details_settings';
+
+								$subject = translate('Trigger Updated');
+								$msg_body = sprintf(translate('The %1$s "%2$s #%3$s" has been updated'), $msg_reps['type_code'], $msg_reps['asset_name'],$this->id.':'.$trigger['id']);
+								$subject = translate('Trigger Updated');
+								break; // end default
+						}
+						
+						if($key !== 'data'){
+							$trigger_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+							$trigger_message->subject = $subject;
+							$trigger_message->body    = $msg_body;
+							$trigger_message->parameters['assetid'] = $this->id.':'.$trigger['id'];
+							$ms->logMessage($trigger_message);
+						}
+					}
+				}
 			}
 
 			$this->_deleteTriggerHash($trigger['id']);
@@ -1934,8 +2422,10 @@ class Trigger_Manager extends Asset implements Bridge
 			if ($status) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				$ms->closeLog();
 				return $trigger['id'];
 			} else {
+				$ms->abortLog();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -1947,7 +2437,6 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 
 	}//end _saveTrigger()
-
 
 	/**
 	* Saves the trigger hash in the database
@@ -2064,6 +2553,9 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function _deleteTrigger($trigger_id)
 	{
+		//Get Trigger details for log
+		$trigger = $this->getTrigger($trigger_id);
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -2078,6 +2570,30 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 
 		$success = $this->_deleteTriggerHash($trigger_id);
+		
+		if($success){
+			// open a queue for all messages we are going to be logging
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms->openLog();
+
+
+
+			// Add log details
+			$msg_reps = Array(
+				'type_code'		=> 'Trigger',
+				'asset_name'	=> $this->name,
+			);
+			$msg_type = 'trigger';
+			$msg_body = sprintf(translate('Deleted %1$s "%2$s #%3$s"'), $msg_reps['type_code'], $trigger['name'],$this->id.':'.$trigger['id']);
+			$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+			$message->subject = translate('Trigger Deleted');
+			$message->body    = $msg_body;
+			$message->parameters['assetid'] = $this->id;
+			$ms->logMessage($message);
+
+			$ms->closeLog();
+		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -2280,7 +2796,15 @@ class Trigger_Manager extends Asset implements Bridge
 						data,
 						description,
 						active,
-						category
+						category,
+						created,
+						created_userid,
+						updated,
+						updated_userid,
+						published,
+						published_userid,
+						status_changed,
+						status_changed_userid
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'trig';
 
@@ -2338,7 +2862,13 @@ class Trigger_Manager extends Asset implements Bridge
 							name,
 							description,
 							category,
-							active
+							active,
+							created,
+							created_userid,
+							updated,
+							updated_userid,
+							published,
+							published_userid
 						FROM
 							'.SQ_TABLE_RUNNING_PREFIX.'trig';
 
@@ -2513,6 +3043,39 @@ class Trigger_Manager extends Asset implements Bridge
 
 	}//end _isEventListenedFor()
 
+
+	/**
+	* Return TRUE if this link is deletable
+	* Checks for the shadow asset is deletable or not
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isDeletableLink($linkid) 
+	{
+		if (strpos($linkid, ':') === FALSE) {
+			return translate('You can\'t delete the folder. To delete the folder, delete all the triggers under this folder.');
+		}
+
+		return parent::isDeletableLink($linkid);
+
+	} //end isDeletableLink()
+
+	/**
+	* Provides extra checking and disable invalid status change on errors
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	* @param boolean	$run_updated	specify it we want to run _upated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
+	{
+		// left blank to overide processStatusChange
+	}//end processStatusChange()
 
 }//end class
 

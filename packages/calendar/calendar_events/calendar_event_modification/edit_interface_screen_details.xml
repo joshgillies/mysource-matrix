@@ -19,7 +19,6 @@
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field>
 			<display_name>Recurring Event to Modify</display_name>
-			<note>This is the event you are adding a modification to an instance of</note>
 			<function_call>
 				<paint_function	  name="paintRecurringEventChooser" />
 				<process_function name="processRecurringEventChooser" />

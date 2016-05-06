@@ -59,7 +59,7 @@ class Asset_Map
 
 		<table style="height: 100%; width: 100%;">
 			<tr>
-				<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 7px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+				<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 7px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
 			</tr>
 			<tr>
 				<td style="height: 100%; width: 100%;" valign="top">
@@ -89,9 +89,9 @@ class Asset_Map
 			return $assetid1;
 		}
 
-		$lineages1 = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid1);
+		$lineages1 = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid1, 0, NULL, 'name', TRUE);
 
-		$lineages2 = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid2);
+		$lineages2 = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid2, 0, NULL, 'name', TRUE);
 
 		if (empty($lineages1) && !empty($lineages2)) {
 			return $assetid2;
@@ -451,7 +451,7 @@ class Asset_Map
 					if (!empty($first_lineage)) {
 						$lineage_assetids = array_keys($first_lineage['lineage']);
 						$lineage_assetids[] = $common_parentid;
-						$rootlineage = get_asset_lineage_sort_order($lineage_assetids);
+						$rootlineage = get_asset_lineage_sort_order($lineage_assetids, FALSE);
 
 						// Initial Lineage Selection will be disabled if the Root Node is set for the user
 						// Simply asset map does not work for this option
@@ -470,10 +470,8 @@ class Asset_Map
 				}
 
 				$js_width = $width;
-				if ($type !== 'simple') {
-					// Make room for tabs in the JS asset map.
-					$js_width -= 18;
-				}
+				// Make room for tabs in the JS asset map.
+				$tabs_width = $type !== 'simple' ? 18 : 0;
 
 				$rootlinParts = explode('~', $rootlineage, 2);
 				$rootlineage  = explode('|', $rootlinParts[0]);
@@ -499,9 +497,18 @@ class Asset_Map
 						if (supported === false) {
 							alert('Your browser is not supported. Asset map requires IE8+ / Chrome / Firefox / Safari to run.');
 						} else {
+							var asset_map_width = <?php echo $js_width ?>-<?php echo $tabs_width; ?>;
+							if (!<?php echo var_export(SQ_IN_LIMBO); ?>) {
+								// If the asset map has been resized, get width from the browser preference
+								var pref_js_width = BrowserUserPref.load('<?php echo str_replace("'", "\'", $GLOBALS['SQ_SYSTEM']->currentUserId()); ?>').getUserPref('asset_map_width');
+								if (pref_js_width !== undefined) {
+									asset_map_width = pref_js_width-<?php echo $tabs_width; ?>;
+								}
+							}
+
 							var asset_map_container = document.createElement('div');
 							asset_map_container.id  = 'asset_map_container';
-							asset_map_container.style.width  = <?php echo $js_width ?> + 'px';
+							asset_map_container.style.width  = asset_map_width + 'px';
 							asset_map_container.style.height = <?php echo $height ?> + 'px';
 							document.getElementById('asset_map').appendChild(asset_map_container);
 							JS_Asset_Map.<?php echo $startCmd ?>({
@@ -569,7 +576,7 @@ class Asset_Map
 	function _error($code, $message)
 	{
 		$output = simplexml_load_string('<xml></xml>');
-		$responses = $output->addChild('error', $message + ' [' + $code + ']');
+		$responses = $output->addChild('error', $message . ' [' . $code . ']');
 		/* XML output
 			<?xml version="1.0"?>
 			<error>Unable to Move Asset, Link #64 not found [AMAP0032]</error>
@@ -1055,7 +1062,13 @@ class Asset_Map
 		}//end else shadow asset
 
 		// replace 'name' with the configured display name
-		$attrs['name'] = urlencode($this->_convertCharset($this->_getAssetDisplayName($attrs)));
+		if(isset($asset) && is_array($asset) && isset($asset['accessible'])) {
+			$attrs['name']	= urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
+		}
+		else {
+			$attrs['name'] = translate('Restricted asset');
+			$attrs['short_name'] = translate('Restricted asset');
+		}
 		if (isset($attrs['short_name'])) {
 			$attrs['short_name'] = urlencode($this->_convertCharset($attrs['short_name']));
 		}
@@ -1494,8 +1507,12 @@ class Asset_Map
 						'web_path'		=> urlencode($asset['path']),
 						'is_dependant'	=> $asset['is_dependant'],
 					 );
-
-			$attrs['name']	= urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
+			if($asset['accessible']) {
+				$attrs['name']	= urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
+			}
+			else {
+				$attrs['name'] = translate('Restricted asset');
+			}
 			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 
 			$tmp_node = $root->addChild('asset');
@@ -1590,6 +1607,7 @@ class Asset_Map
 			$assetid = (string) $tmp_info['assetid'];
 			$linkid  = (string) $tmp_info['linkid'];
 			$start   = (integer) array_get_index($tmp_info, 'start', 0);
+			$centred = (integer) array_get_index($tmp_info, 'centred', 0);
 			$limit   = (integer) array_get_index($tmp_info, 'limit', SQ_CONF_ASSET_MAP_ASSET_LIMIT);
 			if (empty($assetid)) continue;
 
@@ -1616,6 +1634,13 @@ class Asset_Map
 
 			// get the information about the asset
 			$info = $this->_getAssetInfo($assetid, $linkid);
+
+			// Now we have a number of children, we can handle centring when
+			// finding a sort order (this being primarily for Edit+ handling)
+			if ((array_key_exists('sortorder', $tmp_info) === TRUE) && ($centred === 1) && ($real_order !== FALSE)) {
+				$start = max(0, min($info['num_kids'] - $limit, floor($real_order - (0.5 * ($limit - 1)))));
+			}
+			$info['start'] = $start;
 
 			// Place in done array, so we don't double up
 			$done[$assetid] = Array(
@@ -1717,7 +1742,7 @@ class Asset_Map
 				}
 
 				// check for plain write access, don't check for lock because locking happens in Asset::create()
-				if (!$parent->writeAccess('')) {
+				if (!$parent->writeAccess('', Array(), FALSE)) {
 					$this->_error('AMAP0012', translate('Cannot create link, no write access found, permission denied'));
 					return;
 				}
@@ -2345,7 +2370,7 @@ class Asset_Map
 		$vars = Array(
 					'assets'			=> $assets,
 					'to_parent_assetid'	=> $new_parent->id,
-					'to_parent_pos'		=> ((int)$input->attributes()->to_parent_pos)+1,
+					'to_parent_pos'		=> ((int)$input->attributes()->to_parent_pos),
 				);
 
 		$hh->queueHipo('hipo_job_clone_assets', $vars);

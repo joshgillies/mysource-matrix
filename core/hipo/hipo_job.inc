@@ -682,12 +682,15 @@ class HIPO_Job extends MySource_Object
 					}
 
 					require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
-
+					// those parent groups are cached in session, we need to pass it on to squiz server to put them back in forked process
+					$current_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+					$parent_groups = $current_user->getUserGroups();
 					$data = Array(
 								'command'			=> 'alive',
 								'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
 								'source_code_name'	=> $this->source_code_name,
 								'taskid'			=> $this->_hipo_vars['server_taskid'],
+								'userparentgroups'	=> serialize($parent_groups),
 							);
 
 					$alive = FALSE;
@@ -1188,11 +1191,14 @@ class HIPO_Job extends MySource_Object
 				case 'server' :
 
 					require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
-
+					// those parent groups are cached in session, we need to pass it on to squiz server to put them back in forked process
+					$current_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+					$parent_groups = $current_user->getUserGroups();
 					$data = Array(
 								'command'			=> 'start',
 								'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
 								'source_code_name'	=> $this->source_code_name,
+								'userparentgroups'	=> serialize($parent_groups),
 							);
 
 					$ret_val = FALSE;
@@ -1563,7 +1569,7 @@ class HIPO_Job extends MySource_Object
 							</tr>
 						<?php
 							foreach ($this->_hipo_vars['errors'] as $error) {
-								$err_type = ($error['Warning']) ? translate('Warning') : translate('Error');
+								$err_type = isset($error['warning']) && $error['warning'] ? translate('Warning') : translate('Error');
 
 
 								$err_type_lowercase = strtolower($err_type);

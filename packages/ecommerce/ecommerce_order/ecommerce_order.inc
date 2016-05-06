@@ -119,11 +119,12 @@ class Ecommerce_Order extends Asset
 	*
 	* @param $name	name of attribute
 	* @param $value	value of attribute
+	* @param boolean $filter whether to filter the value content.
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	function setAttrValue($name, $value, $filter=NULL)
 	{
 		switch ($name) {
 			case 'products':
@@ -136,7 +137,7 @@ class Ecommerce_Order extends Asset
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			break;
 		}
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $filter);
 
 	}//end setAttrValue()
 
@@ -452,7 +453,19 @@ class Ecommerce_Order extends Asset
 	*/
 	function getOrderGrandTotalKeywordReplacement()
 	{
-		return $this->attr('order_grand_total');
+		$order_xml = trim($this->attr('order_xml'));
+		if (!empty($order_xml)) {
+			//Prior to the commit 'c6011db', the asset attribute values were stored without being encoded
+			$xml_string = strpos($order_xml, '&lt;') === 0 ? htmlspecialchars_decode($this->attr('order_xml'), ENT_QUOTES) : $order_xml;
+
+			$xml_obj = @new SimpleXMLElement($xml_string);
+			if ($xml_obj) {
+				$grand_total = isset($xml_obj->cart->grand_total) ? $xml_obj->cart->grand_total : '';
+				return $grand_total;
+			}
+		}
+
+		return '';
 
 	}//end getCheckoutAssetidKeywordReplacement()
 

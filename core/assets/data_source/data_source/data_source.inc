@@ -191,6 +191,15 @@ class Data_Source extends Asset implements Bridge
 	*/
 	public function cacheResultSet(Array $result, $cache_key='')
 	{
+		$previous_cache_key = isset($this->tmp['cache_key']) ? $this->tmp['cache_key'] : FALSE;
+		if ($previous_cache_key !== FALSE && $previous_cache_key == $cache_key) {
+			// If the cache key has not changed, the data source record sets does not need updating
+			return;
+		}
+
+		// Track the cache key value
+		$this->tmp['cache_key'] = $cache_key;
+
 		if (!empty($cache_key)) {
 			$this->setAttrValue('cache_key', $cache_key);
 		}

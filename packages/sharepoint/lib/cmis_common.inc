@@ -15,6 +15,7 @@
 */
 
 require_once 'Mail/mimeDecode.php';
+require_once SQ_FUDGE_PATH.'/ntlm/ntlm_soap_client.inc';
 
 /**
 * CMIS_Common
@@ -128,16 +129,41 @@ class CMIS_Common
 			}
 		    }
 		}
-		$params['location'] = $location;
+		if(isset($location))
+			$params['location'] = $location;
 		
 		// Make sure the pointer is open
 		if ($this->ptr) $this->ptr=NULL;
+
+		try {
+			$method = array_get_index($conn_info, 'method', 'HTTP_BASIC');
+			if($method == 'NTLM') {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('NTLM_SOAP_USERNAME', $conn_info['username']);
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('NTLM_SOAP_PASSWORD', $conn_info['password']);
+				stream_wrapper_unregister('http');
+				stream_wrapper_unregister('https');
+				stream_wrapper_register('http', 'NTLMStream') or die ("Failed to register NTLM protocol.\n");
+				stream_wrapper_register('https', 'NTLMStream') or die ("Failed to register NTLM protocol.\n");
+				$this->ptr = new NTLMSoapClient($wsdl, $params);
+				stream_wrapper_restore('http'); 
+				stream_wrapper_restore('https');
+			}
+			else {
+				$this->ptr = new SoapClient($wsdl, $params);
+			}
+
+		}
+		catch (SoapFault $e) {
+			if (strpos($e->getMessage(), 'looks like we got no XML document') === FALSE) {
+				trigger_error("Failed to connect to CMIS ".$conn_info['service_name'].": ".$e->getMessage()."\n", E_USER_WARNING);
+				return FALSE;
+			}
+		}//end if
 		
 		if ($conn_info['verify']){
 
 			
 			try {
-				$this->ptr = new SoapClient($wsdl, $params);
 				$fns = $this->ptr->__getFunctions();
 		        if (empty($fns)) return FALSE; 
 
@@ -155,9 +181,7 @@ class CMIS_Common
 				}
 			}//end if
 		        
-		} else {
-			$this->ptr = new SoapClient($wsdl, $params);
-		}
+		} 
 		
 		return TRUE;
 
@@ -349,9 +373,9 @@ class CMIS_Common
 			$data['binary'] = $structure->parts[1]->body;
 			$data['binary'] = preg_replace('|\r\n$|', '', $data['binary']); //decoding seems to add extra line to end
 		}
-		
+
 		$soap_env = (isset($structure->parts[0]->body)) ? $structure->parts[0]->body : '';
-		
+
 		if (preg_match('|<([^:]+:)?Body[^>]*>(.*)</([^:]+:)?Body>|msi', $soap_env, $match)) {//extract the soap body
 			//take out the colons in the tag names which SimpleXMLElement can't process
 			$match[0] = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $match[0]); 
@@ -362,7 +386,7 @@ class CMIS_Common
 				trigger_error("Failed to parse XML".$e->getMessage()."\n", E_USER_WARNING);
 			}
 		} 
-		
+
 		return $data;
 	}
 	

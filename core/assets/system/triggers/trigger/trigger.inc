@@ -135,15 +135,25 @@ class Trigger extends Asset
 		$this->status = $tm->status;
 
 		// load attributes
-		$this->vars['name']['value']		= $trigger_info['name'];
-		$this->vars['description']['value']	= $trigger_info['description'];
-		$this->vars['events']['value']		= $trigger_info['data']['events'];
-		$this->vars['conditions']['value']	= $trigger_info['data']['conditions'];
-		$this->vars['actions']['value']		= $trigger_info['data']['actions'];
-		$this->vars['active']['value']		= $trigger_info['active'];
-		$this->vars['category']['value']	= $trigger_info['category'];
-		$this->vars['blocking']['value']	= empty($trigger_info['data']['settings']['blocking']) ? 0 : 1;
-
+		$this->vars['name']['value']          = $trigger_info['name'];
+		$this->vars['description']['value']   = $trigger_info['description'];
+		$this->vars['events']['value']        = $trigger_info['data']['events'];
+		$this->vars['conditions']['value']    = $trigger_info['data']['conditions'];
+		$this->vars['actions']['value']       = $trigger_info['data']['actions'];
+		$this->vars['active']['value']        = $trigger_info['active'];
+		$this->vars['category']['value']      = $trigger_info['category'];
+		$this->vars['blocking']['value']      = empty($trigger_info['data']['settings']['blocking']) ? 0 : 1;
+		
+		//user info on trigger asset
+		$this->created                        = $trigger_info['created'];
+		$this->created_userid                 = $trigger_info['created_userid'];
+		$this->updated                        = $trigger_info['updated'];
+		$this->updated_userid                 = $trigger_info['updated_userid'];
+		$this->published                      = $trigger_info['published'];
+		$this->published_userid               = $trigger_info['published_userid'];
+		$this->status_changed                 = $trigger_info['status_changed'];
+		$this->status_changed_userid          = $trigger_info['status_changed_userid'];
+		
 		return TRUE;
 
 	}//end load()
@@ -206,7 +216,10 @@ class Trigger extends Asset
 	*/
 	function saveAttributes($dont_run_updated=FALSE)
 	{
+
 		$trigger_info = Array();
+		$now_iso = ts_iso8601(time());
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		if (empty($this->tmid)) return FALSE;
 		$id_parts = explode(':', $this->id);
@@ -219,13 +232,23 @@ class Trigger extends Asset
 		}
 
 		// build trigger info from attributes
-		$trigger_info['name']							= $this->attr('name');
-		$trigger_info['description']					= $this->attr('description');
-		$trigger_info['data']['events']					= $this->attr('events');
-		$trigger_info['data']['conditions']				= $this->attr('conditions');
-		$trigger_info['data']['actions']				= $this->attr('actions');
-		$trigger_info['active']							= $this->attr('active');
-		$trigger_info['category']						= $this->attr('category');
+		$trigger_info['name']                 = $this->attr('name');
+		$trigger_info['description']          = $this->attr('description');
+		$trigger_info['data']['events']       = $this->attr('events');
+		$trigger_info['data']['conditions']   = $this->attr('conditions');
+		$trigger_info['data']['actions']      = $this->attr('actions');
+		$trigger_info['active']               = $this->attr('active');
+		$trigger_info['category']             = $this->attr('category');
+
+		// add user info to trigger assets
+		$trigger_info['created']              = $now_iso;
+		$trigger_info['created_userid']       = $userid;
+		$trigger_info['updated']              = $now_iso;
+		$trigger_info['updated_userid']       = $userid;
+		$trigger_info['published']            = $now_iso;
+		$trigger_info['published_userid']     = $userid;
+		$trigger_info['status_changed']       = $now_iso;
+		$trigger_info['status_changed_userid']= $userid;
 
 		// Name cannot be empty
 		if (empty($trigger_info['name'])) {
@@ -248,10 +271,14 @@ class Trigger extends Asset
 
 		// use trigger manager to save
 		if ($id = $tm->_saveTrigger($trigger_info)) {
+
 			$this->id = implode(':', Array($this->tmid, $id));
 
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate', Array('short_name'));
+
+			// updates the asset info box on successful update of trigger
+			$this->load($this->tmid, $id);
 
 			return TRUE;
 		}

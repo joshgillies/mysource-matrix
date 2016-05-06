@@ -432,7 +432,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					$icon = 'cross';
 				}//end if
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.$icon.'.gif" border="0" />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.$icon.'.png" border="0" />';
 				if ($wa) {
 					echo '</td><td>';
 					check_box($prefix.'_delete[]', $coll_id);
@@ -1009,7 +1009,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					} else {
 						$icon = 'cross';
 					}//end if
-					echo '<img src="'.sq_web_path('lib').'/web/images/'.$icon.'.gif" border="0" />';
+					echo '<img src="'.sq_web_path('lib').'/web/images/'.$icon.'.png" border="0" />';
 					echo '</td><td width="50%">';
 					echo htmlspecialchars($feature_url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					echo '</td><td>';

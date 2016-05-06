@@ -30,7 +30,7 @@
 	</section>
 	<section name="Linking" write_access="write:attributes">
 		<field attribute="link_type">
-			<display_name>Link Types</display_name>
+			<display_name>Managed Link Types</display_name>
 			<note>Select which type of links to create and modify on the frontend.</note>
 			<selection style="list" height="1" />
 		</field>
@@ -118,6 +118,16 @@
 			<display_name />
 			<note />
 			<parameter_map />
+		</field>
+		<field attribute="dynamic_root_option">
+			<display_name>If dynamic root not found</display_name>
+			<note />
+			<selection style="list" />
+		</field>
+		<field attribute="dynamic_asset_selection_option">
+			<display_name>If asset selection not specified</display_name>
+			<note />
+			<selection style="list" />
 		</field>
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes">

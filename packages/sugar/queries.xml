@@ -1,0 +1,116 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*
+*/
+-->
+<queries id="sugar_package">
+	
+	
+	<query id="getUserid">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_sugar_lnk" column="matrix_userid" />
+					<field table="sq_sugar_lnk" column="sugar_record_id" />
+					<field table="sq_sugar_lnk" column="module" />
+					<field table="sq_sugar_lnk" column="created" />
+				</fields>
+				<from>
+					<table>sq_sugar_lnk</table>
+				</from>
+				<where>
+					<equal table="sq_sugar_lnk" column="sugar_record_id">:sugar_record_id</equal>
+					<equal table="sq_sugar_lnk" column="module">:module</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="getLinks">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_sugar_lnk" column="matrix_userid" />
+					<field table="sq_sugar_lnk" column="sugar_record_id" />
+					<field table="sq_sugar_lnk" column="module" />
+					<field table="sq_sugar_lnk" column="created" />
+				</fields>
+				<from>
+					<table>sq_sugar_lnk</table>
+				</from>
+				<where>
+					<equal table="sq_sugar_lnk" column="matrix_userid">:matrix_userid</equal>
+					<equal table="sq_sugar_lnk" column="module">:module</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="getAllLinks">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_sugar_lnk" column="matrix_userid" />
+					<field table="sq_sugar_lnk" column="sugar_record_id" />
+					<field table="sq_sugar_lnk" column="module" />
+					<field table="sq_sugar_lnk" column="created" />
+				</fields>
+				<from>
+					<table>sq_sugar_lnk</table>
+				</from>
+				<where>
+					<equal table="sq_sugar_lnk" column="matrix_userid">:matrix_userid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="addLink">
+		<primary>
+			<insert>
+				<fields table="sq_sugar_lnk">
+					<field>matrix_userid</field>
+					<field>sugar_record_id</field>
+					<field>module</field>
+					<field>created</field>
+				</fields>
+				<values>
+					<value column="matrix_userid">:matrix_userid</value>
+					<value column="sugar_record_id">:sugar_record_id</value>
+					<value column="module">:module</value>
+					<value column="created">:created</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="deleteLink">
+		<primary>
+			<delete>
+			    <where>
+				<equal table="sq_sugar_lnk" column="matrix_userid">:matrix_userid</equal>
+				<equal table="sq_sugar_lnk" column="sugar_record_id">:sugar_record_id</equal>
+				<equal table="sq_sugar_lnk" column="module">:module</equal>
+			    </where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteLinkedUser">
+		<primary>
+			<delete>
+			    <where>
+				<equal table="sq_sugar_lnk" column="module">:module</equal>
+				<equal table="sq_sugar_lnk" column="matrix_userid">:matrix_userid</equal>
+			    </where>
+			</delete>
+		</primary>
+	</query>
+
+	
+</queries>

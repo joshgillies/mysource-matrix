@@ -174,11 +174,19 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$operator = array_get_index($rule_data, 'operator', 1);
-		$value = array_get_index($rule_data, 'value', '');
-		$operator_list = $this->getOperators();
+		$operator = (string) array_get_index($rule_data, 'operator', '1');
+		$value    = array_get_index($rule_data, 'value', '');
+		
+		$description_text = Array(
+			'1' => translate('The response to question "%1$s" must match the regular expression %2$s'),
+			'0' => translate('The response to question "%1$s" must NOT match the regular expression %2$s'),
+		);
 
-		$error_str = translate('core_form_rule_regexp_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'), $value);
+		$error_str = sprintf(
+			$description_text[$operator],
+			$q_asset->attr('name'),
+			$value
+		);
 
 		return $error_str;
 

@@ -54,7 +54,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	public function paintBackendJsData(Bodycopy_Div $asset, $prefix)
 	{
 		$div_attributes = $asset->attr('attributes');
-		$div_attributes['identifier'] = $asset->name;
+		$div_attributes['identifier'] = $asset->attr('name');
+		$div_attributes['desc'] = $asset->attr('description');
 
 		?>
 					case <?php echo $asset->id?> :
@@ -93,6 +94,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		<script language="JavaScript" type="text/javascript">
 		var bodycopy_available_conditions = {};
+		var bodycopy_applied_template = {};
 		function serialise_div(bodycopy_name, bodycopy_data, divid) {
 			var form = document.main_form;
 			if (!bodycopy_saved[bodycopy_name] && bodycopy_name != null) bodycopy_saved[bodycopy_name] = new Object();
@@ -134,8 +136,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					if(!empty($design)) {
 						$classes_list = $design->attr('div_classes');
 						if (!empty($classes_list)) {
-							foreach ($classes_list as $key => $value) {
-								$classes[$key] = $value;
+							foreach ($classes_list as $friendly_name => $value) {
+								$class_names = array_get_index($value, 'classNames', $friendly_name);
+								$classes[$class_names] = $friendly_name;
 							}
 						}
 					}
@@ -232,6 +235,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			    	case 'conditions':
 					$skip_attribute = TRUE;
 				break;
+				case 'template':
+					$skip_attribute = TRUE;
+				break;
 			}
 
 			if ($skip_attribute) continue;
@@ -296,7 +302,11 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		if (!empty($div_attributes)) {
 			for (reset($div_attributes); $name = key($div_attributes); next($div_attributes)) {
-				$val = $div_attributes[$name];
+				if ($name === 'desc') {
+					$val = $asset->attr('description');
+				} else {
+					$val = $div_attributes[$name];
+				}
 				if ($val == '') continue;
 				if ($name == 'css_class_list') continue;
 				if ($name == 'conditions') continue;
@@ -312,8 +322,22 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$content_prefix = $prefix.'_'.get_class_lower($content_type).'_'.$link['linkid'];
 			$content_type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(get_class_lower($content_type), 'name');
 			//Create a friendly name for the content type name
-			$content_type_name = preg_replace('/Type/', 'Container', $content_type_name);
-			$content_type_name = preg_replace('/Nest Content/', 'Nested', $content_type_name);
+
+			$cc_suffix = ' Content Type';
+			if (substr($content_type_name, -strlen($cc_suffix)) === $cc_suffix) {
+				$content_type_name = sprintf(
+					translate('%s Content Container'),
+					substr($content_type_name, 0, -strlen($cc_suffix))
+				);
+			}
+
+			$nc_prefix = 'Nest Content ';
+			if (substr($content_type_name, 0, strlen($nc_prefix)) === $nc_prefix) {
+				$content_type_name = sprintf(
+					translate('Nested Content %s'),
+					substr($content_type_name, strlen($nc_prefix))
+				);
+			}
 		} else {
 			$content_type = NULL;
 			$content_prefix = '';
@@ -326,6 +350,19 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if ($content_type->deprecated === TRUE) {
 			$GLOBALS['SQ_SYSTEM']->printDeprecatedWarning($content_type);
 		}
+
+		// work out applied container template
+		// and then save it in JS var (for backend div property popup) and data attribute (for edit+)
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'container_template');
+		$applied_template = '';
+		$applied_template_name = '';
+		if(!empty($root_links[0]['majorid'])) {
+			$applied_template = $root_links[0]['majorid'];
+			$applied_template_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($applied_template);
+			$applied_template_name = $applied_template_asset->attr('name');
+		}
+
+
 
 		// Work out the conditions we have available for this container,
 		// and whether we have conditional display active.
@@ -369,6 +406,10 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				   if (!empty($all_conditions)) {
 					   ?> data-available-conditions="<?php echo htmlspecialchars($conditions_js); ?>"<?php
 				   }
+				   if (!empty($applied_template)) {
+					   ?> data-applied-template="<?php echo htmlspecialchars($applied_template); ?>"<?php
+					   ?> data-applied-template-name="<?php echo htmlspecialchars($applied_template_name); ?>"<?php
+				   }
 				?>>
 					<div class="sq-grey-header-row clearfix">
 
@@ -392,14 +433,34 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							$desc .= '<tr><td>'.(($popup_attribute_list) ?  translate('Current Properties').'</td><td> '.$popup_attribute_list :''.'</td><tr>');
 
 							$desc .= '</table>';
-							Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]', 'class="sq-icon"');
+							Bodycopy_Edit_Fns::printBodycopyIcon(
+									'bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');',
+									sprintf(translate('Edit %s\'s Properties'), $asset->attr('name')),
+									$desc,
+									'table_properties',
+									'['.translate('Edit Properties').']',
+									'class="sq-icon"');
 
 							// print condition editing icon if there are conditions to use
 							if(!empty($all_conditions)) {
 							    	$condition_count = count($all_conditions);
-								$desc = 'There are '.$condition_count.' available conditions to set.';
+								$desc = sprintf(translate_plural(
+									'There is 1 available condition to set.',
+									'There are %s available conditions to set.',
+									$condition_count
+								), $condition_count);
 								?><script language="JavaScript" type="text/javascript">bodycopy_available_conditions['<?php echo $asset->id; ?>'] = <?php echo $conditions_js; ?>; </script><?php
-								Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Container Display Conditions', $desc, 'conditions', '[Edit Container Display Conditions]');
+								Bodycopy_Edit_Fns::printBodycopyIcon(
+									'bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');',
+									translate('Edit Container Display Conditions'),
+									$desc,
+									'conditions',
+									'['.translate('Edit Container Display Conditions').']'
+								);
+							}
+
+							if(!empty($applied_template)) {
+											?><script language="JavaScript" type="text/javascript">bodycopy_applied_template['<?php echo $asset->id; ?>'] = <?php echo $applied_template; ?>; </script><?php
 							}
 
 							if (!is_null($content_type)) {
@@ -412,7 +473,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							<?php
 							// print the condition set icon
 							if($is_conditional_display) {
-								Bodycopy_Edit_Fns::printBodycopyIcon('', 'Conditionally Displayed', 'This container has display conditions set on it.', 'conditions_set', '[Conditional Display]');
+								Bodycopy_Edit_Fns::printBodycopyIcon(
+									'', 
+									translate('Conditionally Displayed'), 
+									translate('This container has display conditions set on it.'),
+									'conditions_set',
+									'['.translate('Conditional Display').']'
+								);
 							}
 
 							$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 5);
@@ -424,7 +491,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							?>
 							<?php
 							if (count($lineages) > 1) {
-								echo get_asset_tag_line_binoculars($asset->id, 'Multi-Linked DIV');
+								echo get_asset_tag_line_binoculars($asset->id, translate('Multi-Linked DIV'));
 							}
 
 							if (!is_null($content_type)) {
@@ -434,12 +501,12 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							?>
 							<span class="sq-status-square status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset->status))) ;?>" title="<?php echo $status_name ;?>"></span>
 						</span>
-						<strong title="<?php echo $content_type_name ;?> - Asset Id: <?php echo $asset->id ;?> - <?php echo $status_name ;?>" class="sq-content-type-name"><?php echo $content_type_name ;?> (Id: #<?php echo $asset->id ;?>)</strong>
+						<strong title="<?php echo $content_type_name ;?> - Asset Id: <?php echo $asset->id ;?> - <?php echo $status_name ;?>" class="sq-content-type-name"><?php echo $asset->name ;?> <?php if(!empty($applied_template)) { echo ' - '.$applied_template_name; } ?></strong>
 						<?php
 							if ($content_type instanceof Content_Type_Nest_Content) {
 								// the toggle link to show/hide the extra bits for a nested container to make the UI look simple and easy to ready
 								// see RM #6067 Improve the layout and UI of the nested content container
-								?> - <a href="javascript:void(0);" onclick="toggleNestedContents<?php echo $content_type->id; ?>(); return false">Toggle Additional Options</a>
+								?> - <a href="javascript:void(0);" onclick="toggleNestedContents<?php echo $content_type->id; ?>(); return false"><?php echo translate('Toggle Additional Options'); ?></a>
 						<?php
 							}
 						?>
@@ -457,7 +524,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					?>
 					<div class="sq-edit-content-type-wrapper">
 						<?php
-						$content_edit->paintBackend($content_type, $content_prefix, $o);
+
+						// we have custom template applied
+						$use_template = $this->paintCustomLayoutInterface($asset, $applied_template);
+						if(!$use_template) {
+							// or 
+							$content_edit->paintBackend($content_type, $content_prefix, $o, $asset);
+						}
 						?>
 					</div>
 					<?php
@@ -472,6 +545,100 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 	}//end paintContainer()
 
+
+	/**
+	* Paint the interface for custom template
+	*
+	* @param Bodycopy_Div		$asset				the div whose interface we are painting
+	* @param string	 			$applied_template	the applied template ID
+	* @param boolean	 		$edtable			should we make metadata fields editable
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintCustomLayoutInterface(Bodycopy_Div $asset, $applied_template, $edtable=TRUE)
+	{
+			if(empty($applied_template)) return FALSE;
+			// if we have containe template applied, we will need to paint the container with template
+			$template = !empty($applied_template) ? $GLOBALS['SQ_SYSTEM']->am->getAsset($applied_template) : NULL;
+			if(empty($template)) return FALSE;
+
+			// we are in backend and template is not enabled in backend, don't worry about it
+			$enable_edit_layout_in_backend = $template->attr('edit_interface_in_admin');
+			if(SQ_IN_BACKEND && !$enable_edit_layout_in_backend) return FALSE;
+
+			$layout = 'default_layout';
+			$links = $template->getSimpleEditLayoutLinks();
+			if(isset($links[0]['minorid'])) {
+				$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($links[0]['minorid']);
+			}
+
+
+			// acquire metadata locks
+			if(empty($this->_tmp['metadata_lock'])) {
+				if($edtable) {
+					$locks = $GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'metadata');
+				}
+				else {
+					$locks = FALSE;
+					if($asset->writeAccess('metadata')) {
+						$locks = $GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
+					}
+				}
+				$this->_tmp['metadata_lock'] = $locks;
+			}
+
+			echo '<div class="content_template_custom_layout">';
+			$owner = $asset;
+			$aei = new Asset_Edit_Interface($owner->type());
+			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+			if(SQ_IN_BACKEND) {
+				$o =  new Backend_Outputter();
+			}
+			else if(SQ_IN_LIMBO){
+				$o =  new Limbo_Outputter();
+			}
+			else {
+				$o =  new Limbo_Outputter();
+				$GLOBALS['SQ_SYSTEM']->backend->out = new Limbo_Outputter();
+			}
+			// mark the current container id, so we can use its prefix later when painting metadata fields
+			$GLOBALS['SQ_CURRENT_BODYCOPY_CONTAINER'] = $asset->id;
+			if($layout === 'default_layout') {
+				// paint the default contents screen first
+				$replacement = $asset->getCustomKeywordReplacements(Array('contents'));
+				if(isset($replacement['replacements']['contents'])) {
+					echo $replacement['replacements']['contents'];
+				}
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$schemas = $mm->getSchemas($owner->id);
+				if(!empty($schemas)) {
+					// paint the whole metadata value screen
+					$o->setBuffering(FALSE);
+					$keywords['fields']['metadata_values'] = 'metadata_values';
+					$aei->includeStaticScreen('metadata');
+					ob_start();
+					paintMetadata($owner, $o, $aei, $keywords, Array('show_cascade_metadata_field' => FALSE));
+					$contents = ob_get_contents();
+					ob_end_clean();
+					echo($aei->_tmp['layout_keyword_replacements']['metadata_values']);
+				}
+			}
+			else {
+				$layout_keywords_order = $aei->_getLayoutKeywordsOrder($layout);
+				$aei->getKeywordsReplacementsForPaint($owner, $o, $layout, $layout_keywords_order, TRUE, FALSE, '');
+				$layout->printBody();
+			}
+			// include javascripts needed by those metadata fields
+			if(!($o instanceof Limbo_Outputter)) {
+				foreach ($o->_js_includes as $file) {
+					$o->_paintJsInclude($file);
+				}
+			}
+			echo '</div>';
+
+			return TRUE;
+	}//end paintCustomLayoutInterface
 
 	/**
 	* Process the interface for editing this div
@@ -489,6 +656,21 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	*/
 	public function processContainer(Bodycopy_Div $asset, Backend_Outputter $o, $prefix, $bc_action, $bc_name, Array $bc_data, Array $bc_saved)
 	{
+
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'container_template');
+		// we have custom template applied
+		if(isset($root_links[0]['majorid'])) {
+			$owner = $asset;
+			$aei = new Asset_Edit_Interface($owner->type());
+			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+			$o =  new Limbo_Outputter();
+			$aei->includeStaticScreen('metadata');
+			$GLOBALS['SQ_CURRENT_BODYCOPY_CONTAINER'] = $asset->id;
+			if (processMetadata($owner, $o, $this)) {
+				$ret_val = TRUE;
+			}
+		}
+
 		$updated = parent::processContainer($asset, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved);
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
@@ -540,6 +722,10 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// if the new type is the same as the current, change nothing
 		$current_type = get_class_lower($content_type);
 		if ($current_type == $new_type) return FALSE;
+
+		if (method_exists($content_type, 'validateContent') && !$content_type->validateContent($new_type)) {
+			return FALSE;
+		}
 
 		// morph the content type to the new type
 		// first up

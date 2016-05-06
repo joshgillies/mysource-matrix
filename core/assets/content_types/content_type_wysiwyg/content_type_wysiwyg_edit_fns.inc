@@ -52,10 +52,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @param array			$keywords   for keywords replacement plugin
 	* @param array			$snippets   for snippets replacement plugin
 	*
+	* @param boolean		$cache      save the wysiwyg object to cache?
+	* 
 	* @return WYSIWYG
 	* @access private
 	*/
-	protected function _createEditor(Content_Type_WYSIWYG $asset, $prefix, $keywords=Array(), $snippet=Array())
+	protected function _createEditor(Content_Type_WYSIWYG $asset, $prefix, $keywords=Array(), $snippets=Array(), $cache=TRUE)
 	{
 		// allowed plugins (shortened to $ap for easier use below)
 		$ap = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_WYSIWYG_PLUGINS'));
@@ -237,6 +239,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		// set dir attribute to include in wysiwyg iframe
 		if(!empty($this->_tmp['dir_attr']))
 			$this->_tmp['wysiwg_object']->set_dir_attr($this->_tmp['dir_attr']);
+		
+		if(!$cache) {
+			$new_wysiwyg = clone $this->_tmp['wysiwg_object'];
+			$this->_tmp['wysiwg_object'] = NULL;
+			return $new_wysiwyg;
+		}
 
 		return $this->_tmp['wysiwg_object'];
 
@@ -249,11 +257,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
 	* @param string					$prefix	prefix for form elements
 	* @param Backend_Outputter	$o		the Backend Outputter instance
+	* @param Bodycopy_Container   $container the parent container that prints this content
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintBackend(Content_Type_WYSIWYG $asset, $prefix, $o=NULL)
+	public function paintBackend(Content_Type_WYSIWYG $asset, $prefix, $o=NULL, $container=NULL)
 	{
 		if ($asset->writeAccess('attributes')) {
 		    	// get the keyword replacements
@@ -267,7 +276,39 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 			$snippets_encoded = htmlentities(json_encode_array($snippets));
 
+			// if Javascript is detected in the HTML, we can't print it as HTML, use raw input
+			$html = $asset->attr('html');
+			if(isWYSIWYGJS($html, $prefix)) {
+				return FALSE;
+			}
+
+			// set container id and bodycopy id in the div used by viper
+			$container_id = 0;
+			$comments = '';
+			if(isset($GLOBALS['SQ_CURRENT_BODYCOPY_PREFIX'])) {
+				$bodycopy_id = str_replace('bodycopy_', '', $GLOBALS['SQ_CURRENT_BODYCOPY_PREFIX']);
+			}
+			else {
+				$bodycopy_id = 0;
+			}
+			if(!empty($container)) {
+				$container_id = $container->id;
+				$comments = htmlentities($container->attr('comments'));
+			}
+
+
+
 			if(!is_null($o) && $o->isViperAvailable()) {
+
+				// Get the style classes defined in the design
+				require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
+				$design_styles = Asset_Attribute_WYSIWYG::getDesignAttributes('wysiwyg_styles');
+				// Format the data in the required format for Viper
+				$styles_formatted = '';
+				if (!empty($design_styles)) {
+					$styles_formatted = Array('styles' => $design_styles);
+				}//end if
+				$styles_formatted = htmlentities(json_encode_array($styles_formatted));
 
 			    $o->enableViperEditor();
 
@@ -303,21 +344,32 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 			    // Clean the HTML before passing to the Matrix backend form
 			    $o->addOnSubmit('Matrix_Viper.viper.cleanDOM(document.getElementById("'.$prefix.'_contents_div_viper"));');
+			    // Check if there is temp image previews, you have to either remove them or upload to asset
+			    $o->addOnSubmit('if(!Matrix_Viper.checkImagePreview(document.getElementById("'.$prefix.'_contents_div_viper"), "'.translate('You have image previews in the content that are not yet uploaded. Saving without uploading them will remove them from the content. Are you sure you want to save?').'")) return false;');
+			    $o->addOnSubmit("Matrix_Viper.viper.ViperPluginManager.getPlugin('MatrixCommentsPlugin').saveComments();");
+
 			    // Use a hidden input to pass the Viper edited content to Matrix backend form
-			    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
+			    $o->addOnSubmit('var element =  document.getElementById("'.$prefix.'_contents_div_viper_input"); if (typeof(element) != "undefined" && element != null) { document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML; }');
+			    $o->addOnSubmit('if(Matrix_Viper.checkSourceEditorPopup()) { return false;}');
 			    ?>
-			    <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper" data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>"><?php echo $asset->attr('html');?></div>
-			    <textarea  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" ></textarea>
+			    <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper" data-container-id="<?php echo $container_id; ?>" data-bodycopy-id="<?php echo $bodycopy_id; ?>" data-design_styles="<?php echo $styles_formatted; ?>" data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" data-comments="<?php echo $comments; ?>" ondrop="event.preventDefault(); return false;"  ondragover="event.preventDefault(); return false;" ><?php echo clean_html($asset->attr('html')); ?></div>
+			    <textarea id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" ></textarea>
 			   <?php
 			}
 			else {
 			    $wysiwyg = $this->_createEditor($asset, $prefix, $keywords, $snippets);
 			    ?>
 			  <div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint(); ?></div>
-			  <div id="<?php echo $prefix?>_contents_div"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}" class="htmlarea-div"><?php echo $wysiwyg->contents ?></div>
+			  <div id="<?php echo $prefix?>_contents_div"  data-container-id="<?php echo $container_id; ?>" data-bodycopy-id="<?php echo $bodycopy_id; ?>" data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" data-comments="<?php echo $comments; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}" class="htmlarea-div" ondrop="event.preventDefault(); return false;"  ondragover="event.preventDefault(); return false;"><?php echo $wysiwyg->contents ?></div>
 			  <?php
 			}
 		}
+
+		if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !headers_sent()) {
+			// Without this header disabled, Chrome will not output the iframe's source in the editor
+			header('X-XSS-Protection: 0');
+		}
+
 		return TRUE;
 
 	}//end paintBackend()
@@ -459,7 +511,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		    $html = $_REQUEST[$prefix.'_contents_div_viper_input'];
 		}
 		else {
-		    $wysiwyg = $this->_createEditor($asset, $prefix);
+		    $wysiwyg = $this->_createEditor($asset, $prefix, Array(), Array(), FALSE);
 		    $html = $wysiwyg->process();
 		}
 		if ($html === FALSE) return FALSE;

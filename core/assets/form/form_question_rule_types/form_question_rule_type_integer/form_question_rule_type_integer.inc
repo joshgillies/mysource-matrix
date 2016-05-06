@@ -164,10 +164,22 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 	    	$use_accessible_string = $form->useAccessibleFormat();
-		if($use_accessible_string)
-		    $error_str = translate('core_form_rule_integer_desc_'.($operator ? 'true' : 'false').'_accessible');
-		else
-		    $error_str = translate('core_form_rule_integer_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'));
+		if($use_accessible_string) {
+			if($operator) {
+				$error_str = translate('The response must be a valid integer value.');
+			}
+			else {
+				$error_str = translate('The response must NOT be a valid integer value.');
+			}
+		}
+		else {
+			if($operator) {
+				$error_str = sprintf(translate('The response to question "%s" must be a valid integer value'), $q_asset->attr('name'));
+			}
+			else {
+				$error_str = sprintf(translate('The response to question "%s" must NOT be a valid integer value'), $q_asset->attr('name'));
+			}
+		}
 
 		return $error_str;
 

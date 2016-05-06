@@ -77,20 +77,13 @@ class Asset_Edit_Interface extends MySource_Object
 	function Asset_Edit_Interface($type_code)
 	{
 		$this->_type_code = basename($type_code);
-
-		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code);
-		$asset_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
-		$class_name = $this->_type_code.'_edit_fns';
-		require_once $asset_dir.'/'.$class_name.'.inc';
-		$this->_edit_fns = new $class_name();
+		$this->_edit_fns  = $GLOBALS['SQ_SYSTEM']->am->getEditFns(0, $this->_type_code);
 
 		// check that the edit functions have a details tab or else
 		// we cant even create assets of this type let alone edit them
 		assert_isset($this->_edit_fns->static_screens['details'], sprintf(translate('Asset Edit Functions for \'%s\' do not define a \'details\' tab'), $type_code));
 
-
-		$this->_dirs = Array($asset_dir);
-		$parent_type = $type_info['parent_type'];
+		$parent_type = $this->_type_code;
 
 		while ($parent_type != 'asset') {
 			$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type);
@@ -114,7 +107,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$code_name = strtolower(preg_replace('/[^a-z_]/', '', (string)$screen_node->attributes()->code_name));
 			if (!$code_name) continue;
 
-			$force_unlock = ((isset($screen_node->attributes()->force_unlock)) ? (string)$screen_node->attributes()->force_unlock : '1');
+			$force_unlock = ((isset($screen_node->attributes()->force_unlock)) ? (string)$screen_node->attributes()->force_unlock : '0');
 
 			$this->_screens[$code_name] = Array(
 											'name'			=> (string)$screen_node->attributes()->display_name,
@@ -369,8 +362,6 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 			}
 
-			// do they have access to acquire the lock?
-			$acquire_lock_access = $owner->canLiveEdit($screen_lock_type);
 
 			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $screen_lock_type, TRUE);
 
@@ -441,21 +432,21 @@ class Asset_Edit_Interface extends MySource_Object
 													$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
 
 													hidden_field('sq_lock_acquire_by_force', '0');
-													normal_button('sq_forceably_acquire_lock', translate('Acquire Lock(s)'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');", 'class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire force"');
+													normal_button('sq_forceably_acquire_lock', translate('Acquire Locks'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');", 'class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire force"');
 
 													echo '&nbsp;';
 												}
-											} else if ($full_write_access && $acquire_lock_access) {
+											} else if ($full_write_access) {
 												hidden_field('sq_lock_acquire_by_force', '0');
-												normal_button('', translate('Acquire Lock(s)'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+												normal_button('', translate('Acquire Locks'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
 
 												echo '&nbsp;';
 											}//end if
 										}
 
-										if ($have_any_locks) {
+										if ($have_any_locks && !SQ_ROLLBACK_VIEW) {
 											hidden_field('sq_lock_release_manual', 0);
-											normal_button('', translate('Release Lock(s)'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+											normal_button('', translate('Release Locks'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r" class="sq-form-field sq-btn-large sq-lock-button release"');
 
 											echo '&nbsp;';
 										}
@@ -473,14 +464,14 @@ class Asset_Edit_Interface extends MySource_Object
 													echo '<div class="sq-backend-locked-by-someone-else">'.sprintf(translate('You can forcibly acquire this lock, which will remove the lock from "%1$s" and give the lock to yourself.<br />Any changes currently being made by "%1$s" will be lost if this lock is forcibly acquired.'), htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</div>';
 
 												}
-											} else if ($full_write_access && $acquire_lock_access) {
-												echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+											} else if ($full_write_access) {
+												echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Locks'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 
 
 											}
 										}
-										if ($have_any_locks) {
-											echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+										if ($have_any_locks && !SQ_ROLLBACK_VIEW) {
+											echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Locks'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 
 
 										}
@@ -519,7 +510,7 @@ class Asset_Edit_Interface extends MySource_Object
 													<?php
 													if (empty($lock)) {
 
-														if ($full_write_access && $acquire_lock_access) {
+														if ($full_write_access) {
 															echo translate('Currently not held').'.';
 
 														} else {
@@ -566,6 +557,16 @@ class Asset_Edit_Interface extends MySource_Object
 									</div><!--#sq_lock_info-->
 
 								</div><!--#sq-aquire-locks-wrapper-->
+
+									<?php
+									$acquire_lock_access = $owner->canLiveEdit('attributes');
+									if($have_all_locks && !$acquire_lock_access) {
+									?>
+									<div class="sq-warning-message top-margin" style="display: block;"><?php echo translate('This asset is Live and has Workflow applied. Switch to Safe Edit status to work in a draft-like copy where you can make changes that only users with edit permissions can see.');?></div>
+									<?php
+									}
+									?>
+
 							</div><!--.sq-backend-section-div-->
 						</div><!--.sq-backend-section-div-wrapper-->
 					<?php
@@ -1078,7 +1079,7 @@ class Asset_Edit_Interface extends MySource_Object
 							$display_name = '';
 							$name = '';
 							$field_note   = '';
-							$attr_tag     = NULL; // TODO: TOF what is $attr_tag
+							$attr_tag     = NULL;
 							foreach ($field->children() as $sub_field) {
 								switch ($sub_field->getName()) {
 									case 'display_name':
@@ -1535,7 +1536,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			} else if (($keyword == 'release_locks_button')) {
 				ob_start();
-					submit_button('sq_lock_release_manual', translate('Release Lock(s)'), '', 'accesskey="r"');
+					submit_button('sq_lock_release_manual', translate('Release Locks'), '', 'accesskey="r"');
 
 					$this->_tmp['layout_keyword_replacements']['release_locks_button'] = ob_get_contents();
 				ob_end_clean();
@@ -1591,6 +1592,25 @@ class Asset_Edit_Interface extends MySource_Object
 			$this->_tmp['layout_keyword_replacements']['commit_button'] = '';
 			$this->_tmp['layout_keyword_replacements']['commit_button_clean'] = '';
 		}
+
+		// Apply keyword modifiers to the layout keywords
+		$raw_keywords = isset($keywords['raw_keywords']) ? $keywords['raw_keywords'] : Array();
+		foreach($raw_keywords as $full_keyword) {
+			if (!isset($this->_tmp['layout_keyword_replacements'][$full_keyword])) {
+				$modifiers = NULL;
+				$part_keyword = parse_keyword($full_keyword, $modifiers);
+				if ($part_keyword != $full_keyword && isset($this->_tmp['layout_keyword_replacements'][$part_keyword])) {
+					$full_keyword_replacement = $this->_tmp['layout_keyword_replacements'][$part_keyword];
+					if ($full_keyword_replacement != '%'.$part_keyword.'%') {
+						apply_keyword_modifiers($full_keyword_replacement, $modifiers, Array('assetid' => $owner->id));
+						$this->_tmp['layout_keyword_replacements'][$full_keyword] = $full_keyword_replacement;
+					} else {
+						// Leave the unreplaced keywords with modifiers to be replaced at the higher level
+						$this->_tmp['layout_keyword_replacements'][$full_keyword] = '%'.$full_keyword.'%';
+					}
+				}//end if
+			}//end if
+		}//end foreach
 
 		if (!$set_keywords_replacement) return $this->_tmp['layout_keyword_replacements'] ;
 

@@ -64,6 +64,28 @@ class Order_Edit_Fns extends Form_Submission_Edit_Fns
 	}//end paintTransactionID()
 	
 
+
+	/**
+	* Paints the XML representation of ecommerce order
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintTransactionResponse(&$asset, &$o, $prefix)
+	{
+		$order_xml = $asset->attr('transaction_response');
+
+		echo '<pre>'.htmlspecialchars($order_xml).'</pre>';
+
+		return FALSE;
+
+	}//end paintTransactionResponse()
+
+
 }//end class
 
 ?>

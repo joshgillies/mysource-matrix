@@ -93,7 +93,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		// If we're OK to edit, get our attribute, and paint it
 		if ($write_access) {
 
-			echo '<span class="sq-metadata-settings-wrapper">';
+			if($enable_default || $print_cascade_values_option) echo '<span class="sq-metadata-settings-wrapper">';
 				if ($enable_default) {
 					echo '<span class="sq-metadata-default-wrapper">';
 						// Work out which options we have to set if we have to
@@ -107,14 +107,16 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo '</span>';
 				}
 
-				if ($print_cascade_values_option) {
+				$allow_cascading = $asset->attr('allow_cascading');
+				if ($print_cascade_values_option && $allow_cascading) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
 						label(translate('Cascade value'), $prefix.'_cascade_value');
 
 					echo '</span>';
 				}
-			echo '</span>';
+				
+			if($enable_default || $print_cascade_values_option) echo '</span>';
 
 			echo '<div class="sq-metadata-multitext-wrapper">';
 				if ($enable_default) { echo '<span id="'.$prefix.'_field">';}
@@ -216,17 +218,18 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*													NULL means that there is no current value set
 	* @param array							&$tag_value	the metadata tag value
 	* @param array							&$keywords	an array we can put keywords in that need replacing
+	* @param boolean        				$content_file   Whether the generated metadata will be included in a metadata content file
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Field_Multiple_Text $asset, $value_str, &$tag_value, Array &$keywords)
+	public function generateMetadata(Metadata_Field_Multiple_Text $asset, $value_str, &$tag_value, Array &$keywords, $content_file=TRUE)
 	{
 		if (is_null($value_str)) {
 			$value_str = $asset->attr('default');
 		}
 
-		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
+		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords, $content_file);
 
 	}//end generateMetadata()
 

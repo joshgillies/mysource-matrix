@@ -22,7 +22,7 @@
 	<package>ecommerce</package>
 	<type_code>paypal_payment_button</type_code>
 	<version>0.1</version>
-	<name>Paypal Payment Button</name>
+	<name>PayPal Payment Button</name>
 	<description>This is an encrypted Paypal payment button</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>

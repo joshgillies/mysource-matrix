@@ -83,19 +83,24 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 
 
+
+
 	/**
-	* Prints out the Frontend for this asset
+	* Called by the design to print the body of this asset
 	*
 	* @return void
 	* @access public
 	*/
-	function printFrontend()
+	function printBody()
 	{
-
 		// set global redirect URL
-		if(!isset($_SESSION['sq_oauth_account_manager_current_state_redirect_url'])) {
+		// prevents redirect loop from accuring
+		if(!isset($_SESSION['sq_oauth_account_manager_current_state_redirect_url'])){
 		    $redirect_url = $this->_getRedirectURL();
-		    if(!empty($redirect_url))
+		    if(empty($redirect_url)) {
+		    	// if there is no redirect url set, use the current url instead, for nesting in login designs
+				$redirect_url = current_url();
+			}	
 			$_SESSION['sq_oauth_account_manager_current_state_redirect_url'] = $redirect_url;
 		}
 
@@ -185,23 +190,6 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		    do_redirect($redirect_url);
 
 		}
-
-
-		//  move on....
-		parent::printFrontend();
-
-	}//end printFrontend()
-
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @return void
-	* @access public
-	*/
-	function printBody()
-	{
 
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -316,9 +304,14 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 		// instead of displaying logged in body, do redirect
 		if( $this->_current_state == 'logged_in' && $this->attr('redirect_after_login') && isset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']) && $_SESSION['sq_oauth_account_manager_current_state_redirect_url'])  {
-		    $redirect_url = $_SESSION['sq_oauth_account_manager_current_state_redirect_url'];
-		    unset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']);
-		    do_redirect($redirect_url);
+			// test this session variable to make sure we only do redirect for FIRST time user login
+			if(!isset($_SESSION['sq_oauth_account_manager_login_redirect_checked'])) {
+				$_SESSION['sq_oauth_account_manager_login_redirect_checked'] = True;
+
+			    $redirect_url = $_SESSION['sq_oauth_account_manager_current_state_redirect_url'];
+			    unset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']);
+			    do_redirect($redirect_url);
+			}
 		}
 
 
@@ -401,8 +394,15 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		$attr_name = $prefill ? 'prefilled_fields' : 'synced_fields';
 		$metadata_field_name = $prefill ? $this->getPrefix().'_metadata_' : $this->getPrefix().'_sync_metadata_';
 		$prefilled_fields = $this->attr($attr_name);
-		if (!empty($prefilled_fields[$user->type()]) && !empty($this->oauth_user_profile) && !empty($user)) {
-			foreach ($prefilled_fields[$user->type()] as $attr => $value) {
+
+		$user_type = $user->type();
+        if(empty($prefilled_fields[$user_type]) && !empty($prefilled_fields)) {
+            // those prefilled fields setting no need to be asset type specific
+            $user_type = array_shift(array_keys($prefilled_fields));            
+        }
+
+		if (!empty($prefilled_fields[$user_type]) && !empty($this->oauth_user_profile) && !empty($user)) {
+			foreach ($prefilled_fields[$user_type] as $attr => $value) {
 				    // get the value to set from user profile
 				$prefill_value = replace_global_keywords($value);
 				if(is_null($prefill_value)) continue;
@@ -532,6 +532,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 		// set the user id and profile
 		$this->oauth_user_profile = $response['result'];
+		escape_array_index_for_keywords_recursive($this->oauth_user_profile);
 		$userid_loc = $this->attr('userid_location');
 		$this->oauth_user_id = $this->_getValueFromLocation( empty($userid_loc) ? 'id' : $userid_loc, $this->oauth_user_profile);
 
@@ -769,23 +770,26 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	*/
 	protected function _loginUser($userid)
 	{
-	    $user =  $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-	    if($user && $user->canLogin()) {
-		unset($_SESSION['SQ_RETURN_TO_HTTP']);
-		$GLOBALS['SQ_SYSTEM']->loginUser($user);
-		// redirect after login
-		if($this->attr('redirect_after_login')) {
-		    if(isset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']) && $_SESSION['sq_oauth_account_manager_current_state_redirect_url'])  {
-			$redirect_url = $_SESSION['sq_oauth_account_manager_current_state_redirect_url'];
+		$user =  $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+		if($user && $user->canLogin()) {
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_user_login_oauth', $user, NULL);
+
+			unset($_SESSION['SQ_RETURN_TO_HTTP']);
+
+			$GLOBALS['SQ_SYSTEM']->loginUser($user);
+			// redirect after login
+			if($this->attr('redirect_after_login')) {
+				if(isset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']) && $_SESSION['sq_oauth_account_manager_current_state_redirect_url'])  {
+					$redirect_url = $_SESSION['sq_oauth_account_manager_current_state_redirect_url'];
+					unset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']);
+					do_redirect($redirect_url);
+				}
+			}
+			// stop further redirects
 			unset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']);
-			do_redirect($redirect_url);
-		    }
+			return TRUE;
 		}
-		// stop further redirects
-		unset($_SESSION['sq_oauth_account_manager_current_state_redirect_url']);
-		return TRUE;
-	    }
-	    return FALSE;
+		return FALSE;
 	}// end _loginUser
 
 

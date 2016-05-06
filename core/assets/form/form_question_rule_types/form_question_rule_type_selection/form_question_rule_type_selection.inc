@@ -141,15 +141,31 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$operator = array_get_index($rule_data, 'operator', 1);
-		$value = array_get_index($rule_data, 'value', '');
+		$operator = (string) array_get_index($rule_data, 'operator', '1');
+		$value    = array_get_index($rule_data, 'value', '');
+
+		$description_text = Array(
+			'1'     => translate('Option "%1$s" must be selected at "%2$s"'),
+			'1_acc' => translate('Option "%1$s" must be selected.'),
+			'0'     => translate('Option "%1$s" must NOT be selected at "%2$s"'),
+			'0_acc' => translate('Option "%1$s" must NOT be selected.'),
+			
+		);
 
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
-	    	$use_accessible_string = $form->useAccessibleFormat();
-		if($use_accessible_string)
-		    return translate('core_form_rule_selection_desc_'.($operator ? 'true' : 'false').'_accessible', $q_asset->getSummary($value));
-		else
-		    return translate('core_form_rule_selection_desc_'.($operator ? 'true' : 'false'), $q_asset->getSummary($value), $q_asset->attr('name'));
+	    $use_accessible_string = $form->useAccessibleFormat();
+
+		if ($use_accessible_string) {
+			$operator .= '_acc';
+		}
+
+		$error_str = sprintf(
+			$description_text[$operator],
+			$q_asset->getSummary($value),
+			(!$use_accessible_string) ? $q_asset->attr('name') : ''
+		);
+
+		return $error_str;
 
 	}//end ruleDescription()
 

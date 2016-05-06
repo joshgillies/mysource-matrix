@@ -117,6 +117,17 @@ require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
 
 $deja_vu = new Deja_Vu();
 
+
+if ($CACHE_STORAGE) {
+	echo "Setting cache storage type ...\n";
+	if ($deja_vu->setCacheStorage($CACHE_STORAGE)) {
+		echo "[DONE]\n";
+	} else {
+		echo "[FAILED]\n";
+	}
+}
+
+
 if ($SHOW_STATUS) {
 	if ($deja_vu->enabled() == FALSE) {
 		echo "Deja Vu is currently disabled.\n";
@@ -178,15 +189,6 @@ if ($ENABLE_DEJA_VU) {
 if ($RECACHING_DELAY !== FALSE) {
 	echo "Setting recaching delay time period ...\n";
 	if ($deja_vu->setRecachingDelay($RECACHING_DELAY)) {
-		echo "[DONE]\n";
-	} else {
-		echo "[FAILED]\n";
-	}
-}
-
-if ($CACHE_STORAGE) {
-	echo "Setting cache storage type ...\n";
-	if ($deja_vu->setCacheStorage($CACHE_STORAGE)) {
 		echo "[DONE]\n";
 	} else {
 		echo "[FAILED]\n";

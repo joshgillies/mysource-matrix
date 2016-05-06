@@ -18,6 +18,7 @@
 <contents screen="details">
 	<section name="Details">
 		<field attribute="title">
+			<display_name>Title</display_name>
 			<text width="25" height="1" />
 		</field>
 		<field>

@@ -29,7 +29,6 @@
 		</field>
 	</section>
 	<section name="Layout Settings" write_access="write:content">
-	    <display_name>Custom Layout Settings</display_name>
         <field>
             <display_name>Custom Asset Types</display_name>
             <note></note>

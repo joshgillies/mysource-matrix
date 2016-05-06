@@ -552,11 +552,13 @@ class Image extends File implements Bridge
 	/**
 	* Called to force an update of this assets lookup information
 	*
+	* @param boolean    $auto_add_remaps    Whether to add remaps for this asset
+	*
 	* @return boolean
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups($auto_add_remaps = TRUE)
+	function updateLookups($auto_add_remaps=TRUE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -573,7 +575,7 @@ class Image extends File implements Bridge
 				$variety = $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 
-				if (!$variety->updateLookups()) {
+				if (!$variety->updateLookups($auto_add_remaps)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
@@ -630,8 +632,39 @@ class Image extends File implements Bridge
 				return $asset;
 			}
 
+
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 			$asset = new Image_Variety($this->id.':'.$shadowid, $varieties['data'][$shadowid]);
+
+			// populate dimension and size info
+			if(isset($varieties['data'][$shadowid]['name'])) {
+				$filename = $varieties['data'][$shadowid]['filename'];
+				if ($this->useSystemVersion()) {
+					if (is_file($this->data_path.'/varieties/sq_system_version_no')) {
+						include ($this->data_path.'/varieties/sq_system_version_no');
+					}
+					$file_version = isset($versions[$filename]) ? $versions[$filename] : NULL;
+					$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+					$rep_path = $asset->data_path_suffix.'/'.$filename;
+					if (!$fv->checkOut($rep_path, $asset->data_path, $file_version)) {
+						return FALSE;
+					}
+
+					// create a new versioning entry for the old version
+					$file_info = $fv->_checkOutCheck($rep_path, $file_version);
+					$file_path = $file_info['source_file'];
+				} else {
+					$file_path = $this->data_path.'/varieties/'.$filename;
+				}
+				if(is_file($file_path)) {
+					$dimension = getimagesize($file_path);
+					$file_size = filesize($file_path);
+					$asset->setAttrValue('variety_width', $dimension[0]);
+					$asset->setAttrValue('variety_height', $dimension[1]);
+					$asset->setAttrValue('variety_size', $file_size);
+				}
+			}
+
 
 		}//end if
 
@@ -997,11 +1030,12 @@ class Image extends File implements Bridge
 	* which returns a replacement string
 	*
 	* @param string	$keyword	Keyword to find a replacement for
+	* @param string $additional_replacements    Additional keyword replacements for 'replace_keywords' modifier
 	*
 	* @return string
 	* @access public
 	*/
-	function getKeywordReplacement($keyword)
+	function getKeywordReplacement($keyword, $additional_replacements=Array())
 	{
 		$replacement = NULL;
 
@@ -1131,13 +1165,22 @@ class Image extends File implements Bridge
 	*/
 	function _getEmbeddedKeywordReplacement($keyword)
 	{
-		$replacement = '';
-
+		$keyword = strtolower($keyword);
 		$embedded_data = $this->attr('embedded_data');
 		$data_set = array_get_index($embedded_data, $keyword);
-		if (is_null($data_set)) return $replacement;
 
-		$replacement = implode(',', $data_set['value']);
+		$replacement = '';
+		if (!is_null($data_set)) {
+			$replacement = is_array($data_set['value']) ? implode(',', $data_set['value']) : $data_set['value'];
+		} else {
+			// For backward compatibility - Check for pre-ExifTool keywords which will have 'dc--' as sub-keyword suffix
+			if (strpos($keyword, 'dc--') === 0) {
+				$data_set = array_get_index($embedded_data, substr($keyword, 4));
+				if (!is_null($data_set)) {
+					$replacement = is_array($data_set['value']) ? implode(',', $data_set['value']) : $data_set['value'];
+				}
+			}
+		}
 
 		return $replacement;
 
@@ -1258,7 +1301,8 @@ class Image extends File implements Bridge
 	*/
 	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
-		return Array();
+		// All users underneath this bridge inherit the permissions of the bridge
+		return $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $permission, $granted, $and_greater, $expand_groups, $all_info);
 
 	}//end getPermission()
 

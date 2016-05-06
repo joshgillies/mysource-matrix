@@ -255,7 +255,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		} else {
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependants_only ? 'tick' : 'cross').'.gif" alt="'.($dependants_only ? translate('Yes') : translate('No')).'" /> ';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependants_only ? 'tick' : 'cross').'.png" alt="'.($dependants_only ? translate('Yes') : translate('No')).'" /> ';
 
 
 			echo translate('Update the Asset\'s dependant children only');
@@ -275,7 +275,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		} else {
 			echo '<br />';
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('Yes') : translate('No')).'" /> ';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.png" alt="'.($dependant_parents ? translate('Yes') : translate('No')).'" /> ';
 
 
 			echo translate('Set permission of dependent parents instead');
@@ -295,7 +295,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		} else {
 			echo '<br />';
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('Yes') : translate('No')).'" /> ';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.png" alt="'.($cascade_to_new ? translate('Yes') : translate('No')).'" /> ';
 
 
 			echo translate('Automatically cascade this permission to newly-created children');

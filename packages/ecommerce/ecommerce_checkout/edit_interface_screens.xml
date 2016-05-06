@@ -16,6 +16,7 @@
 -->
 
 <screens>
+	<screen code_name="paths" display_name="Web Paths" lock_type="lookups" icon="web" />
 	<screen code_name="components" display_name="Processing Components" force_unlock="0" />
 	<screen code_name="formatting_options" display_name="Display Formatting Options" />
 	<screen code_name="region_specific" display_name="Region Specific Options" />

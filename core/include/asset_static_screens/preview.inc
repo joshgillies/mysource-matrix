@@ -37,6 +37,10 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 {
+	$o->addCssInclude($o->filesPath('css/jquery-ui.css'));
+	$o->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.js');
+	$o->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.ui.js');
+
 	// If the 'preview size' has been changed, set it in the session
 	if (!empty($_GET['preview_screen_size'])) {
 		$_SESSION['preview_screen_size'] = $_GET['preview_screen_size'];
@@ -110,11 +114,27 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	$set_conditions = $target_asset->getConditions();
 	$used_conditions = isset($set_conditions['used_conditions']) && !empty($set_conditions['used_conditions']) ? $set_conditions['used_conditions'] : Array();
 
-
+	$view_by_assetid = FALSE;
 	if (empty($url_data)) {
 		// there is no URL with lookup values for this asset
 		// so just do a straight call for lookups
 		$url_data = $owner->getLookups();
+		// if no url_data and the asset is not a shadow asset lets just look use the asset id insead
+		if (empty($url_data) && strpos($owner->id, ':') === FALSE) {
+			$view_by_assetid = TRUE;
+			// the systems root urls, we need one in order to get the preview iframe to work, so we will just use the first one we get
+			// construct our url based on the root_urls we have got and the $owner->id
+			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+			foreach ($root_urls as $key => $url) {
+				$admin_url = parse_url(current_url());
+				$url_data[$key]['url'] = $url.'/?a='.$owner->id;
+				// set the protocol to be used, cant assume https is avaliable so only setting http
+				$url_data[$key]['http'] = 1;
+				$url_data[$key]['https'] = ($admin_url['scheme'] === 'https') ? 1 : 0;
+				$url_data[$key]['name'] = 'design::system::frontend';
+			}
+			
+		}
 	}
 
 
@@ -139,6 +159,17 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		// If we got the URL data from the dependant parents
 		if (!empty($dependant_parent_id)) {
 			$primary_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($dependant_parent_id, $current_root_url);
+		} else if ($view_by_assetid) {
+			// make sure our primary url is using the current domain we are logged in on
+			foreach ($url_data as $asset_url) {
+				$current_admin_url = parse_url(current_url());
+				$preview_asset_url = parse_url($asset_url['url']);
+				if (preg_match('/'.$current_admin_url['host'].'/i', $preview_asset_url['path'])) {
+					$http = ($asset_url['https']) ? 'https://' : 'http://';
+					$primary_url =  $http.$asset_url['url'];
+					break;
+				}
+			}
 		} else {
 			$primary_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($owner->id, $current_root_url);
 		}
@@ -152,6 +183,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$open_in_new_window = TRUE;
 		     }
 		}
+		$preview_url_select_window = ($open_in_new_window) ? 1 : 0;
 		foreach ($url_data as $url_info) {
 			$protocol_list = Array();
 
@@ -164,12 +196,6 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 			foreach ($protocol_list as $protocol) {
 				$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
-				// we can't preview pages in other root domain in frame
-				if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) {
-				    if(strpos($url_info['url'], $current_root_url) !== 0) {
-					$preview_urls[$protocol.$url_info['url']] .= ' ('.translate('open in new window').')';
-				    }
-				}
 
 				if (empty($primary_url)) {
 					$primary_url = $protocol.$url_info['url'];
@@ -197,8 +223,12 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		if (!$has_default_design) {
 			$preview_designs[''] = 'None';
 		}
-
-		$add_nocache = TRUE;
+		if (!$view_by_assetid) {
+			$add_nocache = TRUE;	
+		} else {
+			$add_nocache = FALSE;
+		}
+		
 		$root_url_array = $GLOBALS['SQ_SYSTEM']->am->getRootURL(strip_url($owner->getURL(), TRUE));
 		$root_url = trim($root_url_array['url']);
 
@@ -236,11 +266,12 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 							var preview_size_string = preview_size[0]+' x '+preview_size[1];
 							var preview_width = preview_size[0]+'px'
 							var preview_height = preview_size[1]+'px'
-							document.getElementById('sq_preview_frame').style.width = preview_width;
-							document.getElementById('sq_preview_frame').style.height = preview_height;
-						}
+							document.getElementById('sq_preview_frame_container').style.width = preview_width;
+							document.getElementById('sq_preview_frame_container').style.height = preview_height;
 
-						document.getElementById('sq_preview_size_display_inner').innerHTML = preview_size_string;
+                        	preview_size_string = ' - <?php echo translate('Currently previewing screen size '); ?><strong>' + preview_size_string + '</strong>';
+						}
+						document.getElementById('sq_preview_size_display').innerHTML = preview_size_string;
 						// Set the preview size in the session via ajax request
 						if (size_changed) {
 							backend_preview_url = preview_url.replace('/_nocache', '/_admin/');
@@ -260,8 +291,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					var url = document.getElementById('preview_url').value;
 					if(document.getElementById('preview_url').type === 'select-one') {
 					    var url_key = document.getElementById('preview_url').options[document.getElementById('preview_url').selectedIndex].text;
-
-					    if(/open\sin\snew\swindow/.test(url_key) ) {
+					    var current_url = "<?php echo $current_url['host']; ?>";
+					    
+					   if (url_key.indexOf(current_url)) {
 						open_new_window = true;
 					    }
 					    else {
@@ -393,14 +425,45 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 				}
 
-				function autoResizeIframe(el)
+				function autoResizeIframe(frame)
 				{
+					// This will auto resize the Iframe div container
+					el = frame.parentNode;
 					el.style.width = '100%';
 					el.style.height = '';
-					el.style.height = el.contentWindow.document.body.scrollHeight + "px";
+					el.style.height = frame.contentWindow.document.body.scrollHeight + "px";
 
 				}//end autoResizeIframe()
 
+				function makeIframeResizable()
+				{
+					jQuery( "#sq_preview_frame_container" ).resizable({
+						start: function(event, ui) {
+							jQuery('iframe').css('pointer-events', 'none');
+						},
+						resize: function(event, ui) {
+                        	jQuery('#sq_preview_size_display').html(' - <?php echo translate('Currently previewing screen size '); ?><strong>' + this.style.width+' x '+this.style.height) + '</strong>';
+						},
+						stop: function(event, ui) {
+							jQuery('iframe').css('pointer-events', 'auto');
+						}
+					});
+
+					jQuery('#sq_preview_frame_container .ui-resizable-e').append('<div class="ui-icon ui-resizable-e-icon"></div>');
+					jQuery('#sq_preview_frame_container .ui-resizable-s').append('<div class="ui-icon ui-resizable-s-icon"></div>');
+
+					// Show the resize drag handle icons only when hovering over the preview frame
+					jQuery('#sq_preview_frame_container .ui-icon').hide();
+					jQuery('#sq_preview_frame_container').parent().hover(
+						function() {
+							jQuery('#sq_preview_frame_container .ui-icon').fadeIn(100);
+						},
+						function() {
+							jQuery('#sq_preview_frame_container .ui-icon').fadeOut(300);
+						}
+					);
+
+				}//end makeIframeResizable()
 
 			</script>
 		<?php
@@ -408,7 +471,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->closeRaw();
 
 		$o->openSection(translate('Preview Options'));
-
+			$o->openRaw('');
+				if ($view_by_assetid) {
+					echo '<div id="warning_message_for_no_url_set" class="sq-warning-message">'.sprintf(translate('<strong>Note:</strong> This asset does not have a URL assigned to it. The URL used to preview this asset is "%s".'), $primary_url).'</div>';
+				}
+			$o->closeRaw();
 			$o->openField(translate('Preview URL'));
 
 				if (count($preview_urls) > 1) {
@@ -438,9 +505,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			$o->closeField();
 
-			$o->openField(translate('Screen Size'));
-				$screen_size_options = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_PREVIEW_SCREEN_SIZES');
-				if (isset($screen_size_options['options']) && $screen_size_options['options'] > 0) {
+			$screen_size_options = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_PREVIEW_SCREEN_SIZES');
+			if (isset($screen_size_options['options']) && count($screen_size_options['options']) > 0) {
+				$o->openField(translate('Screen Size'));
 					// Global preference 'selected' value points to the index key of the selected screen size
 					if (!empty($_SESSION['preview_screen_size'])) {
 						$selected_size = $_SESSION['preview_screen_size'];
@@ -461,9 +528,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						$selected_size = 'auto';
 					}
 					combo_box('preview_size', $options, FALSE, $selected_size, 1, 'onchange="update_preview_size(true)"');
-				}
 
-			$o->closeField();
+				$o->closeField();
+			}//end if
 
 			$o->openField(translate('Context'));
 
@@ -586,12 +653,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				if (isset($selected_size) && $selected_size != 'auto') {
 					$selected_size_parts = explode(',', $selected_size);
 					$size_display_string = $selected_size_parts[0].' x '.$selected_size_parts[1];
-					$iframe_style = 'width: '.$selected_size_parts[0].'px; height:'.$selected_size_parts[1].'px;';
-					$iframe_onload = '';
+					$iframe_wrapper_style = 'width: '.$selected_size_parts[0].'px; height:'.$selected_size_parts[1].'px;';
+					$iframe_onload = 'onload="makeIframeResizable();"';
 				} else {
-					// Hide while loading, as we will be auto-resizing once its finished loading
-					$iframe_style = 'visibility: hidden;';
-					$iframe_onload = 'onload="autoResizeIframe(this); this.style.visibility = \'visible\'";';
+					$iframe_wrapper_style = '';
+					$iframe_onload = 'onload="autoResizeIframe(this); makeIframeResizable();"';
 				}
 
 				?>
@@ -599,13 +665,17 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					<?php echo sprintf(translate('Currently previewing <strong>"%1$s"</strong> (%2$s)'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
 					<span id='sq_preview_size_display'><?php
                         if (!empty($size_display_string)) {
-                            echo ' - '.sprintf(translate('Currently previewing screen size <strong id="sq_preview_size_display_inner">%s</strong>'), $size_display_string);
+                            echo ' - '.translate('Currently previewing screen size ').'<strong>'.$size_display_string.'</strong>';
                         }
                     ?></span>
 				</p>
 				<div align="center">
-					<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" <?php echo $iframe_onload; ?> style="<?php echo $iframe_style;?> border: 1px solid #C3C3C3;"</iframe>
+					<div id="sq_preview_frame_container" style="<?php echo $iframe_wrapper_style; ?>">
+						<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" <?php echo $iframe_onload; ?>></iframe>
+					</div>
 				</div>
+				<script>
+				</script>
 				<?php
 			$o->closeRaw();
 		$o->closeSection();

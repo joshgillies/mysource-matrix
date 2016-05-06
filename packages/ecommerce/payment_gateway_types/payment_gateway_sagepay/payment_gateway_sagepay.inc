@@ -42,25 +42,6 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 	 */
 	private $_redirect_info = NULL;
 
-	/**
-	 * The pass through variable array
-	 * @var array
-	 */
-	private $_pass_through_vars = NULL;
-
-
-	/**
-	* Constructor
-	*
-	* @param int	$assetid	the asset id to be loaded
-	*
-	*/
-	function __construct($assetid=0)
-	{
-		parent::__construct($assetid);
-
-	}//end constructor
-
 
 	/**
 	* Perform any additional processing required during the creation of this asset
@@ -104,49 +85,6 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 
 
 	}//end _createAdditional()
-
-
-	/**
-	* Create Bodycopy
-	*
-	* @param string	$link_value		the link value of the link between this SagePay Payment Gateway asset and the new bodycopy
-	* @param string	$content		the content to put into the bodycopy
-	*
-	* @return string
-	* @access private
-	*/
-	function _createBodycopy($link_value, $content)
-	{
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy = new Bodycopy();
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => $link_value);
-
-		$bodycopy->setAttrValue('name', ucwords(str_replace('_',' ', $link_value)));
-		$args = Array('content' => $content);
-		if ($bodycopy->create($copy_link, $args)) {
-			$child_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_div');
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($child_bodycopy['minorid'], 'attributes');
-			return TRUE;
-		}
-		return FALSE;
-
-	}//end _createBodycopy()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowedLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => TRUE);
-		return $page_links;
-
-	}//end _getAllowedLinks()
 
 
 	/**
@@ -210,24 +148,6 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		return $keywords;
 
 	}//end getAvailableKeywords()
-
-
-	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param object	&$broadcaster	the asset that triggered the event
-	* @param array	$vars			the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		$keywords = $this->getAvailableKeywords();
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
-	}//end onRequestKeywords()
 
 
 	/**
@@ -407,19 +327,13 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		//OUTPUT HERE
 		if ($link_value == 'display_format') {
 			//the default body copy with card input
-			$datapath = sq_web_path('data').'/asset_types/payment_gateway_sagepay/files';
-			$card = $this->getPrefix().'_card';
-
 			if ($this->attr('run_mode') != 'Live') {
 				echo '<h2 class="gateway-test-mode" style="color: white; background-color: #C00; padding: 5px">'.strtoupper($this->attr('run_mode')).' MODE</h2>';
 			}
 
+			// Load the JS 'Loader' object to print the overlay when payment form is submitted
+			$this->includeLoaderJsObject($this->getPrefix().'_card');
 			?>
-			<script src="<?php echo $datapath; ?>/loader.js"></script>
-			<script>
-				var Loader = new Loader('<?php echo $card; ?>','#FFFFFF','Processing Transaction...','<?php echo $datapath; ?>/loader.gif');
-				Loader.print();
-			</script>
 			<form method="post" action="<?php echo $this->getURL(); ?>" onsubmit="Loader.show();">
 			<?php
 			$bodycopy->printBody();
@@ -430,22 +344,6 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		}
 
 	}//end printBodycopy()
-
-
-	/**
-	* Return the bodycopy linked to this page
-	*
-	* @return object
-	* @access public
-	*/
-	function getBodycopy($link_value)
-	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $link_value);
-		if (empty($link)) return NULL;
-		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-		return $bodycopy;
-
-	}//end getBodycopy()
 
 
 	/**
@@ -1763,9 +1661,9 @@ HEREDOC;
 	 *
 	 * @param string $err_message	the error message to set
 	 * @return void
-	 * @access private
+	 * @access protected
 	 */
-	private function _setError($err_message)
+	protected function _setError($err_message)
 	{
 		$this->_tmp['is_error'] = TRUE;
 		//we need to split the error message here because SagePay error has the following format:
@@ -1862,47 +1760,6 @@ HEREDOC;
 
 
 	/**
-	 * Get pass-through variable which is stored in a Session variable
-	 *
-	 * @param string 	$var_name	the name of the pass-through variable
-	 * @param mixed 	$default	the default value to get if the $var_name variable is not in the Session
-	 * @return mixed
-	 * @access private
-	 */
-	private function _getPassThroughVariable($var_name, $default)
-	{
-		if (is_null($this->_pass_through_vars)) {
-			$this->_pass_through_vars = array_get_index($_SESSION, 'SQ_ECOM_PASS_THROUGH_VARS', Array());
-		}
-
-		return array_get_index($this->_pass_through_vars, $var_name, $default);
-
-	}//end _getPassThroughVariable()
-
-
-	/**
-	 * Get pass-through variable with the variable names from attributes
-	 *
-	 * @param string	$attr_name		the name of the attribute that stores the variable name
-	 * @param int		$line			the line number of the address, this parameter is only passed in if the attribute name is addr1_var_name or addr2_var_name
-	 *
-	 * @return mixed
-	 * @access private
-	 */
-	private function _getDefaultInputFromPassThroughAttribute($attr_name, $line = '')
-	{
-		$result = '';
-		$var_name = $this->attr($attr_name).$line;
-		if (!empty($var_name)) {
-			$result = $this->_getPassThroughVariable($var_name, '');
-		}
-
-		return $result;
-
-	}//end _getDefaultInputFromPassThroughAttribute()
-
-
-	/**
 	 * Get the string that is allowed in an XML's CDATA section
 	 *
 	 * @param string $text	the input string to check and get allowed CDATA string
@@ -1938,38 +1795,6 @@ HEREDOC;
 		}
 
 	}//end getDeliveryFirstNamesKeywordReplacement()
-
-
-	/**
-	 * Check if the transaction has error
-	 *
-	 * @return boolean
-	 * @access public
-	 */
-	public function isError()
-	{
-		return array_get_index($this->_tmp, 'is_error', FALSE);
-
-	}//end isError()
-
-
-	/**
-	 * Get the error message under HTML format
-	 *
-	 * @return string		the HTML error message
-	 * @access public
-	 */
-	public function getErrorMessage()
-	{
-		$err_message = '';
-		$errors = array_get_index($this->_tmp, 'error_message', Array());
-		foreach ($errors as $error) {
-			$err_message .= "<li>".htmlspecialchars($error, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET)." </li>";
-		}
-
-		return '<ul>'.$err_message.'</ul>';
-
-	}//end getErrorMessage()
 
 
 }//end class

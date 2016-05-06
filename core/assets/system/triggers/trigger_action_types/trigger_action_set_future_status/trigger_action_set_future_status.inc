@@ -275,6 +275,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$datetime = new Asset_Attribute_Datetime();
 		$datetime->setEditParam('show', Array('y', 'm', 'd', 'h', 'i'));
 		$datetime->setEditParam('min', date('Y-m-d H:i:s')); // must be in the future
+		$datetime->setEditParam('max', '2030-12-31 23:59:59');
 		if (FALSE === strpos($settings['when'], 'OO!')) {
 			$datetime->value = substr($settings['when'], 3).':00';
 		}
@@ -419,7 +420,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			label(translate('Treat as fatal error'), $prefix.'_treat_as_fatal');
 
 		} else {
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($treat_fatal ? 'tick' : 'cross').'.gif" alt="'.($treat_fatal ? translate('Yes') : translate('No')).'" /> ';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($treat_fatal ? 'tick' : 'cross').'.png" alt="'.($treat_fatal ? translate('Yes') : translate('No')).'" /> ';
 
 
 			echo translate('Treat as fatal error');
@@ -470,6 +471,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$datetime = new Asset_Attribute_Datetime();
 		$datetime->setEditParam('show', Array('y', 'm', 'd', 'h', 'i'));
 		$datetime->setEditParam('min', date('Y-m-d H:i:s')); // must be in the future
+		$datetime->setEditParam('max', '2030-12-31 23:59:59');
 
 		switch ($settings['when_type']) {
 			case 'explicit_exact':

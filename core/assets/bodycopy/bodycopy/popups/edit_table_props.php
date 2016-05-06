@@ -80,7 +80,7 @@ include(dirname(__FILE__).'/header.php');
 
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
-		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('Cancel');?>" class="sq-icon">
 	</a>
 	<?php echo translate('Edit Table Properties'); ?>
 </h1>

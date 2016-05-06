@@ -55,6 +55,22 @@
 					<default />
 					<description />
 				</column>
+				<column name="refresh_token_expires_at" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+					    <oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="download_token" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+					    <oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
 				<column name="created" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>

@@ -160,7 +160,9 @@ class Calendar_Event_Multi_Date extends Asset
 	{
 		$allowed = parent::_getAllowedLinks();
 		$allowed[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_1]['data_record'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['data_record'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_3]['calendar_event'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['calendar_event'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => FALSE);

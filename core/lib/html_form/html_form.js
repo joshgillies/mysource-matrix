@@ -138,6 +138,32 @@ function validate_numeric_text_field(name, allow_negative)
 
 
 /**
+* Modifies a textbox value that only allow user to enter character that match with Regex Value
+*
+* @param string		$name		the name of the text field
+* @param integer	$preg		Regex defined by user
+*
+* @return boolean	indicates success
+* @access public
+*/
+function validate_preg_text_field(name, preg, event) 
+{
+	var pos = name.selectionStart;
+	if(preg.test(name.value)) {
+		var valid_value = '';
+   		for (var i = 0; i < name.value.length; i++ ) {
+   			var l = name.value.length;
+   			if(name.value.charAt(i).match(preg) == null){
+   				valid_value += name.value.charAt(i);
+   			}
+   		}
+   		name.value = valid_value;
+ 		name.selectionEnd = name.value.length - (l - pos);
+	}
+}
+
+
+/**
 * Modifies a textbox value so that it fits between the given minimum and maximum
 *
 * @param string		$name		the name of the text field
@@ -458,7 +484,7 @@ function move_combo_selection(element, move_up)
 		break;
 
 		default:
-			alert(js_translate('element_not_combo_box', element.name ));
+			alert(js_translate('Element "%s" is not a combo box', element.name ));
 
 	}// end switch
 
@@ -634,12 +660,17 @@ function createButton(name, label, onClick)
 * @param string		mapFrame		The javascript expression used to refer to the asset map's frame
 * @param string		doneFn			Javascript function to be called when the finding process is finished
 * @param boolean	showClear		Whether to show the 'clear' button in this asset finder
+* @param int		maxSelections   Maximum number of allowed New Asset Finder fields
 *
 * @access public
 * @return void
 */
-function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, mapFrame, doneFn, showClear)
+function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, mapFrame, doneFn, showClear, maxSelections)
 {
+	if (maxSelections == undefined) {
+		maxSelections = 0;
+	}
+
 	var next_index = 0;
 	while (document.getElementById(safeNameBase+'_'+next_index+'__label') != null) next_index++;
 	parentElt = moreButton.parentNode;
@@ -654,6 +685,7 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	parentElt.insertBefore(tmp_id_label, moreButton);
 	var tmp_assetid = createTextBox(safeName+'_assetid', '', 2, 0, '', '');
 	tmp_assetid.onchange = new Function('', mapFrame+'.asset_finder_assetid_changed(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+",this.value);");
+	tmp_assetid.className = 'sq-form-asset-finder-text-box';
 	parentElt.insertBefore(tmp_assetid, moreButton);
 
 	// create an space, consistent with normal asset finder
@@ -663,6 +695,11 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	parentElt.insertBefore(changeButton, moreButton);
 	if (showClear) {
 		parentElt.insertBefore(createButton(safeName+'_clear_btn', 'Clear', mapFrame+'.asset_finder_clear_btn_press(\''+name+'\', \''+safeName+'\');'), moreButton);
+	}
+
+	// If number of asset finder input fields have reached the set limit, remove the the "more" button
+	if (maxSelections && next_index+1 >= maxSelections) {
+		 parentElt.removeChild(moreButton);
 	}
 
 }//end addNewAssetFinder()
@@ -741,9 +778,9 @@ function prependInheritSelector(elt)
 	while ((checkbox.tagName != 'INPUT') || (checkbox.type.toUpperCase() != 'CHECKBOX')) {
 		checkbox = checkbox.previousSibling;
 	}
-	var currentKey = checkbox.id.match(/asset_type_chooser_inherit_check_box_(\d+)/);
+	var currentKey = checkbox.id.match(/asset_type_chooser_inherit_check_box_(\d+)(.*)/);
 	var newKey = parseInt(currentKey[1]) + 1;
-	var newID = 'asset_type_chooser_inherit_check_box_' + newKey;
+	var newID = 'asset_type_chooser_inherit_check_box_' + newKey + currentKey[2];
 	newHiddenField = hiddenField.cloneNode(true);
 	newHiddenField.value = '0';
 	newCheckbox = checkbox.cloneNode(true);
@@ -800,6 +837,12 @@ function clearLastCheckbox(elt)
 function insert_text(text, to_id)
 {
 	if (text.length == 0) return;
+
+	// if Ace editor is enabled on the target textarea, we just insert into ace editor
+	if(Matrix_Viper_Ace_Editor && Matrix_Viper_Ace_Editor.loadedEditors && typeof Matrix_Viper_Ace_Editor.loadedEditors[to_id] !== 'undefined') {
+		Matrix_Viper_Ace_Editor.loadedEditors[to_id].insert(text);
+		return;
+	}
 
 	var myField = document.getElementById(to_id);
 

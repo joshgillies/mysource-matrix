@@ -58,14 +58,158 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Paint the interface for regenerating the report
+	*
+	* @param Report				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the backend outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintRegenerate(Google_Analytics_View $asset, Backend_Outputter $o, $prefix)
+	{
+		$conn = $asset->getConnector();
+		if ($conn === NULL) {
+			return;
+		}
+
+		$key  = sprintf('current/assetid=%s/context=all/duration=P1M', $asset->id);
+		$report_path = $conn->getFetchCacheFileName($key);
+		if (!is_file($report_path)) {
+			echo '<p><em>'.translate('Report data has not been generated').'</em></p>';
+		} else {
+			$generated_date = filemtime($report_path);
+			echo '<p>'.sprintf(
+				translate('Report data last refreshed on <strong>%s</strong>'),
+				date('jS M Y g:ia', $generated_date)
+			).'</p>';
+		}
+
+		if ($asset->writeAccess('attributes')) {
+			check_box($prefix.'_regenerate');
+			label(translate('Generate the latest version of this report'), $prefix.'_regenerate');
+			return TRUE;
+		}
+
+		return FALSE;
+
+	}//end paintRegenerate()
+
+
+	/**
+	* Processes the interface for regenerating the report
+	*
+	* @param Report				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the backend outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processRegenerate(Google_Analytics_View $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_regenerate']) || !$_POST[$prefix.'_regenerate']) {
+			return FALSE;
+		}
+
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array(
+					'assetid' => $asset->id,
+				);
+		$hh->queueHipo('hipo_job_refresh_google_analytics_view', $vars, '', SQ_PACKAGES_PATH.'/google_analytics/hipo_jobs');
+
+		return TRUE;
+
+	}//end processRegenerate()
+
+
+	/**
+	 * Show If function to restrict to showing if an asset is connected to a connector.
+	 *
+	 * @param Google_Analytics_View $asset  The view to test.
+	 *
+	 * @return boolean
+	 */
+	public function showIfConnected($asset)
+	{
+	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'google_analytics_connector', FALSE, NULL, 'minor');
+		if (empty($connector_link) === TRUE) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end showIfConnected()
+
+
+	/**
+	 * Show If function to restrict to showing if an asset is NOT connected to a connector.
+	 *
+	 * @param Google_Analytics_View $asset  The view to test.
+	 *
+	 * @return boolean
+	 */
+	public function showIfNotConnected($asset)
+	{
+	    return !$this->showIfConnected($asset);
+
+	}//end showIfNotConnected()
+
+
+	/**
+	 * Show If function to restrict to showing if an asset is NOT connected to a connector.
+	 *
+	 * @param Google_Analytics_View $asset  The view to paint.
+	 * @param Backend_Outputter     $o      The backend outputter to paint on.
+	 * @param string                $prefix Prefix for form elements.
+	 *
+	 * @return boolean
+	 */
+	public function paintViewNotConnected($asset, $o, $prefix)
+	{
+		$o->openRaw();
+		echo '<p><strong>'.translate('Unable to provide these statistics because this view asset is not attached to a Google Analytics Connector.').'</strong></p>';
+		echo '<p>'.translate('You must select a new asset to connect to on the Details screen before statistics can be provided again.').'</p>';
+		$o->closeRaw();
+	    return FALSE;
+
+	}//end showIfNotConnected()
+
+
+	/**
+	 * Paints a list of views and a method to create a view.
+	 *
+	 * @param Google_Analytics_View   $asset  The asset being painted.
+	 * @param Backend_Outputter       $o      The relevant outputter.
+	 * @param string                  $prefix The prefix for form elements.
+	 *
+	 * @return boolean
+	 */
+	public function paintGoogleAccount(Google_Analytics_View $asset, Backend_Outputter $o, $prefix)
+	{
+		$conn = $asset->getConnector();
+		if (empty($conn) === TRUE) {
+			echo translate('None');
+			return FALSE;
+		}
+
+		$accSummary = $conn->getAccountSummary();
+		echo $accSummary['username'];
+
+		return FALSE;
+
+	}//end paintGoogleAccount()
+
+
+	/**
 	 * Paint the "overall" report.
 	 *
 	 */
 	public function paintSummaryOverallReport($asset, &$o, $prefix)
 	{
-	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'google_analytics_connector', FALSE, NULL, 'minor');
-	    $connector      = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_link['majorid']);
-        $period         = 'P1M';
+	    $connector = $asset->getConnector();
+        $period    = 'P1M';
 
 	    $end_date   = new DateTime('today 00:00:00');
 	    $start_date = clone $end_date;
@@ -80,42 +224,29 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $prev_start_date = clone $start_date;
 	    $prev_start_date->sub(new DateInterval('P'.$day_count.'D'));
 
-	    $report = $asset->generateReport(
-	        Array(),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $report = $asset->getCannedReport(
+	    	'current',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $report = array_get_index($report['rows'], 0, Array());
 
-	    $previous_report = $asset->generateReport(
-	        Array(),
-	        Google_Analytics_View::SITE_METRICS,
-	        $prev_start_date->format('Y-m-d'),
-	        $prev_end_date->format('Y-m-d')
+	    $previous_report = $asset->getCannedReport(
+	    	'previous',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $previous_report = array_get_index($previous_report['rows'], 0, Array());
-
-	    $visTypeRawReport = $asset->generateReport(
-	        Array('ga:userType'),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
-	    );
-
-	    foreach ($visTypeRawReport['rows'] as $row) {
-	        if ($row['ga:userType'] === 'New Visitor') {
-	            $visTypeReport['new'] = $row;
-	        } if ($row['ga:userType'] === 'Returning Visitor') {
-	            $visTypeReport['returning'] = $row;
-	        }
-	    }//end foreach
-
-	    $visTypeReport['new']       = array_get_index($visTypeReport, 'new', Array());
-	    $visTypeReport['returning'] = array_get_index($visTypeReport, 'returning', Array());
-	    unset($visTypeRawReport);
 
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
@@ -293,18 +424,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the report.
-	    $raw_report = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-            ),
-            Array(
-                'ga:sessions',
-                'ga:pageviews',
-                'ga:sessionDuration',
-                'ga:bounces'
-            ),
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'device',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $report = $raw_report['rows'];
@@ -376,19 +503,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the report.
-	    $raw_report = $asset->generateReport(
-	        Array(
-	            'ga:medium',
-	            'ga:source',
-            ),
-            Array(
-                'ga:sessions',
-                'ga:pageviews',
-                'ga:sessionDuration',
-                'ga:bounces'
-            ),
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'campaigns',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $report = $raw_report['rows'];
@@ -463,19 +585,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the report.
-	    $raw_report = $asset->generateReport(
-	        Array(
-	            'ga:source',
-	            'ga:medium',
-            ),
-            Array(
-                'ga:sessions',
-                'ga:pageviews',
-                'ga:sessionDuration',
-                'ga:bounces'
-            ),
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'campaigns',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $report = $raw_report['rows'];
@@ -558,47 +675,40 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 	    $day_count  = (int) $date_diff->format('%a');
 
-	    // Give us some goal stats for this period, five at a time (because
-	    // 10 metrics maximum).
-	    $goals = $connector->getGoals($asset->attr('viewid'));
-	    $goals_reports = Array();
-	    foreach (array_chunk(array_keys($goals), 5) as $goalids) {
-	        $goal_metrics = Array();
-	        foreach ($goalids as $goalid) {
-	            $goal_metrics[] = 'ga:goal'.$goalid.'Starts';
-	            $goal_metrics[] = 'ga:goal'.$goalid.'Completions';
-	        }
-	        $goals_report = $asset->generateReport(
-                Array(),
-                $goal_metrics,
-                $start_date->format('Y-m-d'),
-                $end_date->format('Y-m-d')
-	        );
-	        $goals_reports = array_merge($goals_reports, $goals_report[0]);
-	    }//end foreach
+	    $goals = $asset->getGoals();
+	    $report = $asset->getCannedReport(
+	    	'goal_summary',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
+	    );
+
+	    $report = array_get_index($report, 'rows', Array());
+	    $report = array_get_index($report, 0, Array());
 
 	    // But we still need to calculate our own rate, because Starts only
 	    // has meaning for a funnel. Anything that doesn't have a funnel will
 	    // have the same number of starts as completions, so reset that to
 	    // the number of sessions.
+	    $report['ga:goalStartsAll'] = 0;
+	    $report['ga:goalCompletionsAll'] = 0;
 	    foreach ($goals as $goal) {
-	        if (($goal['type'] !== 'URL_DESTINATION') || ($goal['urlDestinationDetails']['firstStepRequired'] === FALSE)) {
-	            $report['ga:goalStartsAll'] -= $goals_reports['ga:goal'.$goal['id'].'Starts'];
-	            $report['ga:goalStartsAll'] += $report['ga:sessions'];
+	        $report['ga:goalCompletionsAll'] += $report['ga:goal'.$goal['id'].'Completions'];
 
-	            $goals_reports['ga:goal'.$goal['id'].'Starts'] = NULL;
-	            if ($report['ga:sessions'] === 0) {
-	                $goals_reports['sq:goal'.$goal['id'].'Rate'] = NULL;
-	            } else {
-	                $goals_reports['sq:goal'.$goal['id'].'Rate'] = $goals_reports['ga:goal'.$goal['id'].'Completions'] / $report['ga:sessions'];
-	            }
+        	if (($goal['type'] !== 'URL_DESTINATION') || (empty($goal['urlDestinationDetails']['steps']) === TRUE)) {
+	            $report['ga:goalStartsAll'] += $report['ga:sessions'];
 	        } else {
-	            if ($goals_reports['ga:goal'.$goal['id'].'Starts'] === 0) {
-	                $goals_reports['sq:goal'.$goal['id'].'Rate'] = NULL;
-	            } else {
-	                $goals_reports['sq:goal'.$goal['id'].'Rate'] = $goals_reports['ga:goal'.$goal['id'].'Completions'] / $goals_reports['ga:goal'.$goal['id'].'Starts'];
-	            }
+	        	$report['ga:goalStartsAll'] += $report['ga:goal'.$goal['id'].'Starts'];
 	        }
+
+            if ($report['ga:sessions'] === 0) {
+                $report['sq:goal'.$goal['id'].'Rate'] = NULL;
+            } else {
+                $report['sq:goal'.$goal['id'].'Rate'] = $report['ga:goal'.$goal['id'].'Completions'] / $report['ga:sessions'];
+            }
 	    }//end foreach
 
 	    $o->openField(translate('Reporting Period'));
@@ -655,10 +765,10 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     <td><?php
                         switch ($goal['type']) {
                             case 'URL_DESTINATION':
-                                if ($goal['urlDestinationDetails']['firstStepRequired'] === TRUE) {
-                                    echo translate('URL (Funnel)');
+                                if (empty($goal['urlDestinationDetails']['steps']) === FALSE) {
+                                    echo translate('URL Destination (Funnel)');
                                 } else {
-                                    echo translate('URL (Single Page)');
+                                    echo translate('URL Destination (Single Page)');
                                 }
                             break;
                             case 'EVENT':
@@ -676,14 +786,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         }
                     ?></td>
                     <td style="text-align: right"><strong><?php
-                        if ($goals_reports['sq:goal'.$goal['id'].'Rate'] !== NULL) {
-                            echo number_format($goals_reports['sq:goal'.$goal['id'].'Rate'] * 100.0, 1).'%';
+                        if ($report['sq:goal'.$goal['id'].'Rate'] !== NULL) {
+                            echo number_format($report['sq:goal'.$goal['id'].'Rate'] * 100.0, 1).'%';
                         } else {
                             echo translate('N/A');
                         }//end if
                     ?></strong></td>
-                    <td style="text-align: right"><?php echo number_format($goals_reports['ga:goal'.$goal['id'].'Completions'], 0); ?></td>
-                    <td style="text-align: right"><?php echo number_format(array_get_index($goals_reports, 'ga:goal'.$goal['id'].'Starts', $report['ga:sessions']), 0); ?></td>
+                    <td style="text-align: right"><?php echo number_format($report['ga:goal'.$goal['id'].'Completions'], 0); ?></td>
+                    <td style="text-align: right"><?php echo number_format(array_get_index($report, 'ga:goal'.$goal['id'].'Starts', $report['ga:sessions']), 0); ?></td>
                 </tr><?php
                 }//end foreach
             }//end if
@@ -735,8 +845,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 foreach ($experiments as $experiment) {
                 ?><tr>
                     <th style="font-weight: normal"><strong><?php echo $experiment['name'] ?></strong><br/>
-                    Target metric: <strong><?php echo $experiment['objectiveMetric'] ?></strong><br/>
-                    <?php echo ellipsisize($experiment['description'], 150); ?></th>
+                    Target metric: <strong><?php echo array_get_index($experiment, 'objectiveMetric', translate('Not selected')) ?></strong><br/>
+                    <?php echo ellipsisize(array_get_index($experiment, 'description', ''), 150); ?></th>
                     <td><?php
                         switch ($experiment['status']) {
                             case 'DRAFT':
@@ -801,13 +911,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     ?></td>
                     <td><?php echo sprintf(translate('%s%%'), $experiment['trafficCoverage'] * 100.0) ?></td>
                     <td><?php
-                    if ($experiment['equalWeighting'] === TRUE) {
+                    if (array_get_index($experiment, 'equalWeighting', FALSE) === TRUE) {
                         echo translate('Equal');
                     } else {
                         echo translate('Dynamic');
                     } ?></td>
-                    <td><?php echo sprintf(translate('%s days'), $experiment['minimumExperimentLengthInDays']) ?></td>
-                    <td><?php echo sprintf(translate('%s%%'), number_format($experiment['winnerConfidenceLevel'] * 100.0, 1)) ?></td>
+                    <td><?php echo sprintf(translate('%s days'), array_get_index($experiment, 'minimumExperimentLengthInDays', 14)) ?></td>
+                    <td><?php echo sprintf(translate('%s%%'), number_format(array_get_index($experiment, 'winnerConfidenceLevel', 0.95) * 100.0, 0)) ?></td>
                 </tr><?php
                 }//end foreach
             }//end if
@@ -833,16 +943,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
 
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:country',
-	            'ga:region',
-	            'ga:city',
-            ),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d'),
-	        Array('-ga:sessions')
+	    $raw_report = $asset->getCannedReport(
+	    	'location',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -934,8 +1042,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Sessions'));
-            echo translate(
-                '%s / %s sessions analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -1054,20 +1162,19 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
 
-	    $report = $asset->generateReport(
-	        Array(
-	            'ga:country',
-	            'ga:region',
-	            'ga:city',
-            ),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d'),
-	        Array('-ga:sessions')
+	    $report = $asset->getCannedReport(
+	    	'location',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
+
 	    foreach ($report['rows'] as $rowid => &$row) {
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:city'] === self::NOT_SET) {
@@ -1088,8 +1195,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Sessions'));
-            echo translate(
-                '%s / %s sessions analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -1178,17 +1285,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-	            'ga:operatingSystem',
-	            'ga:operatingSystemVersion',
-	            'ga:browser',
-	            'ga:browserVersion',
-            ),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'os',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -1254,8 +1358,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Sessions'));
-            echo translate(
-                '%s / %s sessions analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -1379,17 +1483,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-	            'ga:operatingSystem',
-	            'ga:operatingSystemVersion',
-	            'ga:browser',
-	            'ga:browserVersion',
-            ),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'os',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -1463,8 +1564,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Sessions'));
-            echo translate(
-                '%s / %s sessions analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -1578,17 +1679,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-	            'ga:operatingSystem',
-	            'ga:operatingSystemVersion',
-	            'ga:browser',
-	            'ga:browserVersion',
-            ),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'os',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -1662,8 +1760,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Sessions'));
-            echo translate(
-                '%s / %s sessions analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -1778,17 +1876,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-	            'ga:operatingSystem',
-	            'ga:operatingSystemVersion',
-	            'ga:browser',
-	            'ga:browserVersion',
-            ),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'browser',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -1862,8 +1957,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Sessions'));
-            echo translate(
-                '%s / %s sessions analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -1975,17 +2070,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-	            'ga:operatingSystem',
-	            'ga:operatingSystemVersion',
-	            'ga:browser',
-	            'ga:browserVersion',
-            ),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'browser',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -2059,8 +2151,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Sessions'));
-            echo translate(
-                '%s / %s sessions analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -2173,17 +2265,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-	            'ga:operatingSystem',
-	            'ga:operatingSystemVersion',
-	            'ga:browser',
-	            'ga:browserVersion',
-            ),
-	        Google_Analytics_View::SITE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'browser',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -2257,8 +2346,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Sessions'));
-            echo translate(
-                '%s / %s sessions analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -2396,7 +2485,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		        } else if ($version === 'ia64') {
 		            $version = translate('64-bit (Itanium)');
 		        } else if (preg_match('/^i[3-6]86$/', $version) > 0) {
-		            $version = translate('32-bit');
+		            $version = sprintf(translate('32-bit (%s)'), $version);
 		        } else {
 		            $version = self::NOT_SET;
 		        }
@@ -2424,6 +2513,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 		    case 'Android':
 		        $version_list = Array(
+		            '5\.0'     => 'Lollipop',
 		            '4\.4'     => 'KitKat',
 		            '4\.[123]' => 'Jelly Bean',
 		            '4\.0'     => 'Ice Cream Sandwich',
@@ -2433,12 +2523,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		            '2\.[01]'  => 'Eclair',
 		            '1\.6'     => 'Donut',
 		            '1\.5'     => 'Cupcake',
+		            '1\.[01]'  => '1.1 or lower',
 		        );
 
 		        if ($version === self::NOT_SET) {
 		            $os = translate('Android (unknown version)');
 		        } else {
-                    $os = translate('Android 1.1 or lower');
+		            $version_parts = explode('.', $version);
+		            $os = 'Android '.$version_parts[0].'.'.$version_parts[1];
                     foreach ($version_list as $regex => $version_name) {
                         if (preg_match('/^'.$regex.'(\.[\d.]+)?$/', $version) > 0) {
                             $os = 'Android '.$version_name;
@@ -2597,15 +2689,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-	            'ga:hostname',
-	            'ga:pagePath'
-            ),
-	        Google_Analytics_View::PAGE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'most_viewed_device',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -2647,8 +2738,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Page Views'));
-            echo translate(
-                '%s / %s page views analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -2716,15 +2807,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report  = $asset->generateReport(
-	        Array(
-	            'ga:deviceCategory',
-	            'ga:hostname',
-	            'ga:pagePath'
-            ),
-	        Google_Analytics_View::PAGE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'most_viewed_device',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -2766,8 +2856,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Page Views'));
-            echo translate(
-                '%s / %s page views analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
@@ -2835,15 +2925,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $start_date->add(new DateInterval('P1D'));
 
 	    // Grab all the reports.
-	    $raw_report = $asset->generateReport(
-	        Array(
-	            'ga:sessionCount',
-	            'ga:hostname',
-	            'ga:pagePath'
-            ),
-	        Google_Analytics_View::PAGE_METRICS,
-	        $start_date->format('Y-m-d'),
-	        $end_date->format('Y-m-d')
+	    $raw_report = $asset->getCannedReport(
+	    	'most_viewed_device',
+	    	Array(
+	    		'assetid'  => $asset->id,
+	    		'context'  => 'all',
+	    		'duration' => $period,
+	    	),
+	    	TRUE
 	    );
 
 	    $total_sessions = 0;
@@ -2851,10 +2940,6 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $report         = Array();
 
 	    foreach ($raw_report['rows'] as $rowid => &$row) {
-	        if ($row['ga:sessionCount'] === '1') {
-	            continue;
-	        }
-
 	        $total_sessions += $row['ga:pageviews'];
 	        $row['sq:domainPath'] = $row['ga:hostname'].$row['ga:pagePath'];
 	        $path = $row['sq:domainPath'];
@@ -2885,8 +2970,8 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeField();
 
 	    $o->openField(translate('Total Page Views'));
-            echo translate(
-                '%s / %s page views analysed',
+            echo sprintf(
+            	translate('%s / %s page views analysed'),
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );

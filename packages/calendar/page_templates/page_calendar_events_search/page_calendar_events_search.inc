@@ -144,6 +144,7 @@ class Page_Calendar_Events_Search extends Search_Page
 		// Pick the multi-date assets from the root node
 		$multi_date_assets = Array();
 		$root_nodes = $this->getRootNodes(FALSE);
+		if (empty($root_nodes)) return Array();
 		foreach($root_nodes as $root_node) {
 			$multi_date_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($root_node, 'calendar_event_multi_date', TRUE);
 		}
@@ -314,6 +315,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					continue 2;
 				}
 				$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($events, $query_date['from'], $query_date['to']));
+
 			}//end foreach
 
 
@@ -927,48 +929,48 @@ class Page_Calendar_Events_Search extends Search_Page
 			break;
 
 			case 'this_weekend':
-				$from = date("N") == 7 ? $today : date("Y-m-d", strtotime('next Saturday'));
+				$from = date("N") == 6 ? $today : date("Y-m-d", strtotime('next Saturday'));
 				$to = date("N") == 7 ? $today : date("Y-m-d", strtotime('next Sunday'));
 			break;
 
 			case 'next_weekend':
-				$from = date("N") == 7 ? date("Y-m-d", strtotime('next Saturday')) : date("Y-m-d", strtotime('next Saturday +1 week'));
-				$to = date("Y-m-d", strtotime('this Sunday +1 week'));
+				$from = date("N") == 6 ? date("Y-m-d", strtotime('next Saturday')) : date("Y-m-d", strtotime('next Saturday +1 week'));
+				 $to = date("N") == 7 ? date("Y-m-d", strtotime('next Sunday')) : date("Y-m-d", strtotime('next Sunday +1 week'));
 			break;
 
 			case 'previous_weekend':
-				$from = date("N") == 7 ? date("Y-m-d", strtotime('last Saturday -1 week')) : date("Y-m-d", strtotime('last Saturday'));
-				$to = date("Y-m-d", strtotime('last Sunday -1 week'));
+				$from = date("N") == 6 ? date("Y-m-d", strtotime('last Saturday -1 week')) : date("Y-m-d", strtotime('last Saturday'));
+				$to = date("N") == 7 ? date("Y-m-d", strtotime('last Sunday -1 week')) : date("Y-m-d", strtotime('last Sunday'));
 			break;
 
 			case 'this_week':
-				// "2" for Day week means its first day of the week i.e. Monday
-				$from = date("N") == 2 ? $today : date("Y-m-d", strtotime('last Monday'));
-				$to = date("Y-m-d", strtotime($from. " +1 week"));
+				// "1" for Day week means its first day of the week i.e. Monday
+				$from = date("N") == 1 ? $today : date("Y-m-d", strtotime('last Monday'));
+				$to = date("Y-m-d", strtotime($from. " +6 days"));
 			break;
 
 			case 'next_week':
 				$from = date("Y-m-d", strtotime('next Monday'));
-				$to = date("Y-m-d", strtotime($from. " +1 week"));
+				$to = date("Y-m-d", strtotime($from. " +6 days"));
 			break;
 
 			case 'previous_week':
-				$from = date("N") == 2 ? date("Y-m-d", strtotime('last Monday')) : date("Y-m-d", strtotime('last Monday -1 week'));
-				$to = date("Y-m-d", strtotime($from. " +1 week"));
+				$from = date("N") == 1 ? date("Y-m-d", strtotime('last Monday')) : date("Y-m-d", strtotime('last Monday -1 week'));
+				$to = date("Y-m-d", strtotime($from. " +6 days"));
 			break;
 
 			case 'this_fortnight':
-				$from = date("N") == 2 ? $today : date("Y-m-d", strtotime('last Monday'));
+				$from = date("N") == 1 ? $today : date("Y-m-d", strtotime('last Monday'));
 				$to = date("Y-m-d", strtotime($from. " +2 weeks"));
 			break;
 
 			case 'next_fortnight':
-				$from = date("Y-m-d", strtotime('next Monday +1 week'));
+				$from = date("Y-m-d", strtotime('next Monday'));
 				$to = date("Y-m-d", strtotime($from. " +2 weeks"));
 			break;
 
 			case 'previous_fortnight':
-				$from = date("N") == 2 ? date("Y-m-d", strtotime('last Monday -1 week')) : date("Y-m-d", strtotime('last Monday -2 weeks'));
+				$from = date("N") == 1 ? date("Y-m-d", strtotime('last Monday -1 week')) : date("Y-m-d", strtotime('last Monday -2 weeks'));
 				$to = date("Y-m-d", strtotime($from. " +2 weeks"));
 			break;
 
@@ -1059,7 +1061,6 @@ class Page_Calendar_Events_Search extends Search_Page
 			) ;
 
 	}//end _processFuzzyDate()
-
 
 
 	//--        KEYWORD DESCRIPTION        --//

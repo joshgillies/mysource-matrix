@@ -508,6 +508,11 @@ class HIPO_Herder extends MySource_Object
 			return FALSE;
 		}
 
+		// those cached parent groups need to be restored to support feature like Join User Group For Session Trigger
+		if(isset($input_data['userparentgroups'])) {
+			$_SESSION['sq_effective_user_groups'][$input_data['userid']] = unserialize($input_data['userparentgroups']);
+		}
+
 		if (empty($input_data['source_code_name'])) {
 			$output_data['result'] = 'error';
 			$output_data['msg']    = 'source_code_name not supplied on Input Data';
@@ -954,11 +959,11 @@ class HIPO_Herder extends MySource_Object
 						echo '<div class="sq-locks-button-wrapper">';
 							if (!empty($lock)) {
 								if ($have_lock) {
-									submit_button('sq_lock_release_manual', translate('Release Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+									submit_button('sq_lock_release_manual', translate('Release Locks'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-lock-button release"');
 
 								}
 							} else {
-								submit_button('sq_lock_acquire', translate('Acquire Lock(s)'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+								submit_button('sq_lock_acquire', translate('Acquire Locks'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
 
 							}
 						echo '</div>';
@@ -975,7 +980,7 @@ class HIPO_Herder extends MySource_Object
 								$expires_in = sprintf(translate('The lock is due to expire in %s'), $expires_in);
 
 								if ($have_lock) {
-									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Lock(s)'), translate('HIPO Herder'));
+									echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to release the locks you hold on "<strong>%2$s</strong>".'), translate('Release Locks'), translate('HIPO Herder'));
 
 
 
@@ -987,7 +992,7 @@ class HIPO_Herder extends MySource_Object
 								echo ' '.$expires_in.'.';
 
 							} else {
-								echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Lock(s)'), translate('HIPO Herder'));
+								echo sprintf(translate('Press the <span class="sq-backend-button-fake">%1$s</span> button to lock "<strong>%2$s</strong>" for editing.'), translate('Acquire Locks'), translate('HIPO Herder'));
 
 
 
@@ -1087,12 +1092,10 @@ class HIPO_Herder extends MySource_Object
 									?>
 										<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;">
 											<img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('Resume this HIPO Job'); ?>" alt="Resume <?php echo $source_code_name; ?>" />
-
 										</a>
 										&nbsp;
-										<a href="#" onclick="var result = window.open('./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>', 'hipo_job<?php echo $source_code_name; ?>', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');return false;" style="text-decoration: none;" >
+										<a href="#" onclick="var result = window.open('./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>', 'hipo_job<?php echo $source_code_name; ?>', 'width=690,height=510,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');return false;" style="text-decoration: none;" >
 											<img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume_popup.png" title="<?php echo translate('Resume this HIPO Job in a new window'); ?>" alt="Resume <?php echo $source_code_name; ?>" />
-
 										</a>
 									<?php
 									}
@@ -1277,7 +1280,7 @@ class HIPO_Herder extends MySource_Object
 			$o->closeField();
 		$o->closeSection();
 
-		if ($have_lock) $o->commitButton('', TRUE);
+		if ($have_lock) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 

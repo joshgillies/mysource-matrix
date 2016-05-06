@@ -369,10 +369,11 @@ class Design_Css_Customisation extends Design_Css
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
 
+		$system_root_url = sq_web_path('root_url');
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') {
-				$file_url = "Javascript: alert(js_translate('no_url_found', '".addslashes($file_info['name'])."', '".addslashes($this->attr('id_name'))."'));";
+				$file_url = $system_root_url.'/?a='.$minorid;
 			} else if ($this->attr('static_url_versioning')){
 				$served_by_apache = strpos($file_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
 				if ($served_by_apache) $file_url .= '?v='.$file_info['version'];

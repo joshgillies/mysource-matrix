@@ -44,6 +44,15 @@
 			<email width="25" />
 		</field>
 	</section>
+	<section name="SugarCRM Integration" read_access="admin:" write_access="admin:" limbo_access="0" show_if="isSugarRecord">
+		<field>
+			<function_call>
+				<paint_function   name="paintSugarDetails"   />
+				<process_function name="processSugarDetails" />
+			</function_call>
+		</field>
+		<note>Only Root user and System Administrators can edit this field. Setting ID to blank would allow SugarCRM Sync trigger action to assign a new ID.</note>
+	</section>
 	<section name="Locks" read_access="root:" write_access="root:" limbo_access="0">
 		<field>
 			<function_call>

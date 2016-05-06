@@ -24,6 +24,8 @@
 					<field table="sq_oauth2_token" column="access_token" />
 					<field table="sq_oauth2_token" column="refresh_token" />
 					<field table="sq_oauth2_token" column="expires_at" />
+					<field table="sq_oauth2_token" column="refresh_token_expires_at" />
+					<field table="sq_oauth2_token" column="download_token" />
 					<field table="sq_oauth2_token" column="created" />
 				</fields>
 				<from>
@@ -46,6 +48,8 @@
 					<field>refresh_token</field>
 					<field>expires_at</field>
 					<field>created</field>
+					<field>refresh_token_expires_at</field>
+					<field>download_token</field>
 				</fields>
 				<values>
 					<value column="assetid">:assetid</value>
@@ -54,6 +58,8 @@
 					<value column="refresh_token">:refresh_token</value>
 					<value column="expires_at">:expires_at</value>
 					<value column="created">:created</value>
+					<value column="refresh_token_expires_at">:refresh_token_expires_at</value>
+					<value column="download_token">:download_token</value>
 				</values>
 			</insert>
 		</primary>

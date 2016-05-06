@@ -188,10 +188,11 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$remap_info = $this->_fetchRemapUrls($url_filter, $remap_url_filter, $page_num, TRUE);
 		$total_assets = $remap_info['total_remaps'];
 		$remap_urls = $remap_info['remap_rows'];
+		$disabled_txt =  ($write_access) ? '' : ' disabled="disabled"';
 
 		$o->openField(translate('Purge All Remaps'));
 
-		combo_box($prefix.'_purge_all_remaps', Array(0 => translate('No'), 1 => translate('Yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('This will delete ALL the remaps having \"Never Delete\" option set to \"No\". Any URL filters applied will be ignored when purging these remaps. Are you sure?'))) { this.value = 0; } } \"". ($write_access ? '' : "disabled"));
+		combo_box($prefix.'_purge_all_remaps', Array(0 => translate('No'), 1 => translate('Yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('This will delete ALL the remaps having \"Never Delete\" option set to \"No\". Any URL filters applied will be ignored when purging these remaps. Are you sure?'))) { this.value = 0; } } \"".$disabled_txt);
 
 
 
@@ -201,12 +202,12 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 		$o->openField('Original URL Filter');
-		text_box($prefix.'_URL_FILTER', $url_filter, 30);
+		text_box($prefix.'_URL_FILTER', $url_filter, 30, '', FALSE, $disabled_txt);
 		$o->note(translate('If not empty, the value of this textbox will be used by the remap manager to filter the table below. Only original URLs containing the value will be returned.'));
 
 		$o->closeField();
 		$o->openField('Remapped URL Filter');
-		text_box($prefix.'_REMAP_URL_FILTER', $remap_url_filter, 30);
+		text_box($prefix.'_REMAP_URL_FILTER', $remap_url_filter, 30, '', FALSE, $disabled_txt);
 		$o->note(translate('If not empty, the value of this textbox will be used by the remap manager to filter the table below. Only remapped URLs containing the value will be returned.'));
 
 		$o->closeField();
@@ -224,7 +225,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
 
 		} else {
-			$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_remap_urls_page');
+			$page_tag = sprintf(translate('Page <a href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_remap_urls_page');
 
 		}
 		$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $this->num_per_page + 1, $total_assets, $total_assets, strtolower($remap_entries_tag));
@@ -239,27 +240,23 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				);
 
 		if ($page_num > 1) {
-			$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', 1)">'.$links['first'].'</a>';
+			$links['first'] = '<a title="'.translate('Go to the first page').'" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', 1)">'.$links['first'].'</a>';
 
-			$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+			$links['previous'] = '<a title="'.translate('Go to the previous page').'" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
 
 		} else {
-			$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
-
-			$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
-
+			unset($links['first']);
+			unset($links['previous']);
 		}
 
 		if ($page_num < $num_pages) {
-			$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.$num_pages.')">'.$links['last'].'</a>';
+			$links['last'] = '<a title="'.translate('Go to the last page').'" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.$num_pages.')">'.$links['last'].'</a>';
 
-			$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+			$links['next'] = '<a title="'.translate('Go to the next page').'" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
 
 		} else {
-			$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
-
-			$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
-
+			unset($links['last']);
+			unset($links['next']);
 		}
 
 		hidden_field($prefix.'_remap_urls_page', $page_num); ?>
@@ -413,13 +410,13 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 							if ((isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete']) {
 								?>
 									<td class="sq-backend-table-cell" style="text-align: center;">
-										<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="12" height="12" />
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.png" width="12" height="12" />
 									</td>
 								<?php
 							} else {
 								?>
 									<td class="sq-backend-table-cell" style="text-align: center;">
-										<img src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="12" height="12" />
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/cross.png" width="12" height="12" />
 									</td>
 								<?php
 							}
@@ -773,7 +770,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
 			} else {
 					?>
-							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $remap_upon_webpath_change ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $remap_upon_webpath_change ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 					<?php
 			}
 
@@ -833,7 +830,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					check_box($prefix.'_never_delete_remap_default', TRUE, $never_delete_remap_default);
 			} else {
 					?>
-							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $never_delete_remap_default ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $never_delete_remap_default ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 					<?php
 			}
 
@@ -1009,7 +1006,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					check_box($prefix.'_preserve_url_parameters', TRUE, $preserve_url_parameters);
 			} else {
 					?>
-							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $preserve_url_parameters ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $preserve_url_parameters ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 					<?php
 			}
 

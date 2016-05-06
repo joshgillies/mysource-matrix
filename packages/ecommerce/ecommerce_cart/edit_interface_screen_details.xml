@@ -33,6 +33,14 @@
             <note>The Ecommerce Checkout asset we want to link this cart to</note>
             <assetid type_codes="ecommerce_checkout:D" />
         </field>
+		<field>
+			<display_name>Restricted Root Nodes</display_name>
+			<note>Only cart items under these root nodes will be able to get added to the Cart. Leave empty for no restriction.</note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
         <field>
             <display_name>Cart Items to List</display_name>
             <note></note>

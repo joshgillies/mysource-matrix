@@ -37,7 +37,6 @@
 			<note>When set, this option will add remaps for Web Paths that have been changed above.</note>
 			<function_call>
 				<paint_function         name="paintAutomaticRemapSetting" />
-				<process_function       name="processAutomaticRemapSetting" />
 			</function_call>
 		</field>
 	</section>

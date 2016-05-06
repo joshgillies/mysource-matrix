@@ -34,16 +34,8 @@ if (empty($ROOT_NODE)) {
 	exit();
 }
 
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
-// check that the correct root password was entered
-$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-    echo "ERROR: The root password entered was incorrect";
-    exit();
-}
 $GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 

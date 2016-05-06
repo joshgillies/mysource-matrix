@@ -72,6 +72,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			__dlg_init("editTableProperties");
 			table = new TTable("table");
 			table.Import(window.dialogArguments.table_structure);
+			table.className = 'sq-wysiwyg-edit-table';
 
 			// initialise the drop down for css/html table width
 			if (table.width != "") {

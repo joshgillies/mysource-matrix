@@ -64,12 +64,16 @@ class Design_Area_Asset_Lineage extends Design_Area
 			break;
 
 			case 'asset_link' :
-				echo '<', '?php echo $ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'protocol\'].\'://\'.$ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'url\']; ?', '>';
+				echo '<', '?php ';
+				echo '$ASSET1 = isset($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']) ? $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']) : NULL;';
+				echo 'echo !is_null($ASSET1) && $ASSET1->readAccess() ? $ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'protocol\'].\'://\'.$ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'url\'] : ""; ?', '>';
 			break;
 
 			case 'asset_short_name' :
 			case 'asset_name' :
-				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), TRUE).'])'.$value_suffix, $args), '; ?', '>';
+				echo '<', '?php ';
+				echo '$ASSET1 = isset($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']) ? $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']) : NULL;';
+				echo 'echo !is_null($ASSET1) && $ASSET1->readAccess() ? ', $this->_escapeVar($value_prefix.'htmlspecialchars($ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), TRUE).'])'.$value_suffix, $args), ' : ""; ?', '>';
 			break;
 
 			case 'lineage_level' :
@@ -81,7 +85,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 					echo '$keyword = \'',$var, '\';';
 					echo '$ASSET1 = isset($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']) ? $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']) : NULL;';
 					echo 'if (!is_null($ASSET1)) {';
-					echo '$replacement = '.$this->_escapeVar('$ASSET1->getKeywordReplacement($keyword)', $args).';';
+					echo '$replacement = $ASSET1->readAccess() ? '.$this->_escapeVar('$ASSET1->getKeywordReplacement($keyword)', $args).' : "";';
 					echo 'if ($replacement == $keyword) {';
 					echo '	echo \'\';';
 					echo '} else {';
@@ -188,6 +192,10 @@ class Design_Area_Asset_Lineage extends Design_Area
 							$'.$this->attr('id_name').'_i++) {
 							';
 				}
+
+				// permission check for each lineage asset
+				echo 'if (!$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\'])->readAccess()) continue;
+					';
 
 				if (!$this->attr('show_hidden_links')) {
 					echo 'if ($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'link_type\'] != SQ_LINK_TYPE_1) continue;

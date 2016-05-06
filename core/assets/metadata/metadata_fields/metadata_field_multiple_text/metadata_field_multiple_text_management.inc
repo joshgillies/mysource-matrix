@@ -52,7 +52,7 @@ class Metadata_Field_Multiple_Text_Management extends Asset_Management
 												'type'				=> 'text',
 												'default'			=> 'content',
 												'is_contextable'	=> TRUE,
-											   ),
+											   ),					  
 					  );
 	}//end constructor
 

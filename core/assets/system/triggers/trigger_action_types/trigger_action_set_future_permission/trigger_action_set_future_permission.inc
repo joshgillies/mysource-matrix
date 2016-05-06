@@ -259,6 +259,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		$datetime = new Asset_Attribute_Datetime();
 		$datetime->setEditParam('show', Array('y', 'm', 'd', 'h', 'i'));
 		$datetime->setEditParam('min', date('Y-m-d H:i:s')); // must be in the future
+		$datetime->setEditParam('max', '2030-12-31 23:59:59');
 		if (FALSE === strpos($settings['when'], 'OO!')) {
 			$datetime->value = substr($settings['when'], 3).':00';
 		}
@@ -277,7 +278,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			combo_box($prefix.'_add', $action_options, FALSE, ($settings['add'] ? '1' : '0'));
 		} else {
 			echo '<b>';
-			echo ($settings['Add']) ? strtolower(translate('Add')) : strtolower(translate('Remove'));
+			echo ($settings['add']) ? strtolower(translate('Add')) : strtolower(translate('Remove'));
 
 
 			echo '</b> ';
@@ -420,7 +421,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			label(translate('Update the Asset\'s dependant children only'), $prefix.'_dependants_only');
 
 		} else {
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['dependants_only'] ? 'tick' : 'cross').'.gif" alt="'.($settings['dependants_only'] ? translate('Yes') : translate('No')).'" /> ';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['dependants_only'] ? 'tick' : 'cross').'.png" alt="'.($settings['dependants_only'] ? translate('Yes') : translate('No')).'" /> ';
 
 
 			echo translate('Update the Asset\'s dependant children only');
@@ -435,7 +436,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 
 		} else {
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['cascade_to_new'] ? 'tick' : 'cross').'.gif" alt="'.($settings['cascade_to_new'] ? translate('Yes') : translate('No')).'" /> ';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['cascade_to_new'] ? 'tick' : 'cross').'.png" alt="'.($settings['cascade_to_new'] ? translate('Yes') : translate('No')).'" /> ';
 
 
 			echo translate('Automatically cascade this permission to newly-created children');
@@ -541,6 +542,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		$datetime = new Asset_Attribute_Datetime();
 		$datetime->setEditParam('show', Array('y', 'm', 'd', 'h', 'i'));
 		$datetime->setEditParam('min', date('Y-m-d H:i:s')); // must be in the future
+		$datetime->setEditParam('max', '2030-12-31 23:59:59');
 
 		switch ($settings['when_type']) {
 			case 'explicit_exact':

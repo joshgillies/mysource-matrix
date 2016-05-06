@@ -491,7 +491,14 @@ echo '/*
 		if ($this->attr('cache_css')) {
 			$success &= $this->_updateCacheFile();
 		}
+
+		if ($success) {
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($this, 'ContentsUpdated');
+		}
+
 		return $success;
+
 	}//end generateDesignFile()
 
 
@@ -824,6 +831,61 @@ echo '/*
 		return $content;
 
 	}//end getContent()
+
+
+	/**
+	* Returns original URL for a __data type url for file type assets
+	*
+	* @param string		data_url	asset's __data  url out of which we get the original URL
+	* @param string		site_url	url of site under which we have our asset
+	*
+	*
+	* @return array
+	* @access public
+	*/
+	public function getOriginalURL($data_url='', $site_url='')
+	{
+		$original_url = Array();
+
+		// if the url passed doenst have __data in it then there is nothing to do
+		// just return it right away
+		if(strpos($data_url, '__data') === FALSE) return $data_url;
+
+		// *should never happen*
+		if(empty($site_url)) return $data_url;
+
+		$site_parts = explode('://', $site_url);
+		$site = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($site_parts[0], $site_parts[1]);
+
+		$web_paths = $this->getWebPaths();
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, '', TRUE, NULL, NULL, TRUE, 1, 1);
+
+		$url_found = Array();
+		foreach($parents as $parentid => $type_code) {
+			if($site->id != $parentid){
+				$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+			} else {
+				$parent_asset = $site;
+			}
+			$parent_urls = $parent_asset->getURLs();
+			foreach ($parent_urls as $index => $parent_url) {
+				if(strpos($parent_url['url'], $site_parts[1]) !== FALSE || $parent_url['url'] == $site_url) {
+					$url_found = $parent_url;
+					break(2);
+				}
+			}
+		}
+
+		if(!empty($url_found)) {
+			$construct_url = ($url_found['https'] == '1') ? 'https://' : 'http://';
+			foreach ($web_paths as $webpath) {
+				$original_url[] = $construct_url.$url_found['url'].'/'.$webpath;
+			}
+		}
+
+		return $original_url;
+
+	}//end getOriginalURL()
 
 
 }//end class

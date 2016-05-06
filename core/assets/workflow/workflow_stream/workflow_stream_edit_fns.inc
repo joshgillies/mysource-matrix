@@ -607,6 +607,70 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processStreamSelectionRules()
 
+	/**
+	* This function display the stream name on workflow stream details page.
+	*
+	* @param Workflow_Stream	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintStreamName(Workflow_Stream $asset, Backend_Outputter $o, $prefix)
+	{
+		$schema_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'workflow_schema', TRUE, NULL, 'minor');
+		if(empty($schema_link)) return FALSE;
+
+		$write_access = ($asset->writeAccess('attributes') && $asset->writeAccess('links'));
+		$attr = $asset->getAttribute('name');
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		
+		$schema_id = $schema_link['majorid'];
+		$default_stream_id = $wfm->getDefaultStream($schema_id);
+		if($default_stream_id === $asset->id) {
+			$write_access = FALSE;
+		}
+
+		$attr->_edit_params['width'] = 30;
+		$attr->paint($prefix.'_stream_name', !$write_access);
+
+		return TRUE;
+	}//end paintStreamName()
+
+
+	/**
+	* This function is to change the name of the stream.
+	*
+	* @param Workflow_Stream	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processStreamName(Workflow_Stream $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes') || !$asset->writeAccess('links')) return FALSE;
+	
+		$attr = $asset->getAttribute('name');
+
+		$ret_val = FALSE;
+		$saved = FALSE;
+		$attr->process($prefix.'_stream_name');
+		if ($attr->processed && $asset->setAttrValue($attr->name, $attr->value)) {
+			$ret_val = TRUE;
+		}
+		
+		if ($ret_val) {
+			// name attributes have been updated, so save the asset
+			if ($asset->saveAttributes()) $saved = TRUE;
+		}
+		return $saved;
+
+	}//end processStreamName()
+
+
 
 
 }//end class

@@ -60,9 +60,9 @@ class Form_Action_Save_Xml extends Form_Action
 
 		// Paint something here!
 		?>
-		<table class="no-borders" style="width:auto">
+		<table style="width:auto" class="sq-backend-table">
 			<tr>
-				<td><?php echo translate('Location');?></td>
+				<th><?php echo translate('Location');?></th>
 
 				<td>
 					<?php
@@ -84,7 +84,7 @@ class Form_Action_Save_Xml extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('XML Detail');?></td>
+				<th><?php echo translate('XML Detail');?></th>
 
 				<td>
 					<?php
@@ -98,7 +98,7 @@ class Form_Action_Save_Xml extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('XML Value to Store');?></td>
+				<th><?php echo translate('XML Value to Store');?></th>
 
 				<td>
 					<?php
@@ -112,7 +112,7 @@ class Form_Action_Save_Xml extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('Sort Answers');?></td>
+				<th><?php echo translate('Sort Answers');?></th>
 
 				<td>
 					<?php

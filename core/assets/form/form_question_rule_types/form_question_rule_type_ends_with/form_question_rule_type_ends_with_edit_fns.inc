@@ -47,17 +47,33 @@ class Form_Question_Rule_Type_Ends_With_Edit_Fns extends Form_Question_Rule_Edit
 	{
 		$operator_list = $asset->getOperators();
 
+		$comparison_text = Array(
+			'1'   => translate('The response must end with "%s"'),
+			'1_q' => translate('The response must must end with the response to question "%s"'),
+			'0'   => translate('The response must NOT end with "%s"'),
+			'0_q' => translate('The response must NOT end with the response to question "%s"'),
+		);
+
+		$cq_id = (string) array_get_index($rule_data, 'comparison_question_id', '0');
+		$op    = (string) array_get_index($rule_data, 'operator', '1');
+		$value = (string) array_get_index($rule_data, 'value', '');
+		$case  = (int) array_get_index($rule_data, 'case_sensitive', 1);
+
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
-
-			if (($cq_id = array_get_index($rule_data, 'comparison_question_id', 0)) != 0) {
-				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
-				$value = $q_asset->name;
-			} else {
-				$value = array_get_index($rule_data, 'value', '');
+			if ($cq_id !== '0') {
+				$value = get_asset_tag_line($cq_id);
+				$op   .= '_q';
 			}
 
-			echo translate('core_form_rule_ends_with_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false').($cq_id ? '_q' : ''), $value);
+			echo sprintf(
+				$comparison_text[$op],
+				$value
+			);
+
+			if ($case === 1) {
+				echo ' ('.translate('case sensitive').')';
+			}
 			$o->closeField();
 
 		} else {
@@ -65,25 +81,25 @@ class Form_Question_Rule_Type_Ends_With_Edit_Fns extends Form_Question_Rule_Edit
 			$o->openField(translate('Operator'));
 
 			// list of operators
-			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
+			combo_box($prefix.'[operator]', $operator_list, false, $op);
 			$o->closeField();
 
 			$o->openField(translate('Static Value'));
 
 			// give a text box to write the comparison value in
-			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 30);
+			text_box($prefix.'[value]', $value, 30);
 			$o->closeField();
 
 			$o->openField(translate('OR Value of Question'));
 
 			// give a text box to write the comparison value in
-			asset_finder($prefix.'[asset]', array_get_index($rule_data, 'comparison_question_id', '0'), Array('form_question' => 'D'));
+			asset_finder($prefix.'[asset]', $cq_id, Array('form_question' => 'D'));
 			$o->closeField();
 
 			$o->openField(translate('Case Sensitive?'));
 
 			// give a text box to write the comparison value in
-			check_box($prefix.'[case]', 1, array_get_index($rule_data, 'case_sensitive', 1));
+			check_box($prefix.'[case]', 1, $case);
 			$o->closeField();
 
 			$o->sectionNote(translate('Enter either a static value to compare responses against, or select another question from this form to compare with that question\'s response. The selection of a question takes precedence over a static value.'));

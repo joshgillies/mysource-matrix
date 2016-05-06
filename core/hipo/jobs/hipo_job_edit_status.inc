@@ -58,7 +58,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_EDIT_STATUS_THRESHOLD]', SQ_HIPO_EDIT_STATUS_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_EDIT_STATUS_THRESHOLD]', SQ_HIPO_EDIT_STATUS_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_EDIT_STATUS_THRESHOLD;
 		}
@@ -437,10 +437,20 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 					// If we are moving into a "pending approval" state and we have been sent
 					// a workflow stream name, then set that as the stream to use before changing status
-					if ((($current_status & (SQ_SC_STATUS_CAN_APPROVE | SQ_STATUS_LIVE)) > 0) && (($new_status & SQ_SC_STATUS_PENDING) > 0)) {
+					if ((($current_status & (SQ_SC_STATUS_CAN_APPROVE | SQ_STATUS_LIVE | SQ_STATUS_EDITING_APPROVED | SQ_SC_STATUS_NOT_LIVE)) > 0) && (($new_status & SQ_SC_STATUS_PENDING | SQ_SC_STATUS_ALL_APPROVED | SQ_SC_STATUS_SAFE_EDITING | SQ_SC_STATUS_NOT_LIVE) > 0)) {
 						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 						if (array_get_index($this->_running_vars, 'workflow_stream') !== NULL) {
 							$wfm->setStartingStream($assetid, $this->_running_vars['workflow_stream']);
+						}
+						else {
+							// should we automatically pick a stream?
+							$result = $wfm->getDefaultStreamSelection($asset->id);
+							if($result !== 'SQ_USE_DEFAULT') {
+								$workflow_stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($result, 'workflow_stream', TRUE, 'name');
+								if(isset($workflow_stream_names[$result])) {
+									$wfm->setStartingStream($assetid, $workflow_stream_names[$result]);
+								}
+							}
 						}
 
 						if (array_get_index($this->_running_vars, 'workflow_editor_comment') !== NULL) {

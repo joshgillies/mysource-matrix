@@ -89,14 +89,16 @@
     </section>
     <section name="Sorting" write_access="write:attributes">
         <field attribute="num_per_page">
+            <display_name>Words Per Page</display_name>
+            <note>Set to '0' (zero) to list all search terms on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.&lt;br/&gt;If the listing type is Random, this defines how many search terms are randomly displayed ('0' displays a single search term).&lt;br/&gt;Keywords can be used to dynamically set the number of items on the page.</note>
             <text width="30" />
         </field>
     </section>
     <section name="Customise Bodycopies" write_access="write:links">
         <field>
-            <display_name>Words Per Page</display_name>
-            <note>Set to '0' (zero) to list all search terms on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.&lt;br/&gt;If the listing type is Random, this defines how many search terms are randomly displayed ('0' displays a single search term).&lt;br/&gt;Keywords can be used to dynamically set the number of items on the page.</note>
-            <function_call>
+            <display_name>Customise No Results Bodycopy?</display_name>
+	    <note>If this is set to Yes, an additional &quot;Page Contents (No Results)&quot; bodycopy will appear, allowing you to specify different contents when there are no search terms to list. Note that this is turned on by default.</note>
+	    <function_call>
                 <paint_function name="paintUseNoResultsBodycopy" />
                 <process_function name="processUseNoResultsBodycopy" />
             </function_call>

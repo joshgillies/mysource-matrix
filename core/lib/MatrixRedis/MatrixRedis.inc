@@ -45,16 +45,28 @@ class MatrixRedis
             return FALSE;
         }
 
-        assert_true(extension_loaded('redis'), 'Cannot use Redis for '.$type.'; it requires the redis PECL extension installed within PHP, which is not installed');
-        assert_true(is_file(SQ_DATA_PATH.'/private/conf/redis.inc'), 'Cannot use Redis for '.$type.'; the Redis configuration file is not set');
+        if (!extension_loaded('redis')) {
+			trigger_error('Cannot use Redis for '.$type.'; it requires the redis PECL extension installed within PHP, which is not installed', E_USER_NOTICE);
+			return FALSE;
+		}
+		if (!is_file(SQ_DATA_PATH.'/private/conf/redis.inc')) {
+			trigger_error('Cannot use Redis for '.$type.'; the Redis configuration file is not set', E_USER_NOTICE);
+			return FALSE;
+		}
 
         $redis_conf = require(SQ_DATA_PATH.'/private/conf/redis.inc');
-        assert_true(array_key_exists($type, $redis_conf['services']), 'Cannot use Redis for '.$type.'; the service is not set up.');
+        if (!array_key_exists($type, $redis_conf['services'])) {
+			trigger_error('Cannot use Redis for '.$type.'; the service is not set up.', E_USER_NOTICE);
+			return FALSE;
+		}
 
         $services = $redis_conf['services'][$type];
         $hosts = $redis_conf['hosts'];
 
-        assert_true(count($hosts) > 0, 'Cannot use Redis for '.$type.'; no hosts are defined in the Redis configuration file');
+        if (count($hosts) < 1) {
+			trigger_error('Cannot use Redis for '.$type.'; no hosts are defined in the Redis configuration file', E_USER_NOTICE);
+			return FALSE;
+		}
 
         self::$_connections[$type] = new Redis();
 
@@ -78,6 +90,7 @@ class MatrixRedis
             $prefix       = array_get_index($host, 'prefix', '');
             $persistent   = array_get_index($host, 'persistent', FALSE);
             $read_timeout = array_get_index($host, 'read_timeout', 0);
+            $database     = array_get_index($host, 'database', 0);
 
             $connFunction = 'connect';
             if ($persistent === TRUE) {
@@ -100,6 +113,11 @@ class MatrixRedis
 
             if ($connected === FALSE) {
                 log_error(get_class().' host '.$host_key.' not set up correctly for '.$type, E_USER_WARNING);
+                continue;
+            }
+
+            if (!self::$_connections[$type]->select($database)) {
+                log_error(get_class().' failed to select database '.$database.' for '.$type, E_USER_WARNING);
                 continue;
             }
 

@@ -202,6 +202,32 @@ class Rest_Common
 	}//end _runJavascript()
 
 
+	/**
+	* Check if the given js engine type is installed on the system
+	*
+	* @param string $js_engine	JavaScript engine to use to process the js code
+	*
+	* @return array
+	* @access public
+	*/
+	public static function jsEngineInstalled($js_engine)
+	{
+		$installed = FALSE;
+
+		$js_engine = strtolower($js_engine);
+		if ($js_engine == 'v8') {
+			$installed = extension_loaded('v8js');
+		} else if ($js_engine == 'spidermonkey') {
+			require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+			$command = SQ_TOOL_JS_PATH.' -e \'print("ok");\'';
+			exec($command, $output, $status);
+			$installed = $status === 0;
+		}
+
+		return $installed;
+
+	}//end jsEngineInstalled()
+
 }//end class
 
 ?>

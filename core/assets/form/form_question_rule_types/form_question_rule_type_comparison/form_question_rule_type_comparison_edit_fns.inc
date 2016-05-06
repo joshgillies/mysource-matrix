@@ -47,16 +47,38 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 	{
 		$operator_list = $asset->getOperators();
 
+		
+		$comparison_text = Array(
+			'=='   => translate('The response must be equal to "%s"'),
+			'==_q' => translate('The response must be equal to the response to question "%s"'),
+			'!='   => translate('The response must NOT be equal with "%s"'),
+			'!=_q' => translate('The response must NOT be equal to the response to question "%s"'),
+			'>'    => translate('The response must be greater than "%s"'),
+			'>_q'  => translate('The response must be greater than the response to question "%s"'),
+			'<'    => translate('The response must be less than "%s"'),
+			'<_q'  => translate('The response must be less than the response to question "%s"'),
+			'>='   => translate('The response must be greater than or equal to "%s"'),
+			'>=_q' => translate('The response must be greater than or equal to the response to question "%s"'),
+			'<='   => translate('The response must be less than or equal to "%s"'),
+			'<=_q' => translate('The response must be less than or equal to the response to question "%s"'),
+		);
+
+		$cq_id = (string) array_get_index($rule_data, 'comparison_question_id', '0');
+		$op    = (string) array_get_index($rule_data, 'operator', '1');
+		$value = (string) array_get_index($rule_data, 'value', '');
+
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
-
-			if (($cq_id = array_get_index($rule_data, 'comparison_question_id', 0)) != 0) {
+			if ($cq_id !== '0') {
 				$value = get_asset_tag_line($cq_id);
-			} else {
-				$value = array_get_index($rule_data, 'value', '');
+				$op   .= '_q';
 			}
 
-			echo translate('core_form_rule_comparison_edit_'.array_get_index($rule_data, 'operator', '==').($cq_id ? '_q' : ''), $value);
+			echo sprintf(
+				$comparison_text[$op],
+				$value
+			);
+
 			$o->closeField();
 
 		} else {
@@ -64,19 +86,19 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 			$o->openField(translate('Operator'));
 
 			// list of operators
-			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '=='));
+			combo_box($prefix.'[operator]', $operator_list, false, $op);
 			$o->closeField();
 
 			$o->openField(translate('Static Value'));
 
 			// give a text box to write the comparison value in
-			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 30);
+			text_box($prefix.'[value]', $value, 30);
 			$o->closeField();
 
 			$o->openField(translate('OR Value of Question'));
 
 			// give a text box to write the comparison value in
-			asset_finder($prefix.'[asset]', array_get_index($rule_data, 'comparison_question_id', '0'), Array('form_question' => 'D'));
+			asset_finder($prefix.'[asset]', $cq_id, Array('form_question' => 'D'));
 			$o->closeField();
 
 			$o->sectionNote(translate('Enter either a static value to compare responses against, or select another question from this form to compare with that question\'s response. The selection of a question takes precedence over a static value.'));

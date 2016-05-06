@@ -64,22 +64,22 @@ class Form_Action_Set_Session_Var extends Form_Action
 
 		// Paint something here!
 		?>
-		<table class="no-borders" style="width:auto">
+		<table class="sq-backend-table" style="width:100%; display:block;">
 			<tr>
-				<td><?php echo translate('Variable Name');?></td>
+				<th><div style="width:150px"><?php echo translate('Variable Name');?></div></th>
 
 				<td>
 				<?php
-				text_box($prefix.'_var_name', $name, 30);
+				text_box($prefix.'_var_name', $name, 90);
 				?>
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('Set Value');?></td>
+				<th><?php echo translate('Variable Value');?></th>
 
-				<td>
+				<td width="100%">
 				<?php
-				text_box($prefix.'_var_value', $value, 30);
+				text_box($prefix.'_var_value', $value, 90);
 				?>
 				</td>
 			</tr>

@@ -16,6 +16,7 @@
 
 
 require_once SQ_LIB_PATH.'/config/prefs.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Content_Type_WYSIWYG_Prefs
@@ -151,18 +152,19 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
             'ViperTableEditorPlugin'	=> translate('Table Editing'),
             'ViperSourceViewPlugin'		=> translate('View Source'),
             'ViperCopyPastePlugin'		=> translate('Editing Tools <i>(Copy, Paste, etc.)</i>'),
+            'MatrixCommentsPlugin'         => translate('Comments'),
           );
 
         $this->pref_vars['SQ_WYSIWYG_STYLE']['name'] = translate('WYSIWYG Style');
 
-        $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['name'] = translate('WYSIWYG CSS Styles');
+        $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['name'] = translate('Apply WYSIWYG CSS Styles?');
         $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['desc'] = translate('Control whether CSS styles will be applied to the WYSIWYG.').' '.
             translate('The styles are defined in CSS files used as Associated Files for the current asset.').' '.
             translate('The Matrix Apply Design plugin must be enabled for this setting to take effect.');
 
         $this->pref_vars['SQ_WYSIWYG_PLUGINS']['name'] = translate('WYSIWYG Plugins');
 
-        $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['name'] = translate('WYSIWYG Image Resize');
+        $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['name'] = translate('Disable WYSIWYG Image Resize?');
 
         $this->pref_vars['SQ_THESAURUS']['name'] = translate('Thesaurus');
         $this->pref_vars['SQ_THESAURUS']['desc'] = translate('The thesaurus asset used by the Matrix Expand Keywords plugin.');
@@ -172,17 +174,17 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
             translate('The keyword <b>%%link%%</b> is replaced by the <b>Link</b> field in the Insert Link pop-up - this can appear anywhere in the string, allowing you to make \'pseudo-protocols\' that expand to a link in a certain format.').' '.
             translate('The \'http\', \'https\', \'mailto\' and \'ftp\' protocols are core to the system, and cannot be deleted or modified.');
 
-        $this->pref_vars['SQ_LIVE_LINK_ONLY']['name'] = translate('Live Asset Hyperlink Safety');
-        $this->pref_vars['SQ_LIVE_LINK_ONLY']['desc'] = translate('If yes, editors of Live assets will only able permitted to create hyperlinks to other Live assets.');
+        $this->pref_vars['SQ_LIVE_LINK_ONLY']['name'] = translate('Hyperlink Safety in Live Assets?');
+        $this->pref_vars['SQ_LIVE_LINK_ONLY']['desc'] = translate('If set to "Yes", editors of Live assets will only able permitted to create hyperlinks to other Live assets.');
 
         $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['name'] = translate('Admin Mode WYSIWYG Type');
         $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['desc'] = translate('Select the editor that you wish to use for WYSIWYG Content Containers in Admin Mode.').' '.
             sprintf(
                 translate('If the Edit+ editor is selected, the following WYSIWYG preferences will not be applied: %s, %s, %s, %s, %s and %s.'),
                 translate('WYSIWYG Style'),
-                translate('WYSIWYG CSS Styles'),
+                translate('Apply WYSIWYG CSS Styles?'),
                 translate('WYSIWYG Plugins'),
-                translate('WYSIWYG Image Resize'),
+                translate('Disable WYSIWYG Image Resize?'),
                 translate('Thesaurus'),
                 translate('Protocol Templates')
             );
@@ -205,6 +207,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
+        $yes_no_options = Array(
+               1 => translate('Yes'),
+               0 => translate('No'),
+           );
+
 	    $is_root   = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin  = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
         $have_lock = ($have_lock && $is_admin);
@@ -268,7 +275,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
                     check_box('prefs[SQ_VIPER_PLUGINS]['.$index.']', 1, $checked);
                 } else {
 
-                    echo '<img src="'.sq_web_path('lib').'/web/images/'.($checked ? 'tick' : 'cross').'.gif" title="'.$alt_text.'" alt="'.$alt_text.'" />';
+                    echo '<img src="'.sq_web_path('lib').'/web/images/'.($checked ? 'tick' : 'cross').'.png" title="'.$alt_text.'" alt="'.$alt_text.'" />';
                 }
                 echo '</td>';
                 $i++;
@@ -302,6 +309,9 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
                         echo $wysiwyg_style['body_type'];
                     }
                     ?>
+                    <div class="sq-backend-smallprint">
+                        <?php echo translate('Only affects Internet Explorer 10 and below. iFrame used in other browsers, and IE 11 and above.') ?>
+                    </div>
                     </td>
                 </tr>
                 <tr>
@@ -360,18 +370,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
                     </td>
                 </tr>
             </table>
-            <div class="sq-warning-message">
-                <?php echo translate('<strong>Note:</strong> "Body Type" only affects Internet Explorer, versions 10 and below. In Mozilla or WebKit browsers, or IE 11 and above, an IFrame is always used.') ?>
-            </div>
             <?php
 		});//end closure (SQ_WYSIWYG_STYLE)
 
-        // Apply CSS styles to (classic) WYSIWYG?
-        $options = Array(
-                       1 => translate('Apply CSS styles'),
-                       0 => translate('Don\'t apply CSS styles'),
-                   );
-        $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_APPLY_DESIGN_STYLE', $options);
+        // Apply CSS styles to (classic) WYSIWYG?\
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_APPLY_DESIGN_STYLE', $yes_no_options);
 
         // Classic WYSIWYG plugins
 		$this->paintField($o, $have_lock, $pref, 'SQ_WYSIWYG_PLUGINS', function($plugins_setting) use ($have_lock) {
@@ -438,7 +441,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
                 if ($have_lock) {
                     check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', $checked,'',$extra);
                 } else {
-                    echo '<img src="'.sq_web_path('lib').'/web/images/'.($checked ? 'tick' : 'cross').'.gif" title="'.$alt_text.'" alt="'.$alt_text.'" />';
+                    echo '<img src="'.sq_web_path('lib').'/web/images/'.($checked ? 'tick' : 'cross').'.png" title="'.$alt_text.'" alt="'.$alt_text.'" />';
                 }
                 echo '</td>';
                 $i++;
@@ -446,56 +449,14 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
             ?></tr>
             </table>
             <?php
-
-
-/*
-
-			if ($have_lock) {
-				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-				if (!empty($all_plugins)) {
-					hidden_field('prefs[SQ_WYSIWYG_PLUGINS_PRESENT]', '1');
-				}
-				global $ROOT_PATH;
-				$ROOT_PATH = SQ_FUDGE_PATH.'/wysiwyg/';
-				foreach ($all_plugins as $plugin_name) {
-					$plugin_path = SQ_FUDGE_PATH.'/wysiwyg/plugins/'.$plugin_name;
-					if (!is_file($plugin_path.'/'.$plugin_name.'.inc')) {
-						continue;
-					}
-					include $plugin_path.'/'.$plugin_name.'.inc';
-					$check_result = call_user_func(Array($plugin_name, 'check_usable'));
-					$extra = ($check_result === TRUE) ? '' : 'disabled="disabled"';
-					check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', ($all || in_array($plugin_name, $plugins)),'',$extra);
-					label('&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name)), 'prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']');
-					if ($check_result !== TRUE) {
-						echo ' <i>('.$check_result.')</i>';
-					}
-					echo '<br/>';
-				}
-			} else {
-				if ($all) {
-					echo translate('All plugins are selected');
-
-				} else {
-					if (empty($plugins)) {
-						echo translate('No plugins are selected');
-
-					} else {
-						echo '<ul>';
-						foreach ($plugins as $plugin_name) {
-							echo '<li class="sq-backend-data">'.ucwords(str_replace('_', ' ', $plugin_name)).'</li>';
-						}
-						echo '</ul>';
-					}
-				}
-			}*/
 		});//end closure (SQ_WYSIWYG_PLUGINS)
 
         // Disable image resizing in (classic) WYSIWYG?
+        // The option keys are yes/no instead of 1/0
         $options = Array(
-                       'yes' => translate('Disable image resizing'),
-                       'no'  => translate('Allow image resizing'),
-                   );
+               'yes' => translate('Yes'),
+               'no'  => translate('No'),
+           );
         $this->paintComboField($o, $have_lock, $pref, 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE', $options);
 
         // Thesaurus selection.

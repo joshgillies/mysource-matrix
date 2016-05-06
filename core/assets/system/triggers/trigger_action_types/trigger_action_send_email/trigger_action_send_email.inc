@@ -18,6 +18,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/dynamic_file/dynamic_file.inc';
 
 /**
 * Trigger_Action_Add_URL
@@ -192,6 +193,11 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			return FALSE;
 		}
 
+		// Dynamic file attachments
+		$dynamic_attachments_value = array_get_index($settings, 'dynamic_attachments_value', serialize(Array()));
+		$dynamic_file_attr = new Asset_Attribute_Dynamic_File(0, $dynamic_attachments_value);
+		$file_attachments = $dynamic_file_attr->generateFiles();
+
 		// Get list of replacements
 		$keywords_list = array_merge(
 									retrieve_keywords_replacements($current_value['html_format']),
@@ -210,13 +216,16 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($state['asset']);
 
-		$email_format_attr->sendMail($replacements);
+		$email_format_attr->sendMail($replacements, $file_attachments);
 
 		if (is_null($old_current_asset)) {
 			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
 		} else {
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
 		}
+
+		// Clean up the dynamic attachment files
+		$dynamic_file_attr->cleanUpGeneratedFiles();
 
 		return Array(
 				'assetid'	=> $assetid,
@@ -264,100 +273,113 @@ class Trigger_Action_Send_Email extends Trigger_Action
 
 		$ast2send_atr_param_map->setParameter('ast2send_assetid', 'Asset To Send Asset ID');
 
+		// Dynamic file attachments
+		$dyanmic_attachments_value = array_get_index($settings, 'dynamic_attachments_value', serialize(Array()));
+		$dynamic_file_attr = new Asset_Attribute_Dynamic_File(0, $dyanmic_attachments_value);
+
 		?>
-		<table class="sq-backend-table" border="1" style="width: auto">
-			<tr>
-				<th><?php echo translate('Active User Recipient'); ?></th>
+		<div>
+			<p class="sq-backend-section-subheading"><?php echo translate('Email Settings'); ?></p>
+			<table class="sq-backend-table with-bottom-margin" border="1" style="width: auto">
+				<tr>
+					<th><?php echo translate('Active User Recipient'); ?></th>
 
-				<td>
-					<?php
-					if ($write_access) {
-						check_box($prefix.'[to_owner]', 1, $to_owner);
-						label(translate('Send to active user'), $prefix.'[to_owner]');
-
-						echo '<div class="sq-backend-note">'.translate('Sends a copy to the user asset that fired this event').'</div>';
-
-					} else {
-						?>
-						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($to_owner ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
+					<td>
 						<?php
-						echo translate('Send to active user');
+						if ($write_access) {
+							check_box($prefix.'[to_owner]', 1, $to_owner);
+							label(translate('Send to active user'), $prefix.'[to_owner]');
 
-					}
-					?>
-				</td>
-			</tr>
-			<tr>
-				<th><?php echo translate('Group Recipients'); ?></th>
-
-				<td>
-					<?php
-					if ($write_access) {
-						multiple_asset_finder($prefix.'[groups]', $current_groups, Array('user_group' => 'I'));
-						echo '<div class="sq-backend-note">'.translate('Sends a copy to users assigned to the selected groups for the asset that fired this event').'</div>';
-
-					} else {
-						if (empty($current_groups)) {
-							echo translate('None');
+							echo '<div class="sq-backend-note">'.translate('Sends a copy to the user asset that fired this event').'</div>';
 
 						} else {
-							foreach ($current_groups as $group) {
-								echo get_asset_tag_line($group).'<br />';
-							}
+							?>
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($to_owner ? 'tick' : 'cross'); ?>.png" width="15" height="15" />
+							<?php
+							echo translate('Send to active user');
+
 						}
-					}
-					?>
-				</td>
-			</tr>
-			<tr>
-				<th><?php echo translate('Role Recipients'); ?></th>
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('Group Recipients'); ?></th>
 
-				<td>
-					<?php
-					if ($write_access) {
-						multiple_asset_finder($prefix.'[roles]', $current_roles, Array('role' => 'I'));
-						echo '<div class="sq-backend-note">'.translate('Sends a copy to users assigned to the selected roles for the asset that fired this event').'</div>';
-
-					} else {
-						if (empty($current_roles)) {
-							echo translate('None');
+					<td>
+						<?php
+						if ($write_access) {
+							multiple_asset_finder($prefix.'[groups]', $current_groups, Array('user_group' => 'I'));
+							echo '<div class="sq-backend-note">'.translate('Sends a copy to users assigned to the selected groups for the asset that fired this event').'</div>';
 
 						} else {
-							foreach ($current_roles as $role) {
-								echo get_asset_tag_line($role).'<br />';
+							if (empty($current_groups)) {
+								echo translate('None');
+
+							} else {
+								foreach ($current_groups as $group) {
+									echo get_asset_tag_line($group).'<br />';
+								}
 							}
 						}
-					}
-					?>
-				</td>
-			</tr>
-			<tr>
-				<th><?php echo 'Recipient Source'; ?></th>
-				<td>
-					<?php echo $atr_parameter_map->paint($new_prefix.'_param', !$write_access); ?>
-				</td>
-			</tr>
-			<tr>
-				<th><?php echo 'Asset To Send'; ?></th>
-				<td>
-					<?php
-						//checkbox for Asset To Send
-						check_box($prefix.'[override_asset_to_send]', '1', array_get_index($settings, 'override_asset_to_send', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-						label('Override the Asset To Send with the asset that causes this trigger to fire.', $prefix.'[override_asset_to_send]');
-						echo '<br/><strong>Note:</strong> You do not need to check this option if you only want to override the asset with the parameter map below. The value in the parameter map will override this option.';
-						//parameter map for Asset To Send
-						echo $ast2send_atr_param_map->paint($new_prefix.'_ast2send_param', !$write_access);
-					?>
-				</td>
-			</tr>
-			<tr>
-				<th><?php echo translate('General Email Settings'); ?></th>
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('Role Recipients'); ?></th>
 
-				<td>
-					<?php $atr_email_format->paint($new_prefix.'_email', !$write_access); ?>
-				</td>
-			</tr>
-		</table>
+					<td>
+						<?php
+						if ($write_access) {
+							multiple_asset_finder($prefix.'[roles]', $current_roles, Array('role' => 'I'));
+							echo '<div class="sq-backend-note">'.translate('Sends a copy to users assigned to the selected roles for the asset that fired this event').'</div>';
+
+						} else {
+							if (empty($current_roles)) {
+								echo translate('None');
+
+							} else {
+								foreach ($current_roles as $role) {
+									echo get_asset_tag_line($role).'<br />';
+								}
+							}
+						}
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo 'Recipient Source'; ?></th>
+					<td>
+						<?php echo $atr_parameter_map->paint($new_prefix.'_param', !$write_access); ?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo 'Asset To Send'; ?></th>
+					<td>
+						<?php
+							//checkbox for Asset To Send
+							check_box($prefix.'[override_asset_to_send]', '1', array_get_index($settings, 'override_asset_to_send', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+							label('Override the Asset To Send with the asset that causes this trigger to fire.', $prefix.'[override_asset_to_send]');
+							echo '<br/><strong>Note:</strong> You do not need to check this option if you only want to override the asset with the parameter map below. The value in the parameter map will override this option.';
+							//parameter map for Asset To Send
+							echo $ast2send_atr_param_map->paint($new_prefix.'_ast2send_param', !$write_access);
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('General Email Settings'); ?></th>
+
+					<td>
+						<?php $atr_email_format->paint($new_prefix.'_email', !$write_access); ?>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div>
+			<p class="sq-backend-section-subheading"><?php echo translate('File Attachment Settings'); ?></p>
+			<?php
+				$dynamic_file_attr->paint($new_prefix.'_attachments', !$write_access);
+			?>
+		</div>
 		<?php
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 		return ob_get_clean();
@@ -421,6 +443,11 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$ast2send_param_map->process($new_prefix.'_ast2send_param');
 
 		$settings['asset_to_send_map'] = $ast2send_param_map->value;
+
+		// Dynamic file attachments
+		$dynamic_file_attr = new Asset_Attribute_Dynamic_File();
+		$dynamic_file_attr->process($new_prefix.'_attachments');
+		$settings['dynamic_attachments_value'] = $dynamic_file_attr->value;
 
 		return FALSE;
 

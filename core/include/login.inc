@@ -28,7 +28,7 @@
 ?>
 <html>
 	<head>
-		<title>MySource Matrix Login</title>
+		<title>Squiz Matrix Login</title>
 	</head>
 	<body bgcolor="#FFFFFF">
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_ACTION=login&FORCE_BACKUP_LOGIN=1" name="login_prompt" method="post">

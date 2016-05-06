@@ -46,11 +46,21 @@ class Ldap_User_Group_Edit_Fns extends User_Group_Edit_Fns
 														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
+									'metadata'		=> Array(
+														'name'			=> 'Metadata',
+														'force_unlock'	=> TRUE,
+														'lock_type'		=> 'metadata',
+														),
 									'dependants'	=> Array(
 														'name'			=> 'Dependants',
 														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
+									'logs'          => Array(
+														'name'          => 'Logs',
+														'force_unlock'  => TRUE,
+														'lock_type'     => 'none',
+														),
 								);
 
 	}//end constructor

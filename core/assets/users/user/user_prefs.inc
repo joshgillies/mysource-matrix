@@ -38,7 +38,15 @@ class User_Prefs extends Prefs
 						'SQ_USER_SESSION_PREFS'		=> Array(
 														'name'			=> 'user_prefs_session_settings_header',
 														'description'	=> 'This preference allows you to change the session settings for this user group',
-														'default'		=> Array(Array('persist' => '0', 'timeout' => '0', 'max_length' => '0')),
+														'default'		=> Array(
+																				Array(
+																					'persist' => 0,
+																					'expiry' => '2592000',	// Persistant session cookie expiry
+																					'refresh_threshold' => '86400', // Refresh persistant session cookie expiry after the set time
+																					'timeout' => '0', 
+																					'max_length' => '0',
+																				)
+																			),
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_ASSET_MAP_LINEAGE'	=> Array(
@@ -55,7 +63,7 @@ class User_Prefs extends Prefs
 													   ),
 						'SQ_USER_ASSET_MAP_WIDTH'	=> Array(
 														'name'			=> 'asset_map_width',
-														'description'	=> 'The asset map frame width in pixels.',
+														'description'	=> 'The asset map frame width in pixels. Minimum width is 230px.',
 														'default'		=> 300,
 														'protected'		=> FALSE,
 													   ),
@@ -138,25 +146,25 @@ class User_Prefs extends Prefs
 		$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['name'] = translate('Asset Map Root Asset');
 		$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['desc'] = translate('The asset that will be displayed as the Asset Map\'s root node');
 
-		$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['name'] = translate('Enforce Safe Trash');
-        $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['desc'] = translate('If this setting is enabled, the system will prohibit the deletion of an asset until all notice links are removed.');
+		$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['name'] = translate('Enforce Safe Trash?');
+        $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['desc'] = translate('If set to "Yes", the system will prohibit the deletion of an asset until all notice links are removed.');
 
         $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['name'] = translate('Asset Map Width');
-		$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['desc'] = translate('The asset map frame width in pixels.');
+		$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['desc'] = translate('The asset map frame width in pixels. Minimum width is 230px.');
 
 		$this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['name'] = translate('Commit Button Position');
-        $this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['desc'] = translate('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode.');
+        $this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['desc'] = translate('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Edit Mode.');
 
-        $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['name'] = translate('Hide frames in the Simple Edit Interface?');
-        $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['desc'] = translate('If set to "Do not hide frames", Squiz Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.');
+        $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['name'] = translate('Hide Frames in Edit Mode?');
+        $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['desc'] = translate('If set to "No", Squiz Matrix will paint the default Edit Mode interface which includes the header bar and Asset Map resizing frame.');
 
-        $this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['name'] = translate('Settings for using Image keyword replacements');
+        $this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['name'] = translate('Image Keyword Replacement Settings');
 
         $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['name'] = translate('Set Context on Login');
         $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['desc'] = translate('Set the default context when a user logs in.');
 
-        $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['name'] = translate('Filter Front End User Input');
-        $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['desc'] = translate('If set to "Filter Input", Matrix will filter (strip keywords, strip script tags and escape HTML) any input by the user from the front end.');
+        $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['name'] = translate('Filter Frontend User Input?');
+        $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['desc'] = translate('If set to "Yes", Matrix will filter (strip keywords, strip script tags and escape HTML) any input by the user from the front end.');
 
         $this->pref_vars['SQ_USER_PREVIEW_SCREEN_SIZES']['name'] = translate('Preview Screen Size Options');
         $this->pref_vars['SQ_USER_PREVIEW_SCREEN_SIZES']['desc'] = translate('These options will be available as resolution options when using the Preview screen on assets that have a web path applied.').' '.
@@ -177,6 +185,11 @@ class User_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
+        $yes_no_options = Array(
+                1 => translate('Yes'),
+                0 => translate('No'),
+           );
+
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
@@ -203,45 +216,69 @@ class User_Prefs extends Prefs
 			foreach ($session_settings as $id => $extra_setting) {
 			?><tr>
                 <th><strong><?php echo ($id == '0') ? translate('Default').' '.translate('Rule') : sprintf(translate('Rule %s'), $id); ?></strong></th>
-                <td>
+                <td style="padding:0px">
                 <table>
-                    <col width="44%">
-                    <col width="6%">
-                    <col width="50%">
+                    <col width="45%">
+                    <col width="55%">
                     <tbody>
-                    <tr>
-                        <?php
-                        if ($have_lock) {
-                            echo '<td>';
-                            label(translate('When the user closes the browser'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_persist');
-                            echo '</td><td style="text-align: center">';
-                            check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][persist]', '0', ($extra_setting['persist'] == 0), '', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_persist"');
-                            echo '</td><td></td>';
-                        } else {
-                            echo '<td>';
-                            echo translate('When the user closes the browser');
-                            echo '</td><td style="text-align: center">';
-                            echo '<img src="'.sq_web_path('lib').'/web/images/'.(empty($extra_setting['persist']) ? 'tick' : 'cross').'.gif" />';
-                            echo '</td><td></td>';
-                        }
-                        ?>
-                    </tr>
+					<tr>
+						<?php
+							$expiry_dur = new Asset_Attribute_Duration(0, $extra_setting['expiry']);
+							$refresh_dur = new Asset_Attribute_Duration(0, $extra_setting['refresh_threshold']);
+							$persist_cookie = $extra_setting['persist'];
+
+							echo '<td>'.translate('Session expiry method').'</td>';
+							echo '<td>';
+							$persist_options = Array(
+											0 => translate('When user closes browser'),
+											1 => translate('Set future time'),
+										);
+							if ($have_lock) {
+								$show_hide_js = "onChange=\"if (this.value == '1') this.nextSibling.style.display = 'block'; else this.nextSibling.style.display = 'none';\"";
+								combo_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][persist]', $persist_options, FALSE, $persist_cookie, 0, $show_hide_js);
+							} else {
+								echo $persist_options[$persist_cookie];
+							}
+						
+							echo '<div style="padding-top:3px; display:'.($persist_cookie ? 'block' : 'none').'">';
+							echo '<table class="sq-backend-nopadding-table">';
+
+							echo '<tr>';
+							echo '<td>'.translate('Future time').'</td>';
+							echo '<td>';
+							$expiry_dur->paint('prefs_dur_expiry_'.$id, !$have_lock);
+							echo '</td>';
+							echo '</tr>';
+								
+							echo '<tr>';
+							echo '<td>'.translate('Refresh threshold').'</td>';
+							echo '<td>';
+							$refresh_dur->paint('prefs_dur_refresh_'.$id, !$have_lock);
+							echo '</td>';
+							echo '</tr>';
+
+							echo '</table>';
+							echo '</div>';
+							echo '</td>';
+						?>
+					</tr>
                     <tr>
                         <?php
                             $dur = new Asset_Attribute_Duration(0, $extra_setting['timeout']);
                             if ($have_lock) {
                                 echo '<td>';
+                                check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][timeout_enabled]', '1', ($extra_setting['timeout'] != 0), 'toggleInputs(this.parentNode.nextSibling)', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_timeout_enabled"');
+								echo '&nbsp;';
                                 label(translate('Time since their last Matrix activity is longer than'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_timeout_enabled');
-                                echo '</td><td style="text-align: center">';
-                                check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][timeout_enabled]', '1', ($extra_setting['timeout'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_timeout_enabled"');
-                                echo '</td><td>';
+                                echo '</td>';
+								echo '<td id="timeout'.$id.'">';
                                 $dur->paint('prefs_dur_timeout_'.$id, !$have_lock);
                                 echo '</td>';
                             } else {
                                 echo '<td>';
+                                echo '<img src="'.sq_web_path('lib').'/web/images/'.(!empty($extra_setting['timeout']) ? 'tick' : 'cross').'.png" />';
+								echo '&nbsp;';
                                 echo translate('Time since their last Matrix activity is longer than');
-                                echo '</td><td style="text-align: center">';
-                                echo '<img src="'.sq_web_path('lib').'/web/images/'.(!empty($extra_setting['timeout']) ? 'tick' : 'cross').'.gif" />';
                                 echo '</td><td>';
                                 $dur->paint('prefs_dur_timeout_'.$id, !$have_lock);
                                 echo '</td>';
@@ -253,17 +290,18 @@ class User_Prefs extends Prefs
                             $dur = new Asset_Attribute_Duration(0, $extra_setting['max_length']);
                             if ($have_lock) {
                                 echo '<td>';
+                                check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][max_length_enabled]', '1', ($extra_setting['max_length'] != 0), 'toggleInputs(this.parentNode.nextSibling)', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_max_length_enabled"');
+								echo '&nbsp;';
                                 label(translate('Time since their last login is longer than'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_max_length_enabled');
-                                echo '</td><td style="text-align: center">';
-                                check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][max_length_enabled]', '1', ($extra_setting['max_length'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_max_length_enabled"');
-                                echo '</td><td>';
+                                echo '</td>';
+								echo '<td id="max_length'.$id.'">';
                                 $dur->paint('prefs_dur_max_length_'.$id, !$have_lock);
                                 echo '</td>';
                             } else {
                                 echo '<td>';
+								echo '&nbsp;';
+                                echo '<img src="'.sq_web_path('lib').'/web/images/'.(!empty($extra_setting['max_length']) ? 'tick' : 'cross').'.png" />';
                                 echo translate('Time since their last login is longer than');
-                                echo '</td><td style="text-align: center">';
-                                echo '<img src="'.sq_web_path('lib').'/web/images/'.(!empty($extra_setting['max_length']) ? 'tick' : 'cross').'.gif" />';
                                 echo '</td><td>';
                                 $dur->paint('prefs_dur_max_length_'.$id, !$have_lock);
                                 echo '</td>';
@@ -283,21 +321,25 @@ class User_Prefs extends Prefs
 
                             // Paint the interface
                             if ($have_lock) {
-                                $js = "onChange=\"Javascript: if (this.checked == false) { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][ip_from]').value = ''; } \"";
                                 echo '<td>';
+                                check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][limit]', '0', (!empty($extra_setting['ip_from']) || !empty($extra_setting['ip_to'])), 'toggleInputs(this.parentNode.nextSibling)', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit"');
+								echo '&nbsp;';
                                 label(translate('Limit to an IP Address or Range'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit');
-                                echo '</td><td style="text-align: center">';
-                                check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][limit]', '0', (!empty($extra_setting['ip_from'])), '', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit" '.$js);
-                                echo '</td><td>';
+                                echo '</td>';
+								echo '<td>';
+								echo '<span id ="ip_from'.$id.'">';
                                 text_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][ip_from]', $extra_setting['ip_from'], 13);
+								echo '</span>';
                                 echo ' to ';
+								echo '<span id ="ip_to'.$id.'">';
                                 text_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][ip_to]', $extra_setting['ip_to'], 13);
+								echo '</span>';
                                 echo '</td>';
                             } else {
                                 echo '<td>';
+                                echo '<img src="'.sq_web_path('lib').'/web/images/'.((!empty($extra_setting['ip_from'])) ? 'tick' : 'cross').'.png" />';
+								echo '&nbsp;';
                                 echo translate('Limit to an IP Address or Range');
-                                echo '</td><td style="text-align: center">';
-                                echo '<img src="'.sq_web_path('lib').'/web/images/'.((!empty($extra_setting['ip_from'])) ? 'tick' : 'cross').'.gif" />';
                                 echo '</td><td>';
                                 echo $extra_setting['ip_from'];
                                 if (!empty($extra_setting['ip_to'])) {
@@ -322,22 +364,22 @@ class User_Prefs extends Prefs
                             }
 
                             if ($have_lock) {
-                                $js = "onChange=\"Javascript: if (this.checked == true) { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][user_types]').disabled = false; } else { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][user_types]').disabled = true;  }\"";
                                 echo '<td>';
+                                check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][limit_user_types]', '0', (!empty($user_types)), 'toggleInputs(this.parentNode.nextSibling)', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types" ');
+								echo '&nbsp;';
                                 label(translate('Limit to these User types'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types');
-                                echo '</td><td style="text-align: center">';
-                                check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][limit_user_types]', '0', (!empty($user_types)), '', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types" '.$js);
                                 //echo '<script type="text/javascript">if (document.getElementById("prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]").value == \'\') { document.getElementById("prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]").disabled = true; }</script>';
-                                echo '</td><td>';
+                                echo '</td>';
+								echo '<td id ="user_types'.$id.'">';
                                 asset_type_chooser('prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]', TRUE, $user_types, NULL, FALSE, FALSE, Array('user'));
                                 echo '</td>';
                             } else {
                                 $available_user_types = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user_types, 'name');
 
                                 echo '<td>';
+                                echo '<img src="'.sq_web_path('lib').'/web/images/'.((!empty($user_types)) ? 'tick' : 'cross').'.png" />';
+								echo '&nbsp;';
                                 echo translate('Limit to these User types');
-                                echo '</td><td style="text-align: center">';
-                                echo '<img src="'.sq_web_path('lib').'/web/images/'.((!empty($user_types)) ? 'tick' : 'cross').'.gif" />';
                                 echo '</td><td>';
                                 echo implode(', ', $available_user_types);
                                 echo '</td>';
@@ -371,10 +413,9 @@ class User_Prefs extends Prefs
                 </td></tr>
             <?php } ?></tbody>
 			</table>
-			<div class="sq-warning-message">
+			<div class="sq-backend-smallprint">
 			<?php
-			echo translate('<strong>Note: "Matrix activity"</strong> refers to either accessing a page on the frontend, or having the backend interface open.').' '.
-			    translate('If none of the boxes above are ticked then the session expiry time will be equal to the longest session expiry preference configured in the system, to a maximum of a year and a minimum of a week.');
+			echo translate('<strong>"Matrix activity"</strong> refers to either accessing a page on the frontend, or having the Admin or Edit Mode interface open.');
 			?>
 			</div>
 
@@ -385,20 +426,27 @@ class User_Prefs extends Prefs
 					function toggleInputs(elt) {
 						var inputs = elt.getElementsByTagName('INPUT');
 						for (var i=0; i < inputs.length; i++) {
-							if (inputs[i].type.toLowerCase() == 'text') {
-								inputs[i].disabled = !inputs[i].disabled;
-							}
+							inputs[i].disabled = !inputs[i].disabled;
+						}
+						var inputs = elt.getElementsByTagName('SELECT');
+						for (var i=0; i < inputs.length; i++) {
+							inputs[i].disabled = !inputs[i].disabled;
 						}
 					}
 					<?php
 					// disable fields initially if appropriate
-					foreach (Array('timeout', 'max_length') as $field) {
+					foreach (Array('timeout', 'max_length', 'ip_from', 'user_types') as $field) {
 						foreach ($session_settings as $id => $session_setting) {
-							if (empty($session_setting[$field])) {
+							if (empty($session_setting[$field]) && $field != 'ip_from') {
 								?>
 								toggleInputs(document.getElementById('<?php echo $field.$id; ?>'));
 								<?php
-							}//end if
+							} else if ($field == 'ip_from' && empty($session_setting['ip_from']) && empty($session_setting['ip_to'])) {
+								?>
+								toggleInputs(document.getElementById('<?php echo 'ip_from'.$id; ?>'));
+								toggleInputs(document.getElementById('<?php echo 'ip_to'.$id; ?>'));
+								<?php
+							}
 						}//end foreach
 					}//end foreach
 					?>
@@ -411,11 +459,7 @@ class User_Prefs extends Prefs
         $this->paintAssetMapField($o, $have_lock, $pref, 'SQ_USER_ASSET_MAP_LINEAGE', FALSE, Array(), translate('Root Folder'));
 
 		// Enforce safe trash.
-        $options = Array(
-                        1 => translate('Enforce Safe Trash'),
-                        0 => translate('Do not enforce Safe Trash'),
-                   );
-		$this->paintComboField($o, $have_lock, $pref, 'SQ_USER_SAFE_TYPE3_TRASH', $options);
+		$this->paintComboField($o, $have_lock, $pref, 'SQ_USER_SAFE_TYPE3_TRASH', $yes_no_options);
 
 	    // Asset map width.
         // Messages per page.
@@ -434,11 +478,7 @@ class User_Prefs extends Prefs
         $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_COMMIT_BUTTON_POS', $options);
 
         // Hide frames in Simple Edit?
-        $options = Array(
-                       FALSE => translate('Do not hide frames'),
-                       TRUE	 => translate('Hide frames'),
-                   );
-        $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_LIMBO_HIDE_FRAMES', $options);
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_LIMBO_HIDE_FRAMES', $yes_no_options);
 
         $this->paintField($o, $have_lock, $pref, 'SQ_USER_ATTRIBUTE_IMAGE', function($attribute_settings) use ($have_lock) {
 			?>
@@ -575,11 +615,7 @@ class User_Prefs extends Prefs
         $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_SET_CONTEXT_ON_LOGIN', $options);
 
         // Filter Front-End Input?
-        $options = Array(
-                       FALSE => translate('Do not filter input'),
-                       TRUE	 => translate('Filter input'),
-                   );
-        $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_FILTER_FRONT_END_INPUT', $options);
+        $this->paintComboField($o, $have_lock, $pref, 'SQ_USER_FILTER_FRONT_END_INPUT', $yes_no_options);
 
         $this->paintField($o, $have_lock, $pref, 'SQ_USER_PREVIEW_SCREEN_SIZES', function($pref_value) use ($have_lock) {
 			$selected = isset($pref_value['selected']) ? (int)$pref_value['selected'] : NULL;
@@ -631,7 +667,7 @@ class User_Prefs extends Prefs
 					$onclick_js = 'document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][name]").disabled = this.checked;
 									document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][width]").disabled = this.checked;
 									document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][height]").disabled = this.checked;
-									document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][selected]").disabled = this.checked;';
+									document.getElementById("prefs[SQ_USER_PREVIEW_SCREEN_SIZES][selected]_'.$key.'").disabled = this.checked;';
 					check_box('prefs[SQ_USER_PREVIEW_SCREEN_SIZES]['.$key.'][delete]', 1, FALSE, $onclick_js);
 					echo '</td>';
 					echo '</tr>';
@@ -665,6 +701,7 @@ class User_Prefs extends Prefs
 						tr.appendChild(td2);
 						tr.appendChild(td3);
 						tr.appendChild(td4);
+						tr.appendChild(td5);
 						parent.insertBefore(tr, node);
 
 						// Go to next index
@@ -714,6 +751,8 @@ class User_Prefs extends Prefs
 						'ip_from'		=> '',
 						'ip_to'			=> '',
 						'persist'		=> 0,
+						'expiry'		=> 0,
+						'refresh_threshold'	=> 0,
 						'timeout'		=> 0,
 						'max_length'	=> 0,
 						'user_types'	=> '',
@@ -729,7 +768,21 @@ class User_Prefs extends Prefs
 				    $new_prefs[$id]['ip_to'] = '';
 				}
 
-				$new_prefs[$id]['persist'] = !isset($submitted_pref['persist']);
+				if (isset($submitted_pref['persist'])) {
+					$new_prefs[$id]['persist'] = $submitted_pref['persist'];
+					
+					$expiry_dur = new Asset_Attribute_Duration();
+					$expiry_dur->process('prefs_dur_expiry_'.$id);
+					$new_prefs[$id]['expiry'] = $expiry_dur->value;
+
+					$refresh_dur = new Asset_Attribute_Duration();
+					$refresh_dur->process('prefs_dur_refresh_'.$id);
+					$new_prefs[$id]['refresh_threshold'] = $refresh_dur->value;
+				} else {
+					$new_prefs[$id]['persist'] = 0;
+					$new_prefs[$id]['expiry'] = 0;
+					$new_prefs[$id]['refresh_threshold'] = 0;
+				}
 
 				if (isset($submitted_pref['limit_user_types']) === TRUE) {
                     $new_prefs[$id]['user_types']	= (isset($submitted_pref['user_types'])) ? implode(',', $submitted_pref['user_types']) : '';
@@ -849,8 +902,8 @@ class User_Prefs extends Prefs
         if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
 			// update asset map pref
 			if (isset($_POST['prefs']['SQ_USER_ASSET_MAP_WIDTH'])) {
-			    if (is_numeric($_POST['prefs']['SQ_USER_ASSET_MAP_WIDTH']) === FALSE) {
-                    trigger_localised_error('CORE0270', translate('An invalid "Asset Map Width" value has been supplied. Default has been set'), E_USER_NOTICE);
+			    if (is_numeric($_POST['prefs']['SQ_USER_ASSET_MAP_WIDTH']) === FALSE || $_POST['prefs']['SQ_USER_ASSET_MAP_WIDTH'] < 230) {
+                    trigger_localised_error('CORE0270', translate('An invalid Asset Map width value has been supplied. The minimum allowed width for the Asset Map is 230px. The system’s default value for this field has been set.'), E_USER_NOTICE);
                     $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
 			    } else {
 			        $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $_POST['prefs']['SQ_USER_ASSET_MAP_WIDTH'];
@@ -918,7 +971,7 @@ class User_Prefs extends Prefs
 
 		if ((is_null($pref) || $pref == 'SQ_USER_PREVIEW_SCREEN_SIZES') && isset($_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES'])) {
 			$new_prefs = Array('options' => Array());
-			$new_prefs['selected'] = $_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES']['selected'];
+			$new_prefs['selected'] = array_get_index($_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES'], 'selected', -1);
 			unset($_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES']['selected']);
 
 			foreach($_POST['prefs']['SQ_USER_PREVIEW_SCREEN_SIZES'] as $key => $row) {
@@ -965,25 +1018,22 @@ class User_Prefs extends Prefs
 		// For the preferences that cannot be meraged (i.e. not defined here), get the preferences from first settings data
 		$res = $prefs2;
 		if (isset($prefs1['SQ_USER_SESSION_PREFS']['default']) && isset($prefs2['SQ_USER_SESSION_PREFS'])) {
-			// Follow the princple that the most-open option (the one with the check disabled,
-			// or with the longest timeout) wins.
 			$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];
 			if (is_array($prefs2['SQ_USER_SESSION_PREFS']) && isset($prefs2['SQ_USER_SESSION_PREFS']['default'])) {
 				$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
 			} else {
 				$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS'];
 			}
-			$merged['persist'] = max($session_settings_1['persist'], $session_settings_2['persist']);
-			foreach (Array('timeout', 'max_length') as $pref_comp) {
-				if (0 == min($session_settings_1[$pref_comp], $session_settings_2[$pref_comp])) {
-					$merged[$pref_comp] = 0;
-				} else {
-					$merged[$pref_comp] = max($session_settings_1[$pref_comp], $session_settings_2[$pref_comp]);
-				}
-			}
 
-			$res['SQ_USER_SESSION_PREFS']['default'] = $merged;
-		} else if (isset($prefs1['SQ_USER_ASSET_MAP_LINEAGE']['default']) && isset($prefs2['SQ_USER_ASSET_MAP_LINEAGE'])) {
+			// Merge the preferences from two groups into single array 
+			$pref1_array = isset($session_settings_1[0]) ? $session_settings_1 : Array($session_settings_1);
+			$pref2_array = isset($session_settings_2[0]) ? $session_settings_2 : Array($session_settings_2);
+
+			$res['SQ_USER_SESSION_PREFS']['default'] = array_merge($pref1_array, $pref2_array);
+
+		} 
+		
+		if (isset($prefs1['SQ_USER_ASSET_MAP_LINEAGE']['default']) && isset($prefs2['SQ_USER_ASSET_MAP_LINEAGE'])) {
 
 			// asset map settings merge get the common
 			$asset_map_settings1 = $prefs1['SQ_USER_ASSET_MAP_LINEAGE']['default'];

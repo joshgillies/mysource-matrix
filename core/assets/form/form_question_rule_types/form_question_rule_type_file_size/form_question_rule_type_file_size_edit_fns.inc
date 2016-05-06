@@ -48,33 +48,48 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 	{
 		$operator_list = $asset->getOperators();
 		$multiplier_map = Array(
-							''		=> 'bytes',
-							'KB'	=> 'KB',
-							'MB'	=> 'MB',
-							'GB'	=> 'GB',
+							''		=> translate('bytes'),
+							'KB'	=> translate('KB'),
+							'MB'	=> translate('MB'),
+							'GB'	=> translate('GB'),
 						  );
+
+		$comparison_text = Array(
+			'>=' => translate('Uploaded file must be no smaller than %s %s'),
+			'<=' => translate('Uploaded file must be no larger than %s %s'),
+		);
+
+		$cq_id = (string) array_get_index($rule_data, 'comparison_question_id', '0');
+		$op    = (string) array_get_index($rule_data, 'operator', '1');
+		$value = (string) array_get_index($rule_data, 'value', '');
+		$multi = (string) array_get_index($rule_data, 'multiplier', '');
 
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
+			echo sprintf(
+				$comparison_text[$op],
+				$value,
+				$multi
+			);
 
-			echo translate('core_form_rule_file_size_edit_'.array_get_index($rule_data, 'operator', '<='), array_get_index($rule_data, 'value', '0').' '.$multiplier_map[array_get_index($rule_data, 'multiplier', '')]);
 			$o->closeField();
 
 		} else {
+
 			$o->openField(translate('Operator'));
 
 			// list of operators
-			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '<='));
+			combo_box($prefix.'[operator]', $operator_list, false, $op);
 			$o->closeField();
 
 			$o->openField(translate('File Size'));
 
 			// give a text box to write the comparison value in
-			int_text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), false, 3);
-			combo_box($prefix.'[multiplier]', $multiplier_map, false, array_get_index($rule_data, 'multiplier', ''));
+			int_text_box($prefix.'[value]', $value, false, 3);
+			combo_box($prefix.'[multiplier]', $multiplier_map, false, $multi);
 			$o->closeField();
 
-			$o->sectionNote(sprintf(translate('Please note that your PHP configuration specifies a maximum file upload size of <b>%s</b>. If you enter a larger value than this then be aware that the configuration setting will override it. MySource Matrix regards each KB as 1024 bytes, each MB as 1024 KB.'), strtoupper(easy_filesize($this->_maxUploadSize()))));
+			$o->sectionNote(sprintf(translate('Please note that your PHP configuration specifies a maximum file upload size of <b>%s</b>. If you enter a larger value than this then be aware that the configuration setting will override it. Matrix regards each KB as 1024 bytes, each MB as 1024 KB.'), strtoupper(easy_filesize($this->_maxUploadSize()))));
 
 		}
 		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);

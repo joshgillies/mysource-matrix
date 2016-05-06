@@ -22,7 +22,7 @@
 	<package>ecommerce</package>
 	<type_code>paypal_ipn_receiver</type_code>
 	<version>0.1</version>
-	<name>Paypal IPN Receiver</name>
+	<name>PayPal IPN Receiver</name>
 	<description>This is an Instant Payment Notification (IPN) Receiver that receives a POST request from Paypal after a complete payment process</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>

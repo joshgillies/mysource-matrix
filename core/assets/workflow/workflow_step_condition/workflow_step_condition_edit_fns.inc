@@ -258,19 +258,27 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 					$replacements[$keyword] = $workflow_asset->getKeywordReplacement($keyword);
 				}
 				replace_keywords($dynamic_userid, $replacements);
+				if(!assert_valid_assetid($dynamic_userid, '', TRUE, FALSE)) {
+					$dynamic_userid = json_decode($dynamic_userid, true);
+				}
+				$check_users = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($dynamic_userid, Array('user','user_group'),FALSE,'type_code');
+				if(!empty($check_users)) {
+					foreach ($check_users as $publisher =>  $val) {
+						$workflow_array[$publisher] = Array('logic' => $logic, 'published_by' => Array());
+						// commenting
+						$workflow_array[$publisher]['require_comment'] = $asset->attr('require_comment');
+					}
 
-				if(assert_valid_assetid($dynamic_userid, '', TRUE, FALSE)) {
-					$publisher = $dynamic_userid;
+					return TRUE;
 				}
 			}
 		}
 
-		if(empty($publisher)) return TRUE;
-
-		$workflow_array[$publisher] = Array('logic' => $logic, 'published_by' => Array());
-
-		// commenting
-		$workflow_array[$publisher]['require_comment'] = $asset->attr('require_comment');
+		if (!empty($publisher)) {
+			$workflow_array[$publisher] = Array('logic' => $logic, 'published_by' => Array());
+			// commenting
+			$workflow_array[$publisher]['require_comment'] = $asset->attr('require_comment');
+		}
 
 		return TRUE;
 

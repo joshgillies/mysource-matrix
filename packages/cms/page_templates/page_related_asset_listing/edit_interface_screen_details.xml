@@ -30,12 +30,16 @@
 	</section>
 	<section name="Asset Selection" write_access="write:content">
 		<field>
+			<display_name>Asset Types to List</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
 				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Asset Statuses to List</display_name>
+			<note>If selected, only assets in the statuses chosen will be listed. If no statuses are selected, assets to which the current user has effective read permission will be listed.</note>
 			<function_call>
 				<paint_function   name="paintStatus" />
 				<process_function name="processStatus" />
@@ -92,35 +96,59 @@
 	</section>
 	<section name="List Formatting" write_access="write:content">
 		<field attribute="group_by">
+			<display_name>List Format</display_name>
+			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;An A-Z listing displays search terms grouped by their first letter.
+			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
+			</note>
 			<selection style="list" />
 		</field>
 		<field attribute="num_per_page">
+			<display_name>Assets Per Page</display_name>
+			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard or custom grouping list formats..&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset). &lt;br/&gt;Keywords can be used to dynamically set the number of items on the page.</note>
 			<text width="30" />
 		</field>
 		<field attribute="a_z_style">
+			<display_name>A-Z Listing Style</display_name>
+			<note>A Single Page will display all assets on one page, with headings for each letter in the list. When a user clicks a letter in the list of characters, it will automatically jump to that letter on the page.</note>
 			<selection style="list" />
 		</field>
 		<field attribute="a_z_letter_format">
+			<display_name>A-Z Letter Format</display_name>
+			<note>This option only applies for a Single Page A-Z Listing.&lt;br/&gt; Available keyword is %letter_group% which generates an anchored heading for each letter.</note>
 			<text width="30" />
 		</field>
 		<field attribute="prev_page_text">
+			<display_name>Previous Link</display_name>
+			<note>This is the text that will be printed to link to the previous results page</note>
 			<text width="30" />
 		</field>
 		<field attribute="next_page_text">
+				<display_name>Next Link</display_name>
+			<note>This is the text that will be printed to link to the next results page</note>
 			<text width="30" />
 		</field>
 		<field attribute="other_page_text" show_if="isAZListing">
+			<display_name>Non A-Z page text</display_name>
+			<note>Link text to a page containg assets in the A-Z list format which do not begin with A-Z, i.e. numbers or other characters</note>
 			<text width="30" />
 		</field>
 		<field attribute="page_link_format">
+			<display_name>Page Link Format</display_name>
+			<note>This format defines the individual layout of items on the listing's linked page list. If you are using the A-Z list format, this will define the individual layout of items on the linked character list. Available keywords: %page_link% and %page_number%.</note>
 			<text width="50" />
 		</field>
 		<field attribute="current_page_format">
+			<display_name>Current Page Format</display_name>
+			<note>This format defines the layout of the current page number on the listing's linked page list. If you are using the A-Z list format, this will define the layout of an item in the linked character list when no results are found under that particular letter. Available keywords: %page_number%.</note>
 			<text width="50" />
 		</field>
 	</section>
+
 	<section name="Customise Bodycopies" write_access="write:links">
 		<field>
+			<display_name>Customise No Results Bodycopy?</display_name>
+			<note>If this is set to Yes, an additional &quot;Page Contents (No Results)&quot; bodycopy will appear, allowing you to specify different contents when there are no assets to list. Note that this is turned on by default.</note>
 			<function_call>
 				<paint_function   name="paintUseNoResultsBodycopy"   />
 				<process_function name="processUseNoResultsBodycopy" />
@@ -140,6 +168,16 @@
 			<display_name />
 			<note />
 			<parameter_map />
+		</field>
+		<field attribute="dynamic_root_option">
+			<display_name>If dynamic root not found</display_name>
+			<note />
+			<selection style="list" />
+		</field>
+		<field attribute="dynamic_asset_selection_option">
+			<display_name>If asset selection not specified</display_name>
+			<note />
+			<selection style="list" />
 		</field>
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes">

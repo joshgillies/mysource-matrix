@@ -72,7 +72,6 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		$name = array_get_index($settings, 'name', '');
 		if ($name == '' || $name === 'SQ_SYSTEM_SESSION') return FALSE;
 
-		//replace keywords for $value
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
@@ -105,17 +104,6 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		}
 
 		//replace keywords for $value
-		if (empty($state['asset'])) {
-			// grab the asset if assetid is given, but not the asset.
-			if (empty($state['assetid'])) {
-				return FALSE;
-			} else {
-				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
-			}
-		}
-
-		if (is_null($state['asset'])) return FALSE;
-
 		$value = self::replaceKeywords($value, $state['asset']);
 
 		$expire_time = array_get_index($settings, 'expire_time', 0);
@@ -345,36 +333,6 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		return FALSE;
 
 	}//end processInterface()
-
-
-	/**
-	* Replaces all the keywords in a string.
-	* Global keywords are also replaced.
-	* All other keywords will refer to the event asset.
-	* (think about moving this function to Trigger_Action)
-	*
-	* @param string		$value			a string value that contains keywords like %xxx%
-	* @param Asset		$event_asset	the event asset
-	*
-	* @return string
-	* @access public
-	*/
-	public static function replaceKeywords($value, Asset $event_asset)
-	{
-		// replace global keywords
-		replace_global_keywords($value);
-
-		// replace event asset keywords
-		$keywords = retrieve_keywords_replacements($value);
-		$replacements = Array();
-		foreach ($keywords as $keyword) {
-			$replacements[$keyword] = $event_asset->getKeywordReplacement($keyword);
-		}
-		replace_keywords($value, $replacements);
-
-		return $value;
-
-	}//end replaceKeywordsInWebPath()
 
 
 }//end class

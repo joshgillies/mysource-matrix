@@ -598,14 +598,8 @@ class Log_Manager extends Asset
 			if (!empty($current_rotation)) {
 				$orig_filename .= '.' . $current_rotation;
 			}
-			// Bug #4499 - if the file is locked a move file will not capture log data, so copy and truncate
-			if (copy_file($orig_filename, $file.'.'.$new_rotation)) {
-				// Set the original modification time on the rotated file
-				touch($file.'.'.$new_rotation, filemtime($orig_filename));
-				return truncate_file($orig_filename);
-			} else {
-				return FALSE;
-			}//end if
+			return rename($orig_filename, $file.'.'.$new_rotation);
+
 		} else {
 			return FALSE;
 		}
@@ -759,10 +753,8 @@ class Log_Manager extends Asset
 						<tr class="sq-error-type-'.$error_type_name.'">
 							<td style="background-color: '.$error_type_colour.';">
 								'.$log_date.'<br />
-								'.translate('User').':&nbsp;<strong>'.$d_line['User'].'</strong>&nbsp;('.$d_line['userid'].')<br />
-
+								'.translate('User').':&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
 								'.translate('Level').':&nbsp;<strong>'.$error_type_name.'</strong><br />
-
 							</td>
 							<td><span style="font-family: \'Courier New\', Courier, monospace;">'.$message.'</span></td>
 						</tr>';
@@ -773,7 +765,6 @@ class Log_Manager extends Asset
 						<tr class="alt sq-error-type-raw">
 							<td>
 								<strong>'.translate('Raw Entry').':</strong>
-
 							</td>
 							<td><span style="font-family: \'Courier New\', Courier, monospace;">'.$line.'<span></td>
 						</tr>';
@@ -782,7 +773,7 @@ class Log_Manager extends Asset
 				}//end foreach
 			}//end else
 
-			$content .= '</table><p align="center" style="font-size: 11px; margin-bottom: 7px;">End of log</p>';
+			$content .= '</table><p align="center" style="font-size: 11px; margin-bottom: 7px;">'.translate('End of log').'</p>';
 
 		} else {
 			trigger_localised_error('CORE0125', translate('Unknown action or invalid input'), E_USER_WARNING);
@@ -843,7 +834,21 @@ class Log_Manager extends Asset
 		return TRUE;
 
 	}//end _directCommunicator()
-
+	
+	/**
+	* Provides extra checking and disable invalid status change on errors
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	* @param boolean	$run_updated	specify it we want to run _upated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
+	{
+		// left blank to overide processStatusChange
+	}//end processStatusChange()
 
 }//end class
 

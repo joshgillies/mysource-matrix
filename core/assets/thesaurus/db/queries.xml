@@ -37,7 +37,7 @@
         <primary>
             <select>
                 <fields>
-                    <function name="Count">
+                    <function function="Count">
                         <arg><field table="sq_thes_lnk" column="linkid" /></arg>
                     </function>
                 </fields>
@@ -55,7 +55,7 @@
 		<primary>
 			<select>
 				<fields>
-					<function name="Count">
+					<function function="Count">
 						<arg><field table="sq_thes_lnk" column="linkid" /></arg>
 					</function>
 				</fields>
@@ -74,7 +74,7 @@
         <primary>
             <select>
                 <fields>
-                    <function name="Count">
+                    <function function="Count">
                         <arg><field table="sq_thes_term" column="termid" /></arg>
                     </function>
                 </fields>
@@ -92,7 +92,7 @@
         <primary>
             <select>
                 <fields>
-                    <function name="Count">
+                    <function function="Count">
                         <arg><field table="sq_thes_lnk" column="linkid" /></arg>
                     </function>
                 </fields>
@@ -220,7 +220,7 @@
 		<primary>
 			<select>
 				<fields>
-					<function name="Count">
+					<function function="Count">
 						<arg><field table="sq_thes_lnk" column="linkid" /></arg>
 					</function>
 				</fields>
@@ -239,7 +239,7 @@
 		<primary>
 			<select>
 				<fields>
-					<function name="Count">
+					<function function="Count">
 						<arg><field table="sq_thes_lnk" column="linkid" /></arg>
 					</function>
 				</fields>
@@ -323,7 +323,7 @@
 		<primary>
 			<select>
 				<fields>
-					<function name="Count">
+					<function function="Count">
 						<arg><field table="sq_thes_term" column="termid" /></arg>
 					</function>
 				</fields>

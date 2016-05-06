@@ -212,7 +212,7 @@ class Design_Area_Access_History extends Design_Area
 					if (!empty($assetid)) {
 						$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset($assetid, "", TRUE);
 						if (empty($asset) === FALSE) {
-							$replacement = $asset->getKeywordReplacement("'.$keyword.'");
+							$replacement = $asset->readAccess() ? $asset->getKeywordReplacement("'.$keyword.'") : "";
 						} else {
 							$replacement = "";
 						}

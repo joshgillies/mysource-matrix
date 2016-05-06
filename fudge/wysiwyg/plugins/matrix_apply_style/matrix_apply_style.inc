@@ -52,18 +52,20 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		 //  WORK OUT THE STLYE LIST  //
 		///////////////////////////////
 		require_once dirname(__FILE__).'/../../../../core/include/init.inc';
+		include_once(dirname(__FILE__).'/../../../../core/attributes/wysiwyg/wysiwyg.inc');
 
-		// check for any classes declared for current design
-		$classes = $this->getDesignClasses();
+		// Get classes declared for current design
+		$classes = Asset_Attribute_WYSIWYG::getDesignAttributes('wysiwyg_styles');
 		if (!empty($classes)) {
-			foreach ($classes as $class_name => $short_name) {
-				$this->_css_classes[$class_name] = $short_name;
+			foreach ($classes as $friendly_name => $details) {
+				$this->_css_classes[$friendly_name] = array_get_index($details, 'classNames', $friendly_name);
 			}
 		}
 
-		// if there weren't any classes defined for design, we are getting some out from ccs file 
-		if (empty($this->_css_classes) && isset($GLOBALS['sq_bodycopy_cssids'])) {
-			foreach ($GLOBALS['sq_bodycopy_cssids'] as $css_assetid) {
+		// if there weren't any classes defined for design, we are getting some out from ccs file
+		$bodycopy_cssids = Asset_Attribute_WYSIWYG::getDesignAttributes('css_assetids');
+		if (empty($this->_css_classes) && !empty($bodycopy_cssids)) {
+			foreach ($bodycopy_cssids as $css_assetid) {
 				$css = $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
 				$css_file = $css->getExistingFile();
 				$stylesheet_src = '';
@@ -123,7 +125,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		if (!empty($this->_css_classes)) {
 			?>"-- <?php echo translate('select css style') ?> --": "",<?php
 			$string = '';
-			foreach ($this->_css_classes as $class_name => $cn) echo '"     '.str_replace('"', '\"', $cn).'": "'.str_replace('"', '\"', $class_name).'",';
+			foreach ($this->_css_classes as $friendly_name => $details) echo '"     '.str_replace('"', '\"', $friendly_name).'": "'.str_replace('"', '\"', array_get_index($details, 'classNames', $friendly_name)).'",';
 			?>"-- <?php echo translate('remove css style') ?> --": "no_style"<?php
 		}
 
@@ -432,39 +434,6 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 	}//end process();
 	
 	
-	/**
-	* Gets current classes from applied design
-	*
-	* @return Array()
-	* @access public
-	*/
-	function getDesignClasses()
-	{
-		$classes = Array();
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-
-		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
-			$url = $GLOBALS['sq_preview_url'];
-			$url = preg_replace('|^http[s]?://|', '', $url);
-			
-			$designid = $am->getValueFromURL($url, 'design::%frontend%', TRUE);
-
-			if ($designid) {
-				$design = $am->getAsset($designid);
-				$classes_list = $design->attr('wysiwyg_classes');
-				if (!empty($classes_list)) {
-					foreach ($classes_list as $key => $value) {
-						$classes[$key] = $value;
-					}
-				}
-			}
-		}
-
-		return $classes;
-
-	}//end getDesignClasses();	
-
-
 }//end class()
 
 ?>

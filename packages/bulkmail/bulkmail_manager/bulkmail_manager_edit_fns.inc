@@ -324,7 +324,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			check_box($prefix.'_use_bm_threshold', TRUE, $use_bm_threshold);
 		} else {
 			?>
-				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_bm_threshold ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_bm_threshold ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 			<?php
 		}
 

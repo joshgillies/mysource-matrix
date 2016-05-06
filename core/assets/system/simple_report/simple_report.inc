@@ -158,7 +158,7 @@ class Simple_Report extends Asset
 
 		$table_format = '<table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header" width="35%">'.translate('Last Generated').'</th>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('Last Generated').'</th>
 
                                                         <td class="sq-backend-table-cell" id="'.$type_code.'_regen" align="right">%s &nbsp;&nbsp;( %s )</td>
                                                 </tr>
@@ -188,7 +188,7 @@ class Simple_Report extends Asset
 
 		$table_format = '<table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header" width="35%">'.translate('Last Generated').'</th>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('Last Generated').'</th>
 
                                                         <td class="sq-backend-table-cell" id="'.$type_code.'_regen" align="right">%s &nbsp;&nbsp;( %s )</td>
                                                 </tr>
@@ -215,7 +215,7 @@ class Simple_Report extends Asset
 	{
 		$table_format = '<table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header" width="35%">'.translate('Recommended Maintenance Tasks').'</th>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('Recommended Maintenance Tasks').'</th>
 
                                                         <td class="sq-backend-table-cell" align="right">%s</td>
                                                 </tr>

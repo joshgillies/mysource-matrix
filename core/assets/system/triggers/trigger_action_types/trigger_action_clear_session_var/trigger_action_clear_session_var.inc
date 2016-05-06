@@ -104,7 +104,7 @@ class Trigger_Action_Clear_Session_Var extends Trigger_Action
 		$is_prefix = array_get_index($settings, 'is_prefix', 0);
 
 		if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]) || (!$clear_all && !$var_name)) {
-			return FALSE;
+			return TRUE;
 		}
 
 		$removed_vars = Array();

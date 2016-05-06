@@ -160,6 +160,33 @@ class Page_Upcoming_Events_List extends Page
 	*/
 	function printBody()
 	{
+
+		// If we not finished being created, we will not have required dependent assets yet to generate the output
+		if (isset($this->_tmp['__creating__'])) {
+			return;
+		}
+
+		// We will be manipulating global $_REQUEST var while printing the asset output
+		// Keep a copy of the var so that it can restored once we are done printing
+		$global_request_var = $_REQUEST;
+
+		$this->_printBody();
+
+		// Restore the global $_REQUEST var
+		$_REQUEST = $global_request_var;
+
+	}//end printBody()
+
+
+	/**
+	* Print the body of the asset
+	* Needs to be called via the wrapper function self::printBody()
+	*
+	* @return void
+	* @access private
+	*/
+	function _printBody()
+	{
 		$cache_key = $this->_getCacheKey();
 		$cached_contents = '';
 
@@ -219,7 +246,7 @@ class Page_Upcoming_Events_List extends Page
 			ob_end_flush();
 		}//end else
 
-	}//end printBody()
+	}//end _printBody()
 
 
 	/**

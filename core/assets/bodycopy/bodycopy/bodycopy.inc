@@ -377,6 +377,28 @@ class Bodycopy extends Asset
 		// paint each container
 		foreach (array_keys($containers) as $i) {
 			$container =& $containers[$i];
+			$template_applied = $container->attr('template_applied');
+
+			if($template_applied) {
+				$template_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($container->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'container_template');
+				if(isset($template_links[0]['majorid'])) {
+					$template = $GLOBALS['SQ_SYSTEM']->am->getAsset($template_links[0]['majorid']);
+					if($template) {
+						$GLOBALS['SQ_SYSTEM']->pm->startTimer($template, 'print template');
+						$paint_layout_links = $template->getPaintLayoutLinks();
+						$paint_layout_link = array_pop($paint_layout_links);
+						$paint_layout_id = isset($paint_layout_link['minorid']) ? $paint_layout_link['minorid'] : '';
+						if($paint_layout_id) {
+							$container->setKeywordReplacements($this->keyword_replacements);
+							$container->printBodyWithPaintLayout($paint_layout_id);
+							$GLOBALS['SQ_SYSTEM']->pm->stopTimer($template, 'print template');
+							continue;
+						}
+						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($template, 'print template');
+					}
+
+				}
+			}
 			$container->printBody($this->keyword_replacements, $generating);
 		}
 
@@ -465,6 +487,17 @@ class Bodycopy extends Asset
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$content = $this->getRawBodycopyContent();
 		$keywords = retrieve_keywords_replacements($content);
+
+		// for conditional keywords, we will let Matrix to try to evaluate them disregarding if there is a condition for it or not.
+		// this would allow you to just use any keyword to test if it's empty or not and print conditionally without setting up any conditions
+		$new_keywords = Array();
+		foreach($keywords as $index => $keyword) {
+			if(strpos($keyword, 'begin_') === 0) {
+				$new_keywords[] = preg_replace('/begin_/', '', $keyword);
+			}
+		}
+		$keywords = array_merge($keywords, $new_keywords);
+
 		return $keywords;
 
 	}//end getKeywords()

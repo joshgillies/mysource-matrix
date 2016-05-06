@@ -64,7 +64,13 @@ class Form_Question_Rule_Type_File_Virus_Check_Edit_Fns extends Form_Question_Ru
 			$o->openField(translate('Enable Virus Checking?'));
 
 			if(empty($warning)){
-				echo translate('core_form_rule_file_virus_check_'.(array_get_index($rule_data, 'value', TRUE) ? 'true' : 'false'));
+				$operator = array_get_index($rule_data, 'value', 1);
+				if($operator) {
+					echo translate('Yes');
+				}
+				else {
+					echo translate('No');
+				}
 			}
 			else {
 				echo $warning;

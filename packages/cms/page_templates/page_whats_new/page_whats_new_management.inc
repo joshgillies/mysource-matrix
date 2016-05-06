@@ -100,6 +100,30 @@ class Page_Whats_New_Management extends Asset_Management
 																			'allow_empty'	=> FALSE,
 																		   ),
 												  		),
+						'parameter_map' 			=> Array(
+														'added'			=> '0.15',
+														'type'			=> 'parameter_map',
+														'default'		=> Array(),
+														'parameters'	=> Array(
+																			'parameters'	=> Array(
+																								'root_node'			=> 'Replacement Root node for the listing (must be a child of the static root node)',
+																								'asset_selection'	=> 'Array of specific asset IDs or selection group (specified assets must be children of the static related node)',
+																							   ),
+																		   ),
+														),
+						'dynamic_asset_selection_option' => Array(
+															'added'			=> '0.16',
+															'type'			=> 'selection',
+															'default'		=> 'empty_result',
+															'parameters'	=> Array(
+																				'multiple'		=> FALSE,
+																				'allow_empty'	=> FALSE,
+																				'options'		=> Array(
+																									'static_root'		=> 'Use static root node',
+																									'empty_result'		=> 'Return empty result',
+																								   ),
+																			   ),														   
+														   ),
 					  );
 
 	}//end constructor

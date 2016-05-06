@@ -257,7 +257,7 @@ class Data_Source_Soap extends Data_Source
 				// use DOMDocument::loadXML() to see if there is any entity  reference loop
 				// which may exhaust us of the memory limit, if not then continue as normal
 				$dom = new DOMDocument();
-				if ($dom->loadXML($soap_message, LIBXML_NOENT)) {
+				if ($dom->loadXML($soap_message, LIBXML_NOENT|LIBXML_PARSEHUGE)) {
 					$xml_object = simplexml_import_dom($dom);
 					if ($xml_object === FALSE) {
 						continue;
@@ -319,8 +319,11 @@ class Data_Source_Soap extends Data_Source
 		if (!is_null($response)) {
 			// Convert response object to associative array
 			$response = json_decode(json_encode($response), TRUE);
-			// If response has any xml data, convert it to array first
-			array_walk_recursive($response, Array($this, '_xml_to_array'));
+			// Do we need to prase the XML data in the response
+			if ($this->attr('parse_response')) {
+				// If response has any xml data, convert it to array first
+				array_walk_recursive($response, Array($this, '_xml_to_array'));
+			}
 			$this->_adjust_soap_array_values($response);
 
 			$response_xml = '<'.$result_attr.'>'.SOAP_Common::arrayToXml($response)."\n".'</'.$result_attr.'>';
@@ -332,7 +335,7 @@ class Data_Source_Soap extends Data_Source
 		// use DOMDocument::loadXML() to see if there is any entity  reference loop
 		// which may exhaust us of the memory limit, if not then continue as normal
 		$dom = new DOMDocument();
-		if (empty($response_xml) || (!$dom->loadXML($response_xml, LIBXML_NOENT) && !@simplexml_import_dom($dom))) {
+		if (empty($response_xml) || (!$dom->loadXML($response_xml, LIBXML_NOENT|LIBXML_PARSEHUGE) && !@simplexml_import_dom($dom))) {
 			trigger_error("Expected xml content not found in the SOAP response");
 			return Array();
 		}
@@ -415,6 +418,8 @@ class Data_Source_Soap extends Data_Source
 				if ((int)$this->attr('request_timeout') !== 0) {
 					$settings['connection_timeout'] = (int)$this->attr('request_timeout');
 				}
+
+				$settings['additional_headers'] =  $this->attr('additional_headers');
 
 				$settings['run_test'] = 1;
 				$soap_options = SOAP_Common::_getSoapOptions($settings);
@@ -888,7 +893,7 @@ class Data_Source_Soap extends Data_Source
 			// use DOMDocument::loadXML() to see if there is any entity  reference loop
 			// which may exhaust us of the memory limit, if not then continue as normal
 			$xml_obj = NULL;
-			if (@$dom->loadXML($val, LIBXML_NOENT)) {
+			if (@$dom->loadXML($val, LIBXML_NOENT|LIBXML_PARSEHUGE)) {
 				$xml_obj = simplexml_import_dom($dom);
 			}
 

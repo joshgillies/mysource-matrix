@@ -1,0 +1,94 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*
+*/
+-->
+
+<contents>
+    <section name="Details" write_access="write:attributes">
+        <field attribute="name">
+            <display_name>Page Name</display_name>
+            <note />
+            <text width="35" height="1" />
+        </field>
+        <field attribute="short_name">
+            <display_name>Page Short Name</display_name>
+            <note />
+            <text width="25" height="1" />
+        </field>
+    </section>
+    <section name="Authentication Settings" write_access="write:attributes">
+        <note>It is a good practise to use a dedicated integration user in SugarCRM for the authentication credentials. This should be a user that doesn't need to login SugarCRM admin interface and is just used for Matrix integration.</note>
+        <field>
+            <display_name>API Version</display_name>
+            <note>Compatible REST API Version to use this Sugar OAuth token.</note>
+            <function_call>
+                <paint_function name="paintAPIVersion" />
+            </function_call>
+        </field>
+        <field attribute="token_endpoint">
+            <display_name>SugarCRM Host URL</display_name>
+            <note />
+            <text width="80" height="1" />
+        </field>
+        <field attribute="username">
+            <display_name>Username</display_name>
+            <note>The username of the user used to authenticate to the SugarCRM system.</note>
+            <text width="80" height="1" />
+        </field>
+        <field attribute="password">
+            <display_name>Password</display_name>
+            <note>Enter password for the username specified above. Confirm the password by entering it again in the second text field.</note>
+            <password width="80" height="1" />
+        </field>
+        <field attribute="client_id">
+            <display_name>Client ID</display_name>
+            <note>Used to identify the client. A client_id of "sugar" will automatically create an OAuth Key in the system that is used for password authentication. Additional client_id's can be created in the SugarCRM system by administrator. This SugarCRM Token asset only supports password authentication grant type.</note>
+            <text width="80" height="1" />
+        </field>
+        <field attribute="client_secret">
+            <display_name>Client Secret</display_name>
+            <note>Optional value. If client secret is populated, it will be validated against client id.</note>
+            <text width="80" height="1" />
+        </field>
+        <field attribute="platform">
+            <display_name>Platform</display_name>
+            <note>Used to prevent accidental login clashes if other systems or users login to the same SugarCRM system using the above authentication credentials.</note>
+            <text width="80" height="1" />
+        </field>
+        <field>
+            <display_name>Test Authentication</display_name>
+            <note>Matrix sends a "Ping" API request to Sugar with stored Access Token and expects a "Pong" response. Access Token will be automatically renewed upon expiration, however the test will fail if the token is revoked or invalidated for other reasons.</note>
+            <function_call>
+                <paint_function name="paintTestToken" />
+                <process_function name="processTestToken" />
+            </function_call>
+        </field>
+    </section>
+    <section name="Access Token" write_access="write:attributes">
+        <field>
+            <display_name>Request New Token</display_name>
+            <function_call>
+                <paint_function name="paintRequestNewToken" />
+                <process_function name="processRequestNewToken" />
+            </function_call>
+        </field>
+        <field>
+            <display_name>Access Token</display_name>
+            <function_call>
+                <paint_function name="paintAccessToken" />
+                <process_function name="processAccessToken" />
+            </function_call>
+        </field>
+    </section>
+</contents>

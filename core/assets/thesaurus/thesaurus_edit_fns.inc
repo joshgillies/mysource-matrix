@@ -154,24 +154,18 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			}
 			// download
 			echo hidden_field($prefix.'_process_export', '0');
-			echo normal_button($prefix.'_export', translate('Download File'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
+			echo '<button type="button" onclick="document.main_form.'.$prefix.'_process_export.value = 1; document.main_form.submit(); SQ_FORM_SUBMITTED = false; document.main_form.'.$prefix.'_process_export.value = 0; return true;">'.translate('Download File').'</button>';
 
-			echo ' Generated on '.date ('r', filectime($asset->getXmlFilePath()));
-			echo '<br />';
+			echo '<br/><span class="sq-backend-smallprint">'.sprintf(
+				translate('XML file was last generated <strong>%s</strong>'),
+				date('jS F Y g:ia', filectime($asset->getXmlFilePath()))
+			).'</span>';
 		}
 
 
-		if ($asset->countTerms()==0) {
-			echo translate('The thesaurus currently has no terms.');
-
-		} else if ($write_access_allowed) {
-			echo hidden_field($prefix.'_process_generate', '0');
-			echo normal_button($prefix.'_regenerate', translate('Generate XML file'), 'this.form.'.$prefix.'_process_generate.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_generate.value = 0; return true;');
-
-		} else if ($asset->attr('contents_changed')) {
+		if ($asset->attr('contents_changed')) {
 			// a new file needs to be generated and we don't have a lock
-			echo translate('XML file is not in sync with thesaurus. Thesaurus contents have been changed. Please acquire lock to generate a new file.');
-
+			echo '<br/><br/>'.translate('XML file is not in sync with thesaurus. Thesaurus contents have been changed. Please acquire lock to generate a new file.');
 		}
 
 		return $write_access_allowed;
@@ -190,6 +184,59 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	*/
 	function processExportXMLfile(&$asset, &$o, $prefix)
+	{
+		$write_access_allowed = $asset->writeAccess('attributes');
+		if (!$write_access_allowed) {
+			return $write_access_allowed;
+		}
+
+		return $write_access_allowed;
+
+	}//end processExportXMLfile()
+
+
+	/**
+	* Paint interface for downloading a new XML file
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintGenerateXMLfile(&$asset, &$o, $prefix)
+	{
+		$write_access_allowed = $asset->writeAccess('attributes');
+
+		if ($asset->countTerms() == 0) {
+			echo '<em>'.translate('The thesaurus currently has no terms').'</em>';
+
+		} else if ($write_access_allowed) {
+			//echo hidden_field($prefix.'_process_generate', '0');
+			echo check_box($prefix.'_process_generate', 1, FALSE);
+			echo translate('Generate the latest version of the thesaurus XML file');
+
+		} else {
+			echo '<em>'.translate('Acquire the lock to generate a new XML file').'</em>';
+		}
+
+		return $write_access_allowed;
+
+	}//end paintExportXMLfile()
+
+
+	/**
+	* Export XML file of thesaurus contents
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processGenerateXMLfile(&$asset, &$o, $prefix)
 	{
 
 		$write_access_allowed = $asset->writeAccess('attributes');

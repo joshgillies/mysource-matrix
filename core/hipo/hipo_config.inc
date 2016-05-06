@@ -220,12 +220,11 @@ class HIPO_Config extends Config
 
 			echo '<span class="sq-inline-fields-wrapper">';
 				if ($write_access) {
-					text_box($class.'[SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD]', SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD, 1);
-					echo '&nbsp;';
+					text_box($class.'[SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD]', SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD, 4);
 				} else {
 					echo SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD;
 				}
-				echo translate('seconds');
+				echo translate(' seconds');
 
 				$o->note(translate('Seconds to wait before querying the server as to the job\'s status.'));
 
@@ -237,12 +236,11 @@ class HIPO_Config extends Config
 
 			echo '<span class="sq-inline-fields-wrapper">';
 				if ($write_access) {
-					text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 1);
-					echo '&nbsp;';
+					text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 4);
 				} else {
 					echo SQ_HIPO_TOTAL_THRESHOLD;
 				}
-				echo translate('percent');
+				echo translate(' percent');
 
 				$o->note(translate('Percent of the sum of the queued jobs\' thresholds.'));
 
@@ -254,7 +252,7 @@ class HIPO_Config extends Config
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', TRUE);
+		if ($write_access) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 

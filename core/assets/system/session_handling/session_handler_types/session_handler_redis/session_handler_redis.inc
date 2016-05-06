@@ -61,38 +61,7 @@ class Session_Handler_Redis extends Session_Handler
     {
         $host_str = MatrixRedis::getConnectionString('session_handling');
 
-        // Calculate the domain and path for the session cookie.
-        $domain = strip_url(sq_web_path('root_url'), TRUE);
-        $pos = strpos($domain, '/');
-        $path = '/';
-        if ($pos !== FALSE) {
-            $path = substr($domain, $pos);
-        }
-
-        $secure = FALSE;
-        if (current_protocol() === 'https' && (defined('SQ_CONF_COOKIE_OPTION_SECURE') && SQ_CONF_COOKIE_OPTION_SECURE)) $secure = TRUE;
-
-        $http_only = FALSE;
-        $php_version_suits = (version_compare(PHP_VERSION, '5.2.0') >= 0);
-        if ($php_version_suits && (defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY') && SQ_CONF_COOKIE_OPTION_HTTP_ONLY)) $http_only = TRUE;
-        // Now, set to the 'redis' module and set the
-        // appropriate save path (ie. the connection string to thee
-        // redis server).
-        session_name('SQ_SYSTEM_SESSION');
-        if ($php_version_suits) {
-            session_set_cookie_params(0, $path, NULL, $secure, $http_only);
-        } else {
-            session_set_cookie_params(0, $path, NULL, $secure);
-        }
         session_module_name('redis');
-
-        // Hardening.
-		if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-            ini_set('session.hash_bits_per_character', 5);
-            ini_set('session.hash_function', 'sha512');
-        } else {
-            ini_set('session.hash_function', '1');
-        }
 
         session_save_path($host_str);
 

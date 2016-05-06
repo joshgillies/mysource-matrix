@@ -22,7 +22,7 @@
 	<package>ecommerce</package>
 	<type_code>paypal_order</type_code>
 	<version>0.1</version>
-	<name>Paypal Order</name>
+	<name>PayPal Order</name>
 	<description>This asset represents a Paypal Order for each payment made to Paypal</description>
 	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>

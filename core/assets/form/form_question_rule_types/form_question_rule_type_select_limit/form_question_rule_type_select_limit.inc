@@ -60,7 +60,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 						'=='	=> 'Must select exactly this many options...',
 						'!='	=> 'Must not select this many options...',
 						'>'		=> 'Must select more than this many options...',
-						'<'		=> 'Must select less than this many options...',
+						'<'		=> 'Must select fewer than this many options...',
 						'>='	=> 'Must select at least this many options...',
 						'<='	=> 'Must select no more than this many options...',
 					 );
@@ -136,39 +136,8 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 
 			?>
 			if (!(selectCount <?php echo $operator ?> <?php echo $value ?>)) {
-				submission_errors[submission_errors.length] = "<?php
-					if (!strlen($q_asset->attr('cust_required_error'))) {
-						?>You have selected "+selectCount+" option"+(selectCount == 1 ? "" : "s")+" at question \"<?php echo addslashes($q_asset->attr('name')) ?>\" - <?php
-						switch ($operator) {
-							case '==':
-								echo ' you must select '.$value;
-							break;
-
-							case '!=':
-								echo ' you must not select this many';
-							break;
-
-							case '>':
-								echo ' you must select more than '.$value;
-							break;
-
-							case '>=':
-								echo ' you must select at least '.$value;
-							break;
-
-							case '<':
-								echo ' you must select less than '.$value;
-							break;
-
-							case '<=':
-								echo ' you must select no more than '.$value;
-							break;
-
-						}//end switch
-					} else {
-						echo addslashes($q_asset->attr('cust_required_error'));
-					}
-				?>";
+				submission_errors[submission_errors.length] = 
+					'<?php echo $this->defaultError($q_asset, $rule_data, '%s'); ?>'.replace('%s', selectCount);
 			}
 			<?php
 			if (strlen(trim($additional_condition))) echo '}';
@@ -198,7 +167,28 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
 
-		$valid = eval('return \''.count($answer).'\''.$operator.'\''.$value.'\';');
+		$valid = FALSE;
+		switch($operator) {
+			case '==':
+				$valid = count($answer) == $value;
+				break;
+			case '!=':
+				$valid = count($answer) != $value;
+				break;
+			case '>':
+				$valid = count($answer) > $value;
+				break;
+			case '<':
+				$valid = count($answer) < $value;
+				break;
+			case '>=':
+				$valid = count($answer) >=  $value;
+				break;
+			case '<=':
+				$valid = count($answer) <=  $value;
+				break;
+		}
+
 		return $valid;
 
 	}//end evaluate()
@@ -213,21 +203,60 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	* @return string
 	* @access public
 	*/
-	function defaultError(&$q_asset, $rule_data)
+	function defaultError(&$q_asset, $rule_data, $selected_options=NULL)
 	{
 		$operator = array_get_index($rule_data, 'operator', '==');
-		$value = array_get_index($rule_data, 'value', '');
+		$value    = array_get_index($rule_data, 'value', '');
+
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
 		
-		if ($operator == '>=' && $value == 1 && strlen($q_asset->attr('cust_required_error'))) {
-			$error_str = $q_asset->attr('cust_required_error');
+		if ($operator == '>=' && $value == 1) {
+			// Handle "required" situations differently.
+			if (strlen($q_asset->attr('cust_required_error')) > 0) {
+				// Custom required error.
+				$error_str = $q_asset->attr('cust_required_error');
+			} else if ($use_accessible_string === TRUE) {
+				// Provide a default "required" string for accessible forms only.
+				if ($q_asset->attr('multiple') === TRUE) {
+					$error_str = translate('This question is required. Please select at least one option.');	
+				} else {
+					$error_str = translate('This question is required. Please select an option.');
+				}
+			} else {
+				// Provide default error text as per below.
+				$error_str = sprintf(translate('You have selected %1$s options at question "%2$s" - you must select at least %3$s'), 0, $q_asset->attr('name'), 1);
+			}
 		} else {
-			$selected_options = count($q_asset->getValue());
-			if($use_accessible_string)
-			    $error_str = translate('core_form_rule_select_limit_error_'.$operator.'_accessible', $selected_options, $value);
-			else
-			    $error_str = translate('core_form_rule_select_limit_error_'.$operator, $selected_options, $q_asset->attr('name'), $value);
+			if ($selected_options === NULL) {
+				$selected_options = count($q_asset->getValue());
+			}
+		
+			$error_text = Array(
+				'=='     => translate('You have selected %2$s options at question "%1$s" - you must select %3$s'),
+				'==_acc' => translate('You have selected %2$s options. You must select %3$s.'),
+				'!='     => translate('You have selected %2$s options at question "%1$s" - you must not select this many'),
+				'!=_acc' => translate('You have selected %2$s options. You must not select this many - you may select more or fewer.'),
+				'>'      => translate('You have selected %2$s options at question "%1$s" - you must select more than %3$s'),
+				'>_acc'  => translate('You have selected %2$s options. You must select more than %3$s.'),
+				'<'      => translate('You have selected %2$s options at question "%1$s" - you must select fewer than %3$s'),
+				'<_acc'  => translate('You have selected %2$s options. You must select fewer than %3$s.'),
+				'>='     => translate('You have selected %2$s options at question "%1$s" - you must select at least %3$s'),
+				'>=_acc' => translate('You have selected %2$s options. You must select at least %3$s.'),
+				'<='     => translate('You have selected %2$s options at question "%1$s" - you must select no more than %3$s'),
+				'<=_acc' => translate('You have selected %2$s options. You must select no more than %3$s.'),
+			);
+
+			if ($use_accessible_string) {
+				$operator .= '_acc';
+			}
+
+			$error_str = sprintf(
+				$error_text[$operator],
+				$q_asset->attr('name'),
+				$selected_options,
+				$value
+			);
 		}
 		return $error_str;
 
@@ -245,10 +274,24 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
+		
 		$operator = array_get_index($rule_data, 'operator', '==');
-		$value = array_get_index($rule_data, 'value', '');
+		$value    = array_get_index($rule_data, 'value', '');
 
-		$error_str = translate('core_form_rule_select_limit_desc_'.$operator, $value, $q_asset->attr('name'));
+		$description_text = Array(
+			'==' => translate('Exactly %2$s options must be selected at question "%1$s"'),
+			'!=' => translate('Any number of options but %2$s must be selected at question "%1$s"'),
+			'>'  => translate('More than %2$s options must be selected at question "%1$s"'),
+			'<'  => translate('Fewer than %2$s options must be selected at question "%1$s"'),
+			'>=' => translate('At least %2$s options must be selected at question "%1$s"'),
+			'<=' => translate('No more than %2$s options must be selected at question "%1$s"'),
+		);
+
+		$error_str = sprintf(
+			$description_text[$operator],
+			$q_asset->attr('name'),
+			$value
+		);
 
 		return $error_str;
 

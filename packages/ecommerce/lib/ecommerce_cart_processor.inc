@@ -310,7 +310,7 @@ class Ecommerce_Cart_Processor
 			foreach ($conditions as $key => $data) {
 				// evaluate each condition
 				$operator = print_r($data['operator'], TRUE);
-				if (eval('$satisfied = $grand_total_plus_delivery'.$operator.'$data[\'comparison_price\']; return $satisfied;')) {
+				if (in_array($operator, Array('>', '<', '==')) && eval('$satisfied = $grand_total_plus_delivery'.$operator.'$data[\'comparison_price\']; return $satisfied;')) {
 					if ($data['remove_fees']) {
 						$total_delivery_cost = 0;
 					} else {
@@ -697,7 +697,7 @@ class Ecommerce_Cart_Processor
 			$this->cart = $org_cart;
 		}
 
-		return $success;
+		return $success && !empty($order_promo_assetids);
 
 	}//end applyPromotionalCode()
 
@@ -1088,11 +1088,6 @@ class Ecommerce_Cart_Processor
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$format_replacements = Array();
 
-			// replace all asset based keywords
-			foreach ($format_keywords as $keyword) {
-				$format_replacements[$keyword] = $asset->getKeywordReplacement($keyword);
-			}
-
 			$product_quantity = array_get_index($details, 'quantity', 0);
 
 			// calculate tax and costs for this item
@@ -1106,8 +1101,7 @@ class Ecommerce_Cart_Processor
 				$tax_cost = $item_costs['tax_cost'];
 			} else {
 				$tax_cost = 0;
-			}
-
+			}			
 			// replace all ecommerce specific keywords
 			if (array_get_index($details, 'is_donation', FALSE)) {
 				$format_replacements['item_quantity_added'] = '';
@@ -1117,10 +1111,32 @@ class Ecommerce_Cart_Processor
 				$format_replacements['item_price_incl_tax'] = sprintf($price_format, $cost + $tax_cost);
 			}
 
+			$format_replacements['item_price_excl_tax'] = sprintf($price_format, $cost);
 			$format_replacements['item_tax'] = sprintf($price_format, $tax_cost);
-
 			$format_replacements['total_item_price'] = sprintf($price_format, ($cost + $tax_cost) * $product_quantity);
+			$format_replacements['total_item_price_excl_tax'] = sprintf($price_format, $cost * $product_quantity);
 			$format_replacements['total_item_tax'] = sprintf($price_format, $tax_cost * $product_quantity);
+
+			// Apply keyword modifiers on "format" keywords if applicable
+			foreach($format_keywords as $full_keyword) {
+				if (!isset($format_replacements[$full_keyword]) || $format_replacements[$full_keyword] == '%'.$full_keyword.'%') {
+					 $modifiers = NULL;
+					 $part_keyword = parse_keyword($full_keyword, $modifiers);
+					 if ($part_keyword != $full_keyword && isset($format_replacements[$part_keyword]) && $format_replacements[$part_keyword] != '%'.$part_keyword.'%') {
+						 $replacement = $format_replacements[$part_keyword];
+						 apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $asset->id, 'replacements' => $format_replacements));
+						 $format_replacements[$full_keyword] = $replacement;
+					 }
+				}
+			}
+
+			// Replace all asset based keywords
+			foreach ($format_keywords as $keyword) {
+				if (!isset($format_replacements[$keyword])) {
+					$format_replacements[$keyword] = $asset->getKeywordReplacement($keyword, $format_replacements);
+				}
+			}
+
 
 			$format_bodycopy->setKeywordReplacements($format_replacements);
 			$format_bodycopy->printBody();
@@ -1157,6 +1173,19 @@ class Ecommerce_Cart_Processor
 
 		$sub_total = $remove_tax ? $this->getTotal($total_tax, $taxation_rate)-$total_tax : $this->getTotal(0, $taxation_rate);
 		$content_replacements['sub_total'] = sprintf($price_format, $sub_total);
+
+		// Apply keyword modifiers on "content" keywords if applicable
+		foreach($content_keywords as $full_keyword) {
+			if (!isset($content_replacements[$full_keyword]) || $content_replacements[$full_keyword] == '%'.$full_keyword.'%') {
+				 $modifiers = NULL;
+				 $part_keyword = parse_keyword($full_keyword, $modifiers);
+				 if ($part_keyword != $full_keyword && isset($content_replacements[$part_keyword]) && $content_replacements[$part_keyword] != '%'.$part_keyword.'%') {
+					 $replacement = $content_replacements[$part_keyword];
+					 apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $asset->id, 'replacements' => $content_replacements));
+					 $content_replacements[$full_keyword] = $replacement;
+				 }
+			}
+		}
 
 		$contents_bodycopy->setKeywordReplacements($content_replacements);
 

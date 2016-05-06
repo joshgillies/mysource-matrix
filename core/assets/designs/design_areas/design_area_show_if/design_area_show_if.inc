@@ -91,8 +91,7 @@ class Design_Area_Show_If extends Design_Area
 		$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
 		$'.$id_name.'_condition_data = '.var_export($condition_data, TRUE).';
 		'.$cond_var_name.' = condition_'.$condition.'::evaluate($ASSET, $'.$id_name.'_condition_data);';
-		echo '?', '>
-		';
+		echo '?', '>';
 
 	}//end _printInitCode()
 

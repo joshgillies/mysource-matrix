@@ -138,6 +138,16 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
+		$name = 'q'.$this->id;
+		if(!isset($_FILES[$name])) return TRUE;
+		// Validate the filename length size
+		if (!empty($this->_tmp['file_info']['name'])) {
+			$filename_size = ini_get('mbstring.func_overload') ? mb_strlen($this->_tmp['file_info']['name'] , '8bit') : strlen($this->_tmp['file_info']['name']);
+			if ($filename_size > SQ_FILENAME_MAX_LENGTH) {
+				$this->failed_rules[] = sprintf(translate('File name is too long. Maximum allowed filename length size is %1$s bytes.'), SQ_FILENAME_MAX_LENGTH);
+				return FALSE;
+			}
+		}
 
 		if (isset($this->_tmp['file_info']) && $this->_tmp['file_info'] === FALSE) {
 			// there was an upload error
@@ -190,7 +200,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			// see if we have an incomplete file upload, if we do, then don't
 			// blank out the summary/value
 			$existing_file   = FALSE;
-			$submission_path = $this->getTempFileUploadPath($parent);
+			$submission_path = SQ_SYSTEM_ROOT.'/'.$this->getTempFileUploadPath($parent);
 			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 
 			if (is_dir($submission_path)) {

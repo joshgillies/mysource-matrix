@@ -18,6 +18,7 @@
 require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 
+
 /**
 * Form_Action_TRIM_Submit
 *
@@ -29,10 +30,15 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
-
-
 class Form_Action_TRIM_Submit extends Form_Action
 {
+
+	/**
+	* TRIM library class name
+	*
+	* @var string
+	*/
+	protected static $_lib_class = 'TRIM_Common';
 
 
 	/**
@@ -47,6 +53,23 @@ class Form_Action_TRIM_Submit extends Form_Action
 
 
 	/**
+	* Call the specified library function using the appropriate lib class
+	* All the library function used should be called via this method
+	*
+	* @param string $function
+	* @param array  $arguments
+	*
+	* @return mixed
+	* @access public
+	*/
+	public static function lib($function, $arguments=Array())
+	{
+		return call_user_func_array(Array(static::$_lib_class, $function), $arguments);
+
+	}//end lib()
+
+
+	/**
 	* Paint inline interface
 	*
 	*
@@ -56,51 +79,19 @@ class Form_Action_TRIM_Submit extends Form_Action
 		self::_fillDefaults($settings);
 		$record_type  		= array_get_index($settings, 'record_type', 'document');
 		$additional_fields	= array_get_index($settings, 'additional_fields', '');
+
+		static::_paintConnectionDetails($prefix, $settings);
 		?>
 
-		<p class="sq-backend-section-subheading">Connection Details</p>
-
-		<div id="<?php echo $prefix ?>_connector_div" style="padding: 0.5em 0px 2em 30px;">
-			<table class="sq-backend-table" style="width:auto">
+		<div id="<?php echo $prefix ?>_record_type_selection" style="padding: 5px;">
+			<p class="sq-backend-section-subheading"><?php echo translate('Create Record Settings'); ?></p>
+			<table class="sq-backend-table">
+				<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+				</colgroup>
 				<tr>
-					<td width="100"><p>WSDL</p></td>
-					<td><p><?php text_box($prefix.'_wsdl', array_get_index($settings, 'wsdl', ''), 120); ?></p></td>
-				</tr>
-				<tr>
-					<td><?php echo translate('Username'); ?></td>
-
-					<td><p><?php text_box($prefix.'_username', array_get_index($settings, 'username', ''), 35); ?><br />
-					</p></td>
-				</tr>
-				<tr>
-					<td><?php echo translate('Password'); ?></td>
-
-					<td><p><?php password_box($prefix.'_password', array_get_index($settings, 'password', ''), 35); ?></p></td>
-				</tr>
-				<tr>
-					<td colspan="2"><?php echo translate('Proxy setting is only available using a connector asset'); ?></td>
-
-				</tr>
-			</table>
-		</div>
-
-		<div id="<?php echo $prefix ?>_connector_div" style="padding: 0.5em 0px 2em 30px;">
-			<table class="sq-backend-table" style="width:auto">
-				<tr>
-					<td><p>TRIM Connector Asset</p></td>
-					<td><p><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('trim_connector'=>'D')); ?><br/>
-					Note: If a TRIM connector is selected, the settings in the 'Connection Setup' section (above) have no effect. <br />TRIM Connector allows the TRIM settings to be reused on other TRIM assets..</p></td>
-				</tr>
-			</table>
-		</div>
-
-		<p class="sq-backend-section-subheading">Create Record Settings</p>
-
-		<div id="<?php echo $prefix ?>_record_type_selection" style="padding: 0.5em 0px 2em 30px;">
-			<table style="width:auto;padding-left: 30px;">
-				<tr>
-					<td><strong><?php echo translate('Record Type');?></strong><br /><br /></td>
-
+					<th><div style="min-width:200px"><?php echo translate('Record Type');?></div></th>
 					<td>
 						<?php
 							$options	= Array (
@@ -108,17 +99,14 @@ class Form_Action_TRIM_Submit extends Form_Action
 										  );
 							combo_box($prefix.'_record_type', $options, FALSE, $record_type);
 						?>
-						<br /><br />
 					</td>
 				</tr>
 				<tr>
-					<td><span style="padding-top:10px;"><strong><?php echo translate('Create As User');?></strong></span></td>
-
+					<th><?php echo translate('Create As User');?></th>
 					<td>
 						<?php
 							text_box($prefix.'_creator_username', array_get_index($settings,'creator_username', ''), 35, '', FALSE, ((boolean) array_get_index($settings, 'session_creator_username', FALSE)) ? ' disabled=true' :'');
 							?>
-							<br />Use current logged in Matrix User
 							<?php
 							check_box($prefix.'_session_creator_username', '1', (boolean) array_get_index($settings, 'session_creator_username', FALSE), '
 							if (checked ==1) {
@@ -127,30 +115,30 @@ class Form_Action_TRIM_Submit extends Form_Action
 								document.getElementById(\''.$prefix.'_creator_username\').disabled = false;
 							}
 								', ' style="padding-top:2px;"');
+
+							label(translate('Use current logged in Matrix User.'), $prefix.'_session_creator_username');
 						?>
-						<br />
 					</td>
-				</tr>
-				<tr>
 				</tr>
 			</table>
 		</div>
 
-		<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 2em 30px;">
-
-			<p class="sq-backend-section-subheading">Mandatory Fields Mapping</p>
-
-			<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 2em 30px;">
-				<table style="width:auto;padding-left: 30px;">
-					<?php
-						$required_fields = self::getRecordTypeFields($record_type);
-						foreach ($required_fields as $field_name) {
+		<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 5px;">
+			<p class="sq-backend-section-subheading"><?php echo translate('Mandatory Fields Mapping'); ?></p>
+			<table class="sq-backend-table">
+				<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+				</colgroup>
+				<?php
+					$required_fields = self::getRecordTypeFields($record_type);
+					$security_levels = self::lib('getSecurityLevel');
+					foreach ($required_fields as $field_name) {
 					?>
 					<tr>
-						<td class="sq-backend-table-cell" style="width:180px;padding-left:15px;"><strong><?php echo ucwords(str_replace('_', ' ', $field_name)); ?></strong></td>
-						<td class="sq-backend-table-cell">
+						<th><div style="width:200px"><?php echo ucwords(str_replace('_', ' ', $field_name)); ?></div></th>
+						<td>
 						<?php
-							$security_levels	= TRIM_Common::getSecurityLevel();
 							if ($field_name == 'security_level') {
 								combo_box($prefix.'_'.$record_type.'_security_level', $security_levels, FALSE, isset($settings[$record_type.'_security_level']) ? $settings[$record_type.'_security_level'] : 'Unrestricted');
 							} else {
@@ -159,80 +147,62 @@ class Form_Action_TRIM_Submit extends Form_Action
 						?>
 						</td>
 					</tr>
-					<?php }//end foreach
-					?>
-				</table>
-			</div>
+				<?php }//end foreach
+				?>
+			</table>
+		</div>
 
-			<p class="sq-backend-section-subheading">Additional Fields Mapping</p>
-
+		<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 5px;">
+			<p class="sq-backend-section-subheading"><?php echo translate('Additional Fields Mapping'); ?></p>
 			<?php
-
 			if (!empty($additional_fields)) {
-				require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
-				$record_properties	= TRIM_Common::getRecordProperties();
-			?>
-			<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 2em 30px;">
-				<table style="width:auto;padding-left: 30px;">
+				$record_properties	= self::lib('getRecordProperties');
+				?>
+				<table class="sq-backend-table">
+				<colgroup>
+					<col width="20%" />
+					<col width="70%" />
+					<col width="10%" />
+				</colgroup>
 					<tr>
-						<td><?php echo translate('Field Name') ?></td>
+						<th><div style='width:200px'><?php echo translate('Field Name') ?></div></th>
 
-						<td><?php echo translate('Field Value') ?></td>
+						<th><?php echo translate('Field Value') ?></th>
 
-						<td><?php echo translate('Delete?'); ?></td>
+						<th><?php echo translate('Delete?'); ?></th>
 
 					</tr>
 					<?php
 						foreach ($additional_fields as $field_name => $field_value) {
-					?>
-					<tr>
-						<td class="sq-backend-table-cell" style="width:180px;padding-left:15px;"><strong><?php echo $record_properties[$field_name]; ?></strong></td>
-						<td class="sq-backend-table-cell" style="width:165px;padding-left:5px;">
-						<?php
-							text_area($prefix.'_addtional_field_value_edit['.$field_name.']', $field_value, 50, 3);
 						?>
-						</td>
-						<td  class="sq-backend-table-cell">
+						<tr>
+							<td><?php echo $record_properties[$field_name]; ?></td>
+							<td><?php text_area($prefix.'_addtional_field_value_edit['.$field_name.']', $field_value, 100, 3); ?></td>
+							<td  class="sq-backend-table-cell"><?php check_box($prefix.'_addtional_field_remove[]', $field_name, FALSE); ?></td>
+						</tr>
 						<?php
-							check_box($prefix.'_addtional_field_remove[]', $field_name, FALSE);
-						?>
-						</td>
-					</tr>
-					<?php }//end foreach
+						}//end foreach
 					?>
 				</table>
-			</div>
-			<?php
+				<?php
 			}//end if
-
-			require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
-			$record_properties['']	= 'None';
-			$record_properties	= array_merge($record_properties, TRIM_Common::getRecordProperties());
-			ksort($record_properties);
-
 			?>
-			<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 2em 30px;">
-				<table style="width:auto;padding-left: 30px;">
-					<tr>
-						<td>New Field Name</td>
-						<td>New Field Value</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-cell"><strong><?php
-							combo_box($prefix.'_addtional_field_name', $record_properties, FALSE, 'None');
-						?></strong></td>
-						<td class="sq-backend-table-cell">
-						<?php
-							text_area($prefix.'_addtional_field_value', '', 50, 3);
-						?>
-						</td>
-					</tr>
-				</table>
-			</div>
+		
+		<table class="sq-backend-table">
+				<tr>
+					<th><?php echo translate('Add new additional field');?></th>
+				</tr>
+				<tr>
+					<td><?php
+						$record_properties['']	= 'None';
+						$record_properties	= array_merge($record_properties, self::lib('getRecordProperties'));
+						ksort($record_properties);
+						combo_box($prefix.'_addtional_field_name', $record_properties, FALSE, 'None');
+					?></td>
+				</tr>
+			</table>
 		</div>
-
 		<?php
-		//self::execute($form, $settings);
 
 	}//end paintInlineInterface()
 
@@ -245,25 +215,13 @@ class Form_Action_TRIM_Submit extends Form_Action
 	*/
 	public static function processInlineInterface(Form $form, &$settings, Backend_Outputter $o, $prefix)
 	{
-		$settings['connector_assetid']	= $_POST[$prefix.'_connector']['assetid'];
+		static::_processConnectionDetails($prefix, $settings);
+
 		$settings['record_type']		= $_POST[$prefix.'_record_type'];
 		$required_fields				= self::getRecordTypeFields($settings['record_type']);
-
-		$new_wsdl						= array_get_index($_POST, $prefix.'_wsdl', '');
-		$new_username					= array_get_index($_POST, $prefix.'_username', '');
-		$new_password					= array_get_index($_POST, $prefix.'_password', '');
 		$creator_username				= array_get_index($_POST, $prefix.'_creator_username', NULL);
 		$session_creator_username		= array_get_index($_POST, $prefix.'_session_creator_username', FALSE);
 
-		if (!is_null($new_wsdl)) {
-			$settings['wsdl']		= $new_wsdl;
-		}//end if
-		if (!is_null($new_username)) {
-			$settings['username']	= $new_username;
-		}//end if
-		if (!is_null($new_password)) {
-			$settings['password']	= $new_password;
-		}//end if
 		if (!is_null($creator_username)) {
 			$settings['creator_username']	= $creator_username;
 		}//end if
@@ -285,8 +243,9 @@ class Form_Action_TRIM_Submit extends Form_Action
 				}//end if
 			}//end foreach
 		}//end if
+
 		if (isset($_POST[$prefix.'_addtional_field_name']) && !empty($_POST[$prefix.'_addtional_field_name'])) {
-			$settings['additional_fields'][$_POST[$prefix.'_addtional_field_name']]	= $_POST[$prefix.'_addtional_field_value'];
+			$settings['additional_fields'][$_POST[$prefix.'_addtional_field_name']]	= array_get_index($_POST, $prefix.'_addtional_field_value', '');
 		}//end if
 
 		if (isset($_POST[$prefix.'_addtional_field_value_edit']) && !empty($_POST[$prefix.'_addtional_field_value_edit'])) {
@@ -302,6 +261,96 @@ class Form_Action_TRIM_Submit extends Form_Action
 		return TRUE;
 
 	}//end processInlineInterface()
+
+
+	/**
+	* Paint the connection detals forms
+	*
+	* @param string $prefix
+	* @param array	$settings TRIM form action settings
+	*
+	* @return void
+	* @access protected
+	*/
+	protected static function _paintConnectionDetails($prefix, $settings)
+	{
+		?>
+		<div id="<?php echo $prefix ?>_connector_div" style="padding: 5px;">
+			<p class="sq-backend-section-subheading"><?php echo translate('Connection Details'); ?></p>
+			<table class="sq-backend-table">
+				<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+				</colgroup>
+				<tr>
+					<th><div style="width:200px"><?php echo translate('WSDL'); ?></div></th>
+					<td><?php text_box($prefix.'_wsdl', array_get_index($settings, 'wsdl', ''), 120,'',FALSE, ' style="width: 100%;box-sizing: border-box;height: 24px;"'); ?> </td>
+				</tr>
+				<tr>
+					<th><?php echo translate('Username'); ?></th>
+					<td><?php text_box($prefix.'_username', array_get_index($settings, 'username', ''), 35); ?></td>
+				</tr>
+				<tr>
+					<th><?php echo translate('Password'); ?></th>
+					<td><?php password_box($prefix.'_password', '', 35); ?></td>
+				</tr>
+				<tr>
+					<th><?php echo translate('Authentication Method'); ?></th>
+					<td><?php combo_box($prefix.'_method', Array('HTTP_BASIC' => 'HTTP Basic', 'NTLM' => 'NTLM'), FALSE, array_get_index($settings, 'method', 'HTTP_BASIC')); ?></td>
+				</tr>
+				<tr>
+					<td colspan="2"><?php echo translate('NOTE: Proxy setting is only available when using a connector asset.'); ?></td>
+				</tr>
+			</table>
+
+			<table class="sq-backend-table">
+				<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+				</colgroup>
+				<tr>
+					<th><div style="min-width:200px"><?php echo translate('TRIM Connector Asset'); ?></div></th>
+					<td><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('trim_connector'=>'D')); ?></td>
+				</tr>
+				<tr>
+					<td colspan="2"><?php echo translate('NOTE: If a TRIM connector is selected, the settings in the "Connection Setup" section above will have no effect.'); ?></td>
+				</tr>
+			</table>
+		</div>
+		<?php
+
+	}//end paintConnectionDetails()
+
+
+	/**
+	* Process the connection detals forms
+	*
+	* @param string $prefix
+	* @param array	$settings TRIM form action settings
+	*
+	* @return void
+	* @access protected
+	*/
+	protected static function _processConnectionDetails($prefix, &$settings)
+	{
+		$settings['connector_assetid']	= $_POST[$prefix.'_connector']['assetid'];
+		$new_wsdl						= array_get_index($_POST, $prefix.'_wsdl', '');
+		$new_username					= array_get_index($_POST, $prefix.'_username', '');
+		$new_password					= array_get_index($_POST, $prefix.'_password', '');
+		$method							= array_get_index($_POST, $prefix.'_method', 'HTTP_BASIC');
+
+		if (!is_null($new_wsdl)) {
+			$settings['wsdl']		= $new_wsdl;
+		}//end if
+		if (!is_null($new_username)) {
+			$settings['username']	= $new_username;
+		}//end if
+		if (!empty($new_password)) {
+			$settings['password']	= $new_password;
+		}//end if
+		$settings['method']	= array_get_index($_POST, $prefix.'_method', 'HTTP_BASIC');
+
+	}//end _processConnectionDetails()
 
 
 	/**
@@ -321,22 +370,22 @@ class Form_Action_TRIM_Submit extends Form_Action
 			</colgroup>
 			<tbody>
 				<tr>
-					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong>Data Source:</strong></p></td>
+					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('Data Source'); ?>:</strong></p></td>
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 					if (!empty($settings['connector_assetid'])) {
 						echo get_asset_tag_line($settings['connector_assetid']);
 					} else {
-						?><span class="sq-backend-warning">No connection details specified.</span><?php
+						?><span class="sq-backend-warning"><?php echo translate('Connection details not specified.'); ?></span><?php
 					}
 					?></p></td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong>Create Record Type</strong></p></td>
+					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong><?php echo translate('Create Record Type');?></strong></p></td>
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 					if (!empty($settings['record_type'])) {
 						echo ellipsisize(preg_replace('/\\n/', ' ', htmlspecialchars(ucwords($settings['record_type']))), 512);
 					} else {
-						?><span class="sq-backend-warning">No record type selected.</span><?php
+						?><span class="sq-backend-warning"><?php echo translate('No record type selected.'); ?></span><?php
 					} ?></p></td>
 				</tr>
 			</tbody>
@@ -399,6 +448,7 @@ class Form_Action_TRIM_Submit extends Form_Action
 												'trace'		=> TRUE,
 												'exceptions'=> TRUE,
 											  );
+			$connection['method']			= $trim_connector->attr('authentication_type');
 			// add proxy
 			$proxy = $trim_connector->getProxy();
 			$connection['authentication'] = array_merge($connection['authentication'], $proxy);
@@ -410,9 +460,10 @@ class Form_Action_TRIM_Submit extends Form_Action
 												'trace'		=> TRUE,
 												'exceptions'=> TRUE,
 											  );
+			$connection['method']			= isset($settings['method']) ? $settings['method'] : 'HTTP_BASIC';
 		}//end if
 
-		$new_record_uri	= TRIM_Common::executeCreateRequest($connection, $username, $new_record_info);
+		$new_record_uri	= self::lib('executeCreateRequest', Array($connection, $username, $new_record_info));
 
 		return TRUE;
 
@@ -425,24 +476,23 @@ class Form_Action_TRIM_Submit extends Form_Action
 	* @return void
 	* @access public
 	*/
-	public static function getKeywordReplacementsForForm($field_name, $field_content, &$replacement, &$form)
+	public static function getKeywordReplacementsForForm($field_name, $field_content, &$replacements, &$form)
 	{
-		$matches = Array();
-		$found = preg_match_all('/%(response_(\\d+_)?q\\d+(_raw)?)%/U', $field_content, $set_matches, PREG_SET_ORDER);
-		$matches = array_merge($matches, $set_matches);
-		$found = preg_match_all('/%(question_name_(\\d+_)?q\\d+(_raw)?)%/U', $field_content, $set_matches, PREG_SET_ORDER);
-		$matches = array_merge($matches, $set_matches);
-		$found = preg_match_all('/%(form_submission_.*)%/U', $field_content, $set_matches, PREG_SET_ORDER);
-		$matches = array_merge($matches, $set_matches);
+		// Replace global keywords in the contnet
+		replace_global_keywords($field_content);
 
-		foreach ($matches as $match) {
-			if (empty($match)) continue;
+		// Replace form specific keywords
+		$keywords = extract_keywords($field_content);
+		foreach ($keywords as $keyword) {
 			$count = 0;
 			do {
-				$field_content = preg_replace('/%'.$match[1].'%/U', $form->_getThankYouKeywordReplacement($match[1]), $field_content, 1, $count);
-				$replacement[$field_name]	= $field_content;
+				$replacement = $form->_getThankYouKeywordReplacement($keyword);
+				$field_content = preg_replace('/%'.preg_quote($keyword).'%/U', $replacement, $field_content, 1, $count);
 			} while ($count > 0);
 		}//end foreach
+
+		$replacements[$field_name] = $field_content;
+
 	}//end getKeywordReplacementsForForm()
 
 
@@ -497,7 +547,8 @@ class Form_Action_TRIM_Submit extends Form_Action
 	*
 	* @return void
 	*/
-	private static function _fillDefaults(&$settings) {
+	private static function _fillDefaults(&$settings) 
+	{
 		if (!isset($settings['record_type'])) {
 			$settings['record_type'] = 'document';
 		}//end if
@@ -509,12 +560,13 @@ class Form_Action_TRIM_Submit extends Form_Action
 	}//end _fillDefaults()
 
 
-	private static function getRecordTypeFields($name)
+	protected static function getRecordTypeFields($name)
 	{
 		$func_name	= 'get'.$name.'TypeFields';
-		$fields = self::$func_name();
+		$fields = static::$func_name();
 
 		return $fields;
+
 	}//end getRecordTypeFields()
 
 
@@ -527,7 +579,7 @@ class Form_Action_TRIM_Submit extends Form_Action
 
 	}//end getBoxTypeFields()
 
-	private static function getDocumentTypeFields()
+	protected static function getDocumentTypeFields()
 	{
 		$field_list	= Array (
 						'record_title', 'parent_record_number', 'security_level',

@@ -83,6 +83,21 @@ class Form_Email_Management extends Asset_Management
 																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
+						'receipt_email_attachments'	=> Array(
+														'added'		=> '0.4',
+														'type'		=> 'dynamic_file',
+														'default'	=> Array(),
+													),
+						'recipient_email_attachments'=> Array(
+														'added'		=> '0.4',
+														'type'		=> 'dynamic_file',
+														'default'	=> Array(),
+													),
+						'staf_email_attachments'	=> Array(
+														'added'		=> '0.4',
+														'type'		=> 'dynamic_file',
+														'default'	=> Array(),
+													),
 					  );
 
 	}//end constructor

@@ -143,15 +143,9 @@ class Page_Standard extends Page
 	public function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_1]['calendar_event_single']    = Array('card' => 'M', 'exclusive' => FALSE);
-		$page_links[SQ_LINK_TYPE_1]['calendar_event_recurring'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_1]['data_record'] = Array('card' => 'M', 'exclusive' => FALSE);
-		$page_links[SQ_LINK_TYPE_2]['calendar_event_single']    = Array('card' => 'M', 'exclusive' => FALSE);
-		$page_links[SQ_LINK_TYPE_2]['calendar_event_recurring'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => TRUE);
 		$page_links[SQ_LINK_TYPE_2]['data_record'] = Array('card' => 'M', 'exclusive' => FALSE);
-		$page_links[SQ_LINK_NOTICE]['calendar_event_single']    = Array('card' => 'M', 'exclusive' => FALSE);
-		$page_links[SQ_LINK_NOTICE]['calendar_event_recurring'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -496,7 +490,47 @@ class Page_Standard extends Page
 
 
 
+	/**
+	* the comments attribute needs some special treatment
+	*
+	* @param string $keywords
+	*
+	* @return string
+	* @access public
+	*/
+	public function getKeywordReplacement($keyword, $additional_replacements=Array())
+	{
+		if (strpos($keyword, 'asset_attribute_comments') !== FALSE) {
+			$replacement = '';
+			if($this->writeAccess('attributes')) {
+				$keyword = parse_keyword($keyword, $modifiers);
+				$contextid = extract_context_modifier($modifiers);
 
+				$replacement = '[';
+				$bodycopy = $this->getBodycopy();
+				if($bodycopy) {
+					$containers = $bodycopy->getContainers();
+					foreach (array_keys($containers) as $i) {
+						$container =& $containers[$i];
+						$comments = urldecode($container->attr('comments'));
+						if($i > 0) $replacement .= ',';
+						if(empty($comments)) {
+							$comments = '[]';
+						}
+						$replacement .= '{"containerid":'.$container->id.', "comments":'.$comments.'}';
+
+					}
+				}
+				$replacement .= ']';
+
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id, 'replacements' => $additional_replacements), $keyword);
+			}
+			return ($replacement);
+		}
+		else {
+			return parent::getKeywordReplacement($keyword);
+		}
+	}
 
 }//end class
 

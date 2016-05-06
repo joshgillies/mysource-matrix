@@ -283,6 +283,16 @@
 			<note />
 			<parameter_map />
 		</field>
+		<field attribute="dynamic_root_option">
+			<display_name>If dynamic root not found</display_name>
+			<note />
+			<selection style="list" />
+		</field>
+		<field attribute="dynamic_asset_selection_option">
+			<display_name>If asset selection not specified</display_name>
+			<note />
+			<selection style="list" />
+		</field>
 	</section>
 	<section name="Button Text" write_access="write:attributes">
 		<field attribute="submit_button_text">

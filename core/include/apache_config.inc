@@ -398,7 +398,7 @@ class Apache_Config extends Config
 
 
 		$o->closeSection();
-		if ($write_access) $o->commitButton('', TRUE);
+		if ($write_access) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 

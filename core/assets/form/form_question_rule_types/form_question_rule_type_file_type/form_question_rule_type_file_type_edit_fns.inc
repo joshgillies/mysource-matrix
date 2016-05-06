@@ -51,7 +51,13 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
 
-			echo translate('core_form_rule_file_type_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $rule_data['value']);
+			$operator = array_get_index($rule_data, 'operator', 1);
+			if($operator) {
+				echo sprintf(translate('Uploaded file must match one of the following extensions: %s'), array_get_index($rule_data, 'value', translate('None')));
+			}
+			else {
+				echo sprintf(translate('Uploaded file must NOT match one of the following extensions: %s'), array_get_index($rule_data, 'value', translate('None')));
+			}
 			$o->closeField();
 
 		} else {

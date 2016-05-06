@@ -18,29 +18,29 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field keyword="filename">
-			<display_name>Title</display_name>
-			<note>%description%</note>
+			<display_name>File Name</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintFilename"   />
 				<process_function name="processFilename" />
 			</function_call>
 		</field>
 		<field attribute="title">
-			<display_name>File Name</display_name>
-			<note />
+			<display_name>Title</display_name>
+			<note>%description%</note>
 			<text width="25" height="1" />
 		</field>
 		<field keyword="file_upload">
-		    <display_name>Allow Unrestricted Access</display_name>
-			<note>Set to Yes to allow this file to be served by the web server if it is Live and publicly readable.</note>
+			<display_name>Upload File</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintFileUpload"   />
 				<process_function name="processFileUploadPreUpload" />
 			</function_call>
 		</field>
 		<field attribute="allow_unrestricted">
-			<display_name>Upload File</display_name>
-			<note />
+			<display_name>Allow Unrestricted Access</display_name>
+			<note>Set to Yes to allow this file to be served by the web server if it is Live and publicly readable.</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>

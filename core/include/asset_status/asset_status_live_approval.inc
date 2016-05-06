@@ -104,24 +104,17 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$is_dependant = $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
-				if ($mm->allowsMetadata($this->owner->id)) {
-					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-					if ($wf_complete && ((!$is_dependant && $m_complete) || $is_dependant)) {
+				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+				if($m_complete) {
+					if ($wf_complete) {
 						$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
 
-					} else if (in_array($userid, $publishers)) {
+					}
+					if ((!$wf_complete) && in_array($userid, $publishers)) {
 						$statii[SQ_STATUS_LIVE_APPROVAL] = translate('Approve Review');
 
 					}
-				} else {
-					// this asset needs to allow both statuses because it cant check metadata requirements
-					// due to it not allowing metadata
-					$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
-
-					$statii[SQ_STATUS_LIVE_APPROVAL] = translate('Approve Review');
-
 				}
 
 				$statii[SQ_STATUS_EDITING] = translate('Safe Edit');
@@ -249,7 +242,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 				// admin that is trying to approve because metadata is now complete.
 				// the result is that this workflow process may already be complete
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$m_complete = !$mm->allowsMetadata($this->owner->id) || $mm->requiredFieldsComplete($this->owner->id) || $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
+				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {

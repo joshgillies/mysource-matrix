@@ -184,6 +184,11 @@
             <note />
             <boolean true_text="Yes" false_text="No" />
         </field>
+        <field attribute="morph_asset">
+            <display_name>Morph Asset</display_name>
+            <note />
+            <boolean true_text="Yes" false_text="No" />
+        </field>
         <field attribute="set_file_content">
             <display_name>Set File Content</display_name>
             <note>Allows user to set content of Editable (CSS, JS, Text, XML, XSL) File type Assets</note>
@@ -204,6 +209,16 @@
             <note>Allows user to compare contents of two different assets. Optionally a paint layout can be passed for each of the assets to check the difference with.</note>
             <boolean true_text="Yes" false_text="No" />
         </field>
+        <field attribute="validate_user">
+            <display_name>Validate Active User</display_name>
+            <note>For the username passed, API will validate if the user is available on the system. Additionally the function can be made to return the assetids of the user groups it belongs to.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="get_indexing_contents">
+            <display_name>Get File Indexing Components</display_name>
+            <note>Allows user to fetch indexing contents for file assets that would normally be served by Apache. The returned data would include details about the metadata value, file properties and permission details.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
     </section>
 
     <section name="Linking" write_access="write:attributes">
@@ -214,12 +229,12 @@
             </function_call>
         </field>
         <field attribute="create_link">
-            <display_name>Set All To</display_name>
+            <display_name>Create Link</display_name>
             <note />
             <boolean true_text="Yes" false_text="No" />
         </field>
         <field attribute="remove_link">
-            <display_name>Create Link</display_name>
+            <display_name>Remove Link</display_name>
             <note />
             <boolean true_text="Yes" false_text="No" />
         </field>
@@ -240,14 +255,31 @@
         </field>
     </section>
     <section name="Permissions" write_access="write:attributes">
+        <field>
+            <display_name>Set All To</display_name>
+            <function_call>
+                <paint_function name="paintSetAll" />
+            </function_call>
+        </field>
         <field attribute="get_permissions">
             <display_name>Get Permissions</display_name>
+            <note />
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="set_permission">
+            <display_name>Set Permission</display_name>
             <note />
             <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
 
     <section name="Workflow" write_access="write:attributes">
+        <field>
+            <display_name>Set All To</display_name>
+            <function_call>
+                <paint_function name="paintSetAll" />
+            </function_call>
+        </field>
         <field attribute="get_workflow_schema">
             <display_name>Get Workflow Schema</display_name>
             <note>Gets applied workflow schema for an asset (gets running and/or not running schema)</note>
@@ -352,6 +384,16 @@
         </field>
         <field attribute="get_ga_statistics">
             <display_name>Get Google Analytics Statistics</display_name>
+            <note />
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="get_ga_goals">
+            <display_name>Get Google Analytics Goals</display_name>
+            <note />
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="get_ga_experiments">
+            <display_name>Get Google Analytics Experiments</display_name>
             <note />
             <boolean true_text="Yes" false_text="No" />
         </field>

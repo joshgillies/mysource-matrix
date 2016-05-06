@@ -377,6 +377,76 @@ class File_Folder extends File
 	}//end _getAllowedLinks()
 
 
+	/**
+	* Returns the tag name to wrap the file contents when outputtiing  '%file_list% keyword replacement
+	*
+	* @return string
+	* @access protected
+	*/
+	protected function _contentTypeTagName()
+	{
+		return '';
+
+	}//end _contentTypeTagName()
+
+
+	/**
+	* Get the File Folder keyword replacement
+	*
+	* @param string $keyword    Keyword to find a replacement for
+	* @param string $additional_replacements    Additional keyword replacements for 'replace_keywords' modifier
+	*
+	* @return string
+	* @access public
+	* @see _getKeywordReplacement
+	*/
+	public function getKeywordReplacement($keyword, $additional_replacements=Array())
+	{
+		if ($keyword == 'asset_file_list') {
+			// Return the linked file content individually wrapped by the appropriate HTML tag
+			$linked_file_assetids = $this->getLinkedFiles();
+			if (empty($linked_file_assetids)) {
+				return '';
+			}
+
+			$tag_name = $this->_contentTypeTagName();
+			$opening_tag = $closing_tag = '';
+			if (!empty($tag_name)) {
+				$opening_tag = '<'.$tag_name.'>';
+				$closing_tag = '</'.$tag_name.'>';
+			}
+
+			$source_contents = Array();
+			foreach($linked_file_assetids as $linked_file_assetid) {
+				$linked_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($linked_file_assetid);
+				$source_contents[] = $linked_file->getContent(FALSE);
+			}
+
+			return $opening_tag.implode($closing_tag."\n".$opening_tag, $source_contents).$closing_tag;
+		}
+
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
+
+
+	/**
+	* Rengenerate the merged file when one the linked files is updated
+	*
+	* @param object &$broadcaster
+	*
+	* @return void
+	* @access public
+	*/
+	function onContentsUpdated(&$broadcaster, $vars=Array())
+	{
+		if ($this->attr('auto_regen')) {
+			$this->mergeFiles();
+		}
+
+	}//end onContentsUpdated()
+
+
 }//end class
 
 ?>

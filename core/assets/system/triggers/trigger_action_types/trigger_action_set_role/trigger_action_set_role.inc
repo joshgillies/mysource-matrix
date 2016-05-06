@@ -222,7 +222,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 						echo '</ul>';
 					}
 					echo '<br/>';
-					echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_user ? 'tick' : 'cross').'.gif" alt="'.($current_user ? translate('Yes') : translate('No')).'" /> ';
+					echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_user ? 'tick' : 'cross').'.png" alt="'.($current_user ? translate('Yes') : translate('No')).'" /> ';
 
 
 					echo translate('Use Current User (one who fires the trigger)');
@@ -247,14 +247,14 @@ class Trigger_Action_Set_Role extends Trigger_Action
 				label(translate('Cascade roles to dependents'), $prefix.'[cascade_to_dependents]');
 
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.png" alt="'.($cascade ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Yes, cascade role assignment changes');
 
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_dependents ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.png" alt="'.($cascade_to_dependents ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Cascade roles to dependents');
@@ -270,7 +270,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 
 				echo '<br />';
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all_before_adding ? 'tick' : 'cross').'.gif" alt="'.($delete_all_before_adding ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all_before_adding ? 'tick' : 'cross').'.png" alt="'.($delete_all_before_adding ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Delete all the Users from the Role before assigning new one');

@@ -442,7 +442,37 @@ class Page_Account_Manager extends Page_Asset_Builder
 			switch (strtolower($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 				case 'create' :
 					if (empty($this->_errors) && !empty($this->_tmp['created_asset'])) {
-						if ($this->attr('use_email_validation')) {
+						if ($this->attr('auto_login')) {
+							$new_user = $this->_tmp['created_asset'];
+							if ($GLOBALS['SQ_SYSTEM']->loginUser($new_user)) {
+
+								// Set the current user and "logged in" status
+								$GLOBALS['SQ_SYSTEM']->user = $new_user;
+								$this->_current_state = 'logged_in';
+
+								$redirect_url = '';
+								if (!SQ_IN_LIMBO && !$this->attr('customise_logged_in')) {
+									$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'login_redirect');
+									if (!empty($link)) {
+										$redirect_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+										$redirect_url = $redirect_asset->getURL();
+										$GLOBALS['SQ_SYSTEM']->am->forgetAsset($redirect_asset);
+									}//end if
+									if (empty($redirect_url) && $this->attr('enter_edit_mode')) {
+										$redirect_url = strip_url($this->getURL()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
+									}
+								} else if (!SQ_IN_LIMBO && $this->attr('customise_logged_in')) {
+									$redirect_url = $this->getURL();
+								}
+								
+								// Redirect the new user to the appropriate "logged in" page
+								if (!empty($redirect_url)) {
+									header('Location: '.$redirect_url);
+									exit;
+								}
+							}
+							break;
+						} else if ($this->attr('use_email_validation')) {
 							// notice link the newly-created asset underneath the selected create locations,
 							// so when we validate we know which create locations were selected
 							$new_asset =& $this->_tmp['created_asset'];
@@ -593,20 +623,24 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Sets the status of the newly created asset
 	*
-	* If we are using email validation we dont change the status of the new asset
-	*
-	* @param object	&$new_asset	the newly created asset
+	* @param object 	$new_asset	The newly created asset
+	* @param boolean    $force_live If TRUE the newly created asset will be set to Live status
+	*								overriding of 'Create Status' setting
 	*
 	* @return boolean
-	* @access private
+	* @access protected
 	*/
-	function _setCreateStatus(&$new_asset)
+	protected function _setCreateStatus($new_asset, $force_live=FALSE)
 	{
-		if ($this->attr('use_email_validation')) {
+		if ($this->attr('auto_login')) {
+			// If 'automatic login' is enabled, set the user status as live
+			$force_live = TRUE;
+		} else if ($this->attr('use_email_validation')) {
+			// If we are using email validation we dont change the status of the new asset
 			return TRUE;
-		} else {
-			return parent::_setCreateStatus($new_asset);
 		}
+
+		return parent::_setCreateStatus($new_asset, $force_live);
 
 	}//end _setCreateStatus()
 
@@ -638,8 +672,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 					foreach($this->_errors as $text) {
 						$errors .= '<li>'.$text.'</li>';
 					}//end foreach
+					$this->_replacements['form_errors'] = '<ul>'.$errors.'</ul>';
 				}//end if
-				$this->_replacements['form_errors'] = '<ul>'.$errors.'</ul>';
 			}
 
 			return TRUE;
@@ -1183,23 +1217,37 @@ class Page_Account_Manager extends Page_Asset_Builder
 				$bodycopy_type = $link_info['value'];
 			}
 		}
+		if (empty($bodycopy_type)) {
+			// Check if using custom layout
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'layout', TRUE);
+			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout');
+			foreach($type_links as $link_info) {
+				if (isset($parents[$link_info['minorid']])) {
+					$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
+					$layout->onRequestKeywords($broadcaster, $vars);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($layout);
+					break;
+				}
+			}//end foreach
+		} else {
 
-		switch ($bodycopy_type) {
-			case 'not_logged_in' :
-				$vars['keywords'] = array_merge($vars['keywords'], $this->_getNotLoggedInKeywords());
-			break;
-			case 'logged_in' :
-				$vars['keywords'] = array_merge($vars['keywords'], $this->_getLoggedInKeywords());
-			break;
-			case 'create_login' :
-			case 'create_no_login' :
-				$vars['keywords'] = array_merge($vars['keywords'], $this->_getCreateLoginKeywords());
-			break;
-
+			switch ($bodycopy_type) {
+				case 'not_logged_in' :
+					$vars['keywords'] = array_merge($vars['keywords'], $this->_getNotLoggedInKeywords());
+				break;
+				case 'logged_in' :
+					$vars['keywords'] = array_merge($vars['keywords'], $this->_getLoggedInKeywords());
+				break;
+				case 'create_login' :
+				case 'create_no_login' :
+					$vars['keywords'] = array_merge($vars['keywords'], $this->_getCreateLoginKeywords());
+				break;
+			}
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $this->_getSelectableLocationKeywords());
 		$vars['keywords'] = array_merge($vars['keywords'], $this->_getDynamicLocationKeywords());
+
 	}//end onRequestKeywords()
 
 
@@ -1212,18 +1260,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function _getLoggedInKeywords()
 	{
 		$keywords = parent::_getLoggedInKeywords();
-
-		// add new keywords
-		$keywords['edit_details_invite']		= translate('Edit Details Invite');
-
-		$keywords['edit_details_form']			= translate('Edit Details Form');
-
-		$keywords['edit_details_success']		= translate('Edit Details Success Message');
-
-		$keywords['edit_details_lock_error']	= translate('Lock Error Message');
-
-		$keywords['form_errors']				= translate('List of Form Submission Errors');
-
 
 		$keywords['logout_form']				= translate('Logout Form');
 
@@ -1481,6 +1517,24 @@ class Page_Account_Manager extends Page_Asset_Builder
 			} else if (array_get_index($_POST, 'process_form', FALSE) && empty($lock_errors)){
 				$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
 			}
+
+			// Apply keyword modifiers to the layout keywords
+			$raw_keywords = isset($keywords['raw_keywords']) ? $keywords['raw_keywords'] : Array();
+			foreach($raw_keywords as $full_keyword) {
+				if (!isset($this->_replacements[$full_keyword])) {
+					$modifiers = NULL;
+					$part_keyword = parse_keyword($full_keyword, $modifiers);
+					if ($part_keyword != $full_keyword && isset($this->_replacements[$part_keyword])) {
+						$full_keyword_replacement = $this->_replacements[$part_keyword];
+						if ($full_keyword_replacement != '%'.$part_keyword.'%') {
+							apply_keyword_modifiers($full_keyword_replacement, $modifiers, Array('assetid' => $asset->id));
+							$this->_replacements[$full_keyword] = $full_keyword_replacement;
+						} else {
+							$this->_replacements[$full_keyword] = '%'.$full_keyword.'%';
+						}
+					}//end if
+				}//end if
+			}//end foreach
 
 			replace_keywords($content, $this->_replacements);
 

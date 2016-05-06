@@ -238,7 +238,7 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 							echo get_asset_tag_line($asset_to_send);
 							echo "<br />";
 						}
-						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_asset ? 'tick' : 'cross').'.gif" alt="'.($current_asset ? translate('Yes') : translate('No')).'" /> ';
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_asset ? 'tick' : 'cross').'.png" alt="'.($current_asset ? translate('Yes') : translate('No')).'" /> ';
 
 
 						echo translate('Use Current Asset');
@@ -306,7 +306,7 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 					if ($write_access) {
 						check_box($prefix.'[subscriptions_status]', '1', $sub_status);
 					} else {
-						echo '<img src="'.sq_web_path('lib').'/web/images/'.($sub_status ? 'tick' : 'cross').'.gif" alt="'.($sub_status ? translate('Yes') : translate('No')).'" /> ';
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($sub_status ? 'tick' : 'cross').'.png" alt="'.($sub_status ? translate('Yes') : translate('No')).'" /> ';
 
 
 					}

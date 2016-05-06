@@ -46,10 +46,17 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 	{
 		$operator_list = $asset->getOperators();
 
+		$comparison_text = Array(
+			'1' => translate('Must be a valid email address'),
+			'0' => translate('Must NOT be a valid email address'),
+		);
+
+		$cq_id = (string) array_get_index($rule_data, 'comparison_question_id', '0');
+		$op    = (string) array_get_index($rule_data, 'operator', '1');
+
 		if (!$write_access) {
 			$o->openField(translate('Rule Details'));
-
-			echo translate('core_form_rule_email_'.array_get_index($rule_data, 'operator', 1) ? 'true' : 'false');
+			echo $comparison_text[$op];
 			$o->closeField();
 
 		} else {
@@ -57,7 +64,7 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 			$o->openField(translate('Condition'));
 
 			// list of operators
-			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '1'));
+			combo_box($prefix.'[operator]', $operator_list, false, $op);
 			$o->closeField();
 
 			$o->sectionNote(translate('This rule requires only the condition to be satisfied to be set.'));

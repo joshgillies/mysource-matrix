@@ -112,8 +112,33 @@ class File extends Asset
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			if ($info === FALSE || empty($info)) {
-				trigger_localised_error('CORE0056', sprintf(translate('File upload failed. No file selected'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
-				return FALSE;
+				if (!$this->isFileContentEditable()) {
+					trigger_localised_error('CORE0056', sprintf(translate('File upload failed. No file selected'), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name')), E_USER_WARNING);
+					return FALSE;
+				} else {
+					// For editable file types, if no file is supplied via uploaded, create an empty file
+					$file_name = '';
+					$file_title = trim($this->attr('title'));
+					$file_title = preg_replace('/\s/', '_', $file_title);
+					$file_title = preg_replace('/[^A-Za-z0-9_\-]/', '', $file_title);
+
+					// Pick the first extension from the 'allowed extension' list of the file type
+					$extension = array_get_index($this->allowed_extensions, 0, 'txt');
+					$file_name = $file_title . '.' . $extension;
+
+					$create_location = SQ_SYSTEM_ROOT.'/'.'data/temp';
+					// Create an temporary empty file
+					if (!fopen($create_location.'/'.$file_name, 'w+')) {
+						trigger_localised_error('SYS0025', sprintf(translate('Unable to create file: %s'), $file_name. " from given title ".$file_title), E_USER_WARNING);
+						return FALSE;
+					}
+
+					// Create an info array for the file just created
+					$info = Array();
+					$info['name'] = $file_name;
+					$info['tmp_name'] = $create_location;
+					$info['created_file'] = TRUE;
+				}
 			}
 		}
 
@@ -251,9 +276,7 @@ class File extends Asset
 			if(isset($GLOBALS['SQ_SYSTEM']->backend->out)) $o = $GLOBALS['SQ_SYSTEM']->backend->out;
 
 			$edit_fns = $clone->getEditFns();
-			// fix for bug 3625:
-			// we make sure to tell the processFileChooser function that we are cloning and not creating new asset
-			if (!$edit_fns->processFileUpload($clone, $o, $clone->getPrefix(), $temp_info,TRUE, TRUE)) {
+			if (!$edit_fns->processFileUpload($clone, $o, $clone->getPrefix(), $temp_info)) {
 				$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 				trigger_localised_error('CORE0010', sprintf(translate('Unable to clone file %1$s (#%2$s)'), $this->name, $this->id), E_USER_WARNING);
 				return FALSE;
@@ -426,6 +449,13 @@ class File extends Asset
 		// check out the new version
 		if (!$fv->checkOut($rep_path, $this->data_path)) {
 			trigger_localised_error('CORE0044', sprintf(translate('Failed reverting file "%s" to system version, could not check-out latest version of file'), $this->name), E_USER_WARNING);
+			return FALSE;
+		}
+
+		// Change the file name needs to be reflected in the file's webpath
+		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		if (!$this->saveWebPaths(Array($this->name), $rm->attr('remap_upon_webpath_change'))) {
+			trigger_localised_error('CORE0054', translate('Failed saving web paths'), E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -822,6 +852,20 @@ class File extends Asset
 			$result =  parent::updateLookups($auto_add_remaps);
 			if(($this->status & SQ_SC_STATUS_SAFE_EDITING) && $this->attr('allow_unrestricted') && $this->effectiveUnrestricted()) {
 			    $this->insertDataLookup();
+			    // we need to make sure a public file has been checked out
+			    // this is for the special situation that, a file is put in safe edit first without public read, and then public read is granted making it unrestricted when still in safe edit, but public file is missing then in __data
+			    $public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+			    $GLOBALS['SQ_SYSTEM']->setCurrentUser($public_user);
+			    $this->reload();
+				$existing = $this->getExistingFile();
+				if (isset($existing['filename'])) {
+					$unrestricted = $this->data_path_public.'/'.$existing['filename'];
+					if(!is_file($unrestricted) && is_file($existing['path'])) {
+						copy($existing['path'], $unrestricted);
+					}
+				}
+			    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+			    $this->reload();
 			}
 			return $result;
 		}
@@ -1068,6 +1112,17 @@ class File extends Asset
 					}
 				}
 
+				// Change the file name needs to be reflected in the file's webpath
+				// Unless the asset is being cloned (bug #3625) or being imported (bug #5454)
+				$cloning_asset = isset($GLOBALS['SQ_CLONE_COMPONENTS']) && $GLOBALS['SQ_CLONE_COMPONENTS'];
+				if (!$cloning_asset && !defined('SQ_IN_IMPORT')) {
+					$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+					if (!$this->saveWebPaths(Array($new_filename), $rm->attr('remap_upon_webpath_change'))) {
+						trigger_localised_error('CORE0054', translate('Failed saving web paths'), E_USER_WARNING);
+						return FALSE;
+					}
+				}
+
 				// update the lookups so that the __data path gets rewritten if applicable
 				$this->updateLookups();
 
@@ -1077,7 +1132,7 @@ class File extends Asset
 
 		}//end if we are changing the filename
 
-		return parent::saveAttributes($dont_run_updated);
+		return parent::saveAttributes($dont_run_updated, $log_message);
 
 	}//end saveAttributes()
 
@@ -1168,7 +1223,8 @@ class File extends Asset
 				return FALSE;
 			}
 			// Should be able to set attribute of file before if its created by matrix
-			if (!is_file($data_path.'/'.$old_filename) && !$created_file) {
+			// if this function is called during revert process, we don't really have the old file checked out
+			if (empty($GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION']) && !is_file($data_path.'/'.$old_filename) && !$created_file) {
 				trigger_localised_error('CORE0023', translate('Current file not found. Upload a file before renaming.'), E_USER_WARNING);
 				$value = $old_filename;
 				return FALSE;
@@ -1193,6 +1249,16 @@ class File extends Asset
 		$pre_uploaded = FALSE;
 		if (isset($info['non_uploaded_file']) && $info['non_uploaded_file']) {
 			$pre_uploaded = TRUE;
+		}
+
+		if (!empty($info['filename'])) {
+			$filename_size = ini_get('mbstring.func_overload') ? mb_strlen($info['filename'] , '8bit') : strlen($info['filename']);
+			if ($filename_size > SQ_FILENAME_MAX_LENGTH) {
+				trigger_error(sprintf(translate('File name is too long. Maximum allowed filename length size is %1$s bytes.'), SQ_FILENAME_MAX_LENGTH), E_USER_WARNING);
+				unlink($info['path']);
+
+				return FALSE;
+			}
 		}
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -1382,7 +1448,7 @@ class File extends Asset
 			$using_ie6_8 = isset ($_SERVER['HTTP_USER_AGENT']) ? preg_match('/(MSIE\s[0-8]+\.)/', $_SERVER['HTTP_USER_AGENT']) : FALSE;
 
 			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && basename($_SERVER['PHP_SELF']) != SQ_CONF_NOPROXYCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && basename($_SERVER['PHP_SELF']) != SQ_CONF_NOPROXYCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($this->type(), $this->id)) {
 
 				$browser_cache_expiry = $cm->getBrowserCacheExpiry($this->type(), $this->id);
 				$acc_cache_expiry = $cm->getAcceleratorCacheExpiry($this->type(), $this->id);
@@ -1420,7 +1486,7 @@ class File extends Asset
 
 			$disposition = 'inline';
 			// stop rendering a html file
-			if(strpos($type, 'html') !== FALSE) {
+			if(strpos($type, 'html') !== FALSE || (!empty($_REQUEST['file_ts']) && !empty($_REQUEST['file_hash']))) {
 			    $type = 'application/download';
 			    $disposition = 'attachment';
 			}
@@ -1509,7 +1575,15 @@ class File extends Asset
 		$existing = Array();
 		$path = '';
 
-		if (SQ_ROLLBACK_VIEW) {
+		if (!empty($_REQUEST['file_ts']) && !empty($_REQUEST['file_hash']) && !empty($_REQUEST['filename'])) {
+			// Pevious version of the file is being requested via 'Logs' screen
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$info = $fv->_checkOutCheck($this->data_path_suffix.'/'.$_REQUEST['filename'], NULL, $_REQUEST['file_ts']);
+			if (!empty($info['source_file']) && is_file($info['source_file']) && $_REQUEST['file_hash'] == sha1_file($info['source_file'])) {
+				$path = $info['source_file'];
+				$existing['filename'] = $info['filename'];
+			}
+		} else if (SQ_ROLLBACK_VIEW) {
 			// get an older version of this file
 			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $this->data_path_suffix.'/'.$this->name;
@@ -1517,7 +1591,7 @@ class File extends Asset
 			$info = $fv->_checkOutCheck($rep_file, NULL, $then);
 			$path = $info['source_file'];
 			$existing['filename'] = $info['filename'];
-		} else if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
+		} else if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && (($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) || (!$this->writeAccess()))) {
 			// safe edit, get the previous live version from the file versioning repository for public user (bug #1049)
 			if (is_file($this->data_path.'/sq_system_version_no')) {
 				$file_version = file_to_string($this->data_path.'/sq_system_version_no');
@@ -1786,12 +1860,12 @@ class File extends Asset
 	*
 	* @param string		data_url	asset's __data  url out of which we get the original URL
 	* @param string		site_url	url of site under which we have our asset
-
+	*
 	*
 	* @return array
 	* @access public
 	*/
-	public function getOriginalURL($data_url, $site_url)
+	public function getOriginalURL($data_url='', $site_url='')
 	{
 		$original_url = Array();
 
@@ -1804,8 +1878,6 @@ class File extends Asset
 
 		$site_parts = explode('://', $site_url);
 		$site = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($site_parts[0], $site_parts[1]);
-
-		$site_treeid = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($site->id);
 
 		$web_paths = $this->getWebPaths();
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, '', TRUE, NULL, NULL, TRUE, 1, 1);
@@ -1847,9 +1919,13 @@ class File extends Asset
 	*/
 	public function isFileContentEditable()
 	{
-		$edit_fns = $this->getEditFns();
+		$ei = $this->getEI();
+		$screens = Array();
+		if (is_object($ei)) {
+			$screens = $ei->getScreens();
+		}
 
-		return !isset($edit_fns->static_screens['edit_file']);
+		return isset($screens['edit_file']);
 
 	}//end isFileContentEditable()
 

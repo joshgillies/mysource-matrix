@@ -54,5 +54,12 @@
             <note />
             <text width="30" height="8" />
         </field>
+        <field>
+            <display_name>Transaction Response</display_name>
+            <note>The raw response data of transaction.</note>
+            <function_call>
+                <paint_function name="paintTransactionResponse" />
+            </function_call>
+        </field>
     </section>
 </contents>

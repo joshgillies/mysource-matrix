@@ -239,9 +239,6 @@ class MySource extends MySource_Object
 			}
 		}
 
-		// force saving the session to memcache before respond to browser, otherwise, it would take forever, and concurrent session access issue happens.
-		if(SQ_CONF_SESSION_HANDLER === 'memcache')
-			session_write_close();
 
 	}//end destructor
 
@@ -307,6 +304,9 @@ class MySource extends MySource_Object
 			$session_handler = $this->getSessionHandlerClassName();
 			call_user_func(Array($session_handler, 'init'));
 
+			// Set up generic session configs like parent domain
+			$this->_initSessionCookieParams();
+
 			if(SQ_CONF_SESSION_HANDLER === 'memcache') {
 				// memcache can only hold 30 days of cache, otherwise will fail silently
 				ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME > 2592000 ? 2592000 : SQ_CONF_SESSION_GC_MAXLIFETIME);
@@ -316,9 +316,9 @@ class MySource extends MySource_Object
 			}
 
 			$session_set = FALSE;
-			if (isset($_REQUEST['SESSION_ID']) && isset($_REQUEST['SOAP_SESSION_KEY'])) {
+			if (isset($_POST['SESSION_ID']) && isset($_POST['SOAP_SESSION_KEY'])) {
 				// asset map or someone has sent session key through the GET
-				session_id($_REQUEST['SESSION_ID']);
+				session_id($_POST['SESSION_ID']);
 				$session_set = TRUE;
 			}
 
@@ -356,8 +356,8 @@ class MySource extends MySource_Object
 
 			$invalid_key = TRUE;
 			if ($restore_session === FALSE) {
-				if (isset($_REQUEST['SOAP_SESSION_KEY']) === TRUE) {
-					$invalid_key = ($this->getUniqueSOAPSessionKey() != $_REQUEST['SOAP_SESSION_KEY']);
+				if (isset($_POST['SOAP_SESSION_KEY']) === TRUE) {
+					$invalid_key = ($this->getUniqueSOAPSessionKey() != $_POST['SOAP_SESSION_KEY']);
 					if ($invalid_key === FALSE) {
 						$_SESSION['activated'] = 1;
 						define('SQ_SOAP_AUTH', '1');
@@ -424,7 +424,8 @@ class MySource extends MySource_Object
 			}
 
 			$this->setupUser();
-			$this->_updateSessionCookie();
+			$this->_updateSessionCookie(!$restore_session);
+
 			$_SESSION['user_last_access'] = time();
 
 			// if we are using the 'a' querystring arg, remove any trailing exclamation marks
@@ -541,14 +542,24 @@ class MySource extends MySource_Object
 	{
 		// init perfromance timer
 		$this->pm->begin();
+		
+		// stop IE 8 mime sniffing
+		header('X-Content-Type-Options:nosniff');
 
-		if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN)
-			header('X-Frame-Options: SAMEORIGIN');
+		if (SQ_CONF_X_UA_COMPATIBLE_HEADER) {
+			// Send this header to IE only as it is an IE specific header 
+			if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') !== FALSE || strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== FALSE)) {
+				header('X-UA-Compatible: IE=edge,chrome=1');
+			}
+		}
 
 		// if the user is Up For Review, prompt the user to change password
 		$require_password_change = ($this->user && !($this->user instanceof Public_User) && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+
+            if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN)
+                header('X-Frame-Options: SAMEORIGIN');
 
 			if ($require_password_change) {
 				$error_message = SQ_IN_LIMBO ? translate('You need to change your password before you can access Edit Mode') : translate('You need to change your password before you can access Admin Mode');
@@ -596,20 +607,54 @@ class MySource extends MySource_Object
 			}
 
 		} else if (SQ_IN_LOGIN) {
+            if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN)
+                header('X-Frame-Options: SAMEORIGIN');
+
 			$this->paintLogin(translate('Login'), translate('You need to login before you can access Admin Mode'));
 
 		} else {
 			// we are on the frontend
+            if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN_FRONTEND)
+                header('X-Frame-Options: SAMEORIGIN');
+
 			if (!(SQ_IN_CRON || SQ_PHP_CLI) && defined('SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH') && SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH){
 				$host = (isset($_SERVER['HTTP_HOST'])) ? $_SERVER['HTTP_HOST'] : FALSE;
 				$uri = (isset($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : FALSE;
+
+				// Seperate the query string from the URI
+				$query_str = '';
+				if ($uri) {
+					$uri_parts = explode('?', $uri, 2);
+					$uri = array_get_index($uri_parts, 0, '');
+					if (!empty($uri_parts[1])) {
+						$query_str = '?'.$uri_parts[1];
+					}
+				}
 				if ($host && $uri && substr($uri, -1) == '/') {
 					$uri = rtrim($uri, '/');
 					//do not redirect root URLs because apache may append a trailing slash
-					if (!empty($uri)){
+					if (!empty($uri)) {
+
+						// Send Cacheable Header based on cache manager default setting
+						$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+						if (SQ_CONF_SEND_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
+							header('Pragma: cache');
+
+							$browser_cache_expiry = $cm->attr('browser_cache_expiry');
+							$acc_cache_expiry = $cm->attr('accelerator_cache_expiry');
+							$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
+							if (empty($browser_cache_expiry)) {
+								$browser_cache_expiry = $cm->attr('expiry');
+							}
+							$level = $cm->cacheControlLevel();
+							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
+							header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
+						}
+
 						$protocol = current_protocol().'://';
 						header('HTTP/1.1 301 Moved Permanently');
-						header('Location: '.$protocol.$host.$uri);
+						header('Location: '.$protocol.$host.$uri.$query_str);
 						exit;
 					}
 				}
@@ -715,11 +760,14 @@ class MySource extends MySource_Object
 			// if the condition matches then we need to send few extra headers along with regular contents
 			// Check the user agent first so we don't load funnelback manager unless we really need to.
 			if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Funnelback') !== FALSE) {
-				$fbm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager', TRUE);
-				if (!is_null($fbm)) {
-					$fb_user = $fbm->attr('user');
-					if ($GLOBALS['SQ_SYSTEM']->currentUserId() == $fb_user) {
-						$security_keys = $fbm->getAccessLocks($asset);
+				$fb_users = explode(',', SQ_CONF_FUNNELBACK_INDEXING_USER);
+				if(!is_array($fb_users)) $fb_users = Array($fb_users);
+				foreach($fb_users as $index => $userid) {
+					$fb_users[$index] = trim($userid);
+				}
+				if (!empty($fb_users)) {
+					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $fb_users)) {
+						$security_keys = $this->_getAccessLocksForFunnelback($asset);
 						header('X-Funnelback-Locks: '.$security_keys);
 
 						header('X-Funnelback-SQUIZASSETYPE: '.$asset->type());
@@ -751,8 +799,8 @@ class MySource extends MySource_Object
 								$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 							}//end foreach
 							replace_keywords($value, $replacements);
-							$name = $fbm->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-							$value = $fbm->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+							$name = $this->_encodeTextForFunnelback(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+							$value = $this->_encodeTextForFunnelback(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 							header('X-Funnelback-metadata-'.$name.': '.$value);
 						}//end foreach
 					}//end if
@@ -845,6 +893,7 @@ class MySource extends MySource_Object
 
 					// Finally recache
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && $asset->canSendCacheableHeader() && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
+						// recache won't really sends cache header, but calling this function just to record the last modified time and cache info
 						$this->_sendHTTPHeaders($asset);
 					} else {
 						$this->_printAssetFrontend($asset);
@@ -855,8 +904,7 @@ class MySource extends MySource_Object
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && basename($_SERVER['PHP_SELF']) != SQ_CONF_NOPROXYCACHE_SUFFIX &&
 						 SQ_CONF_SEND_CACHEABLE_HEADER &&
 						 $asset->canSendCacheableHeader() &&
-						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE &&
-						 $asset->readAccess() &&
+						 empty($_POST) &&
 						 !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) &&
 						 $cm->cacheableHeadersEnabledForCurrentProtocol() &&
 						 $cm->sendCacheableHeaders($asset->type(), $asset->id)
@@ -884,10 +932,13 @@ class MySource extends MySource_Object
 			// translate all urls to performance mode style url _performance and target=_top
 			$this->_translatePerformanceModeURL($content);
 
-			echo $content;
-
 			// Register the asset as "visited" in the frontend
 			$this->_registerAssetAsVisited($asset);
+			
+			// finish writing session
+			session_write_close();
+
+			echo $content;
 
 		}//end else backend/limbo
 
@@ -948,6 +999,7 @@ class MySource extends MySource_Object
 	*/
 	protected function _sendHTTPHeaders(&$asset)
 	{
+	
 		$recache = basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX;
 		// Don't send cacheable headers when recacheing (see bug #3947)
 		if (!$recache) {
@@ -1262,7 +1314,14 @@ class MySource extends MySource_Object
 			if (!is_null($design)) {
 				header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 				ob_start();
-				$design->paint($current_asset);
+				if($current_asset && $current_asset->readAccess()) {
+					$this->frontend_asset = $current_asset;
+				}
+				else {
+					// hide the front end asset when painting the login design because we don't want to reveal any protected info
+					$this->frontend_asset = $design;
+				}
+				$design->paint($design);
 				$content = ob_get_clean();
 				$this->replaceKeyword($content);
 				echo $content;
@@ -1505,7 +1564,7 @@ class MySource extends MySource_Object
 				if (is_null($password_confirm)) return;
 
 				if (!$this->user->comparePassword($password_old)) {
-					$this->addMessage('Your old password is incorrect');
+					$this->addMessage('The current password you entered is incorrect');
 					return;
 				}
 
@@ -1547,7 +1606,18 @@ class MySource extends MySource_Object
 
 					if ($result && $this->user->status != SQ_STATUS_LIVE) {
 						$available_statuses = $this->user->getAvailableStatii();
-						if (!isset($available_statuses[SQ_STATUS_LIVE]) || !$this->user->processStatusChange(SQ_STATUS_LIVE)) {
+						if (!isset($available_statuses[SQ_STATUS_LIVE])) {
+							$errors = TRUE;
+						} else {
+							$vars = Array(
+										'assetid'         => $this->user->id,
+										'new_status'      => SQ_STATUS_LIVE,
+										'dependants_only' => TRUE,
+									);
+							$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+							$errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
+						}
+						if (!empty($errors)) {
 							trigger_localised_error('SYS0304', translate('Unable to set the status of user "%s" to live'), E_USER_ERROR);
 							return;
 						}
@@ -1557,6 +1627,14 @@ class MySource extends MySource_Object
 			break;
 
 			case 'login' :
+				// Clear the 'log in as invoker' references in the session if user submits login form while 'logged in as'
+				if (isset($_SESSION['login_as_invoker_username'])) {
+					unset($_SESSION['login_as_invoker_username']);
+					unset($_SESSION['login_as_invoker_user_full_name']);
+					unset($_SESSION['login_as_invoker_id']);
+					unset($_SESSION['login_as_invoker_sq_nav_history']);
+				}
+
 				$login_username = array_get_index($_POST, 'SQ_LOGIN_USERNAME');
 				$login_password = array_get_index($_POST, 'SQ_LOGIN_PASSWORD');
 				$login_key      = array_get_index($_POST, 'SQ_LOGIN_KEY');
@@ -1650,6 +1728,7 @@ class MySource extends MySource_Object
 				// deliberately don't have a break here so if the
 				// login fails we make sure that we're logged out
 			case 'logout' :
+				require_once SQ_FUDGE_PATH.'/general/www.inc';
 				$for_real = ($this->user && !($this->user instanceof Public_User));
 				$old_user = &$this->user;
 
@@ -1766,8 +1845,22 @@ class MySource extends MySource_Object
 					* as "root" will provide access to this account
 					*/
 
-					if (($username != 'root') && (($username != $this->user->attr('username')) && (strlen($username) > 0))) {
-						$this->_loginAsUser($username);
+					$result = FALSE;
+					if (empty($username)) {
+						$failure_message = translate('Username not entered');
+					} else if ($username == 'root' || $username == $this->user->attr('username')) {
+						$failure_message = translate('Already logged in as "'.$username.'"');
+					} else {
+						$result = $this->_loginAsUser($username, '', FALSE, $failure_message);
+						if ($failure_message == translate('Invalid username or password entered')) {
+							$failure_message = sprintf(translate('"%s" is not a valid username'), $username);
+						}
+					}
+
+					// If GET var 'print_message' is set, print the failure message if any and exit
+					if (isset($_GET['print_message'])) {
+						echo !$result ? $failure_message : '';
+						exit(1);
 					}
 				}
 			break;
@@ -1776,33 +1869,8 @@ class MySource extends MySource_Object
 				$vars = &$_SESSION['SQ_SYSTEM_SECURITY_KEY'];
 
 				// always regenerating the security key to stop painting same text for same session
-				$vars['key'] = generate_security_key(strlen($vars['key']), $vars['include_uppercase'], $vars['include_numbers']);
-
-				security_key_image(
-									$vars['key_len'],
-									$vars['key'],
-									$vars['width'],
-									$vars['height'],
-									$vars['bg_colour'],
-									$vars['text_colour'],
-									$vars['border_colour'],
-									$vars['zoom'],
-									$vars['use_colours'],
-									$vars['use_font'],
-									$vars['font'],
-									$vars['font_size'],
-									$vars['min_angle'],
-									$vars['max_angle'],
-									$vars['x_start'],
-									$vars['min_dist'],
-									$vars['max_dist'],
-									$vars['ttf_width'],
-									$vars['ttf_height'],
-									$vars['use_arc'],
-									$vars['arc_colour'],
-									$vars['include_uppercase'],
-									$vars['include_numbers']
-								  );
+				$vars['key'] = generate_security_key(strlen($vars['key']), ((isset($vars['include_uppercase'])) ? $vars['include_uppercase'] : FALSE), ((isset($vars['include_uppercase'])) ? $vars['include_numbers'] : FALSE));
+				security_key_image($vars);
 				exit(1);
 			break;
 			case 'attribute_image' :
@@ -1929,6 +1997,7 @@ class MySource extends MySource_Object
 
 			case 'get_soap_downloaded_file' :
 				$filename = basename(array_get_index($_GET, 'soap_filename', ''));
+				$filename = preg_replace("([^\w\s\d\-_~,;:\[\]\(\).])", '', $filename);
 				$sessionid = session_id();
 				$full_file_path = SQ_DATA_PATH.'/private/soap_action_file_responses/'.$sessionid.'/'.$filename;
 
@@ -1950,7 +2019,10 @@ class MySource extends MySource_Object
 			break;
 
 			case 'getToken' :
-				echo (get_unique_token());
+				if (SQ_CONF_ENABLE_CSRF_TOKEN_REQUEST) {
+					echo (get_unique_token());
+				}
+
 				exit(1);
 			break;
 
@@ -1972,27 +2044,68 @@ class MySource extends MySource_Object
 				}
 
 
+
+				// if it's base64 upload, fake it as form file upload data
+				$image_preview_id = '';
+				$upload_id = '';
+				if(isset($_POST['base64']) && !empty($_POST['base64'])) {
+					$file_name = tempnam(sys_get_temp_dir(), 'image_upload_');
+					$ifp = fopen($file_name, "wb"); 
+
+					$data = explode(',', $_POST['base64']);
+
+					fwrite($ifp, base64_decode($data[1])); 
+					fclose($ifp);
+
+					$file_ext = substr($data[0], 5, strpos($data[0], ';')-5);
+					$file_ext = explode('/', $file_ext);
+					$file_ext = isset($file_ext[1]) ? $file_ext[1] : '';
+
+					$_FILES['create_image_upload']['name'] = isset($_POST['file_name']) && !empty($_POST['file_name']) ? $_POST['file_name'] : rand().'.'.$file_ext;
+					$_FILES['create_image_upload']['tmp_name'] = $file_name;
+					$_FILES['create_image_upload']['non_uploaded_file'] = TRUE;
+					$_FILES['create_image_upload']['error'] = '';
+
+					// grab the image preview element id, so we can get back to it and replace it with original image
+					if(isset($_POST['image_preview_id'])) {
+						$image_preview_id = $_POST['image_preview_id'];
+					}
+
+					// grab the image upload id, so we can get back to it and replace it with original image
+					if(isset($_POST['upload_id'])) {
+						$upload_id = $_POST['upload_id'];
+					}
+
+				}
+
+
 				// Check if something was submitted
 				if (!isset($_FILES['create_image_upload']['name']) || !isset($_FILES['create_image_upload']['tmp_name']) || empty($_FILES['create_image_upload']['tmp_name']) || !isset($_FILES['create_image_upload']['error']) || !empty($_FILES['create_image_upload']['error'])) {
 				        // No file submitted
-				        echo json_encode(Array('error' => translate('There is no file uploaded')));
+				        echo json_encode(Array('error' => translate('There is no file uploaded'), 'image_preview_id' => $image_preview_id, 'upload_id' => $upload_id));
 				        exit(1);
 				}
 				if (!isset($_POST['create_root_node']) || empty($_POST['create_root_node'])) {
 				        // No root node specified
-				        echo json_encode(Array('error' => translate('You need to specify a parent node')));
+				        echo json_encode(Array('error' => translate('You need to specify a parent node'), 'image_preview_id' => $image_preview_id, 'upload_id' => $upload_id));
 				        exit(1);
 				}//end if
 
 				// check nonce token
 				$token = get_unique_token();
 				if(!isset($_POST['token']) || $_POST['token'] !== $token) {
-						echo json_encode(Array('error' => translate('Invalid security token')));
+						echo json_encode(Array('error' => translate('Invalid security token'), 'image_preview_id' => $image_preview_id, 'upload_id' => $upload_id));
+
+						// force regenerate a new csrf token
+						if(isset($_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'])) {
+							unset($_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN']);
+						}
+
 				        exit(1);
 				}
 
 				if(!assert_valid_assetid($_POST['create_root_node'], '', TRUE, FALSE)) {
-						echo json_encode(Array('error' => translate('Invalid create location asset ID')));
+						echo json_encode(Array('error' => translate('Invalid create location asset ID'), 'image_preview_id' => $image_preview_id, 'upload_id' => $upload_id));
 				        exit(1);
 				}
 
@@ -2006,7 +2119,7 @@ class MySource extends MySource_Object
 
 				if(empty($root_node) || !$root_node->writeAccess()) {
 						// No root node specified
-				        echo json_encode(Array('error' => translate('You do not have permission to upload image')));
+				        echo json_encode(Array('error' => translate('You do not have permission to upload image'), 'image_preview_id' => $image_preview_id, 'upload_id' => $upload_id));
 				        exit(1);
 				}
 				// if it's dependant asset, we need to use the top level parent asset
@@ -2025,30 +2138,41 @@ class MySource extends MySource_Object
 				// Check for valid file types
 				$invalid_file_type = @$new_image->validFile($_FILES['create_image_upload']);
 				if (!$invalid_file_type) {
-					echo json_encode(Array('error' => translate('Incorrect file type')));
+					echo json_encode(Array('error' => translate('Incorrect file type'), 'image_preview_id' => $image_preview_id, 'upload_id' => $upload_id));
 					exit(1);
 				}//end if
 
 				// check if alt is supplied
+				$alt = '';
 				if(isset($_POST['alt'])) {
-					$new_image->setAttrValue('alt', $_POST['alt']);
+					$alt = $_POST['alt'];
+					$new_image->setAttrValue('alt', $alt);
 				}
+
+
+				// check if title is supplied, we just need to return it
+				$title = '';
+				if(isset($_POST['title'])) {
+					$title = $_POST['title'];
+				}
+
+				$link_type = isset($_POST['show_in_menu']) && $_POST['show_in_menu'] ? SQ_LINK_TYPE_1 : SQ_LINK_TYPE_2;
 
 				// Create the image
 				$new_image->setAttrValue('name', $_FILES['create_image_upload']['name']);
 				$new_image->saveAttributes();
 				$link = Array(
 					'asset'                 => $root_node,
-					'link_type'             => SQ_LINK_TYPE_1,
+					'link_type'             => $link_type,
 					'value'                 => '',
 					'sort_order'    => -1,
 					);
 				$successful = @$new_image->create($link, $_FILES['create_image_upload']);
 				if ($successful) {
-					echo json_encode(Array('success' => 1, 'assetid' => $new_image->id, 'root_node' => $root_node->id));
+					echo json_encode(Array('success' => 1, 'assetid' => $new_image->id, 'root_node' => $root_node->id, 'image_preview_id' => $image_preview_id, 'title' => $title, 'alt' => $alt, 'upload_id' => $upload_id));
 				}
 				else {
-					echo json_encode(Array('error' => translate('File web path already exists')));
+					echo json_encode(Array('error' => translate('File web path already exists'), 'image_preview_id' => $image_preview_id, 'upload_id' => $upload_id));
 				}
 				exit(1);
 			break;
@@ -2092,11 +2216,12 @@ class MySource extends MySource_Object
 	* @param string		$username				The username with which to log in
 	* @param string		$resuming_user_id_match	The asset ID of the resuming user
 	* @param boolean	$resuming_session		Whether we are going back to the invoking account
+	* @param string     &$failure_reason        Error message on failure
 	*
 	* @return boolean
 	* @access private
 	*/
-	private function _loginAsUser($username, $resuming_user_id_match='', $resuming_session=FALSE)
+	private function _loginAsUser($username, $resuming_user_id_match='', $resuming_session=FALSE, &$failure_reason='')
 	{
 		$logged_in = ($this->user && !($this->user instanceof Public_User));
 
@@ -2117,19 +2242,6 @@ class MySource extends MySource_Object
 					$invoking_user_nav_history = $_SESSION['sq_nav_history'];
 				}
 			}
-
-			// Log out the invoking user (System Admin)
-			$this->broadcastTriggerEvent('trigger_event_before_user_logout', $this->user, NULL);
-			$subject = translate('User Logged Out');
-            $body    = translate('User "%user_name%" logged themselves out');
-            $this->_logSecurityMsg('system.security.logout.manual', $subject, $body);
-
-			// Prepare a new session
-			$this->_clearSession();
-			$this->loginPublicUser();
-			$this->generateLoginKey(TRUE);
-
-			$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 
 			// Switch to the secondary user without authenticating
 			// Don't worry about the login key as we know we are performing the request ourselves
@@ -2176,10 +2288,13 @@ class MySource extends MySource_Object
 					if ($secondary_user->canLogin()) {
 						// Store the details of the invoking user so we can switch back quickly
 						if ($resuming_session) {
+							$this->_logOutCurrentUser();
+
 							// Alrighty, let's resume the user's previous account and their navigation history
 							if (isset($invoking_user_nav_history)) {
 								$_SESSION['sq_nav_history'] = $invoking_user_nav_history;
 							}
+
 							return $this->loginUser($secondary_user, '', TRUE);
 						} else {
 							/*
@@ -2195,6 +2310,8 @@ class MySource extends MySource_Object
 							$allowed_login = !(($secondary_user instanceof Root_User) || ($old_user_system_admin && $secondary_user_system_admin));
 
 							if ($allowed_login) {
+								$this->_logOutCurrentUser();
+
 								$_SESSION['login_as_invoker_username'] = $invoking_username;
 								$_SESSION['login_as_invoker_user_full_name'] = $invoking_user_full_name;
 								$_SESSION['login_as_invoker_id']  = $invoking_user_id;
@@ -2203,7 +2320,7 @@ class MySource extends MySource_Object
 								}
 
 								// Ok all is good - login as the user we are after
-								return $this->loginUser($secondary_user, $old_user->name, TRUE);
+								return $this->loginUser($secondary_user, $old_user->name, FALSE);
 							} else {
 								$failure_reason = translate('User cannot be accessed when user switching');
 
@@ -2229,16 +2346,42 @@ class MySource extends MySource_Object
 
 			$this->addMessage(translate('Invalid username or password entered'));
 
-
 			// Log failed attempt
 			$subject = translate('User Secondary Login Failed');
             $body    = translate('Login to user account "%secondary_login_name%" failed from account "%login_name%" (%failure_reason%)');
             $this->_logSecurityMsg('system.security.login.secondary.failed', $subject, $body, Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => $failure_reason), TRUE);
+
 		}
 
 		return FALSE;
 
 	}//end _loginAsUser()
+
+
+	/**
+	* Log out the currently logged user
+	*
+	* @return void
+	* @access public
+	*/
+	function _logOutCurrentUser()
+	{
+		$old_user = $this->user;
+
+		// Log out the invoking user (System Admin)
+		$this->broadcastTriggerEvent('trigger_event_before_user_logout', $this->user, NULL);
+		$subject = translate('User Logged Out');
+		$body    = translate('User "%user_name%" logged themselves out');
+		$this->_logSecurityMsg('system.security.logout.manual', $subject, $body);
+
+		// Prepare a new session
+		$this->_clearSession();
+		$this->loginPublicUser();
+		$this->generateLoginKey(TRUE);
+
+		$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
+
+	}//end _logOutCurrentUser()
 
 
 	/**
@@ -2340,7 +2483,18 @@ class MySource extends MySource_Object
 		// when logging in we wipe the previous session file
 		$sess_filename = session_save_path().'/sess_'.$old_session_id;
 		@unlink($sess_filename);
-		$this->_updateSessionCookie(TRUE);
+
+		// force regenerate a new nonce token
+		if(isset($_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'])) {
+			unset($_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN']);
+		}
+
+		// Force update session cookie as we are in new session now
+		if (isset($_SESSION['SQ_SESSION_COOKIE_UPDATED'])) {
+			unset($_SESSION['SQ_SESSION_COOKIE_UPDATED']);
+		}
+		// Set the overwrite session cookie flag 'false' because we dont want to overwrite 'set cookie' headers sent by security_regenerate_session_id()
+		$this->_updateSessionCookie(FALSE);
 
 		$_SESSION['userid'] = $user->id;
 		$_SESSION['user_type_code'] = $user->type();
@@ -2393,9 +2547,7 @@ class MySource extends MySource_Object
 			$this->restoreRunLevel();
 		}
 
-		// Do pass any event data since we can get it from $_SESSION
-		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
-		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
+		$this->broadcastTriggerEvent('trigger_event_user_login', $user);
 
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
@@ -2608,44 +2760,28 @@ class MySource extends MySource_Object
 
 
 	/**
-	* Update the session cookie with the appropriate expiry time given the kind of user we are
-	*
-	* Note: this function must be called before any other cookies are set or it will clear their set-cookie headers
-	*
-	* @param boolean	$force_send	force send cookie header to clear previous set-cookie headers
+	* Set the default session header config. mainly just the parent domain.
+	* This has to be done before session_start() where header is actually sent.
 	*
 	* @return void
-	* @access public
+	* @access protected
 	*/
-	protected function _updateSessionCookie($force_send=FALSE)
+	protected function _initSessionCookieParams()
 	{
-		$session_id = session_id();
-		if (empty($session_id)) return FALSE;
-
-		$session_prefs = $this->getUserPrefs('user', 'SQ_USER_SESSION_PREFS', TRUE);
-		$user_prefs = $this->_findValidSessionExpiry($session_prefs);
-
-		$time_to_live = $user_prefs['persist']; // 1 or 0
-		if (!empty($time_to_live)) {
-			$time_to_live = !empty($user_prefs['timeout']) ? ($user_prefs['timeout'] + 3600) : 0; // cookie should last 1 extra hour
-			if (empty($time_to_live)) {
-				// there is no max inactive time but we do want to persist across browser sessions...
-				$time_to_live = 60 * 60 * 24 * 365; // give them a a year
-			}
+		// Calculate the domain and path for the session cookie.
+		$domain = strip_url(sq_web_path('root_url'), TRUE);
+		$pos = strpos($domain, '/');
+		$path = '/';
+		if ($pos !== FALSE) {
+			$path = substr($domain, $pos);
 		}
-		$session_params = session_get_cookie_params();
-		$session_name = session_name();
-		$header = "Set-Cookie: $session_name=$session_id; ";
-		if (!empty($time_to_live)) {
-			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -6).' GMT; ';
-		}
+
+		// Use parent domain setting to share cookies across domains
+		$new_domain = NULL;
 		if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS') && SQ_CONF_SYSTEM_PARENT_DOMAINS !== '') {
-			$domain = strip_url(sq_web_path('root_url'), TRUE);
-			$pos =  strpos($domain, '/');
 			if($pos !== FALSE) $domain = substr($domain, 0, $pos);
 			// Remove the port number from the host part, if any.
 			$domain = preg_replace('|:\d+$|', '', $domain);
-			$new_domain = '';
 			$parent_domains = explode("\n", SQ_CONF_SYSTEM_PARENT_DOMAINS);
 			if (is_array($parent_domains)) {
 				foreach ($parent_domains as $parent_domain) {
@@ -2654,31 +2790,36 @@ class MySource extends MySource_Object
 						// our current domain is a subdomain of this parent domain, so we will
 						// actually set the cookie for the parent domain and its children
 						$new_domain = '.'.$parent_domain;
-						$session_params['path'] = '/';
+						$path = '/';
 						break;
 					}
 				}
 			}
-			if(!empty($new_domain)) $header .= "domain=$new_domain; ";
-		}
-		if (!empty($session_params['path'])) {
-			$header .= "path=$session_params[path]; ";
 		}
 
-		if (isset($session_params['httponly']) && $session_params['httponly']) {
-			$header .= "HttpOnly; ";
+		$secure = FALSE;
+		if (current_protocol() === 'https' && (defined('SQ_CONF_COOKIE_OPTION_SECURE') && SQ_CONF_COOKIE_OPTION_SECURE)) $secure = TRUE;
+
+		$http_only = FALSE;
+		$php_version_suits = (version_compare(PHP_VERSION, '5.2.0') >= 0);
+		if ($php_version_suits && (defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY') && SQ_CONF_COOKIE_OPTION_HTTP_ONLY)) $http_only = TRUE;
+
+		if ($php_version_suits) {
+			session_set_cookie_params(0, $path, $new_domain, $secure, $http_only);
+		} else {
+			session_set_cookie_params(0, $path, $new_domain, $secure);
 		}
+		session_name('SQ_SYSTEM_SESSION');
 
-		if (isset($session_params['secure']) && $session_params['secure']) {
-			$header .= "secure; ";
-		}
+        // Hardening.
+		if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+            ini_set('session.hash_bits_per_character', 5);
+            ini_set('session.hash_function', 'sha512');
+        } else {
+            ini_set('session.hash_function', '1');
+        }
+	}
 
-		// we only need to send set-cookie header here if it is needed
-		// otherwise session handler should have already sent set-cookie header, no need to duplicate
-		if($force_send || (isset($new_domain) && !empty($new_domain)) || !empty($time_to_live))
-		    header($header, FALSE);
-
-	}//end _updateSessionCookie()
 
 
 	/**
@@ -2692,7 +2833,9 @@ class MySource extends MySource_Object
 	public function _findValidSessionExpiry($session_prefs)
 	{
 		$prefs = Array(
-					'persist'		=> '0',
+					'persist'       => '0',
+					'expiry'		=> '0',
+					'refresh_threshold'	=> '0',
 					'timeout'		=> '0',
 					'max_length'	=> '0',
 				 );
@@ -2703,7 +2846,9 @@ class MySource extends MySource_Object
 		if (is_array($session_prefs)) {
 			foreach ($session_prefs as $id => $sess_pref) {
 				$temp = Array(
-						'persist'		=> '0',
+						'persist'       => '0',
+						'expiry'		=> '0',
+						'refresh_threshold'	=> '0',
 						'timeout'		=> '0',
 						'max_length'	=> '0',
 						);
@@ -2727,9 +2872,14 @@ class MySource extends MySource_Object
 
 					if (!empty($current_user_type) && in_array($current_user_type, $user_types)) {
 						$prefs['persist'] = $sess_pref['persist'];
+						$prefs['expiry'] = $sess_pref['expiry'];
+						$prefs['refresh_threshold'] = $sess_pref['refresh_threshold'];
 						$prefs['timeout'] = $sess_pref['timeout'];
 						$prefs['max_length'] = $sess_pref['max_length'];
 						break;
+					} else {
+						// User type restriction not matched
+						continue;
 					}
 				}//end if
 
@@ -2741,6 +2891,8 @@ class MySource extends MySource_Object
 						if (!empty($current_ip) && ($current_ip == $sess_pref['ip_from'])) {
 							// Match
 							$prefs['persist'] = $sess_pref['persist'];
+							$prefs['expiry'] = $sess_pref['expiry'];
+							$prefs['refresh_threshold'] = $sess_pref['refresh_threshold'];
 							$prefs['timeout'] = $sess_pref['timeout'];
 							$prefs['max_length'] = $sess_pref['max_length'];
 							break;
@@ -2750,6 +2902,8 @@ class MySource extends MySource_Object
 									if ($current_ip_value < ip2long($sess_pref['ip_to'])) {
 										// Match
 										$prefs['persist'] = $sess_pref['persist'];
+										$prefs['expiry'] = $sess_pref['expiry'];
+										$prefs['refresh_threshold'] = $sess_pref['refresh_threshold'];
 										$prefs['timeout'] = $sess_pref['timeout'];
 										$prefs['max_length'] = $sess_pref['max_length'];
 										break;
@@ -2781,6 +2935,8 @@ class MySource extends MySource_Object
 					if (strcmp($remote_ip_bits, $ip_from_bits) === 0) {
 						// Its a match!
 						$prefs['persist'] = $sess_pref['persist'];
+						$prefs['expiry'] = $sess_pref['expiry'];
+						$prefs['refresh_threshold'] = $sess_pref['refresh_threshold'];
 						$prefs['timeout'] = $sess_pref['timeout'];
 						$prefs['max_length'] = $sess_pref['max_length'];
 						break;
@@ -2799,6 +2955,8 @@ class MySource extends MySource_Object
 					// If the IP lies within the range
 					if (strcmp($remote_ip_bits, $ip_to_bits) === 0 || (strcmp($ip_from_bits, $remote_ip_bits) < 0 && strcmp($remote_ip_bits, $ip_to_bits) < 0)) {
 						$prefs['persist'] = $sess_pref['persist'];
+						$prefs['expiry'] = $sess_pref['expiry'];
+						$prefs['refresh_threshold'] = $sess_pref['refresh_threshold'];
 						$prefs['timeout'] = $sess_pref['timeout'];
 						$prefs['max_length'] = $sess_pref['max_length'];
 						break;
@@ -2810,6 +2968,8 @@ class MySource extends MySource_Object
 
 				// No IP Restriction found, so continue
 				$temp['persist'] = $sess_pref['persist'];
+				$temp['expiry'] = $sess_pref['expiry'];
+				$temp['refresh_threshold'] = $sess_pref['refresh_threshold'];
 				$temp['timeout'] = $sess_pref['timeout'];
 				$temp['max_length'] = $sess_pref['max_length'];
 
@@ -2969,7 +3129,7 @@ class MySource extends MySource_Object
 
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group = $this->am->getSystemAsset('system_user_group');
-		$sys_admins = $this->am->getChildren($sys_admin_group->id, '', TRUE, NULL, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, Array(SQ_LINK_TYPE_1), TRUE);
+		$sys_admins = $this->am->getChildren($sys_admin_group->id, '', TRUE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(SQ_LINK_TYPE_1), TRUE);
 		foreach (array_keys($sys_admins) as $user_asset_id) {
 			if ($user_asset_id == $user->id) return TRUE;
 		}
@@ -3174,7 +3334,9 @@ class MySource extends MySource_Object
 				}
 			}
 			unset($context_item);
-			$this->_tmp['context_cache'] = $context_data;
+			if(!empty($context_data)) {
+				$this->_tmp['context_cache'] = $context_data;
+			}
 		}
 
 		return $this->_tmp['context_cache'];
@@ -3407,7 +3569,7 @@ class MySource extends MySource_Object
 
 						}//end if match type is "variable exists"
 
-						if ($condition_options['match_logic'] === 0) {
+						if ((int)$condition_options['match_logic'] === 0) {
 							$pass = !$matched;
 						} else {
 							$pass = $matched;
@@ -3463,7 +3625,7 @@ class MySource extends MySource_Object
 
 						}//end if match type is "header exists"
 
-						if ($condition_options['match_logic'] === 0) {
+						if ((int)$condition_options['match_logic'] === 0) {
 							$pass = !$matched;
 						} else {
 							$pass = $matched;
@@ -3504,7 +3666,7 @@ class MySource extends MySource_Object
 							break;
 						}//end switch on match type
 
-						if ($condition_options['match_logic'] === 0) {
+						if ((int)$condition_options['match_logic'] === 0) {
 							$pass = !$matched;
 						} else {
 							$pass = $matched;
@@ -4433,10 +4595,10 @@ class MySource extends MySource_Object
 	protected function _paintNotFoundAsset(Asset $asset, Site $site)
 	{
 		header('HTTP/1.0 404 Not Found');
-
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		// Send Cacheable Header based on Not Found page asset type
-		if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
-			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
+			
 			header('Pragma: cache');
 
 			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
@@ -4629,7 +4791,7 @@ class MySource extends MySource_Object
 	function _translateMatrixURL(&$content)
 	{
 		// Get all the matrix ./a=xx links in the content
-		preg_match_all('!\./\?a=([0-9]+(?:\:[0-9a-z]+\$?)?)!msi', $content, $matches);
+		preg_match_all('!\./\?a=([0-9]+(?:\:[0-9a-z\-\._/]+\$?)?)!msi', $content, $matches);
 		if (empty($matches[1])) return;
 
 		$org_assetids = Array();
@@ -4875,6 +5037,10 @@ class MySource extends MySource_Object
 			$content = preg_replace('/\/\*@@.*?@@\*\//ms', '', $content);
 		}
 
+		// strip viper WYSIWYG comments
+		$content = preg_replace('/<span data-commentspan="1"[^>]+>(.*?)<\/span>/ms', '$1', $content);
+		$content = preg_replace('/data-comment="1"|data-comment-id="\d+"|data-comment-container-id="\d+"/ms', '', $content);
+
 	}//end stripMatrixComments()
 
 
@@ -4886,6 +5052,7 @@ class MySource extends MySource_Object
 	*/
 	function printDeprecatedWarning($asset)
 	{
+		$deprecated_message = isset($asset->deprecated_message) ? $asset->deprecated_message : '';
 
 		?>
 		<div class="sq-backend-warning-wrapper">
@@ -4897,7 +5064,7 @@ class MySource extends MySource_Object
 					</th>
 				</tr>
 				<tr>
-					<td colspan="2" ><?php echo sprintf(translate('Asset of type "%1$s" has been deprecated since Matrix version %2$s. This type of asset won\'t be available for use in future MINOR Matrix releases. It is strongly recommended that you replace this asset with a different implementation and delete all assets of this type in your Matrix system.'), ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
+					<td colspan="2" ><?php echo sprintf(translate('Asset of type "%1$s" has been deprecated since Matrix version %2$s. This type of asset won\'t be available for use in future MINOR Matrix releases. It is strongly recommended that you replace this asset with a different implementation and delete all assets of this type in your Matrix system. %3$s'), ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since, $deprecated_message); ?>
 
 					</td>
 				</tr>
@@ -4907,6 +5074,181 @@ class MySource extends MySource_Object
 
 	}//end printDeprecatedWarning()
 
+
+	/**
+	* Update the session cookie with the appropriate expiry time
+	* This has to be done after session_start() because we have to get user preference from the session
+	*
+	* @param boolean $overwrite  Whether to overwrite the current 'Set Cookie' header if set previously
+	*
+	* @return void
+	* @accesss private
+	*/
+	private function _updateSessionCookie($overwrite=TRUE)
+	{
+		$session_id = session_id();
+		if (empty($session_id)) {
+			return;
+		}
+
+		$user_prefs = $this->_findValidSessionExpiry($this->getUserPrefs('user', 'SQ_USER_SESSION_PREFS', TRUE));
+		if (empty($user_prefs['persist']) || empty($user_prefs['expiry'])) {
+			return;
+		}
+
+		// If refresh time is set, once we update the session cookie, we won't again till the refresh time has elapsed
+		$refresh_threshold = !empty($user_prefs['refresh_threshold']) ? $user_prefs['refresh_threshold'] : 0;
+		if (isset($_SESSION['SQ_SESSION_COOKIE_UPDATED']) && $refresh_threshold && (time() - $_SESSION['SQ_SESSION_COOKIE_UPDATED']) < $refresh_threshold) {
+			// Still within 'session cookie refresh' threshold since the last session cookie update
+			return;
+		}
+
+		// Current session cookie parameters
+		$session_params  = session_get_cookie_params();
+
+		// Update the session cookie expiry
+		$header = 'Set-Cookie: '.session_name().'='.$session_id.'; ';
+		$header .= 'expires='.substr(date('r', (time()+$user_prefs['expiry'])-((int)substr(date('O'), 0, 3)*60*60)), 0, -6).' GMT; ';
+
+		if (!empty($session_params['domain'])) {
+			$header .= "domain=$session_params[domain]; ";
+		}
+		if (!empty($session_params['path'])) {
+			$header .= "path=$session_params[path]; ";
+		}
+		if (!empty($session_params['httponly'])) {
+			$header .= "HttpOnly; ";
+		}
+		if (!empty($session_params['secure']) && $session_params['secure']) {
+			$header .= "secure; ";
+		}
+
+		if (!$overwrite) {
+			// Not overwriting the set cookie header will send the duplicate session cookie header sent by session_start()/session_regenerate_id()
+			// So we need remove the session cookie header previously sent, except the ones that are to be deleted (see security_regenerate_session_id())
+
+			$current_headers = headers_list();
+			// Remove set cookie headers and re-send the delete cookie headers (session_name() = "destroy")
+			header_remove('Set-Cookie');
+
+			foreach($current_headers as $current_header) {
+				if (strpos($current_header, 'Set-Cookie: '.session_name().'=destroy;') === 0)  {
+					header($current_header, FALSE);
+				}
+			}//end foreach
+		}//end if
+
+		// Send the updated session cookie header
+		header($header, $overwrite);
+
+		// Track the cookie updated time
+		$_SESSION['SQ_SESSION_COOKIE_UPDATED'] = time();
+
+	}//end _updateSessionCookie()
+
+
+	/**
+	 * generates the comma seperated list for all the permission
+	 * the passed asset has
+	 *
+	 * @param object	$asset  The broadcasting asset
+	 *
+	 * @return string
+	 * @access public
+	 */
+	public function _getAccessLocksForFunnelback($asset)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		/*
+		 * Add in the permissions, with the following logic:
+		 *	- No permissions, return nothing
+		 *	- Public permission and live status, give a "public" lock
+		 *  - Specific permission, add the lock
+		 */
+		if (!($asset->status & SQ_SC_STATUS_NOT_LIVE)) {
+			$permissions = $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
+		} else {
+			$permissions = $am->getPermission($asset->id, SQ_PERMISSION_WRITE, TRUE);
+		}
+		$public_user_id			= $am->getSystemAssetId('public_user');
+		$root_user_id			= $am->getSystemAssetId('root_user');
+		$sys_admin_folder_id	= $am->getSystemAssetId('system_user_group');
+
+		// Public user found AND page is live, place in the public lock
+		if (in_array($public_user_id, $permissions) && !($asset->status & SQ_SC_STATUS_NOT_LIVE)) {
+			$permissions[] = 'public';
+		}//end if
+		$all_permissions = Array();
+		foreach ($permissions as $permission) {
+			$all_permissions[] = "'".$this->_encodeTextForFunnelback(htmlspecialchars($permission, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
+		}//end foreach
+
+		// Give the root user, "GOD" access
+		if (!in_array("'".$root_user_id."'", $all_permissions)) {
+			$all_permissions[] = "'".$this->_encodeTextForFunnelback(htmlspecialchars($root_user_id, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
+		}//end if
+
+		// also give the system_admin_folder the access
+		if (!in_array("'".$sys_admin_folder_id."'", $all_permissions)) {
+			$all_permissions[] = "'".$this->_encodeTextForFunnelback(htmlspecialchars($sys_admin_folder_id, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
+		}//end if
+
+		$xml = rtrim(implode(',', $all_permissions), ',');
+
+		return $xml;
+
+	}//end _getAccessLocksForFunnelback()
+
+
+
+	/**
+	 * Encode a key or lock
+	 * Funnelback strongly advise to stick to ASCII characters and not use control characters.
+	 * More specifically, Word Smart Quotes are removed and ASCII single and double quote have no meaning except for escaping.
+	 * Furthermore, single and double quote can be used but messy, so we are just going to escape them as HTML.
+	 *
+	 * @param string	$text	The text to encode
+	 *
+	 * @return string
+	 * @access public
+	 */
+	public function _encodeTextForFunnelback($text)
+	{
+		// Strip disallowed characters (0-0x20 and 0x7F-0xA0)
+		$pattern = Array();
+		for ($i=0; $i<32; $i++) {
+			$pattern[] = chr($i);
+		}//end for
+		for ($i=127; $i<161; $i++) {
+			$pattern[] = chr($i);
+		}//end for
+
+		foreach ($pattern as $patt) {
+			if (SQ_CONF_DEFAULT_CHARACTER_SET == 'utf-8' && function_exists('mb_substr') && function_exists('mb_strlen') && function_exists('mb_strpos')) {
+				// Bug #4240 - when dealing with 2 byte utf8 characters, str_replace just ain't up to scratch
+				$patt = utf8_encode($patt);
+				$replace = '';
+				$pos = mb_strpos($text, $patt);
+				while ($pos !== FALSE) {
+					$text = mb_substr($text, 0, $pos).$replace.mb_substr($text, $pos + mb_strlen($patt));
+					$pos = mb_strpos($text, $patt, $pos+mb_strlen($replace));
+				}
+			} else {
+				$text = str_replace($patt, '', $text);
+			}//end if
+		}
+
+		// Remove Quote marks
+		$text = str_replace('"', '', $text);
+		$text = str_replace("'", '', $text);
+
+		// Remove spaces (character 0x20)
+		$text = str_replace(' ', '', $text);
+		$text = str_replace('&nbsp;', '', $text);
+
+		return $text;
+
+	}//end _encodeTextForFunnelback()
 
 }//end class
 

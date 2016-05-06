@@ -54,13 +54,54 @@ class Package_Manager_TRIM extends Package_Manager
 	*/
 	function getSystemAssetTypes()
 	{
+		$system_asset_types = Array();
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('cron_job_update_trim_record')) {
-			return Array('cron_job_update_trim_record');
-		} else {
-			return Array();
+			$system_asset_types[] = 'cron_job_update_trim_record';
+		}
+		if ($GLOBALS['SQ_SYSTEM']->am->installed('cron_job_update_hprm_record')) {
+			$system_asset_types[] = 'cron_job_update_hprm_record';
 		}
 
+		return $system_asset_types;
+
 	}//end getSystemAssetTypes()
+
+
+	/**
+	* Create the specified type TRIM package cron job
+	*
+	* @param $string $type_code	TRIM cron job type code
+	*
+	* @return object
+	* @access private
+	*/
+	function _createCronJob($type_code)
+	{
+		$cron_job = NULL;
+		if (!in_array($type_code, Array('cron_job_update_trim_record', 'cron_job_update_hprm_record'))) {
+			return $cron_job;
+		}
+
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Update Trim Record cron job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+		$cron_job = new $type_code;
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Could not create Cron Job with type code "'.$type_code.'".', E_USER_ERROR);
+		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset($type_code, $cron_job->id);
+
+		return $cron_job;
+
+
+	}//end _createCronJob()
 
 
 	/**
@@ -69,29 +110,24 @@ class Package_Manager_TRIM extends Package_Manager
 	* @return object
 	* @access public
 	*/
-	function &createCronJobUpdateTRIMRecord()
+	function createCronJobUpdateTrimRecord()
 	{
-		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		if (is_null($cron_manager)) {
-			trigger_error('Couldn\'t get cron manager, couldn\'t create Update Trim Record cron job', E_USER_WARNING);
-			$null = NULL;
-			return $null;
-		}//end if
+		return $this->_createCronJob('cron_job_update_trim_record');
 
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_update_trim_record');
+	}//end createCronJobUpdateTrimRecord()
 
-		$cron_job = new Cron_Job_Update_Trim_Record();
-		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
-			trigger_error('Update Trim Record Cron Job NOT CREATED', E_USER_ERROR);
-		}//end if
 
-		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_update_trim_record', $cron_job->id);
+	/**
+	* Create the Update Trim Record Cron Job
+	*
+	* @return object
+	* @access public
+	*/
+	function createCronJobUpdateHprmRecord()
+	{
+		return $this->_createCronJob('cron_job_update_hprm_record');
 
-		return $cron_job;
-
-	}//end createCronJobUpdateTRIMRecord()
-
+	}//end createCronJobUpdateHprmRecord()
 
 }//end class
 ?>

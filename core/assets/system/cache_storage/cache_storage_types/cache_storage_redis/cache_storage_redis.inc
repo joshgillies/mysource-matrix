@@ -66,6 +66,12 @@ class Cache_Storage_Redis extends Cache_Storage
 	}//end constructor
 
 
+	/**
+	* Initialise the Redis cache
+	*
+	* @access protected
+	* @return boolean
+	*/
 	protected function _initRedis()
 	{
 		if ($this->_redis !== NULL) {
@@ -377,6 +383,19 @@ class Cache_Storage_Redis extends Cache_Storage
 
 	}//end getAllFilePaths()
 
+
+	/**
+	* Returns TRUE if the cache storge configuration is valid
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isValid()
+	{
+		// If the cache storage can be initialised, its all good
+		return $this->_initRedis();
+
+	}//end isValid()
 
 
 }//end class

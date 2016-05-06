@@ -157,9 +157,9 @@ class Tool_Export_Assets_To_Xml extends Tool
 
 			// release lock after user downloads the tarball, otherwise locks will be left to lock system to decide
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($import_mgr->id, 'attributes');
-			return;
 			@ob_flush();
-			return;
+			exit();
+			
 		}
 
 
@@ -173,7 +173,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 			echo '<span id ="tool_export_assets_to_xml_mapping" style="margin-left:10px;">';
 			echo translate('links to target parent asset id');
 
-			text_box($type_code.'_target_parent[0]', '1', '1', '', '', 'style="margin-left:10px;"');
+			text_box($type_code.'_target_parent[0]', '1', '1', '', '', 'style="margin-left:10px;" class="sq-form-asset-finder-text-box"');
 			echo '</span>';
 			$map_frame_exp = trim('parent.frames["sq_sidenav"]', '.');
 			$name =$type_code.'_root_node';
@@ -186,6 +186,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 			var new_span = document.getElementById('tool_export_assets_to_xml_mapping').cloneNode(true);
 			new_span.lastChild.setAttribute('id', '<?php echo $type_code; ?>' + '_target_parent[' + target_parent_index + ']');
 			new_span.lastChild.setAttribute('name', '<?php echo $type_code; ?>' + '_target_parent[' + target_parent_index + ']');
+			new_span.lastChild.className = 'sq-form-asset-finder-text-box';
 			node.parentNode.insertBefore(new_span, node);
 			target_parent_index = target_parent_index + 1;
 		}

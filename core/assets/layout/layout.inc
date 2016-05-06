@@ -149,6 +149,9 @@ class Layout extends Bodycopy
 
 			$this->layout_keywords = $this->getLayoutKeywordsArray($keywords, $this->layout_keywords);
 
+			// Plain list of layout keywords
+			$this->layout_keywords['raw_keywords'] = $keywords;
+
 		}//end if
 
 		return $this->layout_keywords;
@@ -167,8 +170,15 @@ class Layout extends Bodycopy
 	*/
 	public function getLayoutKeywordsArray($keywords, $return_array = Array())
 	{
+		// Replace the keywords with modifiers by their root keywords respectively
+		// The modifiers will be handled seperately when evaluating layout keywords
+		foreach($keywords as $index => $keyword) {
+			$keywords[$index] = parse_keyword($keyword);
+		}
+		$keywords = array_unique($keywords);
+
 		foreach ($keywords as $keyword) {
-			if (FALSE !== (strpos($keyword, '-'))) {
+			if (0 !== (strpos($keyword,'globals_')) && FALSE !== (strpos($keyword, '-'))) {
 				list($screen, $tag) = explode('-', $keyword);
 				$screen = strtolower($screen);
 				$tag = strtolower($tag);

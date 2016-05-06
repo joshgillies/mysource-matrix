@@ -90,12 +90,14 @@ class Soap_Api_Workflow_Service extends Soap_Api
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$asset			= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$asset_status	= $asset->status;
+			$workflow_message	= array_get_index($request_info, 'WorkflowMessage', '');
 			if (!in_array($asset_status, Array (SQ_STATUS_UNDER_CONSTRUCTION, SQ_STATUS_LIVE, SQ_STATUS_EDITING))) {
 				throw new SoapFault('Server', 'Can Not Start Workflow When Asset Is In '.get_status_description($asset_status).' Status');
 			}//end if
 
 			$wm					= $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$current_schemas	= $wm->getSchemas($assetid, TRUE);
+			$allow_comment		= $GLOBALS['SQ_SYSTEM']->am->getAsset($current_schemas[0])->attr('allow_comment_on_request');
 			if (empty($current_schemas)) {
 				throw new SoapFault('Server', 'There Is No Workflow Schemas Applied On This Asset');
 			}//end if
@@ -109,12 +111,31 @@ class Soap_Api_Workflow_Service extends Soap_Api
 
 			$hh		= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$errors	= $hh->freestyleHipo('hipo_job_edit_status', $running_vars);
+
 			if (empty($errors)) {
+				// Then send a message
+				if ($allow_comment && !empty($workflow_message)) {
+					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$msg_reps = Array (
+									'message'	=> $workflow_message,
+								);
+					$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
+					$message->parameters['assetid'] = $asset->id;
+					$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+					$message->send();
+					$updated = TRUE;
+				}//end if
+
 				return Array (
 						'StartWorkflowResult'	=> TRUE,
 					   );
 			} else {
-				throw new SoapFault('Server', 'Unable To Start Workflow');
+				$message = 'Unable To Start Workflow'."\r\n";
+				foreach($errors as $error) {
+					$message .= $error['message']."\r\n";
+				}
+
+				throw new SoapFault('Server', $message);
 			}//end else
 
 		} else {
@@ -234,10 +255,9 @@ class Soap_Api_Workflow_Service extends Soap_Api
 		$request_info	= (Array) $request;
 		$assetid		= array_get_index($request_info, 'AssetID', '');
 		if (!empty($assetid)) {
-			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$asset			= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$workflow_message	= array_get_index($request_info, 'WorkflowMessage', '');	
 			$asset_status	= $asset->status;
 			if (!in_array($asset_status, Array (SQ_STATUS_PENDING_APPROVAL, SQ_STATUS_LIVE_APPROVAL, SQ_STATUS_EDITING, SQ_STATUS_APPROVED, SQ_STATUS_EDITING_APPROVAL))) {
 				throw new SoapFault('Server', 'Can Not Cancel Workflow When Asset Is In '.get_status_description($asset_status).' Status');
@@ -245,27 +265,50 @@ class Soap_Api_Workflow_Service extends Soap_Api
 
 			$wm					= $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$current_schemas	= $wm->getSchemas($assetid, TRUE, ($asset_status == SQ_STATUS_EDITING) ? FALSE : TRUE);
+			$userid	= $GLOBALS['SQ_SYSTEM']->currentUserId();
+
 			if (empty($current_schemas)) {
 				throw new SoapFault('Server', 'There is no workflow schemas applied on this asset');
 			}//end if
 
-			// We are starting workflow by changing the status of the asset
-			$running_vars	= Array (
+			$require_comment = $wm->requiresComment($asset->id, $current_userid);
+			if ($require_comment && empty($workflow_message)) {
+				throw new SoapFault('Server', 'This approval step requires a comment and no comment have been provided');
+			}//end if
+
+				// We are starting workflow by changing the status of the asset
+				$running_vars	= Array (
 								'assetid'			=> $assetid,
 								'new_status'		=> self::getNextStatusCancelWorkflow($asset_status),
 								'dependants_only'	=> TRUE,
 							  );
 
-			$hh		= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$errors	= $hh->freestyleHipo('hipo_job_edit_status', $running_vars);
-			if (empty($errors)) {
-				return Array (
-						'CancelWorkflowResult'	=> TRUE,
-					   );
-			} else {
-				throw new SoapFault('Server', 'Unable To Cancel Workflow');
-			}//end else
+				$hh		= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$errors	= $hh->freestyleHipo('hipo_job_edit_status', $running_vars);
+				// Then send a message
+				if (!empty($workflow_message)) {
+					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$msg_reps = Array (
+									'message'	=> $workflow_message,
+								);
+					$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
+					$message->parameters['assetid'] = $asset->id;
+					$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+					$message->send();
+					$updated = TRUE;
+				}//end if
 
+				if (empty($errors)) {
+					return Array (
+						'CancelWorkflowResult'	=> TRUE,
+					);
+				} else {
+					$message = 'Unable To Cancel Workflow'."\r\n";
+					foreach($errors as $error) {
+						$message .= $error['message']."\r\n";
+					}
+					throw new SoapFault('Server', $message);
+				}//end else
 		} else {
 			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
 		}//end else
@@ -322,7 +365,11 @@ class Soap_Api_Workflow_Service extends Soap_Api
 						'CompleteWorkflowResult'	=> TRUE,
 					   );
 			} else {
-				throw new SoapFault('Server', 'Unable To Complete Workflow');
+				$message = 'Unable To Complete Workflow'."\r\n";
+				foreach($errors as $error) {
+					$message .= $error['message']."\r\n";
+				}
+				throw new SoapFault('Server', $message);
 			}//end else
 
 		} else {
@@ -378,7 +425,12 @@ class Soap_Api_Workflow_Service extends Soap_Api
 						'SafeEditAssetResult'	=> TRUE,
 					   );
 			} else {
-				throw new SoapFault('Server', 'Unable To Bring Asset To Safe Edit mode');
+				$message = 'Unable To Bring Asset To Safe Edit mode'."\r\n";
+				foreach($errors as $error) {
+					$message .= $error['message']."\r\n";
+				}
+
+				throw new SoapFault('Server', $message);
 			}//end else
 
 		} else {
@@ -499,7 +551,11 @@ class Soap_Api_Workflow_Service extends Soap_Api
 							'ApproveAssetInWorkflowResult'	=> TRUE,
 						   );
 				} else {
-					throw new SoapFault('Server', 'Unable To Complete Workflow');
+					$message = 'Unable To Complete Workflow'."\r\n";
+					foreach($errors as $error) {
+						$message .= $error['message']."\r\n";
+					}
+					throw new SoapFault('Server', $message);
 				}//end else
 
 			}//end if
@@ -588,6 +644,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 							'StartWorkflow'				=> Array (
 															'StartWorkflow'						=> Array (
 															    									'AssetID'						=> self::$string_non_optional,
+															    									'WorkflowMessage'				=> self::$string_optional,
 																								  ),
 															'StartWorkflowResponse'				=> Array (
 																									'StartWorkflowResult'			=> self::$boolean_optional,
@@ -604,6 +661,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 							'CancelWorkflow'			=> Array (
 															'CancelWorkflow'					=> Array (
 															    									'AssetID'						=> self::$string_non_optional,
+															    									'WorkflowMessage'				=> self::$string_optional,
 																								  ),
 															'CancelWorkflowResponse'			=> Array (
 																									'CancelWorkflowResult'			=> self::$boolean_optional,

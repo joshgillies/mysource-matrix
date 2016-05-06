@@ -63,6 +63,19 @@ class SAML_Account_Manager_Management extends Asset_Management
 										'type'		=> 'text',
 										'default'	=>   '',
 									   );
+		$this->vars['saml_ldap_lookup']				= Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'selection',
+										'default'		=> 'uid',
+										'parameters'	=> Array(
+														'options'		=> Array(
+																			'uid'	=> 'UID',
+																			'dn'	=> 'DN',
+																	),	
+														'multiple'		=> FALSE,
+														'allow_empty'	=> FALSE,	
+													),
+									);
 		$this->vars['saml_userid_attribute']				= Array(
 										'added'		=> '0.1',
 										'type'		=> 'text',

@@ -705,11 +705,10 @@ class Workflow_Manager extends MySource_Object
 					}//end if
 
 					// Does this schema have a custom subject?
-					$default_subject = translate('Asset Made Live');
 					if (trim($schema->attr('subject_notify_on_live')) !== '') {
-						$subject = trim($schema->attr('subject_notify_on_live'));
+						$msg->subject = trim($schema->attr('subject_notify_on_live'));
 					} else {
-					    $msg->subject = (!empty($subject)) ? $subject : $default_subject;
+					    $msg->subject = translate('Asset Made Live');
 					}
 
 					if ($schema->attr('schema_reply_to_email_address') != '') {
@@ -783,7 +782,7 @@ class Workflow_Manager extends MySource_Object
 				}
 				// is a user_group
 				if (in_array('user_group', $condition_type_info[$conditionid])) {
-					$group_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($conditionid, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
+					$group_users = $this->_getChildrenFromUserGroup($conditionid);
 					if (in_array($userid, $group_users)) {
 						$listed_user = TRUE;
 					}
@@ -872,7 +871,7 @@ class Workflow_Manager extends MySource_Object
 								foreach ($userids as $userid) {
 									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
 									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
-										$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE)));
+										$can_publish_cond = array_merge($can_publish_cond, $this->_getChildrenFromUserGroup($userid));
 									} else {
 										$can_publish_cond[] = $userid;
 									}
@@ -881,21 +880,22 @@ class Workflow_Manager extends MySource_Object
 						}
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
 						// getChildren with all the shadow asset children
-						$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
+						$can_publish_cond = $this->_getChildrenFromUserGroup($asset->id);
 					}
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 				if ($cond_data['logic'] == 'all') {
-					$cond_string = 'if ('.count($cond_data['published_by']).
-								   ' >= '.count($can_publish_cond).') { $complete = true; }';
+					$complete = count($cond_data['published_by']) >= count($can_publish_cond);
 				} else {
-					$cond_string = 'if ('.count($cond_data['published_by']).
-								   ' '.$cond_data['logic'].') { $complete = true; }';
+					$complete = FALSE;
+					// The logic string format is '>= [NUMBER_OF_CONDITIONS_REQUIRED]'
+					$logic_parts = explode(' ', $cond_data['logic'], 2);
+					if (isset($logic_parts[1])) {
+						$complete = count($cond_data['published_by']) >= intval($logic_parts[1]);
+					}
 				}
-				eval($cond_string);
-
 			}//end else
 
 			if (!$complete) {
@@ -996,16 +996,18 @@ class Workflow_Manager extends MySource_Object
 								if ($asset instanceof User) {
 									$can_publish_cond[] = $asset->id;
 								} else if ($asset instanceof User_Group) {
-									$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
+									$can_publish_cond = $this->_getChildrenFromUserGroup($asset->id);
 								}
 							}
-							$cond_string = 'if ('.count($cond_data['published_by']).
-										   ' >= '.count($can_publish_cond).') { $complete = true; }';
+							$complete = count($cond_data['published_by']) >= count($can_publish_cond);
 						} else {
-							$cond_string = 'if ('.count($cond_data['published_by']).
-										   ' '.$cond_data['logic'].') { $complete = true; }';
+							// The logic string format is '>= [NUMBER_OF_CONDITIONS_REQUIRED]'
+							$logic_parts = explode(' ', $cond_data['logic'], 2);
+							$complete = FALSE;
+							if (isset($logic_parts[1])) {
+								$complete = count($cond_data['published_by']) >= intval($logic_parts[1]);
+							}
 						}
-						eval($cond_string);
 					}
 
 					if ($complete) {
@@ -1016,8 +1018,11 @@ class Workflow_Manager extends MySource_Object
 						if ($step_data['logic'] == 'all') continue;
 
 						$step_completed = FALSE;
-						$logic_string = 'if ('.$completed_conds.' '.$step_data['logic'].' ) { $step_completed = true; }';
-						eval($logic_string);
+						// The logic string format is '>= [NUMBER_OF_CONDITIONS_REQUIRED]'
+						$logic_parts = explode(' ', $step_data['logic'], 2);
+						if (isset($logic_parts[1])) {
+							$step_completed = $completed_conds >= intval($logic_parts[1]);
+						}
 
 						if ($step_completed) {
 							// this step is completed so move to the next one
@@ -1130,6 +1135,9 @@ class Workflow_Manager extends MySource_Object
 				}
 			}
 		}
+
+		// fire the 'After Workflow Condition Approval' event
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_after_condition_approved', $asset);
 
 		// send an internal message to let people know someone has approved
 		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
@@ -1619,7 +1627,7 @@ class Workflow_Manager extends MySource_Object
 								foreach ($userids as $userid) {
 									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
 									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
-										$can_publish = array_merge($can_publish, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE)));
+										$can_publish = array_merge($can_publish, $this->_getChildrenFromUserGroup($userid));
 									} else {
 										$can_publish[] = $userid;
 									}
@@ -1627,7 +1635,7 @@ class Workflow_Manager extends MySource_Object
 							}//end foreach
 						}//end if
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
-						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
+						$can_publish = $this->_getChildrenFromUserGroup($publisher->id);
 					}
 				}
 
@@ -1822,6 +1830,22 @@ class Workflow_Manager extends MySource_Object
 
 		$this->_tmp = Array();
 
+		// this section is moved from bottom to here to fix the bug #7905
+		// has a message been entered?
+		// process any messages that may have been submitted
+		if (!empty($log_message)) {
+			$msg_reps = Array(
+				'message'	=> $log_message,
+			);
+			$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
+			$message->parameters['assetid'] = $assetid;
+			$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+			$message->subject = translate('Workflow User Log');
+			$message->body    = $log_message;
+			$message->send();
+		}
+
 		if ($auto_approve) {
 			// if the user who has started this workflow is also able to
 			// approve it as part of workflow, let their action to start workflow
@@ -1989,20 +2013,6 @@ class Workflow_Manager extends MySource_Object
 				$msg->parameters['assetid'] = $asset->id;
 				$ms->enqueueMessage($msg);
 
-				// has a message been entered?
-				// process any messages that may have been submitted
-				if (!empty($log_message)) {
-					$msg_reps = Array(
-									'message'	=> $log_message,
-								);
-					$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
-					$message->parameters['assetid'] = $assetid;
-					$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
-					$message->subject = translate('Workflow User Log');
-					$message->body    = $log_message;
-					$message->send();
-				}
-
 
 			}//end foreach
 		}//end if
@@ -2085,6 +2095,8 @@ class Workflow_Manager extends MySource_Object
 		// this function depends on having a workflow running
 		$publishers = $this->whoCanPublish($asset->id);
 		$workflow_values = $this->getSchemaWorkflows($assetid);
+
+		// add started by user for cancellation notification
 		$workflow = reset($workflow_values);
 		$started_by = isset($workflow['started_by']) ? $workflow['started_by'] : '';
 		if ($started_by && $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($started_by, Array('user', 'user_group'), FALSE)) {
@@ -2096,6 +2108,37 @@ class Workflow_Manager extends MySource_Object
 			}
 			$publishers = array_unique(array_merge($publishers, Array($started_by)));
 		}
+
+		// add previous approvers for cancellation notification
+		foreach($workflow_values as $schemaid => $details) {
+			if(isset($details['steps'])) {
+				foreach ($details['steps'] as $step) {
+					if(isset($step['completed']) && !empty($step['completed']) && isset($step['conditions'])) {
+						foreach ($step['conditions'] as $userid => $condition_details) {
+							$notify = Array();
+							if (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1') {
+								$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
+								$role = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $userid, NULL, FALSE, $fetch_global_roles);
+								if (!empty($role)) {
+									foreach ($role as $roleid => $userids) {
+										for ($i=0; $i<count($userids); $i++) {
+											$notify[] = $userids[$i];
+										}
+									}
+								} else {
+									$notify[] = $userid;
+								}
+							} else {
+								// the user or group in this condition wants to be notified
+								$notify[] = $userid;
+							}
+							$publishers = array_unique(array_merge($publishers, $notify));
+						}
+					}
+				}
+			}
+		}
+
 
 		$current_steps = $this->getWorkflowCurrentSteps($assetid);
 		if (!$this->_clearWorkflow($assetid)) return FALSE;
@@ -2340,9 +2383,11 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function silentWorkflowParty($assetid)
 	{
-		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
-		if (is_null($asset)) return TRUE;
-		$edit_fns = $asset->getEditFns();
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid);
+		if (empty($asset_info)) return FALSE;
+		$type_code  = $asset_info[$assetid]['type_code'];
+		$edit_fns   = $GLOBALS['SQ_SYSTEM']->am->getEditFns(0, $type_code);
+
 		return !isset($edit_fns->static_screens['workflow']);
 
 	}//end silentWorkflowParty()
@@ -2887,6 +2932,64 @@ class Workflow_Manager extends MySource_Object
 	}//end getDefaultStream()
 
 
+
+	/**
+	* Returns default stream selection for a given asset
+	*
+	* Determine the best stream to select, when triggers / cron job automatically pushes asset into workflow.
+	* When no stream is manually selected, and we just have to automatically picks one.
+	*
+	* @param string	$assetid		ID of the asset being tested
+	*
+	* @return mixed int|string
+	*/
+	public function getDefaultStreamSelection($assetid)
+	{
+		$schemas = $this->getSchemas($assetid, TRUE);
+		$valid_streams = Array();
+
+		foreach($schemas as $schemaid) {
+
+			// get the default stream id
+			$stream_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', TRUE);
+			$streamids = Array();
+			$default_streamid = '';
+			foreach ($stream_links as $stream_link) {
+				if ($stream_link['value'] == 'default_stream') {
+					$default_streamid = $stream_link['minorid'];
+				}
+			}
+
+			// evaluate stream rules for every stream
+			$streams = $this->getStreams($schemaid);
+			$valid_streamids = Array();
+			foreach ($streams as $streamid => $details) {
+				$result = $this->evaluateStreamSelectionRules($streamid, $assetid);
+				if($result) {
+					$valid_streamids[] = $streamid;
+				}
+
+			}
+
+			// if default stream is a valid one, then we don't need to pick anything from this schema
+			if(!in_array($default_streamid, $valid_streamids)) {
+				// otherwise add it to valid streams
+				$valid_streams = array_merge($valid_streams, $valid_streamids);
+			}
+
+		}
+
+		// or if there is no valid streams available, use default one
+		if(empty($valid_streams)) {
+			return 'SQ_USE_DEFAULT';
+		}
+		else {
+			// just pick the first avialble valid stream
+			return array_shift($valid_streams);
+		}
+	}
+
+
 	/**
 	* Returns the list of streams matching a defined stream name
 	*
@@ -3161,6 +3264,27 @@ class Workflow_Manager extends MySource_Object
 		}
 
 	}//end evaluateStreamSelectionRules()
+
+
+
+	/**
+	* Get children users from a parent user group
+	*
+	* @param string	$groupid	The assetid of user group
+	*
+	* @return array
+	*/
+	private function _getChildrenFromUserGroup($groupid)
+	{
+		$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($groupid, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
+		// if current user's effective parent groups (e.g dynamic session group) is one of the condition, include ourself
+		$current_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+		$parent_groups = $current_user->getUserGroups();
+		if(in_array($groupid, $parent_groups)) {
+			$can_publish_cond[] = $current_user->id;
+		}
+		return array_unique($can_publish_cond);
+	}//end _getChildrenFromUserGroup()
 
 
 }//end class

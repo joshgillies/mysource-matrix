@@ -2,34 +2,34 @@
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-*
-* $Id: edit_interface_screen_styles.xml,v 1.2 2009/07/29 00:35:11 wszymanski Exp $
 *
 */
 -->
 
 <contents>
-	<section name="WYSIWYG classes definitions" write_access="write:all" read_access="write:">
+	<section name="WYSIWYG Styles" write_access="write:all" read_access="write:">
 		<field>
 			<function_call>
 				<paint_function   name="paintWysiwygClasses"   />
 				<process_function name="processWysiwygClasses" />
 			</function_call>
+			<note>Styles specified in this list will be available in the WYSIWYG drop-down list for styles. "Show For" and "Hide For" settings are only supported for the Edit+ WYSIWYG and multiple values can be added by separating each value with a comma.</note>
 		</field>
 	</section>
-	<section name="Content container classes definitions" write_access="write:all" read_access="write:">
+	<section name="Content Container Styles" write_access="write:all" read_access="write:">
 		<field>
 			<function_call>
 				<paint_function   name="paintDivClasses"   />
 				<process_function name="processDivClasses" />
 			</function_call>
+			<note>Styles specified in this list will be available in the content container properties drop-down list for "Class".</note>
 		</field>
 	</section>
 </contents>

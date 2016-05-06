@@ -40,4 +40,21 @@
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>
+	<section name="Edit Asset" write_access="write:attributes">
+		<field attribute="edit_invite">
+			<display_name>Invite</display_name>
+			<note>This message is displayed above the form used to edit an asset</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+		<field attribute="edit_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if the asset could not be updated</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+		<field attribute="edit_success">
+			<display_name>Success</display_name>
+			<note>This message is displayed if the asset has been updated</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+	</section>
 </contents>

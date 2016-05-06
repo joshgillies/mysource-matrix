@@ -112,7 +112,6 @@ class Page_Whats_New extends Listing_Engine
 
 		if (!empty($ranges) && isset($_REQUEST['asset_'.$this->id.'_date_range']) && isset($ranges[$_REQUEST['asset_'.$this->id.'_date_range']])) {
 			$id = $_REQUEST['asset_'.$this->id.'_date_range'];
-			$this->setAttrValue('num_per_page', 0); // If we're displaying a range, clear the pagination
 
 			if ($ranges[$id]['range_type'] !== 'default') {
 				switch ($ranges[$id]['range_type']) {

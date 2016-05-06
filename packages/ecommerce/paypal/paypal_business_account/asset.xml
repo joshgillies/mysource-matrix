@@ -22,7 +22,7 @@
 	<package>ecommerce</package>
 	<type_code>paypal_business_account</type_code>
 	<version>0.1</version>
-	<name>Paypal Business Account</name>
+	<name>PayPal Business Account</name>
 	<description>This asset represents a Paypal Business Account that can accept payments</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>

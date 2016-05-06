@@ -216,6 +216,20 @@ class Cache_Storage extends Asset
 	{
 		return;
 	}
+	
+	
+	/**
+	* Returns TRUE if the cache storge configuration is valid
+	* 
+	* @return boolean
+	* @access public
+	*/
+	public function isValid()
+	{
+		return TRUE;
+
+	}//end isValid()
+
 
 }//end class
 

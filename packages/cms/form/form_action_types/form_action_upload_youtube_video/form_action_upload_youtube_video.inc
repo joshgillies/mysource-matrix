@@ -10,8 +10,6 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_upload_youtube_video.inc,v 1.6 2012/08/30 00:58:08 ewang Exp $
-*
 */
 
 
@@ -29,8 +27,6 @@ require_once SQ_ATTRIBUTES_PATH.'/oauth/oauth.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-
-
 class Form_Action_Upload_Youtube_Video extends Form_Action
 {
 
@@ -53,14 +49,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 	*/
 	public static function paintInlineInterface(Form $form, $settings, Backend_Outputter $o, $prefix)
 	{
-
-		$settings['consumer_key']    = array_get_index($settings, 'consumer_key');
-		$settings['consumer_secret'] = array_get_index($settings, 'consumer_secret');
-		$settings['request_token']   = array_get_index($settings, 'request_token');
-		$settings['request_token_secret'] = array_get_index($settings, 'request_token_secret');
-		$settings['access_token']    = array_get_index($settings, 'access_token');
-		$settings['access_token_secret'] = array_get_index($settings, 'access_token_secret');
-		$settings['developer_key'] = array_get_index($settings, 'developer_key');
+		$settings['oauth2_token_assetid'] = array_get_index($settings, 'oauth2_token_assetid', '');
 		$settings['privacy'] = array_get_index($settings, 'privacy', 'public');
 		$settings['title'] = array_get_index($settings, 'title');
 		$settings['title_question_id'] = array_get_index($settings, 'title_question_id', 0);
@@ -72,121 +61,42 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		$settings['delete_video_file'] = array_get_index($settings, 'delete_video_file', 1);
 		$settings['upload_timeout'] = array_get_index($settings, 'upload_timeout', 300);
 
-		$consumer_details_locked = (!empty($settings['request_token'])) ? TRUE : FALSE;
-
 		ob_start();
-
-		if (!empty($_REQUEST['oauth_verifier'])) hidden_field('oauth_verifier', $_REQUEST['oauth_verifier']);
-
 		?>
-		<div style="padding: 5px">
+		<div>
 		<p class="sq-backend-section-subheading"><?php echo translate('Client Credentials') ?></p>
-
-
 		<table class="sq-backend-table">
 			<col width="20%" />
 			<col width="80%" />
-			<tr>
-				<th><?php echo translate('Consumer key:') ?></th>
-
-				<td><?php
-				if (($consumer_details_locked === FALSE)) {
-					text_box($prefix.'[consumer_key]', $settings['consumer_key'], 50);
-				} else {
-					echo $settings['consumer_key'];
-					hidden_field($prefix.'[consumer_key]', $settings['consumer_key']);
-				}
-				?></td>
-			</tr>
-			<tr>
-				<th><?php echo translate('Consumer secret string:') ?></th>
-
-				<td><?php
-				if (($consumer_details_locked === FALSE)) {
-					text_box($prefix.'[consumer_secret]', $settings['consumer_secret'], 50);
-				} else {
-					echo $settings['consumer_secret'];
-					hidden_field($prefix.'[consumer_secret]', $settings['consumer_secret']);
-				}
-				?></td>
-			</tr>
-			<tr>
-				<th><?php echo translate('Developer key:') ?></th>
-
-				<td><?php
-					text_box($prefix.'[developer_key]', $settings['developer_key'], 50);
-				?></td>
-			</tr>
-			<tr>
-				<th><?php echo translate('Authentication:') ?></th>
-
-				<td><?php
-				if ((empty($settings['consumer_key']) === TRUE) || (empty($settings['consumer_secret']) === TRUE)) {
-					echo translate('<strong style="color: #f00">Client credentials missing.</strong>');
-
-				} else {
-					if (!empty($settings['access_token'])){
-						echo translate('<strong style="color: #060">Access Token Granted</strong>');
-
-					} else if (empty($settings['access_token']) && !empty($_REQUEST['oauth_verifier'])){
-						$value = translate('Get Access Token');
-
-						submit_button($prefix.'[get_access_token]', $value, 'main_form.submit()');
-						if (!empty($settings['access_token_errors'])){
-							?><br /><strong style="color: #f00">Error: failed to gain access token</strong><?php
-							foreach ($settings['access_token_errors'] as $error) {
-								?><br/><?php echo $error ?><?php
-							}
-						}
-					} else if (!empty($settings['request_token'])){
-							$callback_url = self::_getCallbackURL($prefix);
-	                        $url = 'https://www.google.com/accounts/OAuthAuthorizeToken?oauth_token='.$settings['request_token'].'&oauth_callback='.urlencode($callback_url);
-	                        echo '<a target="_blank" href="'.$url.'">'.translate('Authorise Token').'</a>';
-
-					} else {
-						$value = translate('Get Request Token');
-
-						submit_button($prefix.'[get_request_token]', $value, 'main_form.submit()');
-						if (!empty($settings['request_token_errors'])){
-							?><br /><strong style="color: #f00">Error: failed to gain request token</strong><?php
-							foreach ($settings['request_token_errors'] as $error) {
-								?><br/><?php echo $error ?><?php
-							}
-						}
-					}
-				}
-				?></td>
-			</tr>
-			<tr>
-				<th><?php echo translate('Reset Authentication?') ?></th>
-
-				<td><?php
-				check_box($prefix.'[deauthorise]');
+			<tr class="sq-backend-row">
+				<th class="sq-backend-field" style="vertical-align:middle"><?php echo translate('Oauth2 Token asset:') ?></th>
+				<td class="sq-backend-data"><?php
+					asset_finder($prefix.'[oauth2_token_assetid]', $settings['oauth2_token_assetid'], Array('oauth2_token' => 'I'));
 				?></td>
 			</tr>
 		</table>
 		</div>
-		<div style="padding: 5px">
-		<?php echo translate('<p>You need to have a YouTube account linked with a Google account. To obtain a Consumer Key and Secret, please see the <a target="_blank" href="http://code.google.com/apis/accounts/docs/RegistrationForWebAppsAuto.html#new">Registration for Web-Based Applications</a> page for an explanation of the registration process.</p>
-    <p><strong>Note:</strong> Leave the certificate field blank when completing your registration. Google will generate an OAuth consumer secret value, which will display on your domain\'s registration page after you have completed the registration process.</p>
-    <p>To obtain a Developer Key please visit your <a  target="_blank" href="http://code.google.com/apis/youtube/dashboard/">Account Dashboard</a> page.</p>
-    <p>Once you have entered your credentials, there are 3 steps to get authenticated:
-    <ol>
-    <li>Click the "Get Request Token" button</li>
-    <li>Click the "Authorise Token" link which takes you to your account where you need log in and approve the token. You will automatically be redirected back here.</li>
-    <li>Immediately click the "Get Access Token" button.</li>
-    </ol>
-    If there is an error at any stage or you wish to change accounts, Reset the Authentication.</p>') ?>
-
+		<div class="sq-backend-smallprint">
+			<p>
+			<?php
+				echo translate('Select Matrix Oauth2 Token asset having valid OAuth 2.0 access token set for YouTube Data API v3.');
+			?>
+			</p>
+			<p>
+			<?php
+				echo translate('You will need to have a YouTube account linked with a Google account. To obtain a Client ID and Clinet Secret, please see the <a target="_blank" href="https://developers.google.com/youtube/registering_an_application">Registration for Web-Based Applications</a> page for an explanation of the registration process.');
+			?>
+			</p>
 		</div>
 
         <div style="padding: 5px">
 		<p class="sq-backend-section-subheading"><?php echo translate('YouTube Video Setup') ?></p>
-
-
 		<table class="sq-backend-table">
+		<col width="20%" />
+		<col width="40%" />
+		<col width="40%" />
 			<tr>
-				<th>&nbsp;</th>
+				<th style='min-width:200px;'>&nbsp;</th>
 				<th>Video Settings</th>
 				<th>Form Question Id</th>
 			</tr>
@@ -277,7 +187,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 			</tr>
 		</table>
 		</div>
-		<div style="padding: 5px">
+		<div class="sq-backend-smallprint">
 		<?php echo translate('<p>For the Title, Description and Category, you may set a default value and/or select a Form Question asset to dynamically populate the value from its submission answer. The Form Question answer takes priority over the default value. Category is compulsory. Description is optional. A missing Title will be populated with the video file name.</p>
     <p>The Video Source field is compulsory and must be a File Upload Form Question.</p>
     <p>Video files are only deleted from the server if the File Upload Form Question does not specify a "Create Location".</p>') ?>
@@ -303,35 +213,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		$settings['before_submit'] = TRUE;
 
         $request_data = $_REQUEST[$prefix];
-		$deauthorise = (boolean)array_get_index($request_data, 'deauthorise', FALSE);
 
-		if ($deauthorise === TRUE) {
-			// Blank out current tokens
-			$settings['request_token'] = NULL;
-			$settings['request_token_secret'] = NULL;
-			$settings['request_token_errors'] = NULL;
-
-			$settings['access_token'] = NULL;
-			$settings['access_token_secret'] = NULL;
-			$settings['access_token_errors'] = NULL;
-
-			unset($_REQUEST['oauth_verifier']);
-
-			return TRUE;
-		}
-
-		$settings['consumer_key'] = array_get_index($request_data, 'consumer_key');
-		$settings['consumer_secret'] = array_get_index($request_data, 'consumer_secret');
-		$settings['developer_key'] = array_get_index($request_data, 'developer_key');
-		$settings['request_token_errors'] = NULL;
-		$settings['access_token_errors'] = NULL;
-
-		if (isset($request_data['get_request_token'])) {
-			self::processRequestToken($settings ,$prefix);
-		} else if (isset($request_data['get_access_token'])) {
-			self::processAccessToken($settings, $_REQUEST['oauth_verifier']);
-		}
-
+		$settings['oauth2_token_assetid'] = array_get_index(array_get_index($request_data, 'oauth2_token_assetid', Array()), 'assetid', 0);
 		$settings['privacy'] = array_get_index($request_data, 'privacy', 'public');
 		$settings['title'] = array_get_index($request_data, 'title');
 		$settings['title_question_id'] = array_get_index(array_get_index($request_data, 'title_question_id', Array()), 'assetid', 0);
@@ -346,128 +229,6 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
         return TRUE;
 
 	}//end processInlineInterface()
-
-
-	/**
-	* Get Callback URL
-	*
-	* @param string $prefix
-	*
-	* @return string
-	* @access private
-	*/
-    private function _getCallbackURL($prefix){
-
-    	$callback_url = replace_query_string_vars(Array(), NULL, NULL, TRUE);
-        $additional_params = 'SQ_BACKEND_PAGE=frames';
-        $action_id = array_get_index($_REQUEST, $prefix.'_new_selected_action', '');
-        if (strlen($action_id) == 0) $action_id = array_get_index($_REQUEST, $prefix.'_selected_action', '');
-        $additional_params .= '&'.$prefix.'_new_selected_action='.$action_id;
-        if (strpos($callback_url, '?') === FALSE) {
-            $callback_url .= '?'.$additional_params;
-        } else {
-            $callback_url .= '&'.$additional_params;
-        }
-
-		return $callback_url;
-
-    }//end _getCallbackURL()
-
-
-    /**
-	* Process Request Token
-	*
-	* @param array	&$settings
-	* @param string	$prefix
-	*
-	* @return void
-	* @access public
-	*/
-	public static function processRequestToken(&$settings, $prefix)
-	{
-
-        $callback_url = self::_getCallbackURL($prefix);
-
-		$oauth_attr = new Asset_Attribute_OAuth();
-		$oauth_attr_values = Array(
-								'consumer_key'		=> $settings['consumer_key'],
-								'consumer_secret'	=> $settings['consumer_secret'],
-								'request_token_url'	=> 'https://www.google.com/accounts/OAuthGetRequestToken?scope=http://gdata.youtube.com',
-								'method'			=> 'GET',
-                                'callback_url'      => $callback_url,
-								'signature_method'	=> 'HMAC-SHA1',
-								'request_headers'	=> Array(),
-								'request_body'		=> '',
-								'timeout'			=> 30,
-								'cache_options'		=> 'NEVER',
-								'follow_redirect'	=> FALSE,
-							 );
-		$oauth_attr->setValue($oauth_attr_values);
-
-		$settings['request_token'] = NULL;
-		$settings['request_token_secret'] = NULL;
-		$settings['request_token_errors'] = NULL;
-
-		$settings['access_token'] = NULL;
-		$settings['access_token_secret'] = NULL;
-		$settings['access_token_errors'] = NULL;
-
-		$result = $oauth_attr->getRequestToken();
-
-		if (!isset($result['request_token']['oauth_token']) || !isset($result['request_token']['oauth_token_secret'])) {
-			$settings['request_token_errors'] = $oauth_attr->getErrors();
-		} else {
-			$settings['request_token'] = $result['request_token']['oauth_token'];
-			$settings['request_token_secret'] = $result['request_token']['oauth_token_secret'];
-		}
-
-	}//end processRequestToken()
-
-
-    /**
-	* Process Access Token
-	*
-	* @param array	&$settings
-	* @param string	$oauth_verifier
-	*
-	* @return void
-	* @access public
-	*/
-	public static function processAccessToken(&$settings, $oauth_verifier)
-	{
-
-		$oauth_attr = new Asset_Attribute_OAuth();
-		$oauth_attr_values = Array(
-								'consumer_key'		=> $settings['consumer_key'],
-                                'consumer_secret'   => $settings['consumer_secret'],
-								'access_token_url'	=> 'https://www.google.com/accounts/OAuthGetAccessToken',
-								'method'			=> 'POST',
-                                'callback_url'      => '',
-								'signature_method'	=> 'HMAC-SHA1',
-								'request_headers'	=> Array(),
-								'request_body'		=> '',
-								'timeout'			=> 30,
-								'cache_options'		=> 'NEVER',
-								'follow_redirect'	=> FALSE,
-							 );
-		$oauth_attr->setValue($oauth_attr_values);
-
-		// Blank out current request token settings
-		$settings['access_token'] = NULL;
-		$settings['access_token_secret'] = NULL;
-		$settings['access_token_errors'] = NULL;
-
-		// Grab a new request token
-		$result = $oauth_attr->getAccessToken(urldecode($settings['request_token']), $oauth_verifier, urldecode($settings['request_token_secret']));
-
-		if (!isset($result['access_token']['oauth_token']) || !isset($result['access_token']['oauth_token_secret'])) {
-			$settings['access_token_errors'] = $oauth_attr->getErrors();
-		} else {
-			$settings['access_token'] = $result['access_token']['oauth_token'];
-			$settings['access_token_secret'] = $result['access_token']['oauth_token_secret'];
-		}
-
-	}//end processAccessToken()
 
 
 	/**
@@ -486,11 +247,11 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				<tr>
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong>Authentication:</strong></p></td>
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
-					if (!empty($settings['access_token'])) {
-						echo translate('<strong style="color: #060">Access Token Granted</strong>');
+					if (self::_getAccessToken($settings)) {
+						echo translate('<strong style="color: #060">Oauth2 token found.</strong>');
 
 					} else {
-						?><span class="sq-backend-warning">No Access Token.</span><?php
+						?><span class="sq-backend-warning">Oauth2 token not found.</span><?php
 					}
 					?></p></td>
 				</tr>
@@ -521,7 +282,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 		$submission = (isset($form->submission_asset)) ? $form->submission_asset->attr('attributes') : NULL;
 		if (empty($submission)){
 			trigger_error("Unable to extract submission from ".$form->type()." (Id: #$form->id)", E_USER_WARNING);
-			$form->submission_errors[] = 'Failed to upload video file to Youtube';
+			$form->submission_errors[] = 'Failed to upload video file to YouTube';
 			return FALSE;
 		}
 
@@ -537,7 +298,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 
 		if (empty($video_path)){
 			trigger_error("Unable to locate video source from ".$form->type()." (Id: #$form->id)", E_USER_WARNING);
-			$form->submission_errors[] = 'Failed to upload video file to Youtube';
+			$form->submission_errors[] = 'Failed to upload video file to YouTube';
 			return FALSE;
 		}
 
@@ -573,8 +334,8 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 				}
 			}
 		} else {
-			trigger_error("Failed to upload video file to Youtube for ".$form->type()." (Id: #$form->id)", E_USER_WARNING);
-			$form->submission_errors[] = 'Failed to upload video file to Youtube';
+			trigger_error("Failed to upload video file to YouTube for ".$form->type()." (Id: #$form->id)", E_USER_WARNING);
+			$form->submission_errors[] = 'Failed to upload video file to YouTube';
 			return FALSE;
 		}
 
@@ -589,10 +350,9 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 	*/
 	public static function isValid(Form $form, $settings)
 	{
-		if (empty($settings['access_token'])) return FALSE;
-		if (empty($settings['developer_key'])) return FALSE;
 		if (empty($settings['video_question_id'])) return FALSE;
 		if (empty($settings['category']) && empty($settings['category_question_id'])) return FALSE;
+		if (!self::_getAccessToken($settings)) return FALSE;
 
 		return TRUE;
 
@@ -611,76 +371,104 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 	*/
 	public static function processUploadVideo($settings, $video_path, &$keywords)
 	{
-		$url = 'http://uploads.gdata.youtube.com/feeds/api/users/default/uploads';
-
-		$xml_api = '<?xml version="1.0"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:yt="http://gdata.youtube.com/schemas/2007">';
-		if ($settings['privacy'] == 'unlisted') $xml_api .= '<yt:accessControl action=\'list\' permission=\'denied\' />';
-		$xml_api .=	'<media:group><yt:incomplete/>';
-		if ($settings['privacy'] == 'private') $xml_api .= '<yt:private/>';
-		if (!empty($settings['title'])) $xml_api .= '<media:title type="plain">'.$settings['title'].'</media:title>';
-		if (!empty($settings['description'])) $xml_api .= '<media:description type="plain">'.$settings['description'].'</media:description>';
-		if (!empty($settings['category'])) $xml_api .= '<media:category scheme="http://gdata.youtube.com/schemas/2007/categories.cat">'.$settings['category'].'</media:category>';
-		$xml_api .=	'</media:group></entry>';
-
-		$oauth_attr = new Asset_Attribute_OAuth();
-		$oauth_attr_values = Array(
-								'consumer_key'		=> $settings['consumer_key'],
-								'consumer_secret'	=> $settings['consumer_secret'],
-								'method'			=> 'POST',
-								'signature_method'	=> 'HMAC-SHA1',
-								'request_headers'	=> '',
-								'request_body'		=> '',
-								'timeout'			=> 30,
-								'cache_options'		=> 'NEVER',
-								'follow_redirect'	=> FALSE,
-							 );
-		$oauth_attr->setValue($oauth_attr_values);
-
-		$auth_header = $oauth_attr->getUserDataAuthHeader($url, $settings['access_token'], $settings['access_token_secret'], FALSE);
-		$request = self::_HTTPUploadRequest($url, $xml_api, $video_path, $auth_header, $settings);
-
-		if($request['status'] == 'ok'){
-			try {
-				$xml = new SimpleXMLElement($request['content']);
-			}catch(Exception $e){
-				trigger_error("Failed to parse Youtube API XML: ".$e->getMessage()."\n", E_USER_WARNING);
-				return FALSE;
-			}
-
-			$video_id = (isset($xml->id)) ? (string)$xml->id : '';
-			if ($video_id){
-				$video_id = (strpos($video_id, 'video:') !== FALSE) ? substr($video_id, strpos($video_id, 'video:') + strlen('video:')) : $video_id;
-
-				$published_date = (isset($xml->published)) ? substr((string)$xml->published, 0, strpos((string)$xml->published, 'T')) : '';
-				$video_link = '';
-				if (isset($xml->link)){
-					foreach($xml->link as $link){
-						$attr = $link->attributes();
-						if (isset($attr['rel']) && $attr['rel'] == 'alternate'){
-							$video_link = (string)$attr['href'];
-							break;
-						}
-					}
-				}
-
-				$keywords = Array(
-								'youtube_video_id' => $video_id,
-								'youtube_video_published_date' => $published_date,
-								'youtube_video_link'	=> $video_link
-								);
-				return TRUE;
-
-			} else if (isset($xml->error)){
-				foreach($xml->error as $error){
-					$errors[] = (Array)$error;
-				}
-				trigger_error("Youtube API Error:\n".print_r($errors, TRUE)."\n", E_USER_WARNING);
-				return FALSE;
-			}
-
-		} else if($request['status'] == 'err'){
-			trigger_error('Youtube File Upload Fail: '.$request['error'], E_USER_WARNING);
+		$access_token = self::_getAccessToken($settings);
+		if (!$access_token) {
 			return FALSE;
+		}
+
+		if (!is_file($video_path)) {
+			return FALSE;
+		}
+
+		// Video properties
+		$video_title = array_get_index($settings, 'title', '');
+		$video_description = array_get_index($settings, 'description', '');
+		$video_category_id = array_get_index($settings, 'category', '');
+		$video_privacy_status = array_get_index($settings, 'privacy', 'private');
+
+		$request_url = 'https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=resumable';
+		$video_params = Array(
+							'snippet' => Array(
+											'title' => $video_title,
+											'description' => $video_description,
+											'categoryId' => $video_category_id,
+											'tags' => Array(),
+										),
+							'status'  => Array(
+											'privacyStatus' => $video_privacy_status
+										),
+						);
+		$request_body = json_encode($video_params);
+		$content_length = ini_get('mbstring.func_overload') ? mb_strlen($request_body , '8bit') : strlen($request_body);
+		$file_size = filesize($video_path);
+
+		$curl_opts = Array(
+						'POST'			 => TRUE,
+						'POSTFIELDS'	 => json_encode($video_params),
+						'RETURNTRANSFER' => TRUE,
+						'HTTPHEADER' 	 => Array(
+											'Authorization: Bearer '.$access_token,
+											'Content-type: application/json; charset=UTF-8',
+											'Content-length: '.$content_length,
+											'X-upload-content-type: video/*',
+											'X-upload-content-length: '.$file_size,
+										),
+				);
+		$response = fetch_url($request_url, $curl_opts, Array(), TRUE, TRUE);
+
+		$response_body = array_get_index($response, 'response', '');
+		$response_headers = array_get_index($response, 'response_headers', '');
+		$response_code = isset($response['curlinfo']) && isset($response['curlinfo']['http_code']) ? $response['curlinfo']['http_code'] : '';
+
+		if ($response_code == 200 && !empty($response_headers)) {
+			// Get the file upload request URL from the response headers
+			$location = '';
+			foreach($response_headers as $header) {
+				$header = trim($header);
+				if (strpos($header, 'Location:') === 0) {
+					$location = substr($header, 10);
+					break;
+				}
+			}
+			if (!empty($location) && strpos($location, 'https:') === 0) {
+				// Now upload the video
+				$file_content = file_get_contents($video_path);
+				$content_length = ini_get('mbstring.func_overload') ? mb_strlen($file_content , '8bit') : strlen($file_content);
+
+				$curl_opts = Array(
+								'POST' 				=> TRUE,
+								'POSTFIELDS'	 	=> $file_content,
+								'RETURNTRANSFER' 	=> TRUE,
+								'BINARYTRANSFER' 	=> TRUE,
+								'TIMEOUT' 			=> $settings['upload_timeout'],
+								'HTTPHEADER' 		=> Array(
+														'Content-length: '.$content_length,
+														'Content-type: application/json; charset=UTF-8',
+													),
+						);
+				$response_body = fetch_url($location, $curl_opts, Array(), TRUE, TRUE);
+				if (!empty($response_body['response'])) {
+					$upload_info = @json_decode($response_body['response'], TRUE);
+					if (!empty($upload_info['id']) && !empty($upload_info['snippet'])) {
+						$keywords = Array(
+								'youtube_video_id' => $upload_info['id'],
+								'youtube_video_published_date' => $upload_info['snippet']['publishedAt'],
+								'youtube_video_link'    => 'https://www.youtube.com/watch?v='.$upload_info['id'],
+						);
+
+						return TRUE;
+					}
+				}//end if
+			}//end if
+		}//end if
+
+		if (!empty($response_body)) {
+			$error_info = @json_decode($response_body, TRUE);
+			if (isset($error_info['error'])) {
+				trigger_error(sprintf(translate('YouTube file upload failed with error code %1$s: %2$s'), array_get_index($error_info['error'], 'code', 'n/a'), array_get_index($error_info['error'], 'message', '')));
+			} else if (!empty($response_body) && is_string($response_body)) {
+				trigger_error(sprintf(translate('YouTube file upload failed: %s'), $response_body));
+			}
 		}
 
 		return FALSE;
@@ -689,94 +477,27 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 
 
 	/**
-	* HTTP Upload Request
+	* Fetch the loaded Oauth 2 access token from the Oauth Token asset
 	*
-	* @param string $url
-	* @param string $api_xml
-	* @param string $video_path
-	* @param string $auth_header
-	* @param string $settings
+	* @param $settings
 	*
-	* @return array
+	* @return string
 	* @access private
 	*/
-	private function _HTTPUploadRequest($url, $api_xml, $video_path, $auth_header, $settings) {
+	private static function _getAccessToken($settings)
+	{
+		$access_token = '';
+		$oauth2_token_assetid = array_get_index($settings, 'oauth2_token_assetid', '');
 
-		$vide_h = fopen($video_path, "rb");
-		if ($vide_h === FALSE) return Array(
-							            'status' => 'err',
-							            'error' => "Unable to open video file: $video_path"
-							        	);
+		if ($oauth2_token_assetid) {
+			$oauth2_token = $GLOBALS['SQ_SYSTEM']->am->getAsset($oauth2_token_assetid, 'oauth2_token');
+			$access_token_info = $oauth2_token->loadTokenFromStorage();
+			$access_token = array_get_index($access_token_info, 'access_token', '');
+		}
 
-		$video_size = filesize($video_path);
-		$video = fread($vide_h, $video_size);
-		fclose($vide_h);
+		return $access_token;
 
-		$file_name = basename($video_path);
-
-	    $url = parse_url($url);
-	    $host = $url['host'];
-	    $path = $url['path'];
-
-	    $fp = fsockopen($host, 80, $errno, $errstr, $settings['upload_timeout']);
-
-	    if ($fp){
-
-	        $boundary_string = uniqid();
-	    	$post_body = '';
-
-	    	$post_body .= "--$boundary_string\r\n";
-	        $post_body .= "Content-Type: application/atom+xml; charset=UTF-8\r\n\r\n";
-	        $post_body .= $api_xml;
-	 		$post_body .= "\r\n--$boundary_string\r\n";
-	 		$post_body .= "Content-Type: application/octet-stream\r\n";
-	 		$post_body .= "Content-Transfer-Encoding: binary\r\n\r\n";
-
-	 		$post_end = "\r\n--$boundary_string--\r\n";
-
-	 		$size = strlen($post_body) + $video_size + strlen($post_end);
-	 		$post_body .= $video;
-	 		$post_body .= $post_end;
-
-	        // send the request headers:
-	        $header = "POST $path HTTP/1.1\r\n";
-	        $header .= "Host: $host\r\n";
-	        $header .= $auth_header."\r\n";
-	 		$header .= "GData-Version: 2\r\n";
-	 		$header .= "X-GData-Key: key=".$settings['developer_key']."\r\n";
-	 		$header .= "Slug: $file_name\r\n";
-	        $header .= "Content-Type: multipart/related; boundary=$boundary_string\r\n";
-	        $header .= "Content-Length: ". $size ."\r\n";
-	        $header .= "Connection: close\r\n\r\n";
-
-	        fwrite($fp, $header.$post_body);
-	        $result = '';
-	        while (!feof($fp)) {
-        		$result .= fgets($fp);
-    		}
-
-	    } else {
-	        return array(
-	            'status' => 'err',
-	            'error' => "$errstr ($errno)"
-	        );
-	    }
-
-	    // close the socket connection:
-	    fclose($fp);
-
-	    // split the result header from the content
-	    $result = explode("\r\n\r\n", $result, 2);
-	    $header = isset($result[0]) ? $result[0] : '';
-	    $content = isset($result[1]) ? $result[1] : '';
-
-	    // return as structured array:
-	    return array(
-	        'status' => 'ok',
-	        'header' => $header,
-	        'content' => $content
-	    );
-	}//end _HTTPUploadRequest()
+	}//end _getAccessToken()
 
 }//end class
 

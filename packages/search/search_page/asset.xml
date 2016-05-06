@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>search</package>
 	<type_code>search_page</type_code>
-	<version>0.26</version>
+	<version>0.27</version>
 	<name>Search Page</name>
 	<description>Search Page asset; provides a front-end interface to the search manager so a user can search for assets within a MySource Matrix system.</description>
 	<instantiable>yes</instantiable>

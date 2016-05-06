@@ -177,7 +177,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 						// if nothing is checked, confirm deletion
 						if (!found) {
 							// if they don't want to delete, abort submit
-							if (!confirm(js_translate('must_select_at_least_one_protocol', url))) {
+							if (!confirm(js_translate('You need to select at least one protocol, otherwise the URL will be deleted. Press OK to remove the URL, or Cancel to abort and select a protocol.', url))) {
 								return false;
 							}
 						}
@@ -240,7 +240,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 						check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]));
 					} else {
 					?>
-						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($url_info[$this->protos[$k]]) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
+						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($url_info[$this->protos[$k]]) ? 'cross' : 'tick'; ?>.png" width="15" height="15" />
 					<?php
 					}
 				?>

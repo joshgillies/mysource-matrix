@@ -267,7 +267,7 @@ class Cron_Job_Future_Permission extends Cron_Job
 	 */
 	public function actionName()
 	{
-		return ($this->attr('Add')? translate('Add') : translate('Remove'));
+		return ($this->attr('add')? translate('Add') : translate('Remove'));
 
 
 

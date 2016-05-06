@@ -115,6 +115,9 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$thesaurus = $asset->getThesaurusRef();
 
+		// this field relies on the default checkbox to work properly in Edit+
+		$enable_default = TRUE;
+
 		if ($thesaurus == FALSE) {
 			echo '<em>'.translate('The source thesaurus asset has not been set for this field.').'</em>';
 
@@ -167,10 +170,10 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 			echo '</ul>';
 		}
-
+		echo '<div class="thesaurusContainer">';
 		if ($write_access) {
 
-			echo '<span class="sq-metadata-settings-wrapper">';
+			if($enable_default || $print_cascade_values_option) echo '<span class="sq-metadata-settings-wrapper">';
 				if ($enable_default) {
 					echo '<span class="sq-metadata-default-wrapper">';
 						?>
@@ -197,16 +200,18 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo '</span>';
 				}
 
-				if ($print_cascade_values_option) {
+				$allow_cascading = $asset->attr('allow_cascading'); 
+				if ($print_cascade_values_option && $allow_cascading) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
 						label(translate('Cascade value'), $prefix.'_cascade_value');
 
 					echo '</span>';
 				}
-			echo '</span>';
+				
+			if($enable_default || $print_cascade_values_option) echo '</span>';
 
-			echo '<div class="sq-metadata-multitext-wrapper">';
+			echo '<div class="sq-metadata-thesaurus-wrapper">';
 				if ($enable_default) {
 					// non-default-value chooser
 					echo '<div id="'.$prefix.'_interface" style="display:'.($is_default ? 'none' : 'block').'">';
@@ -284,6 +289,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				<?php
 			}//end else
 		}//end else
+		echo '</div>';
 		return $write_access;
 
 	}//end paintValueInterface()

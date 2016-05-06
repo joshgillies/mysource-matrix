@@ -108,7 +108,7 @@
 		</field>
 		<field attribute="start_position">
 			<display_name>Start Position</display_name>
-			<note>Position in the list to start at. For custom grouping, this will apply to the individual group listing.</note>
+			<note>Position in the list to start at. For custom grouping, this will apply to the individual group listing. &lt;br/&gt;Keywords can be used to dynamically set the start position.</note>
 		</field>
 		<field attribute="a_z_style">
 			<display_name>A-Z Listing Style</display_name>

@@ -54,6 +54,12 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 	{
 		// check required settings
 		if (empty($settings['file_path'])) return FALSE;
+
+		if (!authorised_file_path($settings['file_path'])) {
+			trigger_localised_error('CORE0328', sprintf(translate('Access to the file "%s" is not authorised for this operation.'), htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
+			return FALSE;
+		}
+
 		if (!is_readable($settings['file_path'])) {
 			trigger_localised_error('CORE0276', sprintf(translate('File %s does not exist or is not readable'), htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
 			return FALSE;
@@ -137,6 +143,10 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 	public static function processInterface(&$settings, $request_data)
 	{
 		if (!empty($request_data['file_path'])) {
+			if (!authorised_file_path($request_data['file_path'])) {
+				trigger_localised_error('CORE0328', sprintf(translate('Access to the file "%s" is not authorised for this operation.'), htmlentities($request_data['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)), E_USER_WARNING);
+				$request_data['file_path'] = '';
+			}
 			$settings['file_path'] = $request_data['file_path'];
 		}
 		return FALSE;

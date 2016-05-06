@@ -248,11 +248,25 @@ class Internal_Message extends MySource_Object
 		 // LOG MESSAGES TO LOG FILE //
 		//////////////////////////////
 		if ($log_to_file && !$user_inbox_only) {
-			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
+			$temp_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
+			$log_body = replace_keywords($temp_body, $this->replacements);
+			$log_subj = replace_keywords($this->subject, $this->replacements);
 
-			$log_line = '['.$this->type.' - '.$param_string.'] ('.
-				$lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE).') - '.
-				$lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+			if (empty($log_subj) === TRUE) {
+				$log_subj = $lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+			}
+
+			if (empty($log_body) === TRUE) {
+				$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+			}
+
+			$log_line = sprintf(
+				'[%s - %s] (%s) - %s',
+				$this->type,
+				$param_string,
+				$log_subj,
+				$log_body
+			);
 
 			$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
 			if (preg_match($tagline_reg, $log_line, $matches)) {

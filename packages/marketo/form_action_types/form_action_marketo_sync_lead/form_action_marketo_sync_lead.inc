@@ -57,12 +57,14 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 		<p class="sq-backend-section-subheading"><?php echo translate('Connection Details'); ?></p>
 
 
-		<div id="<?php echo $prefix ?>_connector_div" style="padding: 0.5em 0px 2em 30px;">
-			<table class="sq-backend-table" style="width:auto">
+		<div id="<?php echo $prefix ?>_connector_div">
+			<table class="sq-backend-table">
+			<col width="15%" />
+			<col width="85%" />
 				<tr>
-					<td><p><?php echo translate('Marketo Bridge Asset'); ?></p></td>
+					<th style='min-width:207px'><?php echo translate('Marketo Bridge Asset'); ?></th>
 
-					<td><p><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('marketo_bridge'=>'D')); ?></p></td>
+					<td><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('marketo_bridge'=>'D')); ?></td>
 				</tr>
 			</table>
 		</div>
@@ -74,11 +76,14 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 
 			if (!empty($attributes)) {
 			?>
-			<div id="<?php echo $prefix ?>_attribute_mapping"  style="padding: 0.5em 0px 2em 30px;" >
-				<table border="1" style="margin-bottom: 7px; " class="sq-backend-table">
+			<div id="<?php echo $prefix ?>_attribute_mapping" >
+				<table border="1" style="margin-bottom: 7px" class="sq-backend-table">
+				<col width="15%" />
+				<col width="75%" />
+				<col width="10%" />
 					<tbody>
 					<tr>
-						<th><?php echo translate('Attribute Name'); ?></th>
+						<th style='min-width:200px'><?php echo translate('Attribute Name'); ?></th>
 
 						<th><?php echo translate('Attribute Value'); ?></th>
 
@@ -89,13 +94,14 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 						foreach ($attributes as $attribute_name => $attribute_value) {
 					?>
 					<tr>
-						<td class="sq-backend-table-cell" style="width:180px;padding-left:15px;"><strong><?php echo $attribute_name; ?></strong></td>
-						<td class="sq-backend-table-cell" style="width:165px;padding-left:5px;">
+						<td class="sq-backend-table-cell" style="padding-left:15px;"><strong>
+						<div style='min-width:200px'><?php echo $attribute_name; ?></strong></div>
+						<td class="sq-backend-table-cell" style="padding-left:5px;">
 						<?php
-							text_box($prefix.'_attribute_value_edit['.$attribute_name.']', $attribute_value);
+							text_box($prefix.'_attribute_value_edit['.$attribute_name.']', $attribute_value, 60);
 						?>
 						</td>
-						<td  class="sq-backend-table-cell">
+						<td  class="sq-backend-table-cell" style="width:100%; text-align: center;vertical-align: middle;">
 						<?php
 							check_box($prefix.'_attribute_remove[]', $attribute_name, FALSE);
 						?>
@@ -110,23 +116,19 @@ class Form_Action_Marketo_Sync_Lead extends Form_Action
 			}//end if
 
 			?>
-			<div id="<?php echo $prefix ?>_new_attribute_mapping" style="padding: 0.5em 0px 2em 30px;">
-				<table style="width:auto;padding-left: 30px;">
+			<div id="<?php echo $prefix ?>_new_attribute_mapping">
+				<table border="1" style="margin-bottom: 7px;" class="sq-backend-table">
 					<tr>
-						<td><?php echo translate('Attribute Name'); ?></td>
-
-						<td><?php echo translate('Attribute Value'); ?></td>
-
+						<th><div style='min-width:207px'><?php echo translate('Attribute Name'); ?></div></th>
+						<td class="sq-backend-table-cell" style="width:100%"><?php
+							text_box($prefix.'_new_attribute_name','',60);
+							?></td>
 					</tr>
 					<tr>
+						<th><?php echo translate('Attribute Value'); ?></th>
 						<td class="sq-backend-table-cell"><?php
-							text_box($prefix.'_new_attribute_name');
-						?></td>
-						<td class="sq-backend-table-cell">
-						<?php
-							text_box($prefix.'_new_attribute_value');
-						?>
-						</td>
+							text_box($prefix.'_new_attribute_value','', 60);
+							?></td>
 					</tr>
 				</table>
 			    <div class="sq-backend-section-note"><?php echo translate('<strong>Note: </strong>Marketo Cookie is required to be set for this action to work.<br/>Global keywords and form response keywords are supported in the attribute value. <br/>If Email attribute is specified, it will be passed to Marketo directly. Verified Email address will be automatically synced to Marketo.') ?></div>

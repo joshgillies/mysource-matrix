@@ -547,12 +547,12 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 										combo_box($combo_name, $options, FALSE, $data['all_underneath']);
 									} else {
 										if ($data['all_underneath']) {
-											echo '<img src="'.sq_web_path('lib').'/web/images/tick.gif" /> ';
+											echo '<img src="'.sq_web_path('lib').'/web/images/tick.png" /> ';
 											echo '<strong>'.translate('Yes').'</strong> ('.translate('Assets underneath this root node <u>ARE</u> affected').')';
 
 
 										} else {
-											echo '<img src="'.sq_web_path('lib').'/web/images/cross.gif" /> ';
+											echo '<img src="'.sq_web_path('lib').'/web/images/cross.png" /> ';
 											echo '<strong>'.translate('No').'</strong> ('.translate('Assets underneath this root node are <u>NOT</u> affected').')';
 
 
@@ -805,6 +805,10 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					// retrieve the actual values submitted
 					if (preg_match("/^$root_node_key/", $key)) {
 						$root_node = htmlspecialchars($_POST[$key]['assetid']);
+						$is_valid = assert_valid_assetid($root_node, '', TRUE, FALSE);
+						if(!$is_valid) {
+							$root_node = $previous_value;
+						}
 						// if no root node was submitted, skip it and mark for deletion
 						if (!$root_node) {
 							// record the previous assetid (i.e. the one to delete)
@@ -1065,10 +1069,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openField(translate('Delete All System Cache'));
 
 			$delete_all_ops = Array(
-								'Yes'	=> translate('Yes'),
-
-								'No'	=> translate('No'),
-
+								'yes'	=> translate('Yes'),
+								'no'	=> translate('No'),
 							  );
 			combo_box($prefix.'_delete_all', $delete_all_ops, FALSE, 'no', 0, "onChange=\"Javascript: if (this.value == 'yes') { if(!confirm(js_translate('Are you sure you want to delete all cache currently in the system?'))) { this.value = 'no'; } } \"");
 
@@ -1379,7 +1381,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 							check_box($prefix.'_url_'.$i, 1, !in_array($url, $non_cachable_urls));
 						} else {
 							$filename = in_array($url, $non_cachable_urls) ? 'cross' : 'tick';
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.png" />';
 						}
 						?>
 					</td>
@@ -1525,7 +1527,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 							check_box($prefix.'_url_'.$i, 1, !in_array($url, $cacheable_header_urls));
 						} else {
 							$filename = in_array($url, $cacheable_header_urls) ? 'cross' : 'tick';
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.png" />';
 						}
 						?>
 					</td>
@@ -1535,7 +1537,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 							check_box($prefix.'_user_url_'.$i, 1, !in_array($url, $cacheable_user_header_urls));
 						} else {
 							$filename = in_array($url, $cacheable_user_header_urls) ? 'cross' : 'tick';
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.png" />';
 						}
 						?>
 					</td>

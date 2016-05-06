@@ -246,7 +246,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 								if ($admin_access) {
 									check_box($prefix.'_permissions['.$perm.'][cascades]['.rawurlencode($userid).']', 1, $perm_detail['cascades']);
 								} else {
-									?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($perm_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+									?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($perm_detail['cascades'] ? 'tick' : 'cross'); ?>.png" width="15" height="15" /><?php
 								}
 									?>
 								</td>

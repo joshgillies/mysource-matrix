@@ -692,26 +692,50 @@ function sq_web_path($path='base')
 		break;
 
 		case 'root_url'  :
+			if (!trim(SQ_CONF_SYSTEM_ROOT_URLS)) {
+				return '';
+			}
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 			$current_url = strip_url(current_url(FALSE, TRUE));
 			// if we are in the backend strip the suffix
 			if (SQ_IN_BACKEND) {
 				$current_url = preg_replace('/\\/'.SQ_CONF_BACKEND_SUFFIX.'$/', '', $current_url);
 			}
-			$tmp = $root_urls[0];
-			for ($i = 1; $i < count($root_urls); $i++) {
-				if (substr($current_url, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
-					// if the current tmp has the same start
-					if (substr($tmp, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
-						// then we only use it if it's a longer (and therefore closer) string
-						if (strlen($tmp) < strlen($root_urls[$i])) {
-							$tmp = $root_urls[$i];
+
+			$tmp = NULL;
+			$parsed_url = parse_url(current_url(TRUE, TRUE));
+			if (array_key_exists('path', $parsed_url) === FALSE) {
+				$parsed_url['path'] = '';
+			}
+
+			foreach ($root_urls as $this_root_url) {
+				$this_root_url = trim($this_root_url);
+				if (empty($this_root_url)) {
+					continue;
+				}
+				$parsed_root_url = parse_url('http://'.$this_root_url);
+				if (array_key_exists('path', $parsed_root_url) === FALSE) {
+					$parsed_root_url['path'] = '';
+				}
+
+				// We match the hostname.
+				if ($parsed_root_url['host'] === $parsed_url['host']) {
+					// We match first part of the path. We add a space to each to avoid
+					// an empty needle warning.
+					if (strpos(' '.$parsed_url['path'], ' '.$parsed_root_url['path']) === 0) {
+						if ($tmp === NULL) {
+							$tmp = $this_root_url;
+						} else if (strlen($tmp) < strlen($this_root_url)) {
+							$tmp = $this_root_url;
 						}
-					} else {
-						$tmp = $root_urls[$i];
 					}
 				}
 			}
+
+			if ($tmp === NULL) {
+				$tmp = $root_urls[0];
+			}
+
 			// if we are in the symlink system remove the URL
 			$paths[$path] = current_protocol().'://'.preg_replace('/\/index.php$/', '', $tmp);
 		break;
@@ -928,6 +952,54 @@ function clean_url($url)
 	return $url;
 
 }//end clean_url()
+
+
+/**
+ * Use DOMDocument to repair possibly non-well-formed HTML.
+ *
+ * Presumes UTF-8 encoding. Returns FALSE if libxml/DOMDocument saw the
+ * repair effort as hopeless.
+ *
+ * @param string $html The HTML to clean.
+ *
+ * @return string|boolean
+ */
+function clean_html($html)
+{
+    $source_dom = new DOMDocument();
+    $source_dom->repair = TRUE;
+
+    $html = '<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE html><html><body>'.$html.'</body></html>';
+
+    // Wrapping libxml_use_internal_errors() around this ensures that parse
+    // issues in the HTML will be suppressed from being PHP warnings.
+    // (see Squizmap #7700.)
+    $old_setting = libxml_use_internal_errors(TRUE);
+    $ok          = $source_dom->loadHTML($html);
+    libxml_use_internal_errors($old_setting);
+
+    if ($ok === FALSE) {
+    	return FALSE;
+    }
+
+    $clean_html = $source_dom->saveHTML();
+    $found = preg_match('/<html><body>(.*)<\/body><\/html>$/s', trim($clean_html), $matches); 
+    if ($found === 1) {
+    	$clean_html = $matches[1];
+    }
+
+    // Replace any instances of shadow asset URL references (./?a=123:q1$?blah)
+    // that may have had their "$" (correctly) replaced by a "%24" url escape.
+    // This is a libxml limitation of loadHTML. (See Squizmap #7691.)
+    $clean_html = preg_replace(
+        '/"(\.\/\?a=\d+:[^"\s\'><]+)%24([^"]*)"/',
+        '"$1\$$2"',
+        $clean_html
+    );
+
+    return $clean_html;
+
+}//end clean_html;
 
 
 /**
@@ -1502,6 +1574,7 @@ function hide_system_root($message='')
 */
 function translate($string)
 {
+	if ($string === '') return '';
 	if (!isset($GLOBALS['SQ_SYSTEM'])) return $string;
 	$str = $GLOBALS['SQ_SYSTEM']->lm->getString($string);
 	return $str;
@@ -1853,9 +1926,11 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 
 				// If we have too many in the lineage, we need to add '...' between first
 				// 2 and last 2 - including the asset itself
+				$whole_lineage = Array();
 				if (count($lineage['lineage']) > 3) {
 					$lineage_names = $lineage['lineage'];
 					array_splice($lineage_names, 2, -1, Array('...'));
+					$whole_lineage = $lineage['lineage'];
 				}
 
 				foreach ($lineage_names as $id => $name){
@@ -1865,7 +1940,9 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 				$lineage_names[$assetid] = $asset_info['name'];
 				$lineages_onclick = asset_locator_onclick($lineage_assetids, TRUE);
 				?><tr>
-				<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+					<td class="sq-backend-table-cell" >
+						<a href="#" onclick="<?php echo $lineages_onclick; ?>" <?php if (!empty($whole_lineage)) echo 'title="'.implode(' &gt; ', $whole_lineage).' &gt; '.$asset_info['name'].'"'; ?>><?php echo implode(' &gt; ', $lineage_names); ?></a>
+					</td>
 				</tr><?php
 			} else {
 				unset($lineages[$lineage_key]);
@@ -1949,7 +2026,7 @@ function asset_locator_onclick($lineage_assetids, $tooltip_hide)
 				. '	am = parent.top.frames[\'sq_sidenav\'];'
 				. '}'
 				. 'if (am.JS_Asset_Map && am.JS_Asset_Map.modernMapActive) {'
-				. '	am.JS_Asset_Map.locateAsset([\''.implode('\', \'', $lineage_assetids).'\'], ['.implode(',', $sort_orders).']);'
+				. '	if (am.JS_Asset_Map.isBusy() === false) { am.JS_Asset_Map.locateAsset([\''.implode('\', \'', $lineage_assetids).'\'], ['.implode(',', $sort_orders).']); }'
 				. '} else {'
 				. '	am.asset_locator_start(\''.$asset_so.'\');'
 				. '}';
@@ -2005,14 +2082,17 @@ function get_asset_status_icon($status)
 * Example: 12|14|254~3|11|123
 *
 * @param array	$asset_lineage	Asset IDs in an asset lineage. Indexed from root to leaf
+* @param boolean $ignore_root   Whether to ignore root folder asset if suppied
 *
 * @return string
 * @access public
 */
-function get_asset_lineage_sort_order($asset_lineage=Array())
+function get_asset_lineage_sort_order($asset_lineage=Array(), $ignore_root=TRUE)
 {
+	$has_root_assetid = FALSE;
 	if ($asset_lineage[0] == 1) {
 		array_shift($asset_lineage);
+		$has_root_assetid = TRUE;
 	}
 
 	$asset_count = count($asset_lineage);
@@ -2026,7 +2106,7 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 		$sort_order = -1;
 		// get the link between two assets
 		if (strpos($asset_lineage[$i],':') === FALSE) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset_lineage[$i], $asset_lineage[$i+1]);
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset_lineage[$i], $asset_lineage[$i+1], SQ_SC_LINK_BACKEND_NAV);
 			if (!empty($link)) {
 				if (isset($link['sort_order']) && $link['sort_order']!='') {
 					$sort_order = $link['sort_order'];
@@ -2050,6 +2130,12 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 			}
 		}
 		$sort_orders[] = $sort_order;
+	}
+
+	if ($has_root_assetid && !$ignore_root) {
+		// Put the root folder asset id back along with its '0' short order
+		array_unshift($asset_lineage, 1);
+		array_unshift($sort_orders, 0);
 	}
 
 	return implode('|',$asset_lineage).'~'.implode('|',$sort_orders);
@@ -2141,7 +2227,7 @@ function replace_global_keywords(&$text)
 						} else {
 							$user_keyword = 'asset_'.$user_keyword;
 							$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
-							if ((string)$user_replacement != "%$user_keyword%") {
+							if (is_array($user_replacement) === TRUE || (string)$user_replacement != "%$user_keyword%") {
 								$replacements[$full_keyword] = $user_replacement;
 							}
 						}
@@ -2254,7 +2340,7 @@ function replace_global_keywords(&$text)
 							}//end if
 							if (!is_null($site)) {
 								$site_replacement = $site->getKeywordReplacement($site_keyword);
-								if ((string)$site_replacement != "%$site_keyword%") {
+								if (is_array($site_replacement) === TRUE || (string)$site_replacement != "%$site_keyword%") {
 									$replacements[$full_keyword] = $site_replacement;
 								}
 							}
@@ -2265,7 +2351,7 @@ function replace_global_keywords(&$text)
 							}
 							if (!is_null($site)) {
 								$site_replacement = $site->getKeywordReplacement($matches[1]);
-								if ((string)$site_replacement != "%$site_keyword%") {
+								if (is_array($site_replacement) === TRUE || (string)$site_replacement != "%$site_keyword%") {
 									$replacements[$full_keyword] = $site_replacement;
 								}
 							}
@@ -2296,10 +2382,17 @@ function replace_global_keywords(&$text)
 							}
 
 							if ($current_asset) {
+								// if the keywords is %globals_asset_contents*% replace them here
+								// dont outsource it to asset.inc
+								if (0 === strpos($asset_keyword, 'asset_contents') && !isset($_SESSION['globals_asset_content'][$current_asset->id])) {
+									if ($current_asset->readAccess()) {
+										$replacements[$full_keyword] = getAssetContentsKeywordReplacement($current_asset, $asset_keyword);
+									}
+								}
 								$asset_replacement = $current_asset->getKeywordReplacement($asset_keyword);
 							}
 
-							if ((string)$asset_replacement != "%$asset_keyword%") {
+							if (is_array($asset_replacement) === TRUE || (string)$asset_replacement != "%$asset_keyword%") {
 								$replacements[$full_keyword] = $asset_replacement;
 							}
 						} else {
@@ -2309,71 +2402,11 @@ function replace_global_keywords(&$text)
 								if ($asset->readAccess()) {
 									// if the keywords is %globals_asset_contents*% replace them here
 									// dont outsource it to asset.inc
-									if (0 === strpos($asset_keyword, 'asset_contents')) {
-										$asset_keyword = preg_replace( '|:([0-9]+)$|', '', $asset_keyword);
-										$this_url = preg_replace('/https?:\/\//', '', $asset->getURL());
-										if (0 === strpos($asset_keyword, 'asset_contents_raw')) {
-
-											ob_start();
-												// get the pront end of the asset but dont worry abt any errors here
-												$asset->printAssetBody();
-												$content = ob_get_contents();
-											ob_end_clean();
-											$replacements[$full_keyword] = $content;
-
-										} else if ($asset_keyword == 'asset_contents') {
-
-											// get the front end of the asset
-											$this_paint_layout = $asset->getCurrentPaintLayoutName();
-											$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $this_paint_layout);
-											ob_start();
-												if (!$layout_id) {
-													$asset->printBodyWithPaintLayout();
-												} else {
-													$asset->printBodyWithPaintLayout($layout_id);
-												}
-												$content = ob_get_contents();
-											ob_end_clean();
-											$replacements[$full_keyword] = $content;
-
-										} else if (0 === strpos ($asset_keyword, 'asset_contents_paint_layout_id')) {
-
-											$layout_id = str_replace('asset_contents_paint_layout_id_', '', $asset_keyword);
-											ob_start();
-												if (!$layout_id) {
-													$asset->printBodyWithPaintLayout();
-												} else {
-													$asset->printBodyWithPaintLayout($layout_id);
-												}
-												$content = ob_get_contents();
-											ob_end_clean();
-											$replacements[$full_keyword] = $content;
-
-										} else if (0 === strpos ($asset_keyword, 'asset_contents_paint_layout_name')) {
-
-											$layout_name = str_replace('asset_contents_paint_layout_name_', '', $asset_keyword);
-
-											// if user has not mentioned if it is a user defined or default frontend
-											// assume it is user defined
-											if (strpos($layout_name, 'paint_layout::user::') === FALSE && strpos($layout_name, 'paint_layout::system::frontend') === FALSE) {
-												$layout_name = 'paint_layout::user::'.$layout_name;
-											}
-											$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $layout_name);
-											ob_start();
-												if (!$layout_id) {
-													$asset->printBodyWithPaintLayout();
-												} else {
-													$asset->printBodyWithPaintLayout($layout_id);
-												}
-												$content = ob_get_contents();
-											ob_end_clean();
-											$replacements[$full_keyword] = $content;
-
-										}
-
+									if (0 === strpos($asset_keyword, 'asset_contents') && !isset($_SESSION['globals_asset_content'][$asset->id])) {
+										$replacements[$full_keyword] = getAssetContentsKeywordReplacement($asset, $asset_keyword);
 									}
 									$asset_replacement = $asset->getKeywordReplacement($matches[1]);
-									if ((string)$asset_replacement != "%$matches[1]%") {
+									if (is_array($asset_replacement) === TRUE || (string)$asset_replacement != "%$matches[1]%") {
 										$replacements[$full_keyword] = $asset_replacement;
 									}
 								}
@@ -2477,19 +2510,18 @@ function replace_global_keywords(&$text)
 						    }
 
 						    if(!empty($user_identifier)) {
+						    	$data = $marketo_bridge->getLead($user_identifier, $nocache);
+						    	$leadRecord = is_array($data->result->leadRecordList->leadRecord) ? $data->result->leadRecordList->leadRecord[0] : $data->result->leadRecordList->leadRecord;
 							    if(preg_match('|^_id|',$sub_keyword)){
-								$data = $marketo_bridge->getLead($user_identifier, $nocache);
-								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Id) ? $data->result->leadRecordList->leadRecord->Id : '';
+								$replacements[$full_keyword] = isset($leadRecord->Id) ? $leadRecord->Id : '';
 							    }
 							   else  if(preg_match('|^_email|',$sub_keyword)){
-								$data = $marketo_bridge->getLead($user_identifier, $nocache);
-								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Email) ? $data->result->leadRecordList->leadRecord->Email : '';
+								$replacements[$full_keyword] = isset($leadRecord->Email) ? $leadRecord->Email : '';
 							    }
 							   else  if(preg_match('|^_attribute_|',$sub_keyword)){
-								$data = $marketo_bridge->getLead($user_identifier, $nocache);
 								preg_match('|^_attribute_(.*):([0-9]+)$|',$sub_keyword,$matches);
-								if(isset($matches[1]) && isset($data->result->leadRecordList->leadRecord->leadAttributeList->attribute)) {
-								    $attributes = $data->result->leadRecordList->leadRecord->leadAttributeList->attribute;
+								if(isset($matches[1]) && isset($leadRecord->leadAttributeList->attribute)) {
+								    $attributes = $leadRecord->leadAttributeList->attribute;
 								    foreach ($attributes as $attribute) {
 									if($attribute->attrName === $matches[1]) {
 									    $replacements[$full_keyword] = $attribute->attrValue;
@@ -3028,12 +3060,13 @@ function file_mime_type($filename)
  *                           Only added to the curl options if it's required.
  * @param boolean $use_proxy Whether to use the proxy authentication details (if they exist in matrix).
  *                           The default is TRUE - use the proxy.
+ * @param boolean $response_header Return full response headers
  *
  * @return mixed Either returns a curl resource if RETURNTRANSFER is not set, or the content from the resource
  *               if RETURNTRANSFER is set. IE it returns the result of curl_exec
  *               Then it's up to the calling code to deal with the response and curl_close() it.
  */
-function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
+function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE, $response_header=FALSE)
 {
 	static $_proxies_loaded = FALSE;
 	static $_redirects      = 0;
@@ -3120,6 +3153,10 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 	}
 	if(!$proxy_set) curl_setopt($curl_res, CURLOPT_PROXY, NULL);
 
+	if($response_header) {
+		curl_setopt($curl_res, CURLOPT_HEADERFUNCTION, 'read_header');
+	}
+
 	$result = curl_exec($curl_res);
 
 	$info = array(
@@ -3128,6 +3165,10 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 			 'response'    => $result,
 			 'curlinfo'    => curl_getinfo($curl_res),
 			);
+
+	if($response_header) {
+		$info['response_headers'] = isset($GLOBALS['fecth_url_response_headers'][$url]) ? $GLOBALS['fecth_url_response_headers'][$url] : Array();
+	}
 
 	// If we're not sending back a resource, make sure we close the connection.
 	// If we do, it'll be up to the calling code to deal with it.
@@ -3196,6 +3237,30 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 
 	return $info;
 }//end fetch_url()
+
+
+
+/**
+* Call back function to handler parsing headers in curl response. Mainly used in fetch_url() to store full headers
+*
+*
+* @param string	$ch	Curl handler
+* @param string	$header string
+*
+* @return int
+* @access public
+*/
+function read_header($ch, $header)
+{
+    $url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    if(!isset($GLOBALS['fecth_url_response_headers'])) {
+		$GLOBALS['fecth_url_response_headers'] = Array();
+    }
+    if(!empty($header)) {
+    	$GLOBALS['fecth_url_response_headers'][$url][] = $header;
+	}
+    return strlen($header);
+}
 
 
 /**
@@ -3449,5 +3514,221 @@ function authorised_file_path($filename)
 	return $authorised;
 
 }//end authorised_file_path()
+
+/**
+ * Returns TRUE if the filepath is authorised for read access
+ * as per SQ_TOOL_AUTHORISED_FILE_WRITE_PATHS settings in External Tool config file
+ *
+ * @param string	$filename	Filename with full path to check
+ *
+ * @return boolean
+ * @access public
+ */
+function authorised_file_write_path($filename)
+{
+	if (SQ_PHP_CLI) {
+		// No file path restriction when in CLI
+		return TRUE;
+	}
+
+	$filename = trim($filename);
+	if (empty($filename)) {
+		return FALSE;
+	}
+
+	$filename = realpath($filename);
+	if (empty($filename)) {
+		return FALSE;
+	}
+
+	if (is_dir($filename))
+		$filename = rtrim($filename,'/').'/';
+
+	require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+	$authorised_paths = explode("\n", SQ_TOOL_AUTHORISED_FILE_WRITE_PATHS);
+
+	$authorised = FALSE;
+	foreach($authorised_paths as $authorised_path) {
+		$authorised_path = trim($authorised_path);
+		if (empty($authorised_path)) {
+			continue;
+		}
+		if ((is_dir($authorised_path)) && (is_writable($authorised_path))) {
+			$authorised_path = rtrim($authorised_path, '/').'/';
+			$authorised = preg_match('/^'.preg_quote($authorised_path, '/').'/', $filename) === 1;
+		} else {
+			$authorised = (($filename == $authorised_path) && (is_writable($filename))) ;
+		}
+
+		if ($authorised) {
+			break;
+		}
+	}//end foreach
+
+	return $authorised;
+
+}//end authorised_file_write_path()
+
+
+/**
+* check if HTML has javascript tag in it, if so, display a raw html div
+*
+* @param string $html	html content to check
+* @param string $prefix	the prefix of the div
+*
+* @return boolean
+* @access public
+*/
+function isWYSIWYGJS($html, $prefix)
+{
+	if(preg_match('#<script(.*?)>#is', $html)) {
+		echo '<div class="sq-illegal-wysiwyg-content" ><div class="sq-warning-message">'.translate('HTML contents of this container interfere with the edit interface. WYSIWYG editor has been disabled for this container. Below is the raw HTML content.').'</div>';
+		text_area($prefix.'_contents_div_viper_input', $html, 0, 0, 0, 'class="sq-backend-code-editing"');
+		echo '</div>';
+		return TRUE;
+	}
+	return FALSE;
+}//end isWYSIWYGJS()
+
+/**
+ * Polyfill for array_column() which is only in PHP >= 5.5.
+ *
+ * Takes a two-dimensional array and normally returns a one-dimensional
+ * array, automatically indexed, containing the value in the $column_key index.
+ *
+ * If $column_key is NULL, the whole row is included (keeping it as a 2D array)
+ * but this is not a default - it must be passed in. This is provided to allow
+ * re-keying using $index_key.
+ *
+ * If $index_key is NULL or omitted, the new array will use the original key.
+ *
+ * Assumptions:
+ * - If the $index_key is not a string or int, Matrix's interpretation will
+ *   return FALSE but won't return a warning. If it's NULL, then it will use
+ *   an automatic index.
+ *
+ * @param array $array       Array to reduce
+ * @param mixed $column_key  Use this key in the row for the new value
+ * @param mixed $index_key   Use this key in the row for an index
+ *
+ * @return array
+ */
+if (function_exists('array_column') === FALSE) {
+	function array_column(Array $array, $column_key, $index_key=NULL) {
+		$new_array = Array();
+		foreach ($array as $key => &$row) {
+			$new_val   = $row;
+			$new_index = $key;
+			$skip = FALSE;
+			if ($column_key !== NULL) {
+				if (array_key_exists($column_key, $row) === FALSE) {
+					// If the column key doesn't exist, the RFC says to omit
+					// the row from the new array entirely.
+					$skip = TRUE;
+				} else {
+					$new_val = array_get_index($row, $column_key, NULL);
+				}
+			}
+
+			if ($skip === FALSE) {
+				if ($index_key !== NULL) {
+					// If the index key doesn't exist, use an automatic key.
+					$new_index = array_get_index($row, $index_key, NULL);
+				}
+
+				if ($new_index !== NULL) {
+					if ((is_int($new_index) === TRUE) || (is_string($new_index) === TRUE)) {
+						$new_array[$new_index] = $new_val;
+					} else {
+						return FALSE;
+					}
+				} else {
+					$new_array[] = $new_val;
+				}
+			}
+
+		}//end foreach row
+
+		return $new_array;
+	}
+}//end if polyfill required
+
+
+function getAssetContentsKeywordReplacement($asset, $asset_keyword) 
+{
+	if (!isset($_SESSION['globals_asset_content'])) {
+		$_SESSION['globals_asset_content'] = Array();
+	}
+
+	// Track the asset id to identify the recursive asset content keyword evalution
+	$_SESSION['globals_asset_content'][$asset->id] = 1;
+
+	$replacements = '';
+	$asset_keyword = preg_replace( '|:([0-9]+)$|', '', $asset_keyword);
+	$this_url = preg_replace('/https?:\/\//', '', $asset->getURL());
+	if (0 === strpos($asset_keyword, 'asset_contents_raw')) {
+
+		ob_start();
+			// get the pront end of the asset but dont worry abt any errors here
+			$asset->printAssetBody();
+			$content = ob_get_contents();
+		ob_end_clean();
+		$replacements = $content;
+
+	} else if ($asset_keyword == 'asset_contents') {
+
+		// get the front end of the asset
+		$this_paint_layout = $asset->getCurrentPaintLayoutName();
+		$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $this_paint_layout);
+		ob_start();
+			if (!$layout_id) {
+				$asset->printBodyWithPaintLayout();
+			} else {
+				$asset->printBodyWithPaintLayout($layout_id);
+			}
+			$content = ob_get_contents();
+		ob_end_clean();
+		$replacements = $content;
+
+	} else if (0 === strpos ($asset_keyword, 'asset_contents_paint_layout_id')) {
+
+		$layout_id = str_replace('asset_contents_paint_layout_id_', '', $asset_keyword);
+		ob_start();
+			if (!$layout_id) {
+				$asset->printBodyWithPaintLayout();
+			} else {
+				$asset->printBodyWithPaintLayout($layout_id);
+			}
+			$content = ob_get_contents();
+		ob_end_clean();
+		$replacements = $content;
+
+	} else if (0 === strpos ($asset_keyword, 'asset_contents_paint_layout_name')) {
+
+		$layout_name = str_replace('asset_contents_paint_layout_name_', '', $asset_keyword);
+
+		// if user has not mentioned if it is a user defined or default frontend
+		// assume it is user defined
+		if (strpos($layout_name, 'paint_layout::user::') === FALSE && strpos($layout_name, 'paint_layout::system::frontend') === FALSE) {
+			$layout_name = 'paint_layout::user::'.$layout_name;
+		}
+		$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $layout_name);
+		ob_start();
+			if (!$layout_id) {
+				$asset->printBodyWithPaintLayout();
+			} else {
+				$asset->printBodyWithPaintLayout($layout_id);
+			}
+			$content = ob_get_contents();
+		ob_end_clean();
+		$replacements = $content;
+
+	}
+	unset($_SESSION['globals_asset_content'][$asset->id]);
+
+	return $replacements;
+
+}//end getAssetContentsKeywordReplacement
+
 
 ?>

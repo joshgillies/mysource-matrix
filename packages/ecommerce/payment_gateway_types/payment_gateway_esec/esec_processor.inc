@@ -62,12 +62,6 @@ class Esec_Processor
 		"jcb"       => "jcb"
 	);
 
-	var $test_card_numbers = Array (
-		"testsuccess" => "Test Success",
-		"testfailure" => "Test Failure",
-		"testtimeout" => "Test Timeout"
-	);
-
 	var $_status_codes = Array (
 		'00' => 'approved',
 		'01' => 'refer to issuer',
@@ -255,19 +249,6 @@ class Esec_Processor
 		return $this->card_types;
 
 	}//end getCardTypes()
-
-
-	/**
-	* Get array of valid card numbers for testing
-	*
-	* @access public
-	* @return array
-	*/
-	function getTestCardNumbers()
-	{
-		return $this->test_card_numbers;
-
-	}//end getTestCardNumbers()
 
 
 	/**
@@ -490,24 +471,6 @@ class Esec_Processor
 		$this->setArray('EPS_RESULTURL', $value);
 
 	}//end setRedirectURL()
-
-
-	/**
-	* sets paramenters required for test transaction using test values
-	* in this case card name should be "test" and card number "testcard"
-	*
-	* This function has to be called after all the other attributes have been set.
-	*
-	* @access public
-	* @return void
-	*/
-	function setTest()
-	{
-		$this->setMerchant('test');
-		$this->set('EPS_TEST',     'true');
-		$this->set('EPS_CARDTYPE', 'testcard');
-
-	}//end setTest()
 
 }//end class
 

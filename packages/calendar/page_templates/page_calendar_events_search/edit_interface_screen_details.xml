@@ -19,12 +19,12 @@
 		<field write_access="write:attributes" attribute="name">
 			<display_name>Name</display_name>
 			<note />
-			<text width="15" />
+			<text width="30" />
 		</field>
 		<field write_access="write:attributes" attribute="short_name">
 			<display_name>Short Name</display_name>
 			<note />
-			<text width="15" />
+			<text width="30" />
 		</field>
 	</section>
 	<section name="Search Parameters">
@@ -34,6 +34,22 @@
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
+			</function_call>
+		</field>
+		<field write_access="write:content">
+			<display_name>Exclude Assets</display_name>
+			<note>Assets set here will be excluded from the search results</note>
+			<function_call>
+				<paint_function   name="paintAssetExclusion"  />
+				<process_function name="processAssetExclusion" />
+			</function_call>
+		</field>
+		<field write_access="write:content">
+			<display_name>Exclude Root Node</display_name>
+			<note>If specified, all children of selected nodes and the root node itself will be excluded from the resutls, unless the child is set as a root node to be searched</note>
+			<function_call>
+				<paint_function   name="paintRootNodeExclusion"  />
+				<process_function name="processRootNodeExclusion" />
 			</function_call>
 		</field>
 	</section>
@@ -164,8 +180,19 @@
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes">
 		<field attribute="parameter_map" format="new_line">
+			<display_name />
 			<parameter_map />
 		</field>
+		<field attribute="dynamic_root_option">
+            <display_name>If dynamic root not found</display_name>
+            <note />
+            <selection style="list" />
+        </field>
+        <field attribute="dynamic_asset_selection_option">
+            <display_name>If asset selection not specified</display_name>
+            <note />
+            <selection style="list" />
+        </field>
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes">
 		<field>

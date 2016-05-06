@@ -141,7 +141,7 @@ class Physical_File extends Asset
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 			header('Cache-Control: max-age='.$browser_cache_expiry.', public, no-cache="set-cookie"');
 			header('Pragma: cache');
-			header('Last-Modified: '.gmdate('D, d M Y H:i:s',$QWERTY).' GMT');
+			header('Last-Modified: '.gmdate('D, d M Y H:i:s',time()).' GMT');
 		} else if (!$using_ie6 || !$ssl_connection) {
 			// Internet Explorer must forcibly reload some file types from the server for correct inline operation in popup windows. (ref. http://support.microsoft.com/default.aspx?scid=kb;EN-US;q297822)
 			// If such files do not load as expected, "Send no-cache header option for HTTP requests" should be set to "No" on the System Configuration screen. The default operation is to send this header (i.e; set to "Yes").
@@ -193,8 +193,7 @@ class Physical_File extends Asset
 		$type = $this->getMimeType();
 
 		if (strpos($type, 'text') === 0) {
-			require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
-			$location = FILE_BRIDGE_PATH;
+			$location = $bridge->getLocationPath();
 			$location = rtrim($location, '/');
 			if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 			$full_path = $location.'/'.$this->_shadowid;
@@ -226,8 +225,7 @@ class Physical_File extends Asset
 		$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_bridgeid);
 		if (is_null($bridge)) return '';
 
-		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
-		$location = FILE_BRIDGE_PATH;
+		$location = $bridge->getLocationPath();
 		$location = rtrim($location, '/');
 		if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 		$full_path = $location.'/'.$this->_shadowid;

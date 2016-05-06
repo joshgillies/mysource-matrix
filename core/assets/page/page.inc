@@ -109,17 +109,26 @@ class Page extends Asset
 		$allowed[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_1]['data_source'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_1]['link']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_1]['calendar_event']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_1]['calendar_event_multi_date']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_1]['content_container_template']   = Array('card' => 'M', 'exclusive' => FALSE);
 
 		$allowed[SQ_LINK_TYPE_2]['page']   = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['file']   = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['data_source'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['link']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['calendar_event']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['calendar_event_multi_date']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['content_container_template']   = Array('card' => 'M', 'exclusive' => FALSE);
 
 		$allowed[SQ_LINK_TYPE_3]['page'] = Array('card' => 'M', 'exclusive' => FALSE);
 
 		$allowed[SQ_LINK_NOTICE]['page'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_NOTICE]['link'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_NOTICE]['calendar_event']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_NOTICE]['calendar_event_multi_date']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_NOTICE]['content_container_template']   = Array('card' => 'M', 'exclusive' => FALSE);
 
 		return $allowed;
 

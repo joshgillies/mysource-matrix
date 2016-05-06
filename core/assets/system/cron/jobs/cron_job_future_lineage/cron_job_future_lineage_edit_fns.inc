@@ -442,10 +442,10 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$major = $asset->getAssetInLink('major');
 		$minor = $asset->getAssetInLink('minor');
 
-		$o->openSection(translate('Delete Link'));
+		$o->openSection(translate('Trash Link'));
 
 
-		$o->openField(translate('Delete Link'));
+		$o->openField(translate('Trash Link'));
 
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT|SQ_LINK_NOTICE, '', TRUE, 'minor');
 		$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('All'));
@@ -492,6 +492,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$default_delete_linkid = 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS';
 		}
 		combo_box($prefix.'_delete_linkid', $link_options, FALSE, $default_delete_linkid);
+		$o->note(translate('This will move the asset link to the Trash. If there is already a direct child link under the Trash asset for this asset, the link will be deleted instead.'));
+
 		$o->closeField();
 
 		// if the minor asset is a shadow asset we will not allow the backend user to create a new link in the future
@@ -513,7 +515,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			// allow the user to set the delete link at a future time
 			$o->openField(translate('At'));
 
-			$o->note(translate('a future date and time. If no time is set, the selected link will be deleted immediately else the Scheduled Jobs Manager will delete the link at a future time'));
+			$o->note(translate('A future date and time to move the selected link to the Trash using the Scheduled Jobs Manager. If no time is set, the link will be moved to the Trash immediately.'));
 
 			$this->_paintWhenBox($asset, $o, $prefix);
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');

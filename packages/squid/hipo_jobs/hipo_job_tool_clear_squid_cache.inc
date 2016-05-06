@@ -244,12 +244,11 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 
 						} //end if
 
-						$system_log_command = "$path -h $hostname $port $options -m PURGE $protocol://$url";
+						$system_log_command = "$path -s -h $hostname $port $options -m PURGE $protocol://$url";
 						error_log('Running: '.$system_log_command);
 						exec(escapeshellcmd($system_log_command), $output, $status);
 
-						// error_log("\n\t"."$path -h $hostname $port $options -m PURGE $protocol://$url \n". serialize($output)."\n");
-						if (empty($output)) {
+						if ($status > 0) {
 							trigger_localised_error('SQUID0002', translate('Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Squid Cache section of External Tools Configuration.'), E_USER_WARNING);
 						} else {
 							// add a system log message if successful
@@ -267,13 +266,9 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 
 
 							$command_str .= ', Cascade: '.$cascade;
-							$system_log_output = "Output : \n";
-							foreach ($output as $key=>$line) {
-								$system_log_output .= "$line\n";
-							}
 							$msg_reps = Array(
 											'command'	=> $command_str,
-											'result'	=> $system_log_output,
+											'result'	=> 'Status: '.$status,
 										);
 
 							$msg->replacements = $msg_reps;

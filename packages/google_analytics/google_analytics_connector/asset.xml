@@ -19,7 +19,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>google_analytics</package>
 	<type_code>google_analytics_connector</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Google Analytics Connector</name>
 	<description>Provides an interface to a Google Analytics account, using OAuth2 authentication.</description>
 	<instantiable>yes</instantiable>

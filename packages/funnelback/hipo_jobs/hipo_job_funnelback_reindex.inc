@@ -63,7 +63,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_REINDEX_FUNNELBACK]', SQ_HIPO_REINDEX_FUNNELBACK, 1);
+			text_box($class.'[SQ_HIPO_REINDEX_FUNNELBACK]', SQ_HIPO_REINDEX_FUNNELBACK, 4);
 		} else {
 			echo SQ_HIPO_REINDEX_FUNNELBACK;
 		}

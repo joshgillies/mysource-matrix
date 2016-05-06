@@ -163,13 +163,13 @@ class Trigger_Action_Remove_Remaps extends Trigger_Action
 				label(translate('Remove all remap entries where the <em>Original URL</em> matches any of the asset\'s URLs'), $prefix.'[removetofrom]');
 
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_from_to ? 'tick' : 'cross').'.gif" alt="'.($remove_from_to ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_from_to ? 'tick' : 'cross').'.png" alt="'.($remove_from_to ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Remove all remap entries where the <em>Remapped URL</em> matches any of the asset\'s URLs');
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_to_from ? 'tick' : 'cross').'.gif" alt="'.($remove_to_from ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_to_from ? 'tick' : 'cross').'.png" alt="'.($remove_to_from ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Remove all remap entries where the <em>Original URL</em> matches any of the asset\'s URLs');

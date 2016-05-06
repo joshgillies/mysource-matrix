@@ -102,6 +102,11 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _paintInterface($html, $asset)
 	{
+		// enable the Ace editor to edit backend code (if available)
+		$o = isset($GLOBALS['SQ_SYSTEM']->backend) && isset($GLOBALS['SQ_SYSTEM']->backend->out) ? $GLOBALS['SQ_SYSTEM']->backend->out : null;
+		if($o && $o->isViperAceAvailable()) {
+			$o->enableViperAceEditor();
+		}
 		$source = htmlspecialchars($html);
 		//If we are dealing with a WYSIWYG and other content types, we need to pretty up the HTML source view a bit, for RAW HTML areas we just print it exactly as the user entered it. 
 		if (get_class_lower($asset) != 'content_type_raw_html') {
@@ -122,9 +127,16 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 		echo '<div id="'.$content_prefix.'_html" class="sq-preview-view sq-wysiwyg-preview-wrapper" style="display: block;">';
 		echo $html;
 		echo '</div>';
-		echo '<div id="'.$content_prefix.'_source" class="sq-source-view" style="display: none;"><pre>';
-		echo ltrim($source);
-		echo '</pre></div>';
+		if($o && $o->isViperAceAvailable()) {
+			echo '<div id="'.$content_prefix.'_source" class="sq-source-view sq-backend-code-editing" style="display: none;">';
+			text_area($content_prefix.'_textarea', $html, '', '', 0, 'class="sq-backend-code-editing sq-viper-ace-editor-textarea sq-viper-ace-editor-textarea-mode-html sq-viper-ace-editor-textarea-readonly"');
+			echo '</div>';
+		}
+		else {
+			echo '<div id="'.$content_prefix.'_source" class="sq-source-view sq-backend-code-editing" style="display: none;"><pre>';
+			echo ltrim($source);
+			echo '</pre></div>';
+		}
 		echo '</td></tr>';
 		echo '</table>';
 

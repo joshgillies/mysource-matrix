@@ -64,30 +64,55 @@ class Cache_Storage_Memcache extends Cache_Storage
 
 	}//end constructor
 
-
+	/**
+	* Initialise the memcache storage
+	*
+	* @return boolean
+	* @access public
+	*/
 	public function initMemcache()
 	{
-		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Cache Storage; it requires the memcache PECL extension installed within PHP, which is not installed');
-		assert_true(is_file(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Cache Storage; the Memcache configuration file is not set');
+		if (!extension_loaded('memcache')) {
+			trigger_error('Cannot use Memcache Cache Storage; it requires the memcache PECL extension installed within PHP, which is not installed', E_USER_NOTICE);
+			return FALSE;
+		}
+		if (!is_file(SQ_DATA_PATH.'/private/conf/memcache.inc')) {
+			trigger_error('Cannot use Memcache Cache Storage; the Memcache configuration file is not set', E_USER_NOTICE);
+			return FALSE;
+		}
 
 		$memcache_conf = require(SQ_DATA_PATH.'/private/conf/memcache.inc');
 		$hosts =& $memcache_conf['hosts'];
 		$services =& $memcache_conf['services'];
 
-		assert_true(count($hosts) > 0, 'Cannot use Memcache Cache Storage; no hosts are defined in the Memcache configuration file');
-		assert_true(array_key_exists('cache_manager', $services) === TRUE, 'Cannot use Memcache Cache Storage; no Memcache hosts are assigned to cache manager');
-		assert_true(count($services['cache_manager']) > 0, 'Cannot use Memcache Cache Storage; no Memcache hosts are assigned to cache manager');
+		if (count($hosts) < 1) {
+			trigger_error('Cannot use Memcache Cache Storage; no hosts are defined in the Memcache configuration file', E_USER_NOTICE);
+			return FALSE;
+		}
+		if (array_key_exists('cache_manager', $services) !== TRUE) {
+			trigger_error('Cannot use Memcache Cache Storage; no Memcache hosts are assigned to cache manager', E_USER_NOTICE);
+			return FALSE;
+		}
+		if (count($services['cache_manager']) < 1) {
+			trigger_error('Cannot use Memcache Cache Storage; no Memcache hosts are assigned to cache manager', E_USER_NOTICE);
+			return FALSE;
+		}
 
 		// If PHP has the memcache module installed, instantiate it and try to load some config.
 		$this->_memcache = new Memcache;
 
 		foreach ($services['cache_manager'] as $host_key => $weight) {
-			assert_true(array_key_exists($host_key, $hosts) === TRUE, 'Cannot use Memcache Cache Storage; host key "'.$host_key.'" assigned for use for cache manager but not defined as a host');
+			if (array_key_exists($host_key, $hosts) !== TRUE) {
+				trigger_error('Cannot use Memcache Cache Storage; host key "'.$host_key.'" assigned for use for cache manager but not defined as a host', E_USER_NOTICE);
+				return FALSE;
+			}
 			$host = $hosts[$host_key];
 			$this->_memcache->addServer($host['host'], $host['port'], $host['persistent'], $weight, $host['timeout'], $host['retry_interval'], $host['status'], Array($this, 'failureCallback'));
 		}
 
 		$this->_memcache->setCompressThreshold($memcache_conf['compression_threshold'], $memcache_conf['compression_min_saving']);
+
+		return TRUE;
 
 	}//end initMemcache()
 
@@ -379,6 +404,20 @@ class Cache_Storage_Memcache extends Cache_Storage
 		log_error(get_class()." failure communicating with $hostname:$port", E_USER_WARNING);
 
 	}//end failureCallback()
+
+
+	/**
+	* Returns TRUE if the cache storge configuration is valid
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isValid()
+	{
+		// If the cache storage object can be initialised, its all good
+		return $this->initMemcache();
+
+	}//end isValid()
 
 
 }//end class

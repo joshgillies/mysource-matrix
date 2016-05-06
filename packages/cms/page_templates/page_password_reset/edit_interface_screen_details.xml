@@ -54,5 +54,173 @@
 			<boolean true_text="Enable" false_text="Disable" />
 		</field>
 	</section>
-
+   <section name="CAPTCHA" write_access="write:attributes">
+        <field attribute="require_captcha">
+            <display_name>Require CAPTCHA</display_name>
+            <note>CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included for form submissions to be accepted.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="provide_accessible_captcha">
+            <display_name>Provide Accessible CAPTCHA</display_name>
+            <note>If this option is enabled, an interface will be provided for an accessible CAPTCHA which requires the input of an email address to provide a validation email.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="captcha_length">
+            <display_name>CAPTCHA Key Length</display_name>
+            <note>Number of characters in the CAPTCHA key</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_zoom">
+            <display_name>CAPTCHA Character Zoom</display_name>
+            <note>Each character will be randomly zoomed between x1 and this figure.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_link_text">
+            <display_name>CAPTCHA Regen Link Text</display_name>
+            <note>This text will appear when the %form_captcha_link% keyword is used.</note>
+            <text width="50" />
+        </field>
+        <field attribute="captcha_use_colours">
+            <display_name>Use CAPTCHA Colours</display_name>
+            <note>If this option is enabled, the CAPTCHA Background, Text and Border colours specified below will be used when rendering the CAPTCHA element.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="captcha_bgcolour">
+            <display_name>CAPTCHA Background Colour</display_name>
+            <note>This background colour is only used when the contents bodycopy is customised with captcha keywords.</note>
+            <colour />
+        </field>
+        <field attribute="captcha_textcolour">
+            <display_name>CAPTCHA Text Colour</display_name>
+            <note>This text colour is only used when the contents bodycopy is customised with captcha keywords.</note>
+            <colour />
+        </field>
+        <field attribute="captcha_bordercolour">
+            <display_name>CAPTCHA Border Colour</display_name>
+            <note>This border colour is only used when the contents bodycopy is customised with captcha keywords.</note>
+            <colour />
+        </field>
+        <field attribute="captcha_usefont">
+            <display_name>Use CAPTCHA Font</display_name>
+            <note>If this option is set to yes the CAPTCHA will use the true type font specified below rather than the default GD font. Using a CAPTCHA font gives you complete control over your CAPTCHA image.  This means that you must control the height and width of your CAPTCHA image as well as letter spacing.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field>
+            <display_name>CAPTCHA Font</display_name>
+            <note>Choose a font file on your current system to be used as the captcha font.</note>
+            <function_call>
+                <paint_function name="paintCaptchaFontField" />
+                <process_function name="processCaptchaFontField" />
+            </function_call>
+        </field>
+        <field attribute="captcha_font_size">
+            <display_name>CAPTCHA Font Size</display_name>
+            <note>This will be used in place of the zoom option when using true type fonts.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_width">
+            <display_name>CAPTCHA Width</display_name>
+            <note>The width of the CAPTCHA image.  Be sure to account for character angle, x-start and character spacing.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_height">
+            <display_name>CAPTCHA Height</display_name>
+            <note>The height of the CAPTCHA image.  This value to be slightly higher than your font size.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_min_angle">
+            <display_name>CAPTCHA Min Angle</display_name>
+            <note>The minimum angle that will be used for the CAPTCHA text.  This can also be a negative value.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_max_angle">
+            <display_name>CAPTCHA Max Angle</display_name>
+            <note>The maximum angle that will be used for the CAPTCHA text.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_x_start">
+            <display_name>CAPTCHA X Start</display_name>
+            <note>The x-position on the image where letters will begin to be drawn.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_min_distance">
+            <display_name>CAPTCHA Min Distance</display_name>
+            <note>The minimum distance between each character.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_max_distance">
+            <display_name>CAPTCHA Max Distance</display_name>
+            <note>The maximum distance between each character.</note>
+            <int width="5" />
+        </field>
+        <field attribute="captcha_arc">
+            <display_name>Use CAPTCHA Arc</display_name>
+            <note>If this option is set to yes the CAPTCHA will generate arced lines across text, adding an additional security measure. Please note that this item is available only when a &quot;CAPTCHA Font&quot; is specified.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="captcha_arc_colour">
+            <display_name>CAPTCHA Arc Colour</display_name>
+            <note>This value will change the CAPTCHA arc colour. Please note that this item is available only when a &quot;CAPTCHA Font&quot; is specified.</note>
+            <colour />
+        </field>
+        <field attribute="captcha_include_uppercase">
+            <display_name>Include Uppercase Letters in CAPTCHA Text</display_name>
+            <note>If this option is enabled, the generated CAPTCHA will contain at least one uppercase letter.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="captcha_include_numbers">
+            <display_name>Include Numbers in CAPTCHA Text</display_name>
+            <note>If this option is enabled, the generated CAPTCHA will contain at least one number.</note>
+            <boolean true_text="Yes" false_text="No" />
+        </field>
+        <field attribute="captcha_invalid_error_message">
+            <display_name>Captcha Invalid Error Message</display_name>
+            <note>Custom error message if CAPTCHA entered at current page is incorrect.</note>
+            <text width="50" height="1" />
+        </field>
+        <field attribute="captcha_label_text">
+            <display_name>Captcha Label Text</display_name>
+            <note>Customise the text of label for CAPTCHA input field.</note>
+            <text width="50" height="1" />
+        </field>
+    </section>
+    <section name="Google reCAPTCHA" write_access="write:attributes">
+        <field attribute="use_recaptcha">
+            <display_name>Use reCAPTCHA</display_name>
+            <note>If this option is set to 'yes', %form_recaptcha% keyword must be included in form content. API keys needs to be set in External Tools Configuration</note>
+            <boolean true_text="Yes" false_text="No"/>
+        </field>
+        <field attribute="recaptcha_theme">
+            <display_name>Theme</display_name>
+            <note>Standard theme to use for printing the reCAPTCHA box</note>
+            <selection style="list" />
+        </field>
+        <field attribute="recaptcha_error_message">
+            <display_name>Error Message</display_name>
+            <note>Error message to dispay if reCAPTCHA validation fails</note>
+            <text width="50" />
+        </field>
+    </section>
+    <section name="Spam Prevention: Honeypot Question" write_access="write:attributes">
+        <field attribute="honeypot_name">
+            <display_name>Field Name</display_name>
+            <note>Honeypot input field name. %form_honeypot_field% keyword needs to be included in form content to include the Honeypot question in the output</note>
+            <text width="20" />
+        </field>
+        <field attribute="honeypot_id">
+            <display_name>Field Id</display_name>
+            <note>Honeypot input field id</note>
+            <text width="20" />
+        </field>
+        <field attribute="honeypot_class">
+            <display_name>Field Class</display_name>
+            <note>Honeypot input field CSS class name</note>
+            <text width="20" />
+        </field>
+        <field attribute="honeypot_error_message">
+            <display_name>Error Message</display_name>
+            <note>Error message to display if the Honeypot validation fails</note>
+            <text width="50" />
+        </field>
+    </section>
 </contents>

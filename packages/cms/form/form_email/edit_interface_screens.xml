@@ -18,7 +18,7 @@
 <screens>
 	<screen code_name="contents"			display_name="Form Contents"		icon="web"	force_unlock="0" />
 	<screen code_name="actions" 			display_name="Submission Actions"	icon="web"	force_unlock="0" />
-	<screen code_name="recipient"			display_name="Email Options"		icon="web" />
+	<screen code_name="recipient"			display_name="Email Options"		icon="web" force_unlock="0" />
 	<screen code_name="selective_emails" 	display_name="Selective Emails"		icon="web"	force_unlock="0" />
 	<screen code_name="log" 				display_name="Submission Logs"		icon="web"	force_unlock="0" />
 	<screen code_name="incomplete"			display_name="Incomplete Submissions"	icon="web"	force_unlock="0" />

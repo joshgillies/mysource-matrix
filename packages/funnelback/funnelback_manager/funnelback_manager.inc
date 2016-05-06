@@ -48,6 +48,13 @@ class Funnelback_Manager extends Asset
 
 
 	/**
+	* Marking the asset deprecated since so that we can
+	* use it when warning the users on backend
+	*/
+	public $deprecated_message = '';
+
+
+	/**
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
@@ -57,6 +64,7 @@ class Funnelback_Manager extends Asset
 	{
 		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
+		$this->deprecated_message = translate('The Funnelback Indexing User setting has been moved to System Configuration.');
 
 	}//end constructor
 
@@ -793,7 +801,7 @@ class Funnelback_Manager extends Asset
 		$exclude_string = '';
 
 		// Compile a list of assets to list based on URL
-		foreach ($url as $index => $single_url) {
+		foreach (array_values($url) as $index => $single_url) {
 			if (!$is_site_asset) {
 				$suburl = substr($single_url, strpos($single_url, '://') + 3);
 				$root_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($suburl);
@@ -822,7 +830,7 @@ class Funnelback_Manager extends Asset
 		}//end foreach
 
 		// Compile a list of assets to be excluded based on URL
-		foreach ($excludes as $index => $exclude) {
+		foreach (array_values($excludes) as $index => $exclude) {
 			$excluded[] = 'f.url||\'/\' NOT LIKE :exclude'.$index.' OR f.url <> :exclude_asset'.$index;
 			$bind_vars['exclude'.$index] = rtrim($exclude, '/').'/%';
 			$bind_vars['exclude_asset'.$index] = rtrim($exclude, '/');

@@ -80,14 +80,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		if (!is_null($map_assetid) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($map_assetid)) {
 			return FALSE;
 		}
-
-		// check the optional settings, assign defaults
-		$is_dependant = array_get_index($settings, 'is_dependant', 0);
-		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
-		$value = array_get_index($settings, 'value', '');
-		// don't remove any link if the new one is not significant
-		$remove_other_links = array_get_index($settings, 'link_exclusively', 0) && ($settings['link_type'] & SQ_SC_LINK_SIGNIFICANT);
-
+		
 		if (empty($state['asset'])) {
 			// if we've been given the assetid but not the asset, get the asset
 			if (empty($state['assetid'])) {
@@ -96,6 +89,15 @@ class Trigger_Action_Create_Link extends Trigger_Action
 				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
+		if (is_null($state['asset'])) return FALSE;
+
+		// check the optional settings, assign defaults
+		$is_dependant = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
+		$value = array_get_index($settings, 'value', '');
+		$value = self::replaceKeywords($value, $state['asset']);
+		// don't remove any link if the new one is not significant
+		$remove_other_links = array_get_index($settings, 'link_exclusively', 0) && ($settings['link_type'] & SQ_SC_LINK_SIGNIFICANT);
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -276,7 +278,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 				label(translate('Unlink this asset from all its existing parents'), $prefix.'_link_exclusively');
 
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($link_exclusively ? 'tick' : 'cross').'.gif" />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($link_exclusively ? 'tick' : 'cross').'.png" />';
 				echo translate('Unlink this asset from all its existing parents');
 
 			}

@@ -70,6 +70,54 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
+	 * Paint the additional SOAP Header Fields
+	 *
+	 * @param $asset
+	 * @param $o
+	 * @param $prefix
+	 *
+	 * @return void
+	 * @access public
+	 */
+	function paintAdditionalSoapHeader(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+
+		$settings['additional_headers'] = $asset->attr('additional_headers');
+		SOAP_Common::paintAdditionalSOAPHeader($prefix.'_additional_soap_headers',$settings,false,$o,$wa);
+	}//end paintAdditionalSoapHeader()
+
+
+	/**
+	 * Process the additioanl SOAP Header Fields
+	 *
+	 * @param $asset
+	 * @param $o
+	 * @param $prefix
+	 *
+	 * @return bool
+	 * @access public
+	 */
+	function processAdditionalSoapHeader(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if (!$wa) {
+			return FALSE;
+		}
+
+		$settings['additional_headers'] = @unserialize($asset->attr('additional_headers'));
+
+		$success = FALSE;
+		if (Soap_Common::processAdditionalSOAPHeader($prefix, $settings, $o))
+			$success = $asset->setAttrValue('additional_headers',  $settings['additional_headers']);
+
+
+		return $success;
+
+	}
+
+
+	/**
 	* Paint the Soap service address field
 	*
 	* @param object	&$asset	the asset to which we belong

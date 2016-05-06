@@ -49,6 +49,31 @@ class Google_Analytics_Connector_Edit_Fns extends OAuth2_Token_Edit_Fns
 	 *
 	 * @return boolean
 	 */
+	public function paintGoogleAccount(Google_Analytics_Connector $asset, Backend_Outputter $o, $prefix)
+	{
+		$access_token = $asset->attr('global_access_token');
+		if (empty($access_token) === TRUE) {
+			echo translate('None');
+			return FALSE;
+		}
+
+		$accSummary = $asset->getAccountSummary();
+		echo $accSummary['username'];
+
+		return FALSE;
+
+	}//end paintGoogleAccount()
+
+
+	/**
+	 * Paints a list of views and a method to create a view.
+	 *
+	 * @param Google_Analytics_Connector $asset  The asset being painted.
+	 * @param Backend_Outputter       $o      The relevant outputter.
+	 * @param string                  $prefix The prefix for form elements.
+	 *
+	 * @return boolean
+	 */
 	public function paintViewList(Google_Analytics_Connector $asset, Backend_Outputter $o, $prefix)
 	{
 		$access_token = $asset->attr('global_access_token');

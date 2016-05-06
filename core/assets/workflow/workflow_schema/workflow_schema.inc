@@ -260,6 +260,19 @@ class Workflow_Schema extends Folder
 	}//end delete()
 
 
+	/**
+	* If the asset supports System Version mode (Safe Edit status)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function supportsSystemVersion()
+	{
+		return FALSE;
+
+	}//end supportsSystemVersion()
+
+
 }//end class
 
 ?>

@@ -150,6 +150,93 @@ class Form_Section extends Asset implements Bridge
 	}//end _getAllowedLinks()
 
 
+	/**
+	* Save a copy of this asset at this point in time
+	*
+	* This copy gets used when the asset is live and the user does not have write access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveSystemVersion()
+	{
+		// let parents do the copying of the files first
+		if (!parent::saveSystemVersion() || !is_file($this->data_path.'/.sq_system/content_file.php')) {
+			return FALSE;
+		}
+
+		// Save the sections linked directly to this sections, if any
+		$section_links = $this->getSectionLinks();
+		$links_data = is_array($section_links) ? serialize($section_links) : serialize(Array());
+		if (file_put_contents($this->data_path.'/.sq_system/before_section_links', $links_data) === FALSE) {
+			return FALSE;
+		}
+		if (file_put_contents($this->data_path.'/.sq_system/after_section_links', $links_data) === FALSE) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end saveSystemVersion()
+
+
+	/**
+	* Replace the editing version with the system (live) version
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function revertToSystemVersion()
+	{
+		// Revert the sections added to the form in safe edit
+		if (is_file($this->data_path.'/.sq_system/before_section_links') && is_file($this->data_path.'/.sq_system/after_section_links')) {
+			// Validate the system version files
+			$after_links = @unserialize(file_get_contents($this->data_path.'/.sq_system/after_section_links'));
+			if (!is_array($after_links)) {
+				trigger_error(sprintf(translate('System version file %1$s for Form Section asset #%2$s holding the "after" section links info does not contains expected data.'), $this->data_path.'/.sq_system/after_section_links',  $this->id), E_USER_WARNING);
+			}
+			$before_links = @unserialize(file_get_contents($this->data_path.'/.sq_system/before_section_links'));
+			if (!is_array($after_links)) {
+				trigger_error(sprintf(translate('System version file %1$s for Form Section asset #%2$s holding the "before" section links info does not contains expected data.'), $this->data_path.'/.sq_system/before_section_links',  $this->id), E_USER_WARNING);
+			}
+
+			// NOTE: Sections can be added in safe edit mode, but cannot be deleted
+			if (is_array($after_links) && is_array($before_links)) {
+				foreach($after_links as $after_link) {
+					if (isset($after_link['minorid']) && isset($after_link['minorid'])) {
+						$live_version_link = FALSE;
+						foreach($before_links as $before_link) {
+							if (isset($before_link['minorid']) && isset($before_link['minorid'])) {
+								if ($after_link['minorid'] == $before_link['minorid']) {
+									// The section was there before we went safe edit
+									$live_version_link = TRUE;
+									break;
+								}
+							}//end if
+						}//end foreach before_links
+
+						// This link was added in safe edit, hence needs to go
+						if (!$live_version_link) {
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+								$this->deleteLink($after_link['linkid']);
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						}
+
+					}//end if
+				}//end foreach after links
+			}//end if
+		}//end if
+
+		// Clear the links info files
+		unlink($this->data_path.'/.sq_system/before_section_links');
+		unlink($this->data_path.'/.sq_system/after_section_links');
+
+		// let asset.inc copy across the file back from .sq_system dir
+		parent::revertToSystemVersion();
+
+		return TRUE;
+
+	}//end revertToSystemVersion()
 
 	/**
 	* Prepares for linking by checking that the link values are valid for this link
@@ -1176,27 +1263,37 @@ class Form_Section extends Asset implements Bridge
 	*/
 	function getSectionLinks()
 	{
-		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
-		// lest we spin off into an infinite loop involving OUR &getAsset().
-		$value = Array(
-					'link_value' 	=> Array(''),
-					'equal' 		=> TRUE,
-				 );
-		$sql_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', $value, '1', '0');
-		if (empty($sql_query)) return Array();
-		$sql_query['sql_array']['select'] .= ', l.majorid';		// we need the major id too
-		$db = MatrixDAL::getDb();
+		$result = Array();
 
-		try {
-			$sql = implode(' ', $sql_query['sql_array']);
-			$query = MatrixDAL::preparePdoQuery($sql);
-			foreach ($sql_query['bind_vars'] as $bind_var => $bind_value) {
-				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+		if ($this->useSystemVersion()) {
+			$safe_edit_links_file = $this->data_path.'/before_section_links';
+			if (is_file($safe_edit_links_file)) {
+				$links = @unserialize(file_get_contents($safe_edit_links_file));
 			}
-			$result = MatrixDAL::executePdoAssoc($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to get section links attached to form_section: '.$this->id.' due to database error: '.$e->getMessage());
+		} else {
+			// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
+			// lest we spin off into an infinite loop involving OUR &getAsset().
+			$value = Array(
+						'link_value' 	=> Array(''),
+						'equal' 		=> TRUE,
+					 );
+			$sql_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', $value, '1', '0');
+			if (empty($sql_query)) return Array();
+			$sql_query['sql_array']['select'] .= ', l.majorid';		// we need the major id too
+			$db = MatrixDAL::getDb();
+
+			try {
+				$sql = implode(' ', $sql_query['sql_array']);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				foreach ($sql_query['bind_vars'] as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
+				$result = MatrixDAL::executePdoAssoc($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get section links attached to form_section: '.$this->id.' due to database error: '.$e->getMessage());
+			}
 		}
+
 		return $result;
 
 	}//end getSectionLinks()
@@ -1240,6 +1337,10 @@ class Form_Section extends Asset implements Bridge
 	*/
 	function printBody(Form $form)
 	{
+		if (!$this->readAccess()) {
+			return;
+		}
+
 		// if format bodycopy enabled, print with that, otherwise print default
 		if ($this->isFormatBodycopyEnabled()) {
 			$this->printCustomFormat($form);
@@ -1253,13 +1354,16 @@ class Form_Section extends Asset implements Bridge
 	/**
 	* Paints the form section using a default bodycopy
 	*
-	* @param Form		$form				The form we are printing from
+	* @param Form		$form			The form we are printing from
 	*
 	* @return void
 	* @access private
 	*/
 	function printDefaultFormat(Form $form)
 	{
+		// Allows error messages to be displayed when using section_contents keyword
+		$form_asset = $form;
+		
 		include $this->data_path.'/content_file.php';
 
 	}//end printCustomFormat()

@@ -150,7 +150,7 @@ class Squiz_Server_Config extends Config
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', true);
+		if ($write_access) $o->commitButton('', FALSE);
 
 
 	}//end paintBackend()

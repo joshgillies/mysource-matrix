@@ -313,7 +313,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL)
+	function paintInlineValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL, $type_code_prefix=FALSE)
 	{
 		$complete = $this->requiredFieldsComplete($asset, $value_str);
 		// set field header to friendly_name if it is not empty
@@ -328,15 +328,22 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		// use description as the note for this field
+		// Use description as the note for this field
 		$o->openField($field_name, '');
-		$writable = $write_access && $asset->attr('editable');
-		$res = $this->paintValueInterface($asset, $o, $value_str, $writable, TRUE, $print_cascade_values_option, $type_code);
-		if (!$write_access && $asset->attr('required') && !$complete) {
-			echo '<b class="sq-backend-warning">['.strtoupper(translate('Empty')).']</b>';
 
+		if (!$asset->isFieldOnRestrictedSection($type_code)) {
+			$writable = $write_access && $asset->attr('editable');
+			$type_code = $type_code_prefix ? $type_code : NULL;
+			$res = $this->paintValueInterface($asset, $o, $value_str, $writable, TRUE, $print_cascade_values_option, $type_code);
+			if (!$write_access && $asset->attr('required') && !$complete) {
+				echo '<b class="sq-backend-warning">['.strtoupper(translate('Empty')).']</b>';
+			}
+			echo '<div class="sq-backend-smallprint sq-metadata-description">'.$asset->attr('description').'</div>';
+		} else {
+			$res = TRUE;
+			echo '<div class="sq-backend-note">'.translate('NOTE: This metadata field is not editable as it is also linked under a metadata section that is restricted for this asset type.').'</div>';
 		}
-		echo '<div class="sq-backend-smallprint sq-metadata-description">'.$asset->attr('description').'</div>';
+
 		$o->closeField();
 		return $res;
 
@@ -402,12 +409,19 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->attr('required')) return TRUE;
 
 		if (is_null($value_str)) {
-			$value = $asset->attr('default');
-			$value_components = $asset->attr('value_components');
+			// fix to allow the defualt html value for wysiwyg metadata fields to be
+			// seen as a valid non empty value when field is required. Squizmap #8141
+			if ($asset->type() === 'metadata_field_wysiwyg') {
+				$value = $asset->attr('default_html');
+				$value_components = $asset->attr('value_components');
+			} else {
+				$value = $asset->attr('default');
+				$value_components = $asset->attr('value_components');
+			}
 		} else {
 			$value='';
 			$value_components = $asset->attr('value_components');
-			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+			call_user_func_array(Array(get_class($asset), 'decodeValueString'), Array($value_str, &$value, &$value_components));
 		}
 
 		if (trim($value) != '') return TRUE;
@@ -430,11 +444,12 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*									NULL means that there is no current value set
 	* @param array			&$tag_value	the metadata tag value
 	* @param array			&$keywords	an array we can put keywords in that need replacing
+	* @param boolean 		$content_file   Whether the generated metadata will be included in a metadata content file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(Metadata_Field $asset, $value_str, &$tag_value, Array &$keywords)
+	function generateMetadata(Metadata_Field $asset, $value_str, &$tag_value, Array &$keywords, $content_file=TRUE)
 	{
 		// No name means we can't reference a value from the metadata array,
 		// so we would be writing meta tags with PHP errors in them.
@@ -451,11 +466,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (is_null($value_str)) {
 			$value = $asset->attr('default');
 			$value_components = $asset->attr('value_components');
-			$value_str = Metadata_Field::encodeValueString($value, $value_components);
+			$value_str = call_user_func_array(Array(get_class($asset), 'encodeValueString'), Array($value, $value_components));
 		} else {
-			$value='';
+			$value = '';
 			$value_components = $asset->attr('value_components');
-			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+			call_user_func_array(Array(get_class($asset), 'decodeValueString'), Array($value_str, &$value, &$value_components));
 		}
 
 		$keywords = array_merge($keywords, retrieve_keywords_replacements($value_str, '.'));
@@ -487,8 +502,14 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			echo ' scheme="'.$mm->escapeMetadata($asset->attr('scheme')).'"';
 		}
 
-		echo ' '.$value_text.'="<?php echo $mm->escapeMetadata($metadata_values[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\']); foreach ($metadata_value_components[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\'] as $k => $v) {echo \'; \'.$k.\'=\'.$v; } ?>" />'."\n";
-
+		if ($content_file) {
+			echo ' '.$value_text.'="<'.'?php echo $mm->escapeMetadata($metadata_values[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\']); foreach ($metadata_value_components[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\'] as $k => $v) {echo \'; \'.$k.\'=\'.$v; } ?'.'>" />'."\n";
+		} else {
+			// Since we are generating metadata for direct output insteat of metadata content file, we use "keyword replacement" here instead of php code
+			// This keyword will be replaced by metadata manager after the keywords evaluation (if any) in the metadata values
+			// @see Metadata_Manager::getAssetMetadataFromDb()
+			echo ' '.$value_text.'="%meta_value_'.$asset->name.'%" />'."\n";
+		}
 
 		return TRUE;
 
@@ -531,6 +552,54 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		}
 
 	}//end isNotContextableField()
+
+
+	/**
+	* Display the Field Name
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintFieldNameComponents(Metadata_Field $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc'; 
+			preg_text_box($prefix.'_edit', $asset->attr('name'), 30, '/[^a-z0-9\-\_\.]/i');
+		} else {
+			echo htmlspecialchars($asset->attr('name'));
+		}
+
+		return $write_access;
+		
+	}// end paintFieldNameComponents()
+
+	
+	/**
+	* Process the field name after com
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processFieldNameComponents(Metadata_Field $asset, Backend_Outputter $o, $prefix) 
+	{
+		if (!isset($_POST[$prefix.'_edit'])) return FALSE;
+		
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		
+		return $asset->setAttrValue('name', $_POST[$prefix.'_edit']);
+
+	}// end processFieldNameComponents()
 
 }//end class
 

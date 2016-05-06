@@ -223,7 +223,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			check_box($prefix.'_use_post_office_header', TRUE, $use_post_office_header);
 		} else {
 			?>
-				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_post_office_header ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_post_office_header ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 			<?php
 		}
 		$post_office = $asset->getPostOffice();

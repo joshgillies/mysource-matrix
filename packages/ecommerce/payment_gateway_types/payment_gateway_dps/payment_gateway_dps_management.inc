@@ -244,25 +244,31 @@ class Payment_Gateway_Dps_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
+						'extra_options'		=> Array(
+											'added'		=> '0.5',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'transaction_type'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'selection',
+													'default'		=> 'Purchase',
+													'description'	=> 'TxnType',
+													'parameters'	=> Array(
+																		'multiple'		=> FALSE,
+																		'allow_empty'	=> FALSE,
+																		'options'		=> Array(
+																							'Purchase'	=> 'Purchase',
+																							'Auth'	=> 'Auth',
+																							'Complete'	=> 'Complete',
+																							'Refund'	=> 'Refund',
+																							'Validate'	=> 'Validate',
+																						   ),
+																	   ),
+												   ),
 					  );
 
 	}//end constructor
-
-
-	/**
-	* Gets a list of all files
-	*
-	* @return array
-	* @access private
-	*/
-	function _getFileList()
-	{
-		return Array(
-				'files/loader.js',
-				'files/loader.gif',
-			   );
-
-	}//end _getFileList()
 
 
 	/**

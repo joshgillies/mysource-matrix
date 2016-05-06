@@ -132,6 +132,9 @@ class Js_Api_Enhanced_Function_List
 		}// end if
 
 		self.key = options.key;
+
+		self.nonceToken = '';
+
 	};// end construct
 
 
@@ -179,7 +182,9 @@ class Js_Api_Enhanced_Function_List
 				var dataArr = {};
 
 				for (var i = 0, l = params.length; i < l; i+=1) {
-					dataArr[params[i][0]] = params[i][1];
+					if(params[i]) {
+						dataArr[params[i][0]] = params[i][1];
+					}
 				}// end for
 				return JSON.stringify(dataArr);
 
@@ -389,6 +394,43 @@ class Js_Api_Enhanced_Function_List
 			],options);
 
 		},// end getChildCount
+		
+		
+		/**
+		* Gets WYSIWYG and Div style classes defined by the frontend design
+		*
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      asset_id:		string/int	Id of the asset we are getting info for
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		getDesignStyleClasses: function(options)
+		{
+			var fnName = 'getDesignStyleClasses';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						asset_id:           null,
+						dataCallback:       function(){}
+					},
+
+					// Set the required arguments
+					required: ['asset_id']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+			this._doPost(fnName,[
+				['id', options.asset_id],
+			],options);
+
+		},// end designStyleClasses
 
 			<?php
 		}// end if(get_general)
@@ -673,18 +715,8 @@ class Js_Api_Enhanced_Function_List
 			var fnConfig = this[fnName].call(this);
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
 
-			var field_names = [];
-			var field_vals  = [];
-			for (var field_name in options.field_info) {
-				if (options.field_info.hasOwnProperty(field_name)){
-					field_names.push(field_name);
-					field_vals.push(options.field_info[field_name]);
-				}// end if
-			}// end of
-
 			this._doPost(fnName,[
-				['attr_name',field_names.join('\\,')],
-				['attr_val',field_vals.join('\\,')],
+				['field_info',options.field_info],
 				['id',options.asset_id]
 			],options);
 
@@ -1074,6 +1106,66 @@ class Js_Api_Enhanced_Function_List
 			],options);
 
 		},// end getPermissions
+
+			<?php
+		}//
+		
+		if ($js_api_asset->attr('set_permission')) {
+			?>
+
+		/**
+		* Set the given user/user group permission on the given asset
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      asset_id:			string/int	Id of the asset to set permissions for
+		*      user_ids:			array		Id(s) of user/user group apply permission to		
+		*      granted:				int			Permission type (1=GRANT 0=DENY -1=REVOKE)
+		*      level:				int			Permission level (1=READ 2=WRITE 3=ADMIN). Default 1
+		*      cascades:			boolean		Whether to automatically cascade permission to the newly created child assets. Default true
+		*      dependants_only:		boolean		Whether apply permission changes to dependant assets only. Default true
+		*      dependant_parents:	boolean		Whether apply permission changes to dependant parents instead. Default false
+		*      dataCallback:		function	Custom callback function
+		* }
+		*/
+		setPermission: function(options)
+		{
+			var fnName = 'setPermission';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						asset_id:			null,
+						user_ids:			null,
+						level:				1,
+						granted:			null,
+						cascades:			true,
+						dependants_only:	true,
+						dependant_parents:	false,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['asset_id', 'user_ids', 'granted']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+				['id', options.asset_id],
+				['user_ids', options.user_ids],
+				['level', options.level],
+				['granted', options.granted],
+				['cascades', options.cascades],
+				['dependants_only', options.dependants_only],
+				['dependant_parents', options.dependant_parents]
+			],options);
+
+		},// end setPermission
 
 			<?php
 		}//
@@ -1857,6 +1949,7 @@ class Js_Api_Enhanced_Function_List
 					defaults: {
 						asset_id:           null,
 						levels:             0,
+						link_types:			1,
 						dataCallback:       function(){}
 					},
 
@@ -1872,7 +1965,8 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
-				['levels', options.levels]
+				['levels', options.levels],
+				['link_types', options.link_types]
 			],options);
 
 		},// end getAssetTree
@@ -1902,6 +1996,7 @@ class Js_Api_Enhanced_Function_List
 					defaults: {
 						asset_id:           null,
 						keywords_array:     [],
+						null_if_empty:      false,
 						dataCallback:       function(){}
 					},
 
@@ -1923,7 +2018,8 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
-				['keywords', options.keywords_array.join('\\,')]
+				['keywords', options.keywords_array.join('\\,')],
+				['null_if_empty', options.null_if_empty]
 			],options);
 
 		},// end getKeywordsReplacements
@@ -2175,6 +2271,49 @@ class Js_Api_Enhanced_Function_List
 
 		},// end setContentOfEditableFileAsset
 
+
+		/**
+		* This function will let user edit content of File type assets
+		* User needs to acquire locks before being able to edit the file
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      asset_id:		string/int	Id of the asset to update content for
+		*      content:			string		New base64 encoded content for the File asset
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		updateFileAssetContent: function(options)
+		{
+			var fnName = 'updateFileAssetContent';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						asset_id:           null,
+						content:            'no_value_provided',
+						dataCallback:       function(){}
+					},
+
+					// Set the required arguments
+					required: ['asset_id','content']
+					};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			options.content = escape(options.content);
+
+			this._doPost(fnName,[
+				['id', options.asset_id],
+				['content', options.content]
+			],options);
+
+		},// end updateFileAssetContent
+
 			<?php
 		}//end if(set_file_content)
 
@@ -2356,6 +2495,7 @@ class Js_Api_Enhanced_Function_List
 		* {
 		*      asset_id:		string/int	asset under which the assets are to be imported under
 		*      new_parent		string/int	assetid of the parent to clone under
+		*      clone_name		string		number of clones to create under new parent (default is 1)
 		*      clone_num		int			number of clones to create under new parent (default is 1)
 		*      new_position		int			position to place the newly cloned asset at (default at the bottom)
 		*      link_type		string		type of links we want to create for cloned asset (default is SQ_LINK_TYPE_1)
@@ -2373,6 +2513,7 @@ class Js_Api_Enhanced_Function_List
 					defaults: {
 						asset_id:           null,
 						new_parent:         null,
+						clone_name:         '',
 						clone_num:          1,
 						new_position:       -1,
 						link_type:          'SQ_LINK_TYPE_1',
@@ -2393,6 +2534,7 @@ class Js_Api_Enhanced_Function_List
 			this._doPost(fnName,[
 					['id', options.asset_id],
 					['new_parent', options.new_parent],
+					['new_name', options.new_name],
 					['clone_num', options.clone_num],
 					['new_position', options.new_position],
 					['link_type', options.link_type],
@@ -3016,6 +3158,7 @@ class Js_Api_Enhanced_Function_List
 		* - either duration or start_date is required but not both
 		* - dimensions are required even if empty; no more than 7 allowed
 	    * - metrics are required and must be between 1 and 10 of them
+		* - if a canned_query is provided, dimensions/metrics are ignored
 		*
 		* Defaults:
 		* - request.end_date defaults to today's date if omitted
@@ -3052,6 +3195,7 @@ class Js_Api_Enhanced_Function_List
 					// Set the default values
 					defaults: {
 						assetid:		null,
+						canned_query:   null,
 						dimensions:     null,
 						metrics:        null,
 						duration:       null,
@@ -3059,12 +3203,13 @@ class Js_Api_Enhanced_Function_List
 						end_date:       null,
 						sort_by:        null,
 						filter:         null,
+						segment:		null,
 						force_cache:    false,
 						dataCallback:	function(){}
 					},
 
 					// Set the required arguments
-					required: ['assetid', 'metrics']
+					required: ['assetid']
 				};
 			}// end if
 
@@ -3081,6 +3226,7 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 					['id', options.assetid],
+					['canned_query', options.canned_query],
 					['dimensions', options.dimensions],
 					['metrics', options.metrics],
 					['duration', options.duration],
@@ -3088,6 +3234,7 @@ class Js_Api_Enhanced_Function_List
 					['end_date', options.end_date],
 					['sort_by', options.sort_by],
 					['filter', options.filter],
+					['segment', options.segment],
 					['force_cache', options.force_cache]
 			],options);
 
@@ -3096,6 +3243,102 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}//end if(get_ga_statistics)
+
+
+		if ($js_api_asset->attr('get_ga_goals')) {
+			?>
+
+		/**
+		* Makes a request for the experiments attached to a profile.
+		*
+		* @param {Object} options                       Request info.
+		* @param {String} options.assetid               The ID of the asset
+		* @param {Function} options.dataCallback        Custom callback function.
+		*/
+		getGoogleAnalyticsGoals: function(options)
+		{
+			var fnName = 'getGoogleAnalyticsGoals';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid']
+				};
+			}// end if
+
+			if (options.id !== null && typeof(options.id) !== "undefined") {
+				options.assetid = options.id;
+			} else if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid]
+			],options);
+
+		},// end getGoogleAnalyticsGoals
+
+
+			<?php
+		}//end if(get_ga_goals)
+
+
+		if ($js_api_asset->attr('get_ga_experiments')) {
+			?>
+
+		/**
+		* Makes a request for the experiments attached to a profile.
+		*
+		* @param {Object} options                       Request info.
+		* @param {String} options.assetid               The ID of the asset
+		* @param {Function} options.dataCallback        Custom callback function.
+		*/
+		getGoogleAnalyticsExperiments: function(options)
+		{
+			var fnName = 'getGoogleAnalyticsExperiments';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid']
+				};
+			}// end if
+
+			if (options.id !== null && typeof(options.id) !== "undefined") {
+				options.assetid = options.id;
+			} else if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid]
+			],options);
+
+		},// end getGoogleAnalyticsExperiments
+
+
+			<?php
+		}//end if(get_ga_experiments)
 
 
 		if ($js_api_asset->attr('get_system_information')) {
@@ -3126,10 +3369,144 @@ class Js_Api_Enhanced_Function_List
 
 		},// end getSystemInformation
 
-
 			<?php
 		}//end if(get_system_information)
 
+
+		if ($js_api_asset->attr('validate_user')) {
+			?>
+
+		/**
+		* Validates the user and optionally returns the usergroup it belongs to
+		*
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      username:		string		Username to validate
+		*      get_groups:		boolean		Set this to 1 to also return the user groups the user belongs to
+		*									if the user is found. Returns 0 if the user isn't valid
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		validateActiveUser: function(options)
+		{
+			var fnName = 'validateActiveUser';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						username:		null,
+						get_groups:		false,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['username']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			options.get_groups = (convertToBoolean(options.get_groups)) ? 1 : 0;
+
+			this._doPost(fnName,[
+				['username', options.username],
+				['get_groups', options.get_groups],
+			],options);
+
+		},// end validateActiveUser
+
+
+			<?php
+		}//end if(validate_user)
+
+
+		if ($js_api_asset->attr('get_indexing_contents')) {
+			?>
+
+		/**
+		* Makes a request for the experiments attached to a profile.
+		*
+		* @param {Object} options                       Request info.
+		* @param {String} options.assetid               The ID of the asset
+		* @param {Function} options.dataCallback        Custom callback function.
+		*/
+		getFileIndexingComponents: function(options)
+		{
+			var fnName = 'getFileIndexingComponents';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						asset_urls:		[],
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['asset_urls']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['asset_urls', options.asset_urls]
+			],options);
+
+		},// end getFileIndexingComponents 
+
+		<?php
+
+		}//end if (get_indexing_contents)
+
+		if ($js_api_asset->attr('morph_asset')) {
+			?>
+
+		/**
+		* Makes a request for the experiments attached to a profile.
+		*
+		* @param {Object} options                       Request info.
+		* @param {String} options.assetid               The ID of the asset
+		* @param {Function} options.dataCallback        Custom callback function.
+		*/
+		morphAsset: function(options)
+		{
+			var fnName = 'morphAsset';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						asset_id:	null,
+						new_type_code: null,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['asset_id', 'new_type_code']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.asset_id],
+					['new_type_code', options.new_type_code]
+			],options);
+
+		},// end morphAsset
+
+		<?php
+
+		}//end if (morph_asset)
 
 		?>
 
@@ -3142,17 +3519,57 @@ class Js_Api_Enhanced_Function_List
 
 			// Add the 'type' parameter for as the calling function name
 			data.push(['type',fnName]);
-			// Add nonce token
-			data.push(['nonce_token','<?php echo ($nonce_token);?>']);
-			self._http({
-				params: data,
-				onSuccess: function(json) {
-					// Every function should have a dataCallback argument
-					if (options.hasOwnProperty('dataCallback')) {
-						options.dataCallback.call(this,json);
-					}// end if
+
+            // append nonce token
+            if(!self.nonceToken) {
+                var tokenElem = document.getElementById('token');
+                if (tokenElem) {
+                    self.nonceToken = tokenElem.value;
+                }
+            }
+
+			if (self.nonceToken) {
+				data.push(['nonce_token', self.nonceToken]);
+				self._http({
+					params: data,
+					onSuccess: function(json) {
+						// Every function should have a dataCallback argument
+						if (options.hasOwnProperty('dataCallback')) {
+							options.dataCallback.call(this,json);
+						}// end if
+					}
+				});
+			}
+			else {
+				var xmlhttp;
+				if (window.XMLHttpRequest)
+				  {// code for IE7+, Firefox, Chrome, Opera, Safari
+				  xmlhttp=new XMLHttpRequest();
+				  }
+				else
+				  {// code for IE6, IE5
+				  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+				  }
+				xmlhttp.onreadystatechange=function()
+				  {
+				  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+				    {
+				    	self.nonceToken = xmlhttp.responseText;
+				    	data.push(['nonce_token', self.nonceToken]);
+						self._http({
+							params: data,
+							onSuccess: function(json) {
+								// Every function should have a dataCallback argument
+								if (options.hasOwnProperty('dataCallback')) {
+									options.dataCallback.call(this,json);
+								}// end if
+							}
+						});
+				    }
 				}
-			});
+				xmlhttp.open("GET","<?php echo $api_url; ?>" + "?SQ_ACTION=getToken",true);
+				xmlhttp.send();
+			}
 
 		}// end _doPost
 

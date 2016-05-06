@@ -1,0 +1,106 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ABN 77 084 670 600                                                 |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field attribute="name">
+		<display_name>Page Name</display_name>
+			<note />
+			<text width="35" />
+		</field>
+		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
+			<text width="25" />
+		</field>
+	</section>
+	<section name="Payflow Account Details" write_access="write:attributes">
+		<field attribute="merchant_id">
+			<display_name>Merchant ID</display_name>
+			<note>Merchant ID of the Braintree account.</note>
+			<text width="30" />
+		</field>
+		<field attribute="public_key">
+			<display_name>Public Key</display_name>
+			<note>Public key of the Braintree account.</note>
+			<text width="50" />
+		</field>
+		<field attribute="private_key">
+		<display_name>Private Key</display_name>
+			<note>Private key of the Braintree account.</note>
+			<text width="50" />
+		</field>
+		<field attribute="merchant_account_id">
+			<display_name>Merchant Account ID</display_name>
+			<note>Merchant account ID to use for the transaction.</note>
+			<text width="50" />
+		</field>
+	</section>
+	<section name="Card Verification" write_access="write:attributes">
+		<field attribute="verify_card">
+			<display_name>Enable AVS</display_name>
+			<note>If enabled, card holder billing address info is required when submitting the payment request to Braintree. Not applicable with using 'Drop-in' payment form.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+	</section>
+	<section name="Test Mode" write_access="write:attributes">
+		<field attribute="test_mode">
+			<display_name>Enable Test Mode</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+	</section>
+	<section name="Pass through Variables" write_access="write:attributes">
+		<field attribute="first_name_var_name">
+		<display_name>First Name Variable Name</display_name>
+			<note>Name of the pass through variable for the First Name of the Billing Address.</note>
+			<text width="30" />
+		</field>
+		<field attribute="last_name_var_name">
+			<display_name>Last Name Variable Name</display_name>
+			<note>Name of the pass through variable for the Last Name of the Billing Address.</note>
+			<text width="30" />
+		</field>
+		<field attribute="street_var_name">
+			<display_name>Street Address Variable Name</display_name>
+			<note>Name of the pass through variable for the Street Address of the Billing Address.</note>
+			<text width="30" />
+		</field>
+		<field attribute="postcode_var_name">
+			<display_name>Postcode Variable Name</display_name>
+			<note>Name of the pass through variable for the Postcode of the Billing Address.</note>
+			<text width="30" />
+		</field>
+		<field attribute="country_var_name">
+			<display_name>Country Variable Name</display_name>
+			<note>Name of the pass through variable for the Country of the Billing Address. Country value needs to be in Alpha 2 Code format.</note>
+			<text width="30" />
+		</field>
+	</section>
+	<section name="Interface Options" write_access="write:attributes">
+		<field attribute="submit_text">
+			<display_name>Submit Button Text</display_name>
+			<text width="35" />
+		</field>
+		<field attribute="reset_text">
+			<display_name>Reset Button Text</display_name>
+			<text width="35" />
+		</field>
+		<field attribute="cancel_text">
+			<display_name>Cancel Button Text</display_name>
+			<text width="35" />
+		</field>
+	</section>
+</contents>

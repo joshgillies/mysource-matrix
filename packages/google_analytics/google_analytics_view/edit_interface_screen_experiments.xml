@@ -16,7 +16,12 @@
 -->
 
 <contents>
-	<section name="Content Experiments" write_access="root:none">
+	<section name="View Not Connected" write_access="root:none" show_if="showIfNotConnected">
+	    <function_call>
+	        <paint_function name="paintViewNotConnected" />
+	    </function_call>
+	</section>
+	<section name="Content Experiments" write_access="root:none" show_if="showIfConnected">
 	    <function_call>
 	        <paint_function name="paintExperimentsReport" />
 	    </function_call>

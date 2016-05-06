@@ -90,9 +90,11 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function allowsMetadata($assetid)
 	{
-		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_null($asset)) return FALSE;
-		$edit_fns = $asset->getEditFns();
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid);
+		if (empty($asset_info)) return FALSE;
+		$type_code  = $asset_info[$assetid]['type_code'];
+		$edit_fns   = $GLOBALS['SQ_SYSTEM']->am->getEditFns(0, $type_code);
+
 		return isset($edit_fns->static_screens['metadata']);
 
 	}//end allowsMetadata()
@@ -254,6 +256,12 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function setSchema($assetid, $schemaid, $granted, $cascades=TRUE, $force_set=FALSE)
 	{
+		// Shadow assets automatically inherit the parent bridge's metadata schema
+		// So don't apply metadata schema to the shadow assets seperately
+		if (strpos($assetid, ':') !== FALSE) {
+			return TRUE;
+		}
+
 		$db_action = 'insert';
 		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
@@ -352,6 +360,9 @@ class Metadata_Manager extends MySource_Object
 		} catch (Exception $e) {
 				throw new Exception('Unable to '.$message.' metadata schema id #'.$schemaid.' on assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 		}//end try catch
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		if ($granted) {
 			//TODO:
@@ -375,8 +386,6 @@ class Metadata_Manager extends MySource_Object
 			}
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$ms->closeLog();
 
 		return TRUE;
@@ -389,12 +398,19 @@ class Metadata_Manager extends MySource_Object
 	*
 	* @param string	$assetid	the ID of the asset to delete the schema from
 	* @param string	$schemaid	the ID of the schema to delete
+	* @param bool	$delete_values	should we delete metadata values
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteSchema($assetid, $schemaid)
+	function deleteSchema($assetid, $schemaid, $delete_values=TRUE)
 	{
+		// Shadow assets automatically inherit the parent bridge's metadata schema
+		// So no point in deleting metadata schema for the shadow assets
+		if (strpos($assetid, ':') !== FALSE) {
+			return TRUE;
+		}
+
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0036', sprintf(translate('Failed deleting metadata schema, Asset #%s does not exist'), $assetid), E_USER_WARNING);
@@ -437,7 +453,10 @@ class Metadata_Manager extends MySource_Object
 			throw new Exception('Unable to delete schemaid #'.$schemaid.' on assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 		}//end try catch
 
-		$this->_cleanupMetadataValues($assetid);
+		if($delete_values) {
+			$this->_cleanupMetadataValues($assetid);
+		}
+
 		//TODO:
 		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 		foreach ($all_contexts as $all_contextid => $context_data) {
@@ -757,6 +776,7 @@ class Metadata_Manager extends MySource_Object
 
 	/**
 	 * Load metadata values, principally from $metadata_filename
+	 * For shadow assets get metadata values directly from the db
 	 *
 	 * @param string $assetid
 	 * @param string $metadata_filename
@@ -764,29 +784,371 @@ class Metadata_Manager extends MySource_Object
 	 * @return Array
 	 * @access public
 	 */
-	function loadMetadataFile($assetid, $metadata_filename)
+	function loadMetadataFile($assetid, $metadata_filename='')
 	{
 		$metadata  = Array();
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
-		// Disable OPCache so that we can get the updated metadata file
-		if (!empty($_POST['process_form']) && ini_get('opcache.enable')) {
-			ini_set('opcache.enable', '0');
+		if (strpos($assetid, ':') !== FALSE) {
+			$metadata = $this->getAssetMetadataFromDb($assetid, $contextid);
+		} else if ($metadata_filename) {
+			// Disable OPCache so that we can get the updated metadata file
+			if (!empty($_POST['process_form']) && ini_get('opcache.enable')) {
+				ini_set('opcache.enable', '0');
+			}
+
+			// include the file but must not display anything
+			ob_start();
+				include $metadata_filename;
+			ob_end_clean();
+
+			$metadata['values'] = $metadata_values;
+			$metadata['value_components'] = $metadata_value_components;
+			$metadata['warnings'] = $metadata_warnings;
 		}
-
-		// include the file but must not display anything
-		ob_start();
-			include $metadata_filename;
-		ob_end_clean();
-
-		$metadata['values'] = $metadata_values;
-		$metadata['value_components'] = $metadata_value_components;
-		$metadata['warnings'] = $metadata_warnings;
 
 		return $metadata;
 
 	}//end loadMetadata
+
+
+	/**
+	* Outputs frontent metadata
+	* If 3rd, 4th, 5th parameter are supplied, they are set to the metadata vars defined in the metadata content file
+	*
+	* @param object $asset
+	* @param string $contextid
+	* @param array  &$metadata_value
+	* @param array  &$metadata_value_components
+	* @param array  &$metadata_warnings
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontendMetadata($asset, $contextid=NULL, &$metadata_values=Array(), &$metadata_value_components=Array(), &$metadata_warnings=Array())
+	{
+		if (is_null($asset)) {
+			return;
+		}
+
+		$schemas = $this->getSchemas($asset->id, TRUE, NULL, TRUE);
+
+		if ($contextid === 0) {
+			$metadata_basename = 'metadata.php';
+		} else {
+			$metadata_basename = 'metadata.'.$contextid.'.php';
+		}
+		$metadata_default_name = 'metadata.php';
+		$metadata = NULL;
+
+		if (empty($schemas)) {
+			echo translate('There are no metadata schemas applied to this asset.');
+
+		} else if (strpos($asset->id, ':') !== FALSE) {
+			$metadata = '';
+			$metadata_vars = $this->getAssetMetadataFromDb($asset->id, $contextid, $metadata);
+
+			$metadata_values = array_get_index($metadata_vars, 'values', Array());
+			$metadata_value_components = array_get_index($metadata_vars, 'value_components', Array());
+			$metadata_warnings = array_get_index($metadata_vars, 'warnings', Array());
+		} else if (file_exists($asset->data_path.'/'.$metadata_basename)) {
+			ob_start();
+				require($asset->data_path.'/'.$metadata_basename);
+				$metadata = ob_get_contents();
+			ob_end_clean();
+		} else if (file_exists($asset->data_path.'/'.$metadata_default_name)) {
+			// No generated metadata for this context yet. We can assume
+			// that until it is generated, it's using the same defaults
+			ob_start();
+				require($asset->data_path.'/'.$metadata_default_name);
+					$metadata = ob_get_contents();
+					ob_end_clean();
+		}
+
+		// If metadata was filled, clean it and print it
+		// for the user's edification
+		if ($metadata !== NULL) {
+			echo nl2br(htmlspecialchars(trim($metadata)));
+		}
+
+	}//end frontendMetadata()
+
+
+	/**
+	* Get asset metadata info from db in same format as that of metadata content file
+	* Should be used to generate metadata for assets (shadow assets) that don't have metadata content file
+	*
+	* @param string		$assetid        The ID of the asset to generate the file for
+	* @param int		$contextid      Context to generate the content file for
+	* @param string		&$metadata_str  Frontend metadata string
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMetadataFromDb($assetid, $contextid=NULL, &$metadata_str='')
+	{
+		if (empty($assetid)) {
+			return Array();
+		}
+
+		$empty_metadata = Array (
+							'values' => Array(),
+							'value_components' => Array(),
+							'warnings'  => Array(),
+						);
+		$assetid_parts = explode(':', $assetid);
+		if (isset($assetid_parts[1])) {
+			$bridge_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid_parts[0]);
+			if (is_null($bridge_asset) || !in_array('Bridge', class_implements($bridge_asset)) || !method_exists($bridge_asset, 'allowShadowMetadata') || !$bridge_asset->allowShadowMetadata()) {
+				// This bridge does not supports metadata for its shadow assets
+				return $empty_metadata;
+			}
+		}//end if shadow asset
+
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+		$contextid = (Int) $contextid;
+
+		if ($contextid === 0) {
+			$metadata_filename = 'metadata.php';
+		} else {
+			$metadata_filename = 'metadata.'.$contextid.'.php';
+		}
+
+		// Change to the context specified, before the asset is retrieved
+		if ($contextid === 'default') {
+			$regenerate = FALSE;
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
+		} else {
+			$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+		}
+
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_localised_error('SYS0034', sprintf(translate('Failed caching metadata, Asset #%s does not exist'), $assetid), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+			return FALSE;
+		}
+
+		$schemas = $this->getSchemas($asset->id, TRUE, NULL, TRUE);
+		if (empty($schemas)) {
+			return $empty_metadata;
+		}
+
+		// Try getting the static metadata info from the cache
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cache_key = md5('static_metadata_'.$asset->id.$contextid);
+		$static_metadata = $cm->loadFromCache($asset->id, $asset->type(), $cache_key, FALSE, TRUE);
+		if ($static_metadata !== FALSE) {
+			$static_metadata = @unserialize($static_metadata);
+		}
+
+		$mfield_types = Array();
+		if (!is_array($static_metadata)) {
+			// an array of all metadata tag values
+			$tag_values = Array();
+			// an array of keyword replacements that we are going to have to write some PHP code to produce
+			$keywords = Array();
+			// get the values without any replacements or special processing
+			if ($contextid === 'default') {
+				$metadata = Array();
+			} else {
+				$metadata = $this->getMetadata($asset->id);
+			}
+
+			ob_start();
+				foreach ($schemas as $schemaid) {
+					$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+					if (is_null($schema)) {
+						trigger_localised_error('SYS0035', sprintf(translate('Failed caching metadata, Schema #%s does not exist'), $schemaid), E_USER_WARNING);
+						$GLOBALS['SQ_SYSTEM']->restoreContext();
+						return FALSE;
+					}
+
+					if (!($schema instanceof Metadata_Schema)) {
+						trigger_localised_error('SYS0033', sprintf(translate('Failed caching metadata, "%1$s" (Asset #%2$s) is not a metadata schema'), $schema->name, $schemaid), E_USER_WARNING);
+						$GLOBALS['SQ_SYSTEM']->restoreContext();
+						return FALSE;
+					}
+
+					$edit_fns = $schema->getEditFns();
+					$edit_fns->generateMetadata($schema, $metadata, $tag_values, $keywords, $asset->type(), FALSE, $mfield_types);
+
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
+				}
+
+				$metadata_str = ob_get_contents();
+			ob_end_clean();
+			$static_metadata = Array(
+									'tag_values' => $tag_values,
+									'keywords' => $keywords,
+									'metadata' => $metadata,
+									'metadata_str' => $metadata_str,
+									'mfield_types' => $mfield_types,
+								);
+			// Save the static metadata values evaluted in the cache
+			// This metadata value will remain unchanged untill the metadata gets updated
+			$cm->saveToCache($asset->id, $asset->type(), $cache_key, serialize($static_metadata), FALSE, '', TRUE);
+		} else {
+			$tag_values = $static_metadata['tag_values'];
+			$keywords = $static_metadata['keywords'];
+			$metadata = $static_metadata['metadata'];
+			$metadata_str = $static_metadata['metadata_str'];
+			$mfield_types = array_get_index($static_metadata, 'metadata_str', Array());
+		}
+		unset($static_metadata);
+
+		// The circular reference warnings
+		$metadata_warnings = Array();
+
+		// Evaluate the dynamic components in the static metadata value (e.g. asset/metadata field keywords)
+		if (!empty($keywords)) {
+			$metadata_replacements = Array();
+			foreach ($keywords as $keyword) {
+				if (!preg_match('/^metadata_field_/', $keyword)) {
+						$metadata_replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+				}
+			}
+			replace_keywords($tag_values, $metadata_replacements);
+			$modifier_applied_replacements = Array();
+
+			// Following handles the replacement of the %metadata_field_xxxxx% keywords
+			// See comments on self::generateContentFile() (which uses same logic) for details
+			$field_list    = $tag_values;
+			$replaced_list = Array();
+			$field_replacements = Array();
+			// keep looping until we run out of items to shift over to $replaced_list
+			do {
+				$fields_modified = FALSE;
+				foreach ($field_list as $n => $v) {
+
+					// get all the %metadata_field_xxxxx% keywords in $v
+					$value_keywords = retrieve_keywords_replacements($v);
+
+					// cull any keywords that aren't in the format %metadata_field_xxxxx%
+					$metadata_keywords = Array();
+					foreach ($value_keywords as $keyword) {
+						if (preg_match('/^metadata_field_/', $keyword)) {
+							$metadata_keywords[] = $keyword;
+						}
+					}
+					$metadata_keywords = array_unique($metadata_keywords);
+
+					// if no metadata_field, put it directly on the $replaced stack,
+					if (empty($metadata_keywords)) {
+						// muck around with the stack; don't touch the original $metadata_values
+						$replaced_list[$n] = $v;
+						$field_replacements['metadata_field_'.$n] = $v;
+						unset($field_list[$n]);
+						$fields_modified = TRUE;
+
+					} else {
+						// Apply keyword modifiers
+						foreach($metadata_keywords as $full_keyword) {
+							if (!isset($field_replacements[$full_keyword])) {
+								$modifiers = NULL;
+								$part_keyword = parse_keyword($full_keyword, $modifiers);
+								if ($part_keyword != $full_keyword && isset($field_replacements[$part_keyword])) {
+									$keyword_value = $field_replacements[$part_keyword];
+
+									// If the metadata field value referred by another metadata field has keyword(s), we cannot apply modifiers at this level
+									$mv_keywords = extract_keywords($keyword_value);
+									if (!empty($mv_keywords)) {
+										// Apply the modifiers dynamically when loading the metadata file
+										$modifier_applied_replacements[$full_keyword] = Array(
+																							'replacement' => $keyword_value,
+																							'modifiers' => $modifiers,
+																						);
+										$field_replacements[$full_keyword] = '%_'.$full_keyword.'%';
+									} else {
+										apply_keyword_modifiers($keyword_value, $modifiers, Array('assetid' => $assetid));
+										$field_replacements[$full_keyword] = $keyword_value;
+									}
+								}
+							}
+						}//end foreach
+
+						// replace all the field references with their replaced_list counterparts
+						// if everything is successfully replaced, leave until next time
+						// to move to replaced_list
+						$pre_replacement = $field_list[$n];
+						replace_keywords($field_list[$n], $field_replacements);
+						// if keywords were replaced...
+						if ($pre_replacement != $field_list[$n]) {
+							// mirror value changes back to the original
+							// $metadata_values list, and the keyword replacement list
+							$tag_values[$n] = $field_list[$n];
+							$fields_modified = TRUE;
+						}
+					}//end else (empty($field_refs))
+
+				}//end foreach ($metadata_values)
+			} while ($fields_modified);
+
+			if (!empty($modifier_applied_replacements)) {
+				foreach($modifier_applied_replacements as $key => $val) {
+					replace_keywords($val['replacement'], $metadata_replacements);
+					apply_keyword_modifiers($val['replacement'], $val['modifiers']);
+					$metadata_replacements['_'.$key] = $val['replacement'];
+				}
+			}
+
+			replace_keywords($tag_values, $metadata_replacements);
+
+			// if the field_list is empty, it means we still have keywords left to replace
+			if (!empty($field_list)) {
+				$metadata_warnings['keyword_circular_references'] = array_keys($field_list);
+			}
+		}//end !empty($keywords)
+
+		// Content regenerated, so clear the _tmp vars for metadata
+		// Otherwise old values will stay in effect until the asset is reloaded
+		if (isset($asset->_tmp['mm_replacements'])) {
+			unset($asset->_tmp['mm_replacements']);
+		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+		// print the value components, to be referenced by the meta tags later
+		$metadata_value_components = Array();
+		foreach ($tag_values as $n => $v) {
+			$vc = Array();
+			$n = addslashes($this->escapeMetadata($n, TRUE));
+			$mfield_type = array_get_index($mfield_types, $n, 'metadata_field');
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($mfield_type);
+			call_user_func_array(Array($mfield_type, 'decodeValueString'), Array($v, &$v2, &$vc));
+
+			$tag_values[$n] = !empty($v2) ? $v2 : $v;
+			$metadata_value_components[$n] = Array();
+
+			// Value components
+			if (!empty($vc)) {
+				foreach ($vc as $vc_key => $vc_value) {
+					$vc_key   = addslashes($this->escapeMetadata($vc_key, TRUE));
+					$vc_value = addslashes($this->escapeMetadata($vc_value, TRUE));
+					$metadata_value_components[$n][$vc_key] = $vc_value;
+				}
+			}
+		}//end foreach
+
+		// Evalute metadata tags value for frontend metadata
+		foreach($tag_values as $tag_name => $tag_value) {
+			$meta_value = $this->escapeMetadata($tag_value);
+			foreach($metadata_value_components[$tag_name] as $k => $v) {
+				$meta_value .= "$k = $v;";;
+			}
+			$metadata_str = str_replace('="%meta_value_'.$tag_name.'%" />', '="'.$meta_value.'" />', $metadata_str);
+		}
+
+		return Array(
+					'values' => $tag_values,
+					'value_components' => $metadata_value_components,
+					'warnings'	=> $metadata_warnings,
+				);
+
+	}//end getAssetMetadataFromDb()
 
 
 	/**
@@ -808,13 +1170,6 @@ class Metadata_Manager extends MySource_Object
 		}
 		$contextid = (Int) $contextid;
 
-		$default_metadata_file = 'metadata.php';
-		if ($contextid === 0) {
-			$metadata_basename = $default_metadata_file;
-		} else {
-			$metadata_basename = 'metadata.'.$contextid.'.php';
-		}
-
 		// Change the context here so the asset is retrieved in the right context
 		// (particularly if a custom context is requested)
 		$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
@@ -835,28 +1190,39 @@ class Metadata_Manager extends MySource_Object
 			return $field_values;
 		}
 
-		// we suppose that the metadata values are stored in the file called metadata.php
-		// if the file does not exists it means that not metadata was generated because
-		// no metatadata schema was applied to the asset
-		// this will enhance the speed of this function and will replace any keyword
-		$_metadata_filename = $asset->data_path.'/'.$metadata_basename;
-
-		$metadata_file_exists = TRUE;
-		if (!is_file($_metadata_filename)) {
-			$metadata_file_exists = FALSE;
-			if ($contextid !== 0) {
-				// Use default context metadata file, if the metadata for current context does not exist
-				$_metadata_filename = $asset->data_path.'/'.$default_metadata_file;
-				$metadata_file_exists = is_file($_metadata_filename);
+		if (strpos($assetid, ':') === FALSE) {
+			$default_metadata_file = 'metadata.php';
+			if ($contextid === 0) {
+				$metadata_basename = $default_metadata_file;
+			} else {
+				$metadata_basename = 'metadata.'.$contextid.'.php';
 			}
+
+			// we suppose that the metadata values are stored in the file called metadata.php
+			// if the file does not exists it means that not metadata was generated because
+			// no metatadata schema was applied to the asset
+			// this will enhance the speed of this function and will replace any keyword
+			$_metadata_filename = $asset->data_path.'/'.$metadata_basename;
+
+			$metadata_file_exists = TRUE;
+			if (!is_file($_metadata_filename)) {
+				$metadata_file_exists = FALSE;
+				if ($contextid !== 0) {
+					// Use default context metadata file, if the metadata for current context does not exist
+					$_metadata_filename = $asset->data_path.'/'.$default_metadata_file;
+					$metadata_file_exists = is_file($_metadata_filename);
+				}
+			}
+
+			if (!$metadata_file_exists) {
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+				return $field_values;
+			}
+			$metadata = $this->loadMetadataFile($assetid, $_metadata_filename);
+		} else {
+			$metadata = $this->loadMetadataFile($assetid);
 		}
 
-		if (!$metadata_file_exists) {
-			$GLOBALS['SQ_SYSTEM']->restoreContext();
-			return $field_values;
-		}
-
-		$metadata = $this->loadMetadataFile($assetid, $_metadata_filename);
 
 		if (isset($metadata['values'])) {
 			$metadata_values = $metadata['values'];
@@ -929,6 +1295,7 @@ class Metadata_Manager extends MySource_Object
 								1 => Array(),
 							  );
 
+		$asset_type = $asset->type();
 		// Make sure all the fields exist and are editable
 		foreach (array_keys($metadata) as $fieldid) {
 			$flag_match_found = FALSE;
@@ -946,9 +1313,9 @@ class Metadata_Manager extends MySource_Object
 					if (!empty($restrictions)) {
 						foreach ($restrictions as $type_code_restricted => $inherit_it) {
 							if ($inherit_it && !$flag_match_found) {
-								$asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo(Array($asset->id));
-								foreach($asset_type_with_parents[$asset->id] as $index => $asset_type) {
-									if (array_key_exists($asset_type[0], $restrictions) && !$flag_match_found) {
+								$asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset_type);
+								foreach($asset_type_with_parents as $type_code) {
+									if (($type_code_restricted == $type_code || $type_code_restricted == $asset_type ) && !$flag_match_found) {
 										$flag_match_found = TRUE;
 									}
 								}
@@ -1145,7 +1512,8 @@ class Metadata_Manager extends MySource_Object
                                     $fieldid,
                                     $metadata[$fieldid][0]['value'],
                                     $asset->id,
-                                    $contextid
+                                    $contextid,
+									$e->getMessage()
                                 ).' [SYS0339]'
                             );
 						}
@@ -1163,7 +1531,8 @@ class Metadata_Manager extends MySource_Object
                                     $fieldid,
                                     $metadata[$fieldid][0]['value'],
                                     $asset->id,
-                                    $contextid
+                                    $contextid,
+									$e->getMessage()
                                 ).' [SYS0339]'
                             );
 						}//end try catch
@@ -1181,7 +1550,8 @@ class Metadata_Manager extends MySource_Object
                                     $fieldid,
                                     $metadata[$fieldid][0]['value'],
                                     $asset->id,
-                                    $contextid
+                                    $contextid,
+									$e->getMessage()
                                 ).' [SYS0339]'
                             );
 						}
@@ -1207,7 +1577,8 @@ class Metadata_Manager extends MySource_Object
                                                 $fieldid,
                                                 $metadata[$fieldid][0]['value'],
                                                 $asset->id,
-                                                $contextid
+                                                $contextid,
+												$e->getMessage()
                                             ).' [SYS0339]'
                                         );
 									}
@@ -1230,7 +1601,8 @@ class Metadata_Manager extends MySource_Object
                                                 $fieldid,
                                                 $metadata[$fieldid][0]['value'],
                                                 $asset->id,
-                                                $contextid
+                                                $contextid,
+												$e->getMessage()
                                             ).' [SYS0339]'
                                         );
 									}
@@ -1257,7 +1629,8 @@ class Metadata_Manager extends MySource_Object
                                 $fieldid,
                                 $metadata[$fieldid][0]['value'],
                                 $asset->id,
-                                $contextid
+                                $contextid,
+								$e->getMessage()
                             ).' [SYS0340]'
                         );
 					}//end try catch
@@ -1305,6 +1678,17 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function generateContentFile($assetid, $regenerate=FALSE, $contextid=NULL, $update_asset=TRUE)
 	{
+		// Shadow asset metadata values are fetched directly from the db
+		// So no need to generate metadata files for shadow assets
+		$assetid_parts = explode(':', $assetid);
+		if (isset($assetid_parts[1])) {
+			// However we still need to clear the static metadata cache
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cm->clearCache(Array($assetid));
+
+			return TRUE;
+		}
+
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
@@ -1347,6 +1731,7 @@ class Metadata_Manager extends MySource_Object
 			$metadata = $this->getMetadata($asset->id);
 		}
 
+		$mfield_types = Array();
 		ob_start();
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
@@ -1363,7 +1748,7 @@ class Metadata_Manager extends MySource_Object
 			}
 
 			$edit_fns = $schema->getEditFns();
-			$edit_fns->generateMetadata($schema, $metadata, $tag_values, $keywords, $asset->type());
+			$edit_fns->generateMetadata($schema, $metadata, $tag_values, $keywords, $asset->type(), TRUE, $mfield_types);
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
 		}
@@ -1488,8 +1873,9 @@ class Metadata_Manager extends MySource_Object
 			// print the values, to be referenced by the meta tags later
 			echo '$metadata_values = Array('."\n";
 			foreach ($tag_values as $n => $v) {
+				$mfield_type = array_get_index($mfield_types, $n, 'metadata_field');
 				$n = addslashes($this->escapeMetadata($n, TRUE));
-				Metadata_Field::decodeValueString($v, $v2, $vc);
+				call_user_func_array(Array($mfield_type, 'decodeValueString'), Array($v, &$v2, &$vc));
 				// escape single quotes and backslashes
 				$v2 = addcslashes($v2, "'\\");
 
@@ -1503,9 +1889,10 @@ class Metadata_Manager extends MySource_Object
 			// print the value components, to be referenced by the meta tags later
 			echo '$metadata_value_components = Array('."\n";
 			foreach ($tag_values as $n => $v) {
+				$mfield_type = array_get_index($mfield_types, $n, 'metadata_field');
 				$vc = Array();
 				$n = addslashes($this->escapeMetadata($n, TRUE));
-				Metadata_Field::decodeValueString($v, $v2, $vc);
+				call_user_func_array(Array($mfield_type, 'decodeValueString'), Array($v, &$v2, &$vc));
 
 				echo "'$n' => Array(";
 
@@ -1805,9 +2192,9 @@ class Metadata_Manager extends MySource_Object
 							echo '	  }'."\n";
 							echo '} else {'."\n";
 							echo '    if ($metadata_asset->id) {';
-							echo '	      $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
-							echo '	      if (!empty($link)) {'."\n";
-							echo '		      $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+							echo '	      $links = $GLOBALS[\'SQ_SYSTEM\']->am->getLinks($metadata_asset->id, SQ_LINK_NOTICE, \'\', FALSE, \'major\', \'thumbnail\');'."\n";
+							echo '	      if (!empty($links)) {'."\n";
+							echo '		      $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($links[0][\'minorid\']);'."\n";
 							echo '	      }'."\n";
 							echo '    }'."\n";
 							echo '}'."\n";
@@ -1834,79 +2221,132 @@ class Metadata_Manager extends MySource_Object
 						}
 					break;
 
-					case 'asset_created_by_assetid' :
-					case 'asset_created_by_url' :
-					case 'asset_created_by_name' :
-					case 'asset_updated_by_name' :
-					case 'asset_status_changed_by_name':
+					case 'asset_created_by_thumbnail' :
+					case 'asset_created_by_thumbnail_url' :
+					case 'asset_created_by_thumbnail_alt' :
+					case 'asset_created_by_thumbnail_caption' :
+					case 'asset_created_by_thumbnail_assetid' :
+					case 'asset_created_by_thumbnail_title' :
+					case 'asset_created_by_thumbnail_name' :
+					case 'asset_updated_by_thumbnail' :
+					case 'asset_updated_by_thumbnail_url' :
+					case 'asset_updated_by_thumbnail_alt' :
+					case 'asset_updated_by_thumbnail_caption' :
+					case 'asset_updated_by_thumbnail_assetid' :
+					case 'asset_updated_by_thumbnail_title' :
+					case 'asset_updated_by_thumbnail_name' :
+					case 'asset_status_changed_by_thumbnail' :
+					case 'asset_status_changed_by_thumbnail_url' :
+					case 'asset_status_changed_by_thumbnail_alt' :
+					case 'asset_status_changed_by_thumbnail_caption' :
+					case 'asset_status_changed_by_thumbnail_assetid' :
+					case 'asset_status_changed_by_thumbnail_title' :
+					case 'asset_status_changed_by_thumbnail_name' :
+					case 'asset_published_by_thumbnail' :
+					case 'asset_published_by_thumbnail_url' :
+					case 'asset_published_by_thumbnail_alt' :
+					case 'asset_published_by_thumbnail_caption' :
+					case 'asset_published_by_thumbnail_assetid' :
+					case 'asset_published_by_thumbnail_title' :
+					case 'asset_published_by_thumbnail_name' :
 						$pattern = '/^asset_(.*?)_by_(.*)$/';
 						preg_match($pattern, $keyword, $matches);
-						$field_name = $matches[1];
+						$field_name = $matches[1].'_userid';
 						$user_member = $matches[2];
-						switch ($user_member) {
-							case 'assetid':
-								$user_member = 'id';
-								break;
-							case 'url':
-								$user_member = 'getURL()';
-								break;
-						}
-						echo 'if (!isset($metadata_'.$field_name.'_by_user) && !empty($metadata_asset->'.$field_name.'_userid)) {'."\n";
-						echo '	$metadata_'.$field_name.'_by_user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid, \'\', TRUE);'."\n";
-						echo '}'."\n";
-						echo 'if (!empty($metadata_'.$field_name.'_by_user)) {'."\n";
-						echo '	$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->'.$user_member.";\n";
-						echo '} else {'."\n";
-						echo '	$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
 
+						echo '$metadata_'.$field_name.'_by_user = NULL;'."\n";
+						echo 'if ($metadata_asset->'.$field_name.') {'."\n";
+						echo '	$metadata_'.$field_name.'_by_user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.', \'\', TRUE);'."\n";
 						echo '}'."\n";
+						echo '$thumbnail = null;'."\n";
+						echo 'if (!is_null($metadata_'.$field_name.'_by_user) && $metadata_'.$field_name.'_by_user->useSystemVersion()) {'."\n";
+						echo '    $notice_links = unserialize(file_to_string($metadata_'.$field_name.'_by_user->data_path.\'/.sq_notice_links\'));'."\n";
+						echo '    foreach ($notice_links as $link) {'."\n";
+						echo '		  if ($link[\'value\'] == \'thumbnail\') {'."\n";
+						echo '			  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+						echo '			  break;'."\n";
+						echo '		  }'."\n";
+						echo '	  }'."\n";
+						echo '} else {'."\n";
+						echo '    if (!is_null($metadata_'.$field_name.'_by_user) && $metadata_'.$field_name.'_by_user->id) {'."\n";
+						echo '	      $links = $GLOBALS[\'SQ_SYSTEM\']->am->getLinks($metadata_'.$field_name.'_by_user->id, SQ_LINK_NOTICE, \'\', FALSE, \'major\', \'thumbnail\');'."\n";
+						echo '	      if (!empty($links)) {'."\n";
+						echo '		      $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($links[0][\'minorid\']);'."\n";
+						echo '	      }'."\n";
+						echo '    }'."\n";
+						echo '}'."\n";
+
+						switch ($user_member) {
+							case 'thumbnail' :
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->printImageTag(\'\', \'\', TRUE);'."\n";
+							break;
+							case 'thumbnail_url' :
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getURL();'."\n";
+							break;
+							case 'thumbnail_alt' :
+							case 'thumbnail_caption' :
+							case 'thumbnail_title' :
+							case 'thumbnail_name' :
+								$sub_keyword = substr($user_member, 10);
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\''.$sub_keyword.'\');'."\n";
+							break;
+							case 'thumbnail_assetid' :
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->id;'."\n";
+							break;
+						}
 					break;
 
+					case 'asset_created_by_assetid' :
+					case 'asset_created_by_name' :
 					case 'asset_created_by_first_name' :
 					case 'asset_created_by_last_name'  :
 					case 'asset_created_by_email'	   :
+					case 'asset_created_by_url' :
+					case 'asset_updated_by_assetid' :
+					case 'asset_updated_by_name' :
 					case 'asset_updated_by_first_name' :
 					case 'asset_updated_by_last_name'  :
 					case 'asset_updated_by_email'	   :
-						echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user) && !empty($metadata_asset->'.substr($keyword,6,7).'_userid)) {
-						$metadata_'.substr($keyword,6,7).'_by_user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', TRUE);'."\n}\n";
-						echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
-						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
-
-						echo '}'."\n";
-
-					break;
-
-					// can't handle 'last published' stuff in the same way as created/updated because
-					// there is a chance that it has never been published
+					case 'asset_updated_by_url' :
+					case 'asset_published_by_assetid' :
 					case 'asset_published_by_name' :
-						echo 'if (empty($metadata_asset->published_userid)) {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \'Never Published\';'."\n";
-						echo '} else { if (!isset($metadata_published_by_user)) {
-						$metadata_published_by_user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid, \'\', TRUE);'."\n}\n";
-						echo 'if (!empty($metadata_published_by_user)) { ';
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->name;'."\n";
-						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
-
-						echo '}}'."\n";
-					break;
-
 					case 'asset_published_by_first_name' :
 					case 'asset_published_by_last_name'  :
-					case 'asset_published_by_email'		 :
-						echo 'if (empty($metadata_asset->published_userid)) {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
-						echo '} else { if (!isset($metadata_published_by_user)) {
-						$metadata_published_by_user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid, \'\', TRUE);'."\n}\n";
-						echo 'if (!empty($metadata_published_by_user)) { ';
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
-						echo '} else {'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+					case 'asset_published_by_email'	     :
+					case 'asset_published_by_url' :
+					case 'asset_status_changed_by_assetid' :
+					case 'asset_status_changed_by_name' :
+					case 'asset_status_changed_by_first_name' :
+					case 'asset_status_changed_by_last_name'  :
+					case 'asset_status_changed_by_email'	  :
+					case 'asset_status_changed_by_url' :
+						$found = preg_match('/^asset\_(.*?)\_by\_(.*)$/', $keyword, $matches);
+						if ($found > 0) {
+							$date_type      = $matches[1];
+							$date_user_attr = $matches[2];
 
-						echo '}}'."\n";
+							echo 'if (!isset($metadata_'.$date_type.'_by_user) && !empty($metadata_asset->'.$date_type.'_userid)) {
+							$metadata_'.$date_type.'_by_user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$date_type.'_userid,\'\', TRUE);'."\n}\n";
+							echo 'if (!empty($metadata_'.$date_type.'_by_user)) { ';
+							if ($date_user_attr === 'assetid') {
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$date_type.'_by_user->id;'."\n";
+							} else if ($date_user_attr === 'name') {
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$date_type.'_by_user->name;'."\n";
+							} else if ($date_user_attr === 'url') {
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$date_type.'_by_user->getURL();'."\n";
+							} else {
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$date_type.'_by_user->attr(\''.$date_user_attr.'\');'."\n";
+							}
+							
+							echo '} else {'."\n";
+								if (($date_type === 'published') && ($date_user_attr === 'name')) {
+									// For Published By Name, if there's no published record then we show that it's "never [been] published".
+									echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Never Published').'\';'."\n";
+								} else {
+									echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('Unknown').'\';'."\n";
+								}
+							echo '}'."\n";
+						}//end if
 
 					break;
 
@@ -1944,7 +2384,9 @@ class Metadata_Manager extends MySource_Object
 						}
 						echo '}'."\n";
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = implode(\', \', $metadata_'.$perm_type.'_perm_info);'."\n";
+					
 					break;
+
 					case 'system_name'	 :
 					case 'system_owner'  :
 					case 'default_email' :
@@ -2010,6 +2452,37 @@ class Metadata_Manager extends MySource_Object
 
 							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getKeywordReplacement(\'image_v_'.$variety_name.'\');';
 
+						} else if (preg_match('|asset_[a-z_]+_by_thumbnail_v_(.*)*|',$keyword)) {
+							$pattern = '/^asset_(.*?)_by_thumbnail_v_(.*)$/';
+							preg_match($pattern, $keyword, $matches);
+							$field_name = $matches[1].'_userid';
+							$variety_name = $matches[2];
+
+							if (!$thumbnail_generated) {
+								echo '$metadata_'.$field_name.'_by_user = NULL;'."\n";
+								echo 'if ($metadata_asset->'.$field_name.') {'."\n";
+								echo '	$metadata_'.$field_name.'_by_user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.', \'\', TRUE);'."\n";
+								echo '}'."\n";
+								echo '$thumbnail = null;'."\n";
+								echo 'if (!is_null($metadata_'.$field_name.'_by_user) && $metadata_'.$field_name.'_by_user->useSystemVersion()) {'."\n";
+								echo '    $notice_links = unserialize(file_to_string($metadata_'.$field_name.'_by_user->data_path.\'/.sq_notice_links\'));'."\n";
+								echo '    foreach ($notice_links as $link) {'."\n";
+								echo '		  if ($link[\'value\'] == \'thumbnail\') {'."\n";
+								echo '			  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+								echo '			  break;'."\n";
+								echo '		  }'."\n";
+								echo '	  }'."\n";
+								echo '} else {'."\n";
+								echo '    if (!is_null($metadata_'.$field_name.'_by_user) && $metadata_'.$field_name.'_by_user->id) {'."\n";
+								echo '	      $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_'.$field_name.'_by_user->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
+								echo '	      if (!empty($link)) {'."\n";
+								echo '		      $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+								echo '	      }'."\n";
+								echo '    }'."\n";
+								echo '}'."\n";
+							}
+
+							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getKeywordReplacement(\'image_v_'.$variety_name.'\');';
 						} else {
 							// searching for special date format keywords
 							$original = $keyword;
@@ -2655,7 +3128,6 @@ class Metadata_Manager extends MySource_Object
 	}//end getFieldAssetIdFromName()
 
 
-
 	/**
 	 * For given asset with metadata schema(s) applied, this function returns
 	 * the value for all metadata fields of given type in following format:
@@ -2693,7 +3165,6 @@ class Metadata_Manager extends MySource_Object
 
 		return $field_values;
 	}
-
 
 }//end class
 ?>

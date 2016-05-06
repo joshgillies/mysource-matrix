@@ -25,7 +25,7 @@
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
-
+require_once SQ_FUDGE_PATH.'/ntlm/ntlm_soap_client.inc';
 
 class Sharepoint_Common
 {
@@ -41,7 +41,7 @@ class Sharepoint_Common
 	{
 		$list_wsdl	= self::getWSDLLocation('lists', $connection['url']);
 		try {
-			$client			= new SoapClient($list_wsdl, $connection['authentication']);
+			$client			= Sharepoint_Common::getSoapClient($connection);
 			$input_param	= Array (
 								'listName'		=> $list_id,
 								'listItemID'	=> $list_item_id,
@@ -63,32 +63,6 @@ class Sharepoint_Common
 
 	}//end addAttachment()
 
-
-	/**
-	* This function is used to check out a file from Sharepoint / mark a file as checked out
-	*
-	* @return void
-	* @access public
-	*/
-	public static function checkOutFile($page_url, $last_modified='')
-	{
-		try {
-			$client			= new SoapClient(WSDL, $authen);
-			$input_param	= Array (
-								'pageUrl'			=> $page_url,
-								'checkoutToLocal'	=> TRUE,
-								'lastmodified'		=> $last_modified, //20 Jun 1982 12:00:00 GMT
-							  );
-			$response	= $client->CheckOutFile($input_param);
-			$response_xml	= simplexml_load_string($response->GetPermissionCollectionResult->any);
-
-		} catch (SoapFault $sf) {
-			$detail = '';
-			if (isset($sf->detail)) $detail = $sf->detail;
-			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
-		}//end try catch()
-
-	}//end checkOutFile()
 
 
 	/**
@@ -141,116 +115,8 @@ class Sharepoint_Common
 	}//end getServiceLocation()
 
 
-	/**
-	 * This function return the information about a particular user
-	 *
-	 * @param string $user_name	The username of the user we are getting information for
-	 *
-	 * @return array
-	 * @access public
-	 */
-	public static function getUserInfo($user_name='administrator')
-	{
-
-		try {
-			$client			= new SoapClient(WSDL_USRGRP, $authen);
-			$input_param	= Array (
-								'userLoginName'	=> $user_name,
-							  );
-			$response	= $client->GetUserInfo($input_param);
-			$response_xml	= simplexml_load_string($response->GetPermissionCollectionResult->any);
-
-		} catch (SoapFault $sf) {
-			$detail = '';
-			if (isset($sf->detail)) $detail = $sf->detail;
-			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
-		}//end try catch()
-
-	}//end getUserInfo()
 
 
-	/**
-	 * This function return the permission collection for a list or a site
-	 *
-	 * @param string $list_name	The name of the list we are trying to get the permission collection
-	 *
-	 * @return array
-	 * @access public
-	 */
-	public static function getPermissionCollection($list_name)
-	{
-		try {
-			$client	= new SoapClient(WSDL_PERM, $authen);
-			$input_param	= Array (
-								'objectName'	=> $list_name,
-								'objectType'	=> 'List',
-							  );
-			$response	= $client->GetPermissionCollection($input_param);
-			$response_xml	= simplexml_load_string($response->GetPermissionCollectionResult->any);
-
-		} catch (SoapFault $sf) {
-			$detail = '';
-			if (isset($sf->detail)) $detail = $sf->detail;
-			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
-		}//end try catch()
-
-	}//end getPermissionCollection()
-
-
-	/**
-	* Delete a sharepoint list
-	*
-	* @param string $list_name	The name of the list being deleted
-	*
-	* @return boolean
-	* @access public
-	*/
-	public static function deleteList($list_name)
-	{
-		global	$authen;
-		try {
-			$client	= new SoapClient(WSDL, $authen);
-			$input_param	= Array (
-								'listName'		=> $list_name,
-							  );
-			$response	= $client->DeleteList($input_param);
-		} catch (SoapFault $sf) {
-			$detail = '';
-			if (isset($sf->detail)) $detail = $sf->detail;
-			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
-		}//end try catch
-
-	}//end deleteList()
-
-
-	/**
-	* This function add a new List into sharepoint
-	*
-	* @param string $list_name		The name of the list being added
-	* @param string $description	The description for the list
-	* @param string $templateID		The templateID from the sharepoint system
-	*
-	* @return boolean
-	* @access public
-	*/
-	public static function addList($list_name, $description='', $templateID='100')
-	{
-		global	$authen;
-		try {
-			$client	= new SoapClient(WSDL, $authen);
-			$input_param	= Array (
-								'listName'		=> $list_name,
-								'description'	=> $description,
-								'templateID'	=> $templateID,
-							  );
-			$response	= $client->AddList($input_param);
-		} catch (SoapFault $sf) {
-			$detail = '';
-			if (isset($sf->detail)) $detail = $sf->detail;
-			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
-		}//end try catch
-
-	}//end addList()
 
 
 	/**
@@ -305,7 +171,7 @@ class Sharepoint_Common
 	{
 		$list_wsdl	= self::getWSDLLocation('lists', $connection['url']);
 		try {
-			$client			= new SoapClient($list_wsdl, $connection['authentication']);
+			$client = Sharepoint_Common::getSoapClient($connection);
 			$input_param	= Array (
 								'listName'	=> $list_id,
 							  );
@@ -376,44 +242,6 @@ class Sharepoint_Common
 	}//end getListAvailableFields()
 
 
-	/**
-	* This function delete a list item from a list
-	*
-	* @param string	$list_id		The ID of the list we are deleting items from
-	* @param string $list_item_id	The item ID we are trying to delete
-	*
-	* @return boolean
-	* @access public
-	*/
-	public static function deleteListItem($list_id, $list_item_id)
-	{
-
-		try {
-			$client	= new SoapClient(WSDL, $authen);
-			$update_xml		= '
-<Batch OnError="Continue" PreCalc="TRUE"
-ListVersion="0" >
-   <Method ID="1" Cmd="Delete">
-      <Field Name="ID">'.$list_item_id.'</Field>
-   </Method>
-</Batch>
-';
-			$input_param	= Array (
-								'listName'	=> $list_id,
-								'updates'	=> Array (
-												'any'	=> $update_xml,
-											   ),
-							  );
-			$response	= $client->UpdateListItems($input_param);
-
-		} catch (SoapFault $sf) {
-			$detail = '';
-			if (isset($sf->detail)) $detail = $sf->detail;
-			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
-		}//end try catch
-
-	}//end deleteListItem()
-
 
 	/**
 	* This function add a list item to a list (preferably a custom list)
@@ -430,7 +258,7 @@ ListVersion="0" >
 
 		$list_wsdl	= self::getWSDLLocation('lists', $connection['url']);
 		try {
-			$client	= new SoapClient($list_wsdl, $connection['authentication']);
+			$client = Sharepoint_Common::getSoapClient($connection);
 			$fs		= $client->__getFunctions();
 
 			$inner_xml	= '';
@@ -590,7 +418,7 @@ ListVersion="0" >
 		$result	= Array();
 		$list_wsdl	= self::getWSDLLocation('lists', $connection['url']);
 		try {
-			$client			= new SoapClient($list_wsdl, $connection['authentication']);
+			$client = Sharepoint_Common::getSoapClient($connection);
 
 			$ndViewFields	= "	<viewFields>
 									<FieldRef Name='Field1'/><FieldRef Name='Field2'/>
@@ -699,7 +527,10 @@ ListVersion="0" >
 		$lists	= Array();
 		$list_wsdl	= self::getWSDLLocation('lists', $connection['url']);
 		try {
-			$client			= new SoapClient($list_wsdl, $connection['authentication']);
+
+			$client = Sharepoint_Common::getSoapClient($connection);
+
+
 			$collections = $client->GetListCollection();
 
 			$all_lists	= $collections->GetListCollectionResult->any;
@@ -803,6 +634,9 @@ ListVersion="0" >
 	public static function test_sharepoint_connection($connection, $silent=FALSE)
 	{
 
+		$method = isset($connection['authentication']['method']) ? $connection['authentication']['method'] : 'HTTP_BASIC';
+
+
 		//test a cURL connection first otherwise the Soap constructor will crash and leave edit interfaces inaccessible or cause Cron deadlocks.
 		if (!isset($connection['authentication']['proxy_login'])){ //TODO: test cURL with proxies involved
 			$options = array(
@@ -810,16 +644,19 @@ ListVersion="0" >
 						'RETURNTRANSFER' => 1,
 						'TIMEOUT'        => 5,
 						'SSL_VERIFYPEER' => 0,
-						'http_authentication' => Array('username' => $connection['authentication']['login'], 'password' => $connection['authentication']['password'])
+						'HTTPAUTH'	=> CURLAUTH_ANY,
+						'USERPWD'	=> $connection['authentication']['login'].':'.$connection['authentication']['password']
 					   );
 			$details  = fetch_url($connection['url'], $options);
 			$contents = $details['response'];
-			if (strpos($contents, 'wsdl') === FALSE) return FALSE;
+			if (strpos($contents, 'xmlsoap') === FALSE) return FALSE;
 		}
 
-
 		try {
-			$client = new SoapClient(self::getWSDLLocation('lists', $connection['url']), $connection['authentication']);
+
+			$client = Sharepoint_Common::getSoapClient($connection);
+
+	
 			$fns	= $client->__getFunctions();
 
 	        if (!empty($fns)) {
@@ -839,6 +676,71 @@ ListVersion="0" >
 
 	}//end test_trim_connection()
 
+
+
+	/**
+	* Returns the SOAP client object with the WSSE header set, if applicable
+	*
+	* @param array  $settings	SOAP request settings
+	* @param array 	$options	SOAP options
+	*
+	* @return null|object
+	* @access public
+	*/
+	public static function &getSoapClient($settings)
+	{
+		$soap_client = NULL;
+
+		$wsdl = array_get_index($settings, 'url', '');
+		if (empty($wsdl)) {
+			return $soap_client;
+		}
+
+		$authentication = array_get_index($settings, 'authentication', '');
+		// Don't pass these parameters if login is not required
+		if (empty($authentication['login']) && empty($authentication['password'])) {
+			unset($authentication['login']);
+			unset($authentication['password']);
+		}
+
+		try {
+			
+			$username = array_get_index($authentication, 'login', '');
+			$password = array_get_index($authentication, 'password', '');
+			$auth_type = array_get_index($settings, 'method', 'HTTP_BASIC');
+
+			// Add authentication header, based on the settings
+			switch($auth_type) {
+				case 'NTLM':
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('NTLM_SOAP_USERNAME', $username);
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('NTLM_SOAP_PASSWORD', $password);
+					unset($authentication['login']);
+					unset($authentication['password']);
+					stream_wrapper_unregister('http');
+					stream_wrapper_unregister('https');
+					stream_wrapper_register('http', 'NTLMStream') or die ("Failed to register NTLM protocol.\n");
+					stream_wrapper_register('https', 'NTLMStream') or die ("Failed to register NTLM protocol.\n");
+					$soap_client = new NTLMSoapClient($wsdl, $authentication);
+					stream_wrapper_restore('http'); 
+					stream_wrapper_restore('https'); 
+				break;
+
+				case 'HTTP_BASIC':
+				default:
+					$soap_client = new SoapClient($wsdl, $authentication);
+					// No header required here
+				break;
+
+			}//end switch
+
+		} catch (SoapFault $e) {
+			trigger_error('Error occured when trying to access the SOAP service: '.htmlentities($e->getMessage()));
+			return $null;
+		}
+
+		return $soap_client;
+
+	}//end getSoapClient()
 
 
 }//end class

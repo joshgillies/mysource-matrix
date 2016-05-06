@@ -169,8 +169,28 @@
 	</requirement>
 
 	<requirement>
-		<php_file>JFIF.php</php_file>
-		<description> - used to extract metadata from jpeg and other image types. This is provided by the "JPEG Metadata Toolkit".</description>
+		<external_program>java</external_program>
+		<description> - used for running of Apache Tika (for text extraction) and Google Closure Compiler (for JS File Folder minification).</description>
+		<version>1.7.0_00</version>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<external_program>tika-app</external_program>
+		<description> - Apache Tika, used for extracting searchable text from certain File assets, including PDF Files and MS Word Documents. Deprecates both Antiword AND pdftohtml.</description>
+		<version>1.8</version>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<external_program>closure-compiler</external_program>
+		<description> - Google Closure Compiler, used for minifying the contents of JS File Folder assets.</description>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<external_program>exiftool</external_program>
+		<description> - this is used to extract image metadata from jpeg and other image types.</description>
 		<suggested>1</suggested>
 	</requirement>
 

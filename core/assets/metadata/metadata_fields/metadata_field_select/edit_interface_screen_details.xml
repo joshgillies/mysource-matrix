@@ -25,10 +25,13 @@
 				<process_function name="processKeywordInstructions" />
 			</function_call>
 		</field>
-		<field attribute="name">
+		<field>
 			<display_name>Field Name</display_name>
 			<note />
-			<text width="30" height="1" />
+			<function_call>
+				<paint_function   name="paintFieldNameComponents"   />
+				<process_function name="processFieldNameComponents" />
+			</function_call>
 		</field>
 		<field attribute="friendly_name">
 			<display_name>Friendly Name</display_name>
@@ -81,7 +84,7 @@
 			</function_call>
 		</field>
 		<field>
-			<display_name></display_name>
+			<display_name>Select Field Options</display_name>
 			<note />
 			<function_call>
 				<paint_function   name="paintSelection"   />
@@ -120,12 +123,19 @@
 			<note />
 			<boolean true_text="Yes" false_text="No" />
 		</field>
+		<field attribute="allow_cascading">
+			<display_name>Allow Cascading?</display_name>
+			<note>%description%</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
 		<field attribute="required">
 			<display_name>Required</display_name>
 			<note>%description%</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="is_contextable">
+			<display_name>Contextable?</display_name>
+			<note>%description%</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="frontend">

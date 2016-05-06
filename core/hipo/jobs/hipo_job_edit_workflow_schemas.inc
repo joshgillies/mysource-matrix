@@ -57,7 +57,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD]', SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD]', SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD;
 		}

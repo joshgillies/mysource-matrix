@@ -183,43 +183,57 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 				break;
 
 				case 'status_change' :
-
-					if (!$display_status_sections) {
-						$o->openField('');
-							echo translate('asset_current_status_change_from_parent',$parent_asset_href[$parent_asset_link[0]['majorid']]);
-						$o->closeField();
-						break;
+					// Allow status change only if the current user has 'attributes' lock on the owner asset
+					$has_aattributes_lock = FALSE;
+					$locks_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, 'attributes', TRUE);
+					if (!empty($locks_info['attributes']['userid']) && $locks_info['attributes']['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+						$has_aattributes_lock = TRUE;
 					}
 
-					if (!empty($field->display_name)) {
-						$display_name = translate('Change?');
-
-					} else {
-						// If we dont have a display name node then we dont have anything to say
-						$display_name = '';
-					}
-
-
-					$o->openField($display_name);
-
-						ob_start();
-							$need_commit = _paintDetailsChangeStatus($owner, $o, $prefix);
-							$print_commit_button = $print_commit_button || $need_commit;
-						$contents = ob_get_clean();
-
-						// If unable to save as a keyword replacement, echo it
-						if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'status_change', $contents) === FALSE) {
-							echo $contents;
+					if ($has_aattributes_lock) {
+						if (!$display_status_sections) {
+							$o->openField('');
+								echo sprintf(
+									translate('Current status for this asset can only be set from the parent asset\'s <a href="%s">Details screen</a>'),
+									$parent_asset_href[$parent_asset_link[0]['majorid']]
+								);
+							$o->closeField();
+							break;
 						}
 
-					$o->closeField();
+						if (!empty($field->display_name)) {
+							$display_name = translate('Change?');
+
+						} else {
+							// If we dont have a display name node then we dont have anything to say
+							$display_name = '';
+						}
+
+
+						$o->openField($display_name);
+
+							ob_start();
+								$need_commit = _paintDetailsChangeStatus($owner, $o, $prefix);
+								$print_commit_button = $print_commit_button || $need_commit;
+							$contents = ob_get_clean();
+
+							// If unable to save as a keyword replacement, echo it
+							if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'status_change', $contents) === FALSE) {
+								echo $contents;
+							}
+
+						$o->closeField();
+					}
 
 				break;
 
 				case 'status_future_status' :
 					if (!$display_status_sections) {
 						$o->openField('');
-							echo translate('asset_future_status_change_from_parent',$parent_asset_href[$parent_asset_link[0]['majorid']]);
+							echo sprintf(
+									translate('Future status for this asset can only be set from the parent asset\'s <a href="%s">Details screen</a>'),
+									$parent_asset_href[$parent_asset_link[0]['majorid']]
+								);
 						$o->closeField();
 						break;
 					}
@@ -364,7 +378,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		$has_approved_status = FALSE;
 		$editor_commenting = FALSE;
 		foreach ($statii as $status_code => $status_text) {
-			if (($status_code & SQ_SC_STATUS_PENDING) > 0) {
+			if (($status_code & (SQ_SC_STATUS_PENDING | SQ_SC_STATUS_CAN_APPROVE)) > 0) {
 				$has_pending_status = TRUE;
 				break;
 			}
@@ -382,7 +396,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		// - the current status is either a "can approve" state (Safe Edit or
 		//   U/C), or Live (otherwise we couldn't run Up for Review on a stream).
 
-		if (($owner->writeAccess() === TRUE) && (($owner->status & (SQ_STATUS_LIVE | SQ_SC_STATUS_CAN_APPROVE)) > 0) && (($has_pending_status === TRUE) || ($has_approved_status === TRUE))) {
+		if (($owner->writeAccess() === TRUE) && (($owner->status & (SQ_STATUS_LIVE | SQ_SC_STATUS_CAN_APPROVE | SQ_SC_STATUS_ALL_APPROVED)) > 0) && (($has_pending_status === TRUE) || ($has_approved_status === TRUE))) {
 			echo '&nbsp;';
 			// If it is possible that we will have a "apply for approval" in the
 			// drop-down, paint the streams box and enable/disable when required.
@@ -507,8 +521,18 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				$all_options = $options['bypass'] + $options['workflow'];
 				reset($all_options);
 				hidden_field($prefix.'_change_status_stream', key($all_options));
+			?>
+			<script type="text/javascript">
+				var status_cb = document.getElementById("<?php echo $prefix ?>_change_status");
+				status_cb.onchange = function() {
+					if (typeof(editorCommenting) != "undefined") {
+						editorCommenting(status_cb);
+					}
+					checkStatusDisplayWarning();
+				};
+			</script>
+			<?php
 			}
-
 
 			// Javascript to keep the stream lists happy. The "Apply for Approval"
 			// list is displayed first, and they are switched when "Apply for Approval"
@@ -574,27 +598,49 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 
 				var status_cb_ele = document.getElementById(prefix + '_change_status');
 				var status_cascade_ele = document.getElementById(prefix + '_change_status_all_children');
-				var note_text = document.getElementById('warning_message_for_live_plus_cascade');
+				var live_note_text = document.getElementById('warning_message_for_live_plus_cascade');
+				var uc_arch_note_text = document.getElementById('warning_message_for_uc_or_archive');
+				var uc_arch_cascade_note_text = document.getElementById('warning_message_for_non_live_plus_cascade');
 				var current_status = <?php echo $owner->status; ?>;
 
+				if(!live_note_text) return;
 
 				// display warning message for cascading live status
-				if ((status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> || current_status == <?php echo SQ_STATUS_LIVE ?>) && status_cascade_ele.checked) {
-					note_text.style.display="block";
+				if ((status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> || (status_cb_ele.value == 0 && current_status == <?php echo SQ_STATUS_LIVE ?>)) && status_cascade_ele.checked) {
+					live_note_text.style.display="block";
 				} else {
-					note_text.style.display="none";
+					live_note_text.style.display="none";
+				}
+
+				if(!uc_arch_note_text || !uc_arch_cascade_note_text) return;
+				// display warning message for under construction and archive assets
+				if (!(current_status == <?php echo SQ_STATUS_ARCHIVED ?> || current_status == <?php echo SQ_STATUS_UNDER_CONSTRUCTION ?>) && (status_cb_ele.value == <?php echo SQ_STATUS_ARCHIVED ?> || status_cb_ele.value == <?php echo SQ_STATUS_UNDER_CONSTRUCTION ?>)) {
+					uc_arch_note_text.style.display="block";
+					if (status_cascade_ele.checked) {
+						uc_arch_cascade_note_text.style.display="block";
+					} else {
+						uc_arch_cascade_note_text.style.display="none";
+					}
+				} else if ((current_status == <?php echo SQ_STATUS_ARCHIVED ?> || current_status == <?php echo SQ_STATUS_UNDER_CONSTRUCTION ?>) && status_cascade_ele.checked && (status_cb_ele.value === '0' || status_cb_ele.value == <?php echo SQ_STATUS_ARCHIVED ?> || status_cb_ele.value == <?php echo SQ_STATUS_UNDER_CONSTRUCTION ?>)) {
+					uc_arch_note_text.style.display="none";
+					uc_arch_cascade_note_text.style.display="block";
+				} else {
+					uc_arch_note_text.style.display="none";
+					uc_arch_cascade_note_text.style.display="none";
 				}
 
 				// display warning message for cascading with stream
+				var note_text = document.getElementById('warning_message_for_stream_cascade');
+				if(!note_text) return;
 				if(status_cb_ele.value & <?php echo SQ_SC_STATUS_PENDING ?> || status_cb_ele.value & <?php echo SQ_SC_STATUS_ALL_APPROVED ?> ) {
-					var note_text = document.getElementById('warning_message_for_stream_cascade');
 					if (status_cascade_ele.checked) {
 						note_text.style.display="block";
 					} else {
 						note_text.style.display="none";
 					}
+				} else {
+					note_text.style.display="none";
 				}
-
 			}
 
 			function checkStatusDisplayWarningFutureStatus()
@@ -604,15 +650,44 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				var status_cb_ele = document.getElementById(prefix + '_new_fs_status');
 				var status_cascade_ele = document.getElementById(prefix + '_new_fs_change_status_all_children');
 				var note_text = document.getElementById('warning_message_for_live_plus_cascade_fs');
+				var uc_arch_note_text = document.getElementById('warning_message_for_uc_or_archive_fs');
+				var uc_arch_cascade_note_text = document.getElementById('warning_message_for_non_live_plus_cascade_fs');
 				var current_status = <?php echo $owner->status; ?>;
 
 				// display warning message for cascading live status
-				if ((status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> || current_status == <?php echo SQ_STATUS_LIVE ?>) && status_cascade_ele.checked) {
+				if ((status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> || (status_cb_ele.value == 0 && current_status == <?php echo SQ_STATUS_LIVE ?>)) && status_cascade_ele.checked) {
 					note_text.style.display="block";
 				} else {
 					note_text.style.display="none";
 				}
 
+				// display warning message for under construction and archive assets
+				if (!(current_status == <?php echo SQ_STATUS_ARCHIVED ?> || current_status == <?php echo SQ_STATUS_UNDER_CONSTRUCTION ?>) && (status_cb_ele.value == <?php echo SQ_STATUS_ARCHIVED ?> || status_cb_ele.value == <?php echo SQ_STATUS_UNDER_CONSTRUCTION ?>)) {
+					uc_arch_note_text.style.display="block";
+					if (status_cascade_ele.checked) {
+						uc_arch_cascade_note_text.style.display="block";
+					} else {
+						uc_arch_cascade_note_text.style.display="none";
+					}
+				} else if ((current_status == <?php echo SQ_STATUS_ARCHIVED ?> || current_status == <?php echo SQ_STATUS_UNDER_CONSTRUCTION ?>) && status_cascade_ele.checked && (status_cb_ele.value === '0' || status_cb_ele.value == <?php echo SQ_STATUS_ARCHIVED ?> || status_cb_ele.value == <?php echo SQ_STATUS_UNDER_CONSTRUCTION ?>)) {
+					uc_arch_note_text.style.display="none";
+					uc_arch_cascade_note_text.style.display="block";
+				} else {
+					uc_arch_note_text.style.display="none";
+					uc_arch_cascade_note_text.style.display="none";
+				}
+
+				// display warning message for cascading with stream
+				var note_text = document.getElementById('warning_message_for_stream_cascade_fs');
+				if(status_cb_ele.value & <?php echo SQ_SC_STATUS_PENDING ?> || status_cb_ele.value & <?php echo SQ_SC_STATUS_ALL_APPROVED ?> ) {
+					if (status_cascade_ele.checked) {
+						note_text.style.display="block";
+					} else {
+						note_text.style.display="none";
+					}
+				} else {
+					note_text.style.display="none";
+				}
 			}
 
 		// ]]>
@@ -622,7 +697,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			ob_start();
 				echo '<div id="'.$prefix.'_workflow_approval_request_comment_div" style="display:none"><br /><br />';
 				text_area($prefix.'_workflow_approval_request_comment', '', 60, 6, 0, '  id="'.$prefix.'_workflow_approval_request_comment"  placeholder="Enter comment"');
-				echo '<br /><div id="note_workflow_comment">'.translate('You can enter a comment that the approvers will see when they get notified of this request.').'</div></div>';
+				echo '<br /></div>';
 
 				?>
 				<script type="text/javascript">
@@ -631,7 +706,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 					{
 						var editor_comment = document.getElementById("<?php echo $prefix; ?>_workflow_approval_request_comment_div");
 
-						if ((status_cbox_ele.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0 && (editor_comment !== null && editor_comment !== undefined)) {
+						if (((status_cbox_ele.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0 || (status_cbox_ele.value & <?php echo SQ_SC_STATUS_ALL_APPROVED ?>) > 0 || (status_cbox_ele.value & <?php echo SQ_SC_STATUS_CAN_APPROVE ?>) > 0) && (editor_comment !== null && editor_comment !== undefined) && <?php echo $owner->status ?> !== <?php echo SQ_STATUS_LIVE ?>) {
 							editor_comment.style.display = 'inline';
 						} else if (editor_comment !== null && editor_comment !== undefined) {
 							editor_comment.style.display = 'none';
@@ -839,7 +914,11 @@ function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
 			if ($note) {
 				$o->note($note);
 			}
-			echo '<div id="warning_message_for_live_plus_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.').'</div>';
+			echo '<div id="warning_message_for_live_plus_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading a Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.').'</div>';
+
+			echo '<div id="warning_message_for_uc_or_archive" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> You are about to change the status to a non-Live status. This will make the asset inaccessible to users with read access to it.').'</div>';
+
+			echo '<div id="warning_message_for_non_live_plus_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading a non-Live status to child assets may result in unintended un-publishing of those children.').'</div>';
 
 			echo '<div id="warning_message_for_stream_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('<strong>Warning:</strong> Cascading this workflow initiation status to child assets will initiate the workflow for all children that are in a workflow ready state. The chosen workflow stream will also be cascaded if applicable.').'</div>';
 
@@ -988,7 +1067,7 @@ function _paintDetailsFutureStatusNew(Asset $owner, Backend_Outputter $o, $prefi
 function _paintDetailsThumbnailChange(Asset $owner, Backend_Outputter $o, $prefix)
 {
 	$edit_fns = $owner->getEditFns();
-	$edit_fns->paintNoticeLinkedAsset($owner, 'thumbnail', Array('image' => 'D'));
+	$edit_fns->paintNoticeLinkedAsset($owner, 'thumbnail', Array('image' => 'D', 'image_variety' => 'D'));
 
 	return TRUE;
 
@@ -1019,13 +1098,17 @@ function _paintDetailsThumbnailCurrent(Asset $owner, Backend_Outputter $o, $pref
 	    }
 	}
 	else {
-	    $link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', FALSE, 'thumbnail');
-	    if (!empty($link)) {
-		$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-	    }
+	    $links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'thumbnail');
+	    if(isset($links[0])) {
+		    $link = $links[0];
+	    	if (!empty($link) && (array_get_index($link, 'value') === 'thumbnail')) {
+				$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		    }
+		}
 	}
 
-	if($thumbnail) {
+	$valid_asset_type = $thumbnail && ($thumbnail instanceof Image || $thumbnail instanceof Image_Variety);
+	if($valid_asset_type) {
 	    $edit_fns = $thumbnail->getEditFns();
 	    $edit_fns->printExistingFileInfo($thumbnail);
 	} else {
@@ -1181,6 +1264,15 @@ function _processDetailsThumbnailChange(Asset $owner, Backend_Outputter $o, $pre
 	$is_updated = FALSE;
 
 	$edit_fns = $owner->getEditFns();
+
+	$thumbnail_assetid = isset($_POST[$prefix.'_thumbnail']) && isset($_POST[$prefix.'_thumbnail']['assetid']) ? $_POST[$prefix.'_thumbnail']['assetid'] : 0;
+	if ($thumbnail_assetid) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($thumbnail_assetid, 'image', FALSE) && !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($thumbnail_assetid, 'image_variety', FALSE)) {
+			trigger_localised_error('SYS0145', sprintf(translate('Failed adding new thumbnail #%1$s. Only image asset types can be set as a thumbnail.'), $thumbnail_assetid), E_USER_WARNING);
+			$_POST[$prefix.'_thumbnail']['assetid'] = '';
+		}
+	}
+
 	if ($edit_fns->processNoticeLinkedAsset($owner, 'thumbnail')) {
 		$is_updated = TRUE;
 	}

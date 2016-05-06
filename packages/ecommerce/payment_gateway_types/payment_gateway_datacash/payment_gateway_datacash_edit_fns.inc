@@ -16,6 +16,7 @@
 
 
 require_once dirname(__FILE__).'/../../payment_gateway/payment_gateway_edit_fns.inc';
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 /**
 * Payment_Gateway_Datacash_Edit_Fns
@@ -115,16 +116,11 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 	*/
 	function paintDatacashAPIPath(&$asset, &$o, $prefix)
 	{
-		$current_path = $asset->attr('datacash_api_path');
-
-		if ($asset->writeAccess('attributes')) {
-			text_box($prefix.'_datacash_api_path', $current_path, 80);
+		$current_path = trim(SQ_TOOL_DATACASH_API_PATH);
+		if (!$current_path) {
+			echo '<b>[Empty]</b>';
 		} else {
-			if (trim($current_path) == '') {
-				echo '<b>[Empty]</b>';
-			} else {
-				echo '<b>'.$current_path.'</b>';
-			}
+			echo '<b>'.$current_path.'</b>';
 		}
 
 		if (!is_file($current_path)) {
@@ -147,26 +143,6 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 
 
 	/**
-	* Process the interface for Datacash API Path
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processDatacashAPIPath(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
-		if (!isset($_POST[$prefix.'_datacash_api_path'])) return FALSE;
-
-		return $asset->setAttrValue('datacash_api_path', trim($_POST[$prefix.'_datacash_api_path']));
-
-	}//end processDatacashAPIPath()
-
-
-	/**
 	* Paint the interface for CardInfo Directory Path
 	*
 	* @param object	&$asset	the asset whose interface we are painting
@@ -178,16 +154,12 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 	*/
 	function paintCardInfoDirPath(&$asset, &$o, $prefix)
 	{
-		$current_path = $asset->attr('cardinfo_dir_path');
+		$current_path = trim(SQ_TOOL_DATACASH_CARDINFO_DIR_PATH);
 
-		if ($asset->writeAccess('attributes')) {
-			text_box($prefix.'_cardinfo_dir_path', $current_path, 80);
+		if (!$current_path) {
+			echo '<b>[Empty]</b>';
 		} else {
-			if (trim($current_path) == '') {
-				echo '<b>[Empty]</b>';
-			} else {
-				echo '<b>'.$current_path.'</b>';
-			}
+			echo '<b>'.$current_path.'</b>';
 		}
 
 		if (!is_dir($current_path)) {
@@ -201,27 +173,6 @@ class Payment_Gateway_Datacash_Edit_Fns extends Payment_Gateway_Edit_Fns
 		return TRUE;
 
 	}//end paintCardInfoDirPath()
-
-
-	/**
-	* Process the interface for CardInfo Directory Path
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processCardInfoDirPath(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
-		if (!isset($_POST[$prefix.'_cardinfo_dir_path'])) return FALSE;
-
-		return $asset->setAttrValue('cardinfo_dir_path', trim($_POST[$prefix.'_cardinfo_dir_path']));
-
-	}//end processCardInfoDirPath()
-
 
 }//end class
 

@@ -285,6 +285,12 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'image_link');
 
+			// do not process if nothing is posted
+			if(!isset($_POST[$prefix.'_image_selection'])) {
+				return FALSE;
+			}
+
+
 			// Process Image Link
 			$img_assetid = NULL;
 			if (isset($_POST[$prefix.'_image_selection']['assetid'])) {

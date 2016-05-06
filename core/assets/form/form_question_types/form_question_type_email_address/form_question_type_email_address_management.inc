@@ -81,6 +81,11 @@ class Form_Question_Type_Email_Address_Management extends Asset_Management
 																			   ),
 														   ),
 									   ),
+						'placeholder'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'text',
+										'default'		=> '',
+									   ),
 					  );
 
 	}//end constructor

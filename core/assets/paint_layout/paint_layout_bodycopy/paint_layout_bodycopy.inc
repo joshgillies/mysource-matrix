@@ -551,7 +551,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		if (is_array($keywords)) {
 
 			// 1. asset content
-			$keywords['Asset Contents'] = translate('Asset Contents');
+			$keywords['asset_contents'] = translate('Asset Contents');
 
 
 			// 2. asset keywords (includes attributes)
@@ -570,9 +570,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			unset($asset);
 
 			// lineage
-			$keywords['Asset Lineage'] = translate('Asset Lineage');
+			$keywords['asset_lineage'] = translate('Asset Lineage');
 
-			$keywords['Asset Lineage Linked'] = translate('Asset Lineage Linked');
+			$keywords['asset_lineage_linked'] = translate('Asset Lineage Linked');
 
 
 			// 3. asset metadata

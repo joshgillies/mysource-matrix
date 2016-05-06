@@ -70,6 +70,22 @@
             <boolean true_text="Yes" false_text="No" />
         </field>
     </section>
+    <section name="LDAP Authentication" write_access="write:attributes">
+        <note><![CDATA[The specified LDAP Bridge will be used to look for linked Matrix users based on the SAML user ID attribute. No user will be created when using this option. You do not need to set a create location.<br /><strong>You are required to be a System Administrator to configure this option. Please contact your System Administrator to set this up for you.</strong>]]></note>
+        <field show_if="saml_ldap_lookup_options">
+            <display_name>LDAP Bridge</display_name>
+            <note><![CDATA[Specifies the LDAP Bridge to look for the linked Matrix users]]></note>
+            <function_call>
+                <paint_function   name="paintLDAPBridge" />
+                <process_function name="processLDAPBridge" />
+             </function_call>
+        </field>
+        <field attribute="saml_ldap_lookup" show_if="saml_ldap_lookup_options">
+            <display_name>Search LDAP Bridge by</display_name>
+            <note><![CDATA[UID: uses the unique user ID returned by SAML, specified above and matches the UID specified in the LDAP brigde.<br /> DN: use this option when SAML can return the DN of the user account. In the same format as that of the users in the LDAP Bridge]]></note>
+            <selection style="list" />
+        </field>
+    </section>
     <section name="Authentication Request" write_access="write:attributes">
         <note>If required, add advanced configuration attributes to Authentication Request message.</note>
         <field attribute="nameid_policy">
@@ -116,7 +132,7 @@
         </field>
         <field>
             <display_name>Service Provider Metadata Download URL</display_name>
-            <note></note>
+            <note>Will generate and download an xml file with the Service Provider Metadata</note>
             <function_call>
                 <paint_function name="paintMetadataUrl" />
             </function_call>

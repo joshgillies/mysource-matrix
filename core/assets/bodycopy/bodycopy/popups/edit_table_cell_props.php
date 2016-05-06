@@ -54,6 +54,7 @@ include(dirname(__FILE__).'/header.php');
 		}
 		var i = 0;
 		for(var key in available_types) {
+			if(!available_types.hasOwnProperty(key)) continue;
 			if (available_types[key] == null) continue;
 			if(available_types[key]["name"] != null) {
 				f.type.options[i] = new Option(available_types[key]["name"], key);
@@ -84,7 +85,7 @@ include(dirname(__FILE__).'/header.php');
 
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
-		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('Cancel');?>" class="sq-icon">
 	</a>
 	<?php echo translate('Edit Table Cell Properties'); ?>
 </h1>

@@ -92,7 +92,7 @@ class SOAP_Api_Edit_Fns extends Asset_Edit_Fns
 					} else {
 		?>
 						&nbsp;
-						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($switch) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($switch) ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 		<?php
 					}
 		?>

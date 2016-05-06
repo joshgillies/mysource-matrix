@@ -54,7 +54,7 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
     */
     public function getFunctionList()
     {
-        return Array(
+       return Array(
 				'Download'				=> '1',
         		'Upload'				=> '1',
         		'GetFileInformation'	=> '1',
@@ -146,18 +146,18 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
 		$type_ancestors	= $file_asset->getTypeAncestors(FALSE);
 		if (in_array('file', $type_ancestors) || $file_asset->type() == 'file') {
 			$file_info		= $file_asset->getExistingFile();
-
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$file_name		= $file_info['filename'];
 			$file_type		= get_file_type($file_name);
 			$file_size		= $file_info['size'];
 			$file_modified	= $file_info['modified'];
-
+			$file_uid		= $file_info['path'];
 			return Array (
 					'FileName'		=> $file_name,
 					'FileType'		=> $file_type,
 					'FileSize'		=> $file_size,
 					'LastModified'	=> date('d-m-Y H:i:s', $file_modified),
+					'FileSha1Hash'	=> hash_file('sha1', $file_uid),
 				   );
 		} else {
 			throw new SoapFault('Server', 'The Asset ID Provided Is Not Of A File Asset');
@@ -187,7 +187,8 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
         if ($file_asset->type() === 'image') {
             $fileInfo   = $file_asset->getExistingFile();
             $image_info = getimagesize($fileInfo['path']);
-            $mime_info  = $image_info['mime'];
+
+     	 $mime_info  = $image_info['mime'];
 
             return Array (
                     'FileName'      => $file_asset->vars['name']['value'],
@@ -196,7 +197,7 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
                     'FileSize'      => $file_asset->vars['size']['value'],
                     'MimeType'      => $mime_info,
                     'ImageWidth'    => $file_asset->vars['width']['value'],
-                    'ImageHeight'   => $file_asset->vars['height']['value'],
+            	    'ImageHeight'   => $file_asset->vars['height']['value'],
                     'LastModified'  => date('d-m-Y H:i:s', $file_modified),
                    );
         } else {
@@ -328,6 +329,7 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
 																							'FileType'			=> self::$string_optional,
 																							'FileSize'			=> self::$string_optional,
 																							'LastModified'		=> self::$string_optional,
+																							'FileSha1Hash'		=> self::$string_optional,
 																						   ),
 													   ),
                             'GetImageInformation'    => Array (

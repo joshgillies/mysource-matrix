@@ -73,7 +73,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$constrain    = $asset->attr('constrain');
 
 		$int_edit_params  = new SimpleXMLElement('<int       width="8" />');
-		$bool_edit_params = new SimpleXMLElement('<boolean   true_text="Yes" false_text="no" />');
+		$bool_edit_params = new SimpleXMLElement('<boolean   true_text="Yes" false_text="No" />');
 		$sel_edit_params  = new SimpleXMLElement('<selection style="box" columns="5" extras="" />');
 
 		if ($asset->name == '') {
@@ -127,7 +127,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('Width'), '', '', ($variety_type != 'resize' || $constrain != 'Width'), $prefix.'_field_width');
+		$o->openField(translate('Width'), '', '', ($variety_type != 'resize' || $constrain != 'width'), $prefix.'_field_width');
 
 			$attr = $asset->getAttribute('width');
 			$attr->setEditParams($int_edit_params);
@@ -135,7 +135,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('Height'), '', '', ($variety_type != 'resize' || $constrain != 'Height'), $prefix.'_field_height');
+		$o->openField(translate('Height'), '', '', ($variety_type != 'resize' || $constrain != 'height'), $prefix.'_field_height');
 
 			$attr = $asset->getAttribute('height');
 			$attr->setEditParams($int_edit_params);
@@ -143,7 +143,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('Dimension'), '', translate('The maximum size of the largest dimension'), ($variety_type != 'resize' || ($constrain != 'Dimension' && $constrain != 'centre_weighted_square')), $prefix.'_field_dimension');
+		$o->openField(translate('Dimension'), '', translate('The maximum size of the largest dimension'), ($variety_type != 'resize' || ($constrain != 'dimension' && $constrain != 'centre_weighted_square')), $prefix.'_field_dimension');
 
 
 			$attr = $asset->getAttribute('dimension');
@@ -152,7 +152,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('Upload'), '', '', ($variety_type != 'Upload'), $prefix.'_field_upload');
+		$o->openField(translate('Upload'), '', '', ($variety_type != 'upload'), $prefix.'_field_upload');
 
 			if ($wa) file_upload($prefix.'_upload_file');
 		$o->closeField();
@@ -254,13 +254,9 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$img_ext = get_file_type($image->name);
 		$upload_ext = get_file_type($info['name']);
 
-		if ($img_ext != $upload_ext) {
-			trigger_localised_error('CORE0003', translate('An image uploaded for a variety MUST be of the same type as the original image.'), E_USER_WARNING);
-			return FALSE;
-		}
 
 		$d_old_filename = $asset->attr('filename');
-		$d_new_filename = $asset->attr('name').'.'.$img_ext;
+		$d_new_filename = $asset->attr('name').'.'.$upload_ext;
 		$d_old_file     = $asset->data_path.'/'.$d_old_filename;
 		$d_new_file     = $asset->data_path.'/'.$d_new_filename;
 
@@ -325,6 +321,33 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processUploadedFile()
 
+
+	/**
+	* Prints info about the current uploaded file
+	*
+	* @param File	$asset	the file asset
+	*
+	* @return void
+	* @access public
+	*/
+	public function printExistingFileInfo(Image_Variety $asset)
+	{
+		if (!empty($asset)) {
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+			?>
+			<div>
+				<b><a href="<?php echo current_url(TRUE, TRUE).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('Current File'); ?></a></b><br/>
+
+				<b><?php echo translate('Info'); ?>:</b> <?php echo get_asset_tag_line($asset->id); ?><br/>
+
+				<b><?php echo translate('Size'); ?>:</b> <?php echo easy_filesize($asset->attr('variety_size'))?><br/>
+
+			</div>
+			<?php
+			echo sprintf(translate('<b>Dimensions:</b> %1$s x %2$s pixels'), $asset->attr('variety_width'), $asset->attr('variety_height'));?><br/><?php
+		}
+
+	}//end printExistingFileInfo()
 
 }//end class
 

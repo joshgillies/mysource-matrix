@@ -16,6 +16,34 @@
 -->
 
 <contents>
+	<section name="Workflow Started Message" write_access="write:attributes">
+		<field attribute="subject_started">
+			<display_name>Subject</display_name>
+			<note />
+			<text width="80" height="1" />
+		</field>
+		<field attribute="message_started">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message invites users to approve or reject changes to a workflow. It is sent when workflow is started on an asset. If this is empty, a generic message will be used.</p>
+			<p>Keywords available to this message subject and body include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the asset whose workflow has been started.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that started the workflow.</li>
+				<li><strong>%current_step_id%, %current_step_name%</strong> - The step number and name of the current workflow step.</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
+				<li><strong>%accept_url%</strong> - The URL that will approve changes to this asset.</li>
+				<li><strong>%reject_url%</strong> - The URL that will reject changes to this asset.</li>
+				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
+				<li><strong>%status%</strong> - Previous status of this asset.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			]]></note>
+			<text width="80" height="5" />
+		</field>
+	</section>
 	<section name="Notify on Live Message" write_access="write:attributes">
 		<field attribute="subject_notify_on_live">
 			<display_name>Subject</display_name>

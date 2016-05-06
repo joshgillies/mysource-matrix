@@ -427,11 +427,12 @@ class DateTime_Field
 		    label($text, $prefix.'_'.$u);
 		    echo ' ';
 		}
+		$id_pattern = '/([^a-zA-Z\-\_]id=)/';
 		
 		// print which ever form of input is desired
 		if (($u == 'a') || ($input_style[$u] == 's')) {
 			if (!isset($extras[$u])) $extras[$u] = '';
-			if (!stristr($extras[$u], 'id=')) $extras[$u] .= ' id="'.$prefix.'_'.$u.'"';
+			if (stripos($extras[$u], 'id=') !== 0 && !preg_match($id_pattern, $extras[$u])) $extras[$u] .= ' id="'.$prefix.'_'.$u.'"';
 			// select box
 			combo_box($prefix.'['.$u.']', $options, FALSE, $value, 0, $extras[$u]);
 			echo ' ';
@@ -449,7 +450,7 @@ class DateTime_Field
 			if($use_js) {
 			    $adjustDate = 'onkeydown="adjustDate(this, event)"';
 			}
-			if (!stristr($extras[$u], 'id=')) {
+			if (stripos($extras[$u], 'id=') !== 0 && !preg_match($id_pattern, $extras[$u])) {
 				$adjustExtra = $adjustDate.' onfocus="this.select()" id="'.$prefix.'_'.$u.'"';
 			} else {
 				$adjustExtra = $adjustDate.'onfocus="this.select()"';
@@ -560,10 +561,41 @@ class DateTime_Field
 	* @access public
 	* @return boolean
 	*/
-	function processField()
+	function processField($attribute_name='')
 	{
 		if (!isset($_REQUEST[$this->prefix.'value'])) {
-			return FALSE;
+			// see bug #6864 Asset Builder validation always fails for Events with Start Date set as required
+			// For this scenario, we are using the paint function of calendar_event to print the date fields
+			// but using the process function of this class to evaluate the value so if the required fields 
+			// are present in the _REQUEST then see if they are correct and mark the field as processed
+			if (isset($_REQUEST['calendar_event_single_0_start_end_chooser_printed']) && !empty($attribute_name)) {
+
+				$prefix_for_request = preg_replace('/(calendar_event_[single|recurring]+_0)(_[0-9]*)/', "$1", $this->prefix);
+				$this->value = '';
+				$date_bits = Array ('year' => '----', 'month' => '--', 'day' => '--');
+
+				$start_end_prefix =  ($attribute_name == 'end_date') ? $prefix_for_request.'_end_' : $prefix_for_request.'_start_';
+
+				foreach ($date_bits as $d_bits => $default) {
+					if (isset($_REQUEST[$start_end_prefix.$d_bits])) {
+						if (!empty($_REQUEST[$start_end_prefix.$d_bits])) {
+							$this->value .= ($d_bits == 'year') ? $_REQUEST[$start_end_prefix.$d_bits] : sprintf("%02d", $_REQUEST[$start_end_prefix.$d_bits]);
+						} else {
+							// if the index has an empty value then we gotta return FALSE
+							// as we know this is going to fail the validation later on
+							return FALSE;
+						}
+					} else {
+						$this->value .= $default;
+					}
+					if ($d_bits !== 'day') $this->value .= '-';
+				}
+
+				$this->value .= ' --:--:--';
+				return TRUE;
+			} else {
+				return FALSE;
+			}
 		}
 		$input = $_REQUEST[$this->prefix.'value'];
 		$input = $this->unitsArrayToStr($input);
@@ -829,7 +861,17 @@ class DateTime_Field
 			$format = $print_format;
 		}
 
-		$es = '';
+		// remove elements from $format if they are not set, i.e. allow blank metadata value see Squizmap #7682
+		$timedate_formats = Array(
+								'h' => 'aABcegGhHOPruU',
+								'i' => 'ceiOPruU',
+								's' => 'cOPrsuU',
+								'm' => 'cDFIlmMnOrtUwWzZ',
+								'd' => 'cdDIjlOrSUwWzZ',
+								'y' => 'cDlLortUwWYyz',
+							);
+		$remove_timedate_formats = '';
+
 		foreach ($v = $this->strToUnitsArray($this->value) as $u => $n) {
 			if ($n < 0) {
 				if ($u == 'm' || $u == 'd') {
@@ -837,24 +879,19 @@ class DateTime_Field
 				} else {
 					$$u = 0;
 				}
-				if ($u == 'y' || $u == 'Y') $es .= $u;
+				$remove_timedate_formats .= $timedate_formats[$u];
 			} else {
 				$$u = $n;
 			}
 		}
 
-		// Certain things we can't work out if the year is before 1970
-		$real_y = 0;
 		if (!isset($c)) {
 			$c = $this->getParam('allow_circa');
-
 		}//end if
-		if ($y < 1970 && !stristr($es,'y')) {
-			$es .= 'DIlLrUwWzZ';
-			$real_y = $y;
-			$y      = 1980;
-			$format = str_replace('Y', '||||', $format);
-			$format = str_replace('y', '~~', $format);
+
+		// if we have have timedate options that arent filled in remove them, Squizmap #7682
+		if ($remove_timedate_formats) {
+			$format = preg_replace("/[\\s]*[^a-zA-Z\\s]*[$remove_timedate_formats][^a-zA-Z\\|\{4\}\\~\{2\}\\s]*[\\s]*/", '', $format);
 		}
 
 		// Circa

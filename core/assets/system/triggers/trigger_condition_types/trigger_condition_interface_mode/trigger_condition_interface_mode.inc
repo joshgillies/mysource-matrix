@@ -112,6 +112,14 @@ class Trigger_Condition_Interface_Mode extends Trigger_Condition
 		ob_start();
 		echo translate('User must be in ANY of the following interface modes:');
 
+		$option_names = Array(
+								'frontend' => translate('Frontend Interface'),
+								'backend'  => translate('Administration Mode Interface'),
+								'limbo'    => translate('Edit Mode Interface'),
+								'login'    => translate('Login Interface'),
+								'cron'     => translate('Cron Scripts'),
+						   );
+
 		if ($write_access) {
 			$options = Array(
 						'frontend',
@@ -126,7 +134,7 @@ class Trigger_Condition_Interface_Mode extends Trigger_Condition
 						foreach ($options as $idx => $option) {
 							echo '<li>';
 								echo ''.check_box($prefix.'['.$idx.']', $option, in_array($option, $selected)).'';
-								echo ''.label(translate('condition_interface_mode_'.$option), $prefix.'['.$idx.']').'';
+								echo ''.label($option_names[$option], $prefix.'['.$idx.']').'';
 							echo '</li>';
 						}
 					?>
@@ -135,7 +143,7 @@ class Trigger_Condition_Interface_Mode extends Trigger_Condition
 		} else {
 			echo '<ul style="margin-bottom: 0;">';
 			foreach ($selected as $mode) {
-				echo '<li><strong>'.translate('condition_interface_mode_'.$mode).'</strong></li>';
+				echo '<li><strong>'.$option_names[$mode].'</strong></li>';
 			}
 			echo '</ul>';
 		}

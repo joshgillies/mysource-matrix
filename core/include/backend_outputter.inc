@@ -148,10 +148,20 @@ class Backend_Outputter
 	var $_load_viper = FALSE;
 
 	/*
+	 * Load viper ace editor
+	 */
+	var $_load_viper_ace = FALSE;
+
+	/*
 	 * viper toolbar section
 	 */
 	var $_viper_toolbar_section = NULL;
 
+
+	/*
+	* Force enable viper. It can be used to help Asset Builder to print edit interface in frontend
+	*/
+	var $force_viper = FALSE;
 
 	/**
 	* Constructor
@@ -983,7 +993,7 @@ class Backend_Outputter
 		?>
 		<!DOCTYPE html>
 		<?php
-		if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [1-8]/',$_SERVER['HTTP_USER_AGENT'])) {
+		if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [6-8]/',$_SERVER['HTTP_USER_AGENT'])) {
         	// If we are in IE8 or less, don't use the conditional <html> tag as it can cause compatibility mode in those browsers
     		// IE<=8
     		?>
@@ -1020,6 +1030,7 @@ class Backend_Outputter
 			}
 
 			$this->loadViperEditor();
+			$this->loadViperAceEditor();
 
 			foreach ($this->_css_includes as $file) {
 				$this->_paintCssInclude($file);
@@ -1240,6 +1251,13 @@ class Backend_Outputter
 		hidden_field('allowconfirm', !defined('SQ_CONF_CONFIRM_SAVE_CHANGES') ? '1' : SQ_CONF_CONFIRM_SAVE_CHANGES);
 		// insert nonce token
 		hidden_field('token', get_unique_token());
+		// insert current user id
+		if(isset($GLOBALS['SQ_SYSTEM']->user)) {
+			hidden_field('userid', $GLOBALS['SQ_SYSTEM']->user->id);
+			hidden_field('userFirstName', $GLOBALS['SQ_SYSTEM']->user->attr('first_name'));
+			hidden_field('userLastName', $GLOBALS['SQ_SYSTEM']->user->attr('last_name'));
+			hidden_field('username', $GLOBALS['SQ_SYSTEM']->user->attr('username'));
+		}
 
 		foreach ($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);
@@ -1412,7 +1430,7 @@ class Backend_Outputter
 				}//endif
 				if($this->_viper_toolbar_section === $section['section_count']) {
 				    ?>
-					    <tr><td><div class="viper-toolbar-container-wrapper"><div class="viper-toolbar-container"></div></div></td></tr>
+					    <tr><td style="height:36px;"><div class="viper-toolbar-container-wrapper"><div class="viper-toolbar-container"></div></div></td></tr>
 				    <?php
 				}
 				?>
@@ -1688,7 +1706,7 @@ class Backend_Outputter
 	{
 		// value is empty, use default caption
 		if (empty($value)) {
-			$value = !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
+			$value = !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? translate('Commit') : SQ_CONF_COMMIT_BUTTON_TEXT;
 		}
 		$release_lock = (int) $release_lock;
 		if ($include_section) {
@@ -1963,13 +1981,31 @@ class Backend_Outputter
 	*/
 	function isViperAvailable()
 	{
-		if(SQ_IN_BACKEND || SQ_IN_LIMBO) {
+		if(SQ_IN_BACKEND || SQ_IN_LIMBO || $this->force_viper) {
 		    $viper_installed = is_file(SQ_DATA_PATH.'/public/ees/Viper/viper.js');
 		    $viper_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_ENABLE_VIPER_EDITOR');
 		    return $viper_enabled && $viper_installed;
 		}
 		return FALSE;
 	}//end isViperAvailable()
+
+
+	/**
+	* Is Viper Ace editor available for us?
+	*
+	* @return bool
+	* @access public
+	*/
+	function isViperAceAvailable()
+	{
+		if(!$this->isViperAvailable()) return FALSE;
+
+		if(isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [6-8]/',$_SERVER['HTTP_USER_AGENT'])) {
+			return FALSE;
+		}
+
+		return TRUE;
+	}//end isViperAceAvailable()
 
 
 	/**
@@ -2012,6 +2048,45 @@ class Backend_Outputter
 		    }
 		}
 	}//end loadViperEditor()
+
+
+
+	/**
+	* Enable Viper Ace editor on this div
+	*
+	* @return null
+	* @access public
+	*/
+	function enableViperAceEditor()
+	{
+		if($this->isViperAvailable()) {
+			$this->_load_viper_ace = TRUE;
+		}
+	}//end enableViperAceEditor()
+
+
+	/**
+	* Load the Viper Ace editor js and css files
+	*
+	* @return null
+	* @access public
+	*/
+	function loadViperAceEditor()
+	{
+	    if($this->_load_viper_ace) {
+		    $buffer_content = ob_get_contents ();
+		    // if viper is not previously loaded, load them all
+		    // If in EES, viper.js would have been already loaded at this point. Loading below scripts would conflict with EES scripts.
+		    if(strpos($buffer_content, 'matrix_viper_ace.js' ) === FALSE) {
+				$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.js');
+				$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.ui.js');
+				$this->addJsInclude(sq_web_path('data').'/ees/Viper/viper.js');
+				$this->addCssInclude(sq_web_path('data').'/ees/Viper/viper.css');
+				$this->addCssInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper_ace.css');
+				$this->addJsInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper_ace.js');
+		    }
+		}
+	}//end loadViperAceEditor()
 
 
 }//end class

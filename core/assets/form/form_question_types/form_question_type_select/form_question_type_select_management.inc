@@ -83,12 +83,12 @@ class Form_Question_Type_Select_Management extends Asset_Management
 						'empty_key'		=> Array(
 											'added'		=> '0.5',
 											'type'		=> 'text',
-											'default'	=> 'EMPTY',
+											'default'	=> '',
 										   ),
 						'empty_text'	=> Array(
 											'added'		=> '0.3',
 											'type'		=> 'text',
-											'default'	=> '-- Leave Empty --',
+											'default'	=> '-- Please Select --',
 										   ),
 						'allow_empty_selected'	=> Array(
 											'added'			=> '0.5',

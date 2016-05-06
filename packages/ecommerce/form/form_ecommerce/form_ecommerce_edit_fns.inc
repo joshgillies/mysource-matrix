@@ -125,7 +125,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			if ($write_access) {
 				check_box($ecom_enabled_prefix, $q_id, $ecom_enabled);
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($ecom_enabled ? 'tick' : 'cross').'.gif" />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($ecom_enabled ? 'tick' : 'cross').'.png" />';
 			}
 			echo '</td>';
 			echo '<td>';
@@ -134,7 +134,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			if ($write_access) {
 				check_box($taxable_prefix, $q_id, $taxable);
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($taxable ? 'tick' : 'cross').'.gif" />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($taxable ? 'tick' : 'cross').'.png" />';
 			}
 			echo '</td>';
 			echo '<td>';
@@ -273,7 +273,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			if ($write_access) {
 				check_box($var_enabled_name, $q_id, $var_enabled);
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($var_enabled ? 'tick' : 'cross').'.gif" />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($var_enabled ? 'tick' : 'cross').'.png" />';
 			}
 			echo '</td>';
 			echo '<td>';
@@ -504,8 +504,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		$types = Array('form_action_soap_call');
 
 		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
-
-
+		asort($names);
 
 		$o->openField('');
 			if ($write_access) {

@@ -97,16 +97,12 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 			?>
 			function sq_form_validate_email_<?php echo $function_id; ?>(answer)
 			{
-				<?php
-					echo $additional_condition;
-					if (!$q_asset->attr('is_required')) {
-						?>
-						if (answer.length == 0) {
-							return true;
-						}
-						<?php
-					}
-				?>
+				<?php echo $additional_condition; ?>
+
+				// Pass the validation for the empty response. If the answer is required, it will validated any "compare" rule anyway 
+				if (answer.length == 0) {
+						return true;
+				}
 				answer.replace(/,/, "");
 				return answer.match(<?php echo $regex_code ?>);
 
@@ -164,12 +160,25 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
+		$description_text = Array(
+			'1'     => translate('The response to "%s" must be a valid email address'),
+			'1_acc' => translate('The response must be a valid email address.'),
+			'0'     => translate('The response to "%s" must NOT be a valid email address'),
+			'0_acc' => translate('The response must NOT be a valid email address.'),
+		);
+
+		$op   = (string) array_get_index($rule_data, 'operator', '1');
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
-		if($use_accessible_string)
-		    $error_str = translate('core_form_rule_email_desc_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false').'_accessible');
-		 else
-		    $error_str = translate('core_form_rule_email_desc_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $q_asset->attr('name'));
+
+		if ($use_accessible_string) {
+			$op .= '_acc';
+		}
+
+		$error_str = sprintf(
+			$description_text[$op],
+			$q_asset->attr('name')
+		);
 
 		return $error_str;
 

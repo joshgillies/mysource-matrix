@@ -65,7 +65,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_PURGE_TRASH_THRESHOLD]', SQ_HIPO_PURGE_TRASH_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_PURGE_TRASH_THRESHOLD]', SQ_HIPO_PURGE_TRASH_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_PURGE_TRASH_THRESHOLD;
 		}
@@ -203,18 +203,53 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 			// is the root in the trash?
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($purge_root->id)) {
-				trigger_localised_error('HIPO0083', translate('Purge aborted, Purge root is not in the trash"'), E_USER_WARNING);
+				trigger_localised_error('HIPO0083', translate('Purge aborted, Purge root is not in the trash'), E_USER_WARNING);
 				return FALSE;
 			}
-			$purge_root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id);
+
+			if (isset($this->_running_vars['link_age'])) {
+				$link_age = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s', time()).' -'.$this->_running_vars['link_age']));
+			} else {
+				$link_age = NULL;
+			}
+
+			// get the first level asset links based on the link age and then later
+			// get all the children for these first level assets. We are doign this 
+			// because when an asset is linked to trash, "link updated" time is only
+			// set for the first level asset directly underneath the trash asset
+			$first_level_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id, '', TRUE, NULL, NULL, NULL, TRUE, 1, 1, TRUE, NULL, Array(), FALSE, $link_age);
+
+			$purge_root_children = Array();
+			foreach ($first_level_children as $first_level_asset_id => $type_code) {
+				$purge_root_children += $GLOBALS['SQ_SYSTEM']->am->getChildren($first_level_asset_id);
+				$purge_root_children[$first_level_asset_id] = $type_code;
+			}
+
 			// also delete the purge root
 			$purge_root_children[$purge_root->id][0]['type_code'] = $purge_root->type();
 			$link_tree_ids = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeId($this->_running_vars['purge_root_linkid']);
 			$root_tree_id = reset($link_tree_ids);
 			$this->_running_vars['purge_root_treeid'] = $root_tree_id[0][0];
 		} else {
+			if (isset($this->_running_vars['link_age'])) {
+				$link_age = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s', time()).' -'.$this->_running_vars['link_age']));
+			} else {
+				$link_age = NULL;
+			}
+
+			// get the first level asset links based on the link age and then later
+			// get all the children for these first level assets. We are doign this 
+			// because when an asset is linked to trash, "link updated" time is only
+			// set for the first level asset directly underneath the trash asset
 			$purge_root = $trash;
-			$purge_root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id);
+			$first_level_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id, '', TRUE, NULL, NULL, NULL, TRUE, 1, 1, TRUE, NULL, Array(), FALSE, $link_age);
+
+			$purge_root_children = Array();
+			foreach ($first_level_children as $first_level_asset_id => $type_code) {
+				$purge_root_children += $GLOBALS['SQ_SYSTEM']->am->getChildren($first_level_asset_id);
+				$purge_root_children[$first_level_asset_id] = $type_code;
+			}
+
 			$this->_running_vars['purge_root_treeid'] = $this->_running_vars['trash_treeid'];
 		}
 
@@ -233,6 +268,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				$ordered_to_check_list[$assetid] = $purge_root_children[$assetid];
 			}
 		}
+
 		$this->_running_vars['to_check'] = $ordered_to_check_list;
 		$this->_running_vars['total_assets'] = count($this->_running_vars['to_check']);
 
@@ -294,6 +330,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 									'treeid'	=> $this->_running_vars['purge_root_treeid'].'%',
 									'assetid'	=> $assetid,
 								 );
+
 					$num_external_links = MatrixDAL::executeOne('core', 'getPurgeTrashHipoLinkCount', $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Failed to get asset external link count for purge trash HIPO: '.$e->getMessage());
@@ -303,9 +340,27 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				if ($num_external_links == 0) {
 					$this->_running_vars['to_delete'][$assetid] = $type_code;
 				} else if ($num_external_links > 0) {
+					if (isset($this->_running_vars['link_age'])) {
+						$link_age = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s', time()).' -'.$this->_running_vars['link_age']));
+					} else {
+						$link_age = NULL;
+					}
+
 					// This asset has links outside the Trash, therefore all of its children have external links as well.
 					// We remove its children's assetids from the 'to_check' list so that we do not have to check them later.
-					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+
+					// get the first level asset links based on the link age and then later
+					// get all the children for these first level assets. We are doign this 
+					// because when an asset is linked to trash, "link updated" time is only
+					// set for the first level asset directly underneath the trash asset
+					$first_level_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, '', TRUE, NULL, NULL, NULL, TRUE, 1, 1, TRUE, NULL, Array(), FALSE, $link_age);
+
+					$children = Array();
+					foreach ($first_level_children as $first_level_asset_id => $type_code) {
+						$children += $GLOBALS['SQ_SYSTEM']->am->getChildren($first_level_asset_id);
+						$children[$first_level_asset_id] = $type_code;
+					}
+
 					foreach ($children as $child_assetid => $type_code) {
 						if (isset($this->_running_vars['to_check'][$child_assetid])) {
 							unset($this->_running_vars['to_check'][$child_assetid]);
@@ -442,11 +497,18 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	{
 		$GLOBALS['SQ_PURGING_TRASH'] = TRUE;
 		$links = Array();
+
+		if (isset($this->_running_vars['link_age'])) {
+			$link_age = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s', time()).' -'.$this->_running_vars['link_age']));
+		} else {
+			$link_age = NULL;
+		}
+
 		if (empty($this->_running_vars['purge_root_id'])) {
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->_running_vars['trash_id'], SQ_SC_LINK_ALL);
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->_running_vars['trash_id'], SQ_SC_LINK_ALL, '', TRUE, 'major', NULL, NULL, NULL, NULL, NULL, TRUE, $link_age);
 		} else {
 			// if the root node has not been deleted, the selected purge root link should be.
-			$links[] = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->_running_vars['purge_root_linkid'], $this->_running_vars['purge_root_id'], 'minor');
+			$links[] = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->_running_vars['purge_root_linkid'], $this->_running_vars['purge_root_id'], 'minor', $link_age);
 		}
 
 		// We reverse the array to start deleting the assets with the highest sort-order.

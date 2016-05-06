@@ -46,8 +46,7 @@ function paintInlineWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Inte
 	if (empty($schemas)) return FALSE;
 
 	$direct = Array();
-	foreach ($schemas as $schemaid => $schema_info) {
-		$granted = $schema_info['granted'];
+	foreach ($schemas as $schemaid => $granted) {
 		if (!isset($direct[$granted])) {
 			$direct[$granted] = Array();
 		}
@@ -844,7 +843,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 											<?php if ($admin_access && $wfm->isWorkflowComplete($owner->id)) {
 												check_box($prefix.'_workflow[cascades]['.$schemaid.']', 1, $schema_detail['cascades']);
 											} else {
-												?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+												?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.png" width="15" height="15" /><?php
 											}
 											?>
 											</td>

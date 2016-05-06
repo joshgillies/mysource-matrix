@@ -151,6 +151,11 @@ class Password_Rules_Config extends Config
 	{
 		parent::paintBackend($o);
 
+		$yes_no_options = Array(
+		    '1' => translate('Yes'),
+		    '0' => translate('No'),
+		);
+
 		$write_access = $this->writeAccess();
 
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
@@ -171,35 +176,31 @@ class Password_Rules_Config extends Config
 				}
 			$o->closeField();
 
-			$o->openField(translate('Disallow User Info'), '', translate('If yes, then prevent users having their username or other user information as their password.'));
-
+			$o->openField(translate('Disallow User Info'));
+				// NOTE: For some reason lost in time, this config setting was written back to front!
+				// A setting of "0" actually means user info is *disallowed*.
+				$options = Array(
+					        '0' => translate('Yes'),
+					        '1' => translate('No'),
+					       );
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_PASSWD_RULE_DISALLOW_USER_INFO]', Array('0' => translate('Yes'), '1' => translate('No')), FALSE, SQ_PASSWD_RULE_DISALLOW_USER_INFO);
-
-
+					combo_box($class.'[SQ_PASSWD_RULE_DISALLOW_USER_INFO]', $options, FALSE, SQ_PASSWD_RULE_DISALLOW_USER_INFO);
 				} else {
-					echo (SQ_PASSWD_RULE_DISALLOW_USER_INFO) ? translate('No') : translate('Yes');
-
-
+					echo $options[SQ_PASSWD_RULE_DISALLOW_USER_INFO];
 				}
+
+				$o->note(translate('If set to "Yes", passwords that contain the basic personal information of that user (case-insensitive) are rejected. This includes username, first name, last name and email address.'));
 			$o->closeField();
 
 			$o->openField(translate('Character Rules'), '', translate('Enforce the use of a certain type of character in passwords by specifying the minimum number of times it must be used.<br />Disallowing a character type will prevent users from including it in their passwords.'));
-
-
-
 				?>
 				<table class="sq-backend-table">
 				<tr>
 					<th style="width: 50px; text-align: center;" class="sq-backend-table-header"><?php echo translate('Active?'); ?></th>
-
 					<th style="width: 200px;" class="sq-backend-table-header"><?php echo translate('Character Type'); ?></th>
-
 					<th class="sq-backend-table-header"><?php echo translate('Minimum Number'); ?></th>
-
 					<th style="width: 150px;" class="sq-backend-table-header"><?php echo translate('Disallow Character Type?'); ?></th>
-
 				</tr>
 				<?php
 				foreach (get_constant_values('SQ_PASSWD_RULE_NUM') as $password_rule => $value) {
@@ -210,7 +211,7 @@ class Password_Rules_Config extends Config
 							if ($write_access) {
 								check_box($class.'_active'.'['.$password_rule.']', '1', ($value != SQ_PASSWD_RULE_DISABLED ? TRUE : FALSE));
 							} else {
-								?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value != SQ_PASSWD_RULE_DISABLED ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+								?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value != SQ_PASSWD_RULE_DISABLED ? 'tick' : 'cross'; ?>.png" width="15" height="15" /><?php
 							}
 						?>
 						</td>
@@ -265,7 +266,7 @@ class Password_Rules_Config extends Config
 									if ($write_access) {
 										check_box($class.'_disallow'.'['.$password_rule.']', '1', ($value == SQ_PASSWD_RULE_DISALLOWED));
 									} else {
-										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value == SQ_PASSWD_RULE_DISALLOWED ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value == SQ_PASSWD_RULE_DISALLOWED ? 'tick' : 'cross'; ?>.png" width="15" height="15" /><?php
 									}
 								}
 							?>
@@ -279,14 +280,14 @@ class Password_Rules_Config extends Config
 			$o->closeField();
 
 
-			$o->openField(translate('Password History Enforcement'), '', translate('Number of unique new passwords that have to be associated with and used by a user before an old password can be reused again. Enter 0 to disable this feature and stop Matrix from recording history passwords.'));
-
-
+			$o->openField(translate('Password History Enforcement'));
 				if ($write_access && $is_root) {
 					text_box($class.'[SQ_PASSWD_RULE_PASSWORD_HISTORY]', SQ_PASSWD_RULE_PASSWORD_HISTORY, 0);
 				} else {
 					echo SQ_PASSWD_RULE_PASSWORD_HISTORY;
 				}
+
+			$o->note(translate('Number of unique new passwords that have to be associated with and used by a user before an old password can be reused again. Enter 0 to disable this feature and stop Matrix from recording history passwords.'));
 			$o->closeField();
 
 		$o->closeSection();
@@ -295,8 +296,6 @@ class Password_Rules_Config extends Config
 
 			$o->openField(translate('Word List'), '', translate('New line separated list of words that are not allowed to be used as password.'));
 
-
-
 				if ($write_access) {
 					text_area($class.'[SQ_PASSWD_RULE_BLACK_LIST]', SQ_PASSWD_RULE_BLACK_LIST, 30, 8);
 				} else {
@@ -304,23 +303,20 @@ class Password_Rules_Config extends Config
 				}
 			$o->closeField();
 
-			$o->openField(translate('Exact Match'), '', translate('If ticked, the system will only stop users using a word from the Word List as a password if it\'s an exact match.'));
+			$o->openField(translate('Restrict Blacklist to Exact Match?'));
 
+			if ($write_access) {
+				combo_box($class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]', $yes_no_options, FALSE, SQ_PASSWD_RULE_BLACK_LIST_EXACT);			
+			} else {
+				echo $yes_no_options[SQ_PASSWD_RULE_BLACK_LIST_EXACT];
+			}
 
-
-				if ($write_access) {
-					check_box($class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]', '1', SQ_PASSWD_RULE_BLACK_LIST_EXACT);
-					label(translate('Only blacklist exactly matched words'), $class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]');
-
-				} else {
-					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo SQ_PASSWD_RULE_BLACK_LIST_EXACT ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
-				}
-
+			$o->note(translate('If set to "Yes", Matrix will only stop users using a word from the Word List as a password if it is an exact match. If set to "No", Matrix will restrict all potential passwords that contain words in the blacklist (eg. if "matrix" were in the word list, then "123matrix123" would be disallowed). Matches are case-sensitive.'));
 			$o->closeField();
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', TRUE);
+		if ($write_access) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 
@@ -362,12 +358,6 @@ class Password_Rules_Config extends Config
 					$_POST[$class][$password_rule] = SQ_PASSWD_RULE_DISABLED;
 				}
 			}
-		}
-
-		if (!isset($_POST[$class]['SQ_PASSWD_RULE_BLACK_LIST_EXACT'])) {
-			$_POST[$class]['SQ_PASSWD_RULE_BLACK_LIST_EXACT'] = 0;
-		} else {
-			$_POST[$class]['SQ_PASSWD_RULE_BLACK_LIST_EXACT'] = 1;
 		}
 
 		return parent::processBackend($o);

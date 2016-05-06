@@ -216,7 +216,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$page_tag = sprintf(translate('Page %1$s of %2$s'), $page_num, $num_pages);
 
 			} else {
-				$page_tag = sprintf(translate('Page <a style="color: #fff" href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_submissions_page');
+				$page_tag = sprintf(translate('Page <a href="#" onclick="return sq_pager_jump(\'%3$s\', sq_pager_prompt(1, %2$s));">%1$s</a> of %2$s'), $page_num, $num_pages, $prefix.'_submissions_page');
 
 			}
 			$asset_count_tag = sprintf(translate('Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s'), ($page_num - 1) * $num_per_page + 1, min($asset_count, $page_num * $num_per_page), $asset_count, strtolower(translate('Submissions')));
@@ -232,49 +232,27 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					);
 
 			if ($page_num > 1) {
-				$links['first'] = '<a title="'.translate('Go to the first page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', 1)">'.$links['first'].'</a>';
+				$links['first'] = '<a title="'.translate('Go to the first page').'" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', 1)">'.$links['first'].'</a>';
 
-				$links['previous'] = '<a title="'.translate('Go to the previous page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+				$links['previous'] = '<a title="'.translate('Go to the previous page').'" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
 
 			} else {
-				$links['first'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['first'].'</span>';
-
-				$links['previous'] = '<span title="'.translate('This is the first page; you cannot go any further back').'." style="color: #333">'.$links['previous'].'</span>';
-
+				unset($links['first']);
+				unset($links['previous']);
 			}
 
 			if ($page_num < $num_pages) {
-				$links['last'] = '<a title="'.translate('Go to the last page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.$num_pages.')">'.$links['last'].'</a>';
+				$links['last'] = '<a title="'.translate('Go to the last page').'" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.$num_pages.')">'.$links['last'].'</a>';
 
-				$links['next'] = '<a title="'.translate('Go to the next page').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+				$links['next'] = '<a title="'.translate('Go to the next page').'" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
 
 			} else {
-				$links['last'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['last'].'</span>';
-
-				$links['next'] = '<span title="'.translate('This is the last page; you cannot go any further forward').'." style="color: #333">'.$links['next'].'</span>';
-
+				unset($links['last']);
+				unset($links['next']);
 			}
 
 			hidden_field($prefix.'_submissions_page', $page_num); ?>
 
-			<style type="text/css">
-				td.sq-form-sub {
-					padding-top: 0px;
-				}
-				.sq-form-sub table.sq-backend-table {
-					border-top: 0px;
-					margin: 0 8px 8px 8px;
-				}
-				.sq-form-sub table.sq-backend-table th {
-					font-weight: normal;
-					text-decoration: italic;
-				}
-				table.sq-backend-table tr td.sq-form-sub-header {
-					background-color: #666;
-					color: #fff;
-					font-size: 11px;
-				}
-			</style>
 			<script type="text/javascript"><!--
 				function sq_set_check_all(form, prefix, value) {
 					set_els = form.elements[prefix];
@@ -309,84 +287,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			//--></script>
 			<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header-header" colspan="2"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" colspan="<?php echo ($write_access === TRUE) ? 4 : 3 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<th class="sq-backend-table-header-header" colspan="2"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></th>
+				<th class="sq-backend-table-header-header" colspan="<?php echo ($write_access === TRUE) ? 4 : 3 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
-			<!-- <tr>
-			<td class="sq-form-sub-header" colspan="2"><b><?php
-				hidden_field($prefix.'_submission_offset', $submission_offset);
-				if ($submission_offset > 0) {
-					?><a title="<?php echo translate('Go to the first page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-
-				} else {
-					?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
-
-				}
-				?>
-				&lt;&lt;
-				<?php
-				if ($submission_offset > 0) {
-					?></a><?php
-				} else {
-					?></span><?php
-				}
-				?> &nbsp; &nbsp; <?php
-				if ($submission_offset > 0) {
-					?><a title="<?php echo translate('Go to the previous page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-
-				} else {
-					?><span title="<?php echo translate('This is the first page; you cannot go any further back') ?>" style="color: #333"><?php
-
-				}
-				?>
-				&lt;
-				<?php
-				if ($submission_offset > 0) {
-					?></a><?php
-				} else {
-					?></span><?php
-				}
-				?>
-				&nbsp; &nbsp; <?php echo sprintf(translate('Page %1$s of %2$s'), round(($submission_offset + $num_per_page) / $num_per_page), ceil($asset_count / $num_per_page)); ?> &nbsp; &nbsp;
-
-				<?php
-				if (($submission_offset + $num_per_page) < $asset_count) {
-					?><a title="<?php echo translate('Go to the next page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-
-				} else {
-					?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
-
-				}
-				?>
-				&gt;
-				<?php
-				if (($submission_offset + $num_per_page) < $asset_count) {
-					?></a><?php
-				} else {
-					?></span><?php
-				}
-				?> &nbsp; &nbsp; <?php
-				if (($submission_offset + $num_per_page) < $asset_count) {
-					?><a title="<?php echo translate('Go to the last page of submissions') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-
-				} else {
-					?><span title="<?php echo translate('This is the last page; you cannot go any further forward') ?>" style="color: #333"><?php
-
-				}
-				?>
-				&gt;&gt;
-				<?php
-				if (($submission_offset + $num_per_page) < $asset_count) {
-					?></a><?php
-				} else {
-					?></span><?php
-				}
-				?></b>
-			</td>
-			<td class="sq-form-sub-header" colspan="4" align="right"><?php echo sprintf(translate('Displaying submissions <b>%1$s</b> to <b>%2$s</b>, out of <b>%3$s</b> total submissions'), $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
-
-			</td>
-			</tr> -->
 			<tr>
 				<th>
 					<?php echo translate('Asset ID') ?>
@@ -520,6 +423,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}//end if expanded
 			}//end while submission
 			?>
+				<tr>
+					<th colspan="<?php echo $write_access ? '6' : '5'; ?>" class="sq-backend-table-header-header" colspan="2"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></th>
+				</tr>
 			</table>
 			<script type="text/javascript"><!--
 			sq_test_check_all(document.main_form, '<?php echo $prefix ?>_expand[]', '<?php echo $prefix ?>_expand_all');
@@ -1561,7 +1467,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					echo '</b>';
 					?>
 				</td>
-				<td valign="top" align="center" width="70" class="sq-backend-table-cell"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /></td>
+				<td valign="top" align="center" width="70" class="sq-backend-table-cell"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.png" width="15" height="15" /></td>
 				<?php
 				if ($admin_access) {
 					?><td valign="top"  align="center" width="50" class="sq-backend-table-cell"><?php check_box($prefix.'_deletes[]', $k); ?></td><?php
@@ -2047,15 +1953,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			hidden_field($prefix.'_new_selected_action', '');
 
 			if (!empty($actions)) {
-				?><table class="sq-backend-table">
+				?><table class="sq-backend-table<?php echo $write_access ? ' sq-sortable-table-column' : ''?>" id="<?php echo $prefix.'_table'; ?>">
 				<thead>
+					<?php  if ($write_access) { ?>
 					<th style="width: 40px; text-align: center;">Edit</th>
+					<?php } ?>
 					<th style="width: 200px;">Action Name / Type</th>
 					<th>Summary</th>
 					<th style="width: 40px; text-align: center;">Valid?</th>
 					<th style="width: 40px; text-align: center;">Active?</th>
+					<?php  if ($write_access) { ?>
 					<th style="width: 40px; text-align: center;">Delete?</th>
-				</thead><tbody><?php
+					<?php if (count($actions) > 1 ) { ?>
+					<th style="width: 40px; text-align: center;">Reorder</th> 
+					<?php } } ?>
+				</thead><tbody class="sq-formemail-settings-options"><?php
 
 				foreach ($actions as $key => $action) {
 					$is_selected_action = (!is_null($selected_action) && ((string)$selected_action === (string)$key));
@@ -2070,29 +1982,39 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
 
-					if ($write_access && !$is_selected_action) {
-						?><td style="text-align: center;"><a href="#" onclick="document.getElementById('<?php echo $prefix ?>_new_selected_action').value = <?php echo $key ?>; document.main_form.submit(); return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></td><?php
-					} else {
-						?><td class="sq-backend-table-cell">&nbsp;</td><?php
-					}
+					if ($write_access) { ?>
+					<td style="text-align: center;"><a href="#" onclick="document.getElementById('<?php echo $prefix ?>_new_selected_action').value = <?php echo $key ?>; document.main_form.submit(); return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a>
+					<?php hidden_field($prefix.'_reorder[reorder]['.$key.']', $key);?>
+					</td><?php
+					} 
 					?><td><strong><?php echo $action['name'] ?></strong><br/>(<?php echo $type_name ?>)</td><?php
 					?><td class="sq-child-tables-padded"><?php echo call_user_func(Array($action_type, 'paintSummary'), $asset, $settings, $o, $prefix, $key) ?></td><?php
-					?><td style="text-align: center;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo call_user_func(Array($action_type, 'isValid'), $asset, $settings) ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></td><?php
+					?><td style="text-align: center;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo call_user_func(Array($action_type, 'isValid'), $asset, $settings) ? 'tick' : 'cross' ?>.png" width="15" height="15" border="0" /></td><?php
 					if ($write_access) {
 						?><td style="text-align: center;"><?php check_box($prefix.'_rules[active]['.$key.']', '1', $action['active']) ?></td><?php
 						?><td style="text-align: center;"><?php check_box($prefix.'_rules[delete]['.$key.']', '1', FALSE) ?></td><?php
 					} else {
-						?><td style="text-align: center;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $action['active'] ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></td><?php
-						?><td style="text-align: center;">&nbsp;</td><?php
-					}
-					?></tr><?php
+						?><td style="text-align: center;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $action['active'] ? 'tick' : 'cross' ?>.png" width="15" height="15" border="0" /></td><?php
+						?><?php } ?>
+						<?php if ($write_access && count($actions) > 1) { ?>
+						<td style="text-align: center; cursor:row-resize" class="dragabble-column"><img src="<?php echo sq_web_path('lib'); ?>/web/images/drag-move.png" border="0" /></td>
+						<?php } ?>
+						</tr>
+				<?php
 				}
-				?></tbody></table><?php
+				?>
+				
+					</tbody></table><?php
 			} else {
 				?><p>There are no actions currently defined for this form.</p><?php
 			}
-
 			?>
+			<script src="<?php echo sq_web_path('lib'); ?>/web/dfx/dfx.js"></script>
+			<script>
+				dfxLoadedCallback = function() {
+					dfx.tableSort('#<?php echo $prefix.'_table'  ?>', '.sq-sortable-table-column', '.dragabble-column');
+				}
+			</script
 			<div class="sq-backend-section-note"><strong>Note:</strong> Only actions that are <strong>valid</strong> and <strong>active</strong> will be executed when a form is submitted. An action can be activated or deactivated with the <strong>Active?</strong> check box.</div>
 			<?php
 
@@ -2113,7 +2035,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	*/
 	public function processAllActions(Form_Email $asset, Backend_Outputter $o, $prefix)
-	{
+	{	
 		$write_access = $asset->writeAccess('attributes');
 
 		// If we have selected "edit action", then we don't want this to run,
@@ -2123,14 +2045,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (!empty($edit_action)) {
 			return $write_access;
 		}
-
 		if ($write_access) {
-			$actions = $asset->attr('actions');
-
+			$get_actions = $asset->attr('actions');
 			$rule_changes = array_get_index($_POST, $prefix.'_rules', Array());
+			$reorder_changes = array_get_index($_POST, $prefix.'_reorder', Array());
+			$actions = Array();
+			if (!empty($reorder_changes)) {
+				foreach ($reorder_changes['reorder'] as $i => $key) {
+					$key = trim($key);
+					$value = $get_actions[$key];
+					$actions[$key] = $value;
+				}
+			}
 
-			if(!empty($actions)) {
-				foreach ($actions as $key => $action) {
+			if(!empty($get_actions)) {
+				foreach ($get_actions as $key => $action) {
 					if (!isset($rule_changes['active'][$key])) {
 						$rule_changes['active'][$key] = Array();
 					}
@@ -2144,14 +2073,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			if (!isset($rule_changes['delete'])) {
 				$rule_changes['delete'] = Array();
 			}
-
+			
 			foreach ($rule_changes['active'] as $key => $value) {
 				$actions[$key]['active'] = (boolean)$value;
 			}
+			
 			foreach ($rule_changes['delete'] as $key => $value) {
 				unset($actions[$key]);
 			}
-
+			
 			$asset->setAttrValue('actions', $actions);
 			if (!$asset->saveAttributes()) return FALSE;
 		}
@@ -2176,6 +2106,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form_action');
 		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
+		asort($names);
+
 		$o->openField('');
 			if ($write_access) {
 				?><p><?php

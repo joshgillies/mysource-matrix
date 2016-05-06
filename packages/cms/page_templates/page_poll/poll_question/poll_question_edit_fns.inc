@@ -95,6 +95,11 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 			  form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked;
 			  form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked = temp;
 
+			  // switch the clear votes checkboxes
+			  temp = form.elements['<?php echo $prefix ?>_order[clear_votes][' + (currentOrder-1) + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[clear_votes][' + (currentOrder-1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[clear_votes][' + currentOrder + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[clear_votes][' + currentOrder + ']'].checked = temp;
+
 			  // switch the reorder values
 			  temp = form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder+1) + ']'].value;
 			  form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder+1) + ']'].value = form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value;
@@ -131,6 +136,11 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 			  form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder-1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked;
 			  form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked = temp;
 
+			   // switch the clear votes checkboxes
+			  temp = form.elements['<?php echo $prefix ?>_order[clear_votes][' + (currentOrder-1) + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[clear_votes][' + (currentOrder-1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[clear_votes][' + currentOrder + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[clear_votes][' + currentOrder + ']'].checked = temp;
+
 			  // switch the reorder values
 			  temp = form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder-1) + ']'].value;
 			  form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder-1) + ']'].value = form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value;
@@ -143,7 +153,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 						<td class="sq-backend-table-header">
 							Poll Option
 						</td>
-						<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">
+						<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;text-align:center;">
 							Votes
 						</td>
 						<?php
@@ -151,10 +161,10 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 						if ($admin_access) {
 
 							?>
-							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td>
-							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Move</td>
+							<td style="font-weight: bold;text-align:center;" width="100" class="sq-backend-table-header" align="center" >Delete?</td>
+							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;text-align:center;">Move</td>
+							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;text-align:center;">Clear Votes?</td>
 							<?php
-
 						}
 
 						?>
@@ -210,6 +220,11 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 										}
 										?>
 									</td>
+									<td align="center" width="100" class="sq-backend-table-cell">
+										<?php
+										check_box($prefix.'_order[clear_votes]['.$sort_id.']');
+										?>
+									</td>
 									<?php
 								}//end if admin access
 							?>
@@ -261,6 +276,20 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 					if ($_POST[$prefix.'_order']['delete'][$option_index] == '1') {
 						$options[$option_index] = NULL;
 						unset($options[$option_index]);
+						$options = array_values($options);
+					}
+				}
+				$option_updated = TRUE;
+			}
+		}
+
+		// Clears all the votes based on specific items flagged
+		if (isset($_POST[$prefix.'_order']['clear_votes'])) {
+			foreach (array_keys($options) as $option_index ) {
+				if (isset($_POST[$prefix.'_order']['clear_votes'][$option_index])) {
+					if ($_POST[$prefix.'_order']['clear_votes'][$option_index] == '1') {
+						$options[$option_index]['votes'] = 0;
+
 						$options = array_values($options);
 					}
 				}

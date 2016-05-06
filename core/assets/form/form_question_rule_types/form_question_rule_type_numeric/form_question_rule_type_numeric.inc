@@ -82,14 +82,11 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 		// have we printed out the validation function yet?
 		// (since this is static across all class instances, this will work)
 		static $printed_fn_required = FALSE;
-		static $printed_fn_not_required = FALSE;
 
 		$operator = array_get_index($rule_data, 'operator', 1);
 
-        // regex code - allow empty or leading plus or minute, digits, decimal point
-        $regex_code_not_required = '/(^$)|(^[-+]?\d*\.?\d+$)/';
-        // regex code - allow leading plus or minute, digits, decimal point, but not empty
-        $regex_code_required = '/^[-+]?\d*\.?\d+$/';
+		// regex code - allow leading plus or minute, digits, decimal point, but not empty
+		$regex_code_required = '/^[-+]?\d*\.?\d+$/';
 
 		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
 		$condition_js = parent::generateConditionJSCode($rule_data);
@@ -100,62 +97,35 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 
 		ob_start();			// buffer this please
 
-            // output js function for *required* validation
-			if (!$printed_fn_required && $q_asset->attr('is_required')) {
+			// output js function for *required* validation
+			if (!$printed_fn_required) {
 				$printed_fn_required = TRUE;
 
 					?>
 					function sq_form_validate_numeric_required(answer)
 					{
 						<?php echo $additional_condition; ?>
+						// Pass the validation for the empty response. If the answer is required, it will validated any "compare" rule anyway
+						if (answer.length == 0) {
+							return true;
+						}
 						answer.replace(/,/, "");
 						return answer.match(<?php echo $regex_code_required ?>);
 
 					}//end sq_form_validate_numeric_required()
 					<?php
-            // output js function for validation where field is not required to be filled
-            } else if (!$printed_fn_not_required) {
-				$printed_fn_not_required = TRUE;
+			}
 
-					?>
-					function sq_form_validate_numeric_not_required(answer)
-					{
-						<?php echo $additional_condition; ?>
-						answer.replace(/,/, "");
-						return answer.match(<?php echo $regex_code_not_required ?>);
-
-                    }//end sq_form_validate_numeric_not_required()
-
-					<?php
-
-            }
-
-            // generate calls to the above 2 functions
-            // if this field is required
-            if ($q_asset->attr('is_required')) {
-                 	?>
-                    if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric_required(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
-                        submission_errors[submission_errors.length] = "<?php
-                            if (empty($rule_data['custom_text'])) {
-                                echo addslashes($this->defaultError($q_asset, $rule_data));
-                            } else {
-                                echo addslashes($rule_data['custom_text']);
-                            }
-                        ?>";
-                    } <?php
-            // if this field is not required
-            } else if (!$q_asset->attr('is_required')) {
-             		?>
-                    if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric_not_required(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
-                        submission_errors[submission_errors.length] = "<?php
-                            if (empty($rule_data['custom_text'])) {
-                                echo addslashes($this->defaultError($q_asset, $rule_data));
-                            } else {
-                                echo addslashes($rule_data['custom_text']);
-                            }
-                        ?>";
-                    } <?php
-            }
+			?>
+			if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric_required(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
+				submission_errors[submission_errors.length] = "<?php
+				if (empty($rule_data['custom_text'])) {
+					echo addslashes($this->defaultError($q_asset, $rule_data));
+				} else {
+						echo addslashes($rule_data['custom_text']);
+				}
+					?>";
+			} <?php
 
 		$contents = ob_get_contents();
 		ob_end_clean();
@@ -203,10 +173,23 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 	    	$use_accessible_string = $form->useAccessibleFormat();
-		if($use_accessible_string)
-		    $error_str = translate('core_form_rule_numeric_desc_'.($operator ? 'true' : 'false').'_accessible');
-		else
-		    $error_str = translate('core_form_rule_numeric_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'));
+
+        if($use_accessible_string) {
+            if($operator) {
+                $error_str = translate('The response must be a valid numeric value.');
+            }
+            else {
+                $error_str = translate('The response must NOT be a valid numeric value.');
+            }
+        }
+        else {
+            if($operator) {
+                $error_str = sprintf(translate('The response to question "%s" must be a valid numeric value'), $q_asset->attr('name'));
+            }
+            else {
+                $error_str = sprintf(translate('The response to question "%s" must NOT be a valid numeric value'), $q_asset->attr('name'));
+            }
+        }
 
 		return $error_str;
 

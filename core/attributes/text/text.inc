@@ -47,8 +47,9 @@ class Asset_Attribute_Text extends Asset_Attribute
 		$this->Asset_Attribute($attributeid, $value, Array('max_length' => 0));
 
 		// set default edit parameters
-		$this->_edit_params['width']  = 0;
-		$this->_edit_params['height'] = 1;
+		$this->_edit_params['width']      = 0;
+		$this->_edit_params['height']     = 1;
+		$this->_edit_params['empty_text'] = '';
 
 	}//end constructor
 
@@ -145,6 +146,9 @@ class Asset_Attribute_Text extends Asset_Attribute
 		if (isset($node->attributes()->height)) {
 			$this->_edit_params['height'] = (int) $node->attributes()->height;
 		}
+		if (isset($node->attributes()->empty_text)) {
+			$this->_edit_params['empty_text'] = (string) $node->attributes()->empty_text;
+		}
 
 		return true;
 
@@ -163,7 +167,11 @@ class Asset_Attribute_Text extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		if ($read_only) {
-			echo nl2br(htmlspecialchars($this->value));
+			if ((empty($this->_edit_params['empty_text']) === FALSE) && ($this->value === '')) {
+				echo '<em>'.$this->_edit_params['empty_text'].'</em>';
+			} else {
+				echo nl2br(htmlspecialchars($this->value));
+			}
 			return;
 		}
 

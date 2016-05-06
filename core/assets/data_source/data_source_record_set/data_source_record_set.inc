@@ -167,11 +167,12 @@ class Data_Source_Record_Set extends Asset
 	* Get bodycopy keyword replacement
 	*
 	* @param string	$keyword	Keyword to find a replacement for
+	* @param string $additional_replacements    Additional keyword replacements for 'replace_keywords' modifier
 	*
 	* @return string
 	* @access public
 	*/
-	public function getKeywordReplacement($keyword)
+	public function getKeywordReplacement($keyword, $additional_replacements=Array())
 	{
 		$replacement = NULL;
 

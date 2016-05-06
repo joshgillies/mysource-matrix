@@ -117,9 +117,8 @@ function morphAssets($root, $from_type, $to_type, $simulate) {
 
 	//we are working, please wait
 	if ($simulate) {
-		echo "Simulate Morphing assets...\n";
+		echo "Simulate Morphing assets...\n\n";
 	} else {
-
 		// Make sure the user wants to continue
 		echo "There are $child_count $from_type assets to morph, are you sure you want to continue? Type 'yes' to continue:\n";
 		$line = fgets(STDIN);
@@ -140,19 +139,22 @@ function morphAssets($root, $from_type, $to_type, $simulate) {
 		// Morph to new asset type
 		if (!$simulate) {
 			$result = $child_asset->morph($to_type);
-			if (!empty($result)) {
-				$able_to_morph++;
-				echo 'Morph Asset #'.$child_asset->id."\n";
-			} else {
-				echo "There was an error morphing $child_asset->id to $to_type\n";
-			}
 		} else {
-			$able_to_morph++;
-			echo 'Simulate Morph Asset #'.$child_asset->id."\n";
+			$result = $child_asset->canMorph($to_type);
 		}//end
+			
+		echo 'Morphing Asset #'.$child_asset->id." to ".$to_type." ...\t";
+		if (!empty($result)) {
+			$able_to_morph++;
+			echo "[DONE]";
+		} else {
+			echo "[FAILED]";
+		}
+		echo "\n";
 
 	}//end for each
 
+	echo "\n";
 	if ($simulate) {
 		echo "Finished simulating morphing assets. $able_to_morph of $child_count $from_type assets can be morphed to $to_type assets.\n";
 	} else {

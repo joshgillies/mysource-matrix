@@ -157,7 +157,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 					radio_button($type_prefix.'[req_type]', $req_type, $req_type==$query_req);
 				} else {
 					if ($req_type==$query_req) {
-						echo '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="'.$req_name.'" />';
+						echo '<img src="'.sq_web_path('lib').'/web/images/tick.png" alt="'.$req_name.'" />';
 					} else {
 						echo '&ndash;';
 					}
@@ -339,7 +339,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
-					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.png';
 					$inherit_alt = $inherit ? translate('Yes') : translate('No');
 
 

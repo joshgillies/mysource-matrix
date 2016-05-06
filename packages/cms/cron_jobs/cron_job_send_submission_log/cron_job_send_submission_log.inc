@@ -262,7 +262,9 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 
 				// Mark the run time
 				$this->setAttrValue('previous_run', $log_file_info['till']);
-				$this->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$this->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 				// Clean up the temporary log file
 				if (file_exists($log_file_info['file'])) {

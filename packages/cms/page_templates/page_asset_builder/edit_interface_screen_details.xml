@@ -30,7 +30,7 @@
     </section>
     <section name="Asset Creation Settings" write_access="write:menu">
         <field>
-            <display_name>Asset Types to Create</display_name>
+            <display_name>Asset Types to Create and Edit</display_name>
             <note></note>
             <function_call>
                 <paint_function name="paintAssetTypes" />
@@ -57,7 +57,12 @@
     <section name="Advanced Settings" write_access="write:attributes">
         <field attribute="allow_public_user">
             <display_name>Ignore Permissions</display_name>
-            <note>If this option is enabled, link permissions will not be checked when creating the asset. Otherwise, users must have permission to create assets in the create locations specified.</note>
+            <note>If this option is enabled, link permissions will not be checked when creating the asset. Otherwise, users must have permission to create assets in the create locations specified.&lt;br/&gt;&lt;strong&gt;Warning:&lt;/strong&gt; If public read is granted to this asset and this setting is on, and if enforce user login is turned off, assets could potentially be created by public users.</note>
+            <boolean true_text="Yes" false_text="No"/>
+        </field>
+        <field attribute="enforce_user_login">
+            <display_name>Enforce User Login</display_name>
+            <note>If this option is enabled, only logged in user can submit asset creation form. Otherwise, all users can submit asset creation form from either Logged In bodycopy or Not Logged In bodycopy.</note>
             <boolean true_text="Yes" false_text="No"/>
         </field>
         <field attribute="submit_to_page_url">
@@ -88,10 +93,23 @@
                 <process_function name="processCreateFormCustomisation" />
             </function_call>
         </field>
+        <field>
+            <display_name>Edit Form Customisation</display_name>
+            <note>If an asset type is selected for edit form customisation, a layout asset will be created under this page and will be be used when displaying the edit form for that asset type.  Fields from the details or metadata screens may be included in the layout.</note>
+            <function_call>
+                <paint_function name="paintEditFormCustomisation" />
+                <process_function name="processEditFormCustomisation" />
+            </function_call>
+        </field>
         <field attribute="password_autocomplete">
             <display_name>Auto Complete Password</display_name>
             <note>If set to 'Disable', the login forms will allow, browsers which support the attribute, to populate the password field on login screen.</note>
             <boolean true_text="Enable" false_text="Disable" />
+        </field>
+        <field attribute="edit_parameter_map">
+            <display_name>Dynamic Parameters</display_name>
+            <note>The "Edit Asset" parameter is used for the asset to edit using the Asset Builder</note>
+            <parameter_map />
         </field>
     </section>
     <section name="CAPTCHA" write_access="write:attributes">

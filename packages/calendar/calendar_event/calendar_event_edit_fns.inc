@@ -95,12 +95,12 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td class="sq-backend-data" style="white-space: nowrap">
 					<?php $checked = $asset->getEndDate() || isset($_REQUEST['SQ_CALENDAR_DURATION']); ?>
-					<input name="<?php echo $prefix ?>_end_enabled" id="<?php echo $prefix ?>_end_enabled" type="checkbox" <?php if ($checked) echo ' checked="checked" '; ?> onclick="processEndClick(this, '<?php echo $prefix; ?>');"/>&nbsp;runs&nbsp;
+					<input name="<?php echo $prefix ?>_end_enabled" id="<?php echo $prefix ?>_end_enabled" type="checkbox" <?php if ($checked) echo ' checked="checked" '; ?> onclick="processEndClick(this, '<?php echo $prefix; ?>');"/>&nbsp;<label for="<?php echo $prefix ?>_end_enabled">runs</label>&nbsp;
 				</td>
 				<!-- duration -->
 				<td class="sq-backend-data" style="white-space: nowrap">
-					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> <?php echo strtolower(translate('For')); ?>
-
+					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> />
+					<label for="<?php echo $prefix; ?>_duration_enabled"><?php echo strtolower(translate('For')); ?></label>
 				</td>
 				<td colspan="2" class="sq-backend-data" style="white-space: nowrap">
 					<?php text_box($prefix.'_duration', $duration, 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValuesByPrefix(\''.$prefix.'\')" '.$end_disabled_code);
@@ -114,8 +114,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				<td>&nbsp;</td>
 				<!-- end date -->
 				<td class="sq-backend-data" style="white-space: nowrap">
-					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  /> <?php echo strtolower(translate('Until')); ?> &nbsp;
-
+					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  />
+					<label for="<?php echo $prefix; ?>_end_date_enabled"><?php echo strtolower(translate('Until')); ?></label> &nbsp;
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
 					<?php $this->printDateChooser($prefix.'_end', $occurrence_end_ts ? $occurrence_end_ts : ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : FALSE), $attributes+Array('onclick'=>'checkBox(\''.$prefix.'_end_date_enabled\');', 'onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processEndDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')+$end_disabled_array); ?>
@@ -375,7 +375,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			$checkbox_attrs_code .= ' '.$name.'="'.$value.'"';
 		}
 		?>
-		<input class="sq-form-field" type="checkbox" <?php echo $checked_text ?> value="1" name="<?php echo $prefix; ?>_time_enabled" id="<?php echo $prefix; ?>_time_enabled" <?php echo $checkbox_attrs_code; ?> />at
+		<input class="sq-form-field" type="checkbox" <?php echo $checked_text ?> value="1" name="<?php echo $prefix; ?>_time_enabled" id="<?php echo $prefix; ?>_time_enabled" <?php echo $checkbox_attrs_code; ?> /><label for="<?php echo $prefix; ?>_time_enabled">at</label>
 
 		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_hours" id="<?php echo $prefix; ?>_hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" <?php echo $attrs_code; ?> /> :
 

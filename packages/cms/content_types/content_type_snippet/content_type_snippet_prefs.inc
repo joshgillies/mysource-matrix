@@ -53,7 +53,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 		$this->pref_vars['SQ_SNIPPET_ROOT']['name'] = translate('Snippet Root Node');
 		$this->pref_vars['SQ_SNIPPET_ROOT']['desc'] = translate('All content types found under this asset will be available in the Snippet Content Type dropdown.');
 
-		$this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['name'] = translate('Snippet Keywords Permission Check');
+		$this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['name'] = translate('Enable Permission Check?');
 		$this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['desc'] = translate('Turn off WYSIWYG snippet keywords permission check to improve performance.');
 
 	}//end constructor
@@ -77,8 +77,8 @@ class Content_Type_Snippet_Prefs extends Prefs
 		$this->paintAssetMapField($o, $have_lock, $pref, 'SQ_SNIPPET_ROOT');
 
         $options = Array(
-                    1 => translate('Enable permission check'),
-                    0 => translate('Disable permission check'),
+                    1 => translate('Yes'),
+                    0 => translate('No'),
                    );
 		$this->paintComboField($o, $have_lock, $pref, 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK', $options);
 

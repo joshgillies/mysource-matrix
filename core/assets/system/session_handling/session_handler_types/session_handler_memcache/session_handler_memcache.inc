@@ -61,42 +61,37 @@ class Session_Handler_Memcache extends Session_Handler
 	{
 		$host_str = self::getHostString();
 
-		// Calculate the domain and path for the session cookie.
-		$domain = strip_url(sq_web_path('root_url'), TRUE);
-		$pos = strpos($domain, '/');
-		$path = '/';
-		if ($pos !== FALSE) {
-			$path = substr($domain, $pos);
-		}
-
-		$secure = FALSE;
-		if (current_protocol() === 'https' && (defined('SQ_CONF_COOKIE_OPTION_SECURE') && SQ_CONF_COOKIE_OPTION_SECURE)) $secure = TRUE;
-
-		$http_only = FALSE;
-		$php_version_suits = (version_compare(PHP_VERSION, '5.2.0') >= 0);
-		if ($php_version_suits && (defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY') && SQ_CONF_COOKIE_OPTION_HTTP_ONLY)) $http_only = TRUE;
-		// Now, set to the 'memcache' module and set the
-		// appropriate save path (ie. the connection string to thee
-		// memcached server).
-		session_name('SQ_SYSTEM_SESSION');
-		if ($php_version_suits) {
-			session_set_cookie_params(0, $path, NULL, $secure, $http_only);
-		} else {
-			session_set_cookie_params(0, $path, NULL, $secure);
-		}
 		session_module_name('memcache');
-
-        // Hardening.
-		if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-            ini_set('session.hash_bits_per_character', 5);
-            ini_set('session.hash_function', 'sha512');
-        } else {
-            ini_set('session.hash_function', '1');
-        }
-
 		session_save_path($host_str);
 
+		// Disable PHP session handler's compression of sessions in memcache.
+		ini_set('memcache.compress_threshold', 0);
+
 	}//end init()
+
+
+	/**
+	 * Build the Memcache object.
+	 *
+	 * ...so it doesn't have to be done four times.
+	 * It creates the object, adds the host string, and also disables
+	 * compression. (See Squizmap #7718 - sometimes caches in front of
+	 * Matrix want to look at the session data and without this setting it
+	 * would cache above 20 KB of data.)
+	 *
+	 * @return Memcache
+	 */
+	protected static function _getMemcacheObject()
+	{
+		$host_str = self::getHostString();
+
+		$memcache = new Memcache();
+		$memcache->addServer($host_str);
+		$memcache->setCompressThreshold(0);
+
+		return $memcache;
+
+	}//end _getMemcacheObj()
 
 
 	/**
@@ -113,9 +108,7 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	function unserialiseSession($session_id)
 	{
-		$host_str = self::getHostString();
-		$memcache = new Memcache();
-		$memcache->addServer($host_str);
+		$memcache    = self::_getMemcacheObject();
 		$session_str = $memcache->get($session_id);
 
 		if ($session_str === FALSE) {
@@ -151,10 +144,6 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	function serialiseSession($session_id, $session_contents)
 	{
-		$host_str = self::getHostString();
-		$memcache = new Memcache();
-		$memcache->addServer($host_str);
-
 		if (!is_array($session_contents)) {
 			trigger_localised_error('CORE0004', sprintf(translate('Array expected for second argument, got %s'), gettype($session_contents)), E_USER_WARNING);
 			return FALSE;
@@ -165,6 +154,7 @@ class Session_Handler_Memcache extends Session_Handler
 			$session_str .= $key.'|'.serialize($val);
 		}
 
+		$memcache = self::_getMemcacheObject();
 		$result = $memcache->set($session_id, $session_str);
 
 		if ($result === FALSE) {
@@ -185,10 +175,8 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	public static function sessionExists($session_id)
 	{
-		$host_str = self::getHostString();
-		$memcache = new Memcache();
-		$memcache->addServer($host_str);
-		$return = $memcache->get($session_id);
+		$memcache = self::_getMemcacheObject();
+		$return   = $memcache->get($session_id);
 		return ($return !== FALSE);
 
 	}//end sessionExists()
@@ -208,10 +196,7 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	public static function syncSession($primary_session_id)
 	{
-		$host_str = self::getHostString();
-		$memcache = new Memcache();
-		$memcache->addServer($host_str);
-
+		$memcache = self::_getMemcacheObject();
 		$pri_sess = self::unserialiseSession($primary_session_id);
 
 		$pri_timestamp = array_get_index($pri_sess, 'SQ_SESSION_TIMESTAMP', -1);

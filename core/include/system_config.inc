@@ -74,6 +74,7 @@ class System_Config extends Config
 						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NO_CACHE_HEADER'			=> Array('editable' => 1, 'default' => '1'),
 						'SQ_CONF_SEND_404_CACHEABLE_HEADER'		=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_X_UA_COMPATIBLE_HEADER'	=> Array('editable' => 1, 'default' => '1'),
 						'SQ_CONF_USE_HTTP_X_FORWARDED_FOR'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_FORWARDED_IP_PROXY_LIST'		=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_ERRORS_LOG_TO_SYSLOG'			=> Array('editable' => 1, 'default' => FALSE),
@@ -99,7 +100,7 @@ class System_Config extends Config
 						'SQ_CONF_SESSION_HANDLER'				=> Array('editable' => 0, 'default' => ''),
 						'SQ_CONF_SESSION_GC_MAXLIFETIME'		=> Array('editable' => 1, 'default'	=> 604800),
 						'SQ_CONF_EDITING_TIME'					=> Array('editable' => 0, 'default' => 3600),
-						'SQ_CONF_NUM_DATA_DIRS'					=> Array('editable' => 0, 'default' => 20),
+						'SQ_CONF_NUM_DATA_DIRS'					=> Array('editable' => 0, 'default' => 60),
 						'SQ_CONF_FORCE_SECURE_LOGIN_URLS'		=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_WEB_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 64),
 						'SQ_CONF_CRON_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 64),
@@ -117,9 +118,12 @@ class System_Config extends Config
 						'SQ_CONF_ROOT_USER_DISABLED'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_DISABLE_ATTRIBUTION'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN'		=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN_FRONTEND'	=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_ENABLE_CSRF_TOKEN_REQUEST'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_VISITED_PAGES_MAX_ENTRIES'		=> Array('editable' => 1, 'default' => '10'),
 						'SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL'	=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONFIG_STRIP_MATRIX_COMMENTS'		=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_FUNNELBACK_INDEXING_USER'      => Array('editable' => 1, 'default' => ''),
 					   );
 
 	/**
@@ -239,6 +243,8 @@ class System_Config extends Config
 	{
 		switch ($var_name) {
 			case 'SQ_CONF_PEAR_PATH' :
+				// override the default empty value to populate this real default path
+				if(empty($value)) $value = SQ_SYSTEM_ROOT.'/php_includes';
 				// if this looks like a plain value and it starts with the system root, then put the system root constant in
 				if ($var_export && substr($value, 0, strlen(SQ_SYSTEM_ROOT)) == SQ_SYSTEM_ROOT) {
 					if (!parent::_paintConfigVar($var_name, 'SQ_SYSTEM_ROOT.'.var_export(substr($value, strlen(SQ_SYSTEM_ROOT)), TRUE), FALSE)) {
@@ -374,6 +380,11 @@ class System_Config extends Config
 	{
 		parent::paintBackend($o);
 
+		$yes_no_options = Array(
+		    '1' => translate('Yes'),
+		    '0' => translate('No'),
+		);
+
 		$write_access = $this->writeAccess();
 
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
@@ -399,9 +410,10 @@ class System_Config extends Config
 			} else {
 				echo SQ_CONF_SYSTEM_OWNER;
 			}
+			$o->note(translate('The System Name and System Owner appear by default in the footer of internal messages sent from the system by email. This behaviour can be changed by setting a custom message footer on the Messaging Service Config screen.'));
 			$o->closeField();
 
-			$o->openField(translate('System Backend Suffix'));
+			$o->openField(translate('Admin Mode Suffix'));
 
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_BACKEND_SUFFIX]', SQ_CONF_BACKEND_SUFFIX, 15);
@@ -409,13 +421,19 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_BACKEND_SUFFIX);
 			}
 
-			$o->openField(translate('System Simple Edit Suffix'));
+			$o->note(translate('If this path is added to a URL served by this system, Matrix will launch the Administration Mode Interface. Users of level "Backend User" or above can access the Admin Mode. A login page will be provided to users not logged in or without proper privilege.'));
+			$o->closeField();
+
+			$o->openField(translate('Edit Mode Suffix'));
 
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_LIMBO_SUFFIX]', SQ_CONF_LIMBO_SUFFIX, 15);
 			} else {
 				echo nl2br(SQ_CONF_LIMBO_SUFFIX);
 			}
+
+			$o->note(translate('If this path is added to a URL served by this system, Matrix will launch the Edit Mode Interface. Users of level "Simple Edit User" or above can access the Edit Mode. A login page will be provided to users not logged in or without proper privilege.'));
+			$o->closeField();
 
 			$o->openField(translate('System Login Suffix'));
 
@@ -425,6 +443,9 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_LOGIN_SUFFIX);
 			}
 
+			$o->note(translate('If this path is added to a URL served by this system, Matrix will provide a login page, without triggering a backend mode. After logging in through this interface, Matrix will return the user to the previous frontend asset.'));
+			$o->closeField();
+
 			$o->openField(translate('System Bypass Cache Suffix'));
 
 			if ($write_access) {
@@ -432,6 +453,9 @@ class System_Config extends Config
 			} else {
 				echo nl2br(SQ_CONF_NOCACHE_SUFFIX);
 			}
+
+			$o->note(translate('If this path is added to a URL served by this system, Matrix will disable its own caching systems entirely. This means Matrix will provide a fresh copy of an asset\'s content even if caching is enabled, and also not save the result in its caches.'));
+			$o->closeField();
 
 			$o->openField(translate('System Bypass Proxy Cache Suffix'));
 
@@ -441,7 +465,9 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_NOPROXYCACHE_SUFFIX);
 			}
 
-
+			$o->note(translate('If this path is added to a URL served by this system, Matrix will ignore any "Send Cacheable Headers" settings and will not send relevant headers (such as Cache-Control, Expires, and Last-Modified) for that request only.'));
+			$o->closeField();
+			
 			$o->openField(translate('System Clear Cache Suffix'));
 
 			if ($write_access) {
@@ -449,6 +475,9 @@ class System_Config extends Config
 			} else {
 				echo nl2br(SQ_CONF_RECACHE_SUFFIX);
 			}
+
+			$o->note(translate('If this path is added to a URL served by this system, Matrix will provide a fresh copy of an asset\'s content, similar to the Bypass Cache suffix, but also reprime Matrix\'s cache system with the resulting contents.'));
+			$o->closeField();
 
 			$o->openField(translate('System Performance Mode Suffix'));
 
@@ -458,6 +487,9 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_PERFORMANCE_SUFFIX);
 			}
 
+			$o->note(translate('If this path is added to a URL served by this system, Matrix will enter Performance Mode, allowing you to view a list of assets - including designs and nested assets - that are requested during the painting of the URL and their speed of performing certain actions (such as painting), allowing you to analyse bottlenecks in page generation. You must be a Backend User at least, and have write access to an asset in order to access Performance Mode.'));
+			$o->closeField();
+
 			$o->openField(translate('System Timezone'));
 
 			if ($write_access) {
@@ -466,37 +498,44 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_TIMEZONE);
 			}
 
-			$o->openField(translate('Matrix Attribution'));
+			$o->note(translate('This sets the default PHP timezone for Matrix.'));
+			$o->closeField();
 
-			$options = Array(
-			    '1' => translate('Disable attribution'),
-			    '0' => translate('Include attribution'),
-			);
+			$o->openField(translate('Disable Matrix Attribution in Designs?'));
 
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_DISABLE_ATTRIBUTION]', $options, FALSE, SQ_CONF_DISABLE_ATTRIBUTION);
-				$o->note(translate('<b>NOTE:</b> Editing this option will need the designs to be regenerated before this option takes effect.'));
+				combo_box($class.'[SQ_CONF_DISABLE_ATTRIBUTION]', $yes_no_options, FALSE, SQ_CONF_DISABLE_ATTRIBUTION);			
 			} else {
-				echo $options[SQ_CONF_DISABLE_ATTRIBUTION];
+				echo $yes_no_options[SQ_CONF_DISABLE_ATTRIBUTION];
 			}
 
-			$o->openField(translate('Origin Frame Security'));
+			$o->note(translate('If set to "Yes", parsed Design assets will not contain the "Running Squiz Matrix" attribution comment. After changing this setting, Design assets need to be regenerated for the change to take effect.'));
+			$o->closeField();
 
-			$options = Array(
-			    '1' => translate('Enforce Same Origin Frame'),
-			    '0' => translate('Don\'t enforce Same Origin Frame'),
-			);
+			$o->openField(translate('Enforce Same Origin Frame Security For Backend?'));
 
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN]', $options, FALSE, SQ_CONF_ENFORCE_FRAME_SAMEORIGIN);
-				$o->note(translate('If Matrix is nested in a frame of a page, the page must be hosted on same domain of Matrix.'));
+				combo_box($class.'[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN]', $yes_no_options, FALSE, SQ_CONF_ENFORCE_FRAME_SAMEORIGIN);
 			} else {
-				echo $options[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN];
+				echo $yes_no_options[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN];
 			}
+
+			$o->note(translate('If set to "Yes", Matrix will add the header "X-Frame-Options: SAMEORIGIN" to pages within Admin Mode and Edit Mode. This means that only pages hosted on the same domain as this Matrix system will be able to nest the Admin and Edit Mode interfaces using frames. Virtually all recent browsers support this header.'));
+			$o->closeField();
+
+			$o->openField(translate('Enforce Same Origin Frame Security For Frontend?'));
+
+			if ($write_access) {
+				combo_box($class.'[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN_FRONTEND]', $yes_no_options, FALSE, SQ_CONF_ENFORCE_FRAME_SAMEORIGIN_FRONTEND);			
+			} else {
+				echo $yes_no_options[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN_FRONTEND];
+			}
+			$o->note(translate('If set to "Yes", Matrix will add the header "X-Frame-Options: SAMEORIGIN" to frontend pages. This means that all frontend pages served by this Matrix system cannot be nested in a frame, unless the parent page is hosted on the same domain. Virtually all recent browsers support this header.'));
+			$o->closeField();
+
 		$o->closeSection();
 
 		$o->openSection(translate('System URL Settings'));
-
 
 			require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 
@@ -511,6 +550,8 @@ class System_Config extends Config
 				} else {
 					echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
 				}
+
+			$o->note(translate('Root URLs must be added here before they (or any more specific URL) can be used by a Site asset. There is no limit to the number of System Root URLs that can be registered.'));
 			$o->closeField();
 
 			$o->openField(translate('System Parent Domains'));
@@ -562,34 +603,23 @@ class System_Config extends Config
 
 			$o->closeField();
 
-			$o->openField(translate('Static URL uses HTTP'));
-                $options = Array(
-                    '1' => translate('Allow HTTP'),
-                    '0' => translate('Don\'t allow HTTP'),
-                );
-
+			$o->openField(translate('Allow HTTP for Static URL?'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTP]', $options, FALSE, SQ_CONF_STATIC_ROOT_HTTP);
-
-
+					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTP]', $yes_no_options, FALSE, SQ_CONF_STATIC_ROOT_HTTP);
 				} else {
-					echo $options[SQ_CONF_STATIC_ROOT_HTTP];
-
-
+					echo $yes_no_options[SQ_CONF_STATIC_ROOT_HTTP];
 				}
+			$o->note(translate('If set to "No", Static URLs for live, publicly-readable files will be served through a Secure HTTP (HTTPS) protocol, even if the connection for the asset referencing them is insecure.'));
 			$o->closeField();
 
-			$o->openField(translate('Static URL uses HTTPS'));
-
-                $options = Array(
-                    '1' => translate('Allow HTTPS'),
-                    '0' => translate('Don\'t allow HTTPS'),
-                );
+			$o->openField(translate('Allow Secure HTTP (HTTPS) for Static URL?'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTPS]', $options, FALSE, SQ_CONF_STATIC_ROOT_HTTPS);
+					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTPS]', $yes_no_options, FALSE, SQ_CONF_STATIC_ROOT_HTTPS);
 				} else {
-					echo $options[SQ_CONF_STATIC_ROOT_HTTPS];
+					echo $yes_no_options[SQ_CONF_STATIC_ROOT_HTTPS];
 				}
+			$o->note(translate('If set to "No", Static URLs for live, publicly-readable files will be served through the standard (insecure) HTTP protocol, even if the connection for the asset referencing them is secure.'));
+			$o->note(translate('At least one of the two settings above must be set to "Yes". If both are set to "Yes", then Static URLs will be served using the same protocol as the referencing asset.'));
 			$o->closeField();
 
 			$o->openField(translate('System Web Path Separator'));
@@ -599,20 +629,17 @@ class System_Config extends Config
 			} else {
 				echo nl2br(SQ_CONF_WEB_PATH_SEPARATOR);
 			}
+			$o->note(translate('This character replaces white space when creating valid web paths.'));
 			$o->closeField();
 
-			$o->openField(translate('Redirect URL with Trailing Slash'));
-                $options = Array(
-                    '1' => translate('Redirect trailing slash URLs'),
-                    '0' => translate('Don\'t redirect trailing slash URLs'),
-                );
+			$o->openField(translate('Redirect URLs with Trailing Slash?'));
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH]', $options, FALSE, SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH);
+					combo_box($class.'[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH]', $yes_no_options, FALSE, SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH);
 				} else {
-					echo $options[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH];
+					echo $yes_no_options[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH];
 				}
-			$o->note(translate('This will redirect front-end URL requests (excluding System Root URLs) to a URL with no trailing slashes.'));
+			$o->note(translate('If set to "Yes", Matrix will automatically redirect frontend URL requests (excluding System Root URLs) to a URL with no trailing slashes.'));
 
 			$o->closeField();
 
@@ -621,12 +648,13 @@ class System_Config extends Config
 		$o->openSection(translate('Rollback Settings'));
 
 
-			$o->openField(translate('Rollback Enabled'));
+			$o->openField(translate('Rollback Enabled?'));
 
-				echo (SQ_CONF_ROLLBACK_ENABLED) ? translate('Yes') : translate('No');
+				echo $yes_no_options[SQ_CONF_ROLLBACK_ENABLED];
 
-
-				$o->note(translate('Rollback must be enabled and disabled using the Rollback Management Tool, or the "rollback_management.php" script in the MySource "scripts" directory'));
+				$o->note(translate('If set to "Yes", Matrix will maintain a history of changes to assets, and allow the viewing of the Matrix system at a particular point in time through an asset\'s History screen.'));
+				$o->note(translate('This setting cannot be changed through Admin Mode.').' '.
+					translate('Rollback must be enabled and disabled using the Rollback Management Tool, or the "rollback_management.php" script in the Matrix "scripts" directory'));
 
 			$o->closeField();
 
@@ -642,6 +670,7 @@ class System_Config extends Config
 				} else {
 					echo SQ_CONF_DEFAULT_EMAIL;
 				}
+			$o->note('The Default Email is used as the sender address on emails from Matrix that are sent "from the system", or where an email address can\'t be sourced from elsewhere, such as a user without an email address sending a message. The Default Email also receives messages not directed at any particular user (along with the Tech Email address).');
 			$o->closeField();
 
 			$o->openField(translate('Tech Email'));
@@ -651,6 +680,7 @@ class System_Config extends Config
 				} else {
 					echo SQ_CONF_TECH_EMAIL;
 				}
+			$o->note('The Tech Email is included on internal message emails by default as a "support" email address (along with the System Owner name). This email also receives messages not directed at any particular user (along with the Default Email address), and also receives emails from Matrix about fatal errors.');
 			$o->closeField();
 
 		$o->closeSection();
@@ -684,7 +714,7 @@ class System_Config extends Config
 									check_box($class.'[SQ_CONF_FORCE_SECURE_LOGIN_URLS][]', $url, in_array($url, $force_secure_urls));
 								} else {
 									$filename = in_array($url, $force_secure_urls) ? 'tick' : 'cross';
-									echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
+									echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.png" />';
 								}
 								?>
 							</td>
@@ -705,76 +735,51 @@ class System_Config extends Config
 			} else {
 				echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
 			}
-			$o->note(translate('Zero (0) is unlimited attempts.'));
+			$o->note(translate('Sets the maximum number of login attempts allowed before a user account is locked from further login. Most users are locked by setting their asset status to Under Construction; reset the status to Live to unlock. Setting to 0 (zero) disables user account locking.'));
 
-
-			$o->openField(translate('Allow IP Change'));
-			$options = Array(
-                    '1' => translate('Allow IP changes'),
-                    '0' => translate('Don\'t allow IP changes'),
-                );
+			$o->openField(translate('Allow IP Changes?'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', $options, FALSE, SQ_CONF_ALLOW_IP_CHANGE);
+				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', $yes_no_options, FALSE, SQ_CONF_ALLOW_IP_CHANGE);
 			} else {
-				echo $options[SQ_CONF_ALLOW_IP_CHANGE];
+				echo $yes_no_options[SQ_CONF_ALLOW_IP_CHANGE];
 			}
-			$o->note(translate('Allow the IP of a user to fluctuate?'));
-
-
-			$o->openField(translate('Process PHP Credentials'));
-			$options = Array(
-                    '1' => translate('Process credentials'),
-                    '0' => translate('Don\'t process credentials'),
-                );
+			$o->note(translate('If set to "No", a Matrix user will be logged out if their IP address changes during a session.'));
+			
+			$o->openField(translate('Process PHP Auth Credentials?'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ACCEPT_HTTP_CREDS]', $options, FALSE, SQ_CONF_ACCEPT_HTTP_CREDS);
+				combo_box($class.'[SQ_CONF_ACCEPT_HTTP_CREDS]', $yes_no_options, FALSE, SQ_CONF_ACCEPT_HTTP_CREDS);
 			} else {
-				echo $options[SQ_CONF_ACCEPT_HTTP_CREDS];
+				echo $yes_no_options[SQ_CONF_ACCEPT_HTTP_CREDS];
 			}
-			$o->note(translate('If this is enabled and a username and password are supplied in PHP_AUTH_USER and PHP_AUTH_PW, the system will try to authenticate a user with those credentials.'));
+			$o->note(translate('If set to "Yes", Matrix will use the PHP_AUTH_USER and PHP_AUTH_PW server variables to attempt to authenticate a user. These variables are generated by PHP when a HTTP Authentication dialog box is invoked in a script.'));
+			$o->closeField();
 
-
-			$o->openField(translate('Enable HTTP Authentication'));
-			$options = Array(
-                    '1' => translate('Allow triggering of HTTP authentication'),
-                    '0' => translate('Don\'t allow triggering of HTTP authentication'),
-                );
+			$o->openField(translate('Enable HTTP Authentication?'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ENABLE_HTTP_LOGIN]', $options, FALSE, SQ_CONF_ENABLE_HTTP_LOGIN);
-
-
+				combo_box($class.'[SQ_CONF_ENABLE_HTTP_LOGIN]', $yes_no_options, FALSE, SQ_CONF_ENABLE_HTTP_LOGIN);
 			} else {
-				echo $options[SQ_CONF_ENABLE_HTTP_LOGIN];
-
-
+				echo $yes_no_options[SQ_CONF_ENABLE_HTTP_LOGIN];
 			}
-			$o->note(translate('If this option is enabled, Squiz Matrix will generate an HTTP Authentication dialog box instead of painting the applied login design. This will allow external tools to login to Squiz Matrix by appending USE_HTTP_LOGIN=1 to the URL. Process PHP Credentials option has to be also enabled for HTTP Authentication to work.'));
 
+			$o->note(translate('If set to "Yes", Matrix will respond to requests with the query string "USE_HTTP_LOGIN=1" with a HTTP Authentication request (and dialog box) instead of a login design, allowing external tools to login to Matrix.'));
+			$o->note(
+				sprintf(
+					translate('This setting will only generate the HTTP Authentication request. To actually process the credentials and login, the "%s" setting must also be set to "Yes".'),
+					translate('Process PHP Auth Credentials?')
+				)
+			);
+			$o->closeField();
 
-			$o->openField(translate('Accept HTTP Authentication'));
-			$options = Array(
-                    '1' => translate('Accept HTTP authentication'),
-                    '0' => translate('Don\'t accept HTTP authentication'),
-                );
-
+			$o->openField(translate('Accept HTTP Authentication?'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', $options, FALSE, SQ_CONF_ALLOW_HTTP_LOGIN);
-
-
+				combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', $yes_no_options, FALSE, SQ_CONF_ALLOW_HTTP_LOGIN);
 			} else {
-				echo $options[SQ_CONF_ALLOW_HTTP_LOGIN];
-
-
+				echo $yes_no_options[SQ_CONF_ALLOW_HTTP_LOGIN];
 			}
-			$o->note(translate('If this option is enabled and a username is found in the server variable specified below, the system will try to automatically log in a user with that username.  (It will assume that the user has already been authenticated by some external mechanism.)'));
-
-
+			
 			$o->openField(translate('HTTP Authentication Variable'));
-
 			if ($write_access && $is_root) {
-
 				$server = array_keys($_SERVER);
-
 				?>
 
 				<script language="JavaScript" type="text/javascript">
@@ -782,9 +787,15 @@ class System_Config extends Config
 					function toggle_http_login_var() {
 						list = document.getElementById('sq-conf-http-login-var-list');
 						txt = document.getElementById('sq-conf-http-login-var-toggle');
+
+						var txtValues = {
+							'none':  js_translate('Show Server Variables'),
+							'block': js_translate('Hide Server Variables')
+						}
+
 						if (txt && list) {
 							list.style.display = (list.style.display == 'none' ? 'block' : 'none');
-							txt.innerHTML = js_translate('http_login_var_' + (list.style.display == 'none' ? 'show' : 'hide') + '_server_var');
+							txt.innerHTML = txtValues[list.style.display];
 						}
 					}// end set_conf_debug
 				//]]>
@@ -833,57 +844,55 @@ class System_Config extends Config
 				echo SQ_CONF_HTTP_LOGIN_VAR;
 			}
 
-			$o->openField(translate('Enable External Authentication Systems'));
+			$o->note(translate('If "Accept HTTP Authentication?" is set to "Yes", Matrix will attempt to automatically login a user with a username matching the server variable in "HTTP Authentication Variable".'));
+			$o->note(translate('This allows Matrix to accept users through certain types of single sign-on systems, but is a potential security risk as it will assume that the user has already been authenticated.'));
 
-			$options = Array(
-                    '1' => translate('Enable external authentication'),
-                    '0' => translate('Only use Matrix authentication'),
-                );
+			$o->openField(translate('Enable External Authentication Systems?'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS]', $options, FALSE, SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS);
+				combo_box($class.'[SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS]', $yes_no_options, FALSE, SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS);
 			} else {
-				echo $options[SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS];
+				echo $yes_no_options[SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS];
 			}
-			$o->note(translate('Set this to \'No\' to only allow users with accounts in the default matrix user system, rather than LDAP, IPB etc.'));
+			$o->note(translate('If set to "No", only the Default Authentication system will be enabled for logging in users. This means that types of users that depend on another Authentication system - such as LDAP Users - will not be able to log in until this setting is reset to "Yes".'));
 
 
-			$o->openField(translate('Use Default PHP session file save path'));
+			$o->openField(translate('Use Default PHP Session File Save Path?'));
 
 			$options = Array(
-                '1' => translate('Use PHP default file path'),
-                '0' => translate('Use Matrix-specified file path (recommended)'),
+                '1' => translate('Yes'),
+                '0' => translate('No'),
             );
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH]', $options, FALSE, SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH);
 			} else {
 				echo $options[SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH];
 			}
-			$o->note(sprintf(translate('Using the default PHP session file may be required for system with multiple servers using shared file storage. However, enabling this option will prevent Site Network assets from operating correctly. <strong>This option should only be changed by advanced users: if you change this option all users who are currently logged in will be immediately logged out of their session.</strong> <br />The current session file save path is: <strong>%s</strong>'), session_save_path()));
-
-
+			$o->note(translate('If set to "Yes", Matrix will use the default PHP session file path instead of the Matrix "cache" directory. This may be required for system with multiple servers using shared file storage. However, this will prevent Site Network assets from operating correctly.'));
+			$o->note('<strong>'.translate('This option should only be changed by advanced users. If you change this option, all users will be immediately logged out of their session.').'</strong>');
+			$o->note(sprintf(translate('The current session file save path is: <strong>%s</strong>'), session_save_path()));
 		$o->closeSection();
 
 		$o->openSection(translate('Intervals'));
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
-
-			$o->openField(translate('Refresh Interval'));
+			$o->openField(translate('Header Frame Refresh Interval').' ('.translate('seconds').')');
 
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
 			} else {
-				echo SQ_CONF_REFRESH_INTERVAL;
+				echo SQ_CONF_REFRESH_INTERVAL.' <em>('.easy_time_total(SQ_CONF_REFRESH_INTERVAL, TRUE).')</em>';
 			}
-			$o->note(translate('How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60.'));
+			$o->note(translate('The length of time between refreshes of the header frame. Each refresh checks for new messages, and assists with long edits by renewing the current screen\'s locks. Minimum value: 60 seconds (one minute). To benefit from lock refreshing, this value should be less than the Lock Length.'));
 
-
-			$o->openField(translate('Lock Length'));
+			$o->openField(translate('Lock Length').' ('.translate('seconds').')');
 
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_LOCK_LENGTH]', SQ_CONF_LOCK_LENGTH, 5, 5);
 			} else {
-				echo SQ_CONF_LOCK_LENGTH;
+				echo SQ_CONF_LOCK_LENGTH.' <em>('.easy_time_total(SQ_CONF_LOCK_LENGTH, TRUE).')</em>';
 			}
-			$o->closeField(translate('The length of time after which a lock is considered to have expired. In seconds - Min: 60'));
+			$o->note(translate('The length of time after which a lock is considered to have expired. Minimum value: 60 seconds (one minute).'));
+			$o->closeField();
 
 
 		$o->closeSection();
@@ -897,9 +906,13 @@ class System_Config extends Config
 				int_text_box($class.'[SQ_CONF_WEB_MEMORY_LIMIT]', SQ_CONF_WEB_MEMORY_LIMIT, FALSE, 5, NULL, NULL, 3);
 				echo ' MB';
 			} else {
-				echo SQ_CONF_WEB_MEMORY_LIMIT.'MB';
+				if ((int) SQ_CONF_WEB_MEMORY_LIMIT === -1) {
+					echo translate('No limit');
+				} else {
+					echo SQ_CONF_WEB_MEMORY_LIMIT.'MB';
+				}
 			}
-			$o->note(translate('The maximum amount of system memory allocated to each instance of Squiz Matrix web system.'));
+			$o->note(translate('The maximum amount of system memory allocated to each instance of Matrix web system.'));
 
 			$o->closeField();
 
@@ -909,9 +922,13 @@ class System_Config extends Config
 				int_text_box($class.'[SQ_CONF_CRON_MEMORY_LIMIT]', SQ_CONF_CRON_MEMORY_LIMIT, FALSE, 5, NULL, NULL, 3);
 				echo ' MB';
 			} else {
-				echo SQ_CONF_CRON_MEMORY_LIMIT.'MB';
+				if ((int) SQ_CONF_CRON_MEMORY_LIMIT === -1) {
+					echo translate('No limit');
+				} else {
+					echo SQ_CONF_CRON_MEMORY_LIMIT.'MB';
+				}
 			}
-			$o->note(translate('The maximum amount of system memory allocated to each instance of the Squiz Matrix cron system.'));
+			$o->note(translate('The maximum amount of system memory allocated to each instance of the Matrix cron system.'));
 
 			$o->closeField();
 
@@ -919,55 +936,22 @@ class System_Config extends Config
 
 
 		$o->openSection(translate('Error/Debug Settings'));
-
-
-			$o->openField(translate('Log Errors'));
-
-			$options = Array(
-                '1' => translate('Log errors'),
-                '0' => translate('Don\'t log errors'),
-            );
+			$o->openField(translate('Hide Errors on the Frontend?'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_LOG_ERRORS]', $options, FALSE, SQ_CONF_LOG_ERRORS);
+				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', $yes_no_options, FALSE, SQ_CONF_ERRORS_HIDE_FRONTEND);
 			} else {
-				echo $options[SQ_CONF_LOG_ERRORS];
+				echo $yes_no_options[SQ_CONF_ERRORS_HIDE_FRONTEND];
 			}
-			$o->closeField();
-
-			$o->openField(translate('Hide Errors on the Frontend'));
-
-			$options = Array(
-                '1' => translate('Hide errors on frontend'),
-                '0' => translate('Show errors on frontend'),
-            );
-			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', $options, FALSE, SQ_CONF_ERRORS_HIDE_FRONTEND);
-
-
-			} else {
-				echo $options[SQ_CONF_ERRORS_HIDE_FRONTEND];
-
-
-			}
+			$o->note(translate('If set to "Yes", errors produced by Matrix or PHP will not be shown on to frontend users. This is strongly recommended for production systems. Errors will still be logged to the appropriate error log, as controlled by the "log_errors" PHP directive.'));
 			$o->closeField();
 
 			$o->openField(translate('Log Errors to Syslog?'));
 
-			$options = Array(
-                '1' => translate('Log to Syslog'),
-                '0' => translate('Don\'t log to Syslog'),
-            );
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ERRORS_LOG_TO_SYSLOG]', $options, FALSE, SQ_CONF_ERRORS_LOG_TO_SYSLOG);
-
-
+				combo_box($class.'[SQ_CONF_ERRORS_LOG_TO_SYSLOG]', $yes_no_options, FALSE, SQ_CONF_ERRORS_LOG_TO_SYSLOG);
 			} else {
-				echo $options[SQ_CONF_ERRORS_LOG_TO_SYSLOG];
-
-
+				echo $yes_no_options[SQ_CONF_ERRORS_LOG_TO_SYSLOG];
 			}
-			$o->note(translate('If enabled, errors will be sent to the *nix Syslog. Please contact your system administrator for appropriate settings if you are to use this feature.'));
-
 			$o->closeField();
 
 			$o->openField(translate('Syslog Facility'));
@@ -989,6 +973,9 @@ class System_Config extends Config
 			} else {
 				echo $options[SQ_CONF_ERRORS_SYSLOG_FACILITY];
 			}
+
+			$o->note(translate('If "Log Errors to Syslog?" to "Yes", Matrix and PHP errors will be sent to the "syslog" system logger. "Syslog Facility" defines the particular log facility that these messages should be sent to. Please contact your system administrator for appropriate settings if you are to use this feature.'));
+			$o->closeField();
 
 			$o->openField(translate('Debug Settings'));
 
@@ -1023,7 +1010,7 @@ class System_Config extends Config
 			} else {
 				foreach ($this->debug_options as $bit => $desc) {
 					?>
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_DEBUG & $bit) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_DEBUG & $bit) ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 					<?php
 					echo $desc, "<br />\n";
 				}
@@ -1060,17 +1047,15 @@ class System_Config extends Config
 			require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 			echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
 
-			$o->openField(translate('Use language character map'));
+			$o->openField(translate('Replace Accented Characters in Web Paths?'));
 
-			$options = Array(
-                '0' => translate('Leave accented characters in URLs'),
-                '1' => translate('Replace accented characters in URLs'),
-            );
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_USE_LANG_CHAR_MAP]', $options, FALSE, !defined('SQ_CONF_USE_LANG_CHAR_MAP') ? '0' : SQ_CONF_USE_LANG_CHAR_MAP);
+				combo_box($class.'[SQ_CONF_USE_LANG_CHAR_MAP]', $yes_no_options, FALSE, !defined('SQ_CONF_USE_LANG_CHAR_MAP') ? '0' : SQ_CONF_USE_LANG_CHAR_MAP);
 			} else {
-				echo $options[SQ_CONF_USE_LANG_CHAR_MAP];
+				echo $yes_no_options[SQ_CONF_USE_LANG_CHAR_MAP];
 			}
+
+			$o->note('If set to "Yes", a character map will be used for translating accented characters in web paths so it can be made valid. The character map used is determined by the default frontend language.');
 
 		$o->closeSection();
 
@@ -1084,22 +1069,17 @@ class System_Config extends Config
 			} else {
 				echo !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 			}
-			$o->note(translate('This setting renames the button used to commit edited information into the Squiz Matrix system - default is \'Commit\'.'));
+			$o->note(translate('This setting renames the button used to commit edited information into the Matrix system - default is \'Commit\'.'));
 
 			$o->closeField();
 
 			$o->openField(translate('Confirm Save Changes'));
-
-			$options = Array(
-                '0' => translate('Don\'t warn about unsaved changes'),
-                '1' => translate('Warn about unsaved changes'),
-            );
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', $options, FALSE, !defined('SQ_CONF_CONFIRM_SAVE_CHANGES') ? '1' : SQ_CONF_CONFIRM_SAVE_CHANGES);
+				combo_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', $yes_no_options, FALSE, !defined('SQ_CONF_CONFIRM_SAVE_CHANGES') ? '1' : SQ_CONF_CONFIRM_SAVE_CHANGES);
 			} else {
-			    echo $options[SQ_CONF_CONFIRM_SAVE_CHANGES];
+			    echo $yes_no_options[SQ_CONF_CONFIRM_SAVE_CHANGES];
 			}//end if
-			$o->note(translate('This setting, if set, warns a user when changes are made but not committed.'));
+			$o->note(translate('If set to "Yes", users will be warned when changes are made but not committed.'));
 
 			$o->closeField();
 
@@ -1135,109 +1115,70 @@ class System_Config extends Config
 		$o->openSection(translate('HTTP Headers Settings'));
 
 
-			$o->openField(translate('Send Cacheable Header'));
-
-                $options = Array(
-                    '1' => translate('Send Cache-Control and Pragma headers'),
-                    '0' => translate('Don\'t send cache headers'),
-                );
+			$o->openField(translate('Send Cacheable Headers?'));
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', $options, FALSE, SQ_CONF_SEND_CACHEABLE_HEADER);
+					combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', $yes_no_options, FALSE, SQ_CONF_SEND_CACHEABLE_HEADER);
 				} else {
-					echo $options[SQ_CONF_SEND_CACHEABLE_HEADER];
+					echo $yes_no_options[SQ_CONF_SEND_CACHEABLE_HEADER];
 				}
 
-				$o->note(translate('If enabled, server will send cacheable Cache-Control and Pragma headers.'));
+				$o->note(translate('If set to "Yes", Matrix will send cacheable Cache-Control and Pragma headers when an asset is painted.'));
 
 			$o->closeField();
 
-			$o->openField(translate('Send Last-Modified Header'));
-
-                $options = Array(
-                    '1' => translate('Send Last-Modified header'),
-                    '0' => translate('Don\'t send Last-Modified header'),
-                );
+			$o->openField(translate('Send Last-Modified Header?'));
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_LAST_MODIFIED_HEADER]', $options, FALSE, SQ_CONF_SEND_LAST_MODIFIED_HEADER);
+					combo_box($class.'[SQ_CONF_SEND_LAST_MODIFIED_HEADER]', $yes_no_options, FALSE, SQ_CONF_SEND_LAST_MODIFIED_HEADER);
 				} else {
-					echo $options[SQ_CONF_SEND_LAST_MODIFIED_HEADER];
+					echo $yes_no_options[SQ_CONF_SEND_LAST_MODIFIED_HEADER];
 				}
 
-				$o->note(translate('If enabled, server will send a timestamp indicating when the asset was last modified.'));
+				$o->note(translate('If set to "Yes", Matrix will send a "Last-Modified" header along with responses, which indicates when a page\'s content was last modified. Browser and proxy server caches can use this header to determine the age of the content, and minimise unnecessary future hits on the Matrix system.'));
 
 			$o->closeField();
 
-			$o->openField(translate('Send Not Modified Status-Code'));
-
-                $options = Array(
-                    '1' => translate('Send "304 Not Modified" status for Live, publicly readable assets'),
-                    '0' => translate('Don\'t send "304 Not Modified" status'),
-                );
-
+			$o->openField(translate('Send Not Modified Status Code?'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_NOT_MODIFIED_HEADER]', $options, FALSE, SQ_CONF_SEND_NOT_MODIFIED_HEADER);
+					combo_box($class.'[SQ_CONF_SEND_NOT_MODIFIED_HEADER]', $yes_no_options, FALSE, SQ_CONF_SEND_NOT_MODIFIED_HEADER);
 				} else {
-					echo $options[SQ_CONF_SEND_NOT_MODIFIED_HEADER];
-
-
+					echo $yes_no_options[SQ_CONF_SEND_NOT_MODIFIED_HEADER];
 				}
-				$o->note(translate('If enabled, server will send a "304 Not Modified" Status-Code indicating nothing has been changed since last visit.'));
+				$o->note(translate('If set to "Yes", Matrix will test "If-Modified-Since" headers sent in requests to live, publicly readable assets. If the current asset\'s content is older than the passed "If-Modified-Since" date, Matrix will send a "304 Not Modified" status code instead of the actual content.'));
+				$o->note(translate('This setting is recommended for heavily trafficked sites, as this can reduce the number of requests that reach Matrix (instead of using a cache), especially if your content does not change often.'));
+			$o->closeField();
 
-				$o->note(translate('Note: Only applicable to Live assets that are accessible by public users.'));
+			$o->openField(translate('Send No-Cache Header for File assets?'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_SEND_NO_CACHE_HEADER]', $yes_no_options, FALSE, SQ_CONF_SEND_NO_CACHE_HEADER);
+				} else {
+					echo $yes_no_options[SQ_CONF_SEND_NO_CACHE_HEADER];
+				}
+				$o->note(translate('If set to "Yes", the "no-cache" Cache-Control option will be sent when serving File asset types. This option can be used to resolve inline file display issues in Internet Explorer.'));
+			$o->closeField();
+
+			$o->openField(translate('Send Cacheable Headers for 404 Pages?'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_SEND_404_CACHEABLE_HEADER]', $yes_no_options, FALSE, SQ_CONF_SEND_404_CACHEABLE_HEADER);
+				} else {
+					echo $yes_no_options[SQ_CONF_SEND_404_CACHEABLE_HEADER];
+				}
+				$o->note(translate('If set to "Yes", Matrix will send cacheable Cache-Control and Pragma headers for 404 (Not Found) pages.'));
 
 			$o->closeField();
 
-			$o->openField(translate('Send no-cache header for File assets'));
-
-                $options = Array(
-                    '1' => translate('Send no-cache header'),
-                    '0' => translate('Don\'t send no-cache header'),
-                );
-
+			$o->openField(translate('Use "X-Forwarded-For" Header?'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_NO_CACHE_HEADER]', $options, FALSE, SQ_CONF_SEND_NO_CACHE_HEADER);
-				} else {
-					echo $options[SQ_CONF_SEND_NO_CACHE_HEADER];
-				}
-				$o->note(translate('If enabled, the "no-cache" Cache-Control option will be sent when serving File asset types. This option can be used to resolve inline file display issues in Internet Explorer.'));
+					combo_box($class.'[SQ_CONF_USE_HTTP_X_FORWARDED_FOR]', $yes_no_options, FALSE, SQ_CONF_USE_HTTP_X_FORWARDED_FOR);
 
-			$o->closeField();
-
-			$o->openField(translate('Send 404 Cacheable Header'));
-
-                $options = Array(
-                    '1' => translate('Send cache headers for "Not Found" pages'),
-                    '0' => translate('Don\'t send cache headers for "Not Found" pages'),
-                );
-
-				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_404_CACHEABLE_HEADER]', $options, FALSE, SQ_CONF_SEND_404_CACHEABLE_HEADER);
-
-
-				} else {
-					echo $options[SQ_CONF_SEND_404_CACHEABLE_HEADER];
-				}
-				$o->note(translate('If enabled, server will send cacheable Cache-Control and Pragma headers for 404 response to allow Proxy server to cache.'));
-
-			$o->closeField();
-
-			$o->openField(translate('Use "X-Forwarded-For" Header'));
-
-
-                $options = Array(
-                    '1' => translate('Use X-Forwarded-For header sent from these trusted proxies:'),
-                    '0' => translate('Don\'t use X-Forwarded-For header'),
-                );
-
-				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_USE_HTTP_X_FORWARDED_FOR]', $options, FALSE, SQ_CONF_USE_HTTP_X_FORWARDED_FOR);
+					echo '<br/><br/><strong>'.translate('Only for these trusted proxies:').'</strong>';
 					$option_list->value = SQ_CONF_FORWARDED_IP_PROXY_LIST;
 					$option_list->paint('SQ_CONF_FORWARDED_IP_PROXY_LIST');
 				} else {
-					echo $options[SQ_CONF_USE_HTTP_X_FORWARDED_FOR];
+					echo $yes_no_options[SQ_CONF_USE_HTTP_X_FORWARDED_FOR];
 					if (SQ_CONF_USE_HTTP_X_FORWARDED_FOR === '1') {
+						echo '<br/><br/><strong>'.translate('Only for these trusted proxies:').'</strong>';
                         if (SQ_CONF_FORWARDED_IP_PROXY_LIST == '') {
                             echo ' <span class="sq-backend-warning">'.translate('No trusted proxies set').'</span>';
                         } else {
@@ -1249,37 +1190,35 @@ class System_Config extends Config
 				$o->note(translate('Only enable to help obtain User IP when behind a proxy. System will attempt to use "X-Forwarded-For" header. By default the REMOTE_ADDR server variable is used. This will only work in conjunction with the above trusted/known Proxy IP list.'));
 			$o->closeField();
 
-			$o->openField(translate('HTTP only for cookie'));
-
-                $options = Array(
-                    '1' => translate('Set HttpOnly flag for PHP session cookies (recommended)'),
-                    '0' => translate('Don\'t set HttpOnly flag for PHP session cookies'),
-                );
-
+			$o->openField(translate('Set \'HttpOnly\' flag for Session Cookies?'));
                 if ($write_access && $is_root) {
-                    combo_box($class.'[SQ_CONF_COOKIE_OPTION_HTTP_ONLY]', $options, FALSE, SQ_CONF_COOKIE_OPTION_HTTP_ONLY);
+                    combo_box($class.'[SQ_CONF_COOKIE_OPTION_HTTP_ONLY]', $yes_no_options, FALSE, SQ_CONF_COOKIE_OPTION_HTTP_ONLY);
                 } else {
-                    echo $options[SQ_CONF_COOKIE_OPTION_HTTP_ONLY];
+                    echo $yes_no_options[SQ_CONF_COOKIE_OPTION_HTTP_ONLY];
                 }
-				$o->note(translate('Enable to set \'HttpOnly\' option for the cookies. When a cookie is HttpOnly the web browser should not allow client side scripts such as JavaScript to have access to the cookie. This can help mitigate the effects of cross site scripting attacks.'));
+				$o->note(translate('If set to "Yes", Matrix will set the \'HttpOnly\' flag on its session cookie. When a cookie is HttpOnly the web browser should not allow client side scripts such as JavaScript to have access to the cookie. This can help mitigate the effects of cross site scripting attacks.'));
 
 
 			$o->closeField();
 
-			$o->openField(translate('Enable \'Secure\' Cookie option'));
-
-                $options = Array(
-                    '1' => translate('Set Secure flag for PHP session cookies'),
-                    '0' => translate('Don\'t set Secure flag for PHP session cookies'),
-                );
-
+			$o->openField(translate('Set \'Secure\' flag for Session Cookies?'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_COOKIE_OPTION_SECURE]', $options, FALSE, SQ_CONF_COOKIE_OPTION_SECURE);
+					combo_box($class.'[SQ_CONF_COOKIE_OPTION_SECURE]', $yes_no_options, FALSE, SQ_CONF_COOKIE_OPTION_SECURE);
 				} else {
-					echo $options[SQ_CONF_COOKIE_OPTION_SECURE];
+					echo $yes_no_options[SQ_CONF_COOKIE_OPTION_SECURE];
 				}
-				$o->note(translate('Specifies whether or not to transmit the secure cookie flag when a connection is made over HTTPS. Enabling this will cause browsers to not share the session cookie between HTTP and HTTPS.'));
+				$o->note(translate('If set to "Yes", Matrix will set the \'Secure\' flag on its session cookie when a connection is made over HTTPS. This flag signals browsers to not share the session cookie between HTTP and HTTPS.'));
 
+
+			$o->closeField();
+
+			$o->openField(translate('Send IE "X-UA-Compatible" header?'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_X_UA_COMPATIBLE_HEADER]', $yes_no_options, FALSE, SQ_CONF_X_UA_COMPATIBLE_HEADER);
+				} else {
+					echo $yes_no_options[SQ_CONF_X_UA_COMPATIBLE_HEADER];
+				}
+				$o->note(translate('If set to "Yes", Matrix will send this header for all requests. Matrix\'s settings for the header request Internet Explorer 8-10 use its latest engine to render the page, even if it may otherwise be viewed in "Compatibility View". If the browser has the (now-retired) Chrome Frame installed, it will use that instead.'));
 
 			$o->closeField();
 
@@ -1290,59 +1229,44 @@ class System_Config extends Config
 		$o->openSection(translate('Roles Configuration'));
 
 
-			$o->openField(translate('Enable Permission Roles System'));
-
-                $options = Array(
-                    '1' => translate('Enable permission roles system'),
-                    '0' => translate('Disable permission roles system'),
-                );
+			$o->openField(translate('Enable Permission Roles System?'));
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_ENABLE_ROLES_PERM_SYSTEM]', $options, FALSE, SQ_CONF_ENABLE_ROLES_PERM_SYSTEM);
+					combo_box($class.'[SQ_CONF_ENABLE_ROLES_PERM_SYSTEM]', $yes_no_options, FALSE, SQ_CONF_ENABLE_ROLES_PERM_SYSTEM);
 
 
 				} else {
-					echo $options[SQ_CONF_ENABLE_ROLES_PERM_SYSTEM];
+					echo $yes_no_options[SQ_CONF_ENABLE_ROLES_PERM_SYSTEM];
 
 
 				}
+			$o->note(translate('If set to "Yes", the roles system will be enabled when working with the permissions system. If this is not required, setting to "No" may improve performance.'));
 			$o->closeField();
 
-			$o->openField(translate('Enable Workflow Roles System'));
-
-                $options = Array(
-                    '1' => translate('Enable workflow roles system'),
-                    '0' => translate('Disable workflow roles system'),
-                );
+			$o->openField(translate('Enable Workflow Roles System?'));
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_ENABLE_ROLES_WF_SYSTEM]', $options, FALSE, SQ_CONF_ENABLE_ROLES_WF_SYSTEM);
+					combo_box($class.'[SQ_CONF_ENABLE_ROLES_WF_SYSTEM]', $yes_no_options, FALSE, SQ_CONF_ENABLE_ROLES_WF_SYSTEM);
 
 
 				} else {
-					echo $options[SQ_CONF_ENABLE_ROLES_WF_SYSTEM];
+					echo $yes_no_options[SQ_CONF_ENABLE_ROLES_WF_SYSTEM];
 
 
 				}
+
+			$o->note(translate('If set to "Yes", the roles system will be enabled when working with the workflow system.'));
 			$o->closeField();
 
 			if ( ((defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1')) || (defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM') && (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1')) ) || (!defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && !defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM') )) {
-				$o->openField(translate('Enable Global Roles'));
-
-                    $options = Array(
-                        '1' => translate('Enable global permission and workflow roles'),
-                        '0' => translate('Disable global permission and workflow roles'),
-                    );
+				$o->openField(translate('Enable Global Role Assignments?'));
 
 					if ($write_access && $is_root) {
-						combo_box($class.'[SQ_CONF_ENABLE_GLOBAL_ROLES]', $options, FALSE, SQ_CONF_ENABLE_GLOBAL_ROLES);
-
-
+						combo_box($class.'[SQ_CONF_ENABLE_GLOBAL_ROLES]', $yes_no_options, FALSE, SQ_CONF_ENABLE_GLOBAL_ROLES);
 					} else {
-						echo $options[SQ_CONF_ENABLE_GLOBAL_ROLES];
-
-
+						echo $yes_no_options[SQ_CONF_ENABLE_GLOBAL_ROLES];
 					}
+				$o->note(translate('If set to "Yes", the roles systems will take into account "global" role assignments, created by linking users beneath Role assets. If set to "No", only roles assigned at an asset level (through the Roles screen) will take effect.'));
 				$o->closeField();
 			}
 
@@ -1351,18 +1275,14 @@ class System_Config extends Config
 		$o->openSection(translate('Search Engine Optimizations'));
 
 
-			$o->openField(translate('Remove self links'));
+			$o->openField(translate('Remove Self Links from Content?'));
 
-                $options = Array(
-                    '1' => translate('Hyperlinks to viewed asset stripped from content'),
-                    '0' => translate('Hyperlinks to viewed asset NOT stripped in content'),
-                );
 				if ($write_access) {
-					combo_box($class.'[SQ_CONF_NO_ASSET_SELF_LINKS]', $options, FALSE, !defined('SQ_CONF_NO_ASSET_SELF_LINKS') ? '0' : SQ_CONF_NO_ASSET_SELF_LINKS);
+					combo_box($class.'[SQ_CONF_NO_ASSET_SELF_LINKS]', $yes_no_options, FALSE, !defined('SQ_CONF_NO_ASSET_SELF_LINKS') ? '0' : SQ_CONF_NO_ASSET_SELF_LINKS);
 				} else {
-					echo $options[SQ_CONF_NO_ASSET_SELF_LINKS];
+					echo $yes_no_options[SQ_CONF_NO_ASSET_SELF_LINKS];
 				}
-				$o->note(translate('Select \'Yes\' if you want all links directing to currently viewed asset removed from content.'));
+				$o->note(translate('If set to "Yes", an asset\'s content will be stripped of links pointing to any of its own URLs when painted on the frontend.'));
 
 			$o->closeField();
 
@@ -1377,23 +1297,18 @@ class System_Config extends Config
 			} else {
 				echo !defined('SQ_CONF_VISITED_PAGES_MAX_ENTRIES') ? '10' : SQ_CONF_VISITED_PAGES_MAX_ENTRIES;
 			}
-				$o->note(translate('Maximum number of visited URLs entires to store in the session. Visited URLs and asset ids can be accessed via global session var "visited_urls" and "visited_assets" respectively.'));
+				$o->note(translate('Maximum number of visited URLs entires to store in the session. Visited URLs and asset IDs can be accessed via global session var "visited_urls" and "visited_assets" respectively.'));
 
 			$o->closeField();
 
-			$o->openField(translate('Strip Matrix Comments'));
-
-                $options = Array(
-                    '1' => translate('Strip specially-marked Matrix comments'),
-                    '0' => translate('Don\'t strip Matrix comments'),
-                );
+			$o->openField(translate('Strip Matrix Comments from Frontend?'));
 
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONFIG_STRIP_MATRIX_COMMENTS]', $options, FALSE, SQ_CONFIG_STRIP_MATRIX_COMMENTS);
+					combo_box($class.'[SQ_CONFIG_STRIP_MATRIX_COMMENTS]', $yes_no_options, FALSE, SQ_CONFIG_STRIP_MATRIX_COMMENTS);
 				} else {
-					echo $options[SQ_CONFIG_STRIP_MATRIX_COMMENTS];
+					echo $yes_no_options[SQ_CONFIG_STRIP_MATRIX_COMMENTS];
 				}
-				$o->note(htmlspecialchars(translate('Strip out special Matrix comments, "<!--@@ @@-->" and "/*@@ @@*/" from the output.')));
+				$o->note(htmlspecialchars(translate('If set to "Yes", the Design parsing process will strip specially-marked comments (wrapped in "<!--@@ @@-->" for Design parse files,  and "/*@@ @@*/" for CSS Design files) from the final output. This allows you to add comments to your designs that are not shown to frontend users viewing the page source.')));
 
 			$o->closeField();
 
@@ -1410,7 +1325,19 @@ class System_Config extends Config
 			$o->closeField();
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', TRUE);
+        $o->openSection(translate('Funnelback'));
+	            $o->openField(translate('Funnelback Indexing User'));
+	                    if ($write_access) {
+	                    text_box($class.'[SQ_CONF_FUNNELBACK_INDEXING_USER]', !defined('SQ_CONF_FUNNELBACK_INDEXING_USER') ? '' : SQ_CONF_FUNNELBACK_INDEXING_USER, 30);
+	                    } else {
+	                            echo !defined('SQ_CONF_FUNNELBACK_INDEXING_USER') ? '' : SQ_CONF_FUNNELBACK_INDEXING_USER;
+	                    }
+	                    $o->note(translate('Specify one or multiple Matrix User IDs(comma-separated) to be allowed for Funnelback Indexing. Funnelback Crawler will have to login as one of those users to receive "X-Funnelback" headers for extra page metadata.'));
+
+	            $o->closeField();
+	    $o->closeSection();
+
+		if ($write_access) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 

@@ -82,13 +82,16 @@
 		</field>
 		<field attribute="auth_dn">
 			<display_name>Auth DN</display_name>
-			<note>This field is used only when MySource Matrix attempts to authenticate an LDAP user for logging in. If this is set, this DN will be used to search for the user being authenticated. If this field is left blank, the <![CDATA[<b>Base DN</b>]]> will also be used for authentication. This is an advanced option; in most cases, this field should be left blank.</note>
+			<note>This field is used only when Squiz Matrix attempts to authenticate an LDAP user for logging in. If this is set, this DN will be used to search for the user being authenticated. If this field is left blank, the <![CDATA[<b>Base DN</b>]]> will also be used for authentication. This is an advanced option; in most cases, this field should be left blank.</note>
 			<text width="40" height="1" />
 		</field>
-		<field attribute="auth_filter">
+		<field>
 			<display_name>Auth Filter</display_name>
-			<note>This field is used only when MySource Matrix attempts to authenticate an LDAP user for logging in. If this is set, this filter will be used to search for the user being authenticated. If this field is left blank, no filter will be used for authentication. This is an advanced option; in most cases, this field should be left blank.</note>
-			<text width="40" height="1" />
+			<function_call>
+				<paint_function   name="paintAuthFilter"   />
+				<process_function name="processAuthFilter" />
+			</function_call>
+			<note>An Auth Filter will be used when Squiz Matrix attempts to authenticate an LDAP user for logging in. If "Use Default Filter" is enabled, a default filter of "({User ID}=%username%)" will be used. Disable this setting to enter a custom Auth Filter to be used. This is an advanced option; in most cases, the "Use Default Filter" can be left enabled.</note>
 		</field>
 		<field attribute="recursive_parents">
 			<display_name>Recursive Parent Groups</display_name>

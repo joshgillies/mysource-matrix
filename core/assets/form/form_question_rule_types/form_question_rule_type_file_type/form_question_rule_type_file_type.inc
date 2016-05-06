@@ -215,10 +215,22 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 		$comparison = str_replace("\n", ', ', $comparison);
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
 		$use_accessible_string = $form->useAccessibleFormat();
-		if($use_accessible_string)
-		    return translate('core_form_rule_file_type_error_'.($operator ? 'true' : 'false').'_accessible', $q_asset->getValue(), $comparison);
-		else
-		    return translate('core_form_rule_file_type_error_'.($operator ? 'true' : 'false'), $q_asset->getValue(), $q_asset->attr('name'), $comparison);
+		if($use_accessible_string){
+			if($operator) {
+				return sprintf(translate('Uploaded file "%1$s" is invalid - extension/MIME must match one of the following: %2$s.'), $q_asset->getValue(), $comparison);
+			}
+			else {
+				return sprintf(translate('Uploaded file "%1$s" is invalid - extension/MIME must NOT match one of the following: %2$s.'), $q_asset->getValue(), $comparison);
+			}
+		}
+		else{
+			if($operator) {
+				return sprintf(translate('Name of uploaded file "%1$s" at question "%2$s" is invalid - extension/MIME must match one of the following: %3$s'), $q_asset->getValue(), $q_asset->attr('name'), $comparison);
+			}
+			else {
+				return sprintf(translate('Name of uploaded file "%1$s" at question "%2$s" is invalid - extension/MIME must NOT match one of the following: %3$s'), $q_asset->getValue(), $q_asset->attr('name'), $comparison);
+			}
+		}
 	}//end defaultError()
 
 
@@ -233,12 +245,21 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$operator = array_get_index($rule_data, 'operator', 1);
+		$operator = (string) array_get_index($rule_data, 'operator', '1');
 		$comparison = array_get_index($rule_data, 'value', '');
 
 		$operator_list = $this->getOperators();
 
-		return translate('core_form_rule_file_type_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'), $rule_data['value']);
+		$desc_text = Array(
+			'0' => translate('File uploaded at question "%1$s" must match one of the following extensions: %2$s'),
+			'1' => translate('File uploaded at question "%2$s" must NOT match one of the following extensions: %2$s'),
+		);
+
+		return sprintf(
+			$desc_text[$operator],
+			$q_asset->attr('name'),
+			$rule_data['value']
+		);
 
 	}//end ruleDescription()
 

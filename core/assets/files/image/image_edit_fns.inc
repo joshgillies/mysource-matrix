@@ -95,20 +95,16 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		echo '<th>'.translate('Value').'</th></tr>';
 
-		foreach ($embedded_data as $keyword => $value_set) {
-			$code = array_get_index($value_set, 'name');
+		foreach ($embedded_data as $value_set) {
 			echo '<tr>';
 			echo '<td>';
-			echo $code;
+			echo $value_set['name'];
 			echo '</td>';
 			echo '<td>';
-			echo '%image_embedded_'.$keyword.'%';
+			echo '%image_embedded_'.$value_set['name'].'%';
 			echo '</td>';
 			echo '<td>';
-			foreach (array_get_index($value_set, 'value', Array()) as $data_item) {
-				echo $data_item;
-				echo '<br />';
-			}
+			echo is_array($value_set['value']) ? implode('<br />', $value_set['value']) : $value_set['value'];
 			echo '</td></tr>';
 		}
 		echo '</table>';
@@ -132,14 +128,13 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @param string		$prefix				prefix for form elements
 	* @param array		$info	info 		about the uploaded file
 	* @param boolean	$redirect_in_limbo	redirect when the file name changes in limbo
-	* @param boolean	$asset_cloned		to check if we creating a new asset or just cloning
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE, $asset_cloned=FALSE)
+	function processFileUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE)
 	{
-		if (!parent::processFileUpload($asset, $o, $prefix, $info,$redirect_in_limbo, $asset_cloned)) {
+		if (!parent::processFileUpload($asset, $o, $prefix, $info,$redirect_in_limbo)) {
 			return FALSE;
 		}
 
@@ -162,13 +157,15 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$this->_recreateVarietyImages($asset);
 
 
-		// extract Photoshop metadata
-		$meta = $this->_extractImageMetadata($info['path']);
-		if (!$asset->setAttrValue('embedded_data', $meta)) {
-			return FALSE;
+		// extract image file metadata
+		$meta = $this->_extractImageMetadata($info['path'], $asset);
+		if ($meta !== FALSE) {
+			if (!$asset->setAttrValue('embedded_data', $meta)) {
+				return FALSE;
+			}
 		}
 
-		if (!$asset->saveAttributes()) {
+		if (!$asset->saveAttributes(TRUE)) {
 			trigger_localised_error('CORE0052', translate('Failed saving attributes for file'), E_USER_WARNING);
 			return FALSE;
 		}
@@ -444,90 +441,100 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 
 	/**
-	* Extracts photoshop metadata from an image file
+	* Extracts image metadata from an image file
 	*
 	* @param string	$filename	filename to extract metadata from
+	* @param object $asset		the owner asset
 	*
-	* @return void
+	* @return array|boolean
 	* @access private
 	*/
-	function _extractImageMetadata($filename)
+	function _extractImageMetadata($filename, $asset=NULL)
 	{
+
+		if (!SQ_TOOL_JPEG_TOOLKIT_ENABLED || !is_file($filename)) {
+			return FALSE;
+		}
+
+		if (!is_file(SQ_TOOL_JPEG_TOOLKIT_PATH)) {
+			trigger_error(translate('The path to image extraction tool ExifTool is invalid'), E_USER_WARNING);
+			return FALSE;
+		}
+
+		$assetid = !is_null($asset) ? $asset->id : '';
+
 		$meta = Array();
 
-		if (!SQ_TOOL_JPEG_TOOLKIT_ENABLED) return $meta;
+	    // Run a ExifTool tool to extract EXIF, XMP, IPTC, etc data from the image file
+		// This will return the output in the JSON format
+		$cmd = SQ_TOOL_JPEG_TOOLKIT_PATH.' -json '.$filename;
+		$cmd = escapeshellcmd($cmd);
+		// Run the command
+		$log = Array('pipe', 'w');
+	    $spec = Array(
+				    0 => Array('pipe', 'r'), // stdin is a pipe that the child will read from
+					1 => Array('pipe', 'w'), // stdout is a pipe that the child will write to
+					2 => Array('pipe', 'w'), // stderr is a file to write to
+				);
 
-		if (!defined('META_TOOLKIT_DIR')) {
-			define ('META_TOOLKIT_DIR', SQ_TOOL_JPEG_TOOLKIT_PATH);
-		}
+		$cwd = NULL;
+		$env = Array();
+		$process = proc_open($cmd, $spec, $pipes, $cwd, $env);
 
-		if (!file_exists(META_TOOLKIT_DIR.'/JPEG.php')) {
-			trigger_error('JPEG Metadata Toolkit Path is invalid', E_USER_WARNING);
-			return $meta;
-		}
+		if (is_resource($process)) {
+			// If STDERR is empty, trying to get content from it will hang the process,
+			// as it will wait forever for the data to be written on it, so set it as non-blocking
+			stream_set_blocking($pipes[2], 0);
+			fclose($pipes[0]);
 
-		include_once META_TOOLKIT_DIR.'/JPEG.php';
-		include_once META_TOOLKIT_DIR.'/JFIF.php';
-		include_once META_TOOLKIT_DIR.'/PictureInfo.php';
-		include_once META_TOOLKIT_DIR.'/XMP.php';
-		include_once META_TOOLKIT_DIR.'/Photoshop_IRB.php';
-		include_once META_TOOLKIT_DIR.'/EXIF.php';
-		include_once META_TOOLKIT_DIR.'/Photoshop_File_Info.php';
+			// Find the errors ... do NOT throw to output
+			$errors = stream_get_contents($pipes[2]);
+			fclose($pipes[2]);
+			if (!empty($errors)) {
+				$errors = array_unique(explode(PHP_EOL, $errors));
+				log_error(sprintf(translate('Error occurred while getting image metadata for Image File asset #%1$s: %2$s'), $assetid, trim(implode(', ', $errors), ', ')), E_USER_WARNING);
+			}//end if
 
-		// we start the buffer because the tool prints stuff to screen on error. nOObs
-		ob_start();
-		$jpeg_header_data = get_jpeg_header_data($filename);
-		$XMP_array = read_XMP_array_from_text( get_XMP_text( $jpeg_header_data ) );
-		ob_end_clean();
+			// Get the content from stdout after getting the content from stderr
+			$output = stream_get_contents($pipes[1]);
+			$array_output = json_decode_array(utf8_encode($output));
 
-		if (empty($XMP_array)) return $meta;
+			fclose($pipes[1]);
 
-		// the bit below is hardcoded to look for dc: prefix in tag name
-		foreach ($XMP_array as $xmp_item) {
-			if ($xmp_item['tag'] != 'x:xmpmeta') continue;
-			if (!isset($xmp_item['children'])) continue;
+			// If the command returned non-zero status
+			if (proc_close($process) != 0 || is_null($array_output) || !isset($array_output[0])) {
+				trigger_localised_error('CORE0324', sprintf(translate('Error occurred while getting image metadata for Image File asset #%1$s'), $assetid), E_USER_WARNING);
+				return FALSE;
+			}//end else
 
-			foreach ($xmp_item['children'] as $xmp_meta_item) {
-				if ($xmp_meta_item['tag'] != 'rdf:RDF') continue;
-				if (!isset($xmp_meta_item['children'])) continue;
+			// Log any error/warning
+			if (isset($array_output[0]['Warning'])) {
+				log_error(sprintf(translate('Error occurred while getting image metadata for Image File asset #%1$s: %2$s'), $assetid, $array_output[0]['Warning']), E_USER_WARNING);
+			}
 
-				foreach ($xmp_meta_item['children'] as $rdf_data) {
-					if ($rdf_data['tag'] == 'rdf:Description') {
-						if (!isset($rdf_data['children'])) continue;
+			// Get rid of irrelevant/sensitive data
+			$irrelevant_data = Array('ExifToolVersion', 'SourceFile', 'Directory', 'FilePermissions');
 
-						foreach ($rdf_data['children'] as $description_data) {
-							$tag_name = $description_data['tag'];
-							if (strpos($tag_name, 'dc:') !== 0) continue;
+			foreach($array_output[0] as $key => $val) {
+				if (in_array($key, $irrelevant_data)) {
+					continue;
+				}
 
-							if (!isset($description_data['children'])) continue;
+				if (is_array($val)) {
+					array_walk($val, function(&$array_val, $array_key) {
+						$array_val = str_replace("\0", '', $array_val);
+					});
+				} else {
+					$val = str_replace("\0", '', $val);
+				}
 
-							$ns = 'dc';
-							// 3 is the length of 'dc:'
-							$current_tag = substr($tag_name, 3);
-							$keyword = $ns.'--'.$current_tag;
-
-							foreach ($description_data['children'] as $tag_value_list) {
-								if (!isset($tag_value_list['children'])) continue;
-
-								$meta[$keyword]['name'] = $tag_name;
-								foreach ($tag_value_list['children'] as $tag_value) {
-									// sometimes value tag is missing in image header, checking first!
-									if (!isset($tag_value['value'])) {
-										$meta[$keyword]['value'][] = '';
-									} else {
-										$meta[$keyword]['value'][] = $tag_value['value'];
-									}
-								}
-							}
-						}
-
-					}//end if
-
-				}//end foreach
-
+				$meta[strtolower($key)] = Array(
+											'name' => $key,
+											'value' => $val,
+										);
 			}//end foreach
 
-		}//end foreach
+		}//end if
 
 		return $meta;
 

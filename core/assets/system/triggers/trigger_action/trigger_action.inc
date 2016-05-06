@@ -148,6 +148,34 @@ class Trigger_Action extends Asset
 	}//end actionAssetsAtOnce()
 
 
+	/**
+	* Replaces all the keywords in a string.
+	* Global keywords are also replaced.
+	* All other keywords will refer to the event asset.
+	*
+	* @param string		$value			a string value that contains keywords like %xxx%
+	* @param Asset		$event_asset	the event asset
+	*
+	* @return string
+	* @access public
+	*/
+	public static function replaceKeywords($value, Asset $event_asset)
+	{
+		// Replace global keywords
+		replace_global_keywords($value);
+
+		// Replace event asset keywords
+		$keywords = retrieve_keywords_replacements($value);
+		$replacements = Array();
+		foreach ($keywords as $keyword) {
+			$replacements[$keyword] = $event_asset->getKeywordReplacement($keyword);
+		}
+		replace_keywords($value, $replacements);
+
+		return $value;
+
+	}//end replaceKeywords()
+
 }//end class
 
 ?>

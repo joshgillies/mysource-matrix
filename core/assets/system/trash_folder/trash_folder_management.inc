@@ -39,9 +39,28 @@ class Trash_Folder_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-						'name'	=> Array(
-									'default'	=> 'Trash',
-								   ),
+						'name'				=> Array(
+												'default'		=> 'Trash',
+											   ),
+						'scheduling_status'	=> Array(
+												'added'			=> '1.0',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											   ),
+						'job_link_age'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+											   ),
+						'job_purge_node'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'assetid',
+												'default'		=> '',
+												'description'	=> 'The asset id of root node to purge on scheduled job.',
+											   ),
 					  );
 
 	}//end constructor

@@ -137,6 +137,18 @@ class Workflow_Schema_Management extends Asset_Management
 																								   ),
 																			   ),
 														   ),
+						'subject_started'				=> Array(
+															'added'			=> '0.3',
+															'type'			=> 'text',
+															'default'		=> 'Workflow Started',
+															'description'	=> 'Custom subject to users when workflow is started',
+														   ),
+						'message_started'			=> Array(
+															'added'			=> '0.3',
+															'type'			=> 'text',
+															'default'		=> '',
+															'description'	=> 'Custom message to users when workflow is started',
+														   ),
 					  );
 
 	}//end constructor

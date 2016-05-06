@@ -167,7 +167,8 @@ class CMIS_Bridge extends Asset
 						'password' => $this->attr('password'),
 						'ws_security' => $this->attr('ws_security'),
 						'verify'	  => $verify,
-						'service_name'=> $service_name
+						'service_name'=> $service_name,
+						'method'		=> $this->attr('authentication_type'),
 					);
 
 		// Create and connect
@@ -211,9 +212,6 @@ class CMIS_Bridge extends Asset
 		if ($children_data === FALSE) return $sync_info;
 
 		foreach ($children_data as $object_data){
-
-			//if not document type or there is no contentStreamFileName this object is not applicable.
-			if ($object_data['cmis:objectTypeId'] != 'cmis:document' || !isset($object_data['cmis:contentStreamFileName'])) continue;
 
 			$objectId = $object_data['cmis:objectId'];
 			if (array_key_exists($objectId, $current_files)) {
@@ -352,6 +350,7 @@ class CMIS_Bridge extends Asset
 		if (!$this->connect('RepositoryService')) return $repositoryId;
 
 		$repositories = $this->soap['RepositoryService']->getRepositories();
+		
 		if(!isset($repositories->repositories)) return $repositoryId;
 
 		foreach($repositories->repositories as $repository){

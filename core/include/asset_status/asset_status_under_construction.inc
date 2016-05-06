@@ -98,13 +98,9 @@ class Asset_Status_Under_Construction extends Asset_Status
 			if (empty($schemas)) {
 				// no workflow defined, so any admin can make this live
 				if ($this->owner->adminAccess('')) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
-						if (!isset($this->_tmp['metadata_complete'])) {
-							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-							$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
-						}
-					} else {
-							$this->_tmp['metadata_complete'] = TRUE;
+					if (!isset($this->_tmp['metadata_complete'])) {
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
 					}
 					if ($this->_tmp['metadata_complete']) {
 						$statii[SQ_STATUS_LIVE] = translate('Approve and Make Live');
@@ -155,34 +151,36 @@ class Asset_Status_Under_Construction extends Asset_Status
 					}
 				}
 
+				$parent_asset_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->owner->id, SQ_SC_LINK_ALL, '', TRUE, 'minor', NULL, TRUE, TRUE);
+				if(!empty($parent_asset_link)) {
+					$parent_assetid = $parent_asset_link[0]['majorid'];
+					$parent_typecode = $parent_asset_link[0]['major_type_code'];
+					$parent_status = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($parent_assetid, $parent_typecode,TRUE, 'status');
+					if ($parent_status[$parent_assetid] === $this->owner->status) {
+						$needs_workflow = FALSE;	
+					} 
+				}
+
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				if ($mm->allowsMetadata($this->owner->id)) {
+				if (!isset($this->_tmp['metadata_complete'])) {
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
+				}
+				$m_complete = $this->_tmp['metadata_complete'];
 
-					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-					$is_dependant = $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
-
+				if($m_complete) {
 					// In the case of multiple streams, we may need to provide
 					// BOTH 'approve' and 'apply for approval' if some streams
 					// can be approved bypassing workflow, and some can't.
-					if ($wf_complete === TRUE && (($m_complete === TRUE && !$is_dependant) || $is_dependant)) {
+					if ($wf_complete === TRUE) {
 						$statii[SQ_STATUS_APPROVED] = translate('Approve');
-
 					}
-					if (($needs_workflow === TRUE) || ($m_complete === FALSE && !$is_dependant)) {
+					if ($needs_workflow === TRUE) {
+						// if it's dependant asset, we have to provide both possibilities, because we don't know the situation of its parent
 						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Apply for Approval');
-
 					}
-				} else {
-					// this asset needs to allow status "apply for approval" and "approve change" (if workflow is complete),
-					// because asset does not allows metadata
-					if ($wf_complete) {
-						$statii[SQ_STATUS_APPROVED] = translate('Approve');
-
-					}
-					$statii[SQ_STATUS_PENDING_APPROVAL] = translate('Apply for Approval');
-
 				}
 			}
 
@@ -259,14 +257,23 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
-					$msg_reps     = Array(
-										'user_name'		=> $user->name,
-										'workflow_user' => $user->name,
-										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
-										'asset_name'	=> $this->owner->name,
-										'status'		=> $this->getDescription(),
-										'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
-									);
+					$workflow_backend_href = $this->owner->getBackendHref('workflow', FALSE);
+					$accept_url = $workflow_backend_href.'&asset_version='.$this->owner->version.'&workflow_link_action=approve';
+					$reject_url = $workflow_backend_href.'&asset_version='.$this->owner->version.'&workflow_link_action=reject';
+
+					$msg_reps = Array(
+									'workflow_user'			=> $user->name,
+									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+									'asset_name'			=> $this->owner->name,
+									'assetid'				=> $this->owner->id,
+									'workflow_url'			=> current_url().$workflow_backend_href,
+									'accept_url'			=> current_url().$accept_url,
+									'reject_url'			=> current_url().$reject_url,
+									'asset_url'				=> $this->owner->getDependantParentsURL(),
+									'asset_version'			=> $this->owner->version,
+									'status'				=> $this->getDescription(),
+								);
+
 					$asset_edt_fns = $this->owner->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
 						$msg_reps['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
@@ -286,13 +293,21 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 					$running_schemas = $wfm->getSchemas($this->owner->id, TRUE, TRUE);
 					foreach ($running_schemas as $schemaid) {
+						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						$workflow = $wfm->getSchemaWorkflows($this->owner->id, $schemaid);
+						$step_data =& $wfm->getCurrentStep($workflow);
+
+						if (!empty($step_data)) {
+							$msg_reps['current_step_name'] = $step_data['step_name'];
+							$msg_reps['current_step_id']   = implode('.', $workflow['current_step']);
+						}
+
 						$publishers = $wfm->whoCanPublish($this->owner->id, $schemaid);
 						if (count($publishers) > 0) {
 							$msg = $ms->newMessage();
 							$msg->type = 'asset.workflow.announce.started';
 
 							// see if we have the 'from' field set
-							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if ($schema->attr('schema_reply_to_email_address') != '') {
 								$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
 							} else {
@@ -302,10 +317,19 @@ class Asset_Status_Under_Construction extends Asset_Status
 								$msg->from = $schema->attr('schema_from_email_address');
 							}
 
-							$msg->subject = translate('Workflow Started');
-							$msg->body = translate('User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.')."\n\n".
-                                        translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
-                                        translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+							if (trim($schema->attr('subject_started')) !== '' ) {
+								$msg->subject = trim($schema->attr('subject_started'));
+							} else {
+								$msg->subject = translate('Workflow Started');
+							}
+
+							if (trim($schema->attr('message_started')) !== '' ) {
+								$msg->body = trim($schema->attr('message_started'));
+							} else {
+								$msg->body = translate('User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.')."\n\n".
+											translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+											translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+							}
                             $msg->to = array_merge($msg->to, $publishers);
 							$msg->replacements = $msg_reps;
 							$msg->parameters['assetid'] = $this->owner->id;
@@ -331,9 +355,65 @@ class Asset_Status_Under_Construction extends Asset_Status
 			case SQ_STATUS_APPROVED :
 
 				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				// Save the comment for approval
+				$log_message = $wfm->getEditorCommentOnApplyForApproval($this->owner->id);
+				if (!empty($log_message)) {
+					$msg_type = 'asset.workflow.userlog';
+					$msg_reps = Array(
+						'assetid'	=> $this->owner->id,
+						'version'	=> $this->owner->version,
+						'message'	=> $log_message,
+					);
+					$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+					$message->parameters['assetid'] = $msg_reps['assetid'];
+					$message->parameters['version'] = substr($msg_reps['version'], 0, strrpos($msg_reps['version'], '.'));
+					$message->subject = translate('Workflow User Log');
+					$message->body    = $log_message;
+					$message->send();
+				}
+
+				$msg_reps   = Array();
+				if (!$wfm->silentWorkflowParty($this->owner->id)) {
+					$log = $ms->newMessage();
+					$workflow_backend_href = $this->owner->getBackendHref('workflow', FALSE);
+					$accept_url = $workflow_backend_href.'&asset_version='.$this->owner->version.'&workflow_link_action=approve';
+					$reject_url = $workflow_backend_href.'&asset_version='.$this->owner->version.'&workflow_link_action=reject';
+
+					$msg_reps = Array(
+									'workflow_user' => $user->name,
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+									'asset_name'	=> $this->owner->name,
+									'assetid'		=> $this->owner->id,
+									'workflow_url'  => current_url().$workflow_backend_href,
+									'accept_url'    => current_url().$accept_url,
+									'reject_url'    => current_url().$reject_url,
+									'asset_url'	    => $this->owner->getDependantParentsURL(),
+									'asset_version' => $this->owner->version,
+									'status'		=> $this->getDescription(),
+								);
+					$asset_edt_fns = $this->owner->getEditFns();
+					if (isset($asset_edt_fns->static_screens['preview'])) {
+						$msg_reps['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
+					} else {
+						$msg_reps['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
+					}
+					$log->replacements = $msg_reps;
+
+					$log->type    = 'asset.workflow.log.approve';
+					$log->subject = translate('Asset Changes Approved');
+					$log->body    = translate('User "%workflow_user%" has approved the changes to %type_code% "%asset_name%" to go live from %status%.')."\n\n".
+translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+					$log->parameters['assetid'] = $this->owner->id;
+					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+					$ms->enqueueMessage($log);
+
+				}
 
 				// we are going approve this asset instead of initiating the workflow
-				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 				$wfm->setCurrentUserAsLastStarted($current_userid, $this->owner->id);
 
 			break;

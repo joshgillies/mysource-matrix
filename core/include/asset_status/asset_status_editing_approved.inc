@@ -108,6 +108,56 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 			// safe edit is finished, so we dont need the system version any more
 			if (!$this->owner->clearSystemVersion()) return false;
 		}
+
+		// Log the workflow messsage for rejecting the changes and putting the asset back into safe edit
+		if ($new_status == SQ_STATUS_EDITING) {
+			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+			$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			// Save the comment for approval
+			$log_message = $wfm->getEditorCommentOnApplyForApproval($this->owner->id);
+			if (!empty($log_message)) {
+				$msg_type = 'asset.workflow.userlog';
+				$msg_reps = Array(
+					'assetid'	=> $this->owner->id,
+					'version'	=> $this->owner->version,
+					'message'	=> $log_message,
+				);
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->parameters['assetid'] = $msg_reps['assetid'];
+				$message->parameters['version'] = substr($msg_reps['version'], 0, strrpos($msg_reps['version'], '.'));
+				$message->subject = translate('Workflow User Log');
+				$message->body    = $log_message;
+				$message->send();
+			}
+			if (!$wfm->silentWorkflowParty($this->owner->id)) {
+				$log = $ms->newMessage();
+				$msg_reps = Array(
+								'user_name'		=> $user->name,
+								'workflow_user' => $user->name,
+								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+								'asset_name'	=> $this->owner->name,
+								'status'		=> get_status_description($new_status),
+								'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
+							);
+				$log->replacements = $msg_reps;
+				$asset_edt_fns = $this->owner->getEditFns();
+				if (isset($asset_edt_fns->static_screens['preview'])) {
+					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
+				} else {
+					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
+				}
+				$log->subject = translate('Asset Changes Rejected');
+                $log->body    = translate('User "%workflow_user%" has rejected the changes made to %type_code% "%asset_name%". The status of "%asset_name%" has reverted to %status%.')."\n\n".
+                                    translate('A full report for the Workflow of "%asset_name%" can be found on the <SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>.')."\n".
+                                    translate('You can also <SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>');
+                $log->type    = 'asset.workflow.log.reject';
+				$log->parameters['assetid'] = $this->owner->id;
+				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+				$log->send();
+			}
+		}
 		return true;
 
 	}//end processStatusChange()

@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="User Details" write_access="root:noEditAllowed" limbo_access="1">
+	<section name="Record Set Data" write_access="root:noEditAllowed" limbo_access="1">
 		<field>
 			<display_name />
 			<note />

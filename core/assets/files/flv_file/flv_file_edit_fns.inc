@@ -98,7 +98,7 @@ class FLV_File_Edit_Fns extends File_Edit_Fns
 		if ($write_access) {
 			check_box($prefix.'_extract_metadata', 1, FALSE);
 		} else {
-			?><em>Acquire Lock(s) on the asset to access this option</em><?php
+			?><em>Acquire Locks on the asset to access this option</em><?php
 		}
 
 		// Check to see if getID3() is enabled

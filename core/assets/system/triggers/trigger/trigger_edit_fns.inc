@@ -42,10 +42,12 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		// disable all static screens
 		$this->static_screens = Array();
 
-		// enable just the details
+		// enable the details and logs screens
 		$this->static_screens['details']['name'] = translate('Details');
-
 		$this->static_screens['details']['force_unlock'] = FALSE;
+
+		$this->static_screens['logs']['name'] = translate('Logs');
+		$this->static_screens['logs']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -65,8 +67,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$active = $asset->attr('active');
 		$options = Array(
-						1 => translate('enabled'),
-						0 => translate('disabled'),
+						1 => translate('Enabled'),
+						0 => translate('Disabled'),
 					);
 
 		if ($write_access) {
@@ -195,8 +197,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			* Deletes a div, with a confirmation box
 			*/
 			function deleteDiv(div) {
-				if(confirm(js_translate('Deleting a component cannot be undone.
-Are you sure you want to proceed?'))) {
+				if(confirm(js_translate("Deleting a component cannot be undone.\nAre you sure you want to proceed?"))) {
 
 					div.parentNode.removeChild(div);
 				}
@@ -965,12 +966,15 @@ Are you sure you want to proceed?'))) {
 		// actions
 		$raw_actions = array_get_index($edit_data, 'actions');
 		$action_order = array_get_index($edit_data, 'action_order');
+		$existing_actions = $asset->attr('actions');
 		if (!empty($action_order)) {
 			$order_array = explode(',', $action_order);
 			foreach ($order_array as $position) {
 				$new_raw_actions[] = $raw_actions[$position];
+				$new_existing_actions[] = $existing_actions[$position];
 			}
 			$raw_actions = $new_raw_actions;
+			$existing_actions = $new_existing_actions;
 		}
 		$new_action_type = array_get_index($edit_data, 'new_action');
 		if (!empty($new_action_type)) {
@@ -979,7 +983,7 @@ Are you sure you want to proceed?'))) {
 
 			$raw_actions[] = $new_action;
 		}
-		$processed_actions = $this->_processRawActionSet($tm, $raw_actions);
+		$processed_actions = $this->_processRawActionSet($tm, $raw_actions, $existing_actions);
 
 		$asset->setAttrValue('actions', $processed_actions);
 		return TRUE;
@@ -999,7 +1003,7 @@ Are you sure you want to proceed?'))) {
 	* @return array
 	* @access private
 	*/
-	function _processRawActionSet(&$tm, $raw_components)
+	function _processRawActionSet(&$tm, $raw_components, $existing_actions)
 	{
 		$processed_components = Array();
 
@@ -1008,9 +1012,11 @@ Are you sure you want to proceed?'))) {
 		}
 
 		$i=1;
-		foreach ($raw_components as $component) {
+		foreach ($raw_components as $index => $component) {
 			$error = FALSE;
 			$settings = Array();
+
+			if(isset($existing_actions[$index]['data'])) $settings = $existing_actions[$index]['data'];
 
 			$type = array_get_index($component, 'type');
 			if (empty($type) || !$tm->_loadComponent($type)) {

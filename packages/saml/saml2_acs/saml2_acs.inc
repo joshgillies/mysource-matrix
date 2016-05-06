@@ -110,6 +110,16 @@ class Saml2_ACS extends Asset
 	require_once SQ_TOOL_SIMPLESAMLPHP_PATH.'/lib/_autoload.php';
 	require_once SQ_PACKAGES_PATH.'/saml/lib/saml_sp.inc';
 	
+	// if we are already SAML authenticated, just redirect user to the saml manager url
+	// otherwise we are at risk of authenticating again and got lots of error
+	$saml_auth_manager = new SAML_Auth_Manager($saml_account_manager->attr('auth_source'));
+	if($saml_auth_manager->isAuthenticated()) {
+		$redirect_url = $saml_account_manager->getURL();
+		if(!empty($redirect_url)) {
+			do_redirect($redirect_url);
+		}
+	}
+
 
 	$sourceId = $saml_account_manager->attr('auth_source');
 	

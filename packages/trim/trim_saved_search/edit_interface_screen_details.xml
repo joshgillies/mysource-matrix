@@ -22,13 +22,6 @@
 			<note />
 			<text width="35" height="1" />
 		</field>
-        <field>
-            <display_name>Search Type</display_name>
-            <function_call>
-                <paint_function   name="paintRecordSearchTypes"  />
-                <process_function name="processRecordSearchTypes" />
-            </function_call>
-        </field>
 	</section>
     <section name="Connection Setup" write_access="write:attributes">
 		<field>
@@ -47,6 +40,10 @@
 			<display_name>Password</display_name>
 			<note />
             <password width="35" height="1" />
+        </field>
+        <field attribute="authentication_type">
+            <display_name>Authentication Method</display_name>
+            <selection/>
         </field>
     </section>
     <section name="Use a Connector Asset" write_access="write:attributes">

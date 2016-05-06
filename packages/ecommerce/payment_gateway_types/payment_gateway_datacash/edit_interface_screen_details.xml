@@ -46,7 +46,6 @@
             <note>The path to the Datacash PHP API's DataCash.php file.</note>
             <function_call>
                 <paint_function name="paintDatacashAPIPath" />
-                <process_function name="processDatacashAPIPath" />
             </function_call>
         </field>
         <field>
@@ -54,7 +53,6 @@
             <note>The path to the directory that keeps the CardInfo Files.</note>
             <function_call>
                 <paint_function name="paintCardInfoDirPath" />
-                <process_function name="processCardInfoDirPath" />
             </function_call>
         </field>
         <field attribute="timeout">

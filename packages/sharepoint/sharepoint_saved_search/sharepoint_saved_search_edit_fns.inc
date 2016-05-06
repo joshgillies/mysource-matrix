@@ -113,21 +113,20 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 			<span class="sq-backend-section-subheading" style="margin-left:60px;">Row Limit</span><br />
 		<?php
 			if (!$write_access) {
-				echo '<span style="margin:5 0 20 120px;font-weight:bold;">'.$row_limit.'</span>';
+				echo '<div style="margin:15px 0px 20px 120px;font-weight:bold;">'.$row_limit.'</div>';
 			} else {
-				text_box($prefix.'_row_limit', $row_limit, 4, '', FALSE, 'style="margin:7 0 20 120px;"');
-				?><span style="margin-left:0px;">&nbsp;This limit the number of records returned.</span><?php
+				text_box($prefix.'_row_limit', $row_limit, 4, '', FALSE, 'style="margin:15px 0px 20px 120px;"');
 			}//end else
 
 		if (!empty($options)) {
 		?>
-			<br /><br />
+			<br />
 			<span class="sq-backend-section-subheading" style="margin-left:60px;">Search Logic</span><br />
 			<?php
 			if (!$write_access) {
-				echo '<span style="margin:5 0 20 120px;font-weight:bold;">'.strtoupper($search_logic).'</span>';
+				echo '<div style="margin:15px 0px 20px 120px;font-weight:bold;">'.strtoupper($search_logic).'</div>';
 			} else {
-				combo_box($prefix.'_search_logic', Array('And' => 'AND', 'Or' => 'OR'), FALSE, $search_logic, 0, ' style="margin:7 0 20 120px;"');
+				combo_box($prefix.'_search_logic', Array('And' => 'AND', 'Or' => 'OR'), FALSE, $search_logic, 0, ' style="margin:15px 0px 20px 120px;"');
 			}//end else
 
 			?>

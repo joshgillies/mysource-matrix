@@ -93,9 +93,10 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				case 'Asset_Attribute_Serialise' :
 				case 'Asset_Attribute_Parameter_Map' :
 				case 'Asset_Attribute_Email_Format' :
-					if (Trigger_Action_Set_Attribute_Value::_safeToEval($value)) {
+				case 'Asset_Attribute_Dynamic_File' :
+					include_once SQ_FUDGE_PATH.'/general/text.inc';
+					if (safe_array_literal($value)) {
 						// set $value to be the contents of the array
-
 						eval('$value = '.$value.';');
 					} else {
 						trigger_localised_error('TRIG0003', translate('The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted'), E_USER_WARNING);
@@ -147,42 +148,6 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			   );
 
 	}//end execute()
-
-
-	/**
-	* Returns true if the passed string is safe to run through eval
-	*
-	* A string is safe if it contains only digits, quoted strings, the 'array' keyword and punctuation
-	*
-	* @param string	$str	The string to evaluate
-	*
-	* @return boolean
-	* @access private
-	*/
-	private static function _safeToEval($str)
-	{
-		// first check the value contains only allowable components
-		$allowed_expressions = Array('array', '(', ')', '=>', ',', ';');
-		$reduced_value = str_replace($allowed_expressions, '', strtolower($str));
-
-		// digits are ok
-		$reduced_value = preg_replace('/\d/', '', $reduced_value);
-		// check for TRUE/FALSE/NULL (dependent on no white space, so trim() the string first)
-		$reduced_value = trim($reduced_value);
-		$reduced_value = preg_replace('/(^|[^[:alnum:]])(TRUE|FALSE|NULL)([^[:alnum:]]|$)/i', '$1$3', $reduced_value);
-		// escaped double-quoted strings are ok
-		$reduced_value = preg_replace('/\\\\"/', '', $reduced_value);
-		// escaped single-quoted strings are ok
-		$reduced_value = preg_replace("/\\\\'/", '', $reduced_value);
-		// double-quoted strings are ok
-		$reduced_value = preg_replace('/"([^"]*)"/', '', $reduced_value);
-		// single-quoted strings are ok
-		$reduced_value = preg_replace("/'([^']*)'/", '', $reduced_value);
-		$reduced_value = trim($reduced_value);
-
-		return empty($reduced_value);
-
-	}//end _safeToEval()
 
 
 	/**
@@ -305,7 +270,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		$settings['attribute'] = array_get_index($request_data, 'attribute', '');
 		$settings['value'] = array_get_index($request_data, 'value', '');
 
-		if (!empty($settings['attribute']) && !empty($settings['asset_type'])) {
+		if (trim($settings['value']) && !empty($settings['attribute']) && !empty($settings['asset_type'])) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
 			$dummy_asset = new $settings['asset_type'];
 			$attr = $dummy_asset->getAttribute($settings['attribute']);
@@ -326,7 +291,8 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				case 'Asset_Attribute_Serialise' :
 				case 'Asset_Attribute_Parameter_Map' :
 				case 'Asset_Attribute_Email_Format' :
-					if (!Trigger_Action_Set_Attribute_Value::_safeToEval($settings['value'])) {
+					include_once SQ_FUDGE_PATH.'/general/text.inc';
+					if (!safe_array_literal($settings['value']) || @eval('$value = '.$settings['value'].';') === FALSE) {
 						trigger_localised_error('TRIG0002', translate('You have chosen to set the value of a non-scalar attribute, but the value you have supplied does not qualify to be evaluated as a PHP expression.  The only allowable components for these expressions are the \'array\' keyword, single- and double-quoted strings, digits and necessary punctuation.  The value has not been saved.'), E_USER_NOTICE);
 						$settings['value'] = '';
 					}

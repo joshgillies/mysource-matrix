@@ -107,13 +107,14 @@ class Tool_Bulk_File_Import extends Tool
 
 					$o->openField(translate('Server File Import'));
 
-
 							$compatible_types = $itm->attr('valid_file_types');
-
 							// This will get us a list of all the files in the import directory
 							$dirs_array = list_dirs($import_dir, TRUE);
 							asort($dirs_array);
-							?>
+							// This will pass the directory list as hidden field
+							$dir_list = serialize($dirs_array);
+    							hidden_field('file_import_dirname_list',$dir_list)
+    							?>
 							<table class="sq-backend-table">
 								<tr>
 									<th class="sq-backend-table-header" style="width: 130px;"><?php echo 'Directory'; ?></th>
@@ -138,7 +139,7 @@ class Tool_Bulk_File_Import extends Tool
 									}
 								?>
 								<?php
-									foreach ($dirs_array as $dir_name) {
+									foreach ($dirs_array as $index => $dir_name) {
 										$files = Tool_Bulk_File_Import::_getFileList($dir_name);
 										$num_of_files = count($files);
 										$stripped_dname = substr($dir_name, strrpos($dir_name, '/') + 1);
@@ -151,8 +152,8 @@ class Tool_Bulk_File_Import extends Tool
 										?>
 										<tr>
 										<td class="sq-backend-table-cell"><?php echo $stripped_dname; ?>&nbsp;(<?php echo $num_of_files; ?> file<?php echo ($num_of_files > 1) ? 's' : ''; ?>)</td>
-											<td class="sq-backend-table-cell" style="text-align: center;"><?php check_box('file_import_dirname_'.str_replace(' ', '_', $stripped_dname), $dir_name, FALSE); ?></td>
-											<td class="sq-backend-table-cell"><?php asset_finder(str_replace(' ', '_', $stripped_dname).'_root_assetid', ''); ?></td>
+											<td class="sq-backend-table-cell" style="text-align: center;"><?php check_box('file_import_dirname_'.$index, $dir_name, FALSE); ?></td>
+											<td class="sq-backend-table-cell"><?php asset_finder('selected_'.$index.'_root_assetid', ''); ?></td>
 										</tr>
 										<?php
 									}
@@ -538,7 +539,7 @@ class Tool_Bulk_File_Import extends Tool
 
 										td_1.innerHTML = type;
 										if (type == 'Caption') {
-											td_2.innerHTML = '<textarea cols="60" rows="2" name="bulk_file_upload_new_row_' + type.toLowerCase() + '_msg_' + id + '" size="30" maxlength="255"></textarea>';
+											td_2.innerHTML = '<textarea cols="60" rows="2" name="bulk_file_upload_new_row_' + type.toLowerCase() + '_msg_' + id + '" size="30"></textarea>';
 										} else {
 											td_2.innerHTML = '<input type="text" name="bulk_file_upload_new_row_' + type.toLowerCase() + '_msg_' + id + '" size="30" maxlength="255" />';
 										}
@@ -595,18 +596,16 @@ class Tool_Bulk_File_Import extends Tool
 		// Process Server Upload
 		if ($process_server) {
 			$sorting = array_get_index($_POST, 'sort_file_import', FALSE);
-			$dirs_array = list_dirs($import_dir, TRUE);
 
-			foreach ($dirs_array as $dir_name) {
+			$dirs_array = isset($_POST['file_import_dirname_list']) ? unserialize($_POST['file_import_dirname_list']) : Array();
+
+			foreach ($dirs_array as $index => $dir_name) {
 				$files = Tool_Bulk_File_Import::_getFileList($dir_name);
 				$num_of_files = count($files);
-
-				$stripped_dname = substr($dir_name, strrpos($dir_name, '/') + 1);
-				$replaced_dname = str_replace(' ', '_', $stripped_dname);
-				$tmp = array_get_index($_POST, 'file_import_dirname_'.$replaced_dname, '');
+				$tmp = array_get_index($_POST, 'file_import_dirname_'.$index, '');
 				if (!empty($tmp)) {
 
-					$tmp = array_get_index($_POST, $replaced_dname.'_root_assetid', '');
+					$tmp = array_get_index($_POST, 'selected_'.$index.'_root_assetid', '');
 					if (!empty($tmp['assetid'])) {
 						if (!isset($vars['total_count'])) {
 							$vars['total_count'] = $num_of_files;

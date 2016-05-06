@@ -48,7 +48,7 @@ class Metadata_Field_Management extends Asset_Management
 						'friendly_name'		=> Array(
 												'added'				=> '0.1',
 												'type'				=> 'text',
-												 'default'			=> '',
+												'default'			=> '',
 												'is_contextable'	=> TRUE,
 												'is_admin'			=> '0',
 											   ),
@@ -100,6 +100,13 @@ class Metadata_Field_Management extends Asset_Management
 												'default'			=> FALSE,
 												'parameters'		=> Array('allow_empty' => FALSE),
 												'description'		=> 'If this field is Required, then either the value or any one of the value components must be set for an asset to be approved',
+											   ),
+						'allow_cascading'			=> Array(
+												'added'				=> '0.1',
+												'type'				=> 'boolean',
+												'default'			=> TRUE,
+												'parameters'		=> Array('allow_empty' => FALSE),
+												'description'		=> 'If set to "No", the "Cascade value" option for this metadata field will be disabled.',
 											   ),
 						'frontend'			=> Array(
 												'added'				=> '0.1',

@@ -92,7 +92,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 				label(translate('Remove user from previously joined session groups.'), $prefix.'[leave_other_groups]');
 
 			} else {
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($leave_other_groups ? 'tick' : 'cross').'.gif" alt="'.($leave_other_groups ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($leave_other_groups ? 'tick' : 'cross').'.png" alt="'.($leave_other_groups ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Remove user from previously joined session groups.');

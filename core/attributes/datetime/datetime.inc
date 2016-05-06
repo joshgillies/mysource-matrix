@@ -86,8 +86,8 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 		// default values
 		$this->_edit_params['allow_null']         = TRUE;
-		$this->_edit_params['max']                = '2030-12-31 23:59:59';
-		$this->_edit_params['min']                = '1970-01-01 00:00:00';
+		$this->_edit_params['max']                = '9999-12-31 23:59:59';
+		$this->_edit_params['min']                = '0001-01-01 00:00:00';
 		$this->_edit_params['allow_circa']        = '0';
 		$this->_edit_params['print_format']       = 'l, F jS, Y H:i:s';
 		$this->_edit_params['allow_period']       = FALSE;
@@ -205,6 +205,14 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$period_type = 'd';
 		$period_age  = '-';
 		$base_time   = '00:00:00';
+
+		$subattr_names = Array(
+			'single_date'       => translate('Select a single fixed date and time using the boxes above.'),
+			'date_period'       => translate('Enter a period using the boxes above (eg. "3 days in the past"). The time period selected will be added or subtracted from the current date and time.').'<br/><br/>'.
+									   translate('A period of "0" (zero) means that the current time will be used.'),
+			'date_period_today' => translate('Enter a period and time using the boxes above (eg. "3 days before today, at 09:00:00"). The period will be added or subtracted from the current date, and the specified time used.').'<br/><br/>'.
+									   translate('A period of "0" (zero) means the date used will be "today" at the time indicated.'),
+		);
 
 		$matches = Array();
 
@@ -399,7 +407,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			foreach ($options as $option_key => $option_name) {
 					?><div id="<?php echo $prefix; ?>_field_<?php echo $option_key ?>" class="sq-datetime-field-date-option-<?php echo $prefix; ?>" style="display: <?php echo ($option_key === $date_option) ? 'block' : 'none'; ?>;">
 						<p style="margin-bottom: 0;"><?php echo $edit_fields[$option_key]; ?></p>
-						<div class="sq-backend-smallprint"><?php echo translate('attribute_datetime_select_'.$option_key); ?></div>
+						<div class="sq-backend-smallprint"><?php echo $subattr_names[$option_key]; ?></div>
 					</div><?php
 			}//end foreach
 
@@ -438,7 +446,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				}
 
 				$field = new Datetime_Field($prefix, $field_value, $this->_edit_params);
-				if ($field->processField() === TRUE) {
+				if ($field->processField($this->name) === TRUE) {
 					if ($this->_edit_params['allow_circa'] === '1') {
 						$value_bits = explode(' ', $field_value);
 						if ($value_bits[2] === '0') {

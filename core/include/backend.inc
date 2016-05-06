@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 class Backend extends MySource_Object
 {
 
-	/**
+   	/**
 	* the object that will controll all the output for any backend printing
 	*
 	* @var object Backend_Outputter
@@ -212,10 +212,6 @@ class Backend extends MySource_Object
 					$this->_printMain();
 				break;
 
-				case 'resizer' :
-					$this->_printNavResizer();
-				break;
-
 				default:
 					trigger_localised_error('SYS0097', sprintf(translate('Backend Page "%s" unknown'), $_REQUEST['SQ_BACKEND_PAGE']), E_USER_ERROR);
 
@@ -273,7 +269,6 @@ class Backend extends MySource_Object
 						'header'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
 						'main'		=> $main_url,
 						'sidenav'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=sidenav',
-						'resizer'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
 					  );
 		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== FALSE);
 
@@ -299,7 +294,7 @@ class Backend extends MySource_Object
 		$header_height = $limbo_hide_frames ? 0 : 42;
 		$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 		$sidenav_width = $am_width+5;
-		$resizer_width = $limbo_hide_frames ? 0 : 25;
+		$resizer_width = $limbo_hide_frames ? 0 : 30;
 
 		if (SQ_IN_LIMBO) {
 			// Hide Sidenav by default in Simple Edit.
@@ -308,7 +303,7 @@ class Backend extends MySource_Object
 		?>
 		<!DOCTYPE html>
 		<?php
-		if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [1-8]/',$_SERVER['HTTP_USER_AGENT'])) {
+		if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [6-8]/',$_SERVER['HTTP_USER_AGENT'])) {
         	// If we are in IE8 or less, don't use the conditional <html> tag as it can cause compatibility mode in those browsers
     		// IE<=8
     		?>
@@ -337,8 +332,10 @@ class Backend extends MySource_Object
 			<title><?php echo $page_title; ?></title>
 			<meta charset="<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>"/>
 			<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+			<link rel="stylesheet" type="text/css" href=<?php echo '"'.sq_web_path('lib').'/web/css/edit.css"'; ?>/>
 			<link rel="stylesheet" type="text/css" href=<?php echo '"'.sq_web_path('lib').'/asset_map/js/js_asset_map.css"'; ?>/>
-			<link rel="shortcut icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.ico"'; ?>/>
+			<link rel="icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.png"'; ?>/>
+			<!--[if IE]><link rel="shortcut icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.png"'; ?>><![endif]-->
 			<?php
 			if ($limbo_hipo) {
 				?>
@@ -371,9 +368,9 @@ class Backend extends MySource_Object
 					padding-top: 0;
 					height: 42px;
 					z-index: 3;
-					background: #2a2a2a;
-					box-shadow: 0 0 3px 1px #000;
-					border-bottom: 1px solid #000;
+					background: #3E3E3E;
+					border-bottom: 1px solid #3E3E3E;
+					<?php if ($limbo_hide_frames) echo 'display: none;'; ?>
 				}
 
 				div.iframe-container.header iframe{
@@ -395,30 +392,23 @@ class Backend extends MySource_Object
 				}
 
 				body.sidenav-minimised div.iframe-container.sidenav {
-					left: -<?php echo $sidenav_width ?>px;
-    				transform: rotateY(90deg);
-				}
-
-				div.iframe-container.resizer {
-					left: <?php echo $sidenav_width ?>px;
-					width: <?php echo $resizer_width ?>px;
-					z-index: 2;
-    				transition: left 0.2s ease 0s;
-				}
-
-				body.sidenav-minimised div.iframe-container.resizer {
 					left: 0;
+					width: 0;
 				}
+
+                div.iframe-container.sidenav {
+					transition: width 0.2s ease 0s;
+				}
+
+                body.sidenav-minimised div.iframe-container.main {
+                    padding-left: <?php echo ($resizer_width) ?>px;
+                }
 
 				div.iframe-container.main {
 					padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px;
 					padding-top: <?php echo $header_height ?>px;
 					z-index: 0;
 					transition: padding 0.2s ease 0s;
-				}
-
-				body.sidenav-minimised div.iframe-container.main {
-					padding-left: <?php echo ($resizer_width) ?>px;
 				}
 
 				iframe {
@@ -450,12 +440,15 @@ class Backend extends MySource_Object
 					<div class="iframe-container sidenav">
 						<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
 					</div>
-					<div class="iframe-container resizer">
-						<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-					</div>
 					<div class="iframe-container main">
 						<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
 					</div>
+					<?php
+					if (!$limbo_hide_frames) {
+						$this->_sideNavFrameResizable();
+					}
+					?>
+
 				</div>
 			</body>
 			<?php
@@ -491,7 +484,6 @@ class Backend extends MySource_Object
 
 		$this->out->openRaw();
 		?>
-		<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('lib') ?>/js/general.js"></script>
 		<script language="JavaScript" type="text/javascript">
 			// number of seconds before refreshing frame
 			var REFRESH_UPDATE = <?php echo max(10, (int) SQ_CONF_REFRESH_INTERVAL); ?>;
@@ -624,6 +616,10 @@ class Backend extends MySource_Object
 
 			$search_string = trim(array_get_index($_POST, 'asset_search', ''));
 			$search_root   = array_get_index($_POST, 'asset_search_root');
+			$search_roots  = NULL;
+			if ($search_root !== NULL) {
+				$search_roots = explode(',', $search_root);
+			}
 			$do_redirect   = ((array_get_index($_POST, 'asset_search_redirect') === '0') ? FALSE : TRUE);
 			$search_words  = preg_split('/[\r\n\t \|\&\~\/]+/', $search_string);
 			$results       = Array();
@@ -644,9 +640,9 @@ class Backend extends MySource_Object
 				}
 			}//end if
 
-			if (!isset($results['url']) && !isset($results['assetid'])) {
+			if (!isset($results['url']) && !isset($results['assetid']) && !filter_var($search_string, FILTER_VALIDATE_URL)) {
 				try {
-					$results['keyword'] = Backend_Search::processSearch($search_string, Array($search_root));
+					$results['keyword'] = Backend_Search::processSearch($search_string, $search_roots);
 					if (count($results['keyword']) === 0) {
 						unset($results['keyword']);
 					}
@@ -950,8 +946,7 @@ class Backend extends MySource_Object
 
 		}//end if not in LIMBO
 
-		if (!empty($dhtml_messages)) {
-			?>
+		?>
 			<script language="Javascript" type="text/javascript">
 
 				var msgDiv = null;
@@ -1007,6 +1002,9 @@ class Backend extends MySource_Object
 					msgDiv.style.top = divTop + "px";
 					msgDiv.style.visibility = "visible";
 
+					if (myTimer != null) {
+						clearInterval(myTimer);
+					}
 					myTimer = setInterval(function() {
 						moveIt();
 					}, delay);
@@ -1055,6 +1053,24 @@ class Backend extends MySource_Object
 					top.frames["sq_main"].document.getElementById("sq-search-wait-popup").style.display = "none";
 				}
 
+				function getMessagePopUp() {
+					var msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
+					if (msgDiv == null) {
+						msgDiv = parent.frames["sq_main"].document.createElement("div");
+						msgDiv.id = "new_message_popup";
+						msgDiv.className = "sq-new-message-popup-wrapper";
+						msgDiv.style.position = "fixed";
+						msgDiv.style.display = "block";
+						msgDiv.style.top = "-1000px";
+						msgDiv.style.right = "-1000px";
+						msgDiv.style.zIndex = "10";
+						parent.frames["sq_main"].document.body.appendChild(msgDiv);
+					}
+
+					return msgDiv;
+				}//end getMessagePopUp()
+
+
 				var popupContents = new Array();
 				<?php
 				$i = 0;
@@ -1072,20 +1088,9 @@ class Backend extends MySource_Object
 
 				if (parent.frames["sq_main"].document.body && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
 
-					msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
+					msgDiv = getMessagePopUp();
 					screenMenu = parent.frames["sq_main"].document.getElementById("sq_screen_menu");
 					screenMenuFiller = parent.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
-					if (msgDiv == null) {
-						msgDiv = parent.frames["sq_main"].document.createElement("div");
-						msgDiv.id = "new_message_popup";
-						msgDiv.className = "sq-new-message-popup-wrapper";
-						msgDiv.style.position = "fixed";
-						msgDiv.style.display = "block";
-						msgDiv.style.top = "-1000px";
-						msgDiv.style.right = "-1000px";
-						msgDiv.style.zIndex = "10";
-						parent.frames["sq_main"].document.body.appendChild(msgDiv);
-					}
 
 					messageIndex = 0;
 					<?php
@@ -1119,8 +1124,7 @@ class Backend extends MySource_Object
 				}
 
 			</script>
-			<?php
-		}//end if empty msgs
+		<?php
 
 		if (SQ_ROLLBACK_VIEW) {
 			$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
@@ -1143,18 +1147,43 @@ class Backend extends MySource_Object
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
 					<?php
 					if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
+						$invalid_login_html = str_replace("\n", ' ', $this->_getDHTMLMessage(translate('Invalid Login'), '%error_message%', 'new-message', 'info'));
 					?>
 					<table id="login_as_form" class="sq-backend-header-login-as-form" style="display: none;" align="right">
 						<tr>
 							<td nowrap valign="middle">
 								<script>
+									// Flag to ensure the "Login As" request made is not submitted multiple times
+									var LOGIN_AS_SUBMITTED = false;
+
 									function submit_login_as()
 									{
 										var login_as_user = document.getElementById('user').value;
-										if ((login_as_user.length > 0) && (login_as_user != 'root') && (login_as_user != '<?php htmlentities($GLOBALS['SQ_SYSTEM']->user->attr('username'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>')) {
-											top.location = './?SQ_ACTION=login_as&user='+login_as_user;
+										if (!LOGIN_AS_SUBMITTED && (login_as_user.length > 0) && (login_as_user != 'root') && (login_as_user != '<?php htmlentities($GLOBALS['SQ_SYSTEM']->user->attr('username'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>')) {
+											LOGIN_AS_SUBMITTED = true;
+
+											// Popup display login failure message
+											msgDiv = getMessagePopUp();
+											msgDiv.style.width = "400px";
+											msgDiv.style.right = "10px";
+											currentTimeout = '5000';
+
+											// Make "login as" ajax request
+											login_as_user = encodeURIComponent(login_as_user);
+											ajax_request('./?SQ_ACTION=login_as&print_message=1&user='+login_as_user, function(error_message) {
+												// If error messge is non-empty then login failed
+												if (error_message) {
+													// Show the failure message in the popup
+													LOGIN_AS_SUBMITTED = false;
+													msgDiv.innerHTML = '<?php echo addslashes($invalid_login_html); ?>'.replace('%error_message%', error_message);
+													showMsgDiv();
+												} else {
+													// Login successful. Reload the page
+													top.location.reload();
+												}
+											});
 										}
-									}
+									}//end submit_login_as()
 
 									function show_login_as_form()
 									{
@@ -1170,10 +1199,8 @@ class Backend extends MySource_Object
 								</script>
 								<?php
 								echo '<label for="user" class="sq-backend-header-item">'.translate('Login As').'</label>';
-
 								echo '<span class="sq-text-field-wrapper login">';
-								text_box('user', translate('Enter username'),  22, 0, TRUE, 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
-
+								text_box('user', translate('Enter username'),  22, 0, TRUE, 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) { submit_login_as(); return false; }"');
 								echo '</span>';
 								?>
 								<input type="button" class="sq-btn-blue" value="<?php echo translate('Login'); ?>" onclick="submit_login_as();" />
@@ -1191,9 +1218,11 @@ class Backend extends MySource_Object
 								echo '<label for="asset_search" class="sq-backend-header-item">'.translate('Quick Search').'</label>';
 
 								echo '<span class="sq-text-field-wrapper">';
-								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) form.submit();"');
 
-								echo '<input type="image" class="sq-backend-header-search-button" alt="'.translate('Go').'" title="'.translate('Submit').'" src="'.sq_web_path('lib').'/web/images/icons/header/search.png" onClick="form.submit();">';
+								$search_value = !empty($_POST['asset_search']) ? $_POST['asset_search'] : '';
+								text_box('asset_search', $search_value, 30, 0, FALSE, ' class="sq-backend-header-text-box"', 'text', (!empty($_POST['asset_search'])) ? '' : $asset_search_default);
+
+								echo '<input type="image" class="sq-backend-header-search-button" alt="'.translate('Go').'" title="'.translate('Submit').'" src="'.sq_web_path('lib').'/web/images/icons/header/search.png">';
 								echo '</span>';
 							?>
 							</td>
@@ -1462,7 +1491,7 @@ class Backend extends MySource_Object
 					</table>
 
 					<div id="system_version" class="sq-system-note">
-						<a href="<?php echo translate('http://manuals.matrix.squizsuite.net/patches');?>" class="sq-backend-header-item" target="_blank" title="<?php
+						<a href="http://manuals.matrix.squizsuite.net/patches" class="sq-backend-header-item" target="_blank" title="<?php
 
 							if (defined('SQ_LICENCE_INSTALL_KEY')) {
 								echo 'Install Key: '.SQ_LICENCE_INSTALL_KEY.' - ';
@@ -1472,7 +1501,7 @@ class Backend extends MySource_Object
 					</div>
 
 					<div id="help_link" class="sq-system-note help-link">
-						<a href="<?php echo translate('http://manuals.matrix.squizsuite.net/');?>" class="sq-backend-header-item" target="_blank" title="<?php echo translate('Click to visit the Squiz Matrix User Manual Website');?>">
+						<a href="http://manuals.matrix.squizsuite.net/" class="sq-backend-header-item" target="_blank" title="<?php echo translate('Click to visit the Squiz Matrix User Manual Website');?>">
 
 
 							<?php echo translate('Help');?>
@@ -1601,65 +1630,6 @@ class Backend extends MySource_Object
 		$this->out->closeRaw();
 
 	}//end _printSideNav()
-
-
-	/**
-	* Print out the Side Nav
-	*
-	* @return void
-	* @access private
-	*/
-	function _printNavResizer()
-	{
-		$this->out->openRaw();
-
-		?>
-		<style>
-			body {
-				background: #f4f4f4;
-				height: 100%;
-			}
-		</style>
-
-		<script>
-			var clickSize = 50;
-			hidden = <?php var_export(SQ_IN_LIMBO); ?>;
-
-			function toggleFrame() {
-				if (hidden == false) {
-					document.body.className += ' sidenav-minimised';
-					top.document.body.className += ' sidenav-minimised';
-					hidden = true;
-				} else {
-					document.body.className = document.body.className.replace(/ sidenav-minimised/, '');
-					top.document.body.className = top.document.body.className.replace(/ sidenav-minimised/, '');
-					hidden = false;
-				}
-			}
-		</script>
-
-		<div class="sq-backend-resize-wrapper">
-			<table class="sq-backend-resize-table">
-				<tr>
-					<td>
-						<a class="sq-resizer-button" href="#" onclick="Javascript: toggleFrame(); return false;">
-							<img class="sq-resizer-button-hide" src="<?php echo $this->out->filesPath('/images/flash_resizer/bar-hide.png'); ?>" title="Hide side nav" />
-							<img class="sq-resizer-button-show" src="<?php echo $this->out->filesPath('/images/flash_resizer/bar-show.png'); ?>" title="Show side nav" />
-						</a>
-					</td>
-				</tr>
-			</table>
-		</div>
-
-		<script>
-			document.main_form.style.width = "100%";
-			document.main_form.style.height = "100%";
-		</script>
-		<?php
-
-		$this->out->closeRaw();
-
-	}//end _printNavResizer()
 
 
 	/**
@@ -1834,6 +1804,204 @@ class Backend extends MySource_Object
 	}//end _getDHTMLMessage()
 
 
+	/**
+	* Make the side navigation frame resizable
+	*
+	* @return void
+	* @access private
+	*/
+	function _sideNavFrameResizable()
+	{
+		?>
+		<script src="<?php echo sq_web_path('lib') ?>/js/general.js"></script>
+		<script src="<?php echo sq_web_path('lib'); ?>/web/dfx/dfx.js"></script>
+		<script>
+			(function() {
+
+				var editMode = <?php var_export(SQ_IN_LIMBO); ?>;
+				// Width of the reside handle added by resizable() (CSS defined in edit.css)
+				var resizeHandleWidth = 30;
+				// Minimum allowed Asset Map width
+				var minSideNavWidth = 235;
+
+				dfxLoadedCallback = function() {
+					var $body = dfxjQuery(document.body);
+					// Side Navigation frame container
+					var $sideNavDiv = dfxjQuery('.iframe-container.sidenav');
+					// Main frame container
+					var $mainDiv = dfxjQuery('.iframe-container.main');
+
+					// Get the asset map width stored in the browser storage for current user if any
+					var browserPref = BrowserUserPref.load('<?php echo str_replace("'", "\'", $GLOBALS['SQ_SYSTEM']->currentUserId()); ?>');
+					var sideNavWidth = browserPref.getUserPref('asset_map_width');
+					if (!editMode && sideNavWidth) {
+						sideNavWidth += 5;
+						$sideNavDiv.css('width', sideNavWidth+'px');
+						$mainDiv.css('padding-left', (sideNavWidth+resizeHandleWidth)+'px');
+					} else {
+						sideNavWidth = <?php echo $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH'); ?>+5;
+					}
+
+					// Asset map container div is added dynamically by Asset Map module, which will be loaded in DOM once asset map finish loading
+					// This element is loaded when attempting to resize the asset map for first time
+					// NOTE: Can't use window.ready() or window.load() due to issues in < IE10
+					var $assetMapDiv = null;
+
+					// Distance from the left, the point at which the asset map will auto-minimise/restore when resizing
+					var minMouseLeftPos = 50;
+					// In admin mode the asset map will have tree tabs option on the left
+					var sideNavLeftPadding = editMode ? 0 : 23;
+
+					// Set to true if the show/button should not action
+					var preventShowHideButtonAction = false;
+					// Set to true immdedately after side nav bar is restored when resizing
+					var resizingRestored = false;
+
+					/**
+					* Handler for 'mousemove' event on resize handle when resizing the side navigation frame
+					* Auto minimise the side navigation frame if the mouse if close enough to the left
+					*
+					* @param event
+					*/
+					function autoMinimiseSideNav(event) {
+						if (event.clientX < minMouseLeftPos && !$body.hasClass('sidenav-minimised')) {
+							$mainDiv.removeClass('sq-sidenav-resizing');
+							$sideNavDiv.removeClass('sq-sidenav-resizing');
+							minimiseSideNav(event);
+						}
+					}//end autoMinimiseSideBar()
+
+					/**
+					* Handler for 'mousemove' event on main frame when resizing the side navigation frame
+					* Auto restore the side navigation frame if the mouse if moved enough to the right
+					*
+					* @param event
+					*/
+					function autoRestoreSideNav(event) {
+						if (event.clientX >= minMouseLeftPos && $body.hasClass('sidenav-minimised')) {
+							sideNavWidth = minSideNavWidth;
+							if ($assetMapDiv) {
+								$assetMapDiv.css('width', (sideNavWidth-sideNavLeftPadding)+'px');
+							}
+							minimiseSideNav(event);
+							resizingRestored = true;
+						}
+					}//end autoRestoreSideNav()
+
+					/**
+					* Handler for show/hide asset map button click event
+					* Toggles show/hide side navigation frame
+					* Also used by mousemove handlers 'autoMinimiseSideNav' and 'autoRestoreSideNav'
+					*
+					* @param event
+					*/
+					function minimiseSideNav(event) {
+						if (event) {
+							event.preventDefault();
+						}
+						$body.toggleClass('sidenav-minimised');
+						var minimise = $body.hasClass('sidenav-minimised');
+						if (minimise) {
+							$mainDiv.css('padding-left', resizeHandleWidth+'px');
+							$sideNavDiv.css('width', '0px');
+						} else {
+							$mainDiv.css('padding-left', (sideNavWidth+resizeHandleWidth)+'px');
+							$sideNavDiv.css('width', sideNavWidth+'px');
+						}
+
+					}//end minimiseSideNav()
+
+					var $iframeCover = dfxjQuery('<div class="ui-resizable-iframecover" style="background: #fff;"></div>').css({width:'100%', height: '100%',position: "absolute", opacity: "0.001", zIndex: 1000})
+
+					// Make the side navigation frame container resizable
+					$sideNavDiv.resizable({
+						handles: 'e',
+						start: function(event, ui) {
+							if (!$assetMapDiv || !$assetMapDiv.length) {
+								$assetMapDiv = dfxjQuery('#asset_map_container', parent.frames[1].document);
+							}
+							// Only start resizing once we have the asset map container loaded in the DOM
+							if ($assetMapDiv.length) {
+								// Adding a div over the body prevent from losing mouse from resize handle when dragging the mouse outside the handler quickly
+								$sideNavDiv.parent().append($iframeCover);
+								// Event hanlders to automatically restore/minimise the asset map when resizing
+								$iframeCover.bind('mousemove', autoMinimiseSideNav).bind('mousemove', autoRestoreSideNav);
+
+								// When resizing the show/hide button should not action
+								preventShowHideButtonAction = true;
+
+								$mainDiv.addClass('sq-sidenav-resizing');
+								$sideNavDiv.addClass('sq-sidenav-resizing');
+							}
+						},
+						stop: function(event, ui) {
+							preventShowHideButtonAction = false;
+							dfxjQuery('.ui-resizable-iframecover').remove();
+							$mainDiv.removeClass('sq-sidenav-resizing');
+							$sideNavDiv.removeClass('sq-sidenav-resizing');
+
+							$iframeCover.unbind('mousemove', autoMinimiseSideNav).unbind('mousemove', autoRestoreSideNav);
+
+							if (!editMode && !$body.hasClass('sidenav-minimised')) {
+								// Save the resized asset map width in the browser storage
+								browserPref.setUserPref('asset_map_width', (ui.element.width()-5));
+							}
+						},
+						resize: function(event, ui) {
+							if ($assetMapDiv && $assetMapDiv.length) {
+								if ($body.hasClass('sidenav-minimised')) {
+									ui.element.width(0);
+								} else {
+									sideNavWidth = ui.element.width();
+									$mainDiv.css('padding-left', (resizeHandleWidth+sideNavWidth)+'px');
+									if ($assetMapDiv) {
+										$assetMapDiv.css('width', (sideNavWidth-sideNavLeftPadding)+'px');
+									}
+
+									// NOTE: This class is added here instead of autoRestoreSideNav() due to the css transition time
+									if (resizingRestored) {
+										$mainDiv.addClass('sq-sidenav-resizing');
+										$sideNavDiv.addClass('sq-sidenav-resizing');
+										resizingRestored = false;
+									}
+								}
+							}//end if
+						},
+						minWidth: minSideNavWidth,
+					});
+
+					// Append resize button (toggle hide/show Asset Map) into the resizer handler
+					var $resizeHandle = $sideNavDiv.find('.ui-resizable-handle.ui-resizable-e');
+					var resizeWrapperHtml = '<table class="sq-backend-resize-table">'+
+									'<tbody>'+
+										'<tr>'+
+											'<td>'+
+												'<a class="sq-resizer-button" href="#">'+
+													'<img class="sq-resizer-button-hide" src="<?php echo  sq_web_path('lib'); ?>/web/images/flash_resizer/bar-hide.png" title="Hide side nav" />'+
+													'<img class="sq-resizer-button-show" src="<?php echo  sq_web_path('lib'); ?>/web/images/flash_resizer/bar-show.png" title="Show side nav" />'+
+												'</a>'+
+											'</td>'+
+										'</tr>'+
+									'</tbody>'+
+								'</table>';
+
+					$resizeHandle.append(resizeWrapperHtml).prop('title', 'Drag to Resize');
+
+					// Click event handler for Asset Map show/hide button
+					var $showHideButton = $resizeHandle.find('a.sq-resizer-button');
+					$showHideButton.click(function(event) {
+						// Do not action if click event is immedately followed by side nav resizing
+						if (!preventShowHideButtonAction) {
+							minimiseSideNav(event);
+						}
+					});
+
+				}//end dfxLoadedCallback
+			})();
+		</script>
+		<?php
+
+	}//end _sideNavFrameResizable()
 
 }//end class
 

@@ -5,4 +5,7 @@
 	<string source="soap_api_authentication_wss_username_token">The username and password options can be used to supply the authentication credentials</string>
 	<string source="soap_api_authentication_wss_password_digest">The username and password options can be used to supply the authentication credentials</string>
 	<string source="soap_api_authentication_marketo_signature">Access key (User ID) and Secret Key (Encryption Key) needs to be supplied for the authentication</string>
+
+	<string source="rest_page_js_engine_note">SpiderMokey requires engine binary path specified in External Tools Configuration.V8 engine requires v8js PECL extension to be installed.</string>
+	<string source="rest_page_js_engine_not_installed"><![CDATA[<strong>Warning: </strong>]]> %1$s is not installed on the system. JavaScript processing will not work.</string>
 </strings>

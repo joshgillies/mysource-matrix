@@ -39,9 +39,15 @@ include(dirname(__FILE__).'/header.php');
 		var data = owner.bodycopy_current_edit["data"]["attributes"];
 		available_types = owner.bodycopy_current_edit["data"]["available_types"];
 		var f = document.main_form;
+		var available_templates = owner.bodycopy_current_edit["available_templates"];
+		var applied_template = owner.bodycopy_current_edit["applied_template"];
+
+		if(typeof data.content_type == 'undefined') {
+			data.content_type = 'content_type_wysiwyg';
+		}
 
 		f.identifier.value = (data['identifier'] == null) ? "" : data['identifier'];
-		f.desc.value  	   = (data['desc']       == null) ? "" : data['desc'];
+		f.desc.value       = (data['desc']       == null) ? "" : data['desc'];
 		f.dir.value		   = (data['dir']  		 == null) ? "" : data['dir'];
 		f.css_class.value  = (data['css_class']  == null) ? "" : data['css_class'];
 
@@ -61,9 +67,17 @@ include(dirname(__FILE__).'/header.php');
 				}
 				i++;
 			}
+
+			// If a design style isn't found, set "Leave Unchanged" to the
+			// initial CSS text box value.
 			if (checked == 0) {
 				f.css_class_list.options[0].value = f.css_class.value;
 			}
+		}
+
+		// If there's no design styles provided, hide the class drop-down.
+		if (f.css_class_list.options.length <= 1) {
+			f.css_class_list.className = "hidden";
 		}
 
 		f.divid.value = owner.bodycopy_current_edit["data"]["divid"];
@@ -71,36 +85,66 @@ include(dirname(__FILE__).'/header.php');
 		owner.highlight_combo_value(f.layout_type, data['layout_type']);
 
 		// remove the existing values
-		for(var i = f.content_type.options.length - 1; i >= 0; i--) {
-			f.content_type.options[i] = null;
+		while(f.content_type.options.length > 0) {
+			f.content_type.options.remove(0);
 		}
-		var i = 0;
-
-		// add default "Leave Unchanged" value to the top
-		f.content_type.options[i] = new Option('<?php echo translate('-- Leave Unchanged --'); ?>', "");
-		i++;
-		for(var key in available_types) {
+		
+		// Get the list of available types. Mark the current content type with a
+		// "default" attribute so it doesn't need to be re-saved.
+		for (var key in available_types) {
+			if (!available_types.hasOwnProperty(key)) continue;
 			if (available_types[key] == null) continue;
-			if(available_types[key]["name"] != null) {
-				f.content_type.options[i] = new Option(available_types[key]["name"], key);
-				i++;
+			if (available_types[key]["name"] != null) {
+				var typeOption = new Option(available_types[key]["name"], key);
+
+				f.content_type.options.add(typeOption);
+				if (data.content_type === key) {
+					typeOption.setAttribute('data-default', 'default');
+					f.content_type.selectedIndex = f.content_type.options.length - 1;
+				}
 			}
+		}//end for
+
+
+		// Get the list of available templates
+		if(typeof available_templates !== 'undefined') {
+			for (var key in available_templates) {
+				if (!available_templates.hasOwnProperty(key)) continue;
+				if (available_templates[key] == null) continue;
+				if (available_templates[key]["assetid"] != null) {
+					var typeOption = new Option(available_templates[key]["name"] + ' (#' + available_templates[key]["assetid"] + ')', available_templates[key]["assetid"]);
+
+					f.template.options.add(typeOption);
+
+					if(typeof applied_template !== 'undefined'){
+						if (available_templates[key]["assetid"] == applied_template) {
+							typeOption.setAttribute('data-default', 'default');
+							f.template.selectedIndex = f.template.options.length - 1;
+						}
+					}
+				}
+			}//end for
 		}
 
-		if (typeof data["content_type"] == 'undefined' && typeof available_types['content_type_wysiwyg'] != 'undefined')
-			data["content_type"] = 'content_type_wysiwyg';
-		owner.highlight_combo_value(f.content_type, '');
 		f.disable_keywords.checked = (data["disable_keywords"] == "1");
 
 	}// end popup_init()
 
 	function popup_save(f) {
-		var data = new Object();
+		var data = {};
 		data["identifier"]       = owner.form_element_value(f.identifier);
 		data["desc"]             = owner.form_element_value(f.desc);
 		data["css_class"]        = owner.form_element_value(f.css_class);
 		data["layout_type"]      = owner.form_element_value(f.layout_type);
-		data["content_type"]     = owner.form_element_value(f.content_type);
+
+		if (f.content_type.options[f.content_type.selectedIndex].getAttribute('data-default') !== 'default') {
+			data["content_type"]     = owner.form_element_value(f.content_type);
+		}
+
+		if (f.template.options[f.template.selectedIndex].getAttribute('data-default') !== 'default') {
+			data["template"]     = owner.form_element_value(f.template);
+		}
+
 		data["disable_keywords"] = owner.form_element_value(f.disable_keywords);
 		data["dir"] 			 = owner.form_element_value(f.dir);
 		if (f.css_class_list.options.length > 1) {
@@ -155,6 +199,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					<td>
 						<select name="layout_type">
 							<option value="div" ><?php echo translate('Block (div)'); ?></option>
+							<option value="section"><?php echo translate('Section (section)'); ?></option>
+							<option value="article"><?php echo translate('Article (article)'); ?></option>
 							<option value="span"><?php echo translate('Inline (span)'); ?></option>
 							<option value="none"><?php echo translate('Raw (no formatting)'); ?></option>
 						</select>
@@ -163,7 +209,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				<tr>
 					<td class="label"><?php echo translate('Class'); ?>:</td>
 					<td>
-						<input type="text" name="css_class" value="" size="15"><br />
+						<input type="text" name="css_class" value="" size="15"><br/>
 						<select name="css_class_list" onchange="set_class(this.value);">
 							<option value=""><?php echo translate('-- Leave Unchanged --'); ?></option>
 						</select>
@@ -182,7 +228,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					<td class="bodycopy-popup-heading"><?php echo translate('Direction'); ?>:</td>
 					<td>
 						<select name="dir">
-							<option value=""><?php echo translate('-- Leave Unchanged --'); ?></option>
+							<option value=""><?php echo translate('Not set'); ?></option>
 							<option value="ltr"><?php echo translate('Left to right'); ?></option>
 							<option value="rtl"><?php echo translate('Right to left'); ?></option>
 						</select>
@@ -218,6 +264,14 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					<?php
 					}
 					?>
+					<tr>
+						<td class="label"><?php echo translate('Template'); ?>:</td>
+						<td>
+						<select name="template">
+							<option value="--"><?php echo translate('-- None --'); ?></option>
+						</select>
+						</td>
+					</tr>
 					<tr>
 						<td class="label"><?php echo translate('Disable Keywords'); ?>:</td>
 						<td>

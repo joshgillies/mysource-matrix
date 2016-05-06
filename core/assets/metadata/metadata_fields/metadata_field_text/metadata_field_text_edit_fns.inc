@@ -80,7 +80,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($write_access) {
 			$extras = ($is_default && $enable_default) ? 'disabled="disabled"' : '';
 
-			echo '<span class="sq-metadata-settings-wrapper">';
+			if($enable_default || $print_cascade_values_option) echo '<span class="sq-metadata-settings-wrapper">';
 				if ($enable_default) {
 					echo '<span class="sq-metadata-default-wrapper">';
 					$default_string = str_replace("'", "\'", $asset->attr('default'));
@@ -102,15 +102,17 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 					echo '</span>';
 				}
-
-				if ($print_cascade_values_option) {
+			
+				$allow_cascading = $asset->attr('allow_cascading');
+				if ($print_cascade_values_option && $allow_cascading) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
 						label(translate('Cascade value'), $prefix.'_cascade_value');
 
 					echo '</span>';
 				}
-			echo '</span>';
+
+			if($enable_default || $print_cascade_values_option) echo '</span>';
 
 			$field_prefix = $prefix.'_value';
 			if ($asset->attr('multi_line')) {

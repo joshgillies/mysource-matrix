@@ -49,11 +49,13 @@ class Decision_Tree_Question_Management extends Asset_Management
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
 													'default'	=> '',
+													'is_admin'		=> FALSE,
 												   ),
 						'question_destinations'	=> Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'serialise',
 													'default'	=> Array(),
+													'is_admin'		=> FALSE,
 												   ),
 					  );
 

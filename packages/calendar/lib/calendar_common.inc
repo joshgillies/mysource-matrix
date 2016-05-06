@@ -852,7 +852,7 @@ class Calendar_Common
 				// in an INTERVAL data type, which can't be converted. Only DATE
 				// subtraction returns an integer.
 				// Add the hours, minutes and seconds manually afterwards
-				$sql = "(86400 * (DATE (($y) || '-' || ($m) || '-' || ($d)) - DATE '1970-01-01') + ($h) * 3600 + ($i) * 60 + ($s))";
+				$sql = "(86400 * (TO_DATE (($y) || '-' || ($m) || '-' || ($d), 'YYYY-MM-DD') - DATE '1970-01-01') + ($h) * 3600 + ($i) * 60 + ($s))";
 			break;
 
 			case 'oci':
@@ -1098,7 +1098,7 @@ class Calendar_Common
 		// if multiple day event, subtract a further <event length> days so it catches those
 		// events occurring before last recurrence but long enough to extend into this period
 		if (!is_null($event['end_date_ds'])) {
-			$first_occur = add_days_to_iso($first_day, -($event['end_date_ds']-$event['start_date_ds']));
+			$first_occur = add_days_to_iso($first_occur, -($event['end_date_ds']-$event['start_date_ds']));
 		}
 		$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter($first_occur, $event_start_date, $event['frequency'], $event['period'], $event_last_day);
 

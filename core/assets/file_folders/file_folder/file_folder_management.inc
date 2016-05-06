@@ -66,8 +66,17 @@ class File_Folder_Management extends Asset_Management
 											'description'	=> 'Stores the order in which the linked files are combined',
 										);
 
-	}//end constructor
+		$this->vars['auto_regen']	= Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'parameters'    => Array(
+																'allow_empty' => FALSE
+																),
+											'description'	=> 'Whether to auto regenerate the merged file on any of the linked file update',
+										);
 
+	}//end constructor
 
 }//end class
 

@@ -726,7 +726,7 @@ echo '/*
 
 			case 'content_attachment' :
 				if (!empty($args['extension'])) {
-					echo '<', '?php $asset_name = htmlspecialchars($ASSET->name).\'.'.$args['extension'].'\'; ?'.'>';
+					echo '<', '?php $asset_name = htmlspecialchars($ASSET->name).'.$this->_safeStringLiteral('.'.$args['extension']).'; ?'.'>';
 					echo '<'.'?php header("Content-Disposition: attachment; filename=\"$asset_name\""); ?'.'>';
 				}
 			break;
@@ -1060,56 +1060,75 @@ echo '/*
 		$this->_setupVarReferences();
 		$pre_str = $this->_getDesignFileHeader();
 
-		$str = '';
+		// Array of the design components output
+		$design_contents = Array();
+
 		$GLOBALS['DESIGN_BEING_GENERATED'] =& $this;
-		ob_start();
 		foreach ($this->attr('contents') as $item) {
 			if ($item['_type'] == 'HTML') {
 				// just some HTML content to echo out
-				echo $item['contents'];
+				$design_contents[] = $item['contents'];
 			} else if ($item['_type'] == 'TAG') {
-				if ($item['operation'] == 'area') {
-					// defining a design area
-					$da = $this->getDesignArea($item['attributes']['id_name']);
-					if (is_null($da)) {
-						trigger_localised_error('CORE0234', sprintf(translate('No design area asset with ID name %s was found.  There must have been a problem initialising the asset for this design area.  Area tag ignored.'), $item['attributes']['id_name']), E_USER_WARNING);
-					} else {
-						$da->printAreaCode();
-					}
-				} else if ($item['operation'] == 'print') {
-					if ((!isset($item['attributes']['id_name'])) || ($item['attributes']['id_name'] == '__global__')) {
-						// printing a global var
-						$args = $item['attributes'];
-						unset($args['id_name']);
-						unset($args['var']);
-						$this->printVar($item['attributes']['var'], $args);
-					} else {
+				ob_start();
+					if ($item['operation'] == 'area') {
+						// defining a design area
 						$da = $this->getDesignArea($item['attributes']['id_name']);
 						if (is_null($da)) {
-							trigger_localised_error('CORE0153', sprintf(translate('Design Area "%s" not found, ignoring print operation'), $item['attributes']['id_name']), E_USER_NOTICE);
+							trigger_localised_error('CORE0234', sprintf(translate('No design area asset with ID name %s was found.  There must have been a problem initialising the asset for this design area.  Area tag ignored.'), $item['attributes']['id_name']), E_USER_WARNING);
 						} else {
-							if (isset($item['attributes']['var'])) {
-								// printing a var from a certain design area
-								$args = $item['attributes'];
-								unset($args['id_name']);
-								unset($args['var']);
-								$da->printVar($item['attributes']['var'], $args);
+							$da->printAreaCode();
+						}
+					} else if ($item['operation'] == 'print') {
+						if ((!isset($item['attributes']['id_name'])) || ($item['attributes']['id_name'] == '__global__')) {
+							// printing a global var
+							$args = $item['attributes'];
+							unset($args['id_name']);
+							unset($args['var']);
+							$this->printVar($item['attributes']['var'], $args);
+						} else {
+							$da = $this->getDesignArea($item['attributes']['id_name']);
+							if (is_null($da)) {
+								trigger_localised_error('CORE0153', sprintf(translate('Design Area "%s" not found, ignoring print operation'), $item['attributes']['id_name']), E_USER_NOTICE);
 							} else {
-								// printing a whole design area (which should already have been defined)
-								$da->printPaintingCode();
+								if (isset($item['attributes']['var'])) {
+									// printing a var from a certain design area
+									$args = $item['attributes'];
+									unset($args['id_name']);
+									unset($args['var']);
+									$da->printVar($item['attributes']['var'], $args);
+								} else {
+									// printing a whole design area (which should already have been defined)
+									$da->printPaintingCode();
+								}
 							}
 						}
 					}
-				}
+					$design_contents[] = ob_get_contents();
+				ob_end_clean();
 			}//end if Item = TAG
 		}//end foreach contents
-		$str = str_replace('?'.'><'.'?php', '', ob_get_contents());
+
+		// Combine the design component's output
+		$str = '';
+		foreach($design_contents as $design_content) {
+			//Design area output string is expected to contain php blocks, however combining adjecent design components blocks should not result into an opening PHP tag
+			if (substr($str, -1) === '<' && substr($design_content, 0, 1) === '?') {
+				// Escape the opening PHP tag
+				$str = substr($str, 0, -1);
+				$design_content = substr($design_content, 1);
+				$str .= "<"."?php echo '<'.'?'; ?".">";
+			}
+
+			$str .= $design_content;
+		}
+
+		// Remove redundent opening and closing PHP tags between the adjecent PHP blocks
+		$str = str_replace('?'.'><'.'?php', '', $str);
 		unset($GLOBALS['DESIGN_BEING_GENERATED']);
 
 		// Get rid of emtpy lines in the beginning
 		$str = preg_replace('|^(\r?\n)+|', '', $str);
 
-		ob_end_clean();
 		if (empty($str)) return FALSE;
 
 		if (!$this->_writeDesignFile($pre_str.$str)) {
@@ -1387,6 +1406,18 @@ echo '/*
 
 	}//end delete()
 
+
+	/**
+	* If the asset supports System Version mode (Safe Edit status)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function supportsSystemVersion()
+	{
+		return FALSE;
+
+	}//end supportsSystemVersion()
 
 
 }//end class

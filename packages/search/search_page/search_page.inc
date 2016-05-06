@@ -235,30 +235,6 @@ class Search_Page extends Listing_Engine
 
 
 	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed string|boolean
-	* @access public
-	*/
-	function isDeletableLink($linkid)
-	{
-		// the only reason why we would object to this link being
-		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-
-		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && in_array($bodycopy_link['value'], $this->bodycopies) && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('You can\'t delete the link between the search page and its bodycopies');
-
-		}
-
-		return parent::isDeletableLink($linkid);
-
-	}//end isDeletableLink()
-
-
-	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
 	* @return array
@@ -435,10 +411,88 @@ class Search_Page extends Listing_Engine
 	{
 		$results = $this->processSearch($search);
 
-		// exclude root nodes themselves if it is required
-		if ($this->attr('exclude_self')) {
+		// for calendar search page
+		$results_keys = array_keys($results);
+		$calendar_search = FALSE;
+		if (!empty($results_keys)) {
+			if (strpos($results_keys[0], ':') !== FALSE) {
+				$calendar_search = TRUE;
+				foreach ($results_keys as $key => $value) {
+					if (strpos($results_keys[$key], ':') !== FALSE) {
+						$val = explode(':', $value);
+						$results_keys[$val[0]][] = $val[1];
+						unset($results_keys[$key]);
+					}
+				}
+			}
+		}
+
+		// exclude root nodes if set
+		if ($this->attr('exclude_root_nodes')) {
+			$excluded_root_node = $this->attr('exclude_root_nodes');
 			$root_nodes = $this->getRootNodes();
-			foreach ($root_nodes as $exclude_assetid) {
+
+			foreach ($excluded_root_node as $exclude_assetid) {
+				// for calendar search page
+				if (array_key_exists($exclude_assetid, $results_keys) && $calendar_search) {
+					foreach (array_keys($results_keys) as $key => $value) {
+						$exclude_assetid = $exclude_assetid.':'.$results_keys[$exclude_assetid];
+						if (isset($results[$exclude_assetid])) {
+							unset($results[$exclude_assetid]);
+						}
+					}
+				} elseif (isset($results[$exclude_assetid])) {
+					unset($results[$exclude_assetid]);
+				}
+
+				// remove the child assets we don't want to display them on the results page
+				// unless they are listed as a root node to be searched
+				$exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($exclude_assetid);
+				foreach (array_keys($exclude_children) as $key => $child) {
+					if (array_key_exists($child, $results_keys) && $calendar_search) {
+						foreach ($results_keys as $key => $value) {
+							// exclude all occurances of the asset, ie recurring events
+							foreach ($value as $event => $details) {
+								$exclude_assetid = $child.':'.$details;
+								if (isset($results[$exclude_assetid])) {
+									unset($results[$exclude_assetid]);
+								}
+								unset($details);
+							}
+						}
+					} 
+
+					// get the children of any asset we've searched for that aren't excluded from the search
+					if (in_array($child, $root_nodes)) {
+						$temp_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($child);
+						$root_nodes = array_unique(array_merge($root_nodes, array_keys($temp_children)));
+					}
+					
+					if (isset($results[$child]) && !in_array($child, $root_nodes)) {
+						unset($results[$child]);
+					}
+				}
+			}
+		}
+		
+		// exclude these asset from the results
+		if ($this->attr('exclude_assets')) {
+			$excluded_asset = $this->attr('exclude_assets');
+			foreach ($excluded_asset as $exclude_assetid) {
+				// for calendar search page
+				if (array_key_exists($exclude_assetid, $results_keys) && $calendar_search) {
+					foreach ($results_keys as $key => $value) {
+						// exclude all occurances of the asset, ie recurring events
+						foreach ($value as $event => $details) {
+							$ex_asset = $exclude_assetid.':'.$details;
+							if (isset($results[$ex_asset])) {
+								unset($results[$ex_asset]);
+							}
+							unset($details);
+						}
+					}
+				}
+
 				if (isset($results[$exclude_assetid])) {
 					unset($results[$exclude_assetid]);
 				}
@@ -757,6 +811,10 @@ class Search_Page extends Listing_Engine
 	*/
 	function _printDateRange($field_name, $current_value=Array(), $read_only=FALSE)
 	{
+		if (!is_array($current_value)) {
+			$current_value = Array();
+		}
+
 		if (!isset($current_value['from'])) {
 			$current_value['from'] = '---------- --:--:--';
 		}
@@ -1051,7 +1109,8 @@ class Search_Page extends Listing_Engine
 		$query_var = $field_name.'_query';
 		$fields = $this->attr('fields');
 		if (!isset($fields[$field_name])) return;
-		$this->registerFormField('queries_'.$query_var.'%');
+		// Period "." in the field name is changed to a underscore "_" in the request var
+		$this->registerFormField('queries_'.str_replace('.', '_', $query_var).'%');
 		$query = '';
 
 		if (isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
@@ -1075,13 +1134,15 @@ class Search_Page extends Listing_Engine
 				$key_field = array_search($field_name, $pmap_params);
 				$query = $pmap->getParameterValue($pmap_params[$key_field]);
 			}
-			replace_global_keywords($query);
+			if (!empty($query)) {
+				replace_global_keywords($query);
+			}
 		}
 
 		ob_start();
 
 			if (empty($fields[$field_name]['data_sources']) || $this->_hasMixedFieldTypes($fields[$field_name])) {
-				text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+				text_box('queries_'.$query_var, $query, $this->defaults['query_width'], '', FALSE, 'title="'.translate('Search Field').'"');
 			} else {
 				// only one data source, or all matching; we'll base our format on the first one
 				$data_source = $fields[$field_name]['data_sources'][0];
@@ -1103,7 +1164,7 @@ class Search_Page extends Listing_Engine
 								case 'metadata_field_thesaurus':
 								case 'metadata_field_multiple_text':
 								case 'metadata_field_wysiwyg':
-									text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+									text_box('queries_'.$query_var, $query, $this->defaults['query_width'], '', FALSE, 'title="'.translate('Search Field').'"');
 								break;
 								case 'metadata_field_hierarchy' :
 									$hierarchy = $asset->getHierarchyAttribute();
@@ -1133,8 +1194,10 @@ class Search_Page extends Listing_Engine
 
 					case 'asset_attrib' :
 						$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
-
-						if ($attribute->type() == 'datetime') {
+						if ($attribute->type() == 'wysiwyg') {
+							// Use a text field for WYSIWYG attribute type field
+							text_box('queries_'.$query_var, $query, '', '', FALSE, 'title="'.translate('Search Field').'"');
+						} else if ($attribute->type() == 'datetime') {
 
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printDateRange('queries_'.$query_var, $current_value);
@@ -1164,23 +1227,26 @@ class Search_Page extends Listing_Engine
 
 					case 'standard' :
 						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-						if (isset($sm->standard_date_fields[$data_source['params']['field']])) {
-							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-							$this->_printDateRange('queries_'.$query_var, $current_value);
-						} else if (isset($sm->standard_text_fields[$data_source['params']['field']])) {
-							text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+						if (isset($data_source['params']['field'])) {
+							if (isset($sm->standard_date_fields[$data_source['params']['field']])) {
+								$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+								$this->_printDateRange('queries_'.$query_var, $current_value);
+							} else if (isset($sm->standard_text_fields[$data_source['params']['field']])) {
+								text_box('queries_'.$query_var, $query, $this->defaults['query_width'], '', FALSE, 'title="'.translate('Search Field').'"');
+							}
 						}
 					break;
 
 					default :
-						text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+						text_box('queries_'.$query_var, $query, $this->defaults['query_width'], '', FALSE, 'title="'.translate('Search Field').'"');
 					break;
 
 				}//end switch field type
 			}//end else
 
 			if (!$read_only) {
-				$this->registerFormField('queries_'.$query_var);
+				// Period "." in the field name is changed to a underscore "_" in the request var
+				$this->registerFormField('queries_'.str_replace('.', '_', $query_var));
 			}
 
 			$replacement = ob_get_contents();
@@ -1511,7 +1577,7 @@ class Search_Page extends Listing_Engine
 				// for the submit button so enter will submit the form
 				$mode = array_get_index($_REQUEST, 'mode', 'initial');
 				// Extra hidden field to make IE submit the form with a single field (See bug #5279)
-				$replacement = '<input type="text" name="'.$prefix.'_extra_field" id="'.$prefix.'_extra_field" disabled="disabled" style="display:none" />';
+				$replacement = '<input type="text" name="'.$prefix.'_extra_field" id="'.$prefix.'_extra_field" disabled="disabled" style="display:none" title="'.translate('Hidden Honeypot Field').'" />';
 				if ($mode == 'initial') {
 					$replacement  .= '<input type="submit" name="'.$field_name.'"
 						value="'.$this->attr('submit_button_text').'" />';
@@ -1564,7 +1630,7 @@ class Search_Page extends Listing_Engine
 				$this->registerFormField($field_name);
 				$replacement = '<input type="text" name="'.$field_name.'" onchange="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 					listing_form.results_per_page.value = this.value;
-				" value="'.$results_per_page.'" size="5" />';
+				" value="'.$results_per_page.'" size="5" title="'.translate('Results Per Page').'" />';
 			break;
 
 			default :
@@ -1598,6 +1664,11 @@ class Search_Page extends Listing_Engine
 		$categories = $this->attr('categories');
 
 		foreach ($keywords as $keyword) {
+			if (strpos($keyword, 'globals_') === 0) {
+				// Global keywords will be replaced later at higher level
+				$replaces[$keyword] = '%'.$keyword.'%';
+				continue;
+			}
 			$full_keyword = $keyword;
 			$keyword = parse_keyword($keyword, $modifiers);
 			if (preg_match('/(.+)_query_logic$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
@@ -1610,7 +1681,7 @@ class Search_Page extends Listing_Engine
 						   );
 				ob_start();
 					$this->registerFormField($keyword);
-					combo_box($keyword, $options, FALSE, $current_logic);
+					combo_box($keyword, $options, FALSE, $current_logic, 0, 'title="'.translate('Search Logic').'"');
 					$replacement = ob_get_contents();
 				ob_end_clean();
 			} else if (preg_match('/(.+)_query_(.+)$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
@@ -2308,10 +2379,12 @@ class Search_Page extends Listing_Engine
 	* score fields so they don't blank out when keywords are replaced in listing
 	* engine.
 	*
+	* @param string $assetid    Asset ID of the asset being listed
+	*
 	* @return array
 	* @access public
 	*/
-	function getExtendedAssetKeywordReplacements()
+	function getExtendedAssetKeywordReplacements($assetid='')
 	{
 		// We are only replacing them with their own replacement so they can be
 		// cached out like this, then score and result number can be added later
@@ -2743,7 +2816,11 @@ class Search_Page extends Listing_Engine
 			// If there is a period (.) in the field name, REQUEST var changes it to a underscore (_), so when
 			// setting the query_var string, we need to look for underscores and not periods in the REQUEST var
 			// It should be noted that query_var is used elsewhere too.
-			$clean_query_var = str_replace('.', '_', $query_var);
+			if (strpos($query_var, '.') !== FALSE) {
+				$clean_query_var = str_replace('.', '_', $query_var);
+			} else {
+				$clean_query_var = $query_var;
+			}
 
 			if (!empty($field_details['data_sources']) && !$this->_hasMixedFieldTypes($field_details)) {
 				$data_source = $field_details['data_sources'][0];
@@ -2753,10 +2830,12 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'standard' :
-						if (isset($sm->standard_date_fields[$data_source['params']['field']])) {
-							$queries[$field_name] = $this->_processDateRange($query_var);
-						} else if (isset($sm->standard_text_fields[$data_source['params']['field']])) {
-							$queries[$field_name] = array_get_index($_REQUEST, $clean_query_var, '');
+						if (isset($data_source['params']['field'])) {
+							if (isset($sm->standard_date_fields[$data_source['params']['field']])) {
+								$queries[$field_name] = $this->_processDateRange($query_var);
+							} else if (isset($sm->standard_text_fields[$data_source['params']['field']])) {
+								$queries[$field_name] = array_get_index($_REQUEST, $clean_query_var, '');
+							}
 						}
 					break;
 
@@ -2936,6 +3015,9 @@ class Search_Page extends Listing_Engine
 		if (empty($search_roots)) {
 			// use default search roots because no categories chosen or not customised
 			$search_roots =  $this->getRootNodes();
+			// check if dynamic parameter is set or not
+			$dynamic_val = $this->attr('parameter_map');
+			if(!empty($dynamic_val) && empty($search_roots)) $search_roots = 0; // search everything
 			$root_logic = 'OR';
 			// if no default root nodes were specified, we search everything
 			if (empty($search_roots)) $search_roots = 0;

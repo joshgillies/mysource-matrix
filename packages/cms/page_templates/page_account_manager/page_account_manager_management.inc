@@ -153,7 +153,14 @@ class Page_Account_Manager_Management extends Asset_Management
 																	'allow_empty'	=> FALSE,
 																   ),
 											  );
-
+		$this->vars['auto_login']			= Array(
+												'added'			=> '0.6',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																),
+											);
 	}//end constructor
 
 

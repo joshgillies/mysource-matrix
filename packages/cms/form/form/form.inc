@@ -158,7 +158,7 @@ class Form extends Asset implements Bridge
 	*/
 	function create(&$link)
 	{
-		$this->setAttrValue('submission_errors_msg', translate('There were errors submitting the form.  Please correct the marked fields and try again'));
+		$this->setAttrValue('submission_errors_msg', '<p class="sq-form-errors-message">'.translate('There were errors submitting the form.  Please correct the marked fields and try again.').'</p>');
 
 
 		return parent::create($link);
@@ -898,13 +898,15 @@ class Form extends Asset implements Bridge
 			}
 		}
 
-		foreach ($children as $child_id => $details) {
-           	foreach ($type_code as $index => $code) {
-				if ($details[0]['type_code'] != $code) {
+		// If an asset is not in one of the type codes specified,
+		// remove it from the list.
+		if (count($type_code) > 0) {
+			foreach ($children as $child_id => $details) {
+				if (in_array($details[0]['type_code'], $type_code) === FALSE) {
 					unset($children[$child_id]);
 				}
-			}
-        }
+	        }
+    	}
 
 		if (!is_null($sort_by)) {
 			uasort($children, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"]'));
@@ -935,6 +937,51 @@ class Form extends Asset implements Bridge
 		return $this->fileRegeneration();
 
 	}//end _updated()
+
+
+	public function saveAttributes()
+	{
+		if (!$this->id) {
+			return TRUE;
+		}
+
+		$ok = parent::saveAttributes();
+
+		if ($ok === TRUE) {
+			$bc_name   = 'Submission Limit Reached';
+			$bodycopy  = $this->getBodycopy($bc_name, SQ_LINK_TYPE_2);
+			if (is_null($bodycopy)) {
+				$bodycopy = $this->getBodycopy($bc_name, SQ_LINK_NOTICE);
+			}
+			$sub_limit = (int) $this->attr('submission_limit');
+
+			// Create submission limit bodycopy if the submission limit is now non-zero
+			if (($sub_limit !== 0) && (is_null($bodycopy) === TRUE)) {
+				$bc_title = translate('Submission Limit Reached');
+				$bc_desc  = translate('Number of submissions allowed for this form has been reached. No more submissions are allowed.');
+				$this->createBodycopy($bc_name, Array('content' => $bc_desc), $bc_title);
+			}
+
+			// Change the link type of the Submission Limit Reached bodycopy depending on the
+			// new value, so it is shown and hidden as appropriate.
+			if (empty($bodycopy) === FALSE) {
+				if ($sub_limit !== 0) {
+					$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_NOTICE, 'folder', TRUE, NULL, 'minor');
+					if ($bodycopy_link) {
+						$GLOBALS['SQ_SYSTEM']->am->moveLink($bodycopy_link['linkid'], $bodycopy_link['majorid'], SQ_LINK_TYPE_2, $bodycopy_link['sort_order'], $bodycopy_link['value']);
+					}
+				} else {
+					$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'folder', TRUE, NULL, 'minor');
+					if ($bodycopy_link) {
+						$GLOBALS['SQ_SYSTEM']->am->moveLink($bodycopy_link['linkid'], $bodycopy_link['majorid'], SQ_LINK_NOTICE, $bodycopy_link['sort_order'], $bodycopy_link['value']);
+					}
+				}//end if submission limit
+			}//end if bodycopy exists
+		}//end if ($ok)
+
+		return $ok;
+
+	}//end saveAttributes();
 
 
 	/**
@@ -1739,10 +1786,12 @@ class Form extends Asset implements Bridge
 
 		while (!empty($section_links)) {
 			$link = array_shift($section_links);
-			$sections[] = $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section = $am->getAsset($link['minorid'], $link['minor_type_code']);;
+			$sections[] = $section;
 
 			// get subsection links and add them onto the front
-			$sub_section_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link['minorid'], SQ_SC_LINK_ALL, 'form_section', FALSE);
+			//$sub_section_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link['minorid'], SQ_SC_LINK_ALL, 'form_section', FALSE);
+			$sub_section_links = $section->getSectionLinks();
 			$section_links = array_merge($sub_section_links, $section_links);
 		}
 		return $sections;
@@ -1758,7 +1807,13 @@ class Form extends Asset implements Bridge
 	*/
 	function getSectionCount()
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_2, 'form_section', TRUE);
+		if ($this->useSystemVersion()) {
+			$count = count($this->getSectionLinks());
+		} else {
+			$count = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_2, 'form_section', TRUE);
+		}
+
+		return $count;
 
 	}//end getSectionCount()
 
@@ -1773,6 +1828,17 @@ class Form extends Asset implements Bridge
 	*/
 	function &getSectionLinks()
 	{
+		$sv_links =Array();
+		if ($this->useSystemVersion()) {
+			$safe_edit_links_file = $this->data_path.'/before_section_links';
+			if (is_file($safe_edit_links_file)) { 
+				$sv_links = @unserialize(file_get_contents($safe_edit_links_file));
+				if (empty($sv_links)) {
+					return Array();
+				}
+			}
+		}//end if
+
 		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
 		// lest we spin off into an infinite loop involving OUR &getAsset().
 		$value = Array(
@@ -1795,6 +1861,27 @@ class Form extends Asset implements Bridge
 		} catch (Exception $e) {
 			throw new Exception('Unable to get section links attached to form: '.$this->id.' due to database error: '.$e->getMessage());
 		}
+
+		// If using system version, remove the links that does not exist in system version
+		if (!empty($sv_links)) {
+			foreach($result as $index => $link) {
+				if (empty($link['linkid'])) {
+					continue;
+				}
+				$exist_in_sv = FALSE;
+				foreach($sv_links as $sv_index => $sv_link) {
+					if (!empty($sv_link['linkid']) && $sv_link['linkid'] == $link['linkid']) {
+						$exist_in_sv = TRUE;
+						break;
+					}
+				}//end foreach
+				if (!$exist_in_sv) {
+					unset($result[$index]);
+				}
+			}//end foreach
+			$result = array_values($result);
+		}//end if
+
 		return $result;
 
 	}//end getSectionLinks()
@@ -1821,9 +1908,10 @@ class Form extends Asset implements Bridge
 
 		// If Public User is allowed to save the incomplete submission
 		$public_save = $this->attr('public_incomplete_submission');
+		$is_public_user = $GLOBALS['SQ_SYSTEM']->userPublic();
 
-		// If user is public and the submission is unsaved
-		if (is_null($submission) && $GLOBALS['SQ_SYSTEM']->userPublic()) {
+		// If user is public and the public user submission saving is not enabled
+		if (is_null($submission) && $is_public_user && !$public_save) {
 			$this->restoreFromSubmissionCookie();
 			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 		}
@@ -1864,7 +1952,8 @@ class Form extends Asset implements Bridge
 		$submission_limit = $this->attr('submission_limit');
 		// see if the submission limit is set and has reached
 		// if so display the appropiate bodycopy
-		if (is_null($action) && $submission_limit != 0 && $submission_limit <= $this->getSubmissionCount()) {
+
+		if (is_null($action) && ($submission_limit != 0) && ($submission_limit <= $this->getSubmissionCount())) {
 			$this->printSubmissionLimitReachedBodycopy();
 			return;
 		}
@@ -1902,20 +1991,28 @@ class Form extends Asset implements Bridge
 					// in the "Incomplete Submissions" folder - but if there was only
 					// one page, we can fudge it
 
+					$initial_submission_created = FALSE;
 					if (!isset($submission_var) && !$submission) {
 						$create_in_completed = ($total_pages == 1) ? TRUE : FALSE;
 
 						// Get an incomplete submissions, and now we know
 						// this is page one
-						//if (!$create_in_completed) {
-							$submission = $this->createSubmission($create_in_completed);
-							$this->submission_asset = $submission;
-						//}
+						$submission = $this->createSubmission($create_in_completed);
+						$this->submission_asset = $submission;
+						$initial_submission_created = TRUE;
 					}
 
 					// If we have a submission, then, update it
 					if (isset($submission)) {
 						$this->updateSubmission($submission);
+
+						// this bit here is a bit tricky. We are going to fire the submission created trigger event
+						// we need the submission to be populated with the answers to the question to the first page
+						// and only fire it when the submission i first created and not when the submission is updated
+						// for every following form page
+						if ($initial_submission_created) {
+							$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_form_submission_created', $submission);
+						}
 					} else if (isset($submission_var) && !is_null($action)) {
 						$this->updateSubmissionCookie();
 					}
@@ -1940,18 +2037,10 @@ class Form extends Asset implements Bridge
 			$latest_page = $current_page = 1;
 		}
 
-		// Save the incomplete submission for the Public User
-		// For the logged user, submission is saved automatically
-		if ($public_save && !isset($submission) && !$finished && isset($submission_var) && ($action == 'save_and_exit' || $action == 'save')) {
-			$submission = $this->createSubmission($total_pages == 1);
-			$this->submission_asset = $submission;
-			$this->updateSubmission($submission, TRUE);
-
+		// Send the incomplete submission email for the Public User
+		if ($public_save && $is_public_user && isset($submission) && !$finished && ($action == 'save_and_exit' || $action == 'save')) {
 			// Send the email notification to the Public User
 			$this->sendPublicUserSubmissionInfoEmail();
-
-			// Get rid of public user submission data in the session, we wont be needing it anymore
-			unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 		}
 
 		// Mark the form load time
@@ -2530,7 +2619,7 @@ class Form extends Asset implements Bridge
 				$replacements = Array();
 
 				// Get the keyword replacement for "incomplete submissions"
-				$keywords_str = !empty($keyword_list) ? ('%'.implode('%', $keyword_list).'%') : '';
+				$keywords_str = !empty($keyword_list) ? ('%'.implode('% %', $keyword_list).'%') : '';
 				$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($keywords_str);
 
 				foreach ($keyword_list as $keyword) {
@@ -2572,8 +2661,12 @@ class Form extends Asset implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function createBodycopy($name, $content=Array())
+	function createBodycopy($name, $content=Array(), $translated_name=NULL)
 	{
+		if ($translated_name === NULL) {
+			$translated_name = $name;
+		}
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
 
@@ -2586,7 +2679,7 @@ class Form extends Asset implements Bridge
 			// create a folder for the bodycopies
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 			$folder = new Folder();
-			$folder->setAttrValue('name', 'Bodycopies');
+			$folder->setAttrValue('name', translate('Bodycopies'));
 
 			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
 
@@ -2620,7 +2713,7 @@ class Form extends Asset implements Bridge
 		// create the thing
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bodycopy = new Bodycopy();
-		$bodycopy->setAttrValue('name', $name);
+		$bodycopy->setAttrValue('name', $translated_name);
 
 		// create an appropriate value for this link
 		// to reflect that of the name
@@ -2921,6 +3014,7 @@ class Form extends Asset implements Bridge
 		$questions_to_verify = $this->attr('mollom_questions_to_check');
 		$mollom_parameters = Array();
 
+		// populate question answers
 		$questions = $this->getQuestionAssetsOnPage($page_number);
 		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 
@@ -2933,7 +3027,13 @@ class Form extends Asset implements Bridge
 				}
 			}
 
-			// Only fail the page if we are moving forward
+			$this->current_answers[$question->id] = $question->getValue();
+			$this->extra_data[$question->id]      = $question->getExtraData();
+		}
+
+		// validate question answers
+		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+					// Only fail the page if we are moving forward
 			// File upload question should always get validated
 			$question_type = strtolower($question->type());
 			$valid_value = $question->hasValidValue(NULL, FALSE);
@@ -2945,9 +3045,6 @@ class Form extends Asset implements Bridge
 			 }
 			$ok = FALSE;
 		    }
-
-			$this->current_answers[$question->id] = $question->getValue();
-			$this->extra_data[$question->id]      = $question->getExtraData();
 		}
 
 		// Mollom spam check
@@ -2997,7 +3094,9 @@ class Form extends Asset implements Bridge
 			}//end switch
 
 			if (!empty($mollom_error)) {
-				$this->registerErrors('mollom_errors', Array($mollom_error));
+		    	if (!$mute_errors) {
+					$this->registerErrors('mollom_errors', Array($mollom_error));
+				}
 				$ok = FALSE;
 			}
 
@@ -3012,20 +3111,26 @@ class Form extends Asset implements Bridge
 				if (!empty($custom_err_msg)) {
 					$recaptcha_response->error = Array($custom_err_msg);
 				}
-				$this->registerErrors('recaptcha_errors', $recaptcha_response->error);
+		    	if (!$mute_errors) {
+					$this->registerErrors('recaptcha_errors', $recaptcha_response->error);
+				}
 				$ok = FALSE;
 			}
 		}
 
 		// Spam check - Honeypot question validation
 		if ($ok && !$this->_honeypotFieldEmpty()) {
-			$this->registerErrors('submission_errors', Array($this->attr('honeypot_error_message')));
+		    if (!$mute_errors) {
+				$this->registerErrors('submission_errors', Array($this->attr('honeypot_error_message')));
+			}
 			$ok = FALSE;
 		}
 
 		// Spam check - Minimum time requirement validation
 		if ($ok && !$this->_passedMinimumTimeThreshold()) {
-			$this->registerErrors('submission_errors', Array($this->attr('time_requirement_error_message')));
+		    if (!$mute_errors) {
+				$this->registerErrors('submission_errors', Array($this->attr('time_requirement_error_message')));
+			}
 			$ok = FALSE;
 		}
 
@@ -3075,7 +3180,7 @@ class Form extends Asset implements Bridge
 
 			// Get rid of duplicate errors, if any
 			$this->submission_errors = array_unique($this->submission_errors);
-			echo '<ul>';
+			echo '<ul class="sq-form-errors">';
 			foreach ($this->submission_errors as $error) {
 			    echo '<li>';
 			    echo $error;
@@ -3530,6 +3635,10 @@ class Form extends Asset implements Bridge
 				$submission_asset->setAttrValue('submitted', ts_iso8601(time()));
 				$submission_asset->setAttrValue('xml', $this->getXML());
 				$submission_asset->saveAttributes();
+
+				// everything is okie with the submission  now irrespective of weather we are going to
+				// log the submission or not fire the submission completed trigger event to 
+				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_form_submission_completed', $submission_asset);
 			} else {
 				// Trash it if it exists
 				// We need to force this through, for the same reason as we
@@ -3537,6 +3646,7 @@ class Form extends Asset implements Bridge
 				// this, a User asset without write access to the form would
 				// not be able to move it to the tarash and delete it permanently
 				if ($submission_asset) {
+					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_form_submission_completed', $submission_asset);
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_SECURITY_LINK_INTEGRITY);
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($submission_asset->id);
 						$submission_asset->delete();
@@ -4439,7 +4549,12 @@ class Form extends Asset implements Bridge
 		foreach ($questions as $q_id => $question) {
 			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$keywords['response_'.$this->id.'_q'.$q_id]      = sprintf(translate('Response to %s'), ellipsisize($q_name,30));
+			$keywords['response_'.$this->id.'_q'.$q_id] 	= sprintf(translate('Response to %s'), ellipsisize($q_name,30));
+			
+			if ($GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id) instanceof Form_Question_Type_File_Upload) {
+				$keywords['response_'.$this->id.'_q'.$q_id.'_file_id']  = sprintf(translate('Response Asset ID of %s'), ellipsisize($q_name,30));	
+			}
+
 			$keywords['question_name_'.$this->id.'_q'.$q_id] = sprintf(translate('Question Name: %s'), ellipsisize($q_name,30));
 			$keywords['question_note_'.$this->id.'_q'.$q_id] = sprintf(translate('Question Note: %s'), ellipsisize($q_name,30));
 		}
@@ -4687,7 +4802,7 @@ class Form extends Asset implements Bridge
 		$replacement = NULL;
 		$keyword = parse_keyword($keyword, $modifiers);
 		$is_question_keyword = preg_match('/^question\_(.*)\_(\d+[\_\:]q\d+)$/', $keyword, $question_matches);
-		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?(\_file_content)?(\_file_size)?$/', $keyword, $response_matches);
+		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?(\_file_content)?(\_file_size)?(\_file_id)?$/', $keyword, $response_matches);
 		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
 		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);
 
@@ -4782,6 +4897,7 @@ class Form extends Asset implements Bridge
 			$raw = (array_get_index($response_matches, 2, '') == '_raw');
 			$file_content = (array_get_index($response_matches, 3, '') == '_file_content');
 			$file_size = (array_get_index($response_matches, 4, '') == '_file_size');
+			$file_id = (array_get_index($response_matches, 5, '') == '_file_id');
 
 
 			list(, $assetid) = $response_matches;
@@ -4805,6 +4921,10 @@ class Form extends Asset implements Bridge
 							$replacement = file_get_contents($question_asset->getFilePath());
 						else 
 							$replacement = '';
+				}
+				else if($file_id && $question_asset instanceof Form_Question_Type_File_Upload) {
+					// added so that the file_id keyword will work in the page contents squizmap #7641 and #7451
+					$replacement = $question_asset->getUploadedFileId();
 				}
 				else {
 					$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
@@ -5315,6 +5435,10 @@ class Form extends Asset implements Bridge
 	*/
 	function getSaveAndExitButtonKeywordReplacement()
 	{
+		if (!$this->attr('public_incomplete_submission') && $GLOBALS['SQ_SYSTEM']->userPublic()) {
+			return '';
+		}
+
 		$bodycopy = $this->getBodycopy('Exit Page Contents');
 
 		if ($bodycopy) {
@@ -5612,7 +5736,7 @@ class Form extends Asset implements Bridge
 					}
 				}
 
-			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?(_raw)?(_file_content)?(_file_size)?|', $keyword, $matches)) {
+			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?(_raw)?(_file_content)?(_file_size)?(_file_id)?|', $keyword, $matches)) {
 				// Question response keywords, eg.
 				// %response_123_q4% ... question 4 from form/section ID 123
 				// %response_q4% ....... question 4 from the form
@@ -5629,6 +5753,7 @@ class Form extends Asset implements Bridge
 				$raw = (array_get_index($matches, 3, '') == '_raw');
 				$file_content = (array_get_index($matches, 4, '') == '_file_content');
 				$file_size = (array_get_index($matches, 5, '') == '_file_size');
+				$file_id = (array_get_index($matches, 6, '') == '_file_id');
 
 				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
 				if (!empty($question_asset)) {
@@ -5653,6 +5778,9 @@ class Form extends Asset implements Bridge
 							$replacement = file_get_contents($question_asset->getFilePath());
 						else 
 							$replacement = '';
+					}
+					else if($file_id && $question_asset instanceof Form_Question_Type_File_Upload) {
+						$replacement = $question_asset->getUploadedFileId();
 					}
 					else {
 						$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
@@ -5694,7 +5822,15 @@ class Form extends Asset implements Bridge
 	function performFormSectionActions($page_number)
 	{
 		$success = TRUE;
-		if ($this->attr('multi_page')) {
+
+		// If we have unattached questions, decrement the page number by 1,
+		// as unattached question will appear in page 1 and section 1 will appear in page 2
+		$questions = $this->attr('questions');
+		if (!empty($questions)) {
+			$page_number--;
+		}
+
+		if ($page_number && $this->attr('multi_page')) {
 
 			$section_links = $this->getSectionLinks();
 
@@ -5963,11 +6099,13 @@ class Form extends Asset implements Bridge
 				break;
 
 				case 'return_to_form_url_current' :
-					$replacement = $form_url.'?SQ_FORM_'.$this->id.'_SUBMISSION='.$submission_assetid.'&SQ_FORM_'.$this->id.'_PAGE='.$submission_asset->attr('current_page').$url_hash;
+					$current_page = $submission_asset->attr('current_page') ? $submission_asset->attr('current_page') : 1;
+					$replacement = $form_url.'?SQ_FORM_'.$this->id.'_SUBMISSION='.$submission_assetid.'&SQ_FORM_'.$this->id.'_PAGE='.$current_page.$url_hash;
 				break;
 
 				case 'return_to_form_url_latest' :
-					$replacement = $form_url.'?SQ_FORM_'.$this->id.'_SUBMISSION='.$submission_assetid.'&SQ_FORM_'.$this->id.'_PAGE='.$submission_asset->attr('latest_page').$url_hash;
+					$latest_page = $submission_asset->attr('latest_page') ? $submission_asset->attr('latest_page') : 1;
+					$replacement = $form_url.'?SQ_FORM_'.$this->id.'_SUBMISSION='.$submission_assetid.'&SQ_FORM_'.$this->id.'_PAGE='.$latest_page.$url_hash;
 				break;
 
 				default:
@@ -6098,7 +6236,7 @@ class Form extends Asset implements Bridge
 		}
 
 		$keywords = $email_format->getKeywords();
-		$keywords_str = !empty($keywords) ? ('%'.implode('%', $keywords).'%') : '';
+		$keywords_str = !empty($keywords) ? ('%'.implode('% %', $keywords).'%') : '';
 		$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($keywords_str);
 
 		$email_format->setValue(serialize($new_value));
@@ -6234,6 +6372,27 @@ class Form extends Asset implements Bridge
 		return TRUE;
 
 	}//end isDeletableLink()
+
+
+	/**
+	* Return TRUE if the non-significant child links (TYPE3 and NOTICE) of given asset should be cloned
+	*
+	* Override this function to return FALSE, if the asset does not want to clone non-significant links
+	* for any of its dependants based on asset type or link value, when cloning the asset.
+	*
+	* @param object $dependant_asset Dependant asset being cloned
+	* @param array  $link_value      Link value for link between the asset and the depandant
+	*
+	* @return boolean
+	* @access public
+	* @see Asset_Manager::cloneAsset()
+	*/
+	public function cloneNonSignificantLinks($asset, $link_value='')
+	{
+		// When cloning, the non-significant child links on the Form Submission Folders should not be cloned
+		return $asset->type() !== 'folder' && !in_array($link_value, Array('submissions_folder', 'incomplete_submissions'));
+
+	}//end cloneNonSignificantLinks()
 
 
 }//end class

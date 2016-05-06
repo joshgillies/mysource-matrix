@@ -20,7 +20,7 @@
 		<field attribute="name">
 			<display_name>Group Name</display_name>
 			<note />
-			<text width="12" height="1" />
+			<text width="30" height="1" />
 		</field>
 	</section>
 </contents>

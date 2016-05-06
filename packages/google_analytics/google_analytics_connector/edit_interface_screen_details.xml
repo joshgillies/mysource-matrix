@@ -26,6 +26,13 @@
 		</field>
 	</section>
 	<section name="OAuth Settings" write_access="write:attributes">
+		<field>
+		    <display_name>Google Account</display_name>
+		    <note/>
+			<function_call>
+				<paint_function   name="paintGoogleAccount" />
+			</function_call>
+		</field>
 		<field attribute="client_id">
 		    <display_name>Client ID</display_name>
 		    <note/>

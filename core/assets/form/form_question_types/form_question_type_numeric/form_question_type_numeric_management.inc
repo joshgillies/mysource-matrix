@@ -98,6 +98,11 @@ class Form_Question_Type_Numeric_Management extends Asset_Management
 																			   ),
 														   ),
 									   ),
+						'placeholder'	=> Array(
+										'added'			=> '0.3',
+										'type'			=> 'text',
+										'default'		=> '',
+									   ),
 					  );
 	}//end constructor
 

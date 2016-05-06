@@ -160,23 +160,16 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// begin buffering basic options
+		$disabled  = ($write_access) ? '' : ' disabled="disabled"';
+		$read_only = ($write_access) ? FALSE : TRUE;
 		ob_start();
 		$name = array_get_index($settings, 'name');
-		if ($write_access) {
-			text_box($prefix.'[name]', $name, 30);
-		} else {
-			echo '<b>'.$name.'</b>';
-		}
+		text_box($prefix.'[name]', $name, 30, '', FALSE, $disabled);
 		$name_input = ob_get_clean();
 
 		ob_start();
 		$value = array_get_index($settings, 'value');
-		if ($write_access) {
-			text_box($prefix.'[value]', $value, 40);
-		} else {
-			echo '<b>'.$value.'</b>';
-			echo '<br/><br/>';
-		}
+		text_box($prefix.'[value]', $value, 40, '', FALSE, $disabled);
 		$value_input = ob_get_clean();
 
 		ob_start();
@@ -188,7 +181,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
 			$atr_parameter_map->setParameter('value', 'Value');
-			echo $atr_parameter_map->paint($new_prefix.'_parameter_map');
+			echo $atr_parameter_map->paint($new_prefix.'_parameter_map', $read_only);
 			echo '</div>';
 
 		$parameter_map_input = ob_get_clean();

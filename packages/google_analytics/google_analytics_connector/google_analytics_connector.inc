@@ -105,6 +105,7 @@ class Google_Analytics_Connector extends OAuth2_Token
 		$this->setAttrValue('authorization_endpoint', self::AUTH_ENDPOINT);
 		$this->setAttrValue('token_endpoint', self::TOKEN_ENDPOINT);
 		$this->setAttrValue('scope', self::DEFAULT_SCOPE);
+        $this->setAttrValue('access_token_type', 'bearer');
 		$this->setAttrValue('token_storage', 'global');
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -200,9 +201,11 @@ class Google_Analytics_Connector extends OAuth2_Token
 
 
     /**
+     * Get the web properties available to this account.
      *
+     * @return array
      */
-    public function getProperties()
+    public function getAccountSummary()
     {
         // Cache for 4 hours.
         $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
@@ -221,13 +224,25 @@ class Google_Analytics_Connector extends OAuth2_Token
                 $response = $this->loadFromFetchCache($key);
             }
         }//end if
+
+        return $response;
         
-        
-        if (($response === FALSE) || ($response === NULL)) {
-            $props = Array();
-        } else {
+    }//end getProperties()
+
+
+    /**
+     * Get the web properties available to this account.
+     *
+     * @return array
+     */
+    public function getProperties()
+    {
+        $response = $this->getAccountSummary();
+
+		$props = Array();
+        if (!empty($response)) {
             foreach (array_get_index($response, 'items', Array()) as $account) {
-                foreach ($account['webProperties'] as $property) {
+                foreach (array_get_index($account, 'webProperties', Array()) as $property) {
                     if (array_key_exists('profiles', $property) === TRUE) {
                         $property['sq:accountId'] = $account['id'];
                         $props[$property['id']]   = $property;
@@ -267,15 +282,57 @@ class Google_Analytics_Connector extends OAuth2_Token
     
     
     /**
-     * 
+     * Return a list of goals from the Google Analytics API.
+     *
+     * The unique ID sent should not include the "ga:" prefix.
+     *
+     * @param string $gaViewId    The Google Analytics unique ID of the view.
+     *
+     * @return mixed array|NULL
      */
-    public function getGoals($viewid)
+    public function getViewDetails($gaViewId)
     {
         // Cache for 4 hours.
         $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-        $key      = 'goals,'.$viewid;
+        $key      = 'view,'.$gaViewId;
         $response = $this->loadFromFetchCache($key);
-        if ($response = NULL) {
+        if ($response === NULL) {
+            // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
+            // back to any previously existing cache.
+            $views = $this->getViews();
+            $viewSummary = $views[$gaViewId];
+            $url = self::FETCH_PREFIX.'/management/accounts/'.$viewSummary['sq:accountId'].'/webproperties/'.$viewSummary['sq:propertyId'].'/profiles/'.$gaViewId;
+            $raw_response = $this->fetchWithBackoff($url);
+            
+            if ($raw_response['errors'] === NULL) {
+                $response = $raw_response['result'];
+                $this->saveToFetchCache($key, $response);
+            } else {
+                $response = $this->loadFromFetchCache($key);
+            }
+        }//end if
+        
+        return $response;
+
+    }//end getViewDetails()
+    
+    
+    /**
+     * Return a list of goals from the Google Analytics API.
+     *
+     * The unique ID sent should not include the "ga:" prefix.
+     *
+     * @param string $gaViewId    The Google Analytics unique ID of the view.
+     *
+     * @return mixed array|NULL
+     */
+    public function getGoals($gaViewId)
+    {
+        // Cache for 4 hours.
+        $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+        $key      = 'goals,'.$gaViewId;
+        $response = $this->loadFromFetchCache($key);
+        if ($response === NULL) {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
             $url = self::FETCH_PREFIX.'/management/accounts/~all/webproperties/~all/profiles/~all/goals';
@@ -294,8 +351,8 @@ class Google_Analytics_Connector extends OAuth2_Token
         } else {
             $goals = Array();
             foreach (array_get_index($response, 'items', Array()) as $goal) {
-                if ($goal['profileId'] === $viewid) {
-                    $goals[$goal['id']] = $goal;
+                if ($goal['profileId'] === $gaViewId) {
+                    $goals[] = $goal;
                 }
             }//end foreach
         }//end if
@@ -305,20 +362,26 @@ class Google_Analytics_Connector extends OAuth2_Token
     
     
     /**
-     * 
+     * Return a list of experiments from the Google Analytics API.
+     *
+     * The unique ID sent should not include the "ga:" prefix.
+     *
+     * @param string $gaViewId    The Google Analytics unique ID of the view.
+     *
+     * @return mixed array|NULL
      */
-    public function getExperiments($viewid)
+    public function getExperiments($gaViewId)
     {
         // Cache for 4 hours.
         $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-        $key      = 'experiments,'.$viewid;
+        $key      = 'experiments,'.$gaViewId;
         $views    = $this->getViews();
-        $view     = $views[$viewid];
+        $view     = $views[$gaViewId];
         $response = $this->loadFromFetchCache($key);
         if ($response === NULL) {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
-            $url = self::FETCH_PREFIX.'/management/accounts/'.$view['sq:accountId'].'/webproperties/'.$view['sq:propertyId'].'/profiles/'.$viewid.'/experiments';
+            $url = self::FETCH_PREFIX.'/management/accounts/'.$view['sq:accountId'].'/webproperties/'.$view['sq:propertyId'].'/profiles/'.$gaViewId.'/experiments';
             $raw_response = $this->fetchWithBackoff($url);
             
             if ($raw_response['errors'] === NULL) {
@@ -334,7 +397,7 @@ class Google_Analytics_Connector extends OAuth2_Token
         } else {
             $experiments = Array();
             foreach (array_get_index($response, 'items', Array()) as $experiment) {
-                $experiments[$experiment['id']] = $experiment;
+                $experiments[] = $experiment;
             }//end foreach
         }//end if
         
@@ -348,42 +411,107 @@ class Google_Analytics_Connector extends OAuth2_Token
      * We can't use Cache Manager as that's meant for a different
      * type of caching, and can't be used for a "global cache".
      *
-     * @param string $key   The (main) key to store the value under.
-     * @param mixed  $value The value to store to the key.
+     * The suffix parameter should be used when creating a temporary
+     * cache during cron generation, so that the existing data doesn't
+     * get mixed in with the day-old data. Afterwards, replaceFetchCache()
+     * should be called, to copy in the new data.
+     * When getting data on the fly, data should be refreshed
+     * immediately, so should be run over the lot.
+     *
+     * @param string $key    The (main) key to store the value under.
+     * @param mixed  $value  The value to store to the key.
+     * @param string $suffix Suffix for a temporary "working" cache.
      *
      * @return void
      */
-    public function saveToFetchCache($key, $value)
+    public function saveToFetchCache($key, $value, $suffix='')
     {
         include_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-        $key  = sha1($key);
-        $dir  = $this->data_path.'/fetch-cache/'.substr($key, 0, 2).'/'.substr($key, 2, 2);
-        $file = $dir.'/'.$key.'.json';
+        $file = $this->getFetchCacheFileName($key);
+        if ($suffix !== '') {
+            $file .= '.'.$suffix;
+        }
         
-        create_directory($dir);
+        create_directory(dirname($file));
         file_put_contents($file, json_encode($value));
         
     }//end saveToFetchCache()
     
     
     /**
-     * Wrapper to loading fetched data from our Cache Manager.
+     * Replace fetch cache with a suffixed one.
      *
-     * @param string $key   The (main) key to store the value under.
+     * When we generate the cache in the cron job, we use a temporary
+     * cache so that the existing data doesn't get mixed in with the
+     * day-old data. At the end of each view's work, this is called to
+     * copy the new data over the old.
+     *
+     * @param string $suffix Cache suffix to use. Do not include ".".
      *
      * @return void
      */
-    public function loadFromFetchCache($key)
+    public function replaceFetchCache($suffix='')
     {
-        $key       = sha1($key);
-        $max_cache = 4 * 60 * 60;
-        $dir       = $this->data_path.'/fetch-cache/'.substr($key, 0, 2).'/'.substr($key, 2, 2);
-        $file      = $dir.'/'.$key.'.json';
+        if ($suffix === '') {
+            return;
+        }
+
+        include_once SQ_FUDGE_PATH.'/general/file_system.inc';
+        ob_start();
+        system('find '.escapeshellarg($this->data_path).' -name '.escapeshellarg('*.'.$suffix));
+        $files = ob_get_clean();
+
+        $files = explode("\n", $files);
+        foreach ($files as $file) {
+            if (empty($file) === FALSE) {
+                $basefile = dirname($file).'/'.basename($file, '.'.$suffix);
+                $ok = copy($file, $basefile);
+                if ($ok === TRUE) {
+                    unlink($file);
+                }
+            }
+        }
+        
+    }//end replaceFetchCache()
+    
+    /**
+     * Wrapper to loading fetched data from our own cache.
+     *
+     * @param string  $key    The (main) key to store the value under.
+     * @param integer $expiry The length of time the cache stays valid (default 4 hours).
+     *
+     * @return integer
+     */
+    public function getFetchCacheAge($key)
+    {
+        $file = $this->getFetchCacheFileName($key);
 
         if (file_exists($file) === FALSE) {
             return NULL;
-        } else if ((time() - filemtime($file)) > $max_cache) {
+        } else {
+            $filetime = filemtime($file);
+            $seconds  = (time() - $filetime);
+            return $seconds;
+        }
+        
+    }//end getFetchCacheAge()
+    
+    
+    /**
+     * Wrapper to loading fetched data from our own cache.
+     *
+     * @param string  $key    The (main) key to store the value under.
+     * @param integer $expiry The length of time the cache stays valid (default 4 hours).
+     *
+     * @return void
+     */
+    public function loadFromFetchCache($key, $expiry=14400)
+    {
+        $file = $this->getFetchCacheFileName($key);
+
+        if (file_exists($file) === FALSE) {
+            return NULL;
+        } else if (($expiry > 0) && ((time() - filemtime($file)) > $expiry)) {
             unlink($file);
             return NULL;
         }     
@@ -392,6 +520,28 @@ class Google_Analytics_Connector extends OAuth2_Token
         return json_decode($result, TRUE);
         
     }//end loadFromFetchCache()
+    
+    
+    /**
+     * Returns a hashed file name location, given a cache key.
+     *
+     * Cache keys are SHA-1'd and stored in the location
+     * (asset data path)/fetch-cache/(first 2 hex-digits of hash)/(hash).json.
+     * eg. fetch-cache/ab/abc123def456[...]ef0.json.
+     *
+     * @param string $key   The applicable cache key.
+     *
+     * @return string
+     */
+    public function getFetchCacheFileName($key)
+    {
+        $key  = sha1($key);
+        $dir  = $this->data_path.'/fetch-cache/'.substr($key, 0, 2).'/'.substr($key, 2, 2);
+        $file = $dir.'/'.$key.'.json';
+
+        return $file;
+        
+    }//end getFetchCacheFileName()
     
     
     /**

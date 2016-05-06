@@ -32,6 +32,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 		<title><?php echo translate('Insert Table') ?></title>
 		<link rel="stylesheet" type="text/css" href="../../../../__lib/web/css/edit.css" />
 		<link rel="stylesheet" type="text/css" href="../../core/popup.css" />
+		<script type="text/javascript" src="<?php echo sq_web_path('data').'/matrix.min.js' ?>"></script>
 		<script type="text/javascript" src="../../core/popup.js"></script>
 
 		<script type="text/javascript">

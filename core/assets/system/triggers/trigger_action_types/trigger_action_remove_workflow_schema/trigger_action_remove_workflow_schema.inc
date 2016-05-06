@@ -160,7 +160,7 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 				}
 
 				echo '<br />';
-				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_children ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_children ? translate('Yes') : translate('No')).'" /> ';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_children ? 'tick' : 'cross').'.png" alt="'.($cascade_to_children ? translate('Yes') : translate('No')).'" /> ';
 
 
 				echo translate('Cascade the removal of workflow schema to all children');

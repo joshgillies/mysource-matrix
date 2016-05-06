@@ -60,6 +60,13 @@
                 $code = (string) $string->attributes()->code;
                 $strings[] = trim((string) $string);
             }
+
+            foreach ($sxml->xpath('//boolean') as $string) {
+                $code = (string) $string->attributes()->true_text;
+                $strings[] = trim((string) $string);
+                $code = (string) $string->attributes()->false_text;
+                $strings[] = trim((string) $string);
+            }
         }
         $strings_tr[$inc_dir] = array_values($strings_tr[$inc_dir]);
         $strings_tr[$inc_dir] = array_unique($strings_tr[$inc_dir]);
@@ -97,12 +104,13 @@
         $base_file .= "\n";
 
         $file_index = 1;
-        foreach (array_chunk($all_strings[$inc_dir], 150) as $chunk) {
-            if (count($all_strings[$inc_dir]) <= 150) {
+        //foreach (array_chunk($all_strings[$inc_dir], 150) as $chunk) {
+            $chunk = $all_strings[$inc_dir];
+            //if (count($all_strings[$inc_dir]) <= 150) {
                 $file_name = str_replace('/', '_', $inc_dir).'.po';
-            } else {
-                $file_name = str_replace('/', '_', $inc_dir).'_'.$file_index.'.po';
-            }
+            //} else {
+            //    $file_name = str_replace('/', '_', $inc_dir).'_'.$file_index.'.po';
+            //}
             $file = $base_file;
             foreach ($chunk as $string) {
                 if (array_search($string, $js_strings) !== FALSE) {
@@ -115,7 +123,7 @@
 
             file_put_contents(dirname(__FILE__).'/'.$file_name, $file);
             $file_index++;
-        }
+        //}
     }
     //print_r($errors);
     //print_r($output);

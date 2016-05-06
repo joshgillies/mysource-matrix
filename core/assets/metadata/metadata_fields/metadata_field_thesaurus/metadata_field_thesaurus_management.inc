@@ -52,9 +52,15 @@ class Metadata_Field_Thesaurus_Management extends Asset_Management
 												'default'			=> 'name',
 												'is_contextable'	=> TRUE,
 											   ),
-						'value_name_text'	=> Array(
+						'allow_contents'	=> Array(
 												'added'				=> '0.4',
 												'type'				=> 'text',
+												'default'			=> 'content',
+												'is_contextable'	=> TRUE,
+											   ),
+						'value_name_text'	=> Array(
+												'added'				=> '0.1',
+												'type'				=> 'boolean',
 												'default'			=> 'content',
 												'is_contextable'	=> TRUE,
 											   ),

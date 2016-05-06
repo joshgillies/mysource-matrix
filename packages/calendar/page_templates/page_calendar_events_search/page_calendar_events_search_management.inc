@@ -99,6 +99,33 @@ class Page_Calendar_Events_Search_Management extends Asset_Management
 												'description'	=> 'If true, empty date filter query will search for everything',
 												'parameters'	=> Array('allow_empty' => FALSE),
 											  );
+		
+		$this->vars['dynamic_root_option'] = Array(
+										'added'			=> '0.27',
+										'type'			=> 'selection',
+										'default'		=> 'static_root',
+										'parameters'	=> Array(
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+															'options'		=> Array(
+																				'static_root'		=> 'Use static root node',
+																				'empty_result'		=> 'Return empty result',
+																			   ),
+														   ),														   
+									   );
+		$this->vars['dynamic_asset_selection_option'] = Array(
+										'added'			=> '0.27',
+										'type'			=> 'selection',
+										'default'		=> 'static_root',
+										'parameters'	=> Array(
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+															'options'		=> Array(
+																				'static_root'		=> 'Use static root node',
+																				'empty_result'		=> 'Return empty result',
+																			   ),
+														   ),														   
+									   );
 											   
 									 
 	}//end constructor

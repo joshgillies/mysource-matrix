@@ -107,9 +107,12 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 					<td><?php
 						$supported_js_engines = Rest_Common::$supported_js_engines;
 						$default_js_engine = Rest_Common::$default_js_engine;
-						combo_box($prefix.'[js_engine]', $supported_js_engines, FALSE, array_get_index($settings, 'js_engine', $default_js_engine));
+						$selected_js_engine = array_get_index($settings, 'js_engine', $default_js_engine);
+						combo_box($prefix.'[js_engine]', $supported_js_engines, FALSE, $selected_js_engine);
 						echo '<div class="sq-backend-smallprint">'.translate('JavaScript enigne to process the JavaScript code.').'</div>';
-
+						if (!empty($selected_js_engine) && !Rest_Common::jsEngineInstalled($selected_js_engine)) {
+							echo '<div class="sq-warning-message top-margin">'.sprintf(translate('<strong>Warning: </strong> %1$s is not installed on the system. JavaScript processing will not work.'), $supported_js_engines[$selected_js_engine]).'</div>';
+						}
 						?>
 					</td>
 				</tr>
@@ -129,7 +132,17 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 
 					<td><?php
 						$js_code = array_get_index($settings, 'js_code', '');
-						text_area($prefix.'[js_code]', $js_code, 71, 10, 0, 'style="font-family: monospace;');
+
+						// enable the Ace editor to edit backend code (if available)
+						if($o->isViperAceAvailable()) {
+							// enable the Ace editor to edit backend code (if available)
+							$o->enableViperAceEditor();
+
+							text_area($prefix.'[js_code]', $js_code, 71, 10, 0, 'style="" class="sq-parse-file-textarea sq-backend-code-editing sq-viper-ace-editor-textarea sq-viper-ace-editor-textarea-mode-js sq-viper-ace-editor-textarea-large "');
+						}
+						else {
+							text_area($prefix.'[js_code]', $js_code, 71, 10, 0, 'style="font-family: monospace;');
+						}
 						echo '<div class="sq-backend-smallprint">'.translate('The HTTP Request data is available as JSON data in the pre-defined variable "_REST". Use the "Run Test" feature to view this structure. For example "print(_REST.response.body);" will print the body of the first response. If you are using E4X to process an XML document, you will likely need to use "_REST.response.bodyx" to avoid the XML declaration choking the parser.<br/>NOTE: Any data printed via the JS "print();" function. will be stored into the Session Var configured above.').'</div>';
 
 						?>
@@ -163,7 +176,7 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 						echo '</span>';
 						combo_box($prefix.'[validation_target]', $options['targets'], false, array_get_index($settings, 'validation_target', 0), 0, 'onClick="toggleKeywordsReplacementInput()"');
 						combo_box($prefix.'[validation_operator]', $options['operators'], false, array_get_index($settings, 'validation_operator', 0));
-						text_box($prefix.'[validation_value]', array_get_index($settings, 'validation_value', ''), 40);
+						text_box($prefix.'[validation_value]', array_get_index($settings, 'validation_value', ''), 40,'', FALSE, 'style="margin-top:10px"');
 						?>
 					</td>
 				</tr>
@@ -573,6 +586,10 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 		$target   = array_get_index($settings, 'validation_target', 0);
 		$operator = array_get_index($settings, 'validation_operator', 0);
 		$value    = array_get_index($settings, 'validation_value', '');
+		self::_addFormKeywordReplacements($form, $value, $replacements);
+		replace_keywords($value, $replacements);
+		replace_global_keywords($value);
+
 
 		if (empty($responses) && $target == '2') {
 			// If we are checking keyword string, we dont need http response

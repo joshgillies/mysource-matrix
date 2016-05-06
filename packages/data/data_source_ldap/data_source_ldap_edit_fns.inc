@@ -126,7 +126,7 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 				$display_image = 'cross';
 				if ($checked) $display_image = 'tick';
 
-				$mask = '<img src="'.sq_web_path('lib').'/web/images/'.$display_image.'.gif" />';
+				$mask = '<img src="'.sq_web_path('lib').'/web/images/'.$display_image.'.png" />';
 				echo $mask.' '.$connection_opt_names[$option].'<br />';
 			}
 		}//end for

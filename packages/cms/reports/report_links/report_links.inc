@@ -242,7 +242,7 @@ class Report_Links extends Report
 
 				// get the assetid from the html link
 				if ($type == 'internal') {
-					$to_assetid = preg_replace('|\./\?a=([0-9]+).*|', '\\1', (string) $link->html);
+					$to_assetid = preg_replace('|\./\?a=([0-9]+(?:\:[0-9a-z]+)?).*|', '\\1', (string) $link->html);
 					$new_link['data'] = $to_assetid;
 				} else {
 					$new_link['data'] = (string) $link->html;

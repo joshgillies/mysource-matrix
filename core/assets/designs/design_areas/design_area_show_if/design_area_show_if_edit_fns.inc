@@ -177,9 +177,13 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	public function paintConditionDetails(Design_Area_Show_If $asset, Backend_Outputter $o, $prefix)
 	{
-		echo translate('condition_'.$asset->attr('condition').'_true');
-		$edit_fns_classname = 'condition_'.$asset->attr('condition').'_edit_fns';
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('condition_'.$asset->attr('condition'), TRUE);
+		$condition_type = 'condition_'.$asset->attr('condition');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type, TRUE);
+
+		$match_keywords = $condition_type::getMatchKeywords();
+		echo $match_keywords['1'];
+
+		$edit_fns_classname = $condition_type.'_edit_fns';
 		call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $asset->attr('condition_data'), $o, $prefix.'_condition', $asset->writeAccess('attributes'), Array());
 
 	}//end paintConditionDetails()

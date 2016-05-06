@@ -28,13 +28,13 @@ var Matrix_Viper = new function() {
     {
 	var settings = {
 	    // Viper content container
-	    toolbarContainer: jQuery('body').find('.viper-toolbar-container-wrapper'),
+	    toolbarContainer: ViperUtil.$('body').find('.viper-toolbar-container-wrapper'),
 
 	    // Default accessibility standard
 	    standard: 'WCAG2AA',
 
-	    // Editable div elements (jQuery collection)
-	    editableDivs: jQuery('div .with-viper'),
+	    // Editable div elements (ViperUtil.$ collection)
+	    editableDivs: ViperUtil.$('div .with-viper'),
 
 	    // Threshold to apply 'fixedScroll' to the body
 	    scrollable: true,
@@ -53,6 +53,7 @@ var Matrix_Viper = new function() {
 		    'MatrixCopyPastePlugin',
 		    'MatrixImagePlugin',
 		    'MatrixLinkPlugin',
+		    'MatrixCommentsPlugin',
 		    "MatrixKeywordsPlugin",
 		    'ViperAccessibilityPlugin',
 		    'ViperSourceViewPlugin',
@@ -67,20 +68,20 @@ var Matrix_Viper = new function() {
 	    // The order of buttons for the wysiwyg
 	    buttons: [['bold', 'italic', 'subscript', 'superscript', 'strikethrough', 'class'], 'removeFormat', ['justify', 'formats', 'headings'], ['undo', 'redo'], ['unorderedList', 'orderedList', 'indentList', 'outdentList'], 'insertTable', 'image', 'hr', ['insertLink', 'removeLink', 'anchor'], 'insertCharacter', 'searchReplace', 'langTools', 'accessibility', 'sourceEditor', ['insertKeywords', 'insertSnippets']],
 
-	    inlineButtons: [['bold', 'italic', 'class'], ['justify', 'formats', 'headings'], ['unorderedList', 'orderedList', 'indentList', 'outdentList'], ['insertLink', 'removeLink', 'anchor'], ['image', 'imageMove']]
+	    inlineButtons: [['bold', 'italic', 'class'], ['justify', 'formats', 'headings'], ['unorderedList', 'orderedList', 'indentList', 'outdentList'], ['insertLink', 'removeLink', 'anchor'], ['matrixComments'], ['image', 'imageMove']]
 	};
     
 
 	if (settings.editableDivs.length >= 1 && typeof(Viper) !== "undefined") {
 	    var  viper = new Viper('MatrixViper', {language: 'en'}, function(viper) {
 		var pm = viper.getPluginManager();
-		var $body = jQuery('body');
+		var $body = ViperUtil.$('body');
 		
 		// set scroll event
 		if (settings.scrollable && settings.toolbarContainer.length >= 1) {    
 		    // Make sure we unbind event before re-binding it
-		    jQuery(window).unbind('scroll').bind('scroll',function(){
-			var offset_t = settings.toolbarContainer.parent().offset().top - jQuery(window).scrollTop();
+		    ViperUtil.$(window).unbind('scroll').bind('scroll',function(){
+			var offset_t = settings.toolbarContainer.parent().offset().top - ViperUtil.$(window).scrollTop();
 			var changedClass = false;
 			if (offset_t <= settings.scrollOffsetThreshold) {
 			    if ($body.hasClass('fixedScroll') === false) {
@@ -99,14 +100,16 @@ var Matrix_Viper = new function() {
 			}
 		    });
 		}
-		
+
+
+
 		pm.setPlugins(settings.plugins);
 		pm.setPluginSettings('ViperInlineToolbarPlugin', {buttons: settings.inlineButtons});
 		pm.setPluginSettings('ViperToolbarPlugin', {buttons: settings.buttons});
 		pm.setPluginSettings('ViperAccessibilityPlugin', {standard: settings.standard});
 
-		// need to specify jquery url for the new window view of source code mode
-		pm.setPluginSettings('ViperSourceViewPlugin', {jqueryURL: options.jQueryPath});
+		// need to specify ViperUtil.$ url for the new window view of source code mode
+		pm.setPluginSettings('ViperSourceViewPlugin', {jQueryURL: options.jQueryPath});
 
 		
 		// Get the toolbar plugin and apply it to the container
@@ -130,10 +133,12 @@ var Matrix_Viper = new function() {
 			}
 
 			viper.registerEditableElement(this);
-			var $editable = jQuery(this);
+			var $editable = ViperUtil.$(this);
 
-			var $editCallToAction = jQuery('<div/>',{
+			var $editCallToAction = ViperUtil.$('<div/>',{
 			"class": 'matrix-viper-no-content',
+			"ondrop": 'event.preventDefault(); return false;',
+			"ondragover": 'event.preventDefault();  return false;',
 			text: "This area contains no content yet. Click here to start editing."
 			});
 			$editable.after($editCallToAction);
@@ -143,16 +148,12 @@ var Matrix_Viper = new function() {
 			$editCallToAction.bind('mousedown',function(e){
 				$editCallToAction.hide();		
 				$editable.show();
-				jQuery(document).bind('mouseup.viper',function(e){
+				ViperUtil.$(document).bind('mouseup.viper',function(e){
 				$editable.attr('contenteditable', 'true');
 				viper.setEditableElement($editable.get(0));
-				// Firefox doesn't swallow the BR, so select it.
-				if (viper.browser === 'Firefox') {
-					viper.selectNode($editable.find('br').get(0));
-				}
 				viper.element.focus(); 
 				viper.focus();
-				jQuery(document).unbind('mouseup.viper');
+				ViperUtil.$(document).unbind('mouseup.viper');
 				});
 			});
 
@@ -162,8 +163,8 @@ var Matrix_Viper = new function() {
 
 			var rawText = $editable.html();
 			if (typeof MatrixViperDefaultTag == 'undefined' && (rawText.match(/^\s+$/) !== null ||
-			rawText === "" || rawText.match(/^<[a-z]+>[\s\n(&nbsp;)]*<\/[a-z]+>$/i) !== null)) {
-				$editable.html('<p><br/> </p>');
+			rawText === "" || rawText.match(/^<[a-z]+>[\s\n(&nbsp;)(<br\/>)]*<\/[a-z]+>$/i) !== null)) {
+				$editable.html('<p></p>');
 				$editCallToAction.show();
 				$editable.hide();
 			}
@@ -173,12 +174,35 @@ var Matrix_Viper = new function() {
 					viper.setEditableElement($editable.get(0));
 				}// End if
 			});
+			
+			// Set the Matrix design style class
+			var formatPluginSettings = ViperUtil.$(this).data('design_styles');
+			if (formatPluginSettings !== undefined) {
+				pm.setPluginSettings('ViperFormatPlugin', formatPluginSettings);
+			}
+
 		});// End foreach
 		});// End new Viper
 
 		if (typeof PluginsEnabled != "undefined") {
+
+			// if Matrix Comments plugin is disabled, we still need to load it, just set it read only mode
+			var commentsPluginDisabled = false;
+			if(!ViperUtil.$.inArray('MatrixCommentsPlugin', PluginsEnabled)) {
+			    PluginsEnabled.push('MatrixCommentsPlugin');
+			    commentsPluginDisabled = true;
+			}
+
+
 			// disable/hide the plugins that aren't set to be active
 			viper.getPluginManager().setPlugins(PluginsEnabled);
+
+
+			// set the comments plugin to read only mode
+			if(commentsPluginDisabled) {
+				viper.getPluginManager().setPluginSettings('MatrixCommentsPlugin', {readOnly: true});
+			}
+
 
 			// Get the toolbar plugin and apply it to the container
 			if(settings.toolbarContainer.length >=1) {
@@ -190,13 +214,38 @@ var Matrix_Viper = new function() {
 		// allow external script to call it
 		this.viper = viper;
 	}
-
     };
+
+    this.checkImagePreview = function(element, msg) {
+    	var $imagePasted = $(element).find('*[data-imagepaste="true"]');
+		if($imagePasted.length > 0) {
+			$imagePasted.attr('data-imagepaste-status', 'error');
+			var r = confirm(msg);
+			if(r) {
+				$imagePasted.remove();
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		return true;
+	};
+
+	this.checkSourceEditorPopup = function() {
+		var ele = document.querySelector("div.Viper-popup");
+		var checkattr = ViperUtil.$(ele).attr('aria-disabled');
+		if (checkattr !== undefined && checkattr === "false" ){
+			return true;
+		}
+		
+		return false;
+	};
 };
 
 
 // let's fire it up
-jQuery(document).ready(function() {
+ViperUtil.$(document).ready(function() {
     var scripts = document.getElementsByTagName('script');
     var options = {};
 

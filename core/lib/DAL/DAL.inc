@@ -656,7 +656,8 @@ class DAL
 				}
 			} else {
 				$result = Array();
-				while ($current_row = oci_fetch_array($query, OCI_NUM | OCI_RETURN_LOBS | OCI_RETURN_NULLS)) {
+				while ($current_row = oci_fetch_array($query, OCI_BOTH | OCI_RETURN_LOBS | OCI_RETURN_NULLS)) {
+					$current_row = array_change_key_case($current_row, CASE_LOWER);
 					$result[] = $current_row[$col];
 				}
 			}

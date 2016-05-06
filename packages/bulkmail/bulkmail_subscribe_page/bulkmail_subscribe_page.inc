@@ -18,6 +18,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_user_group_manager/page_
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once 'Mail.php';
 require_once 'Mail/mime.php';
+require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 
 /**
 * Bulkmail_Subscribe_Page
@@ -213,6 +214,16 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_node);
 
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
+		$is_public_user = $current_user instanceof Public_User;
+
+		foreach ($available_locations as $index => $user_group_id) {
+			$user_group = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_group_id);
+			if(($is_public_user && !$user_group->readAccess()) || (!$is_public_user && !$user_group->writeAccess())) {
+				unset($available_locations[$index]);
+			}
+
+		}
 		return $available_locations;
 
 	}//end getAvailableLocations()
@@ -234,6 +245,42 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		// Any user attempting verification
 		if (!empty($_GET['uniqid'])) {
 			$this->processVerification();
+		}
+
+		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
+		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
+		if((!empty($subscriptions) || !empty($unsubscriptions)) && $GLOBALS['SQ_SYSTEM']->currentUser($public_user)) {
+			// verify captcha
+			if ($this->attr('require_captcha')) {
+				if (!validate_security_key()) {
+					$error_text = $this->attr('captcha_invalid_error_message');
+					$this->errors[] = $error_text;
+					return;
+				}
+			}
+
+			// reCAPTCHA check
+			if ($this->attr('use_recaptcha')) {
+				$recaptcha_response = Recaptcha::verifyRecaptcha();
+				if (!$recaptcha_response->is_valid) {
+					$error_msg = $this->attr('recaptcha_error_message');
+					if (empty($error_msg)) {
+						$error_msg = array_shift($recaptcha_response->error);
+					}
+					$this->errors[] = $error_msg;
+					return;
+				}
+			}//end if
+
+			// Honeypot question validation
+			$name = $this->attr('honeypot_name');
+			if (empty($name)) {
+				$name = 'q'.$this->id.':comment';
+			}
+			if (!empty($_POST[$name])) {
+				$this->errors[] = $this->attr('honeypot_error_message');
+				return;
+			}//end if
 		}
 
 		// Public user
@@ -388,6 +435,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			return;
 		}
 
+		$available_user_groups = $this->getAvailableLocations();
+
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
 
@@ -417,6 +466,15 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			return;
 		}
 
+
+		// check user read access to those subscriptions
+		$bad_subscriptions = array_diff($subscriptions, $available_user_groups);
+		$bad_unsubscriptions = array_diff($unsubscriptions, $available_user_groups);
+		if(!empty($bad_subscriptions) || !empty($bad_unsubscriptions)) {
+			return;
+		}
+
+
 		switch ($this->attr('verify_not_logged_in')) {
 			case 'always':
 				$sub_verify = !empty($subscriptions);
@@ -445,7 +503,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		// If exists in system, check if user is trying to subscribe to a already subscribed group.
 		if ($bulk_userid) {
 
-			$available_user_groups = $this->getAvailableLocations();
+			
 			$user_parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulk_userid, 'user_group', FALSE));
 			$currently_subscribed_groups = array_intersect($available_user_groups, $user_parents);
 
@@ -458,8 +516,6 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 					if (empty($from_addr)) {
 						trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
 						trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING);
-					} else {
-						$this->sendAlreadySubscribedEmail($email_address, $from_addr, $subscriptions);
 					}
 				}
 				$this->messages[] = sprintf(translate('A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.'), $email_address);
@@ -594,6 +650,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
+		$available_user_groups = $this->getAvailableLocations();
 
 		// if the values are not passed as an array, force it into an array
 		if (!is_array($subscriptions)) {
@@ -611,6 +668,14 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			}
 		}
 		if (empty($subscriptions) && empty($unsubscriptions)) {
+			return;
+		}
+
+
+		// check user read access to those subscriptions
+		$bad_subscriptions = array_diff($subscriptions, $available_user_groups);
+		$bad_unsubscriptions = array_diff($unsubscriptions, $available_user_groups);
+		if(!empty($bad_subscriptions) || !empty($bad_unsubscriptions)) {
 			return;
 		}
 
@@ -645,7 +710,6 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		}
 
 		// If subscription already exists, then reject the subscription
-		$available_user_groups = $this->getAvailableLocations();
 		$user_parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', FALSE));
 		$currently_subscribed_groups = array_intersect($available_user_groups, $user_parents);
 
@@ -660,7 +724,6 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 					trigger_localised_error('SYS0315', translate('System Default email address has not been set.'), E_USER_WARNING);
 					trigger_localised_error('BML0016', translate('Cannot send the verification email'), E_USER_WARNING);
 				} else {
-					$this->sendAlreadySubscribedEmail($current_user_email, $from_addr, $subscriptions);
 					$this->messages[] = sprintf(translate('A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.'), $current_user_email);
 
 				}
@@ -805,9 +868,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		}
 
 		if (!empty($subscriptions) && !empty($unsubscriptions)) {
-			$body .= translate('bsp_verification_email_body_sub_unsub',
-									$this->_getCommaSeparatedNamesByAssetid($subscriptions),
-									$this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
+			$body .= sprintf(translate('You have requested to subscribe to %1$s and unsubscribe from %2$s.'), $this->_getCommaSeparatedNamesByAssetid($subscriptions), $this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
+
 			$body .= sprintf(translate('To confirm your request, click the link below:
 
 %s'), $url);
@@ -827,7 +889,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 %s'), $url);
 
 		}
-			$body .= sprintf(translate('If you have received this email in error, please take no further action or contact %s.'), $from);
+			$body .= sprintf(translate('
+
+If you have received this email in error, please take no further action or contact %s.'), $from);
 
 
 
@@ -1046,6 +1110,224 @@ Your email address is already subscribed, therefore no action has been taken.'),
 
 	}//end _getDefaultBodycopyContents()
 
+	/**
+	* Form Captcha keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaKeywordReplacement()
+	{
+		if (!$this->attr('captcha_ttf') == '') {
+			$font = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('captcha_ttf'));
+			$file_path = $font->data_path.'/'.$font->attr('name');
+		} else {
+			$file_path = '';
+		}
+
+		ob_start();
+			security_key(
+				$this->attr('captcha_length'),
+				$this->attr('captcha_length'),
+				$this->attr('captcha_zoom'),
+				FALSE,
+				trim($this->attr('captcha_bgcolour'), '#'),
+				trim($this->attr('captcha_textcolour'), '#'),
+				trim($this->attr('captcha_bordercolour'), '#'),
+				$this->attr('captcha_use_colours'),
+				$this->attr('captcha_usefont'),
+				$file_path,
+				$this->attr('captcha_font_size'),
+				$this->attr('captcha_min_angle'),
+				$this->attr('captcha_max_angle'),
+				$this->attr('captcha_x_start'),
+				$this->attr('captcha_min_distance'),
+				$this->attr('captcha_max_distance'),
+				$this->attr('captcha_width'),
+				$this->attr('captcha_height'),
+				$this->attr('captcha_arc'),
+				trim($this->attr('captcha_arc_colour'), '#'),
+				$this->attr('captcha_include_uppercase'),
+				$this->attr('captcha_include_numbers'),
+				$this->attr('provide_accessible_captcha'),
+				FALSE,
+				$this->attr('captcha_label_text')
+			);
+		return ob_get_clean();
+
+	}//end getFormCaptchaKeywordReplacement()
+
+
+	/**
+	* Form Captcha Image keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaImageKeywordReplacement()
+	{
+		if (!$this->attr('captcha_ttf') == '') {
+			$font = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('captcha_ttf'));
+			$file_path = $font->data_path.'/'.$font->attr('name');
+		} else {
+			$file_path = '';
+		}
+
+		ob_start();
+			security_key_image_box(
+				$this->attr('captcha_length'),
+				$this->attr('captcha_zoom'),
+				trim($this->attr('captcha_bgcolour'), '#'),
+				trim($this->attr('captcha_textcolour'), '#'),
+				trim($this->attr('captcha_bordercolour'), '#'),
+				$this->attr('captcha_use_colours'),
+				$this->attr('captcha_usefont'),
+				$file_path,
+				$this->attr('captcha_font_size'),
+				$this->attr('captcha_min_angle'),
+				$this->attr('captcha_max_angle'),
+				$this->attr('captcha_x_start'),
+				$this->attr('captcha_min_distance'),
+				$this->attr('captcha_max_distance'),
+				$this->attr('captcha_width'),
+				$this->attr('captcha_height'),
+				$this->attr('captcha_arc'),
+				trim($this->attr('captcha_arc_colour'), '#'),
+				$this->attr('captcha_include_uppercase'),
+				$this->attr('captcha_include_numbers'),
+				$this->attr('provide_accessible_captcha')
+			);
+		return ob_get_clean();
+
+	}//end getFormCaptchaImageKeywordReplacement()
+
+
+	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaFieldKeywordReplacement()
+	{
+		ob_start();
+			security_key_field($this->attr('captcha_length'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaFieldKeywordReplacement()
+
+
+	/**
+	* Form Captcha Link keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLinkKeywordReplacement()
+	{
+		ob_start();
+			security_key_image_link($this->attr('captcha_link_text'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaLinkKeywordReplacement()
+
+
+	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLabelKeywordReplacement()
+	{
+		return $this->attr('captcha_label_text');
+
+	}//end getFormCaptchaLabelTextKeywordReplacement()
+
+	/**
+	* Get reCAPTCHA replcement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormRecaptchaKeywordReplacement()
+	{
+		$replacement = '';
+		if ($this->attr('use_recaptcha')) {
+			$replacement =  Recaptcha::getRecaptcha(Array(), $this->attr('recaptcha_theme'));
+		}
+
+		return $replacement;
+
+	}//end getFormRecaptchaKeywordReplacement()
+
+
+	/**
+	* Get the Honeypot field
+	* This field must not be visible to the user
+	*
+	* @return boolean
+	* @access private
+	*/
+	function getFormHoneypotFieldKeywordReplacement()
+	{
+		$name = $this->attr('honeypot_name');
+		$id = $this->attr('honeypot_id');
+		$class = $this->attr('honeypot_class');
+
+		if (empty($name)) {
+			$name = 'q'.$this->id.':comment';
+		}
+		if (empty($id)) {
+			$id = 'q'.$this->id.'_comment';
+		}
+
+		$extras = 'class="'.$class.'"';
+		$extras = $extras.' id="'.$id.'"';
+		ob_start();
+			text_box($name, '', 10, 10, FALSE, $extras);
+
+		return ob_get_clean();
+
+	}//end getFormHoneypotFieldKeywordReplacement()
+
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		parent::onRequestKeywords($broadcaster, $vars);
+		// only provide captcha keywords for not logged in user
+		if(!isset($vars['keywords']['user_name'])) {
+			$keywords = Array();
+			if ($this->attr('require_captcha')) {
+				$keywords['form_captcha'] = translate('Display Captcha Form');
+
+				$keywords['form_captcha_image'] = translate('Display Captcha Image');
+
+				$keywords['form_captcha_field'] = translate('Display Captcha Field');
+
+				$keywords['form_captcha_link'] = translate('Display Captcha Link');
+
+			}
+
+			if ($this->attr('use_recaptcha')) {
+				$keywords['form_recaptcha'] = translate('Display reCAPTCHA Form');
+	
+			}
+			$keywords['form_honeypot_field'] = translate('Display Honeypot question');
+			$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+		}
+	}//end onRequestKeywords()
 
 }//end class
 

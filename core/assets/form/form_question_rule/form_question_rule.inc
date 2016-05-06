@@ -205,6 +205,8 @@ class Form_Question_Rule extends Asset
 		// get the data we need to evaluate the condition.
 		// not using getValue() here because it could cause infinate loop
 		$target_value = $target_asset->value;
+		if(empty($target_value)) $target_value = '';
+		
 		$condition_operator = isset($rule_data['condition_operator']) ? $rule_data['condition_operator'] : NULL;
 		$condition_value = isset($rule_data['condition_value']) ? $rule_data['condition_value'] : NULL;
 		if (is_null($condition_operator) || is_null($condition_value) || is_null($target_value)) return $result;

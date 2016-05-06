@@ -463,7 +463,7 @@ class Page_Remote_Content extends Page
 		}
 
 		$options['ssl_verifypeer']=$this->attr('verify_ssl');
-		$result = fetch_url($url, $options);
+		$result = fetch_url($url, $options, Array(), TRUE, TRUE);
 
 		// remove temp folder and files
 		if(isset($temp_dirs)) {
@@ -512,6 +512,16 @@ class Page_Remote_Content extends Page
 				$keep_headers[str_replace('_', '-', $_header)] = $result['curlinfo'][$_header];
 			}
 		}
+
+		// get content disposition header from the full response headers
+		if(isset($result['response_headers']) && is_array($result['response_headers'])) {
+			foreach ($result['response_headers'] as $header) {
+				if(strpos($header, 'Content-Disposition:') === 0) {
+					$keep_headers['Content-Disposition'] = trim(str_replace('Content-Disposition:', '', $header));
+				}
+			}
+		}
+
 		// prepare temporary variables for output
 		$this->_tmp['headers'][$this->_tmp['url']] = $keep_headers;
 		$this->_tmp['content'][$this->_tmp['url']] = $response;

@@ -177,22 +177,6 @@ class Payment_Gateway_UTransact_Management extends Asset_Management
 	}//end constructor
 
 
-	/**
-	* Gets a list of all files
-	*
-	* @return array
-	* @access private
-	*/
-	function _getFileList()
-	{
-		return Array(
-				'files/loader.js',
-				'files/loader.gif',
-			   );
-
-	}//end _getFileList()
-
-
 }//end class
 
 ?>

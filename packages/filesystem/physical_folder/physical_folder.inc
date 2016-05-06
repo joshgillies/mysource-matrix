@@ -75,8 +75,7 @@ class Physical_Folder extends Asset
 			$this->vars[$attr_name]['value'] = ($this->vars[$attr_name]['type'] == 'serialise') ? unserialize($attr_value) : $attr_value;
 		}
 
-		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
-		$location = FILE_BRIDGE_PATH;
+		$location = $bridge->getLocationPath();
 		$location = rtrim('/', $location);
 		if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 		

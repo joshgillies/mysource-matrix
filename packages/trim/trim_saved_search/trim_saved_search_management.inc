@@ -212,6 +212,20 @@ class TRIM_Saved_Search_Management extends Asset_Management
 																		'allow_empty'   => FALSE,
 												   					   ),
 												   	),
+							'authentication_type'           => Array(
+                                        'added'         => '0.17',
+                                        'type'          => 'selection',
+                                        'default'       => 'HTTP_BASIC',
+                                        'parameters'    => Array(
+                                                            'multiple'      => FALSE,
+                                                            'allow_empty'   => FALSE,
+                                                            'sort_options'  => TRUE,
+                                                            'options'       => Array(
+                                                                                'HTTP_BASIC'   => 'HTTP Basic',
+                                                                                'NTLM' => 'NTLM',
+                                                    ),
+                                            ),
+                                    ),
 					  );
 
 	}//end constructor
@@ -249,7 +263,7 @@ class TRIM_Saved_Search_Management extends Asset_Management
 
 		if (version_compare($current_version, '0.2', '<')) {
 			pre_echo('STARTING UPGRADE OF '.$asset_name.' FROM VERSION '.$current_version.' TO VERSION 0.2');
-			$saved_search_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('trim_saved_search', FALSE, TRUE);
+			$saved_search_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('trim_saved_search', TRUE, TRUE);
 
 			$count = 0;
 

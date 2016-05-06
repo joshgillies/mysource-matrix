@@ -183,6 +183,15 @@ class Datacash_Processor
 	 */
 	function __construct($client, $password, $datacash_api_path, $cardinfo_dir_path, $timeout = 60, $test_mode = TRUE)
 	{
+		if (!is_file($datacash_api_path)) {
+			trigger_error(translate('The path to the Datacash PHP API is not valid'), E_USER_WARNING);
+			return;
+		}
+		if (!is_file($datacash_api_path)) {
+			trigger_error(translate('The path to the Datacash CardInfo directory is not valid'), E_USER_WARNING);
+			return;
+		}
+
 		$this->_client = $client;
 		$this->_password = $password;
 		require_once $datacash_api_path;

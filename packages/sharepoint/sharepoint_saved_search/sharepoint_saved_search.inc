@@ -64,7 +64,7 @@ class Sharepoint_Saved_Search extends Data_Source
     protected function _createAdditional(Array &$link, $args=Array())
     {
     	if (!parent::_createAdditional($link)) return FALSE;
-		$this->setAttrValue('shadow_name', '%ds__ows_FileLeafRef%');
+		parent::setAttrValue('shadow_name', '%ds__ows_FileLeafRef%');
 
 		return TRUE;
 
@@ -139,7 +139,7 @@ class Sharepoint_Saved_Search extends Data_Source
 					$result = Sharepoint_Common::getListItems($connection, $data_list, $search_crit, $search_logic, $row_limit, $download_file, $bridge_info);
 					if (!empty($result)) sort($result);
 					$this->cacheResult($result, $hash);
-
+					
 				} catch (SoapFault $sf) {
 					$detail = '';
 					if (isset($sf->detail)) $detail = $sf->detail;
@@ -187,7 +187,7 @@ class Sharepoint_Saved_Search extends Data_Source
 		$cached_result = $this->attr('cached_result');
 		$cached_result[$hash_key]	= $result;
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes');
-		if ($this->setAttrValue('cached_result', $cached_result) && $this->saveAttributes()) {
+		if (parent::setAttrValue('cached_result', $cached_result) && $this->saveAttributes()) {
 			return TRUE;
 		}//end if
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
@@ -211,7 +211,7 @@ class Sharepoint_Saved_Search extends Data_Source
 		if (isset($result[$hash])) {
 			unset($result[$hash]);
 		}//end if
-		$this->setAttrValue('cached_result', $result);
+		parent::setAttrValue('cached_result', $result);
 		$new_result	= $this->getResultSet();
 		if (!empty($new_result)) {
 			return TRUE;
@@ -265,6 +265,7 @@ class Sharepoint_Saved_Search extends Data_Source
 											'trace'		=> '1',
 											'exception'	=> '1',
 										  );
+		$connection['method']		    = $connector->attr('authentication_type');
 
 		return $connection;
 
@@ -335,32 +336,6 @@ class Sharepoint_Saved_Search extends Data_Source
 		}
 
 	}//end printFrontend()
-
-
-    /**
-    * Queue the setting of the value of an attribute
-    *
-    * This function sets the value of the attribute locally, but does not database updating.
-    * The change is queued awaiting the call of saveAttributes()
-    *
-    * @param string $name   the name of the attribute
-    * @param string $value  the new value of the attribute
-    *
-    * @return boolean
-    * @access public
-    * @see saveAttributes()
-    */
-	public function setAttrValue($name, $value)
-	{
-		if ($name == 'data_list' || $name == 'row_limit' || $name == 'search_logic' || $name == 'download_file') {
-			$res_val	= parent::setAttrValue($name, $value);
-			$this->updateCachedResult(TRUE);
-			return $res_val;
-		} else {
-			return parent::setAttrValue($name, $value);
-		}//end if
-	}//end setAttrValue()
-
 
 	/**
 	* Returns a reference to the asset represented by the passed assetid

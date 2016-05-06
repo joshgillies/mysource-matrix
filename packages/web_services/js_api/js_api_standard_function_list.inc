@@ -182,8 +182,42 @@ function makeRequest(url, receive, dataCallback)
 		};
 	}//end if
 	ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	var postString = urlarray[1] + '&nonce_token=<?php echo $nonce_token; ?>';
-	ajaxRequest.send(encodeURI(postString));
+
+	// append nonce token
+	if(!window.nonceToken) {
+		var tokenElem = document.getElementById('token');
+		if (tokenElem) {
+			window.nonceToken = tokenElem.value;
+		}
+	}
+
+
+	if(window.nonceToken) {
+		var postString = urlarray[1] + '&nonce_token=' + window.nonceToken;
+		ajaxRequest.send(encodeURI(postString));
+	}
+	else {
+		var xmlhttp;
+		if (window.XMLHttpRequest)
+		  {// code for IE7+, Firefox, Chrome, Opera, Safari
+		  xmlhttp=new XMLHttpRequest();
+		  }
+		else
+		  {// code for IE6, IE5
+		  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		  }
+		xmlhttp.onreadystatechange=function()
+		  {
+		  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		    {
+		    	window.nonceToken = xmlhttp.responseText;
+		    	var postString = urlarray[1] + '&nonce_token=' + window.nonceToken;
+				ajaxRequest.send(encodeURI(postString));
+		    }
+		}
+		xmlhttp.open("GET","<?php echo $api_url; ?>" + "?SQ_ACTION=getToken",true);
+		xmlhttp.send();
+	}
 
 }//end makeRequest
 

@@ -229,10 +229,17 @@ class Design_Area extends Asset
 	public function attr($name)
 	{
 		if (isset($this->_tmp['var_reference_values'][$name])) {
-			return $this->_tmp['var_reference_values'][$name];
+			$value = $this->_tmp['var_reference_values'][$name];
 		} else {
-			return parent::attr($name);
+			$value = parent::attr($name);
 		}
+
+		// Escape quotes and opening PHP tags in the design area scalar attributes
+		if (is_scalar($value)) {
+			escape_php($value, TRUE);
+		}
+
+		return $value;
 
 	}//end attr()
 

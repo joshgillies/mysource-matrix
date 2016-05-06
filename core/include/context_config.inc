@@ -161,7 +161,7 @@ class Context_Config extends Config
 			}
 		}
 
-		if ($write_access) $o->commitButton('', TRUE);
+		if ($write_access) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 
@@ -328,9 +328,9 @@ class Context_Config extends Config
 			//  AT LEAST <x> conditions are required, and
 			//    there are at least that many valid conditions.
 			if ($valid) {
-				echo trim(sq_get_icon(sq_web_path('lib').'/web/images/tick.gif', 15, 15, sprintf(translate('Conditions for context "%s" are valid'), $context_name), NULL, ' border="0"'));
+				echo trim(sq_get_icon(sq_web_path('lib').'/web/images/tick.png', 15, 15, sprintf(translate('Conditions for context "%s" are valid'), $context_name), NULL, ' border="0"'));
 			} else {
-				echo trim(sq_get_icon(sq_web_path('lib').'/web/images/cross.gif', 15, 15, sprintf(translate('Conditions for context "%s" are NOT valid'), $context_name), NULL, ' border="0"'));
+				echo trim(sq_get_icon(sq_web_path('lib').'/web/images/cross.png', 15, 15, sprintf(translate('Conditions for context "%s" are NOT valid'), $context_name), NULL, ' border="0"'));
 			}
 		?>
 		</td>
@@ -421,7 +421,7 @@ class Context_Config extends Config
 				ob_start();
 					text_box($this->prefix.'new_alternate_context_name', '', 20, 0, FALSE, ' disabled="disabled"');
 				$text_box = ob_get_clean();
-				echo $check_box.' '.sprintf(translate('Create a new alternate context called: %s'), $text_box);
+				echo $check_box.' '.label(translate('Create a new alternate context called: '), $this->prefix.'new_alternate_context'). $text_box;
 			} else {
 				?><br/><?php
 				echo translate('To create an alternate context, you must lock the screen first.');
@@ -625,7 +625,7 @@ class Context_Config extends Config
 					$translate_suffix = ((int)$options['match_logic'] === 1 ? '' : '!').$options['match_type'];
 					$condition_text[$condition_id] = sprintf(
 					    $translated_text[$translate_suffix],
-					    $options['header_name'],
+					    $options['var_name'],
 					    $options['match_value'],
 					    $case_sensitive_options[(int) $options['case_sensitive']]
 					);
@@ -648,7 +648,7 @@ class Context_Config extends Config
 					$translate_suffix = ((int)$options['match_logic'] === 1 ? '' : '!').$options['match_type'];
 					$condition_text[$condition_id] = sprintf(
 					    $translated_text[$translate_suffix],
-					    $options['header_name'],
+					    $options['var_name'],
 					    $options['match_value'],
 					    $case_sensitive_options[(int) $options['case_sensitive']]
 					);
@@ -656,7 +656,7 @@ class Context_Config extends Config
 
 				case 'url':
 					$translated_text = Array(
-				        'exact'     => translate('The requested URL <strong>%1$s is "%2$s"</strong> (%3$s)'),
+				        'exact'     => translate('The requested URL <strong>is "%s"</strong>'),
 				        '!exact'    => translate('The requested URL <strong>is not "%s"</strong>'),
 				        'begins'    => translate('The requested URL <strong>begins with "%s"</strong>'),
 				        '!begins'   => translate('The requested URL <strong>does not begin with "%s"</strong>'),
@@ -679,7 +679,7 @@ class Context_Config extends Config
 				        '!exact' => translate('The request is <strong>not</strong> being made to <strong>port %s</strong>'),
 				    );
 
-					$translate_suffix = ((int)$options['match_logic'] === 'is' ? '' : '!').'exact';
+					$translate_suffix = ((int)$options['match_type'] === 'is' ? '' : '!').'exact';
 					$condition_text[$condition_id] = sprintf(
 					    $translated_text[$translate_suffix],
 					    $options['match_value']
@@ -692,7 +692,7 @@ class Context_Config extends Config
 				        '!secure' => translate('The connection to Squiz Matrix is <strong>not secure (using HTTP protocol)</strong>'),
 				    );
 
-					$translate_suffix = ($options['match_value'] === 1 ? '' : '_!').'secure';
+					$translate_suffix = ((int)$options['match_value'] === 1 ? '' : '!').'secure';
 					$condition_text[$condition_id] = $translated_text[$translate_suffix];
 				break;
 			}
@@ -819,9 +819,9 @@ class Context_Config extends Config
 
 			$o->openField(translate('Minimum Matches'));
 				$list_options = Array(
-							'At least'	=> translate('At least'),
+							'at_least'	=> translate('At least'),
 
-							'All'		=> translate('All'),
+							'all'		=> translate('All'),
 
 						   );
 
@@ -870,7 +870,7 @@ class Context_Config extends Config
 				ob_start();
 					combo_box($this->prefix.'new_condition_type', $option_types, FALSE, Array(), 0, ' disabled="disabled"');
 				$combo_box = ob_get_clean();
-				echo $check_box.' '.sprintf(translate('Add a new condition of type: %s'), $combo_box);
+				echo $check_box.' '.label(translate('Add a new condition of type: '), $this->prefix.'new_condition').$combo_box;
 			$o->closeField();
 		}
 
@@ -1028,14 +1028,15 @@ class Context_Config extends Config
 					check_box($this->prefix.$condition_id.'_case_sensitive', '1', $case_sensitive);
 				$case_ch = ob_get_clean();
 
-				echo sprintf(
-                    translate('Match if the header named %1$s %2$s %3$s %4$s %5$s').' '.translate('Case sensitive?'),
+				echo label(sprintf(
+                    translate('Match if the header named %1$s %2$s %3$s %4$s %5$s'),
                     $header_tb,
                     $logic_cb,
                     $type_cb,
                     $value_tb,
                     $case_ch
-                );
+                ), $this->prefix.$condition_id.'_case_sensitive');;
+				echo label(translate('Case sensitive?'), $this->prefix.$condition_id.'_case_sensitive');
 				?>
 				</li>
 				</ul>
@@ -1088,7 +1089,7 @@ class Context_Config extends Config
 				$case_ch = ob_get_clean();
 
                 echo sprintf(
-                    translate('Match if the %1$s variable named %2$s %3$s %4$s %5$s %6$s').' '.translate('Case sensitive?'),
+                    translate('Match if the %1$s variable named %2$s %3$s %4$s %5$s %6$s'),
                     strtoupper($condition_type),
                     $var_tb,
                     $logic_cb,
@@ -1096,6 +1097,7 @@ class Context_Config extends Config
                     $value_tb,
                     $case_ch
                 );
+				echo label(translate('Case sensitive?'), $this->prefix.$condition_id.'_case_sensitive');
 				?></li>
 				</ul>
 				<p><?php
@@ -1395,6 +1397,9 @@ class Context_Config extends Config
 							$at_least = NULL;
 						} else {
 							$at_least = array_get_index($_POST, $this->prefix.'at_least', 1);
+							if (empty($at_least)) {
+								$at_least = NULL;
+							}
 						}
 						$contexts[$editing_context]['at_least'] = $at_least;
 

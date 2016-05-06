@@ -73,7 +73,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_PERMISSIONS_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 1);
+			text_box($class.'[SQ_HIPO_PERMISSIONS_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 4);
 		} else {
 			echo SQ_HIPO_PERMISSIONS_THRESHOLD;
 		}
@@ -243,6 +243,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 					// Now assign permission changes to each asset
 					foreach ($child_assets as $child_assetid => $child_asset) {
+						// skip shadow assets
+						if(strpos($child_assetid, ':') !== FALSE) continue;
 						$type_code = $child_asset[0]['type_code'];
 
 						$this_todo =& $this->_running_vars['todo_assetids'][$child_assetid];
@@ -281,6 +283,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 											),
 								);
 			foreach($children as $todo_assetid => $info) {
+				// skip shadow assets
+				if(strpos($todo_assetid, ':') !== FALSE) continue;
 				if (!isset($todo_assetids[$todo_assetid])) {
 					$todo_assetids[$todo_assetid]['type_code'] = $info[0]['type_code'];
 				}

@@ -187,7 +187,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				check_box($name, TRUE, $auth, 'switchAuthentication(this.checked)');
 			} else {
 				?>
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $auth ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $auth ? 'tick' : 'cross'; ?>.png" width="15" height="15" />
 				<?php
 			}
 		$o->closeField();

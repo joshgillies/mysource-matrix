@@ -5,7 +5,7 @@
 .Viper-textbox-textArea {
     box-shadow: none!important;
 }
-.Viper-textbox.Viper-disabled .Viper-textbox-input[type=text], 
+.Viper-textbox.Viper-disabled .Viper-textbox-input[type=text],
 .Viper-textbox.Viper-disabled .Viper-textbox-textArea {
     background: none;
     border: none;
@@ -28,24 +28,23 @@
     position: relative;
 }
 
-.ViperTP-bar {
-    min-width: 960px;
-    padding: 5px 0 5px;
-    box-shadow: 0 -49px 31px -43px rgba(0, 0, 0, 0.3) inset;
-    border-top: 1px solid #737373;
-}
 
 /* when it's appeneded to a section */
 
 .fixedElement .ViperTP-bar {
     position: relative!important;
+    padding-left: 3px;
+    padding-right: 3px;
+    box-sizing: border-box;
 }
 
 /* when it's fixed at top */
 
 .fixedScroll .ViperTP-bar {
     border-radius: 0;
-    box-shadow: 1px 2px 5px 0 rgba(0, 0, 0, 0.7), 0 -49px 31px -43px rgba(0, 0, 0, 0.3) inset;
+    top: 0px!important;
+    border-left: 1px solid #D7D7D7;
+    border-right: 1px solid #D7D7D7;
 }
 
 /* when it's fixed at top in backend interface */
@@ -53,19 +52,18 @@
     position: fixed;
     top: -2px;
     left: 0;
+    min-width: 1030px;
 }
 
 .fixedScroll.backendViperToolbar .viper-toolbar-container {
-    padding: 0 34px 0 2px;
+    padding: 0 35px 0 0;
 }
 
 .fixedScroll.backendViperToolbar .ViperTP-bar {
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-right: 1px solid #2B2B2B;
-    border-left: 1px solid #2B2B2B;
     border-top: none;
-    padding-top: 7px;
+    border-left: 1px solid #D7D7D7;
+    border-right: 1px solid #D7D7D7;
+    top:2px!important;
 }
 
 /* adjust logo position slightly */
@@ -83,44 +81,4 @@
     text-align: center;
     min-width: 500px;
     background: #FFF;
-}
-
-/* this is the actual div viper is enabled on*/
-.with-viper {
-   min-width: 500px;
-   min-height: 30px;
-   color: #222;
-   padding: 10px;
-   background: #FFF;
-}
-
-/* the tables inserted here needs to be visible, so set a default style */
-.with-viper td, .with-viper th {
-    border: 1px solid #A2C1E1 !important;
-    color: #365676;
-    padding: 0.6em !important;
-    box-shadow: none;
-}
-.with-viper th {
-    background-color: #4379B1 !important;
-    border-color: #6B9BCE !important;
-    color: #FFFFFF;
-    font-weight: bold;
-    text-align: center;
-    text-shadow: none !important;
-}
-
-/* remove tablet view styles as we don't support it in admin mode anyways */
-@media screen and (max-width: 768px) {
-
-    .Viper-popup,
-    .ViperITP,
-    .ViperTP-bar { 
-        font-size: 9px !important;
-    }
-
-    .Viper-button {
-        min-width: 29px;
-    }
-
 }

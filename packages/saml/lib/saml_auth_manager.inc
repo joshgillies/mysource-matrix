@@ -216,18 +216,15 @@ class SAML_Auth_Manager extends SimpleSAML_Auth_Simple
 	}
 	
 	
-	
-	
-	
 	/**
 	* Generate SP Metadata in XML format
-	* @param string	$acs_url	ACS url
-	* @param string	$sls_url	SLS url
+	* @param array	$acs_urls	ACS urls
+	* @param array	$sls_urls	SLS urls
 	*
 	* @return string
 	* @access public
 	*/
-	public  function printSPMetadataXML($acs_url, $sls_url)
+	public  function printSPMetadataXML($acs_urls, $sls_urls)
 	{
 		$sourceId = $this->authSource;
 		
@@ -248,11 +245,6 @@ class SAML_Auth_Manager extends SimpleSAML_Auth_Simple
 		$entityId = $source->getEntityId();
 		$spconfig = $source->getMetadata();
 
-		$metaArray20 = array(
-			'AssertionConsumerService' => $acs_url,
-			'SingleLogoutService' => $sls_url,
-		);
-
 		$ed = new SAML2_XML_md_EntityDescriptor();
 		$ed->entityID = $entityId;
 
@@ -263,18 +255,23 @@ class SAML_Auth_Manager extends SimpleSAML_Auth_Simple
 			'urn:oasis:names:tc:SAML:2.0:protocol'
 		);
 
-		$slo = new SAML2_XML_md_EndpointType();
-		$slo->Binding = SAML2_Const::BINDING_HTTP_REDIRECT;
-		$slo->Location = $sls_url;
-		$sp->SingleLogoutService[] = $slo;
-
-		$store = SimpleSAML_Store::getInstance();
-		if ($store instanceof SimpleSAML_Store_SQL) {
-			/* We can properly support SOAP logout. */
+		foreach ($sls_urls as $sls_url) {
 			$slo = new SAML2_XML_md_EndpointType();
-			$slo->Binding = SAML2_Const::BINDING_SOAP;
+			$slo->Binding = SAML2_Const::BINDING_HTTP_REDIRECT;
 			$slo->Location = $sls_url;
 			$sp->SingleLogoutService[] = $slo;
+		}
+
+		$store = SimpleSAML_Store::getInstance();
+
+		if ($store instanceof SimpleSAML_Store_SQL) {
+			/* We can properly support SOAP logout. */
+			foreach ($sls_urls as $sls_url) {
+				$slo = new SAML2_XML_md_EndpointType();
+				$slo->Binding = SAML2_Const::BINDING_SOAP;
+				$slo->Location = $sls_url;
+				$sp->SingleLogoutService[] = $slo;
+			}
 		}
 
 		$assertionsconsumerservicesdefault = array(
@@ -288,35 +285,36 @@ class SAML_Auth_Manager extends SimpleSAML_Auth_Simple
 		$assertionsconsumerservices = $spconfig->getArray('acs.Bindings', $assertionsconsumerservicesdefault);
 
 		$index = 0;
-		foreach ($assertionsconsumerservices as $services) {
-
-			$acs = new SAML2_XML_md_IndexedEndpointType();
-			$acs->index = $index;
-			switch ($services) {
-			case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
-				$acs->Binding = SAML2_Const::BINDING_HTTP_POST;
-				$acs->Location = $acs_url;
-				break;
-			case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
-				$acs->Binding = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
-				$acs->Location = $acs_url;
-				break;
-			case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
-				$acs->Binding = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
-				$acs->Location = $acs_url;
-				break;
-			case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
-				$acs->Binding = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
-				$acs->Location = $acs_url;
-				break;
-			case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
-				$acs->Binding = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
-				$acs->ProtocolBinding = SAML2_Const::BINDING_HTTP_POST;
-				$acs->Location = $acs_url;
-				break;
+		foreach ($acs_urls as $acs_url) {
+			foreach ($assertionsconsumerservices as $services) {
+				$acs = new SAML2_XML_md_IndexedEndpointType();
+				$acs->index = $index;
+				switch ($services) {
+				case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
+					$acs->Binding = SAML2_Const::BINDING_HTTP_POST;
+					$acs->Location = $acs_url;
+					break;
+				case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
+					$acs->Binding = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
+					$acs->Location = $acs_url;
+					break;
+				case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
+					$acs->Binding = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
+					$acs->Location = $acs_url;
+					break;
+				case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
+					$acs->Binding = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
+					$acs->Location = $acs_url;
+					break;
+				case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
+					$acs->Binding = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
+					$acs->ProtocolBinding = SAML2_Const::BINDING_HTTP_POST;
+					$acs->Location = $acs_url;
+					break;
+				}
+				$sp->AssertionConsumerService[] = $acs;
+				$index++;
 			}
-			$sp->AssertionConsumerService[] = $acs;
-			$index++;
 		}
 
 
@@ -398,18 +396,7 @@ class SAML_Auth_Manager extends SimpleSAML_Auth_Simple
 
 				$acs->RequestedAttribute[] = $a;
 			}
-
-			$metaArray20['name'] = $name;
-			if ($description !== NULL) {
-				$metaArray20['description'] = $description;
-			}
-
-			$metaArray20['attributes'] = $attributes;
-			if ($nameFormat !== NULL) {
-				$metaArray20['attributes.NameFormat'] = $nameFormat;
-			}
 		}
-
 
 		$orgName = $spconfig->getLocalizedString('OrganizationName', NULL);
 		if ($orgName !== NULL) {
@@ -427,10 +414,6 @@ class SAML_Auth_Manager extends SimpleSAML_Auth_Simple
 			}
 
 			$ed->Organization = $o;
-
-			$metaArray20['OrganizationName'] = $orgName;
-			$metaArray20['OrganizationDisplayName'] = $o->OrganizationDisplayName;
-			$metaArray20['OrganizationURL'] = $o->OrganizationURL;
 		}
 
 		$c = new SAML2_XML_md_ContactPerson();
@@ -458,12 +441,6 @@ class SAML_Auth_Manager extends SimpleSAML_Auth_Simple
 		$xml = $ed->toXML();
 		SimpleSAML_Utilities::formatDOMElement($xml);
 		$xml = $xml->ownerDocument->saveXML($xml);
-
-		if (count($keys) === 1) {
-			$metaArray20['certData'] = $keys[0]['X509Certificate'];
-		} elseif (count($keys) > 1) {
-			$metaArray20['keys'] = $keys;
-		}
 
 		/* Sign the metadata if enabled. */
 		$xml = SimpleSAML_Metadata_Signer::sign($xml, $sp, 'SAML 2 SP');

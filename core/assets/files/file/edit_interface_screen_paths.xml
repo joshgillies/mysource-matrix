@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Web Paths">
+	<section name="Web Paths" write_access="write:lookups" limbo_access="1">
 		<field>
 			<display_name>Paths</display_name>
 			<note />
@@ -29,6 +29,22 @@
 			<note />
 			<function_call>
 				<paint_function   name="paintURLs"   />
+			</function_call>
+		</field>
+	</section>
+	<section name="Remaps" write_access="write:lookups" limbo_access="1">
+		<field>
+			<display_name>Remaps</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintEditRemapURLs" />
+				<process_function name="processEditRemapURLs" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function		name="paintAddRemapURLs" />
+				<process_function	name="processAddRemapURLs" />
 			</function_call>
 		</field>
 	</section>

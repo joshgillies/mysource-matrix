@@ -187,7 +187,7 @@ class Proxy_Authentication_Config extends Config
 		$o->openField('');
 			$this->paintAlternativeProxies($o);
 		$o->closeField();
-		$o->sectionNote(translate('Alternative proxies will be used if they are set to be Active, and their URL pattern matches the URL being requested through the proxy. Proxies are matched from top to bottom; only the first proxy that matches will be used.'));
+		$o->sectionNote(translate('Alternative proxies will be used to override Primary Proxy when their URL pattern matches the URL being requested through the proxy. Proxies are matched from top to bottom; only the first proxy that matches will be used.'));
 		$o->closeSection('');
 
 		$o->openSection('SSL Accelerator Configuration');
@@ -277,7 +277,7 @@ class Proxy_Authentication_Config extends Config
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', TRUE);
+		if ($write_access) $o->commitButton('', FALSE);
 
 	}//end paintBackend()
 
@@ -380,7 +380,26 @@ class Proxy_Authentication_Config extends Config
 						echo ' ';
 						text_box($class.'_alternative[pattern_url]['.$proxy_key.']', array_get_index($proxy_details, 'pattern_url', ''), 30);
 					} else {
-						echo translate('comparison'.(array_get_index($proxy_details, 'pattern_not', '0') ? '_not_' : '_').array_get_index($proxy_details, 'pattern_type', 'equals'), 'URL', '"'.array_get_index($proxy_details, 'pattern_url', '').'"');
+						$comparison_text = Array(
+							'equals'    => translate('%1$s equals %2$s'),
+							'!equals'   => translate('%1$s does not equal %2$s'),
+							'ends'      => translate('%1$s ends with %2$s'),
+							'!ends'     => translate('%1$s does not end with %2$s'),
+							'begins'    => translate('%1$s begins with %2$s'),
+							'!begins'   => translate('%1$s does not begin with %2$s'),
+							'contains'  => translate('%1$s contains %2$s'),
+							'!contains' => translate('%1$s does not contain %2$s'),
+						);
+
+						$comparison_type = array_get_index($proxy_details, 'pattern_type', 'equals');
+						if (array_get_index($proxy_details, 'pattern_not', '0') !== '0') {
+							$comparison_type = '!'.$comparison_type;
+						}
+						echo sprintf(
+							$comparison_text[$comparison_type],
+							translate('URL'),
+							'"'.array_get_index($proxy_details, 'pattern_url', '').'"'
+						);
 					}
 				$o->closeField();
 				$o->openField(translate('Active?'));

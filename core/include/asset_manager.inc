@@ -353,7 +353,7 @@ class Asset_Manager extends MySource_Object
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = ' = '.MatrixDAL::quote($type_code);
-			}
+			}	
 
 			// if they have not specified any fields, then we want to select *
 			if ($field == '') {
@@ -368,7 +368,6 @@ class Asset_Manager extends MySource_Object
 						sq_ast_typ
 					WHERE
 						type_code '.$type_code_cond;
-
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
 				$result = MatrixDAL::executePdoGroupedAssoc($query);
@@ -1489,7 +1488,83 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		// clean up the edit fns cache
+		if(isset($this->_tmp['edit_fns'][$obj->id])) unset($this->_tmp['edit_fns'][$obj->id]);
+
 	}//end forgetAsset()
+
+
+	/**
+	* Returns a reference to the Asset_Edit_Interface object for this asset type
+	*
+	* @param string $type_code The appropriate type code.
+	*
+	* @see Asset::getEI()
+	* @return object
+	* @access public
+	*/
+	public function getAssetEditInterface($type_code)
+	{
+		if (!isset($this->_tmp['edit_interface'])) {
+			$this->_tmp['edit_interface'] = Array();
+			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
+		}
+
+		if (empty($this->_tmp['edit_interface'][$type_code]) || get_class($this->_tmp['edit_interface'][$type_code]) != 'asset_edit_interface') {
+			$this->_tmp['edit_interface'][$type_code] = new Asset_Edit_Interface($type_code);
+		}
+
+		return $this->_tmp['edit_interface'][$type_code];
+
+	}//end getAssetEditInterface()
+
+
+	/**
+	* Returns the Edit_Fns object appropriate for whatever asset requests us.
+	*
+	* If we don't care about the asset, send something like (int)0 or NULL to the
+	* first parameter, and pass its type code. It will not cache for these.
+	*
+	* @param string $assetid   The appropriate asset ID.
+	* @param string $type_code If asset is empty (0), use this type code.
+	*
+	* @see Asset::getEditFns()
+	* @return object
+	* @access public
+	*/
+	public function getEditFns($assetid, $type_code=NULL)
+	{
+		if (!isset($this->_tmp['edit_fns'])) {
+			$this->_tmp['edit_fns'] = Array();
+		}
+
+		$edit_fns = NULL;
+		if (empty($assetid) === FALSE) {
+			$asset_info = $this->getAssetInfo($assetid);
+
+			// Get around bridges where getAssetInfo() may not have been defined
+			if ((empty($asset_info) === FALSE) && (array_key_exists($assetid, $asset_info) === TRUE)) {
+				$type_code = $asset_info[$assetid]['type_code'];
+			}
+
+			if (isset($this->_tmp['edit_fns'][$assetid]) === TRUE) {
+				$edit_fns = $this->_tmp['edit_fns'][$assetid];
+			}
+		}
+
+		if ($edit_fns === NULL) {
+			$class_name = $type_code.'_edit_fns';
+			require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$class_name.'.inc';
+			$edit_fns = new $class_name();
+
+			if (empty($assetid) === FALSE) {
+				$this->_tmp['edit_fns'][$assetid] = $edit_fns;
+			}
+		}
+
+		return $edit_fns;
+
+	}//end getEditFns()
 
 
 	/**
@@ -2054,11 +2129,12 @@ class Asset_Manager extends MySource_Object
 	* </pre>
 	* @param boolean	$cloning_dependent	by default FALSE, flipped to TRUE if the asset being cloned is another asset's dependent
 	* @param int		$initial_staus		initial asset status of the clone
+	* @param boolean	$clone_other_links	whether to clone non-significant links (TYPE 3 and NOTICE)
 	*
 	* @return mixed object|NULL
 	* @access private
 	*/
-	function _cloneAsset(&$source, &$link, &$clone_map, $components, $cloning_dependent=FALSE, $initial_status=SQ_STATUS_UNDER_CONSTRUCTION)
+	function _cloneAsset(&$source, &$link, &$clone_map, $components, $cloning_dependent=FALSE, $initial_status=SQ_STATUS_UNDER_CONSTRUCTION, $clone_other_links=TRUE)
 	{
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
@@ -2209,7 +2285,7 @@ class Asset_Manager extends MySource_Object
 		$clone->setForceSecure($source->force_secure);
 
 		// clone the other links
-		if (!$source->cloneLinks($clone)) {
+		if ($clone_other_links && !$source->cloneLinks($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
@@ -2348,11 +2424,12 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$cloning_dependent	TRUE mean this call is a recursive call from itself, and it
 	*										is cloning the dependent of an asset (in a recursive manner)
 	* @param int		$initial_staus		initial asset status of the clone
+	* @param boolean	$clone_other_links	whether to clone non-significant links (TYPE 3 and NOTICE)
 	*
 	* @return object
 	* @access public
 	*/
-	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependents=TRUE, $cloning_dependent=FALSE, $initial_status=SQ_STATUS_UNDER_CONSTRUCTION)
+	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependents=TRUE, $cloning_dependent=FALSE, $initial_status=SQ_STATUS_UNDER_CONSTRUCTION, $clone_other_links=TRUE)
 	{
 		$null = NULL;
 		// if the source asset is actually a shadow asset, skip it
@@ -2364,10 +2441,13 @@ class Asset_Manager extends MySource_Object
 			trigger_localised_error('SYS0070', sprintf(translate('%s asset types cannot be cloned'), $source->type()), E_USER_WARNING);
 			return $null;
 		}
+
+		$GLOBALS['SQ_CLONE_ASSET'] = TRUE;
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$clone = $this->_cloneAsset($source, $link, $clone_map, $components, $cloning_dependent, $initial_status);
+		$clone = $this->_cloneAsset($source, $link, $clone_map, $components, $cloning_dependent, $initial_status, $clone_other_links);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -2424,7 +2504,8 @@ class Asset_Manager extends MySource_Object
 						$create_link['is_exclusive']	= $data['is_exclusive'];
 						$new_component = Array();
 
-						$cloned_child = $this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependents, TRUE);
+						$clone_other_links = $source->cloneNonSignificantLinks($child, $data['value']);
+						$cloned_child = $this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependents, TRUE, $initial_status, $clone_other_links);
 
 						if (is_null($cloned_child)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2474,6 +2555,9 @@ class Asset_Manager extends MySource_Object
 		// if all went well then broadcast the event telling system a asset has been cloned
 		$parameter = Array();
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_cloned', $clone, $parameter);
+
+		unset($GLOBALS['SQ_CLONE_ASSET']);
+
 		return $clone;
 
 	}//end cloneAsset()
@@ -2969,6 +3053,7 @@ class Asset_Manager extends MySource_Object
 			$type_code_cond = '';
 			if (is_array($type_code)) {
 				$type_query_str = Array();
+				$type_code		= array_values($type_code);
 				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
 					$type_query_str[$i] = ':type_code_'.$i;
 					$bind_vars['type_code_'.$i] = $type_code[$i];
@@ -3097,7 +3182,7 @@ class Asset_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getLinkById($linkid, $assetid=0, $side_of_link='major')
+	function getLinkById($linkid, $assetid=0, $side_of_link='major', $link_age=NULL)
 	{
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
@@ -3115,6 +3200,8 @@ class Asset_Manager extends MySource_Object
 
 		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.is_dependant, l.is_exclusive, l.locked, ';
 		$where = 'l.linkid = :linkid';
+		
+		if (!is_null($link_age)) $where .= ' AND l.updated <= \''.$link_age.'\'';
 
 		// if they only want one side of the link, we can do less work
 		if ($assetid !== 0) {
@@ -3447,7 +3534,7 @@ class Asset_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $link_age=NULL)
 	{
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 		$force_array = FALSE;
@@ -3586,7 +3673,7 @@ class Asset_Manager extends MySource_Object
 						 );
 			}
 			// we couldnt palm the request off, so we better do it ourselves
-			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
+			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective, 'gl_', $link_age);
 
 			if (!empty($links_query)) {
 				$sql = implode(' ', $links_query['sql_array']);
@@ -3663,6 +3750,7 @@ class Asset_Manager extends MySource_Object
 			}
 
 			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
+			$bind_prefix   = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($bind_prefix));
 
 			$where = 't.treeid LIKE :'.$bind_prefix.'treeid_like
 					  AND t.treeid > :'.$bind_prefix.'treeid';
@@ -3929,15 +4017,14 @@ class Asset_Manager extends MySource_Object
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
 						';
 
-		$where = 'ct.treeid LIKE pt.treeid || '.'\''.'%'.'\''.'
-				  AND pt.treeid <= ct.treeid';
+		$where = 'ct.treeid LIKE pt.treeid || \'%\' AND pt.treeid <= ct.treeid';
 
 		if (!is_null($from_treeid)) {
 			if (is_array($from_treeid)) {
 				$treeid_bits = Array();
 				foreach ($from_treeid as $ftids) {
 					$ftid = $ftids[0];
-					$treeid_bits[] = '(pt.treeid LIKE '.'\''.($ftid.'%').'\''.')';
+					$treeid_bits[] = '(pt.treeid LIKE '.MatrixDAL::quote($ftid.'%').')';
 				}
 				$where .= ' AND ('.implode(' OR ', $treeid_bits).')';
 			} else {
@@ -4273,7 +4360,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL, Array $link_types_wanted=Array(), $expand_shadows=FALSE)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL, Array $link_types_wanted=Array(), $expand_shadows=FALSE, $link_age=NULL)
 	{
 		assert_valid_assetid($assetid);
 		// check if we are getting children for a shadow asset, and palm the request off to the
@@ -4313,7 +4400,7 @@ class Asset_Manager extends MySource_Object
 								 );
 		}
 
-		$ret_val = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only, $link_value_wanted, 'gc_', $link_types_wanted);
+		$ret_val = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only, $link_value_wanted, 'gc_', $link_types_wanted, $link_age);
 
 		$this->forgetAsset($asset);
 		unset($asset);
@@ -4579,6 +4666,22 @@ class Asset_Manager extends MySource_Object
 				$quoted_read_perm = MatrixDAL::quote(SQ_PERMISSION_READ);
 
 				$USERIDS_COND = 'AND (
+					(
+						-- RHS does not exist
+						p.userid IN ( '.$userids_str.' )
+						AND (
+							(
+								p.permission = '.$quoted_read_perm.'
+								AND (
+									p.userid <> '.$quoted_public_userid.'
+									OR (p.userid = '.$quoted_public_userid.' AND p.granted = \'1\')
+								)
+							) OR (
+								p.permission > '.$quoted_read_perm.' AND p.granted = \'1\'
+							)
+						)
+					)
+					OR 
 					-- RHS (sq_vw_ast_role r) exists
 					EXISTS (
 						SELECT r.assetid FROM sq_vw_ast_role r
@@ -4597,20 +4700,6 @@ class Asset_Manager extends MySource_Object
 								)
 							)
 							OR (p.permission > '.$quoted_read_perm.' AND p.granted = \'1\')
-						)
-					) OR (
-						-- RHS does not exist
-						p.userid IN ( '.$userids_str.' )
-						AND (
-							(
-								p.permission = '.$quoted_read_perm.'
-								AND (
-									p.userid <> '.$quoted_public_userid.'
-									OR (p.userid = '.$quoted_public_userid.' AND p.granted = \'1\')
-								)
-							) OR (
-								p.permission > '.$quoted_read_perm.' AND p.granted = \'1\'
-							)
 						)
 					)
 				)';
@@ -4643,7 +4732,12 @@ class Asset_Manager extends MySource_Object
 			}
 
 			if (!empty($include_types)) {
-				$include_types_str = '\''.implode('\',\'', $include_types).'\'';
+				foreach ($include_types as &$itc) {
+					$itc = MatrixDAL::quote($itc);
+				}
+
+				unset($itc);
+				$include_types_str = implode(',', $include_types);
 			}
 		}
 
@@ -4692,9 +4786,46 @@ class Asset_Manager extends MySource_Object
 			throw new Exception('Unable to get order of assets as they propogate from passed majorid(s): '.array_contents($majorids).' due to database error: '.$e->getMessage());
 		}
 
+		// The "user condition" in the query above will always return the assetids that has public read permission
+		// So we filter out assetid that has deined effective read permissions for the current user
+		$deined_read_assetids = Array();
+		if (!empty($USERIDS_COND)) {
+			$assetids = Array();
+			foreach ($result as $row) {
+				$assetids[] = MatrixDAL::quote($row['assetid']);
+			}
+			if (!empty($assetids)) {
+				$in_clause = Array();
+				foreach (array_chunk($assetids, 999) as $chunk) {
+					$in_clause[] = ' (assetid IN ('.implode(', ', $chunk).'))';
+				}
+
+				$sql = 'SELECT assetid, userid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm WHERE permission = '.MatrixDAL::quote(SQ_PERMISSION_READ).' AND granted = \'0\' AND '.implode(' OR ',$in_clause);
+				try {
+					$denied_read_result = MatrixDAL::executeSqlAssoc($sql);
+				} catch (Exception $e) {
+					throw new Exception('Unable get revoked read permission of the given assetid(s): '.implode(', ', $assetids).' due to database error: '.$e->getMessage());
+				}
+
+				if (!empty($denied_read_result)) {
+					$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+					$userids = $current_user->getUserGroups();
+					$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+					foreach($denied_read_result as $row) {
+						if (!empty($row['assetid']) && !empty($row['userid']) && in_array($row['userid'], $userids)) {
+							$deined_read_assetids[$row['assetid']] = 1;
+						}
+					}//end foreach
+				}//end if
+			}
+		}// if user condition
 
 		$assetids = Array();
 		foreach ($result as $row) {
+			if (isset($deined_read_assetids[$row['assetid']])) {
+				// Effective read permission has been revoked for this user
+				continue;
+			}
 			if (!($row['status'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
 				$asset = $this->getAsset($row['assetid']);
 				$read_access = $asset->readAccess();
@@ -5940,8 +6071,14 @@ class Asset_Manager extends MySource_Object
 			} else {
 				// To create a significant link you need write permissions
 				// (but not effective write access) to both assets
-				$majwa = $major->writeAccess('');
-				$minwa = $minor->writeAccess('');
+				$majwa = $major->writeAccess('', Array(), FALSE);
+				// no need to check minor asset permission if we are just creating this asset, you always have write access to the new asset
+				if(isset($minor->_tmp['__creating__']) && $minor->_tmp['__creating__']) {
+					$minwa = TRUE;
+				}
+				else {
+					$minwa = $minor->writeAccess('');
+				}
 				if (!($majwa || $minwa)) {
 					return sprintf(translate('Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - no write permission for either asset'), $major->name, $major->id, $minor->name, $minor->id);
 
@@ -6244,6 +6381,44 @@ class Asset_Manager extends MySource_Object
 
 	}//end moveLinkPos()
 
+	/**
+	* Returns the parent asset ID based on the URL.
+	* If it cant get the parent ID based on the URL it will get parent ID based on the asset.  
+	* @param int     $asset_id    The asset ID that we want to get the parent ID   
+	* @param string  $url         The URL of the asset you want to retreive the parent ID
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAssetParentIdByURL($asset_id, $url=NULL)
+	{
+			assert_valid_assetid($asset_id);
+
+			//If the URL is NULL, we will try to retrieve the URL based on the asset_id
+			if($url === NULL)
+			{
+				$url = strip_url($GLOBALS['SQ_SYSTEM']->am->getAssetURL($asset_id), TRUE);
+			}
+
+			//If there is a URL, we just get the first parent
+			if(empty($url) === FALSE) {
+			$link_lineage_collection = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
+				if(is_array($link_lineage_collection)) {
+					array_pop($link_lineage_collection);
+					$parent_element = array_pop($link_lineage_collection);
+					if(isset($parent_element['assetid'])) {
+						return $parent_element['assetid'];
+					}
+				}
+			}
+
+			//If there is still no URL lineage, we just get the first parent
+			if(empty($url) === TRUE) {
+				$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset_id,'', TRUE, NULL,NULL, TRUE, NULL, 1));
+				return $parents[0];
+			}
+	}
+
 
 	/**
 	* Update the details of an existing link
@@ -6406,7 +6581,6 @@ class Asset_Manager extends MySource_Object
 		// If the minor is a shadow asset, we need to update the shadow link table instead
 		// There's no order field in the shadow table, so we branch before we add order to the set clause
 		if (isset($minorid_parts[1])) {
-
 			if (empty($set_clauses)) {
 				$ms->abortLog();
 				return TRUE;
@@ -6650,8 +6824,6 @@ class Asset_Manager extends MySource_Object
 			return $result;
 		}
 
-		// Use the master DB since we are changing things
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
 		if ($link === NULL || empty($link)) {
 			// First, we should try and find the link
@@ -6663,8 +6835,9 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		return $this->deleteAssetLinkByLink($link, $check_locked);
+		$result = $this->deleteAssetLinkByLink($link, $check_locked);
 
+		return $result;
 	}//end deleteAssetLink()
 
 
@@ -6788,7 +6961,6 @@ class Asset_Manager extends MySource_Object
 					// it's about to become linked to the trash only, so run the trigger
 					if (!$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_before_asset_deleted', $minor, Array())) {
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
 						return FALSE;
 					}
 				}
@@ -6808,14 +6980,12 @@ class Asset_Manager extends MySource_Object
 						if (!$minor->canDelete()) {
 							trigger_localised_error('SYS0069', sprintf(translate('%s can not have its last significant link removed'), $minor->name), E_USER_WARNING);
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
 							return FALSE;
 						}
 
 						$trash_folder = $this->getSystemAsset('trash_folder');
 						if (is_null($trash_folder)) {
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
 							return FALSE;
 						}
 
@@ -6834,7 +7004,6 @@ class Asset_Manager extends MySource_Object
 
 						if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
 							return FALSE;
 						}
 					}//end if
@@ -6986,7 +7155,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // finished with db2
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // finished with db3
 
 		return TRUE;
 
@@ -7589,7 +7758,7 @@ class Asset_Manager extends MySource_Object
 					);
 		$message = $ms->newMessage(Array(), 'asset.permissions.'.($granted ? 'grant' : 'deny'), $msg_reps);
         $message->subject = translate('Asset Permission Set');
-        if ($granted === 'grant') {
+        if ($granted) {
 		    $message->body = translate('%perm_name% permission has been granted on asset "%asset_name%" for "%user_name%"');
 		} else {
 		    $message->body = translate('%perm_name% permission has been denied on asset "%asset_name%" for "%user_name%"');
@@ -8245,7 +8414,7 @@ class Asset_Manager extends MySource_Object
 			$lineages = $this->getLinkLineages($fancy_asset->id, 0, NULL, 'name', TRUE);
 
 			// Determine which site we are in, and find one of our lineages that lies in that site
-			$all_sites = $this->getParents($fancy_asset->id, 'site');
+			$all_sites = $this->getParents($fancy_asset->id, 'site', FALSE);
 			$valid_sites = Array();
 			foreach ($all_sites as $id => $type_code) {
 				$current_site = $this->getAsset($id);
@@ -8408,7 +8577,10 @@ class Asset_Manager extends MySource_Object
 			if (count($result) == 1) {
 				$site = $this->getAsset($result[0]['assetid'], $result[0]['type_code']);
 				if (is_null($site)) return Array();
-				$index_page = $site->getSpecialPage('index');
+				$index_page = NULL;
+				if(method_exists($site, 'getSpecialPage')) {
+					$index_page = $site->getSpecialPage('index');
+				}
 				if (!is_null($index_page)) {
 					$paths = $index_page->getWebPaths();
 					$result[] = Array(
@@ -8769,6 +8941,12 @@ class Asset_Manager extends MySource_Object
 		$return_urls = Array();
 
 		if (!$ignore_rollback && SQ_ROLLBACK_VIEW) {
+			// Filter out the invalid assetids
+			$assetids = array_keys($this->getAssetInfo($assetids));
+			if (empty($assetids)) {
+				return $return_array ? Array() : '';
+			}
+
 			if ($return_array) {
 				foreach ($assetids as $assetid) {
 					$asset = $this->getAsset($assetid);
@@ -8814,11 +8992,25 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		$the_rest = array_diff($assetids, array_keys($return_urls));
+
+		// Check for shadow asset ids URL
+		foreach($the_rest as $assetid) {
+			$id_parts = explode(':', $assetid);
+			if (isset($id_parts[1])) {
+				$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0], '', TRUE);
+				if (method_exists($bridge, 'getAssetURL')) {
+					$return_urls[$assetid] = $bridge->getAssetURL($assetid, $base_url, $ignore_rollback, $base_contextid);
+				}
+			}
+		}
+
 		// now hit the database for the rest of them
 		$db = MatrixDAL::getDb();
 
 		$the_rest = array_diff($assetids, array_keys($return_urls));
 
+		// Check for shadow asset ids URL
 		if (!empty($the_rest)) {
 			$assetid_cond_array = $the_rest;
 
@@ -8874,15 +9066,44 @@ class Asset_Manager extends MySource_Object
 					// if there is __data url, and there are other local urls, we should only pick __data url for public users
 					// for public user, we just return  __data url because having __data url meaning the file asset is effectively unrestricted
 					if(count($result[$assetid]) > 1) {
+
+						// figure out if current asset has __data url and matrix url 
+						$has_unrestricted_url = FALSE;
+						$has_matrix_url = FALSE;
 						foreach ($result[$assetid] as $data) {
-						$file_url = current_protocol().'://'.$data['url'];
-						$is_unrestricted_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE : strpos($file_url, '/__data') !== FALSE;
-						$is_matrix_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') === FALSE : strpos($file_url, '/__data') === FALSE;
-						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_unrestricted_url)
-						|| (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_matrix_url)) {
-							$result[$assetid][0] = $data;
-							break;
+							$file_url = current_protocol().'://'.$data['url'];
+							$is_unrestricted_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE : strpos($file_url, '/__data') !== FALSE;
+							if($is_unrestricted_url) {
+								$has_unrestricted_url = TRUE;
+							}
+							else {
+								$has_matrix_url = TRUE;
+							}
+							// if there is __data url and current user is public, just serve this one
+							if($is_unrestricted_url) {
+								if($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) {
+									$result[$assetid][0] = $data;
+									break;
+								}
+							}
+
 						}
+						// if we are not public user, but we have to choose between a __data url and matrix url, we will have to check write permission
+						if($has_unrestricted_url && $has_matrix_url && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)){
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							$look_for_unrestricted_url = FALSE;
+							// useSystemVersion check is a bit intensive, so we only do it if we have to
+							if($asset->useSystemVersion()) {
+								$look_for_unrestricted_url = TRUE;
+							}
+							foreach ($result[$assetid] as $data) {
+								$file_url = current_protocol().'://'.$data['url'];
+								$is_unrestricted_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE : strpos($file_url, '/__data') !== FALSE;
+								if(($look_for_unrestricted_url && $is_unrestricted_url) || (!$look_for_unrestricted_url && !$is_unrestricted_url)) {
+									$result[$assetid][0] = $data;
+									break;
+								}
+							}
 						}
 					}
 					$this->_tmp['urls'][$assetid][$url_index][$cache_index] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
@@ -9152,8 +9373,16 @@ class Asset_Manager extends MySource_Object
 		 */
 		foreach ($fixPaths as $fixid => $pathToFix) {
 			// remove the trailing digits of path, because we will work out new digits
-			$pathToFix = preg_replace('/(.*?)\d+$/', '$1', $pathToFix);
-			$pathToFix = preg_replace('/(.*?)\d+(\.[0-9a-zA-Z_]+)$/', '$1$2', $pathToFix);
+			if (strpos($pathToFix, '.') === FALSE) {
+				$pathToFix = preg_replace('/(.*?)\d+$/', '$1', $pathToFix);
+			} else {
+				// if we have '.' in the path, remove the digits before the last occurance of '.'
+				$pathToFix = preg_replace('/(.*)\d+(\.[0-9a-zA-Z_]+?)$/', '$1$2', $pathToFix);
+			}
+			$extension = strrchr($pathToFix,'.');
+			if ($extension !== FALSE) {
+				$pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
+			}
 
 			/**
 			 * endPaths keeps a lits of the last path used in each chunk received from the database.
@@ -9167,19 +9396,15 @@ class Asset_Manager extends MySource_Object
 			do {
 				$bindVars = $baseBindVars;
 				$where    = $baseWhere;
+				/**
+				 * Since we can't consisently do regex matching between DBMSes, we're just
+				 * going to fetch everything that might look like it could conflict, and worry 
+				 * about trimming it back later
+				 */
 				if (empty($pathToFix) === FALSE) {
 					$where .= ' AND p.path LIKE :pathToFix';
 
-					$extension = strrchr($pathToFix,'.');
-					if($extension !== FALSE || $major instanceof File) {
-						$pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
-						$bindVars['pathToFix'] = $pathToFix.'%'.$extension;
-					} else if ($extension === FALSE) {
-						$bindVars['pathToFix'] = $pathToFix.'%';
-						// make sure we don't pick up anything with an extension
-						$where .= ' and p.path NOT LIKE :pathToIgnore';
-						$bindVars['pathToIgnore'] = '%.%';
-					}
+					$bindVars['pathToFix'] = $pathToFix.'%'.$extension;
 				}
 
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -9205,28 +9430,17 @@ class Asset_Manager extends MySource_Object
 					throw new Exception("Unable to get web paths in use due to the following database error:".$e->getMessage());
 				}//end try catch
 
-				/**
-				 * If we're only looking at numeric paths, get rid of non-numeric paths
-				 * we can't use 'max' here to do it because '1' and 'page-1' will get returned
-				 * depending on which path was found first (see php.net/max for details/examples)
-				 * and also if a path starts with a number it will be included (which is not
-				 * what we want at all).
-				 */
-				if (empty($pathToFix) === TRUE) {
-					foreach ($foundPaths as $_idx => $_foundPath) {
-						if (is_numeric($_foundPath) === FALSE) {
-							unset($foundPaths[$_idx]);
-						}
-					}
-				}
+				/* And here's where we filter out the nasties */ 
+				$filteredPaths = preg_grep('/^'.preg_quote($pathToFix).'\d*'.preg_quote($extension).'$/', $foundPaths);
+
 
 				/**
 				 * Keep a list of the last path in this chunk.
 				 * We'll use this later on in case we need to increment
 				 * the path id's.
 				 */
-				natcasesort($foundPaths);
-				$endPaths[] = end($foundPaths);
+				natcasesort($filteredPaths);
+				$endPaths[] = end($filteredPaths);
 
 				$offset += $limit;
 
@@ -9300,7 +9514,7 @@ class Asset_Manager extends MySource_Object
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link the specified asset
 	*											is on ('major' or 'minor')
-	* @param array			$value				The value for all the links must equal this (if not null)
+	* @param array			$link_value_wanted	The value for all the links must equal this (if not null)
 	* @param boolean		$dependant			The dependant status for all the links must be
 	*											this (if not null)
 	* @param boolean		$exclusive			The exclusive status for all the links must be
@@ -9318,18 +9532,19 @@ class Asset_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $bind_prefix='gl_')
+	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $link_value_wanted=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $bind_prefix='gl_', $link_age=NULL)
 	{
 
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
-
-		$bind_vars = Array();
+		$bind_vars	 = Array();
+		$other_side  = ($side_of_link == 'major') ? 'minor' : 'major';
+		$bind_prefix = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($bind_prefix));
 
 		$assetid_cond = '';
 		// TODO: queries.xml format will just send arrays unedited
 		if (is_array($assetid)) {
 			$assetid_binds = Array();
+			$assetid	   = array_values($assetid);
 			for (reset($assetid); NULL !== ($i = key($assetid)); next($assetid)) {
 				assert_valid_assetid($assetid[$i]);
 				$assetid_binds[] = ':'.$bind_prefix.'assetids_'.$i;
@@ -9353,22 +9568,23 @@ class Asset_Manager extends MySource_Object
 		// If $link_value_wanted is  '', we should get all records including '' and NULL,
 		// because Oracle will think '' same as NULL.
 		$is_oci = (MatrixDAL::getDbType() === 'oci') ? TRUE : FALSE;
-		if (!is_null($value) && is_array($value)) {
+		if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
 			$link_value = Array();
-			$has_empty = FALSE;
-			for (reset($value['link_value']); NULL !== ($i = key($value['link_value'])); next($value['link_value'])) {
-				if ($value['link_value'][$i] === '') {
+			$has_empty	= FALSE;
+			$link_value_wanted['link_value'] = array_values($link_value_wanted['link_value']);
+			for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
+				if ($link_value_wanted['link_value'][$i] === '') {
 					$has_empty = TRUE;
 					if ($is_oci === TRUE) {
-						unset($value['link_value'][$i]);
+						unset($link_value_wanted['link_value'][$i]);
 						continue;
 					}
 				}
 				$link_value[] = ':'.$bind_prefix.'value_'.$i;
-				$bind_vars[$bind_prefix.'value_'.$i] = $value['link_value'][$i];
+				$bind_vars[$bind_prefix.'value_'.$i] = $link_value_wanted['link_value'][$i];
 			}
 
-			$equal_prefix = $value['equal'] ? '': 'NOT ';
+			$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
 			if (count($link_value) === 0) {
 				$in_clause = '';
 			} else {
@@ -9376,7 +9592,7 @@ class Asset_Manager extends MySource_Object
 			}
 			$null_clause = '';
 			if ($is_oci === TRUE) {
-				if ((!$value['equal']) ^ $has_empty) {
+				if ((!$link_value_wanted['equal']) ^ $has_empty) {
 					$null_clause = ' l.value IS NULL';
 					if (!($in_clause === '')) $null_clause = ' OR '.$null_clause;
 				} else {
@@ -9394,6 +9610,11 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($exclusive)) {
 			$where .= ' AND l.is_exclusive = :'.$bind_prefix.'is_exclusive';
 			$bind_vars[$bind_prefix.'is_exclusive'] = ($exclusive) ? '1' : '0';
+		}
+
+		if (!is_null($link_age)) {
+			$where .= 'AND l.updated <= :'.$bind_prefix.'link_age';
+			$bind_vars[$bind_prefix.'link_age'] = $link_age;
 		}
 
 		$group_by = '';
@@ -9476,6 +9697,7 @@ class Asset_Manager extends MySource_Object
 			$type_code_cond = '';
 			if (is_array($type_code)) {
 				$type_code_binds = Array();
+				$type_code		 = array_values($type_code);
 				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
 					$type_code_binds[] = ':'.$bind_prefix.'type_code_'.$i;
 					$bind_vars[$bind_prefix.'type_code_'.$i] = $type_code[$i];
@@ -9576,10 +9798,11 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL, $bind_prefix='gc_', Array $link_types_wanted=Array())
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL, $bind_prefix='gc_', Array $link_types_wanted=Array(), $link_age=NULL)
 	{
 		assert_valid_assetid($asset->id);
-		$bind_vars = Array();
+		$bind_vars	 = Array();
+		$bind_prefix = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($bind_prefix));
 
 		// OK, normal asset, let's find a reference to them in the tree and go from there
 		$where = 'l.minorid = :minorid';
@@ -9668,6 +9891,7 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
 			$link_value = Array();
 			$has_empty = FALSE;
+			$link_value_wanted['link_value'] = array_values($link_value_wanted['link_value']);
 			for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
 				if ($link_value_wanted['link_value'][$i] === '') {
 					$has_empty = TRUE;
@@ -9708,6 +9932,9 @@ class Asset_Manager extends MySource_Object
 			$where .= ' AND (('.implode(') OR (', $link_types_wanted).'))';
 		}
 
+		if (!is_null($link_age)) {
+			$where .= ' AND l.updated <= \''.$link_age.'\'';
+		}
 		// now merge the bind vars into the master array
 		$bind_vars = array_merge($bind_vars, $where_bind_vars);
 
@@ -9816,6 +10043,7 @@ class Asset_Manager extends MySource_Object
 
 			if (is_array($type_code)) {
 				$type_code_cond = Array();
+				$type_code		= array_values($type_code);
 				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
 					$type_code_cond[$i] = ':'.$bind_prefix.'_type_code_'.$i;
 					$bind_vars[$bind_prefix.'_type_code_'.$i] = $type_code[$i];
@@ -9904,8 +10132,9 @@ class Asset_Manager extends MySource_Object
 	{
 		assert_valid_assetid($assetid);
 
-		$bind_vars = Array();
-		$assetid = (string) $assetid;
+		$bind_vars	 = Array();
+		$assetid	 = (string) $assetid;
+		$bind_prefix = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($bind_prefix));
 
 		$select = 'SELECT DISTINCT(ll.majorid), ll.type_code, ll.treeid, length(ll.treeid)/:'.$bind_prefix.'tree_size as depth';
 		$bind_vars[$bind_prefix.'tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
@@ -10171,7 +10400,8 @@ class Asset_Manager extends MySource_Object
 		$is_oci = (MatrixDAL::getDbType() === 'oci') ? TRUE : FALSE;
 		if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
 			$link_value = Array();
-			$has_empty = FALSE;
+			$has_empty	= FALSE;
+			$link_value_wanted['link_value'] = array_values($link_value_wanted['link_value']);
 			for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
 				if ($link_value_wanted['link_value'][$i] === '') {
 					$has_empty = TRUE;
@@ -10211,6 +10441,7 @@ class Asset_Manager extends MySource_Object
 			// this will prevent the error of double quoting $type_code in the future
 			$type_code_clone = $type_code;
 			if (is_array($type_code_clone)) {
+				$type_code_clone = array_values($type_code_clone);
 				for (reset($type_code_clone); NULL !== ($i = key($type_code_clone)); next($type_code_clone)) {
 					$bind_vars[$bind_prefix.'type_code_'.$i] = $type_code_clone[$i];
 					$type_code_clone[$i] = ':'.$bind_prefix.'type_code_'.$i;
@@ -10388,7 +10619,6 @@ class Asset_Manager extends MySource_Object
 
 	}//end isDependant()
 
-
 	/**
 	* Returns an array of global snippet keywords that are available to the current user
 	*
@@ -10487,7 +10717,12 @@ class Asset_Manager extends MySource_Object
 											'attr'		=> $container->attr('attributes'),
 										 );
 					} else {
-						$keywords['globals_snippet_'.$id.'_'.$safe_name[0]] = "Snippet $id: $container->name";
+						$keyword_name = 'globals_snippet_'.$id.'_'.$safe_name[0];
+						$keywords[$keyword_name] = sprintf(
+							translate('%s (#%s)'),
+							$container->name,
+							$id
+						);
 					}
 				}
 				$this->forgetAsset($container);
@@ -10523,7 +10758,12 @@ class Asset_Manager extends MySource_Object
 										'attr'		=> $container_attr,
 									 );
 				} else {
-					$keywords['globals_snippet_'.$id.'_'.$safe_name[0]] = "Snippet $id: $container_name";
+					$keyword_name = 'globals_snippet_'.$id.'_'.$safe_name[0];
+						$keywords[$keyword_name] = sprintf(
+							translate('%s (#%s)'),
+							$container_name,
+							$id
+						);
 				}
 			}
 		}//end foreach container
@@ -10554,9 +10794,19 @@ class Asset_Manager extends MySource_Object
 		ob_start();
 			// generate content based on design and paint layout supplied
 			if ($design_id && $layout_id) {
+				// Change the current global paint layout id
+				$old_paint_layout_assetid =  $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', NULL);
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
+
 				$design = $this->getAsset($design_id);
 				$design->paint($page);
+
+				// Restore the global paint layout id
+				if (is_null($old_paint_layout_assetid)) {
+					$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('SQ_PAINT_LAYOUT_ID');
+				} else {
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $old_paint_layout_assetid);
+				}
 			} else if ($design_id) {
 				$design = $this->getAsset($design_id);
 				$design->paint($page);
@@ -10792,6 +11042,83 @@ class Asset_Manager extends MySource_Object
 
 
 	}//end isUnderRootNodes()
+
+	/**
+	* get all container templates that can be applied to the given container
+	*
+	* @param int	container asset id
+	*
+	* @return mixed	either null or an array of asset ids
+	* @access public
+	*/
+	public function getAvailableContainerTemplates($containerid)
+	{
+				// now let's check root node based templates
+				$parents = $this->getParents($containerid);
+
+				$assetids = Array();
+				foreach($parents as $id => $type_code) {
+					$assetids[] = MatrixDAL::quote($id);
+				}
+
+				// Break up the assets into chunks of 1000 so that oracle does not complain
+				$in_clauses = Array();
+				foreach(array_chunk($assetids, 999) as $chunk) {
+					$in_clauses[] = ' l.minorid IN ('.implode(', ', $chunk).')';
+				}
+				$where = ' AND ('.implode(' OR ', $in_clauses).')';
+
+
+
+				$sql = 'SELECT a.assetid, a.name
+				FROM sq_ast a
+				LEFT JOIN sq_ast_lnk l
+				ON a.assetid = l.majorid
+				WHERE a.type_code=\'content_container_template\' 
+					AND l.link_type = '.SQ_LINK_NOTICE.'
+					AND l.value=\'container_template_root\'';
+				$sql .= $where;
+				$sql .= 'ORDER BY name ASC';
+
+				$result_root_node = NULL;
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					$result_root_node = MatrixDAL::executePdoAssoc($query);
+				} catch (Exception $e) {
+					throw new Exception($e->getMessage());
+				}
+				
+				// exclude templates that are exclusively in trash
+				foreach($result_root_node as $index => $asset_data) {
+					if($this->assetInTrash($asset_data['assetid'], TRUE)) {
+						unset($result_root_node[$index]);
+					}
+				}
+				return $result_root_node;
+	}//end getAvailableContainerTemplates
+
+
+	/**
+	* Whether the given shadow asset can be "notice" linked to
+	*
+	* @param string $assetid    Shadow asset id to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function allowShadowNoticeLink($assetid)
+	{
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0], '', TRUE);
+			if (method_exists($bridge, 'allowShadowNoticeLink')) {
+				return $bridge->allowShadowNoticeLink();
+			}
+		}
+
+		return FALSE;
+
+	}//end allowShadowNoticeLink()
 
 }//end class
 ?>

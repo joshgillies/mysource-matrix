@@ -160,22 +160,6 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 
 
 	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowedLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => TRUE);
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-	/**
 	* Return the available keywords from the parents
 	*
 	* The return value is in the form:
@@ -211,24 +195,6 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 		return $keywords;
 
 	}//end getAvailableKeywords()
-
-
-	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param object	&$broadcaster	the asset that triggered the event
-	* @param array	$vars			the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		$keywords = $this->getAvailableKeywords();
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
-	}//end onRequestKeywords()
 
 
 	/**
@@ -344,38 +310,15 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 		}
 		$bodycopy->setKeywordReplacements($replacements);
 
-		// OUTPUT HERE
-		$datapath = sq_web_path('data').'/asset_types/payment_gateway_utransact/files';
-		$card = $this->getPrefix().'_card';
-
+		// Load the JS 'Loader' object to print the overlay when payment form is submitted
+		$this->includeLoaderJsObject($this->getPrefix().'_card');
 		?>
-		<script src="<?php echo $datapath; ?>/loader.js"></script>
-		<script>
-			var Loader = new Loader('<?php echo $card; ?>','#FFFFFF','Processing Transaction...','<?php echo $datapath; ?>/loader.gif');
-			Loader.print();
-		</script>
 		<form method="post" action="<?php echo $this->getURL(); ?>" onsubmit="Loader.show();">
 		<?php
 		$bodycopy->printBody();
 		echo '</form>';
 
 	}//end printBodycopy()
-
-
-	/**
-	* Return the bodycopy linked to this page
-	*
-	* @return object
-	* @access public
-	*/
-	function &getBodycopy()
-	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, '', 'major');
-		if (empty($link)) return NULL;
-		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-		return $bodycopy;
-
-	}//end getBodycopy()
 
 
 	/**
@@ -695,49 +638,6 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 
 
 	/**
-	 * Set error for the transaction so that the getProcessingErrorKeywordReplacement() method will return the error message
-	 *
-	 * @param string $err_message	the error message to set
-	 *
-	 * @return void
-	 * @access private
-	 */
-	private function _setError($err_message)
-	{
-		$this->_tmp['is_error'] = TRUE;
-		$this->_tmp['error_message'][] = $err_message;
-
-	}//end _setError()
-
-
-	/**
-	 * Check if the transaction has error
-	 *
-	 * @return boolean
-	 * @access public
-	 */
-	public function isError()
-	{
-		return array_get_index($this->_tmp, 'is_error', FALSE);
-
-	}//end isError()
-
-
-	/**
-	 * Clear all error message(s)
-	 *
-	 * @return void
-	 * @access public
-	 */
-	public function clearErrors()
-	{
-		$this->_tmp['error_message'] = Array();
-		$this->_tmp['is_error'] = FALSE;
-
-	}//end clearErrors()
-
-
-	/**
 	* Returns back to e-commerce form, which called gateway
 	*
 	* @param string	$state	state to return
@@ -766,26 +666,6 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 		}
 
 	}//end returnToCaller()
-
-
-	/**
-	 * Get the error message under HTML format
-	 *
-	 * @return string		the HTML error message
-	 * @access public
-	 */
-	public function getErrorMessage()
-	{
-		$err_message = '';
-		$errors = array_get_index($this->_tmp, 'error_message', Array());
-
-		foreach ($errors as $error) {
-			$err_message .= "<li>".htmlspecialchars($error)." </li>";
-		}
-
-		return '<ul>'.$err_message.'</ul>';
-
-	}//end getErrorMessage()
 
 
 	/**

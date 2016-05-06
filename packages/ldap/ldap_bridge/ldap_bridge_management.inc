@@ -159,6 +159,13 @@ class LDAP_Bridge_Management extends Asset_Management
 													'default'		=> '86400',
 													'description'	=> 'Cache expiry period in seconds',
 												   ),
+						'auth_filter_status'	=> Array (
+													'added'			=> '0.6',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'    => Array( 'allow_empty' => FALSE,),
+													'description'	=> 'Whether the Auth filter attribute is being used or not',
+												   ),
 					  );
 
 	}//end constructor
@@ -203,6 +210,32 @@ class LDAP_Bridge_Management extends Asset_Management
 
 			}//end foreach
 			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.3');
+
+		}//end version 0.3 upgrade
+
+		if (version_compare($current_version, '0.6', '<')) {
+			// version 0.5 -> 0.6
+			// we have added the auth_filter_status attribute
+			// if the system being upgraded has the value in the 
+			// auth_filter attribute then keep it and set auth_filter_status
+			// to 0 else just leave it enabled and blank out the auth_filtet value
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.6');
+			$ldap_bridges = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
+			pre_echo('Updating '.count($ldap_bridges).' asset(s)...');
+			foreach ($ldap_bridges as $assetid => $type_code) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code['type_code']);
+				if (is_null($asset)) continue;
+
+				if (trim($asset->attr('auth_filter')) !== '') {
+					$asset->setAttrValue('auth_filter_status', FALSE);
+					$asset->saveAttributes();
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+
+			}//end foreach
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
 
 		}//end version 0.3 upgrade
 		return TRUE;

@@ -44,6 +44,7 @@ include(dirname(__FILE__).'/header.php');
 		data["layout_type"] = owner.form_element_value(f.layout_type);
 		data["css_class"]   = owner.form_element_value(f.css_class);
 		data["content_type"] = owner.form_element_value(f.content_type);
+		data["template"] = owner.form_element_value(f.template);
 		owner.bodycopy_save_insert_div(data);
 	}
 
@@ -55,9 +56,15 @@ include(dirname(__FILE__).'/header.php');
 	$default_pres_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_PRESENTATION_TYPE');
 	$possible_types = Array(
 					'div'	=> translate('Block (div)'),
+					'section'	=> translate('Block (section)'),
+					'article'	=> translate('Block (article)'),
 					'span'	=> translate('Inline (span)'),
 					'none'	=> translate('Raw (no formatting)'),
 				  );
+	$available_templates = Array();
+	if(isset($_GET['assetid'])) {
+		$available_templates = $GLOBALS['SQ_SYSTEM']->am->getAvailableContainerTemplates($_GET['assetid']);
+	}
 ?>
 <h1 class="title">
 	<a href="#" onclick="javascript: popup_close(); return false;">
@@ -110,6 +117,25 @@ include(dirname(__FILE__).'/header.php');
 									}
 									?>
 										<option value="<?php echo $type_code; ?>" <?php echo $selected_text; ?>><?php echo str_replace(' Content Type', '', $data['name']); ?></option>
+									<?php
+								}
+							?>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</fieldset>
+		<fieldset class="last">
+			<table>
+				<tr>
+					<td class="bodycopy-popup-heading"><?php echo translate('Template'); ?>:</td>
+					<td>
+						<select name="template" id="template">
+							<option value="--"><?php echo translate('-- None --'); ?></option>
+							<?php
+								foreach ($available_templates as $index => $data) {
+									?>
+										<option value="<?php echo $data['assetid']; ?>" ><?php echo $data['name'].' (#'.$data['assetid'].')'; ?></option>
 									<?php
 								}
 							?>

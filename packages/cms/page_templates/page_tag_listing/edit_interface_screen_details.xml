@@ -69,7 +69,7 @@
 			<display_name>Assets Per Page</display_name>
 			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard or custom grouping list formats.
 			&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).</note>
-			<text width="5" />
+			<text width="30" />
 		</field>
 		<field attribute="first_page_only">
 			<display_name>First page only</display_name>
@@ -113,6 +113,16 @@
 			<display_name />
 			<note />
 			<parameter_map />
+		</field>
+		<field attribute="dynamic_root_option">
+			<display_name>If dynamic root not found</display_name>
+			<note />
+			<selection style="list" />
+		</field>
+		<field attribute="dynamic_asset_selection_option">
+			<display_name>If asset selection not specified</display_name>
+			<note />
+			<selection style="list" />
 		</field>
 	</section>
 	<section name="Button Text" write_access="write:attributes" limbo_access="1">

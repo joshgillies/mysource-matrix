@@ -31,13 +31,18 @@
         </field>
         <field attribute="note">
             <display_name>Note</display_name>
-            <note>This text will be displayed next to the question</note>
+            <note>This text will be displayed next to the question.</note>
             <text width="40" height="2" />
         </field>
         <field attribute="default">
             <display_name>Default Value</display_name>
             <note></note>
             <text width="40" height="2" />
+        </field>
+        <field attribute="placeholder">
+            <display_name>Placeholder</display_name>
+            <note>A short hint that describes the expected value of the input field.</note>
+            <text width="60" height="1" />
         </field>
         <field attribute="text_type">
             <display_name>Input Type</display_name>

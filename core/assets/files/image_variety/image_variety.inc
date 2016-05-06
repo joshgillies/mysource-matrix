@@ -70,8 +70,14 @@ class Image_Variety extends Asset
 		if(!isset($data['alt']) || (isset($data['alt']) && empty($data['alt']))) {
 		    $data['alt'] = $image->attr('alt');
 		}
-
-		$this->vars['alt']['value'] = $data['alt'];
+		// use image's caption attribute
+		if(!isset($data['caption']) || (isset($data['caption']) && empty($data['caption']))) {
+		    $data['caption'] = $image->attr('caption');
+		}
+		// use image's caption attribute
+		if(!isset($data['title']) || (isset($data['title']) && empty($data['title']))) {
+		    $data['title'] = $image->attr('title');
+		}
 
 		// if there is no varietyid then we haven't been created yet, so don't do anymore
 		if (!$this->_varietyid) return;
@@ -563,11 +569,13 @@ class Image_Variety extends Asset
 	/**
 	* Called to force an update of this assets lookup information
 	*
+	* @param boolean    $auto_add_remaps    Whether to add remaps for this asset
+	*
 	* @return boolean
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups()
+	function updateLookups($auto_add_remaps=TRUE)
 	{
 		// if we aren't meant to be having the public paths, let our parent run as normal
 		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
@@ -576,10 +584,10 @@ class Image_Variety extends Asset
 			$safe_edit = $this->status & SQ_SC_STATUS_SAFE_EDITING && $image->attr('allow_unrestricted') && $image->effectiveUnrestricted();
 		}
 
-		if (!$public && !$safe_edit) return parent::updateLookups();
-
+		if (!$public && !$safe_edit) return parent::updateLookups($auto_add_remaps);
+		
 		// if safe edit status, we still want to insert standard matrix urls
-		if($safe_edit) parent::updateLookups();
+		if ($safe_edit) parent::updateLookups($auto_add_remaps);
 
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -692,7 +700,7 @@ class Image_Variety extends Asset
 
 				MatrixDAL::executeQuery('core', 'insertLookup', $bind_vars);
 			} catch (DALException $e) {
-				throw new Exception('Unable to delete lookups of asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				throw new Exception('Unable to insert lookups of asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
 
 			// NOTE: we are not going to update the design's lookups because no
@@ -836,8 +844,8 @@ class Image_Variety extends Asset
 				$file = $info['source_file'];
 			}
 		} else {
-			$ext = get_file_type($image->name);
-			$filename = $this->name.'.'.$ext;
+			$filename = $this->attr('filename');
+			$ext = get_file_type($filename);
 			$file = $this->data_path.'/'.$filename;
 		}
 
@@ -858,7 +866,7 @@ class Image_Variety extends Asset
 			$using_ie6 = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.') !== FALSE;
 
 			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && basename($_SERVER['PHP_SELF']) != SQ_CONF_NOPROXYCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && basename($_SERVER['PHP_SELF']) != SQ_CONF_NOPROXYCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && empty($_POST) && $cm->sendCacheableHeaders($this->type(), $this->id)) {
 					$level = $cm->cacheControlLevel();
 					header('Cache-Control: '.$level);
 					header('Pragma: cache');
@@ -919,11 +927,12 @@ class Image_Variety extends Asset
 	* Get bodycopy keyword replacement
 	*
 	* @param string	$keyword	Keyword to find a replacement for
+	* @param string $additional_replacements    Additional keyword replacements for 'replace_keywords' modifier
 	*
 	* @return string
 	* @access public
 	*/
-	function getKeywordReplacement($keyword)
+	function getKeywordReplacement($keyword, $additional_replacements=Array())
 	{
 		$replacement = NULL;
 
@@ -980,146 +989,6 @@ class Image_Variety extends Asset
 		return $replacement;
 
 	}//end getKeywordReplacement()
-
-
-//--        PERMISSIONS/ACCESS (DEFERS TO IMAGE)        --//
-
-
-	/**
-	* Returns TRUE if at least one of the passed assetids has read access to this asset
-	*
-	* @param array	$assetids	An array of user_group and/or user ids to check for read access
-	*							If the array is empty, the current user will be checked
-	*
-	* @return boolean
-	* @access public
-	*/
-	function readAccess($assetids=Array())
-	{
-		if (!$this->id) return TRUE;
-
-		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return FALSE;
-
-		return $image->readAccess($assetids);
-
-	}//end readAccess()
-
-
-	/**
-	* Returns TRUE if at least one of the passed assetids has write access to this asset
-	*
-	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking
-	*							and status
-	* @param array	$assetids	An array of user_group and/or user ids to check for write access
-	*							If the array is empty, the current user will be checked
-	*
-	* @return boolean
-	* @access public
-	*/
-	function writeAccess($lock_type='', $assetids=Array())
-	{
-		if (!$this->id) return TRUE;
-
-		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return FALSE;
-
-		return $image->writeAccess($lock_type, $assetids);
-
-	}//end writeAccess()
-
-
-	/**
-	* Returns TRUE if at least one of the passed assetids has admin access to this asset
-	*
-	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking
-	*							and status
-	* @param array	$assetids	an array of user_group and/or user ids to check for write access
-	*							If the array is empty, the current user will be checked
-	*
-	* @return boolean
-	* @access public
-	*/
-	function adminAccess($lock_type='', $assetids=Array())
-	{
-		if (!$this->id) return TRUE;
-
-		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return FALSE;
-
-		return $image->adminAccess($lock_type, $assetids);
-
-	}//end adminAccess()
-
-
-	/**
-	* Returns TRUE if the current user can live edit this asset
-	* Live edit means the asset is currently SQ_STATUS_LIVE but this
-	* user can edit the asset without going through a safe edit
-	* NOTE: will return FALSE if asset is not currently live
-	*
-	* @param string	$lock_type	Type of lock to check
-	*
-	* @return boolean
-	* @access public
-	* @see canliveEdit()
-	*/
-	function liveEditAccess($lock_type)
-	{
-		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return FALSE;
-
-		return $image->liveEditAccess($lock_type);
-
-	}//end liveEditAccess()
-
-
-	/**
-	* Returns TRUE if at least one of the passed assetids has the passed permission
-	* Can perform effective access check based on current status, lock, workflow, and metadata
-	* NOTE: Only for write and above access
-	*
-	* @param int	$perm		the permission to check access for
-	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking
-	*							and status
-	* @param array	$assetids	An array of user_group and/or user ids to check for permission
-	*							If the array is empty, the current user will be checked
-	*
-	* @return boolean
-	* @access public
-	*/
-	function checkAccess($perm, $lock_type, $assetids=Array())
-	{
-		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return FALSE;
-
-		return $image->checkAccess($perm, $lock_type, $assetids);
-
-	}//end checkAccess()
-
-
-	/**
-	* Returns TRUE if at least one of the passed assetids has the passed permission
-	* Does not check current status of lock
-	*
-	* @param int	$perm		the permission to check access for
-	* @param array	$assetids	An array of user_group and/or user ids to check for permission
-	*							If the array is empty, the current user will be checked
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _checkPermissionAccess($perm, $assetids=Array())
-	{
-		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return FALSE;
-
-		return $image->_checkPermissionAccess($perm, $assetids);
-
-	}//end _checkPermissionAccess()
 
 
 	/**

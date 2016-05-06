@@ -238,19 +238,6 @@ class Ecommerce_Cart extends Listing_Engine
 
 
 	/**
-	* Gets the list of current root nodes
-	*
-	* @return array
-	* @access public
-	*/
-	function getRootNodes()
-	{
-		return Array();
-
-	}//end getRootNodes()
-
-
-	/**
 	* Constructs the carts contents
 	*
 	* @return void
@@ -286,12 +273,8 @@ class Ecommerce_Cart extends Listing_Engine
 			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 		}
 
-		foreach ($keywords as $word) {
-			$replacements[$word] = $this->getKeywordReplacement($word);
-		}
-
 		// get any extra keyword replacements from this asset
-		$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
+		$replacements = $this->getContentsKeywordReplacements($keywords);
 
 		if (!empty($this->_tmp['cart_updated'])) {
 			$replacements['cart_updated'] = $this->attr('cart_updated_text');
@@ -389,6 +372,26 @@ class Ecommerce_Cart extends Listing_Engine
 
 		$replacements['select_all_js_code'] = $this->getSelectAllJSCodeKeywordReplacement();
 
+		// Apply keyword modifiers on "format" keywords if applicable
+		foreach($keywords as $full_keyword) {
+			if (!isset($replacements[$full_keyword]) || $replacements[$full_keyword] == '%'.$full_keyword.'%') {
+				$modifiers = NULL;
+				$part_keyword = parse_keyword($full_keyword, $modifiers);
+				if ($part_keyword != $full_keyword && isset($replacements[$part_keyword]) && $replacements[$part_keyword] != '%'.$part_keyword.'%') {
+					$replacement = $replacements[$part_keyword];
+					apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id, 'replacements' => $replacements));
+					$replacements[$full_keyword] = $replacement;
+				}
+			}
+		}
+
+		// Replace any unreplaced asset level keywords
+		foreach ($keywords as $word) {
+			if (!isset($replacements[$word])) {
+				$replacements[$word] = $this->getKeywordReplacement($word);
+			}
+		}
+
 		// print the contents of page - replacing the global keywords
 		$format_bodycopy->setKeywordReplacements($replacements);
 
@@ -433,48 +436,6 @@ class Ecommerce_Cart extends Listing_Engine
 
 
 	/**
-	* Prints the individual asset in the asset list
-	* {description}
-	* This is being overridden to cache the results of each asset, and add
-	* the score and result number keyword replacements
-	*
-	* Note that the second parameter is score and not type code. This is because
-	* we send the search results which is (assetid => score) instead of
-	* (assetid => type_code). It still works - and allows us to add the score
-	* keyword easily - but we turn it into the correct format when sending to
-	* the listing engine.
-	*
-	* @param string	$assetid		The assetid of the asset we are printing
-	* @param string	$list_position	the position of this asset in the list
-	* @param array	$keywords		any keywords to replace when printing
-	*
-	* @return void
-	* @access protected
-	*/
-	function _printAsset($assetid, $list_position, $keywords=Array())
-	{
-		ob_start();
-		parent::_printAsset($assetid, $list_position, $keywords);
-		$element_contents = ob_get_contents();
-		ob_end_clean();
-
-		// summon the quantities
-		$cart =& $this->_getCart();
-		$cart_contents = $cart->getCart();
-
-		$element_replacements = Array(
-									'product_quantity'	=> $cart_contents[$assetid]['quantity'],
-								);
-		$sub_total = $cart_contents[$assetid]['quantity'] * $cart_contents[$assetid]['price'];
-		$element_replacements['product_total'] = sprintf("%.{$this->attr('float_precision')}f", $sub_total);
-		$element_contents = replace_keywords($element_contents, $element_replacements);
-
-		echo $element_contents;
-
-	}//end _printAsset()
-
-
-	/**
 	* Returns a list of extra keywords that should be replaced for a particular
 	* listing asset, in the format: Array(keyword name => replacement)
 	*
@@ -482,17 +443,24 @@ class Ecommerce_Cart extends Listing_Engine
 	* score fields so they don't blank out when keywords are replaced in listing
 	* engine.
 	*
+	* @param string $assetid    Asset ID of the asset being listed
+	*
 	* @return array
 	* @access public
 	*/
-	function getExtendedAssetKeywordReplacements()
+	function getExtendedAssetKeywordReplacements($assetid='')
 	{
-		// We are only replacing them with their own replacement so they can be
-		// cached out like this, then score and result number can be added later
-		return Array(
-				'product_quantity'	=> '%product_quantity%',
-				'product_total'		=> '%product_total%',
-			   );
+		$replacements = Array();
+
+		if ($assetid) {
+			$cart = $this->_getCart();
+			$cart_contents = $cart->getCart();
+
+			$replacements['product_quantity'] = $cart_contents[$assetid]['quantity'];
+			$replacements['product_total'] = sprintf("%.{$this->attr('float_precision')}f", $cart_contents[$assetid]['quantity'] * $cart_contents[$assetid]['price']);
+		}
+
+		return $replacements;
 
 	}//end getExtendedAssetKeywordReplacements()
 
@@ -516,14 +484,24 @@ class Ecommerce_Cart extends Listing_Engine
 		$add_items = $parameter_map->getParameterValue('add_item');
 		if (!empty($add_items)) {
 			foreach ($add_items as $assetid => $quantity) {
-				if (empty($assetid) || !strlen($quantity)) {
+				if (empty($assetid) || !strlen($quantity) || !$this->checkRootNodeRestriction($assetid)) {
+					continue;
+				}
+
+				// Make sure the item is not in trash exclusively
+				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($assetid, TRUE)) {
+					continue;
+				}
+
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				// Must have read access atleast on the item asset to able to add it the cart
+				if (!$asset->readAccess()) {
 					continue;
 				}
 
 				if (isset($cart_contents[$assetid]['quantity'])) {
 					// we updated the quantity for the product
 					$amount = $cart_contents[$assetid]['quantity'];
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if ($asset instanceof Donation) {
 						//if the asset is a Donation, remove the existing amount to use the update amount only. Do not confuse the users how much he has donated
 						$amount = 0;
@@ -918,6 +896,53 @@ class Ecommerce_Cart extends Listing_Engine
 		return 'post';
 
 	}//end _getFormSubmitMethod()
+
+
+	/**
+	* Gets the list of current root nodes
+	*
+	* @return array
+	* @access public
+	*/
+	function getRootNodes()
+	{
+		$root_asset_ids = Array();
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+		foreach ($root_links as $root_link) {
+			$root_asset_ids[] = $root_link['minorid'];
+		}
+
+		return $root_asset_ids;
+
+	}//end getRootNodes()
+
+
+	/**
+	* Check if the given asset is under the root node restriciton
+	*
+	* @param string  $assetid    The asset id of the asseet to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function checkRootNodeRestriction($assetid)
+	{
+		// This is the root node, will allow it
+		$root_nodes = $this->getRootNodes();
+
+		// If root nodes are not specified, then no restrction
+		if (empty($root_nodes)) {
+			return TRUE;
+		}
+
+		// If the asset is one of the root node(s), or the root folder (assetid #1)
+        if (in_array($assetid, $root_nodes) || in_array('1', $root_nodes)) {
+			return TRUE;
+		}
+
+	return $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($assetid, $root_nodes);
+
+	}//end checkRootNodeRestriction()
 
 
 }//end class

@@ -124,8 +124,8 @@ class Content_Type_Image_Prefs extends Prefs
         $have_lock = ($have_lock && $is_admin);
 
 		// Images for readonly mode on checkboxes
-		$tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
-		$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
+		$tick = '<img src="'.sq_web_path('lib').'/web/images/tick.png" alt="Yes" style="position: relative; right: 0px;"/>';
+		$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.png" alt="Yes" />';
 
 		$this->paintField($o, $have_lock, $pref, 'SQ_CONTENT_TYPE_IMAGE_DEFAULTS', function($value_defaults) use ($have_lock, $tick, $cross) {
             $boolean_options = Array(
@@ -260,18 +260,15 @@ class Content_Type_Image_Prefs extends Prefs
         });//end closure (SQ_CONTENT_TYPE_IMAGE_DEFAULTS)
 
 		$this->paintField($o, $have_lock, $pref, 'SQ_CONTENT_TYPE_IMAGE_FIELDS', function($fields) use ($have_lock, $tick, $cross) {
-            ?>
-			<table class="sq-backend-table" style="width: 200px;">
-				<?php
-				$option_names = Array(
-                    'caption_options'   => translate('Caption Options'),
-                    'caption_position'  => translate('Caption Position'),
-                    'dimension_options' => translate('Dimension Options'),
-                    'on_click'          => translate('On Click'),
-                    'html_layout'       => translate('HTML Layout'),
-                );
-            $tick = '<img src="'.sq_web_path('lib').'/web/images/tick.gif" alt="Yes" style="position: relative; right: 0px;"/>';
-            $cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="No" />';
+        	$option_names = Array(
+                'caption_options'   => translate('Caption Options'),
+                'caption_position'  => translate('Caption Position'),
+                'dimension_options' => translate('Dimension Options'),
+                'on_click'          => translate('On Click'),
+                'html_layout'       => translate('HTML Layout'),
+            );
+            $tick = '<img src="'.sq_web_path('lib').'/web/images/tick.png" alt="Yes" style="position: relative; right: 0px;"/>';
+            $cross = '<img src="'.sq_web_path('lib').'/web/images/cross.png" alt="No" />';
             ?>
             <table class="sq-backend-table" style="width: 350px">
                 <col width="80%" />

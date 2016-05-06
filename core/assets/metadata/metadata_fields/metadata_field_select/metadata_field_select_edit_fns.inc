@@ -88,7 +88,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		// If we're OK to edit, get our selection attribute, and paint it
 		if ($write_access) {
 
-			echo '<span class="sq-metadata-settings-wrapper">';
+			if($enable_default || $print_cascade_values_option) echo '<span class="sq-metadata-settings-wrapper">';
 				if ($enable_default) {
 					echo '<span class="sq-metadata-default-wrapper">';
 						// Work out which options we have to set if we have to
@@ -114,14 +114,15 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo '</span>';
 				}
 
-				if ($write_access && $print_cascade_values_option) {
+   				$allow_cascading = $asset->attr('allow_cascading');
+				if ($write_access && $print_cascade_values_option && $allow_cascading) {
 					echo '<span class="sq-metadata-cascade-wrapper">';
 						check_box($prefix.'_cascade_value', '1', FALSE);
 						label(translate('Cascade value'), $prefix.'_cascade_value');
 
 					echo '</span>';
 				}
-			echo '</span>';
+			if($enable_default || $print_cascade_values_option) echo '</span>';
 
 			$selection = $asset->getSelectionAttribute();
 			$selection->value = $value;
@@ -238,22 +239,27 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$select_options = unserialize($select_options[$asset->id]);
 		}
 
-		if (!empty($select_options)) {
-			?>
-			<table class="sq-backend-table">
+		?>
+		<table class="sq-backend-table<?php echo $write_access ? ' sq-sortable-table' : ''?>" id="<?php echo $prefix.'_table'; ?>">
+			<thead>
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('Option Key'); ?></td>
+					<th class="sq-backend-table-header"><?php echo translate('Option Key'); ?></th>
 
-					<td class="sq-backend-table-header"><?php echo translate('Option Value'); ?></td>
+					<th class="sq-backend-table-header"><?php echo translate('Option Value'); ?></th>
 
 					<?php
 					if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
-						?><td class="sq-backend-table-header"><?php echo translate('Delete?'); ?></td><?php
+						?><th class="sq-backend-table-header" style="width:80px; text-align:center;"><?php echo translate('Delete?'); ?></th><?php
 
 					}
 					?>
 				</tr>
+			</thead>
+			<tbody class="sq-metadata-select-options">
 				<?php
+				if (!is_array($select_options)) {
+					$select_options = Array();
+				}
 				$i = 0;
 				// Base this on the default values because then any new
 				// option not already in a modified context can be set to the
@@ -288,7 +294,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 						<?php
 						if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
 							?>
-							<td class="sq-backend-table-cell">
+							<td class="sq-backend-table-cell" style="text-align: center">
 								<?php check_box($prefix.'_options[del]['.$i.']', $option_key); ?>
 							</td>
 							<?php
@@ -298,27 +304,60 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					<?php
 					$i++;
 				}//end foreach select_options
+				if ($write_access && ($is_default_context === TRUE || $is_contextable === FALSE)) {
+					$i++;
 				?>
-			</table>
+					<tr>
+						<td class="sq-backend-table-cell"><?php text_box($prefix.'_options[key]['.$i.']'); ?></td>
+						<td class="sq-backend-table-cell" align="left"><?php text_box($prefix.'_options[val]['.$i.']'); ?></td>
+						<td class="sq-backend-table-cell"></td>
+					</tr>
+				<?php
+				}
+				?>
+			</tbody>
 			<?php
+			if ($write_access && ($is_default_context === TRUE || $is_contextable === FALSE)) {
+			?>
+			<tfoot>
+					<tr>
+						<td class="sq-backend-table-cell" colspan="3"><?php
+							normal_button($prefix.'_options_add_new', translate('Add Option'));
+						?>
+						</td>
+					</tr>
+			</tfoot>
+			<?php
+				}
+			?>
+		</table>
+		<script src="<?php echo sq_web_path('lib'); ?>/web/dfx/dfx.js"></script>
+		<script>
+			(function() {
+				dfxLoadedCallback = function() {
+					//for drag n drop sorting
+					dfx.tableSort('#<?php echo $prefix.'_table'  ?>', '.sq-sortable-table', 'all');
+					
+					// Click event for 'Add Option' button
+					var optionIndex = <?php echo $i; ?>;
+					var $addNewOptionButton = dfxjQuery('#<?php echo $prefix.'_options_add_new'; ?>');
+						$addNewOptionButton.click(function(event) {
+							optionIndex++;
+							var keyFieldId = '<?php echo $prefix; ?>_options[key]['+optionIndex+']';
+							var valueFieldId = '<?php echo $prefix; ?>_options[val]['+optionIndex+']';
+							var newOptionRowHtml = ''+
+								'<tr title="<?php echo translate('Drag to Reorder'); ?>">'+
+									'<td class="sq-backend-table-cell"><input type="text" class="sq-form-field" id="'+keyFieldId+'" name="'+keyFieldId+'"></td>'+
+									'<td class="sq-backend-table-cell"><input type="text" class="sq-form-field" id="'+valueFieldId+'" name="'+valueFieldId+'"></td>'+
+									'<td class="sq-backend-table-cell"></td>'+
+								'</tr>';
+							dfxjQuery('#<?php echo $prefix.'_table'; ?>.sq-sortable-table').find('tbody').append(newOptionRowHtml);
+					});
 
-		} else {
-			echo translate('There are currently no select box options');
-
-		}//end if empty
-
-		// now adding two fields for new entry (key => value)
-		if (($write_access === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
-			$o->openField(translate('New Option'));
-
-				echo '<b>'.translate('Key').'</b> ';
-
-				text_box($prefix.'_new_key','');
-				echo ' <b>'.translate('Value').'</b> ';
-
-				text_box($prefix.'_new_val','');
-			$o->closeField();
-		}
+				}//end dfxLoadedCallback()
+			})();
+		</script>
+		<?php
 
 		if (!empty($select_options)) {
 			// displaying default value if any values were actually saved in the array
@@ -363,29 +402,21 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (isset($_POST[$prefix.'_options'])) {
 			$option_changes = $_POST[$prefix.'_options'];
 			foreach ($option_changes['key'] as $i => $key) {
-				if (isset($option_changes['del'][$i])) continue;
-				$select_options[trim($key)] = trim($option_changes['val'][$i]);
-			}
-		}
-
-		// now get the new submitted values (if any) and add them to array
-		if (array_key_exists($prefix.'_new_key', $_POST) === TRUE) {
-			if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
-				$new_select_key  = trim($_POST[$prefix.'_new_key']);
-				$new_select_val  = trim($_POST[$prefix.'_new_val']);
-
-				if (strpos($new_select_key, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
-					$new_select_key = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_select_key);
+				$key = trim($key);
+				$value = trim($option_changes['val'][$i]);
+				if (!empty($key) && !isset($option_changes['del'][$i])) {
+					if (strpos($key, '%asset_metadata_') !== FALSE) {
+						trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
+						$key = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $key);
+					}
+					if (strpos($value, '%asset_metadata_') !== FALSE) {
+						trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
+						$value = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $value);
+					}
+					$select_options[$key] = $value;
 				}
-				if (strpos($new_select_val, '%asset_metadata_') !== FALSE) {
-					trigger_localised_error('SYS0344', translate('Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX'), E_USER_WARNING);
-					$new_select_val = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_select_val);
-				}
-
-				$select_options[$new_select_key] = $new_select_val;
-			}
-		}
+			}//end foreach
+		}//end if
 
 		// updating asset attribute value
 		$asset->setAttrValue('select_options', $select_options);
@@ -403,6 +434,20 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				$new_default = '';
 			}
 		}
+		
+		if (!$asset->attr('multiple') && !$asset->attr('allow_empty')) {
+			if(!empty($select_options)) {
+				reset($select_options);
+				if(!isset($_POST[$prefix.'_default'])){
+					$new_default = key($select_options); 
+				}else{
+					if(array_key_exists($_POST[$prefix.'_default'], $select_options) === FALSE) {
+						$new_default = key($select_options);
+					}
+				}
+			}
+		}
+
 		$asset->setAttrValue('default', $new_default);
 		if ($asset->saveAttributes() === TRUE) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -470,11 +515,12 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*											NULL means that there is no current value set
 	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param boolean        		$content_file   Whether the generated metadata will be included in a metadata content file
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Field_Select $asset, $value_str, &$tag_value, Array &$keywords)
+	public function generateMetadata(Metadata_Field_Select $asset, $value_str, &$tag_value, Array &$keywords, $content_file)
 	{
 		if (is_null($value_str)) {
 			$value_str = Metadata_Field::encodeValueString($asset->attr('default'), Array());
@@ -485,7 +531,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$value_str = $asset->getValueFromKey($value_str);
 		}
 
-		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
+		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords, $content_file);
 
 	}//end generateMetadata()
 

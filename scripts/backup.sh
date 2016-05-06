@@ -163,7 +163,7 @@ pg_dbdump()
 			print_error "Make sure 'pg_dump' is in your path."
 			print_error "The database has not been included in the backup."
 			print_verbose ""
-			exit
+			exit 1
 			return
 		fi
 

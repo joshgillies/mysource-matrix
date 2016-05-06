@@ -173,6 +173,74 @@ class Bodycopy_Div extends Bodycopy_Container
 	}//end getContentType()
 
 
+
+	/**
+	* Get replacements for keywords that are specific to this asset
+	* This function is mainly used when %__custom-content% keyword is used to render the custom container edit interface
+	*
+	* @param array	$keywords	the keywords to get replacements for
+	*
+	* @return array
+	* @access public
+	* @see Asset::getCustomKeywordReplacements()
+	*/
+	public function getCustomKeywordReplacements($keywords, $invoke_backend = FALSE)
+	{
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
+		if (!empty($link)) {
+			// if this keyword is evaluated from a bodycopy print, we need to use bodycopy's prefix
+			$prefix = isset($GLOBALS['SQ_CURRENT_BODYCOPY_PREFIX']) ? $GLOBALS['SQ_CURRENT_BODYCOPY_PREFIX'] : $this->getPrefix();
+			$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_prefix = $prefix.'_'.get_class_lower($content_type).'_'.$link['linkid'];
+			$content_type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(get_class_lower($content_type), 'name');
+			//Create a friendly name for the content type name
+			$content_type_name = preg_replace('/Type/', 'Container', $content_type_name);
+			$content_type_name = preg_replace('/Nest Content/', 'Nested', $content_type_name);
+		} else {
+			$content_type = NULL;
+			$content_prefix = '';
+			$content_type_name = '';
+		}
+		$content_edit = $content_type->getEditFns();
+
+		$replacements = Array();
+		foreach ($keywords as $keyword) {
+			switch ($keyword) {
+				case 'contents' :
+					if (!$invoke_backend) {
+						$o = $GLOBALS['SQ_SYSTEM']->backend->out ;
+					} else {
+						require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
+						$o = new Backend_Outputter();
+					}
+					ob_start();
+						if($this->writeAccess('content')) {
+							$content_edit->paintBackend($content_type, $content_prefix, $o, $this);
+						}
+						else {
+							echo '<div class="sq-locked-content-block-wrapper-inner">';
+							$content_edit->paint($content_type, TRUE, FALSE);
+							echo '</div>';
+						}
+						$replacements[$keyword] = ob_get_contents();
+					ob_end_clean();
+				break;
+
+				default:
+					$replacements[$keyword] = '';
+				break;
+			}//end switch
+		}//end foreach
+
+		return Array('replacements' => $replacements, 'print_commit_button' => FALSE);
+
+	}//end getCustomKeywordReplacements()
+
+
 }//end class
 
 ?>

@@ -220,8 +220,7 @@ class Page_Redirect extends Page
 				$this->_tmp['parent_already_called'] = TRUE;
 				parent::printFrontend();
 			}
-			flush();
-			echo $this->getJavascriptRedirectKeywordReplacement();
+			echo $this->getJavascriptRedirectKeywordReplacement(TRUE);
 		}
 
 		if ($this->attr('new_window')) {
@@ -254,7 +253,7 @@ class Page_Redirect extends Page
 
 		// not in a new window, just relocate them
 		} else {
-			if (!headers_sent()) header('Location: '.$url);
+			if (!$timeout && !headers_sent()) header('Location: '.$url);
 		}
 
 	}//end printFrontend()
@@ -426,10 +425,12 @@ class Page_Redirect extends Page
 	/**
 	* Get "%javascript_redirect% keyword replacement
 	*
+	* @param boolean $force_print 	If TRUE, always returns the js redirection code
+	*
 	* @return string
 	* @access public
 	*/
-	function getJavascriptRedirectKeywordReplacement()
+	function getJavascriptRedirectKeywordReplacement($force_print=FALSE)
 	{
 		static $fn_called = FALSE;
 
@@ -441,7 +442,7 @@ class Page_Redirect extends Page
 		if (empty($url)) return;
 
 		ob_start();
-			if (headers_sent()) {
+			if ($force_print || headers_sent()) {
 				?>
 				<script language="JavaScript" type="text/javascript">
 					setTimeout("self.location = '<?php echo addslashes($url); ?>'", <?php echo $timeout * 1000 ?>);

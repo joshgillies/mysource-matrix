@@ -93,13 +93,13 @@ class Form_Action_DB_Query extends Form_Action
 
 		<p class="sq-backend-section-subheading">Database Details</p>
 
-		<div id="<?php echo $prefix ?>_dsn_section" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_dsn_section">
 
 		<p><?php
 			radio_button($prefix.'_method_db', 'table', ($settings['method'] == 'table') ? TRUE : FALSE, 'updateDbMethod(this.form); return true;');
 		?><strong>Specify database details</strong></p>
 
-		<div id="<?php echo $prefix ?>_conn_details_div" style="padding-left: 30px">
+		<div id="<?php echo $prefix ?>_conn_details_div">
 
 		<?php
 		// Or use custom DB connection
@@ -108,9 +108,9 @@ class Form_Action_DB_Query extends Form_Action
 		$host     = array_get_index($settings, 'host', '');
 
 		?>
-		<table class="sq-backend-table" style="width:auto">
+		<table class="sq-backend-table" style="width:100%">
 			<tr>
-				<td><?php echo translate('Database Type');?></td>
+				<th width="150"><?php echo translate('Database Type');?></th>
 
 				<td>
 					<?php
@@ -120,7 +120,7 @@ class Form_Action_DB_Query extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('Database Name');?></td>
+				<th><?php echo translate('Database Name');?></th>
 
 				<td>
 					<?php
@@ -129,7 +129,7 @@ class Form_Action_DB_Query extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('Host Name');?></td>
+				<th><?php echo translate('Host Name');?></th>
 
 				<td>
 					<?php
@@ -146,12 +146,12 @@ class Form_Action_DB_Query extends Form_Action
 
 		<p><?php
 			radio_button($prefix.'_method_db', 'string', ($settings['method'] == 'string') ? TRUE : FALSE, 'updateDbMethod(this.form); return true;');
-		?><strong>Use a complete DSN</strong></p>
-			<div id="<?php echo $prefix ?>_conn_string_div" style="padding-left: 30px;">
-			<table class="sq-backend-table" style="width:auto">
+		?><strong><?php echo translate('Use a complete DSN');?></strong></p>
+			<div id="<?php echo $prefix ?>_conn_string_div">
+			<table class="sq-backend-table" style="display:block;">
 				<tr>
-					<td><p>Complete DSN</p></td>
-					<td><p><?php text_box($prefix.'_complete_dsn', ($settings['method'] == 'string') ? $settings['dsn'] : '', 70); ?></p></td>
+					<th><div style="width: 150px;"><?php echo translate('Complete DSN');?></div></th>
+					<td><?php text_box($prefix.'_complete_dsn', ($settings['method'] == 'string') ? $settings['dsn'] : '', 70); ?></td>
 				</tr>
 			</table>
 			</div>
@@ -160,15 +160,15 @@ class Form_Action_DB_Query extends Form_Action
 		// Or use DB Connector asset
 		?><p><?php
 			radio_button($prefix.'_method_db', 'connector', ($settings['method'] == 'connector') ? TRUE : FALSE, 'updateDbMethod(this.form); return true;');
-		?> <strong>Use the contents of a DB Connector asset</strong></p><?php
+		?> <strong><?php echo translate('Use the contents of a DB Connector asset');?></strong></p><?php
 
 		?>
-		<div id="<?php echo $prefix ?>_connector_div" style="padding-left: 30px;">
-			<table class="sq-backend-table" style="width:auto">
+		<div id="<?php echo $prefix ?>_connector_div" >
+			<table class="sq-backend-table">
 				<tr>
-					<td><p>DB Connector Asset</p></td>
-					<td><p><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('db_connector'=>'D')); ?><br/>
-					Note: If a DB Connector asset is used, the user name and password fields below will be ignored, and the settings from that asset used instead.</p></td>
+					<th width="150"><?php echo translate('DB Connector Asset');?></th>
+					<td><?php asset_finder($prefix.'_connector', $settings['connector_assetid'], Array('db_connector'=>'D')); ?><br/>
+					<?php echo translate('Note: If a DB Connector asset is used, the user name and password fields below will be ignored, and the settings from that asset used instead.');?></td>
 				</tr>
 			</table>
 		</div>
@@ -177,10 +177,10 @@ class Form_Action_DB_Query extends Form_Action
 
 		<p class="sq-backend-section-subheading">Login Details</p>
 
-		<div id="<?php echo $prefix ?>_login_section" style="padding: 0.5em 0px 2em 30px;">
-		<table style="width:auto">
+		<div id="<?php echo $prefix ?>_login_section" >
+		<table style="width:100%" class="sq-backend-table">
 			<tr>
-				<td><strong><?php echo translate('User Name');?></strong></td>
+				<th width="150"><strong><?php echo translate('User Name');?></strong></th>
 
 				<td>
 					<?php
@@ -189,7 +189,7 @@ class Form_Action_DB_Query extends Form_Action
 				</td>
 			</tr>
 			<tr>
-				<td><strong><?php echo translate('Password');?></strong></td>
+				<th><strong><?php echo translate('Password');?></strong></th>
 
 				<td>
 					<?php
@@ -203,7 +203,7 @@ class Form_Action_DB_Query extends Form_Action
 
 		<p class="sq-backend-section-subheading">SQL Query</p>
 
-		<div id="<?php echo $prefix ?>_query_section" style="padding: 0.5em 0px 2em 30px;"><?php
+		<div id="<?php echo $prefix ?>_query_section" ><?php
 
 		// Query field
 		text_area($prefix.'_sql', $settings['sql'], 100, 40, 0, 'style="width: 80%; height: 30em; font-family: \'Courier New\', Courier, monospace; display: block"');

@@ -156,7 +156,7 @@ function JsHttpConnectorThread()
 	{
 		var form = document.getElementById(formid);
 		if (null === form) {
-			this._handleTransmitError(js_translate('submission_form_not_found', formid));
+			this._handleTransmitError(js_translate('Could not find form with ID %s to submit', formid));
 			return;
 		}
 		var post = "";

@@ -122,6 +122,14 @@ class Data_Source_Xml extends Data_Source
 
 
 	/**
+	* Current tag path stored as stack of tags
+	*
+	* @var array
+	*/
+	protected $_current_tag_path = Array();
+
+
+	/**
 	* Constructor
 	*
 	* @param int    $assetid    the asset id to be loaded
@@ -153,6 +161,7 @@ class Data_Source_Xml extends Data_Source
 		$this->_record_set_index = 0;
 		$this->_new_teg = FALSE;
 		$this->_complex_elements = Array();
+		$this->_current_tag_path = Array();
 
 	}//end initialiseVars()
 
@@ -418,6 +427,9 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function startElement($parser, $name, $attributes=FALSE)
 	{
+		// Add the tag to the stack for tracking the current tag path
+		$this->_current_tag_path[] = $name;
+
 		// Increment the XML tree level tracker one level up
 		$this->_tree_level++;
 
@@ -435,8 +447,12 @@ class Data_Source_Xml extends Data_Source
 
 			if ($this->_inside_root_tag) {
 				$required_tags = $this->_getRequiredTags();
+				$tag_path = '/'.implode('/', $this->_current_tag_path);
 				for ($i=0; $i<count($required_tags); $i++) {
-					if ($name === $required_tags[$i]) {
+					// Match the required tags from the full current tags path in the XML document
+					// This will ensure we are fetching the record unambiguously from the correct level
+					$required_tag = '/'.trim($required_tags[$i], '/');
+					if (substr($tag_path, -strlen($required_tag)) == $required_tag) {
 						$this->_inside_relevant_tag = TRUE;
 						$this->_current_tag_name = $name;
 						$this->_new_tag = TRUE;
@@ -544,6 +560,9 @@ class Data_Source_Xml extends Data_Source
 		// Move the XML tree level tracker one level down on the closing of the element
 		$this->_tree_level--;
 
+		// Done with this tag. Remove the this tag from "current path" stack
+		array_pop($this->_current_tag_path);
+
 		$this->_inside_relevant_tag = FALSE;
 
 	}//end endElement()
@@ -557,7 +576,15 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function _getRequiredTags()
 	{
-		return unserialize(html_entity_decode($this->attr('tags')));
+		$required_tags = unserialize(html_entity_decode($this->attr('tags')));
+		// Sort the tags by length with longest tag name at top
+		if (count($required_tags) > 1) {
+			usort($required_tags, function($a, $b) {
+					return strlen($b) - strlen($a);
+				});
+		}
+
+		return $required_tags;
 
 	}//end _getRequiredTags()
 

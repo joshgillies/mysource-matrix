@@ -40,6 +40,46 @@ class Css_File_Folder_Management extends Asset_Management
 	}//end constructor
 
 
+	/**
+	* Return an array with information about the events that this File Folder is listening to
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'ContentsUpdated',
+					'broadcast_type_code'			=> 'css_file',
+					'broadcast_strict_type_code'	=> TRUE,
+					'options'						=> Array(
+														'side_of_link'	=> 'minor',
+														'indirect'		=> FALSE,
+														'is_exclusive'	=> NULL,
+														'is_dependant'	=> NULL,
+														'value'			=> 'linked_folder',
+														'link_type'		=> SQ_LINK_NOTICE,
+													),
+												),
+				Array(
+					'event_name'					=> 'ContentsUpdated',
+					'broadcast_type_code'			=> 'design_css',
+					'broadcast_strict_type_code'	=> TRUE,
+					'options'						=> Array(
+														'side_of_link'	=> 'minor',
+														'indirect'		=> FALSE,
+														'is_exclusive'	=> NULL,
+														'is_dependant'	=> NULL,
+														'value'			=> 'linked_folder',
+														'link_type'		=> SQ_LINK_NOTICE,
+													),
+												),
+				);
+
+    }//end getEventList()
+
+
 }//end class
 
 ?>
